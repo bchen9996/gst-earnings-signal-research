@@ -1,3 +1,5 @@
+> Version-controlled for backup as of 2026-07-23. See `Live Signal Engine/STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md` for current project status.
+
 Hello! We are Tyler He and Harshith Akurati, two high school students from St. Louis MO working with Saint Louis University professor Marcus Painter to answer a question: 
 
 When people suddenly search for a stock more on Google, do prices move in a consistent way?
