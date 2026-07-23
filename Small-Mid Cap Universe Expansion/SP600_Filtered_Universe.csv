@@ -1,0 +1,568 @@
+ticker,company,sector,ambiguous_symbol,has_options,n_expirations,market_cap
+AAMI,Acadian Asset Management Inc.,Financials,False,True,4,2949723949.1393127
+AAP,"Advance Auto Parts, Inc.",Consumer Discretionary,False,True,14,3207100688.0744934
+AAT,American Assets Trust,Real Estate,False,True,4,1566082791.4112701
+ABCB,Ameris Bancorp,Financials,False,True,4,6211770787.641663
+ABG,Asbury Automotive Group,Consumer Discretionary,False,True,4,4102838779.3640137
+ABM,"ABM Industries, Inc.",Industrials,False,True,8,2787280423.6048737
+ABR,Arbor Realty Trust,Financials,False,True,10,996430998.519011
+ACA,"Arcosa, Inc.",Industrials,False,True,5,7120978103.338242
+ACAD,Acadia Pharmaceuticals,Health Care,False,True,5,4383638337.3213005
+ACHC,Acadia Healthcare,Health Care,False,True,7,3172862431.5
+ACIW,ACI Worldwide,Information Technology,False,True,4,5903487338.875351
+ACLS,"Axcelis Technologies, Inc.",Information Technology,False,True,5,4192718172.464554
+ACMR,"ACM Research, Inc.",Information Technology,False,True,11,5799668022.49675
+ACT,"Enact Holdings, Inc.",Financials,False,True,4,6494226721.30415
+ADAM,"Adamas Trust, Inc.",Real Estate,False,True,4,806952708.7048492
+ADEA,"Adeia, Inc.",Information Technology,False,True,5,2799255257.057802
+ADMA,"ADMA Biologics, Inc.",Health Care,False,True,6,2018740356.4914274
+ADNT,Adient,Consumer Discretionary,False,True,5,1551801000.5196
+ADT,ADT Inc.,Consumer Discretionary,False,True,9,5132731023.0
+ADUS,Addus HomeCare Corp.,Health Care,False,True,4,2137490084.8635864
+AEO,American Eagle Outfitters,Consumer Discretionary,False,True,11,2853773976.0534763
+AESI,"Atlas Energy Solutions, Inc.",Energy,False,True,5,1757421528.7618408
+AGNT,"eXp World Holdings, Inc.",Real Estate,False,True,4,752603559.3830795
+AGO,Assured Guaranty Ltd.,Financials,False,True,5,3762238100.8981934
+AGX,"Argan, Inc.",Industrials,False,True,6,7728250238.126709
+AGYS,"Agilysys, Inc.",Information Technology,False,True,4,3004815990.315773
+AHCO,AdaptHealth Corp.,Health Care,False,True,5,1491153511.110054
+AIN,Albany International Corp.,Industrials,False,True,4,2113578967.979744
+AIR,AAR CORP.,Industrials,False,True,5,5381695885.498901
+AKR,Acadia Realty Trust,Real Estate,False,True,3,2998794864.6214066
+ALG,Alamo Group,Industrials,False,True,4,1976503864.366394
+ALGT,Allegiant Travel Company,Industrials,False,True,4,2711939791.0118103
+ALHC,"Alignment Healthcare, Inc.",Health Care,False,True,8,4258716832.662695
+ALKS,Alkermes plc,Health Care,False,True,7,8787148748.501678
+ALRM,"Alarm.Com, Inc.",Financials,False,True,4,2631303053.33543
+AMN,"Amn Healthcare Services, Inc.",Health Care,False,True,5,1357511820.0
+AMPH,"Amphstar Pharmaceuticals, Inc.",Health Care,False,True,4,870614722.6592503
+AMR,"Alpha Metallurgical Resources, Inc.",Materials,False,True,4,1828362970.0019531
+AMRX,Amneal Pharmaceuticals,Health Care,False,True,4,5700064647.915241
+AMSF,"Amerisafe, Inc.",Financials,False,True,4,634057865.4396896
+AMTM,Amentum,Industrials,False,True,5,5047788388.410461
+ANDE,"The Andersons, Inc.",Consumer Staples,False,True,4,2698443324.692688
+ANIP,"ANI Pharmaceuticals, Inc.",Health Care,False,True,4,1800581676.219452
+AORT,Artivion,Health Care,False,True,4,1216496325.0750542
+AOSL,"Alpha and Omega Semiconductor, Ltd.",Information Technology,False,True,4,935897917.7606735
+APAM,"Artisan Partners Asset Management, Inc.",Financials,False,True,4,2733950207.9101753
+APLE,"Apple Hospitality REIT, Inc.",Real Estate,False,True,4,3975377645.38105
+APOG,"Apogee Enterprises, Inc.",Industrials,False,True,4,856226077.3460083
+ARCB,ArcBest Corp.,Industrials,False,True,4,3557974627.4450684
+ARLO,Arlo Technologies,Information Technology,False,True,4,1445596709.844493
+AROC,"Archrock, Inc.",Energy,False,True,5,6509215568.468811
+ARR,Armour Residential REIT,Real Estate,False,True,5,2060406062.4717407
+ASO,Academy Sports + Outdoors,Consumer Discretionary,False,True,10,3001068934.8369904
+ASTE,"Astec Industries, Inc.",Industrials,False,True,4,1266663990.208397
+ASTH,"Astrana Health, Inc.",Health Care,False,True,4,2228278736.8275375
+ATEN,"A10 Networks, Inc.",Information Technology,False,True,5,2589054307.083702
+ATMU,Atmus Filtration Technologies Inc.,Industrials,False,True,4,4194695951.928894
+AUB,"Atlantic Union Bankshares, Corp.",Financials,False,True,4,6103883629.177185
+AVA,Avista Corporation,Utilities,False,True,4,3454286310.9518814
+AVNS,"Avanos Medical, Inc.",Health Care,False,True,4,1169789933.3521576
+AWI,"Armstrong World Industries, Inc.",Industrials,False,True,4,6656617947.048187
+AWR,American States Water Company,Utilities,False,True,4,3499120011.997406
+AZTA,"Azenta, Inc.",Health Care,False,True,7,1211779859.3592224
+AZZ,"AZZ, Inc.",Industrials,False,True,5,4423881663.9717865
+BANC,"Banc Of California, Inc.",Financials,False,True,5,3270626569.5037537
+BANF,Bancfirst Corp,Financials,False,True,4,3900722965.680496
+BANR,Banner Corporation,Financials,False,True,4,2415647393.948227
+BBT,Beacon Financial Corp.,Financials,False,True,4,2577344644.5
+BCC,Boise Cascade,Industrials,False,True,4,2716295807.7524414
+BCPC,Balchem Corporation,Materials,False,True,4,5248408906.704956
+BFAM,Bright Horizons Family Solutions Inc.,Consumer Discretionary,False,True,4,4028619267.825699
+BFH,"Bread Financial Holdings, Inc.",Financials,False,True,5,4012825526.499939
+BFS,"Saul Centers, Inc.",Real Estate,False,True,4,899235055.0385742
+BGC,"BGC Group, Inc.",Financials,False,True,5,5413340089.472802
+BHE,"Benchmark Electronics, Inc.",Information Technology,False,True,6,2814553364.711975
+BJRI,"BJ's Restaurants, Inc.",Consumer Discretionary,False,True,4,1418432155.8630066
+BKE,"The Buckle, Inc.",Consumer Discretionary,False,True,4,2187973175.3082886
+BKU,"BankUnited, Inc.",Financials,False,True,6,3551228590.4013977
+BLFS,"BioLife Solutions, Inc.",Health Care,False,True,4,1424193628.6123753
+BLKB,Blackbaud,Information Technology,False,True,4,1488200304.4868317
+BMI,"Badger Meter, Inc.",Information Technology,False,True,4,4362658878.905792
+BNL,"Broadstone Net Lease, Inc.",Real Estate,False,True,4,4372277307.693729
+BOH,Bank of Hawaii,Financials,False,True,4,3401464248.993126
+BOOT,"Boot Barn Holdings, Inc.",Consumer Discretionary,False,True,4,4627079245.355255
+BOX,"Box, Inc.",Information Technology,False,True,6,4222474620.904793
+BRC,Brady Corporation,Industrials,False,True,4,4413997410.12146
+BTSG,"BrightSpring Health Services, Inc.",Health Care,False,True,10,13873507623.426514
+BTU,"Peabody Energy, Inc.",Energy,False,True,13,2733955675.826391
+BXMT,"Blackstone Mortgage Trust, Inc.",Financials,False,True,4,2881114508.7304688
+CACC,Credit Acceptance,Financials,False,True,5,6694445440.0
+CAG,Conagra Brands,Consumer Staples,False,True,11,6833917239.969187
+CAKE,"The Cheesecake Factory, Inc.",Consumer Discretionary,False,True,5,4261513417.719536
+CALM,"Cal-Maine Foods, Inc.",Consumer Staples,False,True,6,4195197100.5318756
+CALX,Calix,Information Technology,False,True,8,2496439143.930374
+CALY,Callaway Golf Company,Consumer Discretionary,False,True,6,3483701420.0814495
+CARG,CarGurus,Communication Services,False,True,4,3156548430.0
+CASH,"Pathward Financial, Inc.",Financials,False,True,4,1894836696.9358978
+CATY,Cathay General Bancorp,Financials,False,True,4,4203794575.8771896
+CBRL,Cracker Barrel,Consumer Discretionary,False,True,7,1198261784.2422485
+CBU,"Community Bank System, Inc.",Financials,False,True,4,3618406781.4575424
+CCOI,"Cogent Communications Holdings, Inc.",Communication Services,False,True,7,549351976.4821787
+CCS,"Century Communities, Inc.",Consumer Discretionary,False,True,4,1885252587.0612183
+CENT,Central Garden & Pet Company,Consumer Staples,False,True,4,2728711710.3801727
+CENTA,Central Garden & Pet Company (Class A),Consumer Staples,False,True,3,2395835185.195259
+CENX,Century Aluminum Company,Materials,False,True,8,4107422950.5
+CERT,"Certara, Inc.",Health Care,False,True,4,1078062706.7355652
+CFFN,Capitol Federal Savings Bank,Financials,False,True,4,1072265197.6843834
+CHCO,City Holding Company,Financials,False,True,4,1915731818.64505
+CHEF,"Chefs' Warehouse, Inc.",Consumer Staples,False,True,4,3958896074.1319656
+CLSK,"CleanSpark, Inc.",Information Technology,False,True,12,3343610067.6581097
+CNK,"Cinemark Holdings, Inc.",Communication Services,False,True,7,3552683637.690199
+CNMD,CONMED Corporation,Health Care,False,True,4,1300717203.771492
+CNR,"Core Natural Resources, Inc.",Energy,False,True,4,4184839612.9850006
+CNS,"Cohen & Steers, Inc.",Financials,False,True,4,4351484710.988731
+CNXC,Concentrix,Industrials,False,True,5,1490678309.1213226
+CNXN,"PC Connection, Inc.",Information Technology,False,True,5,1992100962.3835144
+COCO,The Vita Coco Company,Consumer Staples,False,True,5,4179503232.1693954
+COHU,"Cohu, Inc.",Information Technology,False,True,5,2414905948.14452
+COLL,"Collegium Pharmaceutical, Inc.",Health Care,False,True,4,1170210805.708023
+CON,"Concentra Group Holdings Parent, Inc.",Health Care,False,True,5,4044871943.9016724
+CORT,Corcept Therapeutics Incorporated,Health Care,False,True,6,9717465928.507828
+COTY,Coty,Consumer Staples,False,True,6,2298017310.815395
+CPB,The Campbell's Company,Consumer Staples,False,True,15,6584393822.688669
+CPF,Central Pacific Financial Corp.,Financials,False,True,4,1020297045.5927315
+CPK,Chesapeake Utilities Corp.,Utilities,False,True,4,3199594432.525223
+CPRX,"Catalyst Pharmaceuticals Partners, Inc.",Health Care,False,True,4,3854925752.4199996
+CRC,California Resources Corporation,Energy,False,True,8,4691034782.41832
+CRGY,Crescent Energy Company,Energy,False,True,8,3550205001.0
+CRI,"Carter's, Inc.",Consumer Discretionary,False,True,4,1403989401.4711838
+CRK,"Comstock Resources, Inc.",Energy,False,True,7,3917902443.6944275
+CRSR,Corsair Gaming,Information Technology,False,True,4,1042101557.25
+CRVL,CorVel Corporation,Health Care,False,True,3,3147258979.2168236
+CSR,Centerspace Trust,Real Estate,False,True,4,937951716.2320862
+CSW,"CSW Industrials, Inc.",Industrials,False,True,4,4557541838.118805
+CTS,CTS Corporation,Information Technology,False,True,4,1698418897.6293182
+CUBI,"Customers Bancorp, Inc.",Financials,False,True,4,2648842558.6992188
+CURB,Curbline Properties Corp.,Real Estate,False,True,4,3608151113.1169434
+CVBF,CVB Financial Corp.,Financials,False,True,4,4026707518.8701477
+CVCO,"Cavco Industries, Inc.",Consumer Discretionary,False,True,5,4364157977.013428
+CVI,"CVR Energy, Inc.",Energy,False,True,5,3531640050.2482643
+CVSA,Covista Inc.,Consumer Discretionary,False,True,5,4015644666.0
+CWEN,"Clearway Energy, Inc. (Class C)",Utilities,False,True,6,5204672520.209572
+CWK,Cushman & Wakefield plc,Real Estate,False,True,4,3200544862.54858
+CWST,"Casella Waste Systems, Inc.",Industrials,False,True,4,6087471159.577866
+CWT,California Water Service Group,Utilities,False,True,4,3105187296.490181
+CXM,"Sprinklr, Inc.",Information Technology,False,True,6,1365553664.5897636
+CXW,CoreCivic,Industrials,False,True,7,3030931261.277046
+CZR,Caesars Entertainment,Consumer Discretionary,False,True,17,6082290303.684692
+DAN,Dana Incorporated,Consumer Discretionary,False,True,8,2857184001.1089115
+DAVE,"Dave, Inc.",Financials,False,True,14,5599608834.4635315
+DBD,Diebold Nixdorf,Information Technology,False,True,5,2966614279.2335205
+DCH,Dauch Corporation,Consumer Discretionary,False,True,6,1291275035.6622334
+DCOM,"Dime Community Bancshares, Inc.",Financials,False,True,4,1778655943.657631
+DEA,"Easterly Government Properties, Inc.",Real Estate,False,True,4,1187245974.633358
+DEI,Douglas Emmett,Real Estate,False,True,4,2095240728.5043354
+DFH,"Dream Finders Homes, Inc.",Consumer Discretionary,False,True,4,1449921256.8471985
+DFIN,"Donnelley Financial Solutions, Inc.",Financials,False,True,4,1247869650.3100395
+DGII,Digi International Inc.,Information Technology,False,True,4,2409924491.045212
+DIOD,Diodes Incorporated,Information Technology,False,True,4,3998110598.446579
+DLX,Deluxe Corporation,Industrials,False,True,4,1192674754.1195335
+DNOW,NOW Inc,Industrials,False,True,4,2542865612.8286133
+DORM,"Dorman Products, Inc.",Consumer Discretionary,False,True,4,4242459590.808014
+DRH,DiamondRock Hospitality Company,Real Estate,False,True,4,2566356956.053485
+DXC,DXC Technology,Information Technology,False,True,6,1534900133.8900995
+DXPE,"DXP Enterprises, Inc.",Industrials,False,True,4,2604582243.51416
+EAT,"Brinker International, Inc.",Consumer Discretionary,False,True,7,8120803298.266296
+EBC,"Eastern Bankshares, Inc.",Financials,False,True,4,4944539793.0
+ECG,"Everus Construction Group, Inc.",Industrials,False,True,4,6800272949.306732
+ECPG,"Encore Capital Group, Inc.",Financials,False,True,4,1958152867.218567
+EFC,"Ellington Financial, Inc.",Financials,False,True,5,1696575699.23629
+EFOR,Everforth Inc.,Information Technology,False,True,4,767929981.2316895
+EGBN,Eagle Bancorp Inc,Financials,False,True,4,835274903.6269531
+EIG,"Employers Holdings, Inc.",Financials,False,True,2,917983779.1527023
+EMN,Eastman Chemical Company,Materials,False,True,6,7844407081.515808
+ENOV,Enovis,Health Care,False,True,5,1558219645.6432877
+ENPH,Enphase Energy,Information Technology,False,True,16,5478851965.178375
+ENR,Energizer,Consumer Staples,False,True,5,1385218570.205326
+ENVA,"Enova International, Inc.",Financials,False,True,7,5786236124.239746
+EPAC,Enerpac Tool Group,Industrials,False,True,4,1769873959.2719421
+EPAM,EPAM Systems,Information Technology,False,True,5,4631993216.984894
+EPC,Edgewell Personal Care,Consumer Staples,False,True,4,1366772122.1285477
+EPRT,"Essential Properties Realty Trust, Inc.",Real Estate,False,True,4,7207478076.10817
+ESE,ESCO Technologies Inc.,Industrials,False,True,4,8251952140.815308
+ESI,Element Solutions,Materials,False,True,5,9113859389.835434
+ETSY,Etsy,Consumer Discretionary,False,True,15,7980772882.299843
+EVTC,"EVERTEC, Inc.",Financials,False,True,4,1865247841.087555
+EXTR,"Extreme Networks, Inc.",Information Technology,False,True,5,3967807209.8751526
+EYE,National Vision Holdings,Consumer Discretionary,False,True,4,1660818428.7755013
+EZPW,"EZCORP, Inc.",Financials,False,True,4,1974689543.409645
+FBK,FB Financial Corp.,Financials,False,True,4,2996606184.0449142
+FBNC,First Bancorp (Southern Pines NC),Financials,False,True,4,2665817872.216774
+FBP,First BanCorp (Puerto Rico),Financials,False,True,3,4244538701.4903564
+FBRT,"Franklin BSP Realty Trust, Inc.",Real Estate,False,True,4,628018141.6963768
+FCF,"First Commonwealth Financial, Corp.",Financials,False,True,3,2147575774.9369907
+FCPT,"Four Corners Property Trust, Inc.",Real Estate,False,True,4,2889696348.636801
+DMC,Del Monte Corporation,Consumer Staples,False,True,4,1395421938.3401928
+FELE,Franklin Electric,Industrials,False,True,3,4668294794.920166
+FFBC,First Financial Bancorp,Financials,False,True,4,3748077367.3676147
+FHB,"First Hawaiian, Inc.",Financials,False,True,3,3563897444.607933
+FIBK,"First Interstate BancSystem, Inc.",Financials,False,True,4,3806058028.865654
+FIZZ,National Beverage Corp.,Consumer Staples,False,True,4,2908527980.5718536
+FLO,Flowers Foods,Consumer Staples,False,True,4,1799822474.1786003
+FMC,FMC Corporation,Materials,False,True,5,1403790885.797018
+FORM,"FormFactor, Inc.",Information Technology,False,True,5,8229685256.250092
+FOXF,Fox Factory,Consumer Discretionary,False,True,4,797625268.8568382
+FRPT,Freshpet,Consumer Staples,False,True,8,2783447652.2456207
+FSS,Federal Signal Corporation,Industrials,False,True,4,7114692949.7323
+FTDR,"Frontdoor, Inc.",Consumer Discretionary,False,True,4,5316081417.651978
+FTRE,Fortrea,Health Care,False,True,4,1679824826.4487267
+FUL,H.B. Fuller Company,Materials,False,True,4,3063730881.3161545
+FULT,Fulton Financial Corporation,Financials,False,True,5,4738201771.928024
+FUN,Six Flags,Consumer Discretionary,False,True,7,1791635173.4378777
+GBX,"The Greenbrier Companies, Inc.",Industrials,False,True,4,1547603107.8830643
+GEO,"GEO Group, Inc.",Industrials,False,True,7,3936394524.3088074
+GFF,Griffon Corporation,Industrials,False,True,5,4195420793.55954
+GIII,"G-III Apparel Group, Ltd.",Consumer Discretionary,False,True,4,1494390018.4067535
+GKOS,Glaukos Corp.,Health Care,False,True,6,9211239369.675003
+GNL,"Global Net Lease, Inc.",Real Estate,False,True,5,1954693531.6546688
+GNW,"Genworth Financial, Inc.",Financials,False,True,6,3864563451.4825745
+GOLF,Acushnet Company,Consumer Discretionary,False,True,4,6720834131.8628845
+GPI,"Group 1 Automotive, Inc.",Consumer Discretionary,False,True,5,3879524780.5316772
+GPOR,Gulfport Energy Corporation,Energy,False,True,5,2747737871.116791
+GRBK,"Green Brick Partners, Inc.",Consumer Discretionary,False,True,4,3138766158.0
+GSHD,"Goosehead Insurance, Inc.",Financials,False,True,4,1284843667.3051453
+GTES,Gates Corporation,Industrials,False,True,6,6758938239.109253
+GTM,ZoomInfo,Communication Services,False,True,10,904784344.7054486
+GTY,Getty Realty Corp.,Real Estate,False,True,4,2191912473.75
+GVA,"Granite Construction, Inc.",Industrials,False,True,5,5425903023.568268
+HAFC,Hanmi Financial Corporation,Financials,False,True,4,971278805.8439827
+HASI,"Hannon Armstrong Sustainable Infrastructure Capital, Inc.",Financials,False,True,5,4910116721.709259
+HAYW,"Hayward Holdings, Inc.",Industrials,False,True,4,3115588490.631668
+HCC,"Warrior Met Coal, Inc.",Materials,False,True,5,4166603172.6065674
+HCI,"HCI Group, Inc.",Financials,False,True,4,2271752895.342041
+HCSG,"Healthcare Services Group, Inc.",Industrials,False,True,4,1737410279.0595016
+HFWA,Heritage Financial Corporation,Health Care,False,True,4,1257998313.708477
+HIW,Highwoods Properties,Real Estate,False,True,4,3674286230.3874435
+HLIT,Harmonic Inc.,Information Technology,False,True,4,1305212096.108326
+HLX,"Helix Energy Solutions Group, Inc.",Energy,False,True,4,1411923831.0156116
+HMN,Horace Mann Educators Corporation,Financials,False,True,4,2124453483.5667114
+HNI,HNI Corporation,Industrials,False,True,4,3004264017.884262
+HOPE,"Hope Bancorp, Inc.",Financials,False,True,4,1756506223.1600018
+HRMY,"Harmony Biosciences Holdings, Inc.",Health Care,False,True,5,1955035695.021164
+HSTM,"HealthStream, Inc.",Health Care,False,True,3,832048540.8663483
+HTH,Hilltop Holdings Inc.,Financials,False,True,4,2263948037.8219986
+HTLD,"Heartland Express, Inc.",Industrials,False,True,4,1192566448.0439758
+HTO,H2O America,Utilities,False,True,4,2737607373.97863
+HTZ,Hertz,Industrials,False,True,16,568376126.3431742
+HUBG,"Hub Group, Inc.",Industrials,False,True,4,3132282856.850281
+HWKN,"Hawkins, Inc.",Materials,False,True,4,3019093300.5615234
+HZO,"MarineMax, Inc.",Consumer Discretionary,False,True,4,760411886.1636887
+IART,Integra Lifesciences Holdings,Health Care,False,True,4,1497590382.75
+IBP,"Installed Building Products, Inc.",Consumer Discretionary,False,True,4,6159993177.066956
+ICHR,"Ichor Holdings, Ltd.",Information Technology,False,True,5,2889432777.8752213
+ICUI,ICU Medical,Health Care,False,True,4,3936739436.056137
+IIPR,"Innovative Industrial Properties, Inc.",Real Estate,False,True,6,1869331023.534729
+INDB,Independent Bank Corp.,Financials,False,True,4,4077590954.6026993
+INDV,Indivior,Health Care,False,True,8,4792013984.11953
+INSP,"Inspire Medical Systems, Inc.",Health Care,False,True,8,1457945497.8346176
+INSW,"International Seaways, Inc.",Energy,False,True,4,4295027530.71344
+INVA,"Innoviva, Inc.",Health Care,False,True,4,1602387873.216072
+INVX,"Innovex International, Inc.",Energy,False,True,4,1799969676.3618565
+IOSP,"Innospec, Inc.",Materials,False,True,4,2075165709.75
+IPAR,"Inter Parfums, Inc.",Consumer Staples,False,True,4,3946537100.13842
+IRDM,Iridium Communications,Communication Services,False,True,7,4946038809.295288
+ITGR,Integer Holdings Corporation,Health Care,False,True,5,3239970675.206833
+ITRI,"Itron, Inc.",Information Technology,False,True,5,3812740353.810936
+IVT,InvenTrust Properties,Real Estate,False,True,4,2862583991.933796
+JBGS,JBG Smith,Real Estate,False,True,4,866847724.2668581
+JBLU,JetBlue,Industrials,False,True,14,2016342433.8627892
+JBSS,"John B. Sanfilippo & Son, Inc.",Consumer Staples,False,True,4,928970539.5195007
+JBTM,JBT Marel Corporation,Industrials,False,True,6,6977086808.0
+JJSF,J&J Snack Foods Corp.,Consumer Staples,False,True,4,1438011944.6030884
+JOE,St. Joe Company,Real Estate,False,True,4,3476160076.49984
+JXN,"Jackson Financial, Inc.",Financials,False,True,5,8763918704.046875
+KAI,Kadant Inc.,Industrials,False,True,4,3672549881.9370117
+KALU,Kaiser Aluminum Corporation,Materials,False,True,5,2578220794.732971
+OPLN,"OPENLANE, Inc.",Industrials,False,True,4,4180633245.763443
+KFY,Korn/Ferry International,Industrials,False,True,4,3997868801.0406494
+KGS,"Kodiak Gas Services, Inc.",Energy,False,True,5,6578904250.044067
+KLIC,"Kulicke and Soffa Industries, Inc.",Information Technology,False,True,5,5087802365.8229065
+KMPR,Kemper Corporation,Financials,False,True,4,1649656007.5904846
+KMT,Kennametal,Industrials,False,True,5,2571329003.1361275
+KMX,"CarMax, Inc.",Consumer Discretionary,False,True,7,8135763393.526978
+KNTK,"Kinetik Holdings, Inc.",Energy,False,True,4,3700725263.673401
+KOP,"Koppers Holdings, Inc.",Materials,False,True,4,945051917.901825
+KRYS,"Krystal Biotech, Inc.",Health Care,False,True,6,10461185782.327637
+KSS,Kohl's Corp.,Consumer Discretionary,False,True,15,1961819792.3826714
+KTB,Kontoor Brands,Consumer Discretionary,False,True,4,4729655742.762215
+KWR,Quaker Chemical Corporation,Materials,False,True,5,2615560141.439636
+LAUR,"Laureate Education, Inc.",Consumer Discretionary,False,True,4,5102208740.844959
+LAZ,Lazard,Financials,False,True,5,4248570469.5796013
+LBRT,"Liberty Energy, Inc.",Energy,False,True,6,3890483382.341034
+LCII,LCI Industries,Consumer Discretionary,False,True,4,2629775667.674301
+LEG,Leggett & Platt,Consumer Discretionary,False,True,4,1506270881.934204
+LFST,Lifestance Health,Health Care,False,True,5,4421642693.428345
+LGIH,LGI Homes,Consumer Discretionary,False,True,5,1358623665.2851067
+LIF,Life360,Information Technology,False,True,5,4358694733.076729
+LGND,"Ligand Pharmaceuticals, Inc.",Health Care,False,True,8,6080257790.3602295
+LKFN,Lakeland Financial,Financials,False,True,4,1561583578.083023
+LKQ,LKQ Corporation,Consumer Discretionary,False,True,7,6466591178.471022
+LMAT,LeMaitre Vascular,Health Care,False,True,4,2322320541.808571
+LNC,Lincoln Financial,Financials,False,True,10,8076845762.225002
+LNN,Lindsay Corporation,Materials,False,True,4,1174912982.2098923
+LPG,Dorian LPG Ltd.,Energy,False,True,4,1755373349.2050476
+LQDA,Liquidia Corporation,Health Care,False,True,12,7108912451.169617
+LQDT,"Liquidity Services, Inc.",Industrials,False,True,4,1232282263.3936348
+LRN,"Stride, Inc.",Consumer Discretionary,False,True,7,3713269015.8224487
+LTC,"LTC Properties, Inc.",Real Estate,False,True,4,2136825788.0
+LTH,"Life Time Group Holdings, Inc.",Consumer Discretionary,False,True,4,9382705746.364822
+LUMN,Lumen Technologies,Communication Services,False,True,12,6470353735.767865
+LXP,Lexington Realty Trust,Real Estate,False,True,4,3449311378.170166
+LYFT,"Lyft, Inc.",Industrials,False,True,17,5892673070.44487
+LZB,"La-Z-Boy, Inc.",Consumer Discretionary,False,True,4,1595246780.3534203
+MAC,Macerich,Real Estate,False,True,4,7712739022.701979
+MAN,ManpowerGroup,Industrials,False,True,5,2434194287.376457
+MARA,"MARA Holdings, Inc.",Information Technology,False,True,16,4075781517.08253
+MATW,Matthews International Corporation,Consumer Discretionary,False,True,6,856818918.9133148
+MATX,"Matson, Inc.",Industrials,False,True,6,6723895550.92511
+MBC,"MasterBrand, Inc.",Industrials,False,True,5,1109626405.0644493
+MBIN,Merchants Bancorp,Financials,False,True,4,2283449089.624878
+MCRI,"Monarch Casino & Resort, Inc.",Consumer Discretionary,False,True,4,2183722931.8131104
+MCY,Mercury General,Financials,False,True,4,5885041618.75
+MDU,"MDU Resources Group, Inc.",Utilities,False,True,4,4418387219.792847
+MGEE,"MGE Energy, Inc.",Utilities,False,True,3,3059355642.2432404
+MGY,"Magnolia Oil & Gas, Corp.",Energy,False,True,4,5041680041.671217
+MHK,Mohawk Industries,Consumer Discretionary,False,True,4,6796275667.5
+MHO,"M/I Homes, Inc.",Consumer Discretionary,False,True,4,3853045644.845276
+MIR,"Mirion Technologies, Inc.",Information Technology,False,True,6,3907151881.790125
+MKTX,MarketAxess,Financials,False,True,5,4044389859.8578033
+MLKN,"MillerKnoll, Inc.",Industrials,False,True,4,1491936631.3736877
+MMI,"Marcus & Millichap, Inc.",Real Estate,False,True,3,1180040438.4557495
+MMSI,"Merit Medical Systems, Inc.",Health Care,False,True,5,4413862594.013481
+MOH,Molina Healthcare,Health Care,False,True,7,11741776745.605469
+MPT,Medical Properties Trust,Real Estate,False,True,17,2840975000.0
+MRCY,Mercury Systems,Industrials,False,True,11,5768958740.582535
+MRP,"Millrose Properties, Inc.",Real Estate,False,True,5,4885130025.008451
+MRTN,"Marten Transport, Ltd.",Industrials,False,True,4,1440048201.626215
+MSEX,Middlesex Water Company,Utilities,False,True,4,1069781432.1833763
+MSGS,Madison Square Garden Sports Corp.,Communication Services,False,True,4,9555084467.530884
+MTCH,Match Group,Communication Services,False,True,6,9132384848.836472
+MTH,Meritage Homes Corporation,Consumer Discretionary,False,True,4,4954605200.734329
+MTRN,Materion Corp.,Materials,False,True,4,5098859901.630249
+MTUS,Metallus Inc,Materials,False,True,6,806746845.3445549
+MTX,Minerals Technologies,Materials,False,True,4,2322864377.4973755
+MWA,Mueller Water Products,Industrials,False,True,4,3983753528.0864487
+MXL,"MaxLinear, Inc.",Information Technology,False,True,8,6432981366.632904
+MYRG,"MYR Group, Inc.",Industrials,False,True,4,6096216456.420898
+NABL,"N-able, Inc.",Information Technology,False,True,4,898564439.7069693
+NATL,NCR Atleos,Financials,False,True,5,3500234466.951332
+NAVI,Navient,Financials,False,True,6,813008421.1958828
+NBHC,National Bank Holdings Corporation,Financials,False,True,1,2082325389.9599075
+NBTB,"NBT Bancorp, Inc.",Financials,False,True,4,2727936708.080658
+NEO,"NeoGenomics Laboratories, Inc.",Health Care,False,True,5,1902394061.095333
+NEOG,Neogen,Health Care,False,True,5,2235502230.7128105
+NGVT,"Ingevity, Corp.",Materials,False,True,4,2661077393.2540894
+NHC,"National Healthcare, Corp.",Health Care,False,True,4,3563777347.7608337
+NHI,"National Health Investors, Inc.",Real Estate,False,True,4,3858782628.774399
+NIC,Nicolet Bankshares,Financials,False,True,4,3607936002.647934
+NMIH,"NMI Holdings, Inc.",Financials,False,True,4,3267550904.3937035
+NOG,"Northern Oil and Gas, Inc.",Energy,False,True,6,2305136281.357006
+NPO,"EnPro Industries, Inc.",Industrials,False,True,4,6817151784.783691
+NSIT,"Insight Enterprises, Inc.",Industrials,False,True,5,3483266635.8499603
+NSP,Insperity,Industrials,False,True,4,1891282938.9792252
+NSSC,Napco Security Technologies,Information Technology,False,True,4,1290471374.279087
+NTCT,"NETSCOUT Systems, Inc.",Information Technology,False,True,4,2952752324.95348
+NTST,NETSTREIT Corp.,Real Estate,False,True,4,2174195437.3555183
+NWBI,"Northwest Bancshares, Inc.",Financials,False,True,4,2272266490.959773
+NWL,Newell Brands,Consumer Discretionary,False,True,6,2222372255.664854
+NWN,NW Natural,Utilities,False,True,4,2154514054.5047607
+NXRT,"NexPoint Residential Trust, Inc.",Real Estate,False,True,4,1370592911.795208
+OFG,OFG Bancorp,Financials,False,True,4,2115877624.4737625
+OGN,Organon & Co.,Health Care,False,True,9,3550479654.3730583
+OII,"Oceaneering International, Inc.",Energy,False,True,4,4217229005.960663
+OMCL,Omnicell,Health Care,False,True,5,2086117507.2532845
+OSIS,"OSI Systems, Inc.",Information Technology,False,True,5,3505251447.762146
+OSW,OneSpaWorld Holdings Limited,Consumer Discretionary,False,True,4,2681007067.370064
+OTTR,Otter Tail Corporation,Utilities,False,True,4,3897388721.3752747
+OUT,Outfront Media,Real Estate,False,True,4,5847069005.909042
+PAHC,Phibro Animal Health,Health Care,False,True,4,1351210745.66716
+PARR,"Par Pacific Holdings, Inc.",Energy,False,True,5,3823501121.25
+PAYC,Paycom,Industrials,False,True,7,6898012991.955688
+PAYO,Payoneer Global Inc.,Financials,False,True,5,2407944082.1767225
+PATK,"Patrick Industries, Inc.",Consumer Discretionary,False,True,4,2920786090.356018
+PBH,Prestige Consumer Healthcare,Health Care,False,True,4,2364818439.9789734
+PBI,"Pitney Bowes, Inc.",Industrials,False,True,8,2507020807.750082
+PCRX,"Pacira BioSciences, Inc.",Health Care,False,True,5,1007700357.6560669
+PDFS,"PDF Solutions, Inc.",Information Technology,False,True,4,2141115175.2459717
+PEB,Pebblebrook Hotel Trust,Real Estate,False,True,4,2155149183.2981586
+PECO,Phillips Edison & Company,Real Estate,False,True,4,5543782108.80954
+PENG,"Penguin Solutions, Inc.",Information Technology,False,True,11,3095571438.7709846
+PENN,Penn Entertainment,Consumer Discretionary,False,True,6,2753158100.6242447
+PFBC,Preferred Bank,Financials,False,True,3,1271706788.4922485
+PFS,"Provident Financial Services, Inc.",Financials,False,True,4,3136650406.321419
+PGNY,Progyny,Health Care,False,True,4,2501152598.005142
+PHIN,"PHINIA, Inc.",Consumer Discretionary,False,True,5,2966827495.5244446
+PIPR,Piper Sandler Companies,Financials,False,True,5,5157509360.657005
+PJT,"PJT Partners, Inc.",Financials,False,True,5,4302894392.66333
+PLAB,"Photronics, Inc.",Information Technology,False,True,4,1701102709.7928658
+PLMR,"Palomar Holdings, Inc.",Financials,False,True,4,3589684352.9467163
+PLUS,"ePlus, Inc.",Information Technology,False,True,4,2334551726.6208725
+PLXS,Plexus Corp.,Information Technology,False,True,5,6705961925.876587
+PMT,PennyMac Mortgage Investment Trust,Real Estate,False,True,5,863303350.5349388
+POOL,Pool Corporation,Consumer Discretionary,False,True,6,7331238846.780869
+POWI,Power Integrations,Information Technology,False,True,7,3925472702.7561035
+POWL,"Powell Industries, Inc.",Industrials,False,True,5,8480923326.112747
+PPLI,People Inc.,Communication Services,False,True,4,3312475106.074951
+PRDO,Perdoceo Education Corp.,Consumer Discretionary,False,True,6,1985181181.2122612
+PRG,"PROG Holdings, Inc.",Financials,False,True,5,1859843407.5177612
+PRGO,Perrigo,Health Care,False,True,5,1483302531.3481808
+PRGS,Progress Software Corporation,Information Technology,False,True,6,1663074766.8096085
+PRIM,Primoris Services Corporation,Industrials,False,True,5,4663754162.928123
+PRK,Park National Corp.,Financials,False,True,3,3428666004.9199524
+PRKS,United Parks & Resorts,Consumer Discretionary,False,True,4,2126283696.8492432
+PRLB,Protolabs,Industrials,False,True,4,1846893838.2522964
+PRSU,"Pursuit Attractions & Hospitality, Inc.",Consumer Discretionary,False,True,3,1458928423.484253
+PRVA,"Privia Health Group, Inc.",Health Care,False,True,4,3389732812.530094
+PSMT,PriceSmart,Consumer Staples,False,True,4,5740057464.0
+PTCT,"PTC Therapeutics, Inc.",Health Care,False,True,6,6518988169.650452
+PTEN,"Patterson-UTI Energy, Inc.",Energy,False,True,5,3803769056.8351707
+PTGX,"Protagonist Therapeutics, Inc.",Health Care,False,True,4,9062115804.945282
+PTON,"Peloton Interactive, Inc.",Consumer Discretionary,False,True,12,2649910531.4480066
+PZZA,Papa John's Pizza,Consumer Discretionary,False,True,9,1081160200.1217957
+QDEL,QuidelOrtho,Health Care,False,True,4,1185159331.5918446
+QNST,"QuinStreet, Inc.",Communication Services,False,True,4,963933348.0446053
+QRVO,Qorvo,Information Technology,False,True,8,7542639427.5
+QTWO,"Q2 Holdings, Inc.",Information Technology,False,True,4,3434259243.988266
+RAMP,"LiveRamp Holdings, Inc.",Information Technology,False,True,6,2302585677.126789
+RAL,Ralliant Corp,Information Technology,False,True,4,7854348790.204285
+RCUS,"Arcus Biosciences, Inc.",Health Care,False,True,7,3442411549.493038
+RDN,"Radian Group, Inc.",Financials,False,True,5,5236563360.512833
+RDNT,"RadNet, Inc.",Health Care,False,True,4,4890263028.85231
+RELY,Remitly,Financials,False,True,6,5080838659.56011
+RES,"RPC, Inc.",Energy,False,True,4,1309880162.030735
+REYN,Reynolds Consumer Products,Consumer Staples,False,True,4,5530535924.239176
+REX,REX American Resources Corporation,Energy,False,True,4,1558612805.7082062
+REZI,"Resideo Technologies, Inc.",Industrials,False,True,4,5425603173.069763
+RHI,Robert Half,Industrials,False,True,4,4275871942.156185
+RHP,Ryman Hospitality Properties,Real Estate,False,True,5,7994051368.683472
+RITM,Rithm Capital,Financials,False,True,8,5203417313.658348
+RNG,"RingCentral, Inc.",Information Technology,False,True,10,3465037491.688385
+RNST,Renasant Corp.,Financials,False,True,4,4032291714.398041
+ROCK,"Gibraltar Industries, Inc.",Industrials,False,True,4,1280801671.4720993
+ROG,Rogers Corporation,Information Technology,False,True,5,2360290366.444931
+RRR,"Red Rock Resorts, Inc.",Consumer Discretionary,False,True,4,3785649801.5
+RSI,"Rush Street Interactive, Inc.",Consumer Discretionary,False,True,4,3345991122.5
+RUN,Sunrun,Industrials,False,True,12,2826809141.9493313
+RUSHA,Rush Enterprises,Industrials,False,True,4,5975298007.558182
+RXO,"RXO, Inc.",Industrials,False,True,6,4830516089.469055
+SAFE,"Safehold, Inc.",Real Estate,False,True,4,1224531061.517048
+SABR,Sabre,Consumer Discretionary,False,True,6,683891969.8300023
+SAFT,"Safety Insurance Group, Inc.",Financials,False,True,4,1088629787.797943
+SAH,"Sonic Automotive, Inc.",Consumer Discretionary,False,True,5,3172103904.9132614
+SBCF,Seacoast Banking Corporation of Florida,Financials,False,True,4,3295693043.725281
+SBH,"Sally Beauty Holdings, Inc.",Consumer Discretionary,False,True,4,1419678282.5986347
+SBSI,"Southside Bancshares, Inc.",Financials,False,True,3,1036549615.7797508
+SCHL,Scholastic Corporation,Consumer Discretionary,False,True,4,866608792.4646835
+SCL,Stepan Company,Materials,False,True,3,1331682151.7504463
+SCSC,"ScanSource, Inc.",Information Technology,False,True,4,1113580962.517662
+SDGR,"Schrödinger, Inc.",Health Care,False,True,5,1144721468.8770447
+SEDG,SolarEdge,Information Technology,False,True,14,3251949335.180969
+SEZL,Sezzle,Financials,False,True,12,5873631347.157089
+SFBS,"ServisFirst Bancshares, Inc.",Financials,False,True,4,4752385965.074158
+SFNC,Simmons First National Corporation,Financials,False,True,4,3329223707.2252083
+SHAK,"Shake Shack, Inc.",Consumer Discretionary,False,True,14,2340342456.0
+SHEN,Shenandoah Telecommunications Co,Communication Services,False,True,4,629564377.7111006
+SHO,"Sunstone Hotel Investors, Inc.",Real Estate,False,True,4,2185196511.822624
+SHOO,"Steven Madden, Ltd.",Consumer Discretionary,False,True,7,3173369497.29657
+SIG,Signet Jewelers,Consumer Discretionary,False,True,10,3560582671.2300644
+SKT,"Tanger Factory Outlet Centers, Inc.",Real Estate,False,True,4,4799512914.55069
+SKY,"Champion Homes, Inc.",Consumer Discretionary,False,True,4,4539756623.075958
+SKYW,"SkyWest, Inc.",Industrials,False,True,4,3856169254.7669296
+SLG,SL Green Realty,Real Estate,False,True,8,3665755918.936409
+SLVM,Sylvamo Corp.,Materials,False,True,4,1523483460.3032532
+SMP,"Standard Motor Products, Inc.",Consumer Discretionary,False,True,3,859139940.0071068
+SMPL,Simply Good Foods Company,Consumer Staples,False,True,4,979928566.8124714
+SNDR,Schneider National,Industrials,False,True,5,6687997082.023361
+SNEX,StoneX Group Inc.,Financials,False,True,5,8162111403.74054
+SONO,"Sonos, Inc.",Consumer Discretionary,False,True,6,1800034177.9104166
+SPHR,Sphere Entertainment,Communication Services,False,True,6,5104683817.093384
+SPNT,SiriusPoint Ltd.,Financials,False,True,4,2926798992.161236
+SPSC,"SPS Commerce, Inc.",Information Technology,False,True,4,2407985989.73407
+SRPT,Sarepta Therapeutics,Health Care,False,True,12,1818022470.3465614
+STAA,STAAR Surgical Company,Health Care,False,True,4,1316407834.389925
+STBA,"S&T Bancorp, Inc.",Financials,False,True,2,1797765037.3370972
+STC,Stewart Information Services Corporation,Financials,False,True,3,2190749976.0
+STEP,StepStone Group,Financials,False,True,4,3557135760.833599
+STRA,"Strategic Education, Inc.",Consumer Discretionary,False,True,4,1739556872.0129395
+SUPN,"Supernus Pharmaceuticals, Inc.",Health Care,False,True,7,2788228249.9769516
+SXI,Standex International Corporation,Industrials,False,True,4,3667429202.628723
+SXT,Sensient Technologies,Materials,False,True,4,4642145217.910156
+TALO,"Talos Energy, Inc.",Energy,False,True,4,2490533217.295429
+TBBK,"The Bancorp, Inc.",Financials,False,True,4,2847795691.1291122
+TDC,Teradata,Information Technology,False,True,4,2871932043.0755615
+TDS,"Telephone and Data Systems, Inc.",Communication Services,False,True,8,3907331965.2557373
+TDW,"Tidewater, Inc.",Energy,False,True,4,3770578019.4634094
+TFIN,"Triumph Bancorp, Inc.",Financials,False,True,4,1919022068.8601837
+TFX,Teleflex,Health Care,False,True,4,5959213129.730392
+TGTX,"TG Therapeutics, Inc.",Health Care,False,True,6,8399695871.089096
+THRM,Gentherm Incorporated,Consumer Discretionary,False,True,4,1102171326.9053078
+TILE,"Interface, Inc.",Industrials,False,True,4,1919337787.2480469
+TMDX,"TransMedics Group, Inc.",Health Care,False,True,6,2556816311.798683
+TMP,Tompkins Financial Corporation,Financials,False,True,4,1352571784.8079758
+TNC,Tennant Company,Industrials,False,True,4,1467219947.729721
+TNDM,Tandem Diabetes Care,Health Care,False,True,5,1170476834.8916454
+TRIP,TripAdvisor,Communication Services,False,True,12,1696545835.1423473
+TRMK,Trustmark Corp.,Financials,False,True,2,2747428105.9574776
+TRN,"Trinity Industries, Inc.",Industrials,False,True,4,2899565791.462616
+TRNO,Terreno Realty Corporation,Real Estate,False,True,4,7935146735.060913
+TRST,TrustCo Bank Corp NY,Financials,False,True,4,959716588.1226654
+TRUP,Trupanion,Financials,False,True,4,1164666635.679779
+TWO,Two Harbors Investment Corp.,Financials,False,True,11,1270010181.9987984
+UAA,Under Armour (Class A),Consumer Discretionary,False,True,7,3167593874.376482
+UCB,"United Community Banks, Inc.",Financials,False,True,4,4365230549.419178
+UCTT,"Ultra Clean Holdings, Inc.",Information Technology,False,True,4,4143484589.0405273
+UFCS,"United Fire Group, Inc.",Financials,False,True,4,1310773524.8548203
+UFPT,"UFP Technologies, Inc.",Health Care,False,True,4,1872726108.561264
+UNF,UniFirst Corporation,Industrials,False,True,4,5270451423.270813
+UNFI,United Natural Foods Inc,Consumer Staples,False,True,6,2971489681.655121
+UNIT,Uniti Group,Communication Services,False,True,7,2680684788.817318
+UPBD,"Upbound Group, Inc.",Consumer Discretionary,False,True,4,1291788959.2650833
+UPWK,"Upwork, Inc.",Industrials,False,True,5,1119074373.050273
+URBN,"Urban Outfitters, Inc.",Consumer Discretionary,False,True,11,6249648644.811287
+USLM,"United States Lime & Minerals, Inc.",Materials,False,True,4,3010755453.3322754
+USPH,"U.S. Physical Therapy, Inc.",Health Care,False,True,4,1119494081.6847534
+UTI,Universal Technical Institute,Consumer Discretionary,False,True,6,2219524343.7253
+UTL,Unitil Corporation,Utilities,False,True,4,981398726.3241005
+UVV,Universal Corporation,Consumer Staples,False,True,4,1324551523.366562
+VAC,Marriott Vacations Worldwide,Consumer Discretionary,False,True,5,3433619654.0073853
+VCEL,Vericel,Health Care,False,True,4,2381822122.7504272
+VCTR,"Victory Capital Holdings, Inc.",Financials,False,True,4,6160564353.20723
+VCYT,"Veracyte, Inc.",Health Care,False,True,4,4718139302.337742
+VECO,Veeco Instruments Inc.,Information Technology,False,True,5,3190220288.888912
+VGNT,Versigent PLC,Consumer Discretionary,False,True,4,2836455217.6073456
+VIR,"Vir Biotechnology, Inc.",Health Care,False,True,4,1590388166.288498
+VIRT,"Virtu Financial, Inc.",Financials,False,True,5,4848130971.336754
+VRRM,Verra Mobility Corporation,Industrials,False,True,5,625855392.9756632
+VSAT,"Viasat, Inc.",Information Technology,False,True,7,9761949218.892906
+VSEC,VSE Corporation,Industrials,False,True,4,5600488127.844727
+VSH,Vishay Intertechnology,Information Technology,False,True,8,5799218760.872498
+VSNT,"Versant Media Group, Inc.",Communication Services,False,True,5,5079778954.408836
+VSTS,Vestis,Industrials,False,True,4,2179733853.0
+VSXY,Victoria's Secret,Consumer Discretionary,False,True,7,6474600351.410522
+VTOL,Bristow Group Inc.,Energy,False,True,5,1307688750.1701355
+VYX,NCR Voyix,Information Technology,False,True,5,1131396912.0069265
+WABC,Westamerica Bank,Financials,False,True,4,1441220933.13591
+WAFD,"WaFd, Inc.",Financials,False,True,4,2816628778.678589
+WAY,Waystar Holding Corp,Health Care,False,True,6,4271673170.3749733
+WDFC,WD-40 Company,Consumer Staples,False,True,4,3312192191.732544
+WEN,The Wendy's Company,Consumer Discretionary,False,True,13,1478129809.9975586
+WERN,Werner Enterprises,Industrials,False,True,4,2760103349.4859695
+WGO,"Winnebago Industries, Inc.",Consumer Discretionary,False,True,5,867855036.6674538
+WHD,"Cactus, Inc.",Energy,False,True,4,3783304435.0
+WKC,World Kinect Corporation,Energy,False,True,5,1874473961.5
+WLY,John Wiley & Sons,Communication Services,False,True,4,2587255356.313324
+WOR,Worthington Enterprises,Industrials,False,True,5,2763212900.8206253
+WRBY,Warby Parker,Consumer Discretionary,False,True,11,3240909364.035141
+WSBC,WesBanco,Financials,False,True,4,3924166774.620056
+WSC,WillScot Holdings Corp.,Industrials,False,True,5,4927580204.818991
+WSFS,WSFS Financial Corporation,Financials,False,True,4,4155196442.049011
+WSR,Whitestone REIT,Real Estate,False,True,3,975971623.2299999
+WWW,"Wolverine World Wide, Inc.",Consumer Discretionary,False,True,6,1506147936.9783611
+XHR,"Xenia Hotels & Resorts, Inc.",Real Estate,False,True,4,1937162535.0
+XNCR,Xencor Inc,Health Care,False,True,4,1295253631.2110062
+XPEL,"XPEL, Inc.",Consumer Discretionary,False,True,4,1192012601.25
+YELP,"Yelp, Inc.",Communication Services,False,True,4,1441856221.1208801
+YOU,"Clear Secure, Inc.",Information Technology,False,True,6,5645821084.646759
+ZWS,Zurn Elkay Water Solutions Corp.,Industrials,False,True,5,7996794093.22522

@@ -1,0 +1,2 @@
+ticker,run_timestamp,week,gst_value,is_partial_week,zscore,is_spike,signal_tier,days_to_earnings,ambiguous_symbol,eligible_for_options_leg,note
+SBUX,2026-07-10T17:11:15.280295+00:00,2026-07-05,48,True,-0.372,False,,,False,False,

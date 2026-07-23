@@ -1,0 +1,5 @@
+portfolio,n_trades,total_capital_deployed,final_equity,total_return_pct,total_dollar_pnl,max_drawdown_pct,longest_win_streak_trades,longest_loss_streak_trades,sharpe_annualized,n_negative_6mo_windows,n_negative_12mo_windows,first_exit,last_exit
+"PORTFOLIO A: Flat $10,000 sizing",147.0,1470000.0,2469458.0,2369.46,2369458.0,-3.26,10.0,3.0,2.332,0.0,0.0,2021-03-19,2025-12-12
+"PORTFOLIO B: Z-score-proportional sizing (floor $10k, cap $50k)",147.0,2622992.0,5480672.0,5380.67,5380672.0,-3.41,10.0,3.0,1.84,0.0,0.0,2021-03-19,2025-12-12
+SPY_equiv_flat,,1470000.0,2722413.0,85.2,,-24.9,,,0.909,,,,
+SPY_equiv_zprop,,2622992.0,4857733.0,85.2,,-24.9,,,0.909,,,,

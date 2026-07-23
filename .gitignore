@@ -1,0 +1,9 @@
+# Unrelated nested project with its own git history/remote -- not part of
+# this repo, and contains files well over GitHub's 100MB per-file limit.
+streetview_vlm/
+
+__pycache__/
+*.pyc
+
+# Local Claude Code session config (permission allowlist etc.), not project content.
+.claude/

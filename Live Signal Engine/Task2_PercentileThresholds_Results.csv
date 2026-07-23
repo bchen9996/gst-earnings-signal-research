@@ -1,0 +1,6 @@
+method,n,win_rate_pct,median_pnl_pct,avg_pnl_pct,n_tickers_cutoff_below_4,note
+fixed_z>=5,147,76.2,130.0,161.2,,"current live threshold, for comparison"
+percentile_90,209,72.2,100.7,136.0,51.0,"tickers w/ cutoff<4.0 (possible undercount): ['TSLA', 'NVDA', 'AAPL', 'MSFT', 'AMZN', 'GOOGL', 'NFLX', 'ADBE', 'NKE', 'SBUX', 'INTC', 'TTWO', 'QCOM', 'GME', 'EBAY', 'ABBV', 'ADP', 'ALB', 'ALLE', 'AVB', 'BKR', 'BRK-B', 'CCL', 'COF', 'COHR', 'CTSH', 'CTVA', 'DELL', 'DVN', 'ERIE', 'GPC', 'GPN', 'JBL', 'LDOS', 'LNT', 'MCHP', 'MCK', 'MDT', 'NCLH', 'PKG', 'PLD', 'PNW', 'RCL', 'REG', 'ROP', 'RTX', 'STZ', 'SYF', 'SYK', 'UAL', 'XOM']"
+percentile_95,197,72.1,105.2,140.4,45.0,"tickers w/ cutoff<4.0 (possible undercount): ['TSLA', 'NVDA', 'AAPL', 'AMZN', 'GOOGL', 'SBUX', 'INTC', 'TTWO', 'QCOM', 'GME', 'EBAY', 'ABBV', 'ADP', 'ALB', 'AVB', 'BKR', 'BRK-B', 'CCL', 'COF', 'COHR', 'CTSH', 'CTVA', 'DELL', 'DVN', 'ERIE', 'GPC', 'GPN', 'JBL', 'LDOS', 'LNT', 'MCHP', 'MCK', 'MDT', 'NCLH', 'PKG', 'PLD', 'PNW', 'RCL', 'REG', 'ROP', 'RTX', 'SYF', 'SYK', 'UAL', 'XOM']"
+percentile_99,66,74.2,131.7,191.4,11.0,"tickers w/ cutoff<4.0 (possible undercount): ['EBAY', 'ADP', 'ALB', 'AVB', 'BRK-B', 'CTVA', 'DVN', 'LNT', 'REG', 'ROP', 'SYF']"
+percentile_99.5,44,77.3,163.9,235.1,6.0,"tickers w/ cutoff<4.0 (possible undercount): ['EBAY', 'ADP', 'LNT', 'REG', 'ROP', 'SYF']"

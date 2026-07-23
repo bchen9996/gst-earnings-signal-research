@@ -1,0 +1,7 @@
+cutoff_days,n,win_rate_pct,avg_pnl_pct,median_pnl_pct,pricing_basis_note
+1,8,50.0,23.4,21.2,consistent (subset of original near-earnings pricing)
+2,61,65.6,127.1,83.6,consistent (subset of original near-earnings pricing)
+3,97,73.2,154.1,137.8,consistent (subset of original near-earnings pricing)
+5,147,76.2,161.2,130.0,consistent (subset of original near-earnings pricing)
+7,147,76.2,161.2,130.0,"marginal events (gap 6+) priced at naive 1.10x markup, not re-derived"
+10,151,75.5,157.4,128.3,"marginal events (gap 6+) priced at naive 1.10x markup, not re-derived"

@@ -1,0 +1,13 @@
+fold,test_year,group,split,n,win_rate_pct,avg_pnl_pct,median_pnl_pct
+train 2021-2022 / test 2023,2023,A_STRONG_EARNINGS,train,48,75.0,169.2,137.5
+train 2021-2022 / test 2023,2023,A_STRONG_EARNINGS,test,37,75.7,143.8,108.9
+train 2021-2022 / test 2023,2023,B_no_spike,train,52,28.8,-15.1,-38.5
+train 2021-2022 / test 2023,2023,B_no_spike,test,17,29.4,33.2,-32.5
+train 2021-2023 / test 2024,2024,A_STRONG_EARNINGS,train,85,75.3,158.1,135.5
+train 2021-2023 / test 2024,2024,A_STRONG_EARNINGS,test,34,76.5,211.1,193.2
+train 2021-2023 / test 2024,2024,B_no_spike,train,69,29.0,-3.2,-38.3
+train 2021-2023 / test 2024,2024,B_no_spike,test,21,42.9,28.6,-28.2
+train 2021-2024 / test 2025,2025,A_STRONG_EARNINGS,train,119,75.6,173.3,137.8
+train 2021-2024 / test 2025,2025,A_STRONG_EARNINGS,test,28,78.6,109.9,102.4
+train 2021-2024 / test 2025,2025,B_no_spike,train,90,32.2,4.3,-34.1
+train 2021-2024 / test 2025,2025,B_no_spike,test,20,40.0,7.9,-17.5

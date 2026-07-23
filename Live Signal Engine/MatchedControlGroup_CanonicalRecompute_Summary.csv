@@ -1,0 +1,4 @@
+group,n,win_rate_pct,median_pnl_pct,median_matched_control_excess_pt,ci_95_low,ci_95_high,pct_outperform_control
+ALL,133,76.7,145.2,35.71,0.0,91.42,56.4
+z>=10,40,92.5,214.94,72.26,0.0,189.02,62.5
+z=5-9.99,93,69.9,129.96,11.62,0.0,84.69,53.8

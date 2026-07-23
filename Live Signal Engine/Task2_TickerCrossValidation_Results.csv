@@ -1,0 +1,6 @@
+fold,n_tickers,n_events,win_rate_pct,median_pnl_pct,avg_pnl_pct,underpowered
+1,11,32,71.9,84.3,112.0,False
+2,10,19,84.2,165.5,173.1,False
+3,10,11,81.8,232.5,271.9,False
+4,10,42,81.0,165.3,173.7,False
+5,10,43,69.8,96.1,151.9,False

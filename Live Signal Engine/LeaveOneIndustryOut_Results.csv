@@ -1,0 +1,9 @@
+sector,n,win_rate_pct,avg_pnl_pct,median_pnl_pct,rest_n,rest_win_rate_pct,rest_median_pnl_pct,diff_vs_rest_pnl_pct,p_value,significant,status
+Technology,68,75.0,146.0,99.1,79.0,77.2,137.8,-28.2,0.4168,False,powered
+Consumer Cyclical,38,73.7,180.5,145.0,109.0,77.1,128.3,26.0,0.5033,False,powered
+Communication Services,24,83.3,180.2,178.7,123.0,74.8,127.9,22.7,0.6277,False,powered
+Consumer Defensive,5,60.0,,39.3,,,,,,,underpowered_untestable
+Healthcare,4,75.0,,196.3,,,,,,,underpowered_untestable
+Energy,4,100.0,,306.4,,,,,,,underpowered_untestable
+Industrials,3,66.7,,104.1,,,,,,,underpowered_untestable
+Financial Services,1,100.0,,83.6,,,,,,,underpowered_untestable

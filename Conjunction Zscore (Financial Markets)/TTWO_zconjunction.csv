@@ -1,0 +1,7 @@
+ticker,spike_week,zscore,n_trading_days,max_pos_excess_pct,pos_in_window_pos,pos_streak_days_from_max,max_abs_excess_pct
+TTWO,2017-05-21,6.315,14,6.49,8,2,6.49
+TTWO,2017-11-05,3.592,15,10.41,8,1,10.41
+TTWO,2018-02-04,2.766,15,7.02,3,1,-7.92
+TTWO,2018-05-06,2.104,15,4.43,2,7,4.43
+TTWO,2019-02-03,2.235,15,5.12,9,2,-13.63
+TTWO,2019-08-18,2.763,15,1.98,7,2,1.98

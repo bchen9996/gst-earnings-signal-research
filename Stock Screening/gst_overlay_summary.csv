@@ -1,0 +1,9 @@
+group,n_trades,win_rate,avg_excess_return,p_value_vs_zero,universe,horizon_days,benchmark,diff_vs_other_group,diff_p_value
+GST-confirmed,32,0.375,0.00183,0.9489,sp500,90,SPY,0.01246,0.705
+no GST spike,129,0.4574,-0.01062,0.4875,sp500,90,SPY,,
+GST-confirmed,32,0.4062,0.03436,0.7221,sp500,180,SPY,0.06629,0.2138
+no GST spike,129,0.4341,-0.03193,0.1301,sp500,180,SPY,,
+GST-confirmed,19,0.5263,0.00338,0.9689,sp600,90,IJR,0.00073,0.9881
+no GST spike,141,0.4894,0.00265,0.8708,sp600,90,IJR,,
+GST-confirmed,19,0.2632,-0.11633,0.1118,sp600,180,IJR,-0.09404,0.2256
+no GST spike,141,0.4184,-0.02229,0.4211,sp600,180,IJR,,

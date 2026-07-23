@@ -1,0 +1,71 @@
+STOCKTWITS RECON — historical message/watchlist volume data
+===============================================================
+Scope: check whether the free Stocktwits public API (api.stocktwits.com)
+exposes historical daily/weekly message or watchlist counts per ticker
+back to 2021. Test case: MSFT. Recon only — nothing built.
+
+WHAT WAS TESTED
+---------------
+No authentication/API key was created (the tested endpoints are public
+and unauthenticated; OAuth-gated write endpoints were not explored since
+they're irrelevant to read-only historical volume data).
+
+Endpoint: GET https://api.stocktwits.com/api/2/streams/symbol/{TICKER}.json
+  Status: 200, works unauthenticated.
+  Returns: a live/near-live stream of individual messages for that
+  symbol (30 messages per page in testing), each with created_at,
+  body, sentiment, user, etc. Also returns symbol.watchlist_count — a
+  CURRENT snapshot integer (539,085 for MSFT at test time), not a
+  historical time series.
+  Pagination: cursor-based (since/max message IDs), walks backward
+  through individual messages one page at a time. NO date-range or
+  aggregate-count parameter exists — you can only page through raw
+  messages one by one.
+
+Endpoints checked and NOT available: /symbols/{TICKER}.json (404),
+/symbols/with_price.json (404). /trending/symbols.json exists but is a
+current cross-sectional ranking, not historical volume for one symbol.
+
+No endpoint anywhere in the public API returns a pre-aggregated
+daily/weekly message-count time series. The only way to reconstruct
+"message volume in a given week" is to paginate through every individual
+message in that window and count them by hand.
+
+QUANTIFIED FEASIBILITY CHECK
+-----------------------------
+Measured MSFT's live message rate directly: 30 messages spanned 54
+minutes in the test pull (2026-07-13, 20:00-20:54 UTC), i.e. ~33
+messages/hour, ~800 messages/day for MSFT (a high-volume, popular
+ticker -- lower-volume tickers in this project's 51-ticker universe would
+be slower, but MSFT sets the upper bound on how fast this could be done).
+
+To reconstruct message volume back to 2021 (~1,650 days) at MSFT's
+current rate: ~1.3 million messages -> ~44,000 paginated requests, for
+ONE ticker. Across even a handful of the 51 tickers this is firmly
+impractical for a free, unauthenticated public API with no documented
+but empirically implied rate limiting (no rate-limit headers were
+returned, but Stocktwits' public terms describe the unauthenticated tier
+as intended for light/interactive use, not bulk historical extraction).
+Historical message rates were almost certainly lower in 2021 (less
+retail options-trading enthusiasm pre-2022-2023 meme cycles for most
+names), which would make the total message count somewhat smaller, but
+the request count doesn't improve since each page is capped at 30
+messages regardless of how sparse the traffic was.
+
+CONCLUSION
+----------
+Stocktwits' free API does NOT expose a historical daily/weekly
+message-count endpoint. The only historical data source is the raw
+message stream itself, and reconstructing weekly counts back to 2021
+would require tens of thousands of paginated requests per ticker --
+not feasible as a recon-scale or even project-scale live pull. The
+watchlist_count field is a real number but it's a CURRENT snapshot only,
+with no historical equivalent exposed.
+
+Per instructions: stopping here. Nothing built on top of this. If
+Stocktwits sentiment/volume becomes a priority, the real options are:
+(a) Stocktwits' paid/partner data API (not explored, likely offers
+pre-aggregated historical volume — untested), or (b) begin logging the
+live stream going forward from today to build a message-volume time
+series prospectively, which would take until ~2029 to match this
+project's current 2021-2025 historical depth.

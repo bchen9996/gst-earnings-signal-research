@@ -1,0 +1,5 @@
+threshold,horizon,n,observed_win_rate_pct,win_rate_ci_low_pct,win_rate_ci_high_pct,win_rate_se_pct,observed_median_pnl_pct,median_pnl_ci_low_pct,median_pnl_ci_high_pct,median_pnl_se_pct
+z>=5,end_of_spike_week,147,76.19,69.39,82.99,3.53,129.96,92.07,163.85,18.66
+z>=5,end_of_window,147,62.59,55.1,70.09,3.97,44.81,26.29,79.27,13.66
+z>=6,end_of_spike_week,108,79.63,72.22,87.04,3.86,149.34,103.09,187.91,20.82
+z>=6,end_of_window,108,63.89,54.63,72.22,4.59,48.31,27.72,87.48,17.14

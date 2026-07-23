@@ -1,0 +1,3 @@
+metric,observed,n_events,n_clusters,method,naive_se,naive_p,cluster_robust_se,cluster_robust_p,se_inflation_factor,significant_after_clustering
+win_rate,76.19,147,97,analytic_CR1,0.03513,0.0,0.05779,1e-05,1.645,True
+mean_pnl_pct,161.19,147,97,analytic_CR1,17.146,0.0,27.7539,0.0,1.619,True

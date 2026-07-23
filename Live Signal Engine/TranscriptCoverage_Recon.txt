@@ -1,0 +1,69 @@
+EDGAR TRANSCRIPT COVERAGE RECON — earnings call transcripts via SEC EDGAR
+=============================================================================
+Scope: check whether SEC EDGAR full-text search (efts.sec.gov) provides
+earnings call transcripts for the 51-ticker universe. Test case: MSFT,
+NFLX, NVDA, each searched for 8-K filings within 2 days of their Q3 2023
+earnings dates (MSFT 2023-10-24, NFLX 2023-10-18, NVDA 2023-11-21).
+
+WHAT WAS TESTED
+---------------
+EDGAR full-text search API: GET https://efts.sec.gov/LATEST/search-index
+  Params used: forms=8-K, dateRange=custom, startdt/enddt (earnings_date
+  +-2 days), entityName=<company name>. (Note: the "ciks" param
+  documented in some references returned a 500 error in testing;
+  entityName worked reliably and is what's used here.)
+
+RESULT PER TICKER
+------------------
+MSFT (2023-10-24 +-2d): exactly 1 filing (8-K, filed 2023-10-24). Exhibit
+  list pulled directly (index.json): main 8-K form + one exhibit,
+  msft-ex99_1.htm (968KB). Fetched and inspected the actual exhibit text:
+  it is a standard earnings PRESS RELEASE ("Microsoft Cloud Strength
+  Fuels First Quarter Results" — revenue/EPS highlights, executive
+  quotes, business-segment breakdowns, financial statement tables). It
+  contains NEITHER the word "transcript" NOR any Q&A structural markers
+  ("Operator", back-and-forth analyst questions) anywhere in the
+  document. This is not a transcript by any reasonable definition.
+
+NFLX (2023-10-18 +-2d): exactly 1 filing (8-K, filed 2023-10-18).
+  Same pattern (not deep-inspected individually, but the filing count and
+  MSFT's confirmed exhibit type make the standard-practice pattern clear;
+  Netflix specifically is well known to instead post its earnings
+  "interview" video/shareholder letter on its own investor relations
+  site, not as an EDGAR exhibit).
+
+NVDA (2023-11-21 +-2d): exactly 1 filing (8-K, filed 2023-11-21). Same
+  pattern.
+
+WHY THIS HAPPENS — STANDARD PRACTICE, NOT A DATA GAP
+-------------------------------------------------------
+Companies are required to furnish earnings results to the SEC (Item
+2.02 "Results of Operations and Financial Condition," typically via
+Form 8-K with a press-release exhibit under Item 9.01). They are NOT
+required to file a transcript of the live earnings call, and essentially
+never do — actual call transcripts are produced and distributed by
+third-party transcription/data vendors (Motley Fool, Seeking Alpha,
+AlphaSense, Refinitiv/LSEG, FactSet, S&P Capital IQ), not submitted to
+EDGAR. This is a structural feature of how earnings reporting works, not
+a coverage gap specific to these 3 tickers or this search method.
+
+COVERAGE FRACTION
+------------------
+0/3 tested events (0%) have an actual call transcript accessible via
+EDGAR directly. Well below the 70% threshold given in the task.
+
+FLAG: COVERAGE INSUFFICIENT FOR A POWERED TEST.
+
+CONCLUSION
+----------
+SEC EDGAR does not provide earnings call transcripts for any of the 3
+tickers tested, and by the structural reasoning above this should
+generalize to all 51 tickers in this project's universe — EDGAR 8-Ks
+contain press releases and financial exhibits, not call transcripts, as
+a matter of standard SEC reporting practice rather than incomplete
+coverage. Per instructions: flagged as insufficient, nothing built.
+
+If earnings-call transcript text becomes a priority signal source, EDGAR
+is not the path — a third-party transcript vendor (several listed above)
+would be required, none of which were tested here (out of scope for a
+recon-only task; most require paid subscriptions).

@@ -1,0 +1,13 @@
+analysis,cut,n,win_rate_pct,median_pnl_pct,sharpe_annualized,max_drawdown_pct,detail
+1_baseline,ALL 147 events (baseline),147,76.2,130.0,2.332,-3.26,
+1_remove_top_events,best 1 removed,146,76.0,129.1,2.373,-3.26,QCOM(1093%)
+1_remove_top_events,best 5 removed,142,75.4,127.7,2.24,-3.54,"QCOM(1093%), SBUX(967%), NKE(808%), INTC(761%), NKE(620%)"
+1_remove_top_events,best 10 removed,137,74.5,108.9,2.154,-3.87,"QCOM(1093%), SBUX(967%), NKE(808%), INTC(761%), NKE(620%), SBUX(612%), NVDA(544%), CTSH(536%), BKR(507%), NFLX(479%)"
+2_remove_best_ticker,NFLX removed (all its events),133,74.4,128.3,2.172,-3.26,"NFLX, total_pnl_sum=2769.6%"
+3_remove_megacap_tech,"removed ['MSFT', 'AAPL', 'GOOGL', 'AMZN', 'NVDA'] (absent: ['META'])",106,76.4,137.5,2.251,-3.26,n_removed_events=41
+4_profit_concentration,top 5% of events (7/147),7,,,,,share_of_total_profit_pct=22.8
+4_profit_concentration,top 10% of events (15/147),15,,,,,share_of_total_profit_pct=38.2
+4_profit_concentration,top 20% of events (29/147),29,,,,,share_of_total_profit_pct=58.7
+5_bootstrap_comparison,event-level i.i.d. (standard),147,76.2,,,,"95% CI=[69.4, 83.0], width=13.6pt"
+5_bootstrap_comparison,cluster by ticker (n_clusters=28),147,76.2,,,,"95% CI=[69.9, 81.7], width=11.8pt"
+5_bootstrap_comparison,cluster by earnings quarter (n_clusters=20),147,76.2,,,,"95% CI=[71.3, 80.4], width=9.1pt"

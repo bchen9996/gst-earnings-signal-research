@@ -1,0 +1,3 @@
+scenario,n_spike,n_baseline,spike_mean_move_pct,baseline_mean_move_pct,diff_mean_pt,p_mean,spike_median_move_pct,baseline_median_move_pct,diff_median_pt,p_median,cohens_d
+full_sample,147,1275,7.72,3.72,4.0,0.0,6.63,3.03,3.6,0.0,1.294
+excl_z_gt_15,131,1275,7.3,3.72,3.58,0.0,6.07,3.03,3.04,0.0,1.184

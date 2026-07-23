@@ -1,0 +1,9 @@
+ticker,news_this_week,news_last_week,news_ratio,news_status,news_elevated,reddit_mentions_today,reddit_mentions_prior_24h,reddit_ratio_24h,reddit_status,reddit_elevated,note
+MSFT,44,15,2.933,ok,True,356,112,3.179,ok,True,
+ADBE,22,9,2.444,ok,True,3,1,3.0,ok,True,
+NFLX,51,7,7.286,ok,True,23,14,1.643,ok,True,
+NKE,30,19,1.579,ok,True,4,1,4.0,ok,True,
+STZ,25,37,0.676,ok,False,1,0,,ok,False,"reddit: 0 mentions prior 24h, 1 today — absolute-count rule applied (elevated only if today >= 3), ratio not computed"
+QCOM,28,15,1.867,ok,True,3,0,,ok,True,"reddit: 0 mentions prior 24h, 3 today — absolute-count rule applied (elevated only if today >= 3), ratio not computed"
+SBUX,36,8,4.5,ok,True,2,1,2.0,ok,True,
+AMZN,49,8,6.125,ok,True,28,10,2.8,ok,True,

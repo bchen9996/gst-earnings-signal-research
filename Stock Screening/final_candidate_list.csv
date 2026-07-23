@@ -1,0 +1,27 @@
+ticker,zacks_rank_gate,n_buy_transactions_90d,total_buy_dollar_value_90d,n_distinct_insiders_buying_90d,n_buy_transactions_180d,total_buy_dollar_value_180d,n_distinct_insiders_buying_180d,n_buy_transactions_365d,total_buy_dollar_value_365d,n_distinct_insiders_buying_365d,sloan_fy_end,accruals_ratio,sloan_flag,sloan_notes,insider_context
+ADI,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-11-01,-0.032,OK,,no buying activity in any window (90/180/365d)
+ALB,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-12-31,-0.0651,OK,,no buying activity in any window (90/180/365d)
+AMAT,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-10-26,-0.0063,CAUTION (top quartile — most aggressive accruals),,no buying activity in any window (90/180/365d)
+AXON,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,1,1004919.73,1,2025-12-31,-0.0847,OK,,"buying present: 0/0/1 txns (90/180/365d), $1,004,920 over 365d, 1 distinct insider(s)"
+BEN,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,1,750000.0,1,3,2884475.0,2,2025-09-30,,EXCLUDED — financial sector structure,"excluded from Sloan gate — no classified balance sheet (structural feature of financial-sector filers, not missing data)","buying present: 0/1/3 txns (90/180/365d), $2,884,475 over 365d, 2 distinct insider(s)"
+CIEN,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-11-01,-0.0999,OK,,no buying activity in any window (90/180/365d)
+COHR,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-06-30,-0.0412,OK,,no buying activity in any window (90/180/365d)
+CSCO,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-07-26,-0.0325,OK,,no buying activity in any window (90/180/365d)
+DELL,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2026-01-30,-0.0387,OK,,no buying activity in any window (90/180/365d)
+EME,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-12-31,-0.0143,CAUTION (top quartile — most aggressive accruals),,no buying activity in any window (90/180/365d)
+F,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",1,148880.18,1,2,2083330.18,2,3,2182518.98,2,2025-12-31,-0.0885,OK,,"buying present: 1/2/3 txns (90/180/365d), $2,182,519 over 365d, 2 distinct insider(s)"
+FLEX,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2026-03-31,-0.0252,CAUTION (top quartile — most aggressive accruals),,no buying activity in any window (90/180/365d)
+FOXA,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,1,10632804.36,1,1,10632804.36,1,2025-06-30,-0.0457,OK,,"buying present: 0/1/1 txns (90/180/365d), $10,632,804 over 365d, 1 distinct insider(s)"
+HPE,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-10-31,-0.0126,CAUTION (top quartile — most aggressive accruals),,no buying activity in any window (90/180/365d)
+INTC,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,1,249985.0,1,1,249985.0,1,2025-12-27,0.0074,CAUTION (top quartile — most aggressive accruals),,"buying present: 0/1/1 txns (90/180/365d), $249,985 over 365d, 1 distinct insider(s)"
+JBL,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-08-31,-0.0507,OK,,no buying activity in any window (90/180/365d)
+KEYS,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-10-31,-0.0658,OK,,no buying activity in any window (90/180/365d)
+MCHP,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2026-03-31,-0.0506,OK,,no buying activity in any window (90/180/365d)
+MU,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,3,7821723.4,1,3,7821723.4,1,2025-08-28,-0.1125,OK,,"buying present: 0/3/3 txns (90/180/365d), $7,821,723 over 365d, 1 distinct insider(s)"
+NWS,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-06-30,-0.0028,CAUTION (top quartile — most aggressive accruals),,no buying activity in any window (90/180/365d)
+Q,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,2,329572.0,2,2025-12-31,-0.0352,OK,,"buying present: 0/0/2 txns (90/180/365d), $329,572 over 365d, 2 distinct insider(s)"
+ROST,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2026-01-31,-0.0418,OK,,no buying activity in any window (90/180/365d)
+SNPS,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,1,148903.9,1,2025-10-31,-0.0378,OK,,"buying present: 0/0/1 txns (90/180/365d), $148,904 over 365d, 1 distinct insider(s)"
+TPR,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-06-28,-0.1152,OK,,no buying activity in any window (90/180/365d)
+WDC,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-06-27,-0.0914,OK,,no buying activity in any window (90/180/365d)
+XYZ,"PASS (Zacks Rank=1 & Analyst Rec=1, pre-applied)",0,0.0,0,0,0.0,0,0,0.0,0,2025-12-31,0.0598,CAUTION (top quartile — most aggressive accruals),,no buying activity in any window (90/180/365d)

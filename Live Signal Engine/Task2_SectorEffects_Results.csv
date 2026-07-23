@@ -1,0 +1,9 @@
+sector,n,win_rate_pct,avg_pnl_pct,median_pnl_pct,underpowered_n_lt_10,tickers
+Technology,68,75.0,146.0,99.1,False,"AAPL, ADBE, COHR, CTSH, DELL, INTC, LDOS, MCHP, MSFT, NVDA, QCOM"
+Consumer Cyclical,38,73.7,180.5,145.0,False,"AMZN, GME, NCLH, NKE, SBUX, TSLA"
+Communication Services,24,83.3,180.2,178.7,False,"GOOGL, NFLX, TTWO"
+Consumer Defensive,5,60.0,22.5,39.3,True,STZ
+Energy,4,100.0,338.1,306.4,True,"BKR, DVN"
+Healthcare,4,75.0,174.3,196.3,True,"ABBV, SYK"
+Industrials,3,66.7,112.3,104.1,True,"GPN, UAL"
+Financial Services,1,100.0,83.6,83.6,True,BRK-B

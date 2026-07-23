@@ -1,0 +1,9 @@
+ticker,status,roll_mean,roll_std,today_actual_gst,today_actual_zscore,today_tier,tuesday_fraction_of_week_so_far,estimated_tuesday_gst,estimated_tuesday_zscore,estimated_tuesday_tier,classification_differs
+NFLX,pull_failed,,,,,,,,,,
+AMZN,ok,41.67,12.54,31.0,-0.85,,0.425,13.16,-2.273,,False
+MSFT,ok,55.25,11.31,47.0,-0.73,,0.433,20.33,-3.088,,False
+SBUX,ok,54.08,16.36,48.0,-0.372,,0.412,19.76,-2.098,,False
+NKE,ok,42.33,13.24,35.0,-0.554,,0.445,15.59,-2.02,,False
+STZ,ok,40.5,9.14,39.0,-0.164,,0.512,19.96,-2.248,,False
+QCOM,ok,66.67,23.44,43.0,-1.01,,0.436,18.76,-2.043,,False
+ADBE,ok,47.83,19.14,38.0,-0.514,,0.45,17.09,-1.607,,False

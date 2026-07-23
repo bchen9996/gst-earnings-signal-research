@@ -1,0 +1,4 @@
+group,n,n_real_priced,n_modeled_priced,mean_dollar_return,win_rate_pct,median_pnl_pct,sharpe_annualized,max_drawdown_pct,expected_shortfall_worst10pct,expected_shortfall_worst20pct,worst_trade_dollar,worst_trade_pct
+"BASELINE (sell every earnings date, no GST filter)",266,80,186,3562.78,78.9,55.2,2.223,-11.13,-11324.85,-7434.35,-26133.0,-261.33
+EXCLUDING z>=5 (avoid every GST-flagged date),133,0,133,7404.28,99.2,83.1,2.18,-1.07,1169.24,3187.28,-4143.43,-41.43
+EXCLUDING z>=10 only (avoid just the rare extreme tier),226,57,169,4511.46,84.1,65.6,2.289,-5.44,-9263.8,-5196.95,-26133.0,-261.33

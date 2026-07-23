@@ -1,0 +1,2 @@
+ticker,run_timestamp,week,gst_value,is_partial_week,zscore,is_spike,signal_tier,days_to_earnings,ambiguous_symbol,eligible_for_options_leg,note
+STZ,2026-07-10T17:22:05.171388+00:00,2026-07-05,40,True,-0.055,False,,,False,False,

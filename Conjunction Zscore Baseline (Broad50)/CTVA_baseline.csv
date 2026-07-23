@@ -1,0 +1,8 @@
+ticker,random_week,n_trading_days,max_pos_excess_pct,pos_in_window_pos,pos_streak_days_from_max,max_abs_excess_pct
+CTVA,2019-08-04,15,6.8,4,2,6.8
+CTVA,2019-10-15,15,2.8,13,2,2.8
+CTVA,2019-06-30,14,5.85,3,2,5.85
+CTVA,2019-09-17,15,1.81,3,2,-2.08
+CTVA,2019-11-22,14,1.49,6,2,-4.14
+CTVA,2019-12-18,14,3.92,6,1,3.92
+CTVA,2019-08-27,14,1.22,14,1,-3.13

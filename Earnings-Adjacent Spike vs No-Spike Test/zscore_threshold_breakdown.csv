@@ -1,0 +1,7 @@
+threshold,n,horizon,win_rate_pct,avg_pnl_pct,median_pnl_pct
+z>=4,209,end_of_spike_week,72.2,136.0,100.7
+z>=4,209,end_of_window,57.9,48.4,29.0
+z>=5,147,end_of_spike_week,76.2,161.2,130.0
+z>=5,147,end_of_window,62.6,63.8,44.8
+z>=6,108,end_of_spike_week,79.6,190.1,149.3
+z>=6,108,end_of_window,63.9,73.4,48.3

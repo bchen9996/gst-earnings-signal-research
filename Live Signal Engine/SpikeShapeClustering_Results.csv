@@ -1,0 +1,13 @@
+k,cluster,n,shape_description,centroid_wk_minus4,centroid_wk_minus3,centroid_wk_minus2,centroid_wk_minus1,win_rate_pct,median_pnl_pct,ari_mean_across_seeds,ari_std_across_seeds
+3,0,5,peak-and-fade (elevated then cooling before spike),-0.156,2.15,2.014,1.228,80.0,102.1,0.9,0.152
+3,1,65,flat/quiet,-0.604,-0.576,-0.582,-0.535,78.5,154.7,0.9,0.152
+3,2,75,sudden late jump (quiet then last-week pop),-0.176,-0.12,-0.232,0.284,74.7,127.9,0.9,0.152
+4,0,23,irregular/mixed,0.545,0.134,-0.574,-0.137,60.9,83.6,0.858,0.102
+4,1,56,accelerating build (gradual then sharp),-0.493,-0.221,-0.147,0.382,78.6,133.1,0.858,0.102
+4,2,61,flat/quiet,-0.613,-0.61,-0.553,-0.519,80.3,146.5,0.858,0.102
+4,3,5,peak-and-fade (elevated then cooling before spike),-0.156,2.15,2.014,1.228,80.0,102.1,0.858,0.102
+5,0,48,flat/quiet,-0.346,-0.203,-0.158,-0.19,83.3,143.3,0.678,0.159
+5,1,44,flat/quiet,-0.76,-0.706,-0.651,-0.52,79.5,160.1,0.678,0.159
+5,2,25,accelerating build (gradual then sharp),-0.598,-0.352,-0.23,0.87,72.0,111.3,0.678,0.159
+5,3,5,peak-and-fade (elevated then cooling before spike),-0.156,2.15,2.014,1.228,80.0,102.1,0.678,0.159
+5,4,23,irregular/mixed,0.545,0.134,-0.574,-0.137,60.9,83.6,0.678,0.159

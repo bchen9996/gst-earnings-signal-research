@@ -1,0 +1,2 @@
+ticker,status,error,logged_at,signal_watchlist_timestamp,signal_week,signal_zscore,signal_tier,signal_days_to_earnings,spot_price,expiration,days_to_expiration,atm_strike,call_mid,put_mid,straddle_cost,call_iv,put_iv
+ERIE,ok,,2026-07-10T02:09:35.062113+00:00,2026-07-10T01:25:33.514483+00:00,2026-07-05,2.199,STANDARD,,247.81,2026-08-21,42,250.0,12.15,13.25,25.4,0.4425,0.4075

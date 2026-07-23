@@ -1,0 +1,2 @@
+n,spearman_rho,spearman_p,mi_mean_nats,mi_std_nats,mi_seeds,mi_values_per_seed,mi_r_equivalent,abs_spearman_r,mi_minus_spearman_r_equiv
+147,0.2666,0.0011,0.0302,0.0018,"[42, 43, 44, 45, 46]","[np.float64(0.0328), np.float64(0.0292), np.float64(0.0282), np.float64(0.029), np.float64(0.0318)]",0.2421,0.2666,-0.0246

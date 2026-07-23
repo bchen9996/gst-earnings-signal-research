@@ -1,0 +1,70 @@
+ANALYST ESTIMATE DISPERSION — FINNHUB RECON FINDING
+=====================================================
+Date: 2026-07-12
+Outcome: RECON INCONCLUSIVE — FULL TEST NOT ATTEMPTED, per instruction not
+to force a test on inadequate/unverified data.
+
+WHAT WAS TESTED
+---------------
+1. Direct unauthenticated API calls to two candidate Finnhub endpoints:
+   - https://finnhub.io/api/v1/stock/earnings-quality-score?symbol=MSFT
+   - https://finnhub.io/api/v1/stock/eps-estimate?symbol=MSFT&freq=quarterly
+   Both returned HTTP 401: {"error":"Please use an API key."}
+   No Finnhub API key is configured anywhere in this environment (checked
+   env vars and project files — none found), and this project has never
+   used Finnhub before. Obtaining a key requires creating a Finnhub
+   account, which was not done without explicit authorization.
+
+2. Finnhub's public documentation and third-party reviews (web search,
+   since the docs page itself is JavaScript-rendered and didn't yield
+   content via direct fetch):
+   - The relevant endpoint is "Company EPS Estimates"
+     (finnhub.io/docs/api/company-eps-estimates), used via
+     finnhub_client.company_eps_estimates(symbol, freq='quarterly').
+   - Documented return fields: average estimate, HIGH estimate, LOW
+     estimate, and number of contributing analysts.
+   - NO EXPLICIT STANDARD DEVIATION FIELD was found in any documentation
+     or review consulted. High/low range could be used as a rough proxy
+     for dispersion, but that is a materially different (and cruder)
+     measure than the std-dev-of-estimates this task specifically asked
+     for — not a like-for-like substitute.
+   - Historical depth: third-party sources claim "15+ years" of EPS
+     estimate history, which would comfortably cover 2021-2025 if
+     accurate — but this could not be independently verified without an
+     API key.
+   - Free tier: Finnhub's free tier is generally described as generous
+     (60 calls/min, real-time US quotes, basic fundamentals, SEC
+     filings), but at least one independent review noted some
+     "historical/advanced" endpoints are NOT included in the free tier.
+     Whether the EPS Estimates endpoint specifically is free-tier
+     accessible could not be confirmed from documentation alone.
+
+WHY THIS STOPS HERE
+--------------------
+Two of the three preconditions for proceeding are unconfirmed:
+  - Does the data include a genuine dispersion/std-dev measure, or only
+    a high/low range? UNCONFIRMED (no explicit std-dev field documented).
+  - Is the EPS Estimates endpoint accessible on the free tier at all?
+    UNCONFIRMED (mixed signals from third-party sources).
+Historical depth (2021-2025 coverage) is plausibly fine based on the
+"15+ years" claim, but that's moot if the other two conditions fail.
+
+Per instruction, the full analyst-dispersion straddle-economics test
+(high-dispersion vs low-dispersion split) was NOT run. Proceeding would
+have meant either fabricating dispersion values or building a test on an
+unverified data source — both against this project's established
+standards.
+
+NEXT STEPS IF THIS IS REVISITED
+---------------------------------
+- Obtain a free Finnhub API key (requires account creation — a decision
+  for the user, not made unilaterally here) and directly test whether
+  company_eps_estimates() returns a std-dev field or only high/low, and
+  whether the endpoint is actually accessible without a paid plan.
+- If only high/low is available, consider whether (high - low) / |average|
+  is an acceptable disclosed proxy for dispersion — a materially weaker
+  substitute than a true standard deviation, and should be flagged as
+  such if used.
+- Alternative data sources with explicit analyst-estimate dispersion
+  (e.g., paid providers like FactSet/Refinitiv/Zacks consensus files)
+  were not investigated here — out of scope for this recon pass.

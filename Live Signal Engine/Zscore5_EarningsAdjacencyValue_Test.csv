@@ -1,0 +1,4 @@
+subset,n,win_rate_pct,avg_pnl_pct,median_pnl_pct
+all_z>=5_regardless_of_earnings,201,67.2,126.1,87.3
+z>=5_near_earnings_true,147,76.2,161.2,130.0
+z>=5_near_earnings_false,54,42.6,30.4,-23.2

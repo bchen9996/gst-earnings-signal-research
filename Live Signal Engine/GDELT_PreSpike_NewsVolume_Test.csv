@@ -1,0 +1,168 @@
+ticker,anchor,group,pre_window_start,pre_window_end,gdelt_article_count,status
+TSLA,2023-10-15,A_STRONG_EARNINGS,2023-10-08,2023-10-14,100,ok
+TSLA,2024-01-21,A_STRONG_EARNINGS,2024-01-14,2024-01-20,116,ok
+TSLA,2024-04-21,A_STRONG_EARNINGS,2024-04-14,2024-04-20,213,ok
+TSLA,2024-10-20,A_STRONG_EARNINGS,2024-10-13,2024-10-19,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+NVDA,2021-05-23,A_STRONG_EARNINGS,2021-05-16,2021-05-22,70,ok
+NVDA,2022-02-13,A_STRONG_EARNINGS,2022-02-06,2022-02-12,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NVDA+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20220206000000&enddatetime=20220212235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750e850>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NVDA,2022-05-22,A_STRONG_EARNINGS,2022-05-15,2022-05-21,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NVDA+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20220515000000&enddatetime=20220521235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750e210>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NVDA,2023-05-21,A_STRONG_EARNINGS,2023-05-14,2023-05-20,,429_exhausted
+NVDA,2023-08-20,A_STRONG_EARNINGS,2023-08-13,2023-08-19,141,ok
+NVDA,2023-11-19,A_STRONG_EARNINGS,2023-11-12,2023-11-18,99,ok
+NVDA,2024-02-18,A_STRONG_EARNINGS,2024-02-11,2024-02-17,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NVDA+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20240211000000&enddatetime=20240217235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750e5d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NVDA,2024-05-19,A_STRONG_EARNINGS,2024-05-12,2024-05-18,141,ok
+NVDA,2025-08-24,A_STRONG_EARNINGS,2025-08-17,2025-08-23,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NVDA+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250817000000&enddatetime=20250823235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750e990>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AAPL,2021-10-24,A_STRONG_EARNINGS,2021-10-17,2021-10-23,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=AAPL+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20211017000000&enddatetime=20211023235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750ec10>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AAPL,2022-01-23,A_STRONG_EARNINGS,2022-01-16,2022-01-22,174,ok
+AAPL,2022-04-24,A_STRONG_EARNINGS,2022-04-17,2022-04-23,153,ok
+AAPL,2022-10-23,A_STRONG_EARNINGS,2022-10-16,2022-10-22,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+AAPL,2023-01-29,A_STRONG_EARNINGS,2023-01-22,2023-01-28,149,ok
+AAPL,2023-04-30,A_STRONG_EARNINGS,2023-04-23,2023-04-29,76,ok
+AAPL,2024-04-28,A_STRONG_EARNINGS,2024-04-21,2024-04-27,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=AAPL+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20240421000000&enddatetime=20240427235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f110>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AAPL,2025-01-26,A_STRONG_EARNINGS,2025-01-19,2025-01-25,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=AAPL+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250119000000&enddatetime=20250125235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f250>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AAPL,2025-07-27,A_STRONG_EARNINGS,2025-07-20,2025-07-26,,429_exhausted
+MSFT,2021-04-25,A_STRONG_EARNINGS,2021-04-18,2021-04-24,85,ok
+MSFT,2021-07-25,A_STRONG_EARNINGS,2021-07-18,2021-07-24,88,ok
+MSFT,2021-10-24,A_STRONG_EARNINGS,2021-10-17,2021-10-23,120,ok
+MSFT,2022-01-23,A_STRONG_EARNINGS,2022-01-16,2022-01-22,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+MSFT,2022-04-24,A_STRONG_EARNINGS,2022-04-17,2022-04-23,100,ok
+MSFT,2022-07-24,A_STRONG_EARNINGS,2022-07-17,2022-07-23,124,ok
+MSFT,2022-10-23,A_STRONG_EARNINGS,2022-10-16,2022-10-22,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+MSFT,2023-01-22,A_STRONG_EARNINGS,2023-01-15,2023-01-21,157,ok
+MSFT,2023-04-23,A_STRONG_EARNINGS,2023-04-16,2023-04-22,77,ok
+MSFT,2023-07-23,A_STRONG_EARNINGS,2023-07-16,2023-07-22,108,ok
+MSFT,2023-10-22,A_STRONG_EARNINGS,2023-10-15,2023-10-21,,429_exhausted
+MSFT,2024-07-28,A_STRONG_EARNINGS,2024-07-21,2024-07-27,100,ok
+MSFT,2024-10-27,A_STRONG_EARNINGS,2024-10-20,2024-10-26,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=MSFT+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20241020000000&enddatetime=20241026235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750fb10>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+MSFT,2025-01-26,A_STRONG_EARNINGS,2025-01-19,2025-01-25,68,ok
+MSFT,2025-04-27,A_STRONG_EARNINGS,2025-04-20,2025-04-26,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+MSFT,2025-07-27,A_STRONG_EARNINGS,2025-07-20,2025-07-26,,429_exhausted
+MSFT,2025-10-26,A_STRONG_EARNINGS,2025-10-19,2025-10-25,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=MSFT+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20251019000000&enddatetime=20251025235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8050>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AMZN,2021-07-25,A_STRONG_EARNINGS,2021-07-18,2021-07-24,133,ok
+AMZN,2021-10-24,A_STRONG_EARNINGS,2021-10-17,2021-10-23,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+AMZN,2022-10-23,A_STRONG_EARNINGS,2022-10-16,2022-10-22,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=AMZN+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20221016000000&enddatetime=20221022235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8550>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AMZN,2023-01-29,A_STRONG_EARNINGS,2023-01-22,2023-01-28,,429_exhausted
+AMZN,2023-07-30,A_STRONG_EARNINGS,2023-07-23,2023-07-29,97,ok
+AMZN,2024-01-28,A_STRONG_EARNINGS,2024-01-21,2024-01-27,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+AMZN,2024-04-28,A_STRONG_EARNINGS,2024-04-21,2024-04-27,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=AMZN+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20240421000000&enddatetime=20240427235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8a50>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+AMZN,2024-07-28,A_STRONG_EARNINGS,2024-07-21,2024-07-27,85,ok
+AMZN,2025-07-27,A_STRONG_EARNINGS,2025-07-20,2025-07-26,78,ok
+AMZN,2025-10-26,A_STRONG_EARNINGS,2025-10-19,2025-10-25,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=AMZN+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20251019000000&enddatetime=20251025235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8cd0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+GOOGL,2022-10-23,A_STRONG_EARNINGS,2022-10-16,2022-10-22,64,ok
+GOOGL,2023-10-22,A_STRONG_EARNINGS,2023-10-15,2023-10-21,30,ok
+GOOGL,2024-10-27,A_STRONG_EARNINGS,2024-10-20,2024-10-26,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=GOOGL+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20241020000000&enddatetime=20241026235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8f50>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+GOOGL,2025-07-20,A_STRONG_EARNINGS,2025-07-13,2025-07-19,98,ok
+GOOGL,2025-10-26,A_STRONG_EARNINGS,2025-10-19,2025-10-25,120,ok
+NFLX,2021-04-18,A_STRONG_EARNINGS,2021-04-11,2021-04-17,40,ok
+NFLX,2021-07-18,A_STRONG_EARNINGS,2021-07-11,2021-07-17,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NFLX+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20210711000000&enddatetime=20210717235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750fed0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NFLX,2021-10-17,A_STRONG_EARNINGS,2021-10-10,2021-10-16,,429_exhausted
+NFLX,2022-04-17,A_STRONG_EARNINGS,2022-04-10,2022-04-16,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+NFLX,2022-10-16,A_STRONG_EARNINGS,2022-10-09,2022-10-15,,429_exhausted
+NFLX,2023-04-16,A_STRONG_EARNINGS,2023-04-09,2023-04-15,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NFLX+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20230409000000&enddatetime=20230415235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f9d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NFLX,2023-07-16,A_STRONG_EARNINGS,2023-07-09,2023-07-15,45,ok
+NFLX,2023-10-15,A_STRONG_EARNINGS,2023-10-08,2023-10-14,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+NFLX,2024-01-21,A_STRONG_EARNINGS,2024-01-14,2024-01-20,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NFLX+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20240114000000&enddatetime=20240120235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f4d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NFLX,2024-07-14,A_STRONG_EARNINGS,2024-07-07,2024-07-13,,429_exhausted
+NFLX,2024-10-13,A_STRONG_EARNINGS,2024-10-06,2024-10-12,,429_exhausted
+NFLX,2025-01-19,A_STRONG_EARNINGS,2025-01-12,2025-01-18,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NFLX+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250112000000&enddatetime=20250118235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f390>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NFLX,2025-07-13,A_STRONG_EARNINGS,2025-07-06,2025-07-12,,429_exhausted
+NFLX,2025-10-19,A_STRONG_EARNINGS,2025-10-12,2025-10-18,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+ADBE,2021-03-21,A_STRONG_EARNINGS,2021-03-14,2021-03-20,10,ok
+ADBE,2021-09-19,A_STRONG_EARNINGS,2021-09-12,2021-09-18,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=ADBE+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20210912000000&enddatetime=20210918235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750ed50>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+ADBE,2021-12-12,A_STRONG_EARNINGS,2021-12-05,2021-12-11,21,ok
+ADBE,2022-03-20,A_STRONG_EARNINGS,2022-03-13,2022-03-19,23,ok
+ADBE,2022-09-11,A_STRONG_EARNINGS,2022-09-04,2022-09-10,8,ok
+ADBE,2023-03-12,A_STRONG_EARNINGS,2023-03-05,2023-03-11,19,ok
+ADBE,2023-09-10,A_STRONG_EARNINGS,2023-09-03,2023-09-09,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+ADBE,2023-12-10,A_STRONG_EARNINGS,2023-12-03,2023-12-09,24,ok
+ADBE,2024-03-10,A_STRONG_EARNINGS,2024-03-03,2024-03-09,29,ok
+ADBE,2024-06-09,A_STRONG_EARNINGS,2024-06-02,2024-06-08,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+ADBE,2024-09-08,A_STRONG_EARNINGS,2024-09-01,2024-09-07,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+ADBE,2024-12-08,A_STRONG_EARNINGS,2024-12-01,2024-12-07,21,ok
+ADBE,2025-03-09,A_STRONG_EARNINGS,2025-03-02,2025-03-08,36,ok
+ADBE,2025-06-08,A_STRONG_EARNINGS,2025-06-01,2025-06-07,24,ok
+ADBE,2025-09-07,A_STRONG_EARNINGS,2025-08-31,2025-09-06,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=ADBE+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250831000000&enddatetime=20250906235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750dbd0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+ADBE,2025-12-07,A_STRONG_EARNINGS,2025-11-30,2025-12-06,,429_exhausted
+NKE,2021-03-14,A_STRONG_EARNINGS,2021-03-07,2021-03-13,11,ok
+NKE,2021-06-20,A_STRONG_EARNINGS,2021-06-13,2021-06-19,27,ok
+NKE,2021-09-19,A_STRONG_EARNINGS,2021-09-12,2021-09-18,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NKE+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20210912000000&enddatetime=20210918235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8e10>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NKE,2021-12-19,A_STRONG_EARNINGS,2021-12-12,2021-12-18,,429_exhausted
+NKE,2022-03-20,A_STRONG_EARNINGS,2022-03-13,2022-03-19,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NKE+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20220313000000&enddatetime=20220319235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8b90>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NKE,2022-06-26,A_STRONG_EARNINGS,2022-06-19,2022-06-25,29,ok
+NKE,2022-09-25,A_STRONG_EARNINGS,2022-09-18,2022-09-24,30,ok
+NKE,2023-03-19,A_STRONG_EARNINGS,2023-03-12,2023-03-18,17,ok
+NKE,2023-06-25,A_STRONG_EARNINGS,2023-06-18,2023-06-24,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NKE+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20230618000000&enddatetime=20230624235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8910>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NKE,2023-09-24,A_STRONG_EARNINGS,2023-09-17,2023-09-23,17,ok
+NKE,2023-12-17,A_STRONG_EARNINGS,2023-12-10,2023-12-16,,429_exhausted
+NKE,2024-06-23,A_STRONG_EARNINGS,2024-06-16,2024-06-22,58,ok
+NKE,2025-03-16,A_STRONG_EARNINGS,2025-03-09,2025-03-15,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=NKE+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250309000000&enddatetime=20250315235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8690>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+NKE,2025-09-28,A_STRONG_EARNINGS,2025-09-21,2025-09-27,23,ok
+SBUX,2021-07-25,A_STRONG_EARNINGS,2021-07-18,2021-07-24,,429_exhausted
+SBUX,2021-10-24,A_STRONG_EARNINGS,2021-10-17,2021-10-23,,429_exhausted
+SBUX,2022-01-30,A_STRONG_EARNINGS,2022-01-23,2022-01-29,13,ok
+SBUX,2023-01-29,A_STRONG_EARNINGS,2023-01-22,2023-01-28,,429_exhausted
+SBUX,2023-04-30,A_STRONG_EARNINGS,2023-04-23,2023-04-29,26,ok
+SBUX,2023-07-30,A_STRONG_EARNINGS,2023-07-23,2023-07-29,10,ok
+SBUX,2023-10-29,A_STRONG_EARNINGS,2023-10-22,2023-10-28,12,ok
+SBUX,2024-04-28,A_STRONG_EARNINGS,2024-04-21,2024-04-27,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=SBUX+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20240421000000&enddatetime=20240427235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8410>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+SBUX,2025-04-27,A_STRONG_EARNINGS,2025-04-20,2025-04-26,,429_exhausted
+SBUX,2025-07-27,A_STRONG_EARNINGS,2025-07-20,2025-07-26,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=SBUX+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250720000000&enddatetime=20250726235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8190>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+INTC,2021-10-17,A_STRONG_EARNINGS,2021-10-10,2021-10-16,34,ok
+INTC,2022-01-23,A_STRONG_EARNINGS,2022-01-16,2022-01-22,42,ok
+INTC,2022-07-24,A_STRONG_EARNINGS,2022-07-17,2022-07-23,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=INTC+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20220717000000&enddatetime=20220723235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d91d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+INTC,2022-10-23,A_STRONG_EARNINGS,2022-10-16,2022-10-22,53,ok
+INTC,2023-01-22,A_STRONG_EARNINGS,2023-01-15,2023-01-21,39,ok
+INTC,2024-07-28,A_STRONG_EARNINGS,2024-07-21,2024-07-27,22,ok
+INTC,2025-07-20,A_STRONG_EARNINGS,2025-07-13,2025-07-19,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=INTC+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250713000000&enddatetime=20250719235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d9450>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+TTWO,2021-05-16,A_STRONG_EARNINGS,2021-05-09,2021-05-15,1,ok
+TTWO,2021-10-31,A_STRONG_EARNINGS,2021-10-24,2021-10-30,1,ok
+TTWO,2022-11-06,A_STRONG_EARNINGS,2022-10-30,2022-11-05,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+TTWO,2023-02-05,A_STRONG_EARNINGS,2023-01-29,2023-02-04,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=TTWO+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20230129000000&enddatetime=20230204235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750e710>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+TTWO,2023-05-14,A_STRONG_EARNINGS,2023-05-07,2023-05-13,5,ok
+TTWO,2023-11-05,A_STRONG_EARNINGS,2023-10-29,2023-11-04,1,ok
+TTWO,2024-05-12,A_STRONG_EARNINGS,2024-05-05,2024-05-11,2,ok
+TTWO,2024-11-03,A_STRONG_EARNINGS,2024-10-27,2024-11-02,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+TTWO,2025-11-02,A_STRONG_EARNINGS,2025-10-26,2025-11-01,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=TTWO+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20251026000000&enddatetime=20251101235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750ead0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+QCOM,2021-07-25,A_STRONG_EARNINGS,2021-07-18,2021-07-24,,429_exhausted
+QCOM,2021-10-31,A_STRONG_EARNINGS,2021-10-24,2021-10-30,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+QCOM,2022-01-30,A_STRONG_EARNINGS,2022-01-23,2022-01-29,20,ok
+QCOM,2022-07-24,A_STRONG_EARNINGS,2022-07-17,2022-07-23,21,ok
+QCOM,2022-10-30,A_STRONG_EARNINGS,2022-10-23,2022-10-29,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=QCOM+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20221023000000&enddatetime=20221029235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750efd0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+QCOM,2023-04-30,A_STRONG_EARNINGS,2023-04-23,2023-04-29,21,ok
+QCOM,2023-07-30,A_STRONG_EARNINGS,2023-07-23,2023-07-29,32,ok
+QCOM,2024-01-28,A_STRONG_EARNINGS,2024-01-21,2024-01-27,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+QCOM,2024-04-28,A_STRONG_EARNINGS,2024-04-21,2024-04-27,35,ok
+QCOM,2024-11-03,A_STRONG_EARNINGS,2024-10-27,2024-11-02,20,ok
+QCOM,2025-07-27,A_STRONG_EARNINGS,2025-07-20,2025-07-26,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=QCOM+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20250720000000&enddatetime=20250726235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f4d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+GME,2023-03-19,A_STRONG_EARNINGS,2023-03-12,2023-03-18,11,ok
+GME,2025-09-07,A_STRONG_EARNINGS,2025-08-31,2025-09-06,6,ok
+EBAY,2023-02-19,A_STRONG_EARNINGS,2023-02-12,2023-02-18,65,ok
+ABBV,2022-10-23,A_STRONG_EARNINGS,2022-10-16,2022-10-22,19,ok
+ABBV,2023-07-23,A_STRONG_EARNINGS,2023-07-16,2023-07-22,,429_exhausted
+ABBV,2024-07-21,A_STRONG_EARNINGS,2024-07-14,2024-07-20,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+ABBV,2024-10-27,A_STRONG_EARNINGS,2024-10-20,2024-10-26,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=ABBV+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20241020000000&enddatetime=20241026235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750f9d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+ALLE,2021-10-17,A_STRONG_EARNINGS,2021-10-10,2021-10-16,4,ok
+BKR,2021-10-17,A_STRONG_EARNINGS,2021-10-10,2021-10-16,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+BKR,2022-07-17,A_STRONG_EARNINGS,2022-07-10,2022-07-16,1,ok
+BKR,2025-07-20,A_STRONG_EARNINGS,2025-07-13,2025-07-19,,429_exhausted
+BRK-B,2021-02-28,A_STRONG_EARNINGS,2021-02-21,2021-02-27,,429_exhausted
+BRK-B,2025-11-02,A_STRONG_EARNINGS,2025-10-26,2025-11-01,,parse_error
+CCL,2024-06-23,A_STRONG_EARNINGS,2024-06-16,2024-06-22,,429_exhausted
+COF,2021-04-25,A_STRONG_EARNINGS,2021-04-18,2021-04-24,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+COHR,2023-08-13,A_STRONG_EARNINGS,2023-08-06,2023-08-12,,429_exhausted
+COHR,2024-02-04,A_STRONG_EARNINGS,2024-01-28,2024-02-03,,429_exhausted
+COHR,2024-08-11,A_STRONG_EARNINGS,2024-08-04,2024-08-10,,429_exhausted
+CTSH,2022-01-30,A_STRONG_EARNINGS,2022-01-23,2022-01-29,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=CTSH+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20220123000000&enddatetime=20220129235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b9750fd90>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+CTSH,2022-10-30,A_STRONG_EARNINGS,2022-10-23,2022-10-29,0,ok
+CTSH,2023-07-30,A_STRONG_EARNINGS,2023-07-23,2023-07-29,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=CTSH+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20230723000000&enddatetime=20230729235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d9590>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+CTSH,2025-07-27,A_STRONG_EARNINGS,2025-07-20,2025-07-26,1,ok
+CTVA,2022-10-30,A_STRONG_EARNINGS,2022-10-23,2022-10-29,4,ok
+DELL,2021-08-22,A_STRONG_EARNINGS,2021-08-15,2021-08-21,50,ok
+DELL,2025-11-30,A_STRONG_EARNINGS,2025-11-23,2025-11-29,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Read timed out. (read timeout=30)"
+DVN,2023-02-12,A_STRONG_EARNINGS,2023-02-05,2023-02-11,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=DVN+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20230205000000&enddatetime=20230211235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d9090>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+DVN,2024-08-04,A_STRONG_EARNINGS,2024-07-28,2024-08-03,10,ok
+GPN,2021-08-01,A_STRONG_EARNINGS,2021-07-25,2021-07-31,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=GPN+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20210725000000&enddatetime=20210731235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d8050>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+GPN,2022-05-01,A_STRONG_EARNINGS,2022-04-24,2022-04-30,,429_exhausted
+GPN,2022-07-31,A_STRONG_EARNINGS,2022-07-24,2022-07-30,,"error: HTTPSConnectionPool(host='api.gdeltproject.org', port=443): Max retries exceeded with url: /api/v2/doc/doc?query=GPN+stock&mode=ArtList&format=json&maxrecords=250&startdatetime=20220724000000&enddatetime=20220730235959 (Caused by ConnectTimeoutError(<HTTPSConnection(host='api.gdeltproject.org', port=443) at 0x22b977d82d0>, 'Connection to api.gdeltproject.org timed out. (connect timeout=30)'))"
+GPN,2022-10-30,A_STRONG_EARNINGS,2022-10-23,2022-10-29,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"
+GPN,2023-07-30,A_STRONG_EARNINGS,2023-07-23,2023-07-29,,"error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))"

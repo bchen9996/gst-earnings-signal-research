@@ -1,0 +1,7 @@
+ticker,n_quarters,n_positive,pct_positive,binomial_p,significant_5pct,first_half_pct_positive,second_half_pct_positive,direction_stable_across_halves
+INTC,20,12,60.0,0.5034,False,60.0,60.0,True
+TTWO,20,10,50.0,1.0,False,50.0,50.0,False
+SBUX,20,10,50.0,1.0,False,40.0,60.0,False
+NKE,20,13,65.0,0.2632,False,50.0,80.0,False
+QCOM,20,12,60.0,0.5034,False,50.0,70.0,False
+ADBE,20,11,55.0,0.8238,False,60.0,50.0,False

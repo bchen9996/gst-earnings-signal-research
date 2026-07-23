@@ -1,0 +1,5 @@
+universe,horizon_days,benchmark,n_confirmed,n_no_spike,mean_abs_excess_confirmed,mean_abs_excess_no_spike,diff,p_value
+sp500,90,SPY,32,129,0.10825,0.11356,-0.00531,0.8377
+sp500,180,SPY,32,129,0.20877,0.17594,0.03283,0.4155
+sp600,90,IJR,19,141,0.15425,0.15774,-0.00349,0.9222
+sp600,180,IJR,19,141,0.23587,0.23825,-0.00238,0.9643

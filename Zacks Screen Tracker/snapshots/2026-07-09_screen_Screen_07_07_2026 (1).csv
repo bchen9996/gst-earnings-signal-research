@@ -1,0 +1,30 @@
+Criteria,Zacks Analyst Recommendation = 1
+AND,Zacks Rank = 1
+
+Selected,Company Name,Ticker,Zacks Analyst Recommendation,Zacks Sector,Zacks Analyst Recommendation (as of Date),Zacks Rank,1 Month Total Return %,% Total Return YTD,Relative Price Change % - 52 Weeks,Relative Price Change % - YTD,Dividend Yield
+Yes,Analog Devices,ADI,1,Computer and Technology,1/01/2026,1,-3.76%,44.19%,32.91%,30.21%,1.17%
+Yes,Albemarle Corp,ALB,1,Basic Materials,5/11/2026,1,-23.23%,-4.83%,68.84%,-14.09%,1.27%
+Yes,Appld Matls Inc,AMAT,1,Computer and Technology,7/01/2026,1,60.65%,131.05%,156.82%,109.49%,0.39%
+Yes,Axon Enterprise,AXON,1,Aerospace,5/19/2026,1,24.94%,9.58%,-35.87%,-0.48%,0.00%
+Yes,Franklin Resour,BEN,1,Finance,6/22/2026,1,8.32%,46.92%,15.95%,30.93%,3.82%
+Yes,Ciena Corp,CIEN,1,Computer and Technology,7/02/2026,1,-15.45%,85.50%,347.50%,68.47%,0.00%
+Yes,Coherent Corp,COHR,1,Business Services,7/01/2026,1,9.13%,81.88%,215.13%,65.19%,0.00%
+Yes,Cisco Systems,CSCO,1,Computer and Technology,6/30/2026,1,-2.46%,49.59%,36.67%,34.39%,1.49%
+Yes,Dell Technologs,DELL,1,Computer and Technology,4/21/2026,1,2.51%,228.05%,172.80%,197.11%,0.62%
+Yes,Emcor Group Inc,EME,1,Construction,6/30/2026,1,0.37%,28.82%,18.07%,16.87%,0.21%
+Yes,Ford Motor Co,F,1,Auto-Tires-Trucks,7/06/2026,1,-20.30%,7.70%,-1.37%,-4.27%,4.37%
+Yes,Flex Ltd,FLEX,1,Computer and Technology,5/13/2026,1,7.49%,129.48%,122.70%,108.41%,0.00%
+Yes,Fox Corp-A,FOXA,1,Consumer Discretionary,5/13/2026,1,-18.40%,-23.16%,-15.81%,-30.56%,0.99%
+Yes,Hewlett Pkd Ent,HPE,1,Computer and Technology,6/10/2026,1,5.14%,80.83%,70.57%,63.15%,1.32%
+Yes,Intel Corp,INTC,1,Computer and Technology,6/23/2026,1,21.76%,231.17%,359.11%,200.77%,0.00%
+Yes,Jabil Inc,JBL,1,Computer and Technology,7/02/2026,1,5.74%,48.40%,24.02%,34.71%,0.10%
+Yes,Keysight Tech,KEYS,1,Computer and Technology,4/29/2026,1,3.47%,57.36%,62.68%,42.91%,0.00%
+Yes,Microchip Tech,MCHP,1,Computer and Technology,5/12/2026,1,-3.65%,38.89%,1.28%,24.84%,2.20%
+Yes,Micron Tech,MU,1,Computer and Technology,8/19/2025,1,18.88%,245.14%,578.73%,213.36%,0.07%
+Yes,News Corp-B,NWS,1,Consumer Discretionary,7/01/2026,1,-5.90%,1.65%,-26.85%,-7.98%,0.66%
+Yes,Qnity Electrncs,Q,1,Computer and Technology,6/30/2026,1,4.69%,79.84%,,63.15%,0.23%
+Yes,Ross Stores,ROST,1,Retail-Wholesale,5/22/2026,1,-7.96%,17.83%,33.59%,6.56%,0.82%
+Yes,Synopsys Inc,SNPS,1,Computer and Technology,6/30/2026,1,-6.21%,-5.84%,-31.87%,-14.49%,0.00%
+Yes,Tapestry Inc,TPR,1,Retail-Wholesale,2/09/2026,1,0.91%,14.50%,30.05%,3.42%,1.09%
+Yes,Western Digital,WDC,1,Computer and Technology,5/06/2026,1,20.27%,235.37%,631.88%,204.44%,0.11%
+Yes,Block Inc,XYZ,1,Computer and Technology,6/10/2026,1,0.37%,21.25%,-6.02%,10.12%,0.00%

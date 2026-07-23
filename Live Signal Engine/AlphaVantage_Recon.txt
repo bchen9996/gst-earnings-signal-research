@@ -1,0 +1,95 @@
+ALPHA VANTAGE RECON — historical EPS estimate revision data
+=============================================================
+Scope: check whether alphavantage.co free tier provides a TIME SERIES of
+consensus EPS estimate changes in the weeks before a specific PAST earnings
+date, usable as a point-in-time historical feature for backtesting
+(concrete test case: MSFT Q3 2024 earnings). Recon only — nothing built.
+
+WHAT WAS TESTED
+---------------
+No Alpha Vantage API key exists anywhere in this project (checked). No
+account was created (would require external signup, not done without
+authorization). Testing used Alpha Vantage's public "demo" apikey, which
+AV publishes for documentation/testing purposes but restricts to a small
+set of demo symbols (IBM confirmed working; MSFT confirmed BLOCKED).
+
+Endpoint 1: function=EARNINGS (https://www.alphavantage.co/query)
+  Fields per quarter: fiscalDateEnding, reportedDate, reportedEPS,
+  estimatedEPS, surprise, surprisePercentage, reportTime.
+  -> Gives exactly ONE estimatedEPS value per quarter: the FINAL consensus
+     estimate used to compute the surprise at report time. This is a
+     single point-in-time snapshot, NOT a revision history. Does not
+     answer the question asked.
+
+Endpoint 2: function=EARNINGS_ESTIMATES (undocumented in the main docs
+  page's visible table of contents, but live and functional — found via
+  direct query, not linked prominently)
+  Fields per (date, horizon) row: eps_estimate_average, eps_estimate_high,
+  eps_estimate_low, eps_estimate_analyst_count,
+  eps_estimate_average_7_days_ago, _30_days_ago, _60_days_ago,
+  _90_days_ago, eps_estimate_revision_up_trailing_7_days,
+  eps_estimate_revision_down_trailing_7_days,
+  eps_estimate_revision_up_trailing_30_days,
+  eps_estimate_revision_down_trailing_30_days, revenue_estimate_average,
+  revenue_estimate_high, revenue_estimate_low, revenue_estimate_analyst_count.
+  horizon values: "fiscal quarter" and "fiscal year".
+  Coverage (IBM demo test): 40 rows, fiscal quarters back to 2017-06-30
+  through 2027-12-31 (i.e. nominally covers the full 2021-2025 window this
+  project needs).
+
+  THIS LOOKED LIKE AN EXACT MATCH FOR THE REQUEST. IT IS NOT — SEE BELOW.
+
+CRITICAL FINDING — WHY THIS DOESN'T ACTUALLY WORK FOR BACKTESTING
+-------------------------------------------------------------------
+The "_7_days_ago" / "_30_days_ago" / "_60_days_ago" / "_90_days_ago"
+fields are computed relative to TODAY (the date the API is called), not
+relative to each row's own fiscal quarter / earnings date. Proof: pulled
+IBM's already-reported 2023-09-30 quarter (reported ~2 years before this
+recon) and got:
+  eps_estimate_average=2.01, eps_estimate_average_7_days_ago=2.14,
+  eps_estimate_average_30_days_ago=2.01, eps_estimate_average_60_days_ago=2.15,
+  eps_estimate_revision_up_trailing_7_days=0, revision_down_trailing_7_days=null
+These numbers are internally inconsistent with genuine estimate-revision
+activity for a multi-year-old, already-closed quarter (no active analyst
+coverage changes a 2023 estimate in 2026) — they're an artifact of the
+endpoint recomputing "N days ago" against the CURRENT date on every call,
+not against the historical fiscal period. In other words: this endpoint
+is built for LIVE forward-looking monitoring of upcoming-quarter
+estimates, not for reconstructing "what did consensus look like in the
+weeks before MSFT's Q3 2024 print, as it would have appeared in real time
+back then." Using it as a historical point-in-time feature would silently
+introduce look-ahead bias — the values returned today for a 2021 event are
+not the values that existed in 2021.
+
+MSFT-specific test: BLOCKED. The demo key only serves a handful of
+whitelisted symbols (IBM works, MSFT returns an "Information" message
+demanding a real key). A real free-tier key was not created (no account
+signup performed), so the concrete MSFT Q3 2024 test requested could not
+be completed as specified.
+
+FREE TIER RATE LIMIT
+---------------------
+Per Alpha Vantage's premium page: free tier is capped at 25 requests/day.
+Even setting aside the point-in-time problem above, 25 req/day is far too
+restrictive for this project's scale (51 tickers x ~10 events/ticker
+would need 500+ calls) without a paid plan.
+
+CONCLUSION
+----------
+Alpha Vantage does NOT provide what was asked for: a genuine point-in-time
+historical time series of consensus EPS estimate revisions in the weeks
+before a specific past earnings date. The one endpoint that superficially
+matches (EARNINGS_ESTIMATES) recomputes its "days ago" fields against
+today's date on every call, making it unsuitable for backtesting without
+introducing look-ahead bias, and it could not even be tested against MSFT
+specifically due to demo-key symbol restrictions. Free-tier rate limits
+(25/day) would also be a binding constraint at this project's scale even
+if the data were usable.
+
+Per instructions: stopping here. Nothing built on top of this. If EPS
+estimate revision tracking becomes a priority, the real options are: (a)
+a paid data vendor with genuine point-in-time / as-of-date snapshots
+(e.g. I/B/E/S, Refinitiv, Zacks — all paid, none tested here), or (b)
+accept a documented look-ahead-biased proxy and disclose it prominently,
+which this project's established discipline would not do without explicit
+sign-off.
