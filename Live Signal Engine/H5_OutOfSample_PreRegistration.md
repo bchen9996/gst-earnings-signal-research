@@ -199,3 +199,57 @@ in §4 is unchanged and still applies once a combined clean-and-priced
 total under 30, this note's next update (also appended, not edited) will
 report that H5 cannot be tested out-of-sample without a fresh
 pre-registration decision to expand the eligible-pool definition itself.
+
+---
+
+## Appended note (2026-07-25, later) — combined n confirmed at 49; ticker-exclusion limitation, verified and broader than first flagged
+
+**Not an edit to anything above — append-only.**
+
+**Verification artifacts created**: the two QC pulls' `results_df` output
+was pasted into conversation but the scripts' own CSV exports were never
+generated from the notebook. Reconstructed and saved as
+`Live Signal Engine/QC_H5_OutOfSample_RawResults.csv` (original 45-event
+pull) and `Live Signal Engine/QC_H5_OutOfSample_Supplemental_RawResults.csv`
+(supplemental 31-event pull), from the pasted content only — nothing
+assumed from memory or from summary stats. **Schema caveat, disclosed:**
+the supplemental file has the full column set (the complete `results_df`
+table was pasted for that pull). The original 45-event file has a
+narrower schema — only `ticker`, `spike_week`, `corrupted`, `note`,
+`real_cost_pct_of_spot` — because only the console print log was pasted
+for that pull, not the full table; `entry_date`, `exit_date`, `zscore`,
+strike, and quote-level fields were never provided for those 45 events
+and are not fabricated here. Both files' clean/corrupted/failed counts
+were assert-checked in code against each pull's own printed summary line
+before saving (original: 15 corrupted / 29 clean / 1 failed; supplemental:
+10 corrupted / 20 clean / 1 failed) — both matched exactly.
+
+**Combined clean-and-priced n = 49** (29 + 20), confirmed by filtering
+both files independently on `corrupted==False & real_cost_pct_of_spot
+notnull` and summing — clears the `n≥40` target from §2.
+
+**Ticker-exclusion limitation, corrected and broadened from the first
+report:** of the 76 attempted events (all of the pre-registration's
+eligible pool), four tickers ended up with **zero** clean-and-priced
+representation in the 49, not two:
+
+| Ticker | Attempted | Clean | Failure mode |
+|---|---|---|---|
+| NFLX | 16 | 0 | all auto-flagged implausible pricing (>25% of spot) |
+| NVDA | 6 | 0 | all auto-flagged implausible pricing |
+| COHR | 2 | 0 | both "no option chain listed at entry date" — a different failure mode than the other two |
+| DELL | 1 | 0 | auto-flagged implausible pricing |
+
+Every other ticker in the 76-event eligible pool has at least one clean
+event in the 49. **The final H5 out-of-sample result will have zero
+NFLX, NVDA, COHR, or DELL representation and should not be read as
+generalizing to any of those four tickers** — not just the two originally
+flagged. NFLX and NVDA's exclusion is the dominant pattern (22 of 76
+attempted events, all on the same implausible-pricing failure mode,
+worth investigating separately as a possible systematic AlgoSeek/strike-
+matching issue for those two tickers specifically, per the same
+"broken strike/expiry match" root cause already documented for the
+original 76-event sample's one manually-caught corrupted case) — COHR
+and DELL's exclusion is much thinner evidence (3 attempts between them)
+and is disclosed for completeness, not because it's equally strong
+evidence of a ticker-specific pattern.
