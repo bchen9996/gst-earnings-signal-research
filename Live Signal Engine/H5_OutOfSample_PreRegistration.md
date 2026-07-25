@@ -138,3 +138,64 @@ separately-designed test, not used to reclassify this result.
 
 *End of pre-registration. Real quote pulls for these 45 events follow
 this file's commit, not the other way around.*
+
+---
+
+## Appended note (2026-07-25) — supplemental draw, original 45 fell short
+
+**Not an edit to anything above — append-only, per this project's
+established governance for locked/pre-registered documents.**
+
+**What happened:** the original n=45 draw (§2, seed=811) came back with
+only **29 clean-and-priced events** after the (unmodified) automated
+corruption filter: 15 excluded as implausible pricing (>25% of spot — the
+same `MAX_PLAUSIBLE_COST_PCT_OF_SPOT` threshold used throughout this
+project, not relaxed here or anywhere else), 1 with no option chain
+listed at entry. 29 is below the effective floor for the §2 `n≥40`
+target once further attrition in the still-to-come outcome pull is
+accounted for — **not itself a stop condition** (the pre-registration's
+stop condition is `n<30` on the *eligible pool before sampling*, which
+was 76 and never came close to triggering), but a real shortfall that
+needs resolving before any correlation is computed.
+
+**Supplemental draw:**
+- Remaining untouched eligible pool: **31 events** — the same 76-event
+  eligible pool defined in §2 (152 canonical minus the original 76-event
+  H5 sample), minus the 45 already drawn. Recomputed directly from the
+  actual files (`FixedWindow_PerEvent_Canonical.csv`,
+  `QC_Validation_CleanSample_v2_76Events.csv`,
+  `H5_OutOfSample_LockedSample.csv`), not assumed from the prior count.
+- **All 31 remaining events drawn — not a random subsample, so no seed
+  applies.** Reasoning: this is the complete remainder of the *already-
+  locked* eligible pool from §2, not a new population definition, so
+  using all of it isn't an expansion of scope needing a fresh
+  pre-registration decision — it's completing the draw from a set already
+  fixed in advance. Since nothing is being left out, there is no
+  selection to seed, and holding part of it back for a hypothetical later
+  draw would only lower the probability of reaching the `n≥40` combined
+  target with no offsetting benefit (there is no further eligible pool to
+  draw from afterward under this pre-registration's population
+  definition).
+- Expected new clean count at the original draw's ~64.4% clean-pass rate
+  (29/45): 31 × 0.644 ≈ 20, for a combined expected total of **~49** —
+  comfortably above 40 even allowing for realistic pass-rate variance,
+  which is the specific reason the full remainder was drawn rather than
+  the bare-minimum ~18 events that would only just clear 40 in
+  expectation.
+- Locked: `Live Signal Engine/H5_OutOfSample_Supplemental_LockedSample.csv`
+  (n=31). Confirmed disjoint from the original 45-event draw (0 overlap,
+  checked directly) and confirmed a subset of the §2 eligible pool.
+- Pull script: `QC_H5_OutOfSample_Supplemental_Pull.py` — same
+  entry-only `real_cost_pct_of_spot` methodology, same unmodified 25%
+  corruption filter, core pull logic verified byte-identical to the
+  original `QC_H5_OutOfSample_Pull.py` (only the header comment, sample
+  list, and print label differ). Not yet run.
+
+**Still not done, per explicit instruction:** no correlation has been
+computed on the original 29. No outcome/realized-move pull has been run
+for either the original or supplemental sample. The binding decision rule
+in §4 is unchanged and still applies once a combined clean-and-priced
+`n≥40` is confirmed — if the supplemental draw still leaves the combined
+total under 30, this note's next update (also appended, not edited) will
+report that H5 cannot be tested out-of-sample without a fresh
+pre-registration decision to expand the eligible-pool definition itself.
