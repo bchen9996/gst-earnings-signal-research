@@ -222,6 +222,40 @@ this entry.
 
 ---
 
+## 7. Hypothesis #5 (volatility mispricing): out-of-sample result — DEAD (added 2026-07-25)
+
+The volatility-surprise finding (z-score vs. `realized_move_pct −
+implied_move_pct`, `CHANGELOG.md`'s "volatility-surprise check" entry,
+Pearson r=0.407, n=76) was pre-registered for out-of-sample replication
+(`Live Signal Engine/H5_OutOfSample_PreRegistration.md`) against a fresh,
+disjoint sample (n=49, hard-excluded by event ID from the original 76).
+
+**Result: DEAD. r=0.1065, p=0.4664 (n=49) — not statistically
+distinguishable from zero.** Classified FAIL under the pre-registration's
+binding decision rule (amended, after seeing this result, to close a gap
+where r=0.1065/p=0.4664 satisfied none of the three originally-stated
+conditions — the amendment moved the bar stricter, not looser; full
+detail and the amendment text itself are in the pre-registration file,
+appended not edited). Same fate as Attention Spread's tercile finding: a
+promising original-sample correlation did not survive out-of-sample
+replication. Full writeup: `CHANGELOG.md`, "2026-07-25 — Hypothesis #5
+(volatility mispricing) out-of-sample test" entry.
+
+**Limitation carried forward:** the 49-event replication sample has zero
+representation from NFLX, NVDA, COHR, and DELL (all excluded by the
+unmodified real-quote corruption filter) — this DEAD verdict is about the
+pooled relationship among the other 23 tickers, not a claim that
+generalizes to those four specifically.
+
+**No further monetization hypothesis should be built on this
+correlation.** This does not affect the separately-validated finding in
+§3 (GST z-score → realized price-move magnitude, Cohen's d=1.294) — that
+finding is about move *size*, not about whether the options market
+mispriced that move, which is what Hypothesis #5 specifically tested and
+which did not replicate.
+
+---
+
 ## 6. Where corrections were and were not made
 
 Per this project's established governance (frozen documents and
@@ -249,3 +283,9 @@ Specifically:
   the back half of the 2026-07-19 session (missing the point-in-time
   finding entirely, and silent on Candidate A/B and the short-vol test).
   No existing sentence in sections 1-4 was altered.
+- **This file itself, 2026-07-25:** section 7 added, marking Hypothesis
+  #5 (volatility mispricing) dead after its out-of-sample replication
+  failed (`CHANGELOG.md`, "2026-07-25" entry;
+  `Live Signal Engine/H5_OutOfSample_PreRegistration.md` for the full
+  pre-registration, supplemental-draw, and decision-rule-amendment
+  trail). No existing sentence in sections 1-6 was altered.

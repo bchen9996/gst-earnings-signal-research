@@ -892,3 +892,57 @@ halves of the period, and even that is not significant on its own.
 **Confirms the small-sample-noise interpretation flagged as a possibility
 in the directional-bias entry above — no evidence of real, tradeable
 ticker-specific earnings-reaction persistence in this data.**
+
+## 2026-07-25 — Hypothesis #5 (volatility mispricing) out-of-sample test: DEAD, did not replicate
+
+**What was done:** the original volatility-surprise finding (z-score vs.
+`volatility_surprise_pct = realized_move_pct - implied_move_pct`, Pearson
+r=0.407, n=76, see the "volatility-surprise check" entry above) was
+pre-registered for out-of-sample replication
+(`Live Signal Engine/H5_OutOfSample_PreRegistration.md`, locked before any
+fresh data was touched) against a disjoint sample drawn from the 152-event
+canonical population, hard-excluding the original 76 events by their own
+`(ticker, spike_week)` keys. The original n=45 draw returned only 29
+clean-and-priced events after the unmodified 25%-of-spot corruption
+filter; a supplemental draw of the entire remaining eligible pool (n=31,
+no seed applicable — the full remainder, not a subsample) added 20 more,
+for a combined **n=49**, clearing the pre-registration's n≥40 target.
+`implied_move_pct` came from real QuantConnect/AlgoSeek quotes (entry-only
+ATM straddle ask cost); `realized_move_pct` was computed from the same
+local daily excess-return data and the same helper functions
+(`load_daily_excess`/`nearest_trading_day_on_or_before`/`cumulative_return`)
+as the original test — confirmed identical, not just similarly named,
+before the correlation was computed.
+
+**Result: Hypothesis #5 is dead. Out-of-sample test: n=49, r=0.1065,
+p=0.4664 — not statistically distinguishable from zero.** Same fate as
+Attention Spread's reversal: a promising-looking original-sample
+correlation (r=0.407, n=76) did not replicate on fresh data.
+
+**Governance note on the decision rule:** the pre-registered binding rule
+(PASS: r≥0.25 & p<0.05 same-signed; WEAK: r in [0.10,0.25) & p<0.05;
+FAIL: r<0.10 or wrong-signed) did not cleanly cover this specific result
+as originally worded — r=0.1065 narrowly missed the FAIL threshold
+(r<0.10) while p=0.4664 badly missed WEAK's significance requirement,
+leaving it technically unclassified. Resolved via a dated, appended
+amendment to the pre-registration (not a silent edit): FAIL is clarified
+to mean any result that clears neither the PASS nor WEAK bar, in addition
+to the originally-stated cases. This amendment was logged after seeing
+the n=49 result but moves the bar stricter, not looser — it classifies
+this specific marginal result as FAIL rather than leaving it unclassified,
+so it cannot be read as rescuing the hypothesis.
+
+**Limitation, carried over from the pre-registration's own appended
+note:** the 49-event sample has zero representation from NFLX (0/16
+attempted), NVDA (0/6), COHR (0/2), and DELL (0/1) — all excluded by the
+unmodified corruption filter (implausible pricing for the first three
+tickers' pattern, no listed option chain for COHR). This DEAD conclusion
+should not be read as generalizing to those four tickers specifically;
+it is a about the pooled cross-sectional relationship among the other 23
+tickers in this sample.
+
+**Governance:** per the pre-registration's own consequence for FAIL, no
+new monetization hypothesis is spawned from this result, and no
+retroactive explanation for the null is used to save the hypothesis —
+any observation that might explain *why* it failed is a note for a
+future, separately-designed test, not a reclassification of this one.

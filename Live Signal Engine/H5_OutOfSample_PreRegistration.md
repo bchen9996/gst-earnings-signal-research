@@ -253,3 +253,33 @@ original 76-event sample's one manually-caught corrupted case) — COHR
 and DELL's exclusion is much thinner evidence (3 attempts between them)
 and is disclosed for completeness, not because it's equally strong
 evidence of a ticker-specific pattern.
+
+---
+
+## Appended note (2026-07-25, later still) — Amendment: FAIL condition gap closed
+
+**Not an edit to anything above — append-only.**
+
+**The result:** n=49, Pearson r=0.1065, p=0.4664, positive sign (same
+direction as the original r=0.407). Applied against §4's binding rule
+exactly as written, this satisfied none of the three literal conditions:
+PASS requires r≥0.25 (fails); WEAK requires r in [0.10, 0.25) **with**
+p<0.05 (r qualifies, p does not — 0.4664 is nowhere close to 0.05); FAIL
+as originally worded requires r<0.10 or wrong-signed (r=0.1065 is not
+<0.10 by 0.0065, and the sign is correct). The rule's three conditions
+were written assuming effect size and significance would move together;
+they did not here, leaving this specific result technically unclassified.
+
+**Amendment — the FAIL condition is clarified to mean: any result that
+does not meet the PASS or WEAK bar (by elimination), in addition to the
+originally-stated r<0.10 or wrong-signed cases. This amendment is logged
+after seeing n=49 results (r=0.1065, p=0.4664) but resolves an omitted
+case in the direction of a STRICTER bar for validating the hypothesis,
+not a looser one — it cannot be read as rescuing a marginal result,
+since it classifies this result as FAIL rather than leaving it
+unclassified.**
+
+**Under the amended rule: this result classifies as FAIL. Hypothesis #5
+is dead**, per §4's original consequence for FAIL — marked explicitly
+dead in `CHANGELOG.md` and `STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md`,
+the same status given to Attention Spread's reversal.
