@@ -256,6 +256,80 @@ which did not replicate.
 
 ---
 
+## 8. C5 (post-earnings continuation/reversal): near-miss, does not clear the bar (added 2026-07-25)
+
+Tests whether GST z-score predicts continuation vs. reversal of the
+earnings-day gap over the following 5 trading days (day-5 primary
+horizon), controlling for gap magnitude, ticker, BMO/AMC timing, market
+volatility, sector return, and calendar year. Pre-registered:
+`Live Signal Engine/C5_PostEarnings_PreRegistration.md`. Sample: n=235
+(151 canonical signal events + 84 unique matched non-GST controls, each
+with its own continuous z-score, not an assumed z=0).
+
+**Result: does not clear the binding decision rule, but by a narrow
+margin.** Ticker-clustered regression: β1(z)=+0.00095, SE=0.00049,
+**p=0.0512** (clustered 95% CI [-0.00000, +0.00190]); ticker-cluster
+block bootstrap (N=10,000): 95% CI [-0.00002, +0.00204] — both intervals
+touch zero at the lower bound. The decision rule required significance
+under **both** the clustered SE **and** the bootstrap CI; neither
+technically clears p<0.05. **Sign stability held across all 32
+leave-one-ticker-out/leave-one-year-out refits** (β1 stayed positive
+throughout, range [+0.00048, +0.00125]) — the result is not an artifact
+of any single ticker or year, it simply isn't statistically significant
+at the pre-registered threshold. Secondary diagnostics (same-day, day-2,
+day-20) showed no effect at day-0/day-2 and a sign flip by day-20 —
+consistent with a real-but-weak, slow-building effect rather than noise
+concentrated at one arbitrary horizon (descriptive framing only, not
+part of the binding rule). Full detail: `GST_C5_PostEarnings_Analysis.py`
+console output, `Live Signal Engine/C5_PostEarnings_Analysis_Results.csv`.
+
+**Status: neither PASS nor a clean FAIL — a near-miss, reported as such,
+not rounded in either direction.** No trading or monetization decision
+should be built on this result as it stands.
+
+---
+
+## 9. Attention Spread: original finding is an unresolved linear-vs-rank tension, not a confirmed edge (added 2026-07-25)
+
+Tests `Attention Spread := zscore / real_cost_pct_of_spot` on the
+76-event real-quote sample (`Live Signal Engine/AttentionSpread_Analysis.csv`,
+`GST_AttentionSpread_Analysis.py`) — same population Hypothesis #5 (§7)
+draws its original-sample finding from.
+
+**Linear tests say the ratio is redundant with its own ingredients:**
+raw z-score alone correlates with `real_pnl_pct` more strongly (r=+0.284)
+than Attention Spread does (r=+0.244); in a regression with both z-score
+and `real_cost_pct_of_spot` already included (R²=0.0898), adding
+Attention Spread gains R²=+0.0006 and its own coefficient is not
+significant (p=0.825). Not circular in the sense of just tracking cost
+(Attention Spread correlates more with its own numerator, z-score,
+ρ=+0.721, than its denominator, cost, ρ=-0.513) — but redundant with the
+two ingredients taken together.
+
+**A rank-based test shows the opposite, unresolved by the above:**
+splitting into terciles, the high tercile shows 56.0% win rate / +7.89%
+median return vs. the low tercile's 30.8% / -32.70% (Mann-Whitney
+p=0.039) — a **cleaner** separation than the same tercile split done on
+raw z-score alone (p=0.296, not significant). This is flagged explicitly
+as an unresolved linear-vs-nonlinear tension, not forced into one
+verdict, and not corrected for running three tests on the same 76 points
+without a multiple-comparisons adjustment.
+
+**Out-of-sample confirmatory test: designed and locked, but NEVER
+EXECUTED — no "reversal" has actually been confirmed against real data.**
+A fresh n=45 sample (seed=314, disjoint from the original 76) was drawn
+and `QC_AttentionSpread_OOS_Pull.py` was built
+(`Live Signal Engine/AttentionSpread_OOS_LockedSample.csv`), but this
+environment cannot run QuantConnect Research cells, and no results file
+or pasted output for this specific pull exists anywhere in this
+project as of this entry — confirmed by direct filesystem search before
+writing this section, not assumed. **Any reference elsewhere to an
+Attention Spread "reversal" refers to the in-sample linear-vs-rank
+tension above, not a completed, confirmed out-of-sample replication —
+that test remains pending.**
+
+---
+
 ## 6. Where corrections were and were not made
 
 Per this project's established governance (frozen documents and
@@ -289,3 +363,18 @@ Specifically:
   `Live Signal Engine/H5_OutOfSample_PreRegistration.md` for the full
   pre-registration, supplemental-draw, and decision-rule-amendment
   trail). No existing sentence in sections 1-6 was altered.
+- **This file itself, 2026-07-25 (later same day):** sections 8 and 9
+  added, closing a gap found during an independent verification pass —
+  a handoff doc had claimed this file was updated to cover the C5
+  near-miss and the Attention Spread finding/reversal, but neither term
+  had any real presence in this file before this edit (confirmed by
+  direct grep, not assumed from section numbering). Section 8 reports
+  C5's near-miss result (p=0.0512, does not clear the pre-registered
+  bar) precisely, without rounding it into a pass or a clean fail.
+  Section 9 corrects an overclaim risk head-on: it documents the
+  Attention Spread finding as an unresolved linear-vs-rank tension and
+  states explicitly that no out-of-sample "reversal" has actually been
+  run or confirmed against real data — the confirmatory pull was built
+  and locked but never executed, verified by direct filesystem search
+  before writing this section. No existing sentence in sections 1-7 was
+  altered.
