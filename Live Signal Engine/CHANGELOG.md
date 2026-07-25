@@ -946,3 +946,38 @@ new monetization hypothesis is spawned from this result, and no
 retroactive explanation for the null is used to save the hypothesis —
 any observation that might explain *why* it failed is a note for a
 future, separately-designed test, not a reclassification of this one.
+
+## 2026-07-25 (later) — CORRECTION: hypothesis #11b ("Attention Spread out-of-sample reversal") was never substantiated
+
+**CORRECTION** — hypothesis #11b ("Attention Spread out-of-sample
+reversal") as described in the 2026-07-25 master handoff document was
+never actually substantiated. No raw results file or executed pull
+exists for this claim as of 2026-07-25. The claim of a "clean rejection"
+/ "reversal" should be treated as unverified, not fact, until real
+out-of-sample data is pulled and analyzed under a locked
+pre-registration.
+
+**What actually exists, confirmed directly against the filesystem and
+git history, not assumed:** `Live Signal Engine/AttentionSpread_OOS_LockedSample.csv`
+(n=45, seed=314) and `QC_AttentionSpread_OOS_Pull.py` were built and
+committed (`a2587c6`) as preparation for an out-of-sample confirmatory
+test. Neither the pull nor any correlation/tercile analysis on it has
+ever been executed — no `AttentionSpread_OOS_RawResults.csv`, no pasted
+`results_df` output, no console log for this specific pull exists
+anywhere in this project. This same gap was already noted in
+`STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md` section 9 (added
+2026-07-25, same day, earlier), which states the confirmatory pull "was
+built and locked but never executed" — this CHANGELOG entry makes the
+same correction explicit here, in this project's append-only historical
+log, not only in the current-status file.
+
+**Separately, and also corrected here:** no dedicated pre-registration
+document exists for Attention Spread's out-of-sample test — unlike
+Hypothesis #5, which had its tercile-independent binding rule
+(`H5_OutOfSample_PreRegistration.md`) locked before any fresh data was
+touched, the Attention Spread OOS sample and pull script were built
+without an equivalent locked-rule document specifying, in advance, the
+tercile cutpoints to apply and the pass/fail criteria. This gap is being
+closed separately (see this file's next relevant entry, once written) —
+it is a second, independent finding from the same handoff-doc
+verification pass, not part of hypothesis #11b's original claim.
