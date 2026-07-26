@@ -314,3 +314,66 @@ diagnostics (§4) are reported for context but do not affect this rule.
 
 *End of pre-registration. Population construction (step 1) follows this
 file's creation, not the other way around.*
+
+---
+
+## Addendum (2026-07-26) — existing C5 data viewed through a decay lens
+
+**This is NOT a new test.** No new sample was drawn, no new significance
+threshold was computed, and this addendum is not confirmatory of
+anything beyond what was already established when this test was run.
+The actual numeric result (β, p, LOTO/LOYO stability) is documented in
+`STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md` §8 — this pre-
+registration's own §7-8 define the uncertainty methodology and the
+decision rule, not the computed result itself; that distinction matters
+for anyone tracing where a number came from, so it's stated explicitly
+here rather than left to be inferred from matching section numbers
+across two different files. This addendum reformats the four robustness-
+horizon coefficients already computed under this document's locked model
+(§5, run by `GST_C5_PostEarnings_Analysis.py`) as an explicit decay
+curve — same-day, Day 2, Day 5 (the sole primary horizon), and Day 20
+were always part of this pre-registration's design (§4: "same-day/Day
+2/Day 20 secondary diagnostics"); this addendum only changes how they're
+displayed, not what was tested.
+
+**Numbers re-derived directly from the locked per-event dataset**
+(`Live Signal Engine/C5_PostEarnings_Analysis_Results.csv`, n=235),
+re-running the exact same `build_design`/`fit_clustered` functions
+already in `GST_C5_PostEarnings_Analysis.py` — not retyped from prior
+console output or summary prose. Confirmed to match the original run's
+reported numbers exactly.
+
+| Horizon | Days | n | β (z coefficient) | Clustered SE | t | p |
+|---|---|---|---|---|---|---|
+| Same-day | 0 | 235 | +0.000222 | 0.000292 | +0.763 | 0.4457 |
+| Day 2 | 2 | 235 | +0.000282 | 0.000427 | +0.660 | 0.5092 |
+| **Day 5 (primary)** | **5** | **235** | **+0.000946** | **0.000485** | **+1.950** | **0.0512** |
+| Day 20 | 20 | 235 | -0.000208 | 0.000740 | -0.281 | 0.7788 |
+
+Full detail: `Live Signal Engine/C5_DecayCurve_Data.csv`.
+
+**Shape of the curve, described plainly:** the coefficient builds
+monotonically in magnitude from same-day (+0.000222) through Day 2
+(+0.000282) to a **peak at Day 5** (+0.000946, both the largest magnitude
+and the closest to conventional significance of the four horizons — the
+same p=0.0512 near-miss already reported in
+`STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md` §8). By Day 20 the
+point estimate has **flipped sign** to -0.000208. This is consistent with
+a real-but-weak, slow-building effect that peaks around Day 5 and does
+not persist, rather than noise that happened to concentrate at one
+arbitrarily-chosen horizon.
+
+**What this does NOT establish, stated as plainly as the shape above:**
+the Day 20 sign flip is not itself statistically distinguishable from
+zero (p=0.7788, the least significant of the four points) — it is a
+change in the point estimate's sign, not evidence of a real reversal.
+None of same-day, Day 2, or Day 20 individually clears any bar; only Day
+5 came close, and "close" was already reported as not clearing the
+locked decision rule (§8 of this document defines that rule; §8 of
+`STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md` reports the applied
+result). Viewing the four points together as a curve makes the
+peak-then-fade shape visually clear, but does not upgrade Day 5's
+already-reported non-significant result, and does not newly confirm
+same-day, Day 2, or Day 20 as significant. This remains descriptive
+context on an already-resolved (does-not-clear-the-bar) result, not a
+new finding requiring its own decision rule.
