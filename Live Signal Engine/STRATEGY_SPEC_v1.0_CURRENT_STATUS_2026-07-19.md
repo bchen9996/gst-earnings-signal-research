@@ -289,7 +289,7 @@ should be built on this result as it stands.
 
 ---
 
-## 9. Attention Spread: original finding is an unresolved linear-vs-rank tension, not a confirmed edge (added 2026-07-25)
+## 9. Attention Spread: out-of-sample tested, DEAD — direction reversed (added 2026-07-25, updated 2026-07-26 with the confirmed result)
 
 Tests `Attention Spread := zscore / real_cost_pct_of_spot` on the
 76-event real-quote sample (`Live Signal Engine/AttentionSpread_Analysis.csv`,
@@ -315,18 +315,39 @@ as an unresolved linear-vs-nonlinear tension, not forced into one
 verdict, and not corrected for running three tests on the same 76 points
 without a multiple-comparisons adjustment.
 
-**Out-of-sample confirmatory test: designed and locked, but NEVER
-EXECUTED — no "reversal" has actually been confirmed against real data.**
-A fresh n=45 sample (seed=314, disjoint from the original 76) was drawn
-and `QC_AttentionSpread_OOS_Pull.py` was built
-(`Live Signal Engine/AttentionSpread_OOS_LockedSample.csv`), but this
-environment cannot run QuantConnect Research cells, and no results file
-or pasted output for this specific pull exists anywhere in this
-project as of this entry — confirmed by direct filesystem search before
-writing this section, not assumed. **Any reference elsewhere to an
-Attention Spread "reversal" refers to the in-sample linear-vs-rank
-tension above, not a completed, confirmed out-of-sample replication —
-that test remains pending.**
+**Out-of-sample confirmatory test: now executed, resolved, and DEAD —
+2026-07-26 update.** A fresh n=45 sample (seed=314, disjoint from the
+original 76,
+`Live Signal Engine/AttentionSpread_OOS_LockedSample.csv`) was pulled via
+`QC_AttentionSpread_OOS_Pull.py` under a locked pre-registration
+(`Live Signal Engine/AttentionSpread_OutOfSample_PreRegistration.md`,
+written retroactively to close the gap this section originally flagged).
+n=31 clean-and-priced. Tercile split (locked cutpoints from the original
+sample, applied unchanged): low 60.0% win / +21.48% median vs. high 40.0%
+win / -27.43% median — **direction reversed from the original in-sample
+split** (which had high beating low). Mann-Whitney p=0.7337. **Classified
+FAIL under the locked binding rule, with no gap to resolve** (both the
+direction-mismatch and p≥0.20 clauses trigger independently). Full
+detail: `CHANGELOG.md`, "2026-07-26 — Attention Spread out-of-sample
+test" entry; raw data in
+`Live Signal Engine/QC_AttentionSpread_OOS_RawResults.csv`.
+
+**This corrects the framing (not the substance) of an entry that
+appeared here yesterday claiming this test was unexecuted — that claim
+was accurate on 2026-07-25 and is superseded by this update, not
+retracted as having been wrong when written.** Separately, and worth
+being precise about: an earlier, still-uncorroborated handoff document
+had asserted an Attention Spread out-of-sample "reversal" as an already-
+confirmed fact before any pull had run. That assertion is now
+independently confirmed TRUE by this executed test — but being right
+before the evidence existed is not the same as having been verified at
+the time, and this project's `CHANGELOG.md` correction entry from
+2026-07-25 documenting that gap stands, unedited, alongside this
+resolution.
+
+**Both the linear/rank tension above (§9, original paragraphs) and this
+out-of-sample result are now closed: no monetization hypothesis should
+be built on Attention Spread in either its linear or rank-based form.**
 
 ---
 
@@ -378,3 +399,16 @@ Specifically:
   and locked but never executed, verified by direct filesystem search
   before writing this section. No existing sentence in sections 1-7 was
   altered.
+- **This file itself, 2026-07-26 — an EDIT, not a pure addition, flagged
+  as such:** section 9's "NEVER EXECUTED" paragraph (written 2026-07-25)
+  was replaced with the confirmed out-of-sample result (n=31, direction
+  reversed, FAIL under the locked rule — `CHANGELOG.md`, "2026-07-26"
+  entry) once the test was actually run. This departs from this file's
+  usual practice of adding new content rather than rewriting prior
+  sentences, because the replaced paragraph was a true-at-the-time status
+  claim ("not yet executed") that became stale the moment real execution
+  happened, not a historical finding this file's governance protects from
+  rewriting. The section's other paragraphs (the in-sample linear-vs-rank
+  tension) were left untouched — confirmed via `git diff` before
+  committing that only the intended paragraph and the section title
+  changed, nothing else in sections 1-8 was touched.

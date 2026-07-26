@@ -981,3 +981,67 @@ tercile cutpoints to apply and the pass/fail criteria. This gap is being
 closed separately (see this file's next relevant entry, once written) —
 it is a second, independent finding from the same handoff-doc
 verification pass, not part of hypothesis #11b's original claim.
+
+## 2026-07-26 — Attention Spread out-of-sample test: genuinely executed and resolved. Hypothesis #11b confirmed FAIL
+
+**This entry resolves the gap flagged in the 2026-07-25 "CORRECTION"
+entry above** (`f53f2e0`): a pre-registration
+(`Live Signal Engine/AttentionSpread_OutOfSample_PreRegistration.md`)
+was locked, the already-built pull script (`QC_AttentionSpread_OOS_Pull.py`,
+`a2587c6`) was run on QuantConnect, and the result has now been
+independently verified against the actual pulled data — not asserted
+from a summary.
+
+**Sample**: n=45 drawn, 6 auto-flagged implausible pricing, 8 missing
+quote data, **n=31 clean-and-priced**. Raw output saved verbatim:
+`Live Signal Engine/QC_AttentionSpread_OOS_RawResults.csv`. Counts
+verified against the file itself before proceeding, not trusted from
+the reported summary alone.
+
+**Tercile split, locked cutpoints from the original 76-event sample
+(low ≤0.968673, mid ≤1.344624, high above), applied unchanged:**
+
+| Tercile | n | Win rate | Median real_pnl_pct |
+|---|---|---|---|
+| Low | 10 | 60.0% | +21.48% |
+| Mid | 11 | 54.5% | +2.48% |
+| High | 10 | 40.0% | -27.43% |
+
+Mann-Whitney (high vs. low): **p=0.7337**.
+
+**Result: DIRECTION REVERSED from the original in-sample finding.** The
+original 76-event split had the high tercile outperforming the low
+(56.0% win / +7.89% median vs. 30.8% / -32.70%, p=0.039). Here, the low
+tercile outperforms the high tercile on both win rate and median return
+— the opposite pattern.
+
+**Classified FAIL under the locked binding rule
+(`AttentionSpread_OutOfSample_PreRegistration.md` §5), applied exactly
+as written, with no gap to resolve this time** (unlike Hypothesis #5's
+rule, which needed an amendment): FAIL's stated condition — "direction
+does not match on both win rate and median return... or p≥0.20" — is
+triggered independently by BOTH clauses here (direction is reversed, not
+just non-matching; p=0.7337 is far past the 0.20 threshold). No
+reinterpretation was needed or applied. No event was excluded as an
+outlier; all 31 clean events are included in the stats above exactly as
+pulled.
+
+**On the relationship to the prior CORRECTION entry — precision matters
+here:** the 2026-07-25 correction stated that hypothesis #11b's claimed
+"reversal" was unverified, not that it was false. **It is now
+independently confirmed true, by an actual executed test under a locked
+pre-registration — which is a different thing from having been true (or
+verifiable) at the time the original, unsubstantiated claim was made.**
+The original claim was correct by coincidence, not by evidence; this
+entry is the evidence. Both the correction and this entry stand — the
+correction was accurate about the state of proof as of 2026-07-25
+morning, this entry is accurate about the state of proof as of
+2026-07-26.
+
+**Governance:** per this project's established practice for a confirmed
+FAIL, no new monetization hypothesis is spawned from this result. This
+now closes hypothesis #11b's status alongside Hypothesis #5's (§ this
+file, 2026-07-25 entry) — both a promising in-sample correlation and a
+promising in-sample tercile split failed to replicate out-of-sample in
+this project, on largely overlapping (27 of 45 events) but independently
+pre-registered samples.
