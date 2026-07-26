@@ -1045,3 +1045,59 @@ file, 2026-07-25 entry) — both a promising in-sample correlation and a
 promising in-sample tercile split failed to replicate out-of-sample in
 this project, on largely overlapping (27 of 45 events) but independently
 pre-registered samples.
+
+## 2026-07-25 — C5 (post-earnings continuation/reversal): near-miss, does not clear the bar [BACKFILLED 2026-07-26 — every other named hypothesis result in this project had a CHANGELOG entry except this one, until now]
+
+**Dated to the day this test was actually run and committed**
+(`f27e439`, 2026-07-25 03:00:06), not to today — this entry is a
+retroactive backfill of a real gap, not a new result. Written
+2026-07-26, one day after the fact, because no CHANGELOG entry for this
+result existed anywhere despite the test being fully run, its
+pre-registration locked, and its status already documented in
+`STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md` §8 — this project's
+append-only historical log had simply never recorded it.
+
+**What was done:** tested whether continuous GST z-score predicts
+post-earnings continuation/reversal (the C5 metric: sign(gap) ×
+sector-adjusted stock return from 9:45am ET Day 0 to Day 5 close),
+pre-registered in `Live Signal Engine/C5_PostEarnings_PreRegistration.md`
+before any 9:45am-anchored price was pulled. Sample: n=235 (151
+canonical signal events + 84 unique matched non-GST controls, each with
+its own continuous z-score rather than an assumed z=0 for controls),
+pulled via QuantConnect/AlgoSeek minute-resolution equity data (the only
+source this project has found that reaches this population's full
+2021-2025 date range at intraday resolution — yfinance cannot).
+Controls: gap magnitude, ticker, BMO/AMC timing, VIX, sector return,
+calendar year; ticker-clustered SEs and a 10,000-replicate ticker-cluster
+block bootstrap.
+
+**Result: the project's strongest near-miss.** Day 5 (the sole primary
+horizon): β=+0.00095, clustered SE=0.00049, **p=0.0512** — a hair over
+the 0.05 line — clustered 95% CI [-0.00000, +0.00190], bootstrap 95% CI
+[-0.00002, +0.00204]. **Sign stayed positive across all 32 leave-one-
+ticker-out/leave-one-year-out refits** (range [+0.00048, +0.00125]) — not
+an artifact of any single ticker or year, just short of the pre-
+registered significance bar. Under the binding decision rule (requiring
+significance under both the clustered SE and the bootstrap CI), this
+does **not** clear the bar — reported exactly as a near-miss, not rounded
+into a pass or a clean fail either direction.
+
+**Status: unresolved, not tradeable, not dead.** Unlike Hypothesis #5 and
+Attention Spread's OOS test (both classified FAIL above), C5 was never
+classified FAIL — a p=0.0512 near-miss with fully stable sign across
+every robustness refit does not meet this project's bar for declaring a
+hypothesis dead the way a clean, wrong-signed, or badly-insignificant
+result would. It also does not meet the bar for PASS. It sits exactly
+where its own numbers put it: unresolved.
+
+**Follow-up, same day as this backfill (2026-07-26):** the four
+robustness-horizon coefficients (same-day, Day 2, Day 5, Day 20) that
+were always part of this test's design were reformatted as an explicit
+decay curve — not a new test, no new sample, no new significance
+threshold — appended to
+`Live Signal Engine/C5_PostEarnings_PreRegistration.md` as a dated
+addendum. Shape: builds from same-day (+0.000222) through Day 2
+(+0.000282) to the Day 5 peak above, then flips sign by Day 20
+(-0.000208, itself not significant, p=0.7788 — a point-estimate sign
+change, not a confirmed reversal). Full detail:
+`Live Signal Engine/C5_DecayCurve_Data.csv`.
