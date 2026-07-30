@@ -1,0 +1,378 @@
+*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***
+Run timestamp (UTC): 2026-07-30T04:40:23.965621+00:00
+Universe: 24 tickers
+Budgets: GST=480s/ticker  Wiki=90s/ticker  yfinance-call=45s  per-ticker=900s  total-run=2700s
+
+  [AAPL] START earnings
+  [AAPL] DONE  earnings  status=ok elapsed=0.83s value=0
+  [AAPL] START price_history
+  [AAPL] DONE  price_history  status=ok elapsed=0.32s rows=124
+  [AAPL] START realized_vol
+  [AAPL] DONE  realized_vol  status=ok elapsed=0.00s value=0.2827699374951829
+  [AAPL] START iv
+  [AAPL] DONE  iv  status=ok elapsed=0.44s iv=0.003916
+  [AAPL] START gst
+  [AAPL] DONE  gst  status=ok elapsed=0.54s retries=1 rate_limit_events=0 z=0.682
+  [AAPL] START wiki
+  [AAPL] DONE  wiki  status=ok elapsed=0.20s z=-6.1699
+[1/24] AAPL: 2.33s  CLEAN  gst_z=0.682 wiki_z=-6.1699 iv=0.003916 rv=0.2827699374951829 price=338.19000244140625 vol=55929000 days_to_earnings=0
+  [ABBV] START earnings
+  [ABBV] DONE  earnings  status=ok elapsed=0.56s value=1
+  [ABBV] START price_history
+  [ABBV] DONE  price_history  status=ok elapsed=0.20s rows=124
+  [ABBV] START realized_vol
+  [ABBV] DONE  realized_vol  status=ok elapsed=0.00s value=0.2784838549898489
+  [ABBV] START iv
+  [ABBV] DONE  iv  status=ok elapsed=0.41s iv=0.007822
+  [ABBV] START gst
+    [ABBV] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.6s (budget remaining after: 452s)
+  [ABBV] DONE  gst  status=ok elapsed=29.23s retries=2 rate_limit_events=1 z=-0.323
+  [ABBV] START wiki
+  [ABBV] DONE  wiki  status=ok elapsed=0.59s z=-5.7645
+[2/24] ABBV: 30.98s  CLEAN  gst_z=-0.323 wiki_z=-5.7645 iv=0.007822 rv=0.2784838549898489 price=263.29998779296875 vol=5562300 days_to_earnings=1
+  [ADBE] START earnings
+  [ADBE] DONE  earnings  status=ok elapsed=0.58s value=42
+  [ADBE] START price_history
+  [ADBE] DONE  price_history  status=ok elapsed=0.19s rows=124
+  [ADBE] START realized_vol
+  [ADBE] DONE  realized_vol  status=ok elapsed=0.00s value=0.509193777467013
+  [ADBE] START iv
+  [ADBE] DONE  iv  status=ok elapsed=0.20s iv=1e-05
+  [ADBE] START gst
+  [ADBE] DONE  gst  status=ok elapsed=0.98s retries=1 rate_limit_events=0 z=0.32
+  [ADBE] START wiki
+  [ADBE] DONE  wiki  status=ok elapsed=0.24s z=-5.3606
+[3/24] ADBE: 2.20s  CLEAN  gst_z=0.32 wiki_z=-5.3606 iv=1e-05 rv=0.509193777467013 price=263.42999267578125 vol=9859600 days_to_earnings=42
+  [AMZN] START earnings
+  [AMZN] DONE  earnings  status=ok elapsed=0.52s value=0
+  [AMZN] START price_history
+  [AMZN] DONE  price_history  status=ok elapsed=0.10s rows=124
+  [AMZN] START realized_vol
+  [AMZN] DONE  realized_vol  status=ok elapsed=0.00s value=0.2935988265160873
+  [AMZN] START iv
+  [AMZN] DONE  iv  status=ok elapsed=0.20s iv=0.007822
+  [AMZN] START gst
+  [AMZN] DONE  gst  status=ok elapsed=0.70s retries=1 rate_limit_events=0 z=-0.187
+  [AMZN] START wiki
+  [AMZN] DONE  wiki  status=ok elapsed=0.27s z=-2.7665
+[4/24] AMZN: 1.80s  CLEAN  gst_z=-0.187 wiki_z=-2.7665 iv=0.007822 rv=0.2935988265160873 price=226.64999389648438 vol=44227900 days_to_earnings=0
+  [BKR] START earnings
+  [BKR] DONE  earnings  status=ok elapsed=0.64s value=84
+  [BKR] START price_history
+  [BKR] DONE  price_history  status=ok elapsed=0.22s rows=124
+  [BKR] START realized_vol
+  [BKR] DONE  realized_vol  status=ok elapsed=0.00s value=0.357299274686686
+  [BKR] START iv
+  [BKR] DONE  iv  status=ok elapsed=0.16s iv=0.015635
+  [BKR] START gst
+    [BKR] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 26.0s (budget remaining after: 453s)
+    [BKR] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 45.9s (budget remaining after: 407s)
+  [BKR] DONE  gst  status=ok elapsed=73.77s retries=3 rate_limit_events=2 z=-0.475
+  [BKR] START wiki
+    2025-10-03..2026-07-30 failed -- bisecting at 2026-03-02
+  [BKR] DONE  wiki  status=ok elapsed=61.71s z=-5.697
+[5/24] BKR: 136.51s  CLEAN  gst_z=-0.475 wiki_z=-5.697 iv=0.015635 rv=0.357299274686686 price=58.720001220703125 vol=20168000 days_to_earnings=84
+  [BRK-B] START earnings
+  [BRK-B] DONE  earnings  status=ok elapsed=0.57s value=9
+  [BRK-B] START price_history
+  [BRK-B] DONE  price_history  status=ok elapsed=0.15s rows=124
+  [BRK-B] START realized_vol
+  [BRK-B] DONE  realized_vol  status=ok elapsed=0.00s value=0.14761368050256105
+  [BRK-B] START iv
+  [BRK-B] DONE  iv  status=ok elapsed=0.25s iv=0.003916
+  [BRK-B] START gst
+    [BRK-B] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 23.0s (budget remaining after: 456s)
+    [BRK-B] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 42.4s (budget remaining after: 413s)
+    [BRK-B] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 74.0s (budget remaining after: 339s)
+  [BRK-B] DONE  gst  status=ok elapsed=142.22s retries=4 rate_limit_events=3 z=-0.704
+  [BRK-B] START wiki
+  [BRK-B] DONE  wiki  status=ok elapsed=0.67s z=-2.9641
+[6/24] BRK-B: 143.86s  CLEAN  gst_z=-0.704 wiki_z=-2.9641 iv=0.003916 rv=0.14761368050256105 price=509.1600036621094 vol=5057500 days_to_earnings=9
+— small batch pause (20s) —
+  [CTSH] START earnings
+  [CTSH] DONE  earnings  status=ok elapsed=0.73s value=None
+  [CTSH] START price_history
+  [CTSH] DONE  price_history  status=ok elapsed=0.27s rows=124
+  [CTSH] START realized_vol
+  [CTSH] DONE  realized_vol  status=ok elapsed=0.00s value=0.5783745364123113
+  [CTSH] START iv
+  [CTSH] DONE  iv  status=ok elapsed=0.29s iv=0.007822
+  [CTSH] START gst
+  [CTSH] DONE  gst  status=ok elapsed=0.65s retries=1 rate_limit_events=0 z=2.386
+  [CTSH] START wiki
+  [CTSH] DONE  wiki  status=ok elapsed=0.24s z=-1.9196
+[7/24] CTSH: 2.19s  INCOMPLETE  gst_z=2.386 wiki_z=-1.9196 iv=0.007822 rv=0.5783745364123113 price=55.970001220703125 vol=18262400 days_to_earnings=None
+  [DELL] START earnings
+  [DELL] DONE  earnings  status=ok elapsed=0.56s value=35
+  [DELL] START price_history
+  [DELL] DONE  price_history  status=ok elapsed=0.20s rows=124
+  [DELL] START realized_vol
+  [DELL] DONE  realized_vol  status=ok elapsed=0.00s value=1.0566150905242175
+  [DELL] START iv
+  [DELL] DONE  iv  status=ok elapsed=0.31s iv=0.001963
+  [DELL] START gst
+    [DELL] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 25.1s (budget remaining after: 455s)
+    [DELL] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 41.5s (budget remaining after: 412s)
+    [DELL] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 75.3s (budget remaining after: 336s)
+  [DELL] DONE  gst  status=ok elapsed=145.21s retries=4 rate_limit_events=3 z=-1.57
+  [DELL] START wiki
+  [DELL] DONE  wiki  status=ok elapsed=0.42s z=-2.5318
+[8/24] DELL: 146.70s  CLEAN  gst_z=-1.57 wiki_z=-2.5318 iv=0.001963 rv=1.0566150905242175 price=369.6400146484375 vol=6318100 days_to_earnings=35
+  [DVN] START earnings
+  [DVN] DONE  earnings  status=ok elapsed=0.73s value=5
+  [DVN] START price_history
+  [DVN] DONE  price_history  status=ok elapsed=0.34s rows=124
+  [DVN] START realized_vol
+  [DVN] DONE  realized_vol  status=ok elapsed=0.00s value=0.3999089104994277
+  [DVN] START iv
+  [DVN] DONE  iv  status=ok elapsed=0.29s iv=0.003916
+  [DVN] START gst
+    [DVN] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 23.0s (budget remaining after: 456s)
+  [DVN] DONE  gst  status=ok elapsed=24.33s retries=2 rate_limit_events=1 z=-1.114
+  [DVN] START wiki
+  [DVN] DONE  wiki  status=ok elapsed=0.48s z=-2.2852
+[9/24] DVN: 26.17s  CLEAN  gst_z=-1.114 wiki_z=-2.2852 iv=0.003916 rv=0.3999089104994277 price=44.459999084472656 vol=7891700 days_to_earnings=5
+  [GME] START earnings
+  [GME] DONE  earnings  status=ok elapsed=0.62s value=40
+  [GME] START price_history
+  [GME] DONE  price_history  status=ok elapsed=0.07s rows=124
+  [GME] START realized_vol
+  [GME] DONE  realized_vol  status=ok elapsed=0.00s value=0.373249549424593
+  [GME] START iv
+  [GME] DONE  iv  status=ok elapsed=0.16s iv=0.015635
+  [GME] START gst
+  [GME] DONE  gst  status=ok elapsed=0.74s retries=1 rate_limit_events=0 z=-0.814
+  [GME] START wiki
+    2025-10-03..2026-07-30 failed -- bisecting at 2026-03-02
+  [GME] DONE  wiki  status=ok elapsed=61.48s z=-0.5666
+[10/24] GME: 63.08s  CLEAN  gst_z=-0.814 wiki_z=-0.5666 iv=0.015635 rv=0.373249549424593 price=21.84000015258789 vol=2637500 days_to_earnings=40
+  [GOOGL] START earnings
+  [GOOGL] DONE  earnings  status=ok elapsed=0.53s value=90
+  [GOOGL] START price_history
+  [GOOGL] DONE  price_history  status=ok elapsed=0.08s rows=124
+  [GOOGL] START realized_vol
+  [GOOGL] DONE  realized_vol  status=ok elapsed=0.00s value=0.34079340917527384
+  [GOOGL] START iv
+  [GOOGL] DONE  iv  status=ok elapsed=0.23s iv=0.003916
+  [GOOGL] START gst
+  [GOOGL] DONE  gst  status=ok elapsed=0.65s retries=1 rate_limit_events=0 z=-0.32
+  [GOOGL] START wiki
+  [GOOGL] DONE  wiki  status=ok elapsed=0.61s z=-3.3229
+[11/24] GOOGL: 2.09s  CLEAN  gst_z=-0.32 wiki_z=-3.3229 iv=0.003916 rv=0.34079340917527384 price=336.7099914550781 vol=27293400 days_to_earnings=90
+  [GPN] START earnings
+  [GPN] DONE  earnings  status=ok elapsed=0.64s value=6
+  [GPN] START price_history
+  [GPN] DONE  price_history  status=ok elapsed=0.12s rows=124
+  [GPN] START realized_vol
+  [GPN] DONE  realized_vol  status=ok elapsed=0.00s value=0.43125671930726756
+  [GPN] START iv
+  [GPN] DONE  iv  status=ok elapsed=0.40s iv=0.007822
+  [GPN] START gst
+  [GPN] DONE  gst  status=ok elapsed=0.68s retries=1 rate_limit_events=0 z=-0.665
+  [GPN] START wiki
+  [GPN] DONE  wiki  status=ok elapsed=0.25s z=-3.9601
+[12/24] GPN: 2.09s  CLEAN  gst_z=-0.665 wiki_z=-3.9601 iv=0.007822 rv=0.43125671930726756 price=88.2699966430664 vol=2942500 days_to_earnings=6
+— small batch pause (20s) —
+  [INTC] START earnings
+  [INTC] DONE  earnings  status=ok elapsed=0.73s value=84
+  [INTC] START price_history
+  [INTC] DONE  price_history  status=ok elapsed=0.23s rows=124
+  [INTC] START realized_vol
+  [INTC] DONE  realized_vol  status=ok elapsed=0.00s value=0.9043122783613988
+  [INTC] START iv
+  [INTC] DONE  iv  status=ok elapsed=0.32s iv=0.003916
+  [INTC] START gst
+  [INTC] DONE  gst  status=ok elapsed=0.78s retries=1 rate_limit_events=0 z=-0.514
+  [INTC] START wiki
+  [INTC] DONE  wiki  status=ok elapsed=0.48s z=-5.1004
+[13/24] INTC: 2.53s  CLEAN  gst_z=-0.514 wiki_z=-5.1004 iv=0.003916 rv=0.9043122783613988 price=81.87999725341797 vol=151191500 days_to_earnings=84
+  [LDOS] START earnings
+  [LDOS] DONE  earnings  status=ok elapsed=0.60s value=5
+  [LDOS] START price_history
+  [LDOS] DONE  price_history  status=ok elapsed=0.17s rows=124
+  [LDOS] START realized_vol
+  [LDOS] DONE  realized_vol  status=ok elapsed=0.00s value=0.3533184878021966
+  [LDOS] START iv
+  [LDOS] DONE  iv  status=ok elapsed=0.21s iv=0.003916
+  [LDOS] START gst
+    [LDOS] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 21.3s (budget remaining after: 458s)
+  [LDOS] DONE  gst  status=ok elapsed=22.69s retries=2 rate_limit_events=1 z=-1.228
+  [LDOS] START wiki
+  [LDOS] DONE  wiki  status=ok elapsed=0.40s z=-4.4963
+[14/24] LDOS: 24.07s  CLEAN  gst_z=-1.228 wiki_z=-4.4963 iv=0.003916 rv=0.3533184878021966 price=114.37000274658203 vol=1421200 days_to_earnings=5
+  [MSFT] START earnings
+  [MSFT] DONE  earnings  status=ok elapsed=0.57s value=None
+  [MSFT] START price_history
+  [MSFT] DONE  price_history  status=ok elapsed=0.15s rows=124
+  [MSFT] START realized_vol
+  [MSFT] DONE  realized_vol  status=ok elapsed=0.00s value=0.32948894410104207
+  [MSFT] START iv
+  [MSFT] DONE  iv  status=ok elapsed=0.44s iv=0.003916
+  [MSFT] START gst
+  [MSFT] DONE  gst  status=ok elapsed=0.83s retries=1 rate_limit_events=0 z=4.649
+  [MSFT] START wiki
+  [MSFT] DONE  wiki  status=ok elapsed=0.41s z=-1.7348
+[15/24] MSFT: 2.41s  INCOMPLETE  gst_z=4.649 wiki_z=-1.7348 iv=0.003916 rv=0.32948894410104207 price=390.5400085449219 vol=44962100 days_to_earnings=None
+  [NCLH] START earnings
+  [NCLH] DONE  earnings  status=ok elapsed=0.81s value=0
+  [NCLH] START price_history
+  [NCLH] DONE  price_history  status=ok elapsed=0.13s rows=124
+  [NCLH] START realized_vol
+  [NCLH] DONE  realized_vol  status=ok elapsed=0.00s value=0.5254545708415861
+  [NCLH] START iv
+  [NCLH] DONE  iv  status=ok elapsed=0.40s iv=0.03126
+  [NCLH] START gst
+  [NCLH] DONE  gst  status=ok elapsed=0.92s retries=1 rate_limit_events=0 z=-1.125
+  [NCLH] START wiki
+  [NCLH] DONE  wiki  status=ok elapsed=0.30s z=-4.5413
+[16/24] NCLH: 2.56s  CLEAN  gst_z=-1.125 wiki_z=-4.5413 iv=0.03126 rv=0.5254545708415861 price=20.75 vol=17392800 days_to_earnings=0
+  [NKE] START earnings
+  [NKE] DONE  earnings  status=ok elapsed=0.84s value=61
+  [NKE] START price_history
+  [NKE] DONE  price_history  status=ok elapsed=0.25s rows=124
+  [NKE] START realized_vol
+  [NKE] DONE  realized_vol  status=ok elapsed=0.00s value=0.3437744661785907
+  [NKE] START iv
+  [NKE] DONE  iv  status=ok elapsed=0.30s iv=0.015635
+  [NKE] START gst
+  [NKE] DONE  gst  status=ok elapsed=0.48s retries=1 rate_limit_events=0 z=-0.736
+  [NKE] START wiki
+  [NKE] DONE  wiki  status=ok elapsed=0.41s z=-9.0592
+[17/24] NKE: 2.28s  CLEAN  gst_z=-0.736 wiki_z=-9.0592 iv=0.015635 rv=0.3437744661785907 price=43.220001220703125 vol=15006900 days_to_earnings=61
+  [QCOM] START earnings
+  [QCOM] DONE  earnings  status=ok elapsed=0.66s value=None
+  [QCOM] START price_history
+  [QCOM] DONE  price_history  status=ok elapsed=0.11s rows=124
+  [QCOM] START realized_vol
+  [QCOM] DONE  realized_vol  status=ok elapsed=0.00s value=0.8065555640603769
+  [QCOM] START iv
+  [QCOM] DONE  iv  status=ok elapsed=0.29s iv=0.007822
+  [QCOM] START gst
+  [QCOM] DONE  gst  status=ok elapsed=0.82s retries=1 rate_limit_events=0 z=-0.769
+  [QCOM] START wiki
+  [QCOM] DONE  wiki  status=ok elapsed=0.40s z=-1.6205
+[18/24] QCOM: 2.29s  INCOMPLETE  gst_z=-0.769 wiki_z=-1.6205 iv=0.007822 rv=0.8065555640603769 price=155.67999267578125 vol=18974800 days_to_earnings=None
+— small batch pause (20s) —
+  [SBUX] START earnings
+  [SBUX] DONE  earnings  status=ok elapsed=0.62s value=None
+  [SBUX] START price_history
+  [SBUX] DONE  price_history  status=ok elapsed=0.17s rows=124
+  [SBUX] START realized_vol
+  [SBUX] DONE  realized_vol  status=ok elapsed=0.00s value=0.22277273522842173
+  [SBUX] START iv
+  [SBUX] DONE  iv  status=ok elapsed=0.26s iv=0.003916
+  [SBUX] START gst
+    [SBUX] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 24.2s (budget remaining after: 455s)
+  [SBUX] DONE  gst  status=ok elapsed=25.52s retries=2 rate_limit_events=1 z=3.941
+  [SBUX] START wiki
+  [SBUX] DONE  wiki  status=ok elapsed=0.62s z=-4.3575
+[19/24] SBUX: 27.20s  INCOMPLETE  gst_z=3.941 wiki_z=-4.3575 iv=0.003916 rv=0.22277273522842173 price=104.13999938964844 vol=12477900 days_to_earnings=None
+  [STZ] START earnings
+  [STZ] DONE  earnings  status=ok elapsed=0.77s value=67
+  [STZ] START price_history
+  [STZ] DONE  price_history  status=ok elapsed=0.22s rows=125
+  [STZ] START realized_vol
+  [STZ] DONE  realized_vol  status=ok elapsed=0.00s value=0.3082425314140385
+  [STZ] START iv
+  [STZ] DONE  iv  status=ok elapsed=0.19s iv=0.003916
+  [STZ] START gst
+    [STZ] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 22.1s (budget remaining after: 457s)
+    [STZ] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 42.8s (budget remaining after: 414s)
+    [STZ] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 73.8s (budget remaining after: 339s)
+  [STZ] DONE  gst  status=ok elapsed=141.40s retries=4 rate_limit_events=3 z=-1.428
+  [STZ] START wiki
+  [STZ] DONE  wiki  status=ok elapsed=0.52s z=-2.0457
+[20/24] STZ: 143.11s  CLEAN  gst_z=-1.428 wiki_z=-2.0457 iv=0.003916 rv=0.3082425314140385 price=131.75 vol=2491500 days_to_earnings=67
+  [SYK] START earnings
+  [SYK] DONE  earnings  status=ok elapsed=0.92s value=0
+  [SYK] START price_history
+  [SYK] DONE  price_history  status=ok elapsed=0.24s rows=124
+  [SYK] START realized_vol
+  [SYK] DONE  realized_vol  status=ok elapsed=0.00s value=0.3631303262624606
+  [SYK] START iv
+  [SYK] DONE  iv  status=ok elapsed=0.15s iv=0.003916
+  [SYK] START gst
+  [SYK] DONE  gst  status=ok elapsed=0.47s retries=1 rate_limit_events=0 z=-2.004
+  [SYK] START wiki
+  [SYK] DONE  wiki  status=ok elapsed=0.45s z=-3.1018
+[21/24] SYK: 2.22s  CLEAN  gst_z=-2.004 wiki_z=-3.1018 iv=0.003916 rv=0.3631303262624606 price=352.25 vol=1857400 days_to_earnings=0
+  [TSLA] START earnings
+  [TSLA] DONE  earnings  status=ok elapsed=0.87s value=83
+  [TSLA] START price_history
+  [TSLA] DONE  price_history  status=ok elapsed=0.17s rows=124
+  [TSLA] START realized_vol
+  [TSLA] DONE  realized_vol  status=ok elapsed=0.00s value=0.5718129220991814
+  [TSLA] START iv
+  [TSLA] DONE  iv  status=ok elapsed=0.59s iv=0.007822
+  [TSLA] START gst
+  [TSLA] DONE  gst  status=ok elapsed=0.89s retries=1 rate_limit_events=0 z=0.479
+  [TSLA] START wiki
+  [TSLA] DONE  wiki  status=ok elapsed=0.55s z=-1.9852
+[22/24] TSLA: 3.06s  CLEAN  gst_z=0.479 wiki_z=-1.9852 iv=0.007822 rv=0.5718129220991814 price=298.32000732421875 vol=39207600 days_to_earnings=83
+  [TTWO] START earnings
+  [TTWO] DONE  earnings  status=ok elapsed=0.80s value=8
+  [TTWO] START price_history
+  [TTWO] DONE  price_history  status=ok elapsed=0.11s rows=124
+  [TTWO] START realized_vol
+  [TTWO] DONE  realized_vol  status=ok elapsed=0.00s value=0.35703058656870273
+  [TTWO] START iv
+  [TTWO] DONE  iv  status=ok elapsed=0.17s iv=0.015635
+  [TTWO] START gst
+  [TTWO] DONE  gst  status=ok elapsed=0.71s retries=1 rate_limit_events=0 z=-0.93
+  [TTWO] START wiki
+  [TTWO] DONE  wiki  status=ok elapsed=0.40s z=-1.5975
+[23/24] TTWO: 2.20s  CLEAN  gst_z=-0.93 wiki_z=-1.5975 iv=0.015635 rv=0.35703058656870273 price=246.42999267578125 vol=2480600 days_to_earnings=8
+  [UAL] START earnings
+  [UAL] DONE  earnings  status=ok elapsed=0.66s value=83
+  [UAL] START price_history
+  [UAL] DONE  price_history  status=ok elapsed=0.17s rows=124
+  [UAL] START realized_vol
+  [UAL] DONE  realized_vol  status=ok elapsed=0.00s value=0.5227608051441176
+  [UAL] START iv
+  [UAL] DONE  iv  status=ok elapsed=0.23s iv=0.007822
+  [UAL] START gst
+    [UAL] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 26.9s (budget remaining after: 453s)
+    [UAL] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 46.1s (budget remaining after: 406s)
+  [UAL] DONE  gst  status=ok elapsed=74.82s retries=3 rate_limit_events=2 z=0.582
+  [UAL] START wiki
+  [UAL] DONE  wiki  status=ok elapsed=0.81s z=-2.3731
+[24/24] UAL: 76.71s  CLEAN  gst_z=0.582 wiki_z=-2.3731 iv=0.007822 rv=0.5227608051441176 price=119.41999816894531 vol=3989200 days_to_earnings=83
+
+Wrote final (COMPLETE) output: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv
+
+=== RUN SUMMARY ===
+Status: COMPLETE
+Tickers: 24/24  Clean (all 6 fields + earnings): 20  Incomplete: 4
+Total wall time: 959.5s (15.99 min)
+
+Completion marker written: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-07-30_run3_COMPLETION_MARKER.json
+{
+  "status": "COMPLETE",
+  "row_count": 24,
+  "unique_ticker_count": 24,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 20,
+  "field_completeness_pct": {
+    "gst_zscore": 100.0,
+    "wiki_zscore": 100.0,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 0,
+    "wiki": 0
+  },
+  "elapsed_s": 959.5,
+  "elapsed_min": 15.99,
+  "active_ticker_when_stopped": null,
+  "active_leg_when_stopped": null,
+  "checkpoint_path": null,
+  "final_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv",
+  "generated_at_utc": "2026-07-30T04:56:23.727938+00:00"
+}

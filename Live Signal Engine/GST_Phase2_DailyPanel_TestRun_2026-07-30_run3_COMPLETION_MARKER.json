@@ -1,0 +1,30 @@
+{
+  "status": "COMPLETE",
+  "row_count": 24,
+  "unique_ticker_count": 24,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 20,
+  "field_completeness_pct": {
+    "gst_zscore": 100.0,
+    "wiki_zscore": 100.0,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 0,
+    "wiki": 0
+  },
+  "elapsed_s": 959.5,
+  "elapsed_min": 15.99,
+  "active_ticker_when_stopped": null,
+  "active_leg_when_stopped": null,
+  "checkpoint_path": null,
+  "final_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv",
+  "generated_at_utc": "2026-07-30T04:56:23.727938+00:00"
+}
