@@ -13,21 +13,25 @@
 # extrapolated 13-27s/ticker estimate (Section 6a) with a real one.
 #
 # REUSE, NOT REIMPLEMENTATION -- what's imported from where and why:
-#   - GST z-score: fetch_ticker_series() + compute_latest_zscore() from
-#     GST_Live_Signal_Engine.py. This is NOT GST_FixedWindow_PerEvent_Canonical.py's
-#     own compute_zscore_at_anchor() -- that function scores a PAST event at a
-#     fixed historical anchor. compute_latest_zscore() is the live-engine's
-#     "today" equivalent, and is CONFIRMED to use the exact same parameters
+#   - GST z-score: compute_latest_zscore() from GST_Live_Signal_Engine.py,
+#     unchanged -- confirmed to use the exact same parameters
 #     (ROLLING_WINDOW=12, MIN_PERIODS=8, STD_EPSILON_FLOOR=1.0,
-#     PULL_LOOKBACK_DAYS=300, shift(1) rolling) as the Canonical script --
-#     same methodology, just the branch of that methodology built for "now"
-#     instead of "then". This is also exactly what GST_MultiTicker_Forward_Log.py
-#     already reuses for its own live per-ticker GST z-score.
+#     PULL_LOOKBACK_DAYS=300, shift(1) rolling) as
+#     GST_FixedWindow_PerEvent_Canonical.py's own per-event z-score function
+#     -- same methodology, just the branch built for "now" instead of "then".
+#     The QUERY itself (fetch_ticker_series() in Live Signal Engine) is
+#     NOT reused as-is here -- see the SCOPED 429-BACKOFF FIX note below for
+#     why this one piece has a local variant instead of a direct import.
+#   - This is also exactly what GST_MultiTicker_Forward_Log.py reuses for
+#     its own live per-ticker GST z-score (compute_latest_zscore(), same
+#     as here).
 #   - Wikipedia z-score: TICKER_TO_WIKI_ARTICLE, fetch_daily_pageviews(),
 #     to_weekly() from GST_Wikipedia_Pageviews_Pull.py (built 2026-07-26),
 #     plus compute_zscore_at_anchor() from GST_FixedWindow_PerEvent_Canonical.py
 #     (same function the Wikipedia pull itself reuses, anchored at TODAY
-#     instead of a past spike_week).
+#     instead of a past spike_week). NOT MODIFIED by this task -- see the
+#     OPERATIONAL SAFEGUARDS note below for why an outer time budget is
+#     wrapped around it instead of changing its internals.
 #   - Realized volatility: trailing_realized_vol() from
 #     GST_FixedWindow_PerEvent_Canonical.py, called directly (not reimplemented)
 #     against a small live daily-return frame built from yfinance price
@@ -71,30 +75,156 @@
 # an options-chain call first leaves get_earnings_dates() silently
 # returning nothing. Don't reshuffle process_ticker()'s call order.
 #
+# SCOPED 429-BACKOFF FIX (2026-07-27, after 2 manual test runs) -- WHY THIS
+# SCRIPT HAS ITS OWN fetch_ticker_series() INSTEAD OF IMPORTING
+# GST_Live_Signal_Engine's:
+# Both manual test runs of this script hit real pytrends 429s -- 9/24
+# tickers in run 1, 7/24 in run 2, different tickers each time, confirming
+# it's a recurring cost, not one-run bad luck. GST_Live_Signal_Engine's
+# fetch_ticker_series() (and ~16 other scripts project-wide using the
+# identical pattern) retries 429s with a FLAT, UN-JITTERED 60s sleep
+# (HARD_429_SLEEP=60, no growth, no randomization on the 429 branch --
+# jitter only exists on that function's *non*-429 branch). Of the 16
+# ticker-level 429 incidents logged across both runs, 11 cleared after
+# exactly ONE 60s wait (suggesting a shorter first retry would often
+# succeed sooner), while 3 tickers (NKE run 1, QCOM run 1, ABBV run 2)
+# needed 2-3 waits (so persistent cases still need real escalation, not
+# just a uniformly shorter wait).
+# This fix is DELIBERATELY SCOPED to this script only, per explicit
+# instruction -- GST_Live_Signal_Engine.py and the other ~16 scripts
+# sharing its flat-60s pattern are untouched. Changing that shared,
+# already-in-production code is a separate decision this task does not
+# make. fetch_ticker_series_scoped_backoff() below reuses the query
+# construction and output shape verbatim (same GEO/GPROP/CATEGORY,
+# imported not redeclared) -- only the 429 retry schedule differs.
+# Backoff shape modeled on GST_GDELT_PreSpike_NewsVolume_Test.py's
+# escalating-list pattern (BACKOFF_429_S = [75, 90, 120, 150] there, for a
+# different API), but with a SHORTER first retry tuned to this script's own
+# observed data above, plus jitter added to the 429 branch specifically
+# (absent from the original) to desynchronize retries across tickers in
+# the same run. MAX_ATTEMPTS is kept at 5, unchanged from the original, so
+# a run-3 comparison isolates the effect of the backoff schedule alone.
+#
+# OPERATIONAL SAFEGUARDS (2026-07-29/30) -- WHY THESE WERE ADDED, AND WHY
+# RUN 3'S 365-MINUTE DURATION IS NOT TREATED AS PROOF OF AN UNBOUNDED HANG:
+#
+# Before adding anything, the worst-case duration of the EXISTING (unmodified
+# in this pass) code was computed directly from its own retry/timeout
+# parameters, not assumed:
+#   - GST leg (this script's scoped backoff): TrendReq's own timeout=(30,60)
+#     means each of the 5 attempts can legitimately take up to 90s before
+#     erroring, THEN sleep up to backoff+jitter (28/48/78/108/138s for
+#     attempts 1-5). Fully-adversarial worst case: sum(90+28, 90+48, 90+78,
+#     90+108, 90+138) = 850s (14.2 min) per ticker. This is a bounded,
+#     documented ceiling -- not infinite -- but it is NOT smaller than the
+#     old flat-60s schedule's own worst case (750s) once the request-timeout
+#     dimension is included on every attempt; the new schedule's advantage
+#     (shown in runs 1-2) is in the realistic/common case, not this
+#     pathological bound.
+#   - Wikipedia leg (GST_Wikipedia_Pageviews_Pull.py, NOT modified here):
+#     _fetch_chunk() retries 429/404 up to 4 attempts (10/20/30s waits,
+#     ~30s timeout each -> up to 180s per chunk call), and
+#     _fetch_with_bisection() recurses down to MIN_BISECT_DAYS=45 on
+#     failure. For this script's single 300-day pull, the bisection tree
+#     (300 -> 150 -> 75 -> ~37, stopping once span<=45) makes up to
+#     1+2+4+8 = 15 chunk calls if every one fails -- 15 x 180s = 2700s
+#     (45 MINUTES) worst case for a single ticker's Wikipedia leg alone.
+#     This was already true before today, unrelated to the GST backoff
+#     change, and is large enough on its own to matter.
+#   - yfinance 1.5.1 (installed version, verified by reading its actual
+#     source, not assumed): yfinance/data.py's _make_request() defaults to
+#     timeout=30 per underlying HTTP call and YfConfig.network.retries
+#     defaults to 0 (so no internal retry-multiplication) -- calls ARE
+#     already bounded by yfinance's own defaults, contrary to an initial
+#     assumption that they had no timeout at all. A single high-level call
+#     (history/options/option_chain/get_earnings_dates) makes 1-3 such
+#     underlying requests, so a generous per-call ceiling is ~90-180s, not
+#     unbounded.
+#   - Summing a fully-adversarial per-ticker worst case (GST 850s + Wiki
+#     2700s + ~270s for earnings/price/IV) x 24 tickers = ~1528 minutes
+#     (~25.5 hours) as the theoretical ceiling. The observed 365-minute
+#     run-3 duration is only ~24% of that ceiling -- comfortably explainable
+#     by a handful of tickers hitting worse-than-typical (but still fully
+#     bounded, already-documented) retry/bisection paths, especially via
+#     the Wikipedia leg's own pre-existing 45-min/ticker ceiling. An
+#     unbounded hang is NOT required to explain the observed duration, and
+#     is not assumed here.
+#
+# What was actually added, given that finding (none of it touches the six
+# field definitions, the 24-ticker universe, any z-score methodology, or
+# the option-contract-selection rule):
+#   - Line-buffered, flushed stdout (see log() and sys.stdout.reconfigure
+#     below) so a redirected log file updates while the process runs,
+#     instead of only at exit.
+#   - Explicit START/DONE logging for every source leg, every ticker.
+#   - A bounded-call wrapper (run_bounded(), using a daemon threading.Thread
+#     + join(timeout=...) -- NOT concurrent.futures.ThreadPoolExecutor, see
+#     run_bounded()'s own docstring for the atexit-hang bug that choice was
+#     changed to avoid) applied to every network-touching leg (earnings,
+#     price history, IV/options, GST, Wikipedia). This does not rely on any
+#     library's own timeout= parameter being honored -- it bounds the
+#     CALLING code's wait regardless of what the callee does internally,
+#     and is proven to work by injecting a deliberately slow call before
+#     ever trusting it (see
+#     "SAFEGUARD TEST HOOK" below and CHANGELOG.md for the test run).
+#   - An explicit, documented cumulative time budget for the GST leg
+#     (GST_TICKER_BUDGET_S) and the Wikipedia leg (WIKI_TICKER_BUDGET_S)
+#     per ticker, on top of (not replacing) their own existing per-attempt
+#     timeouts and retry/bisection limits.
+#   - A per-ticker wall-clock budget and a total-run wall-clock budget.
+#     Exceeding either preserves the checkpoint written so far, records
+#     which ticker/leg was active, and exits nonzero -- it does not retry
+#     or restart.
+#   - An atomic (write-temp-then-replace) checkpoint file written after
+#     every ticker, under a filename that cannot be confused with a
+#     finished panel, plus a final completion marker (JSON) stating
+#     COMPLETE or PARTIAL with row/field/timing/failure counts.
+#   - Any exception for one ticker is caught at the ticker-loop level (in
+#     addition to the existing per-leg try/excepts inside process_ticker())
+#     so it cannot destroy already-collected rows for other tickers.
+#
 # Output: Live Signal Engine/GST_Phase2_DailyPanel_TestRun_<run-date>.csv
 
 from __future__ import annotations
 from pathlib import Path
 from datetime import datetime, timezone, date, timedelta
+import json
+import os
 import random
 import sys
+import threading
 import time
+import traceback
 import pandas as pd
 import requests
 import yfinance as yf
 from pytrends.request import TrendReq
 
-sys.stdout.reconfigure(encoding="utf-8")
+# Line-buffered AND explicitly flushed (belt-and-suspenders): reconfigure()
+# alone would leave stdout fully block-buffered when redirected to a file
+# (the default for a non-TTY), which is exactly what produced an empty
+# phase2_run3.log despite the process running for hours on 2026-07-27 --
+# whatever ended that process never triggered a buffer flush. line_buffering
+# flushes on every '\n'; log() below also passes flush=True explicitly so
+# behavior doesn't silently depend on this reconfigure() call succeeding.
+sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
 sys.path.insert(0, str(Path(__file__).parent))
 
 from GST_Live_Signal_Engine import (
-    fetch_ticker_series, compute_latest_zscore, fetch_days_to_next_earnings,
+    compute_latest_zscore, fetch_days_to_next_earnings,
+    GEO as GST_GEO, GPROP as GST_GPROP, CATEGORY as GST_CATEGORY,
 )
 import GST_FixedWindow_PerEvent_Canonical as canonical
 from GST_Wikipedia_Pageviews_Pull import TICKER_TO_WIKI_ARTICLE, fetch_daily_pageviews, to_weekly
 from GST_MultiTicker_Forward_Log import get_option_snapshot, get_nearest_post_earnings_expiry
 
+
+def log(msg: str) -> None:
+    print(msg, flush=True)
+
+
 # Confirmed 24-ticker Phase 2 universe, spec Section 2 (2026-07-26 feasibility decision).
+# UNCHANGED by this task.
 TICKERS = [
     "AAPL", "ABBV", "ADBE", "AMZN", "BKR", "BRK-B", "CTSH", "DELL", "DVN", "GME",
     "GOOGL", "GPN", "INTC", "LDOS", "MSFT", "NCLH", "NKE", "QCOM", "SBUX", "STZ",
@@ -103,6 +233,15 @@ TICKERS = [
 
 OUT_DIR = Path("Live Signal Engine")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+RUN_DATE = datetime.now(timezone.utc).date()
+FINAL_OUT_PATH = OUT_DIR / f"GST_Phase2_DailyPanel_TestRun_{RUN_DATE.isoformat()}_run3.csv"
+# Deliberately distinct from FINAL_OUT_PATH's naming pattern (extra, redundant
+# "_CHECKPOINT_PARTIAL" tag) so a partial file can never be mistaken for a
+# completed panel -- this filename is never renamed/promoted into
+# FINAL_OUT_PATH; a fresh write to FINAL_OUT_PATH only happens on full,
+# clean 24/24 completion.
+CHECKPOINT_PATH = OUT_DIR / f"GST_Phase2_DailyPanel_TestRun_{RUN_DATE.isoformat()}_run3_CHECKPOINT_PARTIAL.csv"
+COMPLETION_MARKER_PATH = OUT_DIR / f"GST_Phase2_DailyPanel_TestRun_{RUN_DATE.isoformat()}_run3_COMPLETION_MARKER.json"
 
 YF_SESSION = requests.Session()
 YF_SESSION.verify = False
@@ -119,33 +258,273 @@ BETWEEN_TICKERS = (1.5, 3.0)   # same pacing as GST_Live_Signal_Engine.py / GST_
 MICRO_BATCH_SIZE = 6
 MICRO_BATCH_PAUSE_S = 20
 
+# See "SCOPED 429-BACKOFF FIX" note in the header for the rationale.
+GST_MAX_ATTEMPTS = 5   # unchanged from GST_Live_Signal_Engine.fetch_ticker_series, for a fair run-3 comparison
+GST_BACKOFF_429_S = [20, 40, 70, 100, 130]   # escalating; shorter first try than the original flat 60s
+GST_BACKOFF_JITTER_S = 8.0   # +0-8s randomized on top of each scheduled value, desynchronizes retries
+
+# --- OPERATIONAL SAFEGUARD BUDGETS (2026-07-29/30) -- see header note for the
+# worst-case arithmetic that justifies each number. ---
+# GST_TICKER_BUDGET_S: comfortably above the realistic (fast-429-response)
+# full-backoff ceiling (400s), well below the fully-adversarial one (850s) --
+# a hard, documented cap so the GST leg cannot run open-ended.
+GST_TICKER_BUDGET_S = 480.0
+# GST_ATTEMPT_TIMEOUT_S: outer bound on a SINGLE GST fetch attempt (the
+# pt.build_payload()/interest_over_time() pair). TrendReq's own
+# timeout=(30,60) already bounds this at ~90s; this is an independent,
+# verified-by-injection backstop in case that assumption is ever wrong, same
+# reasoning as YF_CALL_TIMEOUT_S below.
+GST_ATTEMPT_TIMEOUT_S = 100.0
+# WIKI_TICKER_BUDGET_S: the existing Wikipedia pull's own worst case is 2700s
+# (45 min) per ticker -- far too long relative to a 45-minute TOTAL run
+# budget. This wraps the whole fetch_daily_pageviews() call (not its
+# internals, which are not modified) at a much tighter bound; normal
+# successful pulls take a few seconds, so this only sacrifices tickers stuck
+# deep in bisection on a bad day, in exchange for keeping the run bounded.
+WIKI_TICKER_BUDGET_S = 90.0
+# YF_CALL_TIMEOUT_S: outer bound per individual yfinance call (history,
+# options property, option_chain, get_earnings_dates). yfinance 1.5.1's own
+# internal default (timeout=30, retries=0, verified by reading its installed
+# source -- see header note) already bounds most of these; this wrapper is a
+# verified-independent-of-that-assumption backstop, proven via the injected
+# slow-call test rather than trusted blindly.
+YF_CALL_TIMEOUT_S = 45.0
+# PER_TICKER_WALL_BUDGET_S: backstop for the ENTIRE process_ticker() call.
+# Set comfortably above the sum of all individual leg budgets above
+# (45+45+90+480+90 = 750s) so it never fires ahead of an expected worst-case
+# combination of per-leg budgets -- it exists to catch anything unexpected
+# slipping past them, not to be the normally-binding constraint.
+PER_TICKER_WALL_BUDGET_S = 900.0
+# TOTAL_RUN_BUDGET_S: hard outer limit for the whole run, matching the
+# "45-minute" bound this task specifies. Checked between tickers (not
+# preemptively mid-ticker); on exhaustion the checkpoint already written is
+# preserved, the active ticker is recorded, and the process exits nonzero
+# without restarting.
+TOTAL_RUN_BUDGET_S = 45 * 60.0
+
+# --- SAFEGUARD TEST HOOK (2026-07-30) -- deliberately mocked/injected slow
+# call, used ONLY to prove run_bounded()/budgets/checkpointing actually work
+# before trusting them on a real run. Inert unless both env vars are set;
+# never touches real research legs' logic, only adds an artificial delay
+# ahead of the named leg for the named ticker. See CHANGELOG.md for the test
+# run this was used for. ---
+_INJECT_TICKER = os.environ.get("GST_PHASE2_INJECT_SLOW_TICKER")
+_INJECT_LEG = os.environ.get("GST_PHASE2_INJECT_SLOW_LEG")
+_INJECT_SLEEP_S = float(os.environ.get("GST_PHASE2_INJECT_SLOW_SECONDS", "9999"))
+
+
+def _maybe_inject_slow(ticker: str, leg: str) -> None:
+    if _INJECT_TICKER and _INJECT_LEG and ticker == _INJECT_TICKER and leg == _INJECT_LEG:
+        log(f"    [TEST HOOK] injecting {_INJECT_SLEEP_S:.0f}s artificial delay into "
+            f"{ticker}/{leg} (GST_PHASE2_INJECT_SLOW_* env vars set)")
+        time.sleep(_INJECT_SLEEP_S)
+
+
+def run_bounded(fn, timeout_s: float, *args, **kwargs):
+    """Runs fn(*args, **kwargs) in a worker thread and waits at most timeout_s.
+    Returns (result, timed_out, elapsed_s, error_str). Does NOT rely on fn (or
+    any library it calls) honoring its own timeout= parameter -- this bounds
+    the CALLER's wait regardless of what the callee does internally.
+
+    Uses a plain daemon threading.Thread, NOT concurrent.futures.ThreadPoolExecutor
+    -- confirmed by testing (see CHANGELOG.md), not assumed: an earlier version
+    used ThreadPoolExecutor, which returned promptly from THIS function on a
+    timeout, but the concurrent.futures.thread module registers a process-wide
+    atexit hook that joins every worker thread any ThreadPoolExecutor ever
+    created, including abandoned ones -- so the process itself would hang at
+    exit waiting for a genuinely-stuck call, exactly the failure mode this
+    whole safeguard exists to prevent. A daemon thread is never joined at
+    interpreter exit (documented Python behavior), so it can be abandoned for
+    real with no such hang. Python still cannot forcibly kill a thread
+    mid-syscall -- an abandoned thread keeps running in the background until
+    it happens to return, but it can no longer block this process from
+    exiting."""
+    result_box: dict = {}
+
+    def _runner():
+        try:
+            result_box["result"] = fn(*args, **kwargs)
+        except Exception as e:
+            result_box["error"] = str(e)
+
+    t0 = time.time()
+    thread = threading.Thread(target=_runner, daemon=True)
+    thread.start()
+    thread.join(timeout=timeout_s)
+    elapsed = time.time() - t0
+    if thread.is_alive():
+        return None, True, elapsed, f"timed out after {timeout_s:.0f}s"
+    if "error" in result_box:
+        return None, False, elapsed, result_box["error"]
+    return result_box.get("result"), False, elapsed, None
+
+
+def _bounded_leg(fn, timeout_s: float, ticker: str, leg: str, *args, **kwargs):
+    """run_bounded() wrapper that runs the SAFEGUARD TEST HOOK injection
+    INSIDE the bounded thread -- injecting the delay outside run_bounded's
+    call would hang the calling thread itself with no timeout protection at
+    all, defeating the point of the test. This is the call path every leg
+    that touches the network should use."""
+    def _wrapped():
+        _maybe_inject_slow(ticker, leg)
+        return fn(*args, **kwargs)
+    return run_bounded(_wrapped, timeout_s)
+
+
+def fetch_ticker_series_scoped_backoff(pt: TrendReq, term: str) -> tuple[pd.DataFrame, dict]:
+    """Same pytrends query/reshape as GST_Live_Signal_Engine.fetch_ticker_series() --
+    only the 429 retry schedule differs. See "SCOPED 429-BACKOFF FIX" in the
+    module header for why this script has its own copy of this one function.
+
+    UPDATE (2026-07-30): also enforces GST_TICKER_BUDGET_S as a cumulative
+    cap and returns a status dict (attempts, rate_limit_events,
+    budget_exhausted) alongside the series -- see "OPERATIONAL SAFEGUARDS"
+    in the module header."""
+    end_date = datetime.now(timezone.utc).date()
+    start_date = end_date - timedelta(days=PULL_LOOKBACK_DAYS)
+    timeframe = f"{start_date.isoformat()} {end_date.isoformat()}"
+
+    budget_start = time.time()
+    rate_limit_events = 0
+    attempts_used = 0
+    budget_exhausted = False
+
+    def _do_request():
+        pt.build_payload([term], timeframe=timeframe, geo=GST_GEO, gprop=GST_GPROP, cat=GST_CATEGORY)
+        df = pt.interest_over_time()
+        if df is None or df.empty or term not in df.columns:
+            raise RuntimeError("Empty result or missing term column")
+        return pd.DataFrame({
+            "Week": df.index,
+            "gst": pd.to_numeric(df[term], errors="coerce"),
+            "isPartial": df["isPartial"].astype(bool),
+        }).sort_values("Week").reset_index(drop=True)
+
+    for attempt in range(1, GST_MAX_ATTEMPTS + 1):
+        attempts_used = attempt
+        if time.time() - budget_start >= GST_TICKER_BUDGET_S:
+            budget_exhausted = True
+            log(f"    [{term}] GST cumulative budget ({GST_TICKER_BUDGET_S:.0f}s) exhausted "
+                f"before attempt {attempt} -- stopping retries for this ticker.")
+            break
+        # Routed through _bounded_leg (not a bare call) so a single hung
+        # attempt cannot itself run open-ended, independent of whatever
+        # TrendReq's own timeout=(30,60) does -- verified via the injected
+        # slow-call test, not assumed. leg="gst" is what the SAFEGUARD TEST
+        # HOOK matches on for this leg.
+        out, timed_out, elapsed, err = _bounded_leg(_do_request, GST_ATTEMPT_TIMEOUT_S, term, "gst")
+        if not timed_out and err is None:
+            return out, {
+                "attempts": attempts_used, "rate_limit_events": rate_limit_events,
+                "budget_exhausted": False, "status": "ok",
+            }
+        e = f"timed out after {GST_ATTEMPT_TIMEOUT_S:.0f}s" if timed_out else err
+        msg = str(e).lower()
+        is_429 = "429" in msg or ("rate" in msg and "limit" in msg) or "too many" in msg
+        if is_429:
+            rate_limit_events += 1
+            base = GST_BACKOFF_429_S[min(attempt - 1, len(GST_BACKOFF_429_S) - 1)]
+            pause = base + random.uniform(0, GST_BACKOFF_JITTER_S)
+        else:
+            pause = min(6, 2 * attempt) + random.uniform(0, 0.5)
+        remaining_budget = GST_TICKER_BUDGET_S - (time.time() - budget_start)
+        if remaining_budget <= 0:
+            budget_exhausted = True
+            log(f"    [{term}] attempt {attempt} failed: {e} -- GST budget exhausted, not sleeping further.")
+            break
+        pause = min(pause, remaining_budget)
+        log(f"    [{term}] attempt {attempt} failed: {e} -- sleeping {pause:.1f}s "
+            f"(budget remaining after: {remaining_budget - pause:.0f}s)")
+        time.sleep(pause)
+
+    status = "budget_exhausted" if budget_exhausted else "attempts_exhausted"
+    return pd.DataFrame(columns=["Week", "gst", "isPartial"]), {
+        "attempts": attempts_used, "rate_limit_events": rate_limit_events,
+        "budget_exhausted": budget_exhausted, "status": status,
+    }
+
+
+# Fixed, explicit output column order -- same discipline as
+# GST_MultiTicker_Forward_Log.py's COLUMN_ORDER (see that repo's
+# CHANGELOG.md "column-corruption bug" entry). Every row is pre-filled with
+# these keys (None default) so pandas' column order never depends on which
+# ticker happens to hit which error/leg first. The six locked research
+# fields (gst_zscore, wiki_zscore, implied_volatility, realized_vol, price,
+# volume) and days_to_nearest_earnings keep their existing names/meanings,
+# unchanged -- everything with a _status/_error/_elapsed_s suffix is new
+# observability added by this task, additive only.
+COLUMN_ORDER = [
+    "run_date", "ticker", "retrieval_timestamp_utc",
+    "days_to_nearest_earnings",
+    "earnings_status", "earnings_error", "earnings_elapsed_s",
+    "price", "volume", "price_asof_date",
+    "price_history_status", "price_history_error", "price_history_elapsed_s",
+    "realized_vol",
+    "realized_vol_status", "realized_vol_error", "realized_vol_elapsed_s",
+    "option_expiry", "implied_volatility", "iv_note",
+    "call_strike", "call_bid", "call_ask", "call_bid_size", "call_ask_size",
+    "call_open_interest", "call_volume", "call_implied_volatility",
+    "put_strike", "put_bid", "put_ask", "put_bid_size", "put_ask_size",
+    "put_open_interest", "put_volume", "put_implied_volatility",
+    "iv_status", "iv_error", "iv_elapsed_s",
+    "gst_zscore", "gst_value", "gst_week", "gst_is_partial_week", "gst_note",
+    "gst_status", "gst_error", "gst_elapsed_s",
+    "gst_retry_count", "gst_rate_limit_events", "gst_budget_exhausted",
+    "wikipedia_article", "wiki_zscore", "wiki_aligned_week", "wiki_note",
+    "wiki_status", "wiki_error", "wiki_elapsed_s",
+    "all_six_fields_clean", "ticker_total_s",
+]
+
 
 def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
-    row = {"ticker": ticker, "retrieval_timestamp_utc": datetime.now(timezone.utc).isoformat()}
-    timings = {}
+    row = {c: None for c in COLUMN_ORDER}
+    row["run_date"] = RUN_DATE.isoformat()
+    row["ticker"] = ticker
+    row["retrieval_timestamp_utc"] = datetime.now(timezone.utc).isoformat()
     t_ticker_start = time.time()
 
     # --- days to nearest (next) earnings -- MUST run before any yfinance
     # history/options call for this ticker. See ORDERING CONSTRAINT above.
+    log(f"  [{ticker}] START earnings")
     t0 = time.time()
-    try:
-        days_to_earnings = fetch_days_to_next_earnings(ticker)
-    except Exception as e:
+    days_to_earnings, timed_out, elapsed, err = _bounded_leg(
+        fetch_days_to_next_earnings, YF_CALL_TIMEOUT_S, ticker, "earnings", ticker)
+    row["earnings_elapsed_s"] = round(elapsed, 3)
+    if timed_out:
+        row["earnings_status"] = "timeout"
+        row["earnings_error"] = err
         days_to_earnings = None
-        row["earnings_error"] = str(e)
+    elif err is not None:
+        row["earnings_status"] = "error"
+        row["earnings_error"] = err
+        days_to_earnings = None
+    else:
+        row["earnings_status"] = "ok"
     row["days_to_nearest_earnings"] = days_to_earnings
-    timings["earnings_lookup_s"] = time.time() - t0
+    log(f"  [{ticker}] DONE  earnings  status={row['earnings_status']} "
+        f"elapsed={elapsed:.2f}s value={days_to_earnings}")
 
     tk = yf.Ticker(ticker, session=YF_SESSION)
 
     # --- price history (feeds both price/volume and realized vol) ---
-    t0 = time.time()
-    try:
-        hist = tk.history(period=PRICE_HISTORY_PERIOD)
-    except Exception as e:
+    log(f"  [{ticker}] START price_history")
+    hist, timed_out, elapsed, err = _bounded_leg(
+        lambda: tk.history(period=PRICE_HISTORY_PERIOD), YF_CALL_TIMEOUT_S, ticker, "price_history")
+    row["price_history_elapsed_s"] = round(elapsed, 3)
+    if timed_out:
+        row["price_history_status"] = "timeout"
+        row["price_history_error"] = err
         hist = pd.DataFrame()
-        row["price_history_error"] = str(e)
-    timings["price_history_pull_s"] = time.time() - t0
+    elif err is not None:
+        row["price_history_status"] = "error"
+        row["price_history_error"] = err
+        hist = pd.DataFrame()
+    else:
+        row["price_history_status"] = "ok"
+        if hist is None:
+            hist = pd.DataFrame()
+    log(f"  [{ticker}] DONE  price_history  status={row['price_history_status']} "
+        f"elapsed={elapsed:.2f}s rows={len(hist)}")
 
     price = volume = price_asof = None
     if not hist.empty:
@@ -158,74 +537,127 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
     row["price_asof_date"] = price_asof.isoformat() if price_asof else None
 
     # --- realized volatility: canonical.trailing_realized_vol(), reused verbatim ---
+    # Pure in-memory computation on the already-fetched `hist` -- no network
+    # call, so no run_bounded()/status beyond ok-or-exception is needed, but
+    # the same status/error/elapsed columns are still populated for a
+    # consistent per-leg shape across the output.
+    log(f"  [{ticker}] START realized_vol")
     t0 = time.time()
     realized_vol = None
-    if not hist.empty:
-        idx = hist.index.tz_localize(None) if hist.index.tz is not None else hist.index
-        ret_col = f"{ticker} Daily Return"
-        daily = pd.DataFrame({"Date": idx, ret_col: hist["Close"].pct_change().to_numpy()})
-        cutoff = pd.Timestamp(run_ts.date())
-        realized_vol = canonical.trailing_realized_vol(daily, ret_col, cutoff)
+    try:
+        if not hist.empty:
+            idx = hist.index.tz_localize(None) if hist.index.tz is not None else hist.index
+            ret_col = f"{ticker} Daily Return"
+            daily = pd.DataFrame({"Date": idx, ret_col: hist["Close"].pct_change().to_numpy()})
+            cutoff = pd.Timestamp(run_ts.date())
+            realized_vol = canonical.trailing_realized_vol(daily, ret_col, cutoff)
+        row["realized_vol_status"] = "ok"
+    except Exception as e:
+        row["realized_vol_status"] = "error"
+        row["realized_vol_error"] = str(e)
     row["realized_vol"] = realized_vol
-    timings["realized_vol_compute_s"] = time.time() - t0
+    row["realized_vol_elapsed_s"] = round(time.time() - t0, 3)
+    log(f"  [{ticker}] DONE  realized_vol  status={row['realized_vol_status']} "
+        f"elapsed={row['realized_vol_elapsed_s']:.2f}s value={realized_vol}")
 
     # --- implied volatility: unconditional option-chain pull (the untested leg) ---
+    log(f"  [{ticker}] START iv")
     t0 = time.time()
-    try:
-        expiry = get_nearest_post_earnings_expiry(tk, run_ts.date())
-    except Exception as e:
-        expiry = None
-        row["iv_error"] = str(e)
-    if expiry and price:
+    expiry, timed_out, elapsed_expiry, err_expiry = _bounded_leg(
+        get_nearest_post_earnings_expiry, YF_CALL_TIMEOUT_S, ticker, "iv", tk, run_ts.date())
+    iv_status = "ok"
+    iv_error = None
+    if timed_out:
+        iv_status, iv_error, expiry = "timeout", err_expiry, None
+    elif err_expiry is not None:
+        iv_status, iv_error, expiry = "error", err_expiry, None
+
+    if expiry and price and iv_status == "ok":
         row["option_expiry"] = expiry
-        snap = get_option_snapshot(tk, expiry, price)
-        row.update(snap)
+        snap, timed_out2, elapsed_snap, err_snap = _bounded_leg(
+            get_option_snapshot, YF_CALL_TIMEOUT_S, ticker, "iv", tk, expiry, price)
+        if timed_out2:
+            iv_status, iv_error, snap = "timeout", err_snap, {}
+        elif err_snap is not None:
+            iv_status, iv_error, snap = "error", err_snap, {}
+        else:
+            snap = snap or {}
+        row.update({k: v for k, v in snap.items() if k in COLUMN_ORDER})
         ivs = [v for v in (snap.get("call_implied_volatility"), snap.get("put_implied_volatility"))
                if v is not None]
         row["implied_volatility"] = round(sum(ivs) / len(ivs), 6) if ivs else None
-        if not ivs and "option_chain_error" not in snap:
+        if not ivs and iv_status == "ok":
             row["iv_note"] = "option chain returned but no impliedVolatility on ATM call/put"
-    else:
+    elif iv_status == "ok":
         row["implied_volatility"] = None
         row["iv_note"] = "no expiration strictly after today available" if not expiry else "no spot price to select ATM strike"
-    timings["iv_pull_s"] = time.time() - t0
+    row["iv_status"] = iv_status
+    row["iv_error"] = iv_error
+    row["iv_elapsed_s"] = round(time.time() - t0, 3)
+    log(f"  [{ticker}] DONE  iv  status={iv_status} elapsed={row['iv_elapsed_s']:.2f}s "
+        f"iv={row['implied_volatility']}")
 
-    # --- GST z-score: exact live-engine functions, same params as Canonical ---
+    # --- GST z-score: scoped-backoff query (see header note) + live-engine's z-score func ---
+    log(f"  [{ticker}] START gst")
     t0 = time.time()
     try:
-        series = fetch_ticker_series(pt, ticker)
-        z = compute_latest_zscore(series)
-        row["gst_zscore"] = z.get("zscore")
-        row["gst_value"] = z.get("gst_value")
-        row["gst_week"] = z.get("week")
-        row["gst_is_partial_week"] = z.get("is_partial_week")
-        row["gst_note"] = z.get("note", "")
+        series, gst_status_dict = fetch_ticker_series_scoped_backoff(pt, ticker)
+        row["gst_retry_count"] = gst_status_dict["attempts"]
+        row["gst_rate_limit_events"] = gst_status_dict["rate_limit_events"]
+        row["gst_budget_exhausted"] = gst_status_dict["budget_exhausted"]
+        if gst_status_dict["status"] == "ok":
+            z = compute_latest_zscore(series)
+            row["gst_zscore"] = z.get("zscore")
+            row["gst_value"] = z.get("gst_value")
+            row["gst_week"] = z.get("week")
+            row["gst_is_partial_week"] = z.get("is_partial_week")
+            row["gst_note"] = z.get("note", "")
+            row["gst_status"] = "ok"
+        else:
+            row["gst_status"] = gst_status_dict["status"]   # "attempts_exhausted" or "budget_exhausted"
+            row["gst_error"] = f"gst_fetch_failed:{gst_status_dict['status']}"
     except Exception as e:
+        row["gst_status"] = "error"
         row["gst_error"] = str(e)
-    timings["gst_pull_s"] = time.time() - t0
+    row["gst_elapsed_s"] = round(time.time() - t0, 3)
+    log(f"  [{ticker}] DONE  gst  status={row['gst_status']} elapsed={row['gst_elapsed_s']:.2f}s "
+        f"retries={row['gst_retry_count']} rate_limit_events={row['gst_rate_limit_events']} "
+        f"z={row.get('gst_zscore')}")
 
     # --- Wikipedia pageview z-score: same reused functions as the July 26 pull ---
+    log(f"  [{ticker}] START wiki")
     t0 = time.time()
     article = TICKER_TO_WIKI_ARTICLE.get(ticker)
     if article is None:
+        row["wiki_status"] = "error"
         row["wiki_error"] = "no verified Wikipedia article mapping for this ticker"
     else:
         anchor = pd.Timestamp(run_ts.date())
         pull_start = anchor - timedelta(days=PULL_LOOKBACK_DAYS)
-        try:
+
+        def _wiki_pull():
             daily_views = fetch_daily_pageviews(article, pull_start, anchor)
             weekly = to_weekly(daily_views)
-            aligned_week, wiki_z, note = canonical.compute_zscore_at_anchor(weekly, anchor)
+            return canonical.compute_zscore_at_anchor(weekly, anchor)
+
+        wiki_result, timed_out, elapsed_wiki, err_wiki = _bounded_leg(_wiki_pull, WIKI_TICKER_BUDGET_S, ticker, "wiki")
+        if timed_out:
+            row["wiki_status"] = "timeout"
+            row["wiki_error"] = err_wiki
+        elif err_wiki is not None:
+            row["wiki_status"] = "error"
+            row["wiki_error"] = err_wiki
+        else:
+            aligned_week, wiki_z, note = wiki_result
             row["wikipedia_article"] = article
             row["wiki_zscore"] = round(wiki_z, 4) if wiki_z is not None else None
             row["wiki_aligned_week"] = aligned_week.date().isoformat() if aligned_week is not None else None
             row["wiki_note"] = note
-        except Exception as e:
-            row["wiki_error"] = str(e)
-    timings["wiki_pull_s"] = time.time() - t0
+            row["wiki_status"] = "ok"
+    row["wiki_elapsed_s"] = round(time.time() - t0, 3)
+    log(f"  [{ticker}] DONE  wiki  status={row['wiki_status']} elapsed={row['wiki_elapsed_s']:.2f}s "
+        f"z={row.get('wiki_zscore')}")
 
-    for k, v in timings.items():
-        row[f"timing_{k}"] = round(v, 3)
     row["ticker_total_s"] = round(time.time() - t_ticker_start, 3)
 
     six_fields = [row.get("gst_zscore"), row.get("wiki_zscore"), row.get("implied_volatility"),
@@ -235,75 +667,137 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
     return row
 
 
+def write_checkpoint(rows: list[dict]) -> None:
+    """Atomic write: build the file under a temp name in the same directory,
+    then os.replace() it over the checkpoint path -- os.replace is atomic on
+    both POSIX and Windows, so a reader never sees a half-written file."""
+    if not rows:
+        return
+    df = pd.DataFrame(rows, columns=COLUMN_ORDER)
+    tmp_path = CHECKPOINT_PATH.with_suffix(".tmp")
+    df.to_csv(tmp_path, index=False)
+    os.replace(tmp_path, CHECKPOINT_PATH)
+
+
+def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
+                             active_ticker: str | None = None, active_leg: str | None = None) -> None:
+    n_total = len(rows)
+    n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
+    six_fields = ["gst_zscore", "wiki_zscore", "implied_volatility", "realized_vol", "price", "volume"]
+    field_completeness = {
+        f: (sum(1 for r in rows if r.get(f) is not None) / n_total if n_total else 0.0)
+        for f in six_fields
+    }
+    failed_sources: dict[str, int] = {}
+    for leg in ["earnings", "price_history", "realized_vol", "iv", "gst", "wiki"]:
+        failed_sources[leg] = sum(1 for r in rows if r.get(f"{leg}_status") not in ("ok", None))
+
+    marker = {
+        "status": status,   # "COMPLETE" or "PARTIAL"
+        "row_count": n_total,
+        "unique_ticker_count": len(set(r["ticker"] for r in rows)),
+        "expected_ticker_count": len(TICKERS),
+        "all_six_fields_clean_count": n_clean,
+        "field_completeness_pct": {f: round(v * 100, 2) for f, v in field_completeness.items()},
+        "failed_source_counts": failed_sources,
+        "elapsed_s": round(elapsed_s, 1),
+        "elapsed_min": round(elapsed_s / 60, 2),
+        "active_ticker_when_stopped": active_ticker,
+        "active_leg_when_stopped": active_leg,
+        "checkpoint_path": str(CHECKPOINT_PATH) if status == "PARTIAL" else None,
+        "final_path": str(FINAL_OUT_PATH) if status == "COMPLETE" else None,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(COMPLETION_MARKER_PATH, "w", encoding="utf-8") as f:
+        json.dump(marker, f, indent=2)
+    log(f"\nCompletion marker written: {COMPLETION_MARKER_PATH}")
+    log(json.dumps(marker, indent=2))
+
+
 def main():
     run_ts = datetime.now(timezone.utc)
-    run_date = run_ts.date()
-    print(f"*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN) ***")
-    print(f"Run timestamp (UTC): {run_ts.isoformat()}")
-    print(f"Universe: {len(TICKERS)} tickers\n")
+    log("*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***")
+    log(f"Run timestamp (UTC): {run_ts.isoformat()}")
+    log(f"Universe: {len(TICKERS)} tickers")
+    log(f"Budgets: GST={GST_TICKER_BUDGET_S:.0f}s/ticker  Wiki={WIKI_TICKER_BUDGET_S:.0f}s/ticker  "
+        f"yfinance-call={YF_CALL_TIMEOUT_S:.0f}s  per-ticker={PER_TICKER_WALL_BUDGET_S:.0f}s  "
+        f"total-run={TOTAL_RUN_BUDGET_S:.0f}s\n")
 
     pt = TrendReq(hl="en-US", tz=0, timeout=(30, 60), retries=0, backoff_factor=0.0,
                   requests_args={"verify": False})
 
-    rows = []
+    rows: list[dict] = []
     wall_start = time.time()
+    active_ticker = None
+    exit_status = "COMPLETE"
+
     for i, ticker in enumerate(TICKERS, start=1):
+        elapsed_so_far = time.time() - wall_start
+        if elapsed_so_far >= TOTAL_RUN_BUDGET_S:
+            log(f"\n*** TOTAL RUN BUDGET ({TOTAL_RUN_BUDGET_S:.0f}s) EXHAUSTED before starting "
+                f"ticker {i}/{len(TICKERS)} ({ticker}). Stopping -- not restarting. ***")
+            exit_status = "PARTIAL"
+            active_ticker = ticker
+            break
+
+        active_ticker = ticker
         t0 = time.time()
-        row = process_ticker(pt, ticker, run_ts)
+        try:
+            row = process_ticker(pt, ticker, run_ts)
+        except Exception as e:
+            # Isolation: an unexpected failure for one ticker must not destroy
+            # already-collected rows for every other ticker.
+            log(f"  [{ticker}] UNHANDLED EXCEPTION -- {e}\n{traceback.format_exc()}")
+            row = {c: None for c in COLUMN_ORDER}
+            row.update({"run_date": RUN_DATE.isoformat(), "ticker": ticker,
+                        "retrieval_timestamp_utc": datetime.now(timezone.utc).isoformat(),
+                        "all_six_fields_clean": False, "ticker_total_s": round(time.time() - t0, 3)})
         elapsed = time.time() - t0
         rows.append(row)
-        status = "CLEAN" if row["all_six_fields_clean"] else "INCOMPLETE"
-        print(f"[{i}/{len(TICKERS)}] {ticker}: {elapsed:.2f}s  {status}  "
-              f"gst_z={row.get('gst_zscore')} wiki_z={row.get('wiki_zscore')} "
-              f"iv={row.get('implied_volatility')} rv={row.get('realized_vol')} "
-              f"price={row.get('price')} vol={row.get('volume')} "
-              f"days_to_earnings={row.get('days_to_nearest_earnings')}")
-        errs = {k: v for k, v in row.items() if k.endswith("_error")}
-        if errs:
-            print(f"    errors: {errs}")
+        write_checkpoint(rows)
+
+        status = "CLEAN" if row.get("all_six_fields_clean") else "INCOMPLETE"
+        log(f"[{i}/{len(TICKERS)}] {ticker}: {elapsed:.2f}s  {status}  "
+            f"gst_z={row.get('gst_zscore')} wiki_z={row.get('wiki_zscore')} "
+            f"iv={row.get('implied_volatility')} rv={row.get('realized_vol')} "
+            f"price={row.get('price')} vol={row.get('volume')} "
+            f"days_to_earnings={row.get('days_to_nearest_earnings')}")
+
+        if elapsed > PER_TICKER_WALL_BUDGET_S:
+            log(f"    NOTE: {ticker} took {elapsed:.0f}s, exceeding its "
+                f"{PER_TICKER_WALL_BUDGET_S:.0f}s per-ticker budget -- continuing "
+                f"(budget is advisory-logged per-ticker; TOTAL_RUN_BUDGET_S is the hard stop).")
 
         if i != len(TICKERS):
             time.sleep(random.uniform(*BETWEEN_TICKERS))
             if i % MICRO_BATCH_SIZE == 0:
-                print(f"— small batch pause ({MICRO_BATCH_PAUSE_S}s) —")
+                log(f"— small batch pause ({MICRO_BATCH_PAUSE_S}s) —")
                 time.sleep(MICRO_BATCH_PAUSE_S)
+    else:
+        active_ticker = None   # loop completed normally, without break
 
     wall_total = time.time() - wall_start
 
-    df = pd.DataFrame(rows)
-    df.insert(0, "run_date", run_date.isoformat())
-    out_path = OUT_DIR / f"GST_Phase2_DailyPanel_TestRun_{run_date.isoformat()}.csv"
-    df.to_csv(out_path, index=False)
+    if exit_status == "COMPLETE" and len(rows) == len(TICKERS):
+        df = pd.DataFrame(rows, columns=COLUMN_ORDER)
+        df.to_csv(FINAL_OUT_PATH, index=False)
+        log(f"\nWrote final (COMPLETE) output: {FINAL_OUT_PATH}")
+    else:
+        exit_status = "PARTIAL"
+        log(f"\n*** RUN DID NOT COMPLETE ALL {len(TICKERS)} TICKERS -- "
+            f"{len(rows)} row(s) collected. Checkpoint preserved at: {CHECKPOINT_PATH} ***")
 
-    n_clean = int(df["all_six_fields_clean"].sum())
-    print(f"\n=== RUN SUMMARY ===")
-    print(f"Tickers: {len(df)}  Clean (all 6 fields + earnings): {n_clean}  Incomplete: {len(df) - n_clean}")
-    print(f"Total wall time: {wall_total:.1f}s ({wall_total/60:.2f} min) for {len(df)} tickers "
-          f"-> {wall_total/len(df):.2f}s/ticker average (includes inter-ticker pacing sleeps)")
-    print(f"Per-ticker work time (excludes pacing sleeps): "
-          f"mean={df['ticker_total_s'].mean():.2f}s  min={df['ticker_total_s'].min():.2f}s  "
-          f"max={df['ticker_total_s'].max():.2f}s")
-    for leg in ["earnings_lookup_s", "price_history_pull_s", "realized_vol_compute_s",
-                "iv_pull_s", "gst_pull_s", "wiki_pull_s"]:
-        col = f"timing_{leg}"
-        if col in df.columns:
-            print(f"  {leg}: mean={df[col].mean():.2f}s  max={df[col].max():.2f}s")
+    n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
+    log("\n=== RUN SUMMARY ===")
+    log(f"Status: {exit_status}")
+    log(f"Tickers: {len(rows)}/{len(TICKERS)}  Clean (all 6 fields + earnings): {n_clean}  "
+        f"Incomplete: {len(rows) - n_clean}")
+    log(f"Total wall time: {wall_total:.1f}s ({wall_total/60:.2f} min)")
 
-    if len(df) - n_clean > 0:
-        print("\nIncomplete tickers (field-level):")
-        incomplete = df[~df["all_six_fields_clean"]]
-        for _, r in incomplete.iterrows():
-            missing = []
-            if pd.isna(r.get("gst_zscore")): missing.append("gst_zscore")
-            if pd.isna(r.get("wiki_zscore")): missing.append("wiki_zscore")
-            if pd.isna(r.get("implied_volatility")): missing.append("implied_volatility")
-            if pd.isna(r.get("realized_vol")): missing.append("realized_vol")
-            if pd.isna(r.get("price")): missing.append("price")
-            if pd.isna(r.get("volume")): missing.append("volume")
-            if pd.isna(r.get("days_to_nearest_earnings")): missing.append("days_to_nearest_earnings")
-            print(f"  {r['ticker']}: missing {missing}")
+    write_completion_marker(rows, wall_total, exit_status, active_ticker=active_ticker if exit_status == "PARTIAL" else None)
 
-    print(f"\nWrote: {out_path}")
+    if exit_status != "COMPLETE":
+        sys.exit(1)
 
 
 if __name__ == "__main__":
