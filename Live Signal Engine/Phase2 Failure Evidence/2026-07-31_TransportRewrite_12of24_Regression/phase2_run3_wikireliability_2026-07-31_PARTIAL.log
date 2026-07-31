@@ -1,0 +1,761 @@
+*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***
+Run timestamp (UTC): 2026-07-31T17:22:32.549441+00:00
+Universe: 24 tickers
+Budgets: GST=480s/ticker  wiki-chunk=35s (process-isolated, calendar-chunked, cached)  yfinance-call=45s  per-ticker=900s  total-run=2700s
+
+NOTE (scope disclosure): only the Wikipedia leg uses genuinely killable subprocess isolation this pass. GST/earnings/price_history/iv legs still use the daemon-thread run_bounded() wrapper -- a timeout there is logged and the run continues, but the underlying call is not guaranteed to actually stop. This is disclosed, not claimed otherwise.
+
+  [AAPL] START earnings
+  [AAPL] DONE  earnings  status=ok elapsed=1.00s value=90
+  [AAPL] START price_history
+  [AAPL] DONE  price_history  status=ok elapsed=0.47s rows=125
+  [AAPL] START realized_vol
+  [AAPL] DONE  realized_vol  status=ok elapsed=0.00s value=0.28332368180548545
+  [AAPL] START iv
+  [AAPL] DONE  iv  status=ok elapsed=0.43s iv=0.254158
+  [AAPL] START gst
+    [AAPL] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 22.5s (budget remaining after: 457s)
+  [AAPL] DONE  gst  status=ok elapsed=24.26s retries=2 rate_limit_events=1 z=4.995
+  [AAPL] START wiki
+    [AAPL] wiki chunk 2025-10-04..2025-10-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2025-11-01..2025-11-30 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2025-12-01..2025-12-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-01-01..2026-01-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-02-01..2026-02-28 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-03-01..2026-03-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-04-01..2026-04-30 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-05-01..2026-05-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-06-01..2026-06-30 source=cache status=ok network=0.00s sleep=0.00s
+    [AAPL] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.52s sleep=0.00s
+  [AAPL] DONE  wiki  status=ok elapsed=2.14s z=-4.1852
+[1/24] AAPL: 28.30s  CLEAN  gst_z=4.995 wiki_z=-4.1852 iv=0.254158 rv=0.28332368180548545 price=301.489990234375 vol=70233216 days_to_earnings=90
+  [ABBV] START earnings
+  [ABBV] DONE  earnings  status=ok elapsed=0.62s value=0
+  [ABBV] START price_history
+  [ABBV] DONE  price_history  status=ok elapsed=0.13s rows=125
+  [ABBV] START realized_vol
+  [ABBV] DONE  realized_vol  status=ok elapsed=0.00s value=0.2837022243894465
+  [ABBV] START iv
+  [ABBV] DONE  iv  status=ok elapsed=0.33s iv=0.322028
+  [ABBV] START gst
+  [ABBV] DONE  gst  status=ok elapsed=1.16s retries=1 rate_limit_events=0 z=1.028
+  [ABBV] START wiki
+    [ABBV] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=1.46s sleep=0.00s
+    [ABBV] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=1.10s sleep=0.00s
+    [ABBV] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.79s sleep=0.00s
+    [ABBV] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.82s sleep=0.00s
+    [ABBV] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.50s sleep=0.00s
+    [ABBV] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=1.27s sleep=0.00s
+    [ABBV] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.33s sleep=0.00s
+    [ABBV] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.20s sleep=0.00s
+    [ABBV] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.23s sleep=0.00s
+    [ABBV] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.40s sleep=0.00s
+  [ABBV] DONE  wiki  status=ok elapsed=19.50s z=-4.1622
+[2/24] ABBV: 21.74s  CLEAN  gst_z=1.028 wiki_z=-4.1622 iv=0.322028 rv=0.2837022243894465 price=252.2100067138672 vol=2862106 days_to_earnings=0
+  [ADBE] START earnings
+  [ADBE] DONE  earnings  status=ok elapsed=0.67s value=41
+  [ADBE] START price_history
+  [ADBE] DONE  price_history  status=ok elapsed=0.22s rows=125
+  [ADBE] START realized_vol
+  [ADBE] DONE  realized_vol  status=ok elapsed=0.01s value=0.5233096797250203
+  [ADBE] START iv
+  [ADBE] DONE  iv  status=ok elapsed=0.27s iv=0.481206
+  [ADBE] START gst
+  [ADBE] DONE  gst  status=ok elapsed=1.34s retries=1 rate_limit_events=0 z=0.536
+  [ADBE] START wiki
+    [ADBE] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.32s sleep=0.00s
+    [ADBE] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.22s sleep=0.00s
+    [ADBE] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.32s sleep=0.00s
+    [ADBE] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.18s sleep=0.00s
+    [ADBE] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.38s sleep=0.00s
+    [ADBE] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.60s sleep=0.00s
+    [ADBE] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.38s sleep=0.00s
+    [ADBE] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.24s sleep=0.00s
+    [ADBE] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.43s sleep=0.00s
+    [ADBE] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.30s sleep=0.00s
+  [ADBE] DONE  wiki  status=pending_second_pass elapsed=15.15s z=None
+[3/24] ADBE: 17.66s  INCOMPLETE  gst_z=0.536 wiki_z=None iv=0.481206 rv=0.5233096797250203 price=249.46499633789062 vol=2798283 days_to_earnings=41
+  [AMZN] START earnings
+  [AMZN] DONE  earnings  status=ok elapsed=0.75s value=90
+  [AMZN] START price_history
+  [AMZN] DONE  price_history  status=ok elapsed=0.09s rows=125
+  [AMZN] START realized_vol
+  [AMZN] DONE  realized_vol  status=ok elapsed=0.00s value=0.3039355494193462
+  [AMZN] START iv
+  [AMZN] DONE  iv  status=ok elapsed=0.17s iv=0.312507
+  [AMZN] START gst
+  [AMZN] DONE  gst  status=ok elapsed=0.68s retries=1 rate_limit_events=0 z=5.85
+  [AMZN] START wiki
+    [AMZN] wiki chunk 2025-10-04..2025-10-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2025-11-01..2025-11-30 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2025-12-01..2025-12-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-01-01..2026-01-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-02-01..2026-02-28 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-03-01..2026-03-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-04-01..2026-04-30 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-05-01..2026-05-31 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-06-01..2026-06-30 source=cache status=ok network=0.00s sleep=0.00s
+    [AMZN] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.19s sleep=0.00s
+  [AMZN] DONE  wiki  status=pending_second_pass elapsed=1.48s z=None
+[4/24] AMZN: 3.17s  INCOMPLETE  gst_z=5.85 wiki_z=None iv=0.312507 rv=0.3039355494193462 price=270.94500732421875 vol=86345493 days_to_earnings=90
+  [BKR] START earnings
+  [BKR] DONE  earnings  status=ok elapsed=0.70s value=83
+  [BKR] START price_history
+  [BKR] DONE  price_history  status=ok elapsed=0.18s rows=125
+  [BKR] START realized_vol
+  [BKR] DONE  realized_vol  status=ok elapsed=0.00s value=0.3602633383065222
+  [BKR] START iv
+  [BKR] DONE  iv  status=ok elapsed=0.16s iv=0.350592
+  [BKR] START gst
+    [BKR] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 21.3s (budget remaining after: 458s)
+  [BKR] DONE  gst  status=ok elapsed=23.11s retries=2 rate_limit_events=1 z=-0.608
+  [BKR] START wiki
+    [BKR] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.33s sleep=0.00s
+    [BKR] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.22s sleep=0.00s
+    [BKR] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.22s sleep=0.00s
+    [BKR] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.28s sleep=0.00s
+    [BKR] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.21s sleep=0.00s
+    [BKR] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.30s sleep=0.00s
+    [BKR] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.70s sleep=0.00s
+    [BKR] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.25s sleep=0.00s
+    [BKR] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.47s sleep=0.00s
+    [BKR] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.66s sleep=0.00s
+  [BKR] DONE  wiki  status=pending_second_pass elapsed=15.15s z=None
+[5/24] BKR: 39.31s  INCOMPLETE  gst_z=-0.608 wiki_z=None iv=0.350592 rv=0.3602633383065222 price=60.43000030517578 vol=2376204 days_to_earnings=83
+  [BRK-B] START earnings
+  [BRK-B] DONE  earnings  status=ok elapsed=1.77s value=8
+  [BRK-B] START price_history
+  [BRK-B] DONE  price_history  status=ok elapsed=0.10s rows=125
+  [BRK-B] START realized_vol
+  [BRK-B] DONE  realized_vol  status=ok elapsed=0.00s value=0.14590208046733288
+  [BRK-B] START iv
+  [BRK-B] DONE  iv  status=ok elapsed=0.34s iv=0.192452
+  [BRK-B] START gst
+  [BRK-B] DONE  gst  status=ok elapsed=0.96s retries=1 rate_limit_events=0 z=-0.61
+  [BRK-B] START wiki
+    [BRK-B] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.21s sleep=0.00s
+    [BRK-B] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.33s sleep=0.00s
+    [BRK-B] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.55s sleep=0.00s
+    [BRK-B] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.34s sleep=0.00s
+    [BRK-B] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.44s sleep=0.00s
+    [BRK-B] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.48s sleep=0.00s
+    [BRK-B] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.30s sleep=0.00s
+    [BRK-B] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.32s sleep=0.00s
+    [BRK-B] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.42s sleep=0.00s
+    [BRK-B] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.53s sleep=0.00s
+  [BRK-B] DONE  wiki  status=pending_second_pass elapsed=15.58s z=None
+[6/24] BRK-B: 18.77s  INCOMPLETE  gst_z=-0.61 wiki_z=None iv=0.192452 rv=0.14590208046733288 price=512.1799926757812 vol=1399687 days_to_earnings=8
+— small batch pause (20s) —
+  [CTSH] START earnings
+  [CTSH] DONE  earnings  status=ok elapsed=0.71s value=89
+  [CTSH] START price_history
+  [CTSH] DONE  price_history  status=ok elapsed=0.17s rows=125
+  [CTSH] START realized_vol
+  [CTSH] DONE  realized_vol  status=ok elapsed=0.00s value=0.5832831684077535
+  [CTSH] START iv
+  [CTSH] DONE  iv  status=ok elapsed=0.29s iv=0.500982
+  [CTSH] START gst
+  [CTSH] DONE  gst  status=ok elapsed=1.00s retries=1 rate_limit_events=0 z=2.333
+  [CTSH] START wiki
+    [CTSH] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.37s sleep=0.00s
+    [CTSH] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.76s sleep=0.00s
+    [CTSH] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.29s sleep=0.00s
+    [CTSH] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.31s sleep=0.00s
+    [CTSH] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.20s sleep=0.00s
+    [CTSH] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.25s sleep=0.00s
+    [CTSH] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.54s sleep=0.00s
+    [CTSH] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.39s sleep=0.00s
+    [CTSH] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.27s sleep=0.00s
+    [CTSH] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.48s sleep=0.00s
+  [CTSH] DONE  wiki  status=pending_second_pass elapsed=15.70s z=None
+[7/24] CTSH: 17.88s  INCOMPLETE  gst_z=2.333 wiki_z=None iv=0.500982 rv=0.5832831684077535 price=55.099998474121094 vol=3040297 days_to_earnings=89
+  [DELL] START earnings
+  [DELL] DONE  earnings  status=ok elapsed=0.93s value=34
+  [DELL] START price_history
+  [DELL] DONE  price_history  status=ok elapsed=0.23s rows=125
+  [DELL] START realized_vol
+  [DELL] DONE  realized_vol  status=ok elapsed=0.01s value=1.070369171927062
+  [DELL] START iv
+  [DELL] DONE  iv  status=ok elapsed=0.33s iv=0.783388
+  [DELL] START gst
+  [DELL] DONE  gst  status=ok elapsed=1.00s retries=1 rate_limit_events=0 z=-1.679
+  [DELL] START wiki
+    [DELL] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.25s sleep=0.00s
+    [DELL] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.37s sleep=0.00s
+    [DELL] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.20s sleep=0.00s
+    [DELL] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.32s sleep=0.00s
+    [DELL] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.49s sleep=0.00s
+    [DELL] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.33s sleep=0.00s
+    [DELL] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=3.00s sleep=0.00s
+    [DELL] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.58s sleep=0.00s
+    [DELL] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.57s sleep=0.00s
+    [DELL] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.95s sleep=0.00s
+  [DELL] DONE  wiki  status=pending_second_pass elapsed=18.15s z=None
+[8/24] DELL: 20.64s  INCOMPLETE  gst_z=-1.679 wiki_z=None iv=0.783388 rv=1.070369171927062 price=407.760009765625 vol=3006581 days_to_earnings=34
+  [DVN] START earnings
+  [DVN] DONE  earnings  status=ok elapsed=0.74s value=4
+  [DVN] START price_history
+  [DVN] DONE  price_history  status=ok elapsed=0.15s rows=125
+  [DVN] START realized_vol
+  [DVN] DONE  realized_vol  status=ok elapsed=0.00s value=0.3987020956479467
+  [DVN] START iv
+  [DVN] DONE  iv  status=ok elapsed=0.19s iv=0.486577
+  [DVN] START gst
+    [DVN] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 20.8s (budget remaining after: 459s)
+  [DVN] DONE  gst  status=ok elapsed=22.45s retries=2 rate_limit_events=1 z=-0.765
+  [DVN] START wiki
+    [DVN] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.33s sleep=0.00s
+    [DVN] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.28s sleep=0.00s
+    [DVN] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.26s sleep=0.00s
+    [DVN] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.23s sleep=0.00s
+    [DVN] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.30s sleep=0.00s
+    [DVN] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.54s sleep=0.00s
+    [DVN] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.64s sleep=0.00s
+    [DVN] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.32s sleep=0.00s
+    [DVN] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.30s sleep=0.00s
+    [DVN] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.29s sleep=0.00s
+  [DVN] DONE  wiki  status=ok elapsed=15.81s z=-1.7762
+[9/24] DVN: 39.34s  CLEAN  gst_z=-0.765 wiki_z=-1.7762 iv=0.486577 rv=0.3987020956479467 price=44.56999969482422 vol=3811220 days_to_earnings=4
+  [GME] START earnings
+  [GME] DONE  earnings  status=ok elapsed=0.67s value=39
+  [GME] START price_history
+  [GME] DONE  price_history  status=ok elapsed=0.10s rows=125
+  [GME] START realized_vol
+  [GME] DONE  realized_vol  status=ok elapsed=0.00s value=0.311880615169435
+  [GME] START iv
+  [GME] DONE  iv  status=ok elapsed=0.19s iv=0.255867
+  [GME] START gst
+  [GME] DONE  gst  status=ok elapsed=0.83s retries=1 rate_limit_events=0 z=-0.761
+  [GME] START wiki
+    [GME] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.29s sleep=0.00s
+    [GME] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.43s sleep=0.00s
+    [GME] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.28s sleep=0.00s
+    [GME] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=1.01s sleep=0.00s
+    [GME] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.20s sleep=0.00s
+    [GME] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.31s sleep=0.00s
+    [GME] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.38s sleep=0.00s
+    [GME] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.45s sleep=0.00s
+    [GME] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.28s sleep=0.00s
+    [GME] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.20s sleep=0.00s
+  [GME] DONE  wiki  status=pending_second_pass elapsed=15.44s z=None
+[10/24] GME: 17.23s  INCOMPLETE  gst_z=-0.761 wiki_z=None iv=0.255867 rv=0.311880615169435 price=21.809999465942383 vol=1276834 days_to_earnings=39
+  [GOOGL] START earnings
+  [GOOGL] DONE  earnings  status=ok elapsed=0.66s value=89
+  [GOOGL] START price_history
+  [GOOGL] DONE  price_history  status=ok elapsed=0.13s rows=125
+  [GOOGL] START realized_vol
+  [GOOGL] DONE  realized_vol  status=ok elapsed=0.00s value=0.3409867002953995
+  [GOOGL] START iv
+  [GOOGL] DONE  iv  status=ok elapsed=0.44s iv=0.245674
+  [GOOGL] START gst
+  [GOOGL] DONE  gst  status=ok elapsed=1.31s retries=1 rate_limit_events=0 z=-0.196
+  [GOOGL] START wiki
+    [GOOGL] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.21s sleep=0.00s
+    [GOOGL] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.23s sleep=0.00s
+    [GOOGL] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.31s sleep=0.00s
+    [GOOGL] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.22s sleep=0.00s
+    [GOOGL] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.32s sleep=0.00s
+    [GOOGL] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.29s sleep=0.00s
+    [GOOGL] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.23s sleep=0.00s
+    [GOOGL] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.38s sleep=0.00s
+    [GOOGL] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.32s sleep=0.00s
+    [GOOGL] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.21s sleep=0.00s
+  [GOOGL] DONE  wiki  status=pending_second_pass elapsed=14.67s z=None
+[11/24] GOOGL: 17.21s  INCOMPLETE  gst_z=-0.196 wiki_z=None iv=0.245674 rv=0.3409867002953995 price=354.2699890136719 vol=23360566 days_to_earnings=89
+  [GPN] START earnings
+  [GPN] DONE  earnings  status=ok elapsed=0.67s value=5
+  [GPN] START price_history
+  [GPN] DONE  price_history  status=ok elapsed=0.23s rows=125
+  [GPN] START realized_vol
+  [GPN] DONE  realized_vol  status=ok elapsed=0.00s value=0.43256585571112843
+  [GPN] START iv
+  [GPN] DONE  iv  status=ok elapsed=0.27s iv=0.526616
+  [GPN] START gst
+  [GPN] DONE  gst  status=ok elapsed=1.23s retries=1 rate_limit_events=0 z=-0.593
+  [GPN] START wiki
+    [GPN] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.26s sleep=0.00s
+    [GPN] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.22s sleep=0.00s
+    [GPN] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.35s sleep=0.00s
+    [GPN] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.28s sleep=0.00s
+    [GPN] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.35s sleep=0.00s
+    [GPN] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.25s sleep=0.00s
+    [GPN] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.38s sleep=0.00s
+    [GPN] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.29s sleep=0.00s
+    [GPN] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.29s sleep=0.00s
+    [GPN] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.20s sleep=0.00s
+  [GPN] DONE  wiki  status=pending_second_pass elapsed=14.41s z=None
+[12/24] GPN: 16.81s  INCOMPLETE  gst_z=-0.593 wiki_z=None iv=0.526616 rv=0.43256585571112843 price=84.7300033569336 vol=1053494 days_to_earnings=5
+— small batch pause (20s) —
+  [INTC] START earnings
+  [INTC] DONE  earnings  status=ok elapsed=0.64s value=83
+  [INTC] START price_history
+  [INTC] DONE  price_history  status=ok elapsed=0.25s rows=125
+  [INTC] START realized_vol
+  [INTC] DONE  realized_vol  status=ok elapsed=0.00s value=0.9308563383074311
+  [INTC] START iv
+  [INTC] DONE  iv  status=ok elapsed=0.29s iv=0.550053
+  [INTC] START gst
+  [INTC] DONE  gst  status=ok elapsed=1.07s retries=1 rate_limit_events=0 z=-0.337
+  [INTC] START wiki
+    [INTC] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.22s sleep=0.00s
+    [INTC] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.24s sleep=0.00s
+    [INTC] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.30s sleep=0.00s
+    [INTC] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.29s sleep=0.00s
+    [INTC] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.30s sleep=0.00s
+    [INTC] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.21s sleep=0.00s
+    [INTC] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.31s sleep=0.00s
+    [INTC] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.37s sleep=0.00s
+    [INTC] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.22s sleep=0.00s
+    [INTC] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.32s sleep=0.00s
+  [INTC] DONE  wiki  status=pending_second_pass elapsed=15.02s z=None
+[13/24] INTC: 17.28s  INCOMPLETE  gst_z=-0.337 wiki_z=None iv=0.550053 rv=0.9308563383074311 price=92.41500091552734 vol=66521579 days_to_earnings=83
+  [LDOS] START earnings
+  [LDOS] DONE  earnings  status=ok elapsed=0.73s value=4
+  [LDOS] START price_history
+  [LDOS] DONE  price_history  status=ok elapsed=0.23s rows=125
+  [LDOS] START realized_vol
+  [LDOS] DONE  realized_vol  status=ok elapsed=0.00s value=0.3543105031170478
+  [LDOS] START iv
+  [LDOS] DONE  iv  status=ok elapsed=0.25s iv=0.488653
+  [LDOS] START gst
+    [LDOS] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 24.6s (budget remaining after: 455s)
+  [LDOS] DONE  gst  status=ok elapsed=26.30s retries=2 rate_limit_events=1 z=-0.812
+  [LDOS] START wiki
+    [LDOS] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.18s sleep=0.00s
+    [LDOS] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.18s sleep=0.00s
+    [LDOS] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.31s sleep=0.00s
+    [LDOS] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.27s sleep=0.00s
+    [LDOS] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.28s sleep=0.00s
+    [LDOS] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.23s sleep=0.00s
+    [LDOS] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.43s sleep=0.00s
+    [LDOS] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.45s sleep=0.00s
+    [LDOS] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.58s sleep=0.00s
+    [LDOS] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.30s sleep=0.00s
+  [LDOS] DONE  wiki  status=pending_second_pass elapsed=14.99s z=None
+[14/24] LDOS: 42.50s  INCOMPLETE  gst_z=-0.812 wiki_z=None iv=0.488653 rv=0.3543105031170478 price=113.375 vol=243027 days_to_earnings=4
+  [MSFT] START earnings
+  [MSFT] DONE  earnings  status=ok elapsed=0.81s value=89
+  [MSFT] START price_history
+  [MSFT] DONE  price_history  status=ok elapsed=0.23s rows=125
+  [MSFT] START realized_vol
+  [MSFT] DONE  realized_vol  status=ok elapsed=0.00s value=0.4587935205323107
+  [MSFT] START iv
+  [MSFT] DONE  iv  status=ok elapsed=0.39s iv=0.24781
+  [MSFT] START gst
+    [MSFT] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 20.5s (budget remaining after: 459s)
+  [MSFT] DONE  gst  status=ok elapsed=22.26s retries=2 rate_limit_events=1 z=9.65
+  [MSFT] START wiki
+    [MSFT] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.38s sleep=0.00s
+    [MSFT] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.21s sleep=0.00s
+    [MSFT] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.21s sleep=0.00s
+    [MSFT] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.22s sleep=0.00s
+    [MSFT] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.36s sleep=0.00s
+    [MSFT] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.22s sleep=0.00s
+    [MSFT] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.19s sleep=0.00s
+    [MSFT] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.28s sleep=0.00s
+    [MSFT] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.28s sleep=0.00s
+    [MSFT] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.19s sleep=0.00s
+  [MSFT] DONE  wiki  status=pending_second_pass elapsed=14.48s z=None
+[15/24] MSFT: 38.18s  INCOMPLETE  gst_z=9.65 wiki_z=None iv=0.24781 rv=0.4587935205323107 price=463.4700012207031 vol=32197629 days_to_earnings=89
+  [NCLH] START earnings
+  [NCLH] DONE  earnings  status=ok elapsed=0.69s value=96
+  [NCLH] START price_history
+  [NCLH] DONE  price_history  status=ok elapsed=0.27s rows=125
+  [NCLH] START realized_vol
+  [NCLH] DONE  realized_vol  status=ok elapsed=0.00s value=0.5347028673078458
+  [NCLH] START iv
+  [NCLH] DONE  iv  status=ok elapsed=0.17s iv=0.502935
+  [NCLH] START gst
+  [NCLH] DONE  gst  status=ok elapsed=0.90s retries=1 rate_limit_events=0 z=-0.215
+  [NCLH] START wiki
+    [NCLH] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.21s sleep=0.00s
+    [NCLH] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.38s sleep=0.00s
+    [NCLH] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.31s sleep=0.00s
+    [NCLH] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.31s sleep=0.00s
+    [NCLH] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.39s sleep=0.00s
+    [NCLH] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.24s sleep=0.00s
+    [NCLH] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.30s sleep=0.00s
+    [NCLH] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.23s sleep=0.00s
+    [NCLH] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.55s sleep=0.00s
+    [NCLH] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.22s sleep=0.00s
+  [NCLH] DONE  wiki  status=pending_second_pass elapsed=14.55s z=None
+[16/24] NCLH: 16.58s  INCOMPLETE  gst_z=-0.215 wiki_z=None iv=0.502935 rv=0.5347028673078458 price=18.645000457763672 vol=10535823 days_to_earnings=96
+  [NKE] START earnings
+  [NKE] DONE  earnings  status=ok elapsed=0.55s value=60
+  [NKE] START price_history
+  [NKE] DONE  price_history  status=ok elapsed=0.13s rows=125
+  [NKE] START realized_vol
+  [NKE] DONE  realized_vol  status=ok elapsed=0.00s value=0.3412339833821318
+  [NKE] START iv
+  [NKE] DONE  iv  status=ok elapsed=0.17s iv=0.331061
+  [NKE] START gst
+  [NKE] DONE  gst  status=ok elapsed=0.93s retries=1 rate_limit_events=0 z=-0.518
+  [NKE] START wiki
+    [NKE] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.30s sleep=0.00s
+    [NKE] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.52s sleep=0.00s
+    [NKE] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.30s sleep=0.00s
+    [NKE] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.37s sleep=0.00s
+    [NKE] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.29s sleep=0.00s
+    [NKE] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.42s sleep=0.00s
+    [NKE] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.29s sleep=0.00s
+    [NKE] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.21s sleep=0.00s
+    [NKE] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.19s sleep=0.00s
+    [NKE] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.19s sleep=0.00s
+  [NKE] DONE  wiki  status=pending_second_pass elapsed=14.98s z=None
+[17/24] NKE: 16.77s  INCOMPLETE  gst_z=-0.518 wiki_z=None iv=0.331061 rv=0.3412339833821318 price=41.64500045776367 vol=7302904 days_to_earnings=60
+  [QCOM] START earnings
+  [QCOM] DONE  earnings  status=ok elapsed=0.66s value=90
+  [QCOM] START price_history
+  [QCOM] DONE  price_history  status=ok elapsed=0.29s rows=125
+  [QCOM] START realized_vol
+  [QCOM] DONE  realized_vol  status=ok elapsed=0.00s value=0.8021416953830602
+  [QCOM] START iv
+  [QCOM] DONE  iv  status=ok elapsed=0.29s iv=0.539189
+  [QCOM] START gst
+    [QCOM] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.4s (budget remaining after: 452s)
+    [QCOM] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 45.3s (budget remaining after: 406s)
+    [QCOM] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 77.2s (budget remaining after: 327s)
+  [QCOM] DONE  gst  status=ok elapsed=153.58s retries=4 rate_limit_events=3 z=-0.34
+  [QCOM] START wiki
+    [QCOM] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.39s sleep=0.00s
+    [QCOM] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.31s sleep=0.00s
+    [QCOM] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.34s sleep=0.00s
+    [QCOM] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.32s sleep=0.00s
+    [QCOM] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.34s sleep=0.00s
+    [QCOM] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.34s sleep=0.00s
+    [QCOM] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.22s sleep=0.00s
+    [QCOM] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.45s sleep=0.00s
+    [QCOM] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.20s sleep=0.00s
+    [QCOM] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.33s sleep=0.00s
+  [QCOM] DONE  wiki  status=ok elapsed=14.78s z=-0.8119
+[18/24] QCOM: 169.61s  CLEAN  gst_z=-0.34 wiki_z=-0.8119 iv=0.539189 rv=0.8021416953830602 price=148.22500610351562 vol=6812995 days_to_earnings=90
+— small batch pause (20s) —
+  [SBUX] START earnings
+  [SBUX] DONE  earnings  status=ok elapsed=0.86s value=89
+  [SBUX] START price_history
+  [SBUX] DONE  price_history  status=ok elapsed=0.30s rows=125
+  [SBUX] START realized_vol
+  [SBUX] DONE  realized_vol  status=ok elapsed=0.00s value=0.22455078676451165
+  [SBUX] START iv
+  [SBUX] DONE  iv  status=ok elapsed=0.35s iv=0.312019
+  [SBUX] START gst
+  [SBUX] DONE  gst  status=ok elapsed=1.04s retries=1 rate_limit_events=0 z=5.108
+  [SBUX] START wiki
+    [SBUX] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.20s sleep=0.00s
+    [SBUX] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.36s sleep=0.00s
+    [SBUX] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.30s sleep=0.00s
+    [SBUX] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.27s sleep=0.00s
+    [SBUX] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.46s sleep=0.00s
+    [SBUX] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.45s sleep=0.00s
+    [SBUX] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.32s sleep=0.00s
+    [SBUX] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.45s sleep=0.00s
+    [SBUX] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.36s sleep=0.00s
+    [SBUX] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.18s sleep=0.00s
+  [SBUX] DONE  wiki  status=pending_second_pass elapsed=14.59s z=None
+[19/24] SBUX: 17.15s  INCOMPLETE  gst_z=5.108 wiki_z=None iv=0.312019 rv=0.22455078676451165 price=104.81500244140625 vol=6856992 days_to_earnings=89
+  [STZ] START earnings
+  [STZ] DONE  earnings  status=ok elapsed=0.63s value=66
+  [STZ] START price_history
+  [STZ] DONE  price_history  status=ok elapsed=0.08s rows=125
+  [STZ] START realized_vol
+  [STZ] DONE  realized_vol  status=ok elapsed=0.00s value=0.3025347332082833
+  [STZ] START iv
+  [STZ] DONE  iv  status=ok elapsed=0.19s iv=0.33216
+  [STZ] START gst
+    [STZ] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 20.4s (budget remaining after: 459s)
+    [STZ] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 42.0s (budget remaining after: 416s)
+    [STZ] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 77.1s (budget remaining after: 338s)
+  [STZ] DONE  gst  status=ok elapsed=142.82s retries=4 rate_limit_events=3 z=-1.319
+  [STZ] START wiki
+    [STZ] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=0.48s sleep=0.00s
+    [STZ] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.34s sleep=0.00s
+    [STZ] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.37s sleep=0.00s
+    [STZ] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.31s sleep=0.00s
+    [STZ] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.18s sleep=0.00s
+    [STZ] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.22s sleep=0.00s
+    [STZ] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.29s sleep=0.00s
+    [STZ] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.20s sleep=0.00s
+    [STZ] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.21s sleep=0.00s
+    [STZ] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.20s sleep=0.00s
+  [STZ] DONE  wiki  status=ok elapsed=15.61s z=-1.6368
+[20/24] STZ: 159.34s  CLEAN  gst_z=-1.319 wiki_z=-1.6368 iv=0.33216 rv=0.3025347332082833 price=129.7050018310547 vol=540397 days_to_earnings=66
+  [SYK] START earnings
+  [SYK] DONE  earnings  status=ok elapsed=0.75s value=90
+  [SYK] START price_history
+  [SYK] DONE  price_history  status=ok elapsed=0.31s rows=125
+  [SYK] START realized_vol
+  [SYK] DONE  realized_vol  status=ok elapsed=0.00s value=0.36292383576198145
+  [SYK] START iv
+  [SYK] DONE  iv  status=ok elapsed=0.34s iv=0.321204
+  [SYK] START gst
+  [SYK] DONE  gst  status=ok elapsed=1.17s retries=1 rate_limit_events=0 z=-1.151
+  [SYK] START wiki
+    [SYK] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.27s sleep=0.00s
+    [SYK] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.19s sleep=0.00s
+    [SYK] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.26s sleep=0.00s
+    [SYK] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.18s sleep=0.00s
+    [SYK] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.28s sleep=0.00s
+    [SYK] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.28s sleep=0.00s
+    [SYK] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.43s sleep=0.00s
+    [SYK] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.18s sleep=0.00s
+    [SYK] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.27s sleep=0.00s
+    [SYK] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.35s sleep=0.00s
+  [SYK] DONE  wiki  status=pending_second_pass elapsed=13.75s z=None
+[21/24] SYK: 16.32s  INCOMPLETE  gst_z=-1.151 wiki_z=None iv=0.321204 rv=0.36292383576198145 price=325.7799987792969 vol=2601583 days_to_earnings=90
+  [TSLA] START earnings
+  [TSLA] DONE  earnings  status=ok elapsed=0.64s value=82
+  [TSLA] START price_history
+  [TSLA] DONE  price_history  status=ok elapsed=0.13s rows=125
+  [TSLA] START realized_vol
+  [TSLA] DONE  realized_vol  status=ok elapsed=0.00s value=0.5771987695457658
+  [TSLA] START iv
+  [TSLA] DONE  iv  status=ok elapsed=0.24s iv=0.300666
+  [TSLA] START gst
+    [TSLA] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 24.1s (budget remaining after: 455s)
+  [TSLA] DONE  gst  status=ok elapsed=25.99s retries=2 rate_limit_events=1 z=0.865
+  [TSLA] START wiki
+    [TSLA] wiki chunk 2025-10-04..2025-10-31 source=fetch status=ok network=1.13s sleep=0.00s
+    [TSLA] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.99s sleep=0.00s
+    [TSLA] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=1.02s sleep=0.00s
+    [TSLA] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=1.60s sleep=0.00s
+    [TSLA] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=1.19s sleep=0.00s
+    [TSLA] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=1.63s sleep=0.00s
+    [TSLA] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.44s sleep=0.00s
+    [TSLA] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.37s sleep=0.00s
+    [TSLA] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.73s sleep=0.00s
+    [TSLA] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.69s sleep=0.00s
+  [TSLA] DONE  wiki  status=ok elapsed=22.01s z=-1.5178
+[22/24] TSLA: 49.02s  CLEAN  gst_z=0.865 wiki_z=-1.5178 iv=0.300666 rv=0.5771987695457658 price=310.5 vol=24856173 days_to_earnings=82
+  [TTWO] START earnings
+  [TTWO] DONE  earnings  status=ok elapsed=0.76s value=7
+  [TTWO] START price_history
+  [TTWO] DONE  price_history  status=ok elapsed=0.28s rows=125
+  [TTWO] START realized_vol
+  [TTWO] DONE  realized_vol  status=ok elapsed=0.00s value=0.347236602335093
+  [TTWO] START iv
+  [TTWO] DONE  iv  status=ok elapsed=0.40s iv=0.759341
+  [TTWO] START gst
+  [TTWO] DONE  gst  status=ok elapsed=1.26s retries=1 rate_limit_events=0 z=-0.853
+  [TTWO] START wiki
+    [TTWO] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.20s sleep=0.00s
+    [TTWO] wiki chunk 2025-11-01..2025-11-30 source=fetch status=http_error network=0.36s sleep=0.00s
+    [TTWO] wiki chunk 2025-12-01..2025-12-31 source=fetch status=http_error network=0.48s sleep=0.00s
+    [TTWO] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error network=0.46s sleep=0.00s
+    [TTWO] wiki chunk 2026-02-01..2026-02-28 source=fetch status=http_error network=0.29s sleep=0.00s
+    [TTWO] wiki chunk 2026-03-01..2026-03-31 source=fetch status=ok network=0.32s sleep=0.00s
+    [TTWO] wiki chunk 2026-04-01..2026-04-30 source=fetch status=ok network=0.31s sleep=0.00s
+    [TTWO] wiki chunk 2026-05-01..2026-05-31 source=fetch status=ok network=0.28s sleep=0.00s
+    [TTWO] wiki chunk 2026-06-01..2026-06-30 source=fetch status=ok network=0.32s sleep=0.00s
+    [TTWO] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok network=0.23s sleep=0.00s
+  [TTWO] DONE  wiki  status=pending_second_pass elapsed=15.57s z=None
+[23/24] TTWO: 18.26s  INCOMPLETE  gst_z=-0.853 wiki_z=None iv=0.759341 rv=0.347236602335093 price=241.3300018310547 vol=893004 days_to_earnings=7
+  [UAL] START earnings
+  [UAL] DONE  earnings  status=ok elapsed=0.67s value=82
+  [UAL] START price_history
+  [UAL] DONE  price_history  status=ok elapsed=0.11s rows=125
+  [UAL] START realized_vol
+  [UAL] DONE  realized_vol  status=ok elapsed=0.00s value=0.5221607092374905
+  [UAL] START iv
+  [UAL] DONE  iv  status=ok elapsed=0.22s iv=0.523686
+  [UAL] START gst
+    [UAL] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 23.1s (budget remaining after: 456s)
+  [UAL] DONE  gst  status=ok elapsed=25.00s retries=2 rate_limit_events=1 z=-0.965
+  [UAL] START wiki
+    [UAL] wiki chunk 2025-10-04..2025-10-31 source=fetch status=http_error network=0.20s sleep=0.00s
+    [UAL] wiki chunk 2025-11-01..2025-11-30 source=fetch status=ok network=0.20s sleep=0.00s
+    [UAL] wiki chunk 2025-12-01..2025-12-31 source=fetch status=ok network=0.26s sleep=0.00s
+    [UAL] wiki chunk 2026-01-01..2026-01-31 source=fetch status=ok network=0.25s sleep=0.00s
+    [UAL] wiki chunk 2026-02-01..2026-02-28 source=fetch status=ok network=0.36s sleep=0.00s
+    [UAL] wiki chunk 2026-03-01..2026-03-31 source=fetch status=http_error network=0.22s sleep=0.00s
+    [UAL] wiki chunk 2026-04-01..2026-04-30 source=fetch status=http_error network=0.20s sleep=0.00s
+    [UAL] wiki chunk 2026-05-01..2026-05-31 source=fetch status=http_error network=0.37s sleep=0.00s
+    [UAL] wiki chunk 2026-06-01..2026-06-30 source=fetch status=http_error network=0.29s sleep=0.00s
+    [UAL] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error network=0.42s sleep=0.00s
+  [UAL] DONE  wiki  status=pending_second_pass elapsed=14.57s z=None
+[24/24] UAL: 40.58s  INCOMPLETE  gst_z=-0.965 wiki_z=None iv=0.523686 rv=0.5221607092374905 price=122.1449966430664 vol=1170312 days_to_earnings=82
+
+*** WIKIPEDIA SECOND PASS: 113 failed chunk(s) across 18 ticker(s), remaining run budget 1723s ***
+    [ADBE] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.57s sleep=29.00s
+    [ADBE] second-pass chunk 2025-11-01..2025-11-30 status=http_error network=0.54s sleep=27.00s
+    [ADBE] second-pass chunk 2025-12-01..2025-12-31 status=http_error network=0.41s sleep=26.00s
+    [ADBE] second-pass chunk 2026-01-01..2026-01-31 status=ok network=1.70s sleep=24.00s
+    [ADBE] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.79s sleep=23.00s
+    [ADBE] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.80s sleep=21.00s
+    [ADBE] second-pass chunk 2026-04-01..2026-04-30 status=http_error network=0.45s sleep=20.00s
+    [ADBE] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.21s sleep=18.00s
+    [ADBE] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.30s sleep=17.00s
+    [ADBE] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.40s sleep=15.00s
+    [AMZN] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.55s sleep=3.44s
+    [BKR] second-pass chunk 2025-11-01..2025-11-30 status=http_error network=0.28s sleep=4.39s
+    [BKR] second-pass chunk 2026-01-01..2026-01-31 status=http_error network=0.26s sleep=2.19s
+    [BRK-B] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.27s sleep=21.00s
+    [BRK-B] second-pass chunk 2025-11-01..2025-11-30 status=ok network=1.79s sleep=19.00s
+    [BRK-B] second-pass chunk 2025-12-01..2025-12-31 status=ok network=1.12s sleep=18.00s
+    [BRK-B] second-pass chunk 2026-01-01..2026-01-31 status=ok network=1.00s sleep=16.00s
+    [BRK-B] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.21s sleep=15.00s
+    [BRK-B] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.50s sleep=13.00s
+    [BRK-B] second-pass chunk 2026-04-01..2026-04-30 status=ok network=0.36s sleep=12.00s
+    [BRK-B] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.29s sleep=10.00s
+    [BRK-B] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.68s sleep=8.00s
+    [BRK-B] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.42s sleep=7.00s
+    [CTSH] second-pass chunk 2025-10-04..2025-10-31 status=http_error network=0.42s sleep=4.65s
+    [CTSH] second-pass chunk 2026-02-01..2026-02-28 status=http_error network=0.45s sleep=2.68s
+    [CTSH] second-pass chunk 2026-03-01..2026-03-31 status=http_error network=0.58s sleep=2.51s
+    [CTSH] second-pass chunk 2026-05-01..2026-05-31 status=http_error network=0.44s sleep=3.78s
+    [DELL] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.29s sleep=20.00s
+    [DELL] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.89s sleep=19.00s
+    [DELL] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.49s sleep=18.00s
+    [DELL] second-pass chunk 2026-01-01..2026-01-31 status=ok network=0.29s sleep=16.00s
+    [DELL] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.31s sleep=15.00s
+    [DELL] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.40s sleep=13.00s
+    [DELL] second-pass chunk 2026-04-01..2026-04-30 status=ok network=0.32s sleep=9.00s
+    [DELL] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.30s sleep=7.00s
+    [DELL] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.36s sleep=6.00s
+    [DELL] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.36s sleep=4.00s
+    [GME] second-pass chunk 2025-10-04..2025-10-31 status=http_error network=0.21s sleep=16.00s
+    [GME] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.40s sleep=15.00s
+    [GME] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.55s sleep=13.00s
+    [GME] second-pass chunk 2026-01-01..2026-01-31 status=http_error network=0.31s sleep=11.00s
+    [GME] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.28s sleep=10.00s
+    [GME] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.35s sleep=8.00s
+    [GME] second-pass chunk 2026-04-01..2026-04-30 status=ok network=1.74s sleep=7.00s
+    [GME] second-pass chunk 2026-05-01..2026-05-31 status=http_error network=0.82s sleep=5.00s
+    [GME] second-pass chunk 2026-06-01..2026-06-30 status=ok network=1.70s sleep=4.00s
+    [GME] second-pass chunk 2026-07-01..2026-07-31 status=ok network=1.98s sleep=2.00s
+    [GOOGL] second-pass chunk 2025-12-01..2025-12-31 status=http_error network=0.61s sleep=2.76s
+    [GPN] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.37s sleep=30.00s
+    [GPN] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.32s sleep=30.00s
+    [GPN] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.52s sleep=30.00s
+    [GPN] second-pass chunk 2026-01-01..2026-01-31 status=http_error network=0.29s sleep=30.00s
+    [GPN] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.49s sleep=30.00s
+    [GPN] second-pass chunk 2026-03-01..2026-03-31 status=ok network=1.95s sleep=29.00s
+    [GPN] second-pass chunk 2026-04-01..2026-04-30 status=ok network=0.34s sleep=28.00s
+    [GPN] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.31s sleep=26.00s
+    [GPN] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.51s sleep=25.00s
+    [GPN] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.37s sleep=23.00s
+    [INTC] second-pass chunk 2026-01-01..2026-01-31 status=http_error network=0.40s sleep=3.12s
+    [LDOS] second-pass chunk 2025-10-04..2025-10-31 status=http_error network=0.39s sleep=11.00s
+    [LDOS] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.34s sleep=10.00s
+    [LDOS] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.51s sleep=9.00s
+    [LDOS] second-pass chunk 2026-01-01..2026-01-31 status=ok network=1.50s sleep=7.00s
+    [LDOS] second-pass chunk 2026-02-01..2026-02-28 status=http_error network=1.19s sleep=6.00s
+    [LDOS] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.86s sleep=4.00s
+    [LDOS] second-pass chunk 2026-04-01..2026-04-30 status=ok network=1.47s sleep=3.00s
+    [LDOS] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.46s sleep=1.00s
+    [MSFT] second-pass chunk 2026-04-01..2026-04-30 status=http_error network=1.00s sleep=4.72s
+    [MSFT] second-pass chunk 2026-05-01..2026-05-31 status=http_error network=0.24s sleep=4.10s
+    [MSFT] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.46s sleep=18.00s
+    [MSFT] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.40s sleep=17.00s
+    [NCLH] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.28s sleep=11.00s
+    [NCLH] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.34s sleep=9.00s
+    [NCLH] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.44s sleep=8.00s
+    [NCLH] second-pass chunk 2026-01-01..2026-01-31 status=http_error network=0.66s sleep=6.00s
+    [NCLH] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.57s sleep=5.00s
+    [NCLH] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.58s sleep=4.00s
+    [NCLH] second-pass chunk 2026-04-01..2026-04-30 status=ok network=0.41s sleep=2.00s
+    [NCLH] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.32s sleep=1.00s
+    [NCLH] second-pass chunk 2026-07-01..2026-07-31 status=http_error network=0.52s sleep=2.36s
+    [NKE] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.37s sleep=30.00s
+    [NKE] second-pass chunk 2026-07-01..2026-07-31 status=ok network=1.23s sleep=30.00s
+    [SBUX] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.30s sleep=20.00s
+    [SBUX] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.34s sleep=18.00s
+    [SBUX] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.55s sleep=17.00s
+    [SBUX] second-pass chunk 2026-01-01..2026-01-31 status=ok network=0.38s sleep=15.00s
+    [SBUX] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.51s sleep=14.00s
+    [SBUX] second-pass chunk 2026-03-01..2026-03-31 status=ok network=0.35s sleep=12.00s
+    [SBUX] second-pass chunk 2026-04-01..2026-04-30 status=ok network=0.30s sleep=11.00s
+    [SBUX] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.23s sleep=9.00s
+    [SBUX] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.33s sleep=8.00s
+    [SBUX] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.40s sleep=7.00s
+    [SYK] second-pass chunk 2025-10-04..2025-10-31 status=ok network=1.33s sleep=19.00s
+    [SYK] second-pass chunk 2025-11-01..2025-11-30 status=ok network=1.65s sleep=18.00s
+    [SYK] second-pass chunk 2025-12-01..2025-12-31 status=http_error network=0.37s sleep=16.00s
+    [SYK] second-pass chunk 2026-01-01..2026-01-31 status=ok network=0.60s sleep=15.00s
+    [SYK] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.37s sleep=14.00s
+    [SYK] second-pass chunk 2026-03-01..2026-03-31 status=http_error network=0.54s sleep=12.00s
+    [SYK] second-pass chunk 2026-04-01..2026-04-30 status=ok network=0.45s sleep=11.00s
+    [SYK] second-pass chunk 2026-05-01..2026-05-31 status=ok network=1.06s sleep=9.00s
+    [SYK] second-pass chunk 2026-06-01..2026-06-30 status=http_error network=0.32s sleep=8.00s
+    [SYK] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.29s sleep=7.00s
+    [TTWO] second-pass chunk 2025-10-04..2025-10-31 status=ok network=0.40s sleep=8.00s
+    [TTWO] second-pass chunk 2025-11-01..2025-11-30 status=ok network=0.32s sleep=7.00s
+    [TTWO] second-pass chunk 2025-12-01..2025-12-31 status=ok network=0.48s sleep=5.00s
+    [TTWO] second-pass chunk 2026-01-01..2026-01-31 status=ok network=0.58s sleep=3.00s
+    [TTWO] second-pass chunk 2026-02-01..2026-02-28 status=ok network=0.45s sleep=2.00s
+    [UAL] second-pass chunk 2025-10-04..2025-10-31 status=http_error network=0.22s sleep=4.93s
+    [UAL] second-pass chunk 2026-03-01..2026-03-31 status=ok network=1.00s sleep=16.00s
+    [UAL] second-pass chunk 2026-04-01..2026-04-30 status=ok network=1.22s sleep=15.00s
+    [UAL] second-pass chunk 2026-05-01..2026-05-31 status=ok network=0.30s sleep=13.00s
+    [UAL] second-pass chunk 2026-06-01..2026-06-30 status=ok network=0.29s sleep=12.00s
+    [UAL] second-pass chunk 2026-07-01..2026-07-31 status=ok network=0.47s sleep=10.00s
+    [ADBE] chunk 2025-11-01..2025-11-30 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [ADBE] chunk 2025-12-01..2025-12-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [ADBE] chunk 2026-04-01..2026-04-30 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [BKR] chunk 2025-11-01..2025-11-30 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [BKR] chunk 2026-01-01..2026-01-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [CTSH] chunk 2025-10-04..2025-10-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [CTSH] chunk 2026-02-01..2026-02-28 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [CTSH] chunk 2026-03-01..2026-03-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [CTSH] chunk 2026-05-01..2026-05-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [GME] chunk 2025-10-04..2025-10-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [GME] chunk 2026-01-01..2026-01-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [GME] chunk 2026-05-01..2026-05-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [GOOGL] chunk 2025-12-01..2025-12-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [GPN] chunk 2026-01-01..2026-01-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [INTC] chunk 2026-01-01..2026-01-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [LDOS] chunk 2025-10-04..2025-10-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [LDOS] chunk 2026-02-01..2026-02-28 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [MSFT] chunk 2026-04-01..2026-04-30 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [MSFT] chunk 2026-05-01..2026-05-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [NCLH] chunk 2026-01-01..2026-01-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [NCLH] chunk 2026-07-01..2026-07-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [SYK] chunk 2025-12-01..2025-12-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [SYK] chunk 2026-03-01..2026-03-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [SYK] chunk 2026-06-01..2026-06-30 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [UAL] chunk 2025-10-04..2025-10-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+    [NCLH] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+    [AMZN] wiki fully recovered after second pass: z=0.4576
+    [BRK-B] wiki fully recovered after second pass: z=-2.2963
+    [DELL] wiki fully recovered after second pass: z=-2.0709
+    [NKE] wiki fully recovered after second pass: z=-7.1362
+    [SBUX] wiki fully recovered after second pass: z=-3.2111
+    [TTWO] wiki fully recovered after second pass: z=-1.3936
+
+*** RUN DID NOT PRODUCE A FULLY COMPLETE PANEL -- 24 row(s) collected, 12 fully clean. Checkpoint preserved at: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-07-31_run3_CHECKPOINT_PARTIAL.csv ***
+
+=== RUN SUMMARY ===
+Status: PARTIAL
+Tickers: 24/24  Clean (all 6 fields + earnings): 12  Incomplete: 12
+Total wall time: 2634.8s (43.91 min)
+
+Completion marker written: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-07-31_run3_COMPLETION_MARKER.json
+{
+  "status": "PARTIAL",
+  "row_count": 24,
+  "unique_ticker_count": 24,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 12,
+  "field_completeness_pct": {
+    "gst_zscore": 100.0,
+    "wiki_zscore": 50.0,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 0,
+    "wiki": 12
+  },
+  "elapsed_s": 2634.8,
+  "elapsed_min": 43.91,
+  "active_ticker_when_stopped": null,
+  "active_leg_when_stopped": null,
+  "checkpoint_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-07-31_run3_CHECKPOINT_PARTIAL.csv",
+  "final_path": null,
+  "generated_at_utc": "2026-07-31T18:06:27.737634+00:00"
+}
