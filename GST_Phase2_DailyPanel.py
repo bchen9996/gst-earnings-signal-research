@@ -215,7 +215,8 @@ from GST_Live_Signal_Engine import (
     GEO as GST_GEO, GPROP as GST_GPROP, CATEGORY as GST_CATEGORY,
 )
 import GST_FixedWindow_PerEvent_Canonical as canonical
-from GST_Wikipedia_Pageviews_Pull import TICKER_TO_WIKI_ARTICLE, fetch_daily_pageviews, to_weekly
+from GST_Wikipedia_Pageviews_Pull import TICKER_TO_WIKI_ARTICLE, to_weekly
+import GST_Phase2_Wikipedia_Transport as wiki_transport
 from GST_MultiTicker_Forward_Log import get_option_snapshot, get_nearest_post_earnings_expiry
 
 
@@ -275,13 +276,20 @@ GST_TICKER_BUDGET_S = 480.0
 # verified-by-injection backstop in case that assumption is ever wrong, same
 # reasoning as YF_CALL_TIMEOUT_S below.
 GST_ATTEMPT_TIMEOUT_S = 100.0
-# WIKI_TICKER_BUDGET_S: the existing Wikipedia pull's own worst case is 2700s
-# (45 min) per ticker -- far too long relative to a 45-minute TOTAL run
-# budget. This wraps the whole fetch_daily_pageviews() call (not its
-# internals, which are not modified) at a much tighter bound; normal
-# successful pulls take a few seconds, so this only sacrifices tickers stuck
-# deep in bisection on a bad day, in exchange for keeping the run bounded.
-WIKI_TICKER_BUDGET_S = 90.0
+# WIKIPEDIA LEG (2026-07-31 REWRITE): no longer goes through run_bounded()/
+# WIKI_TICKER_BUDGET_S at all -- see GST_Phase2_Wikipedia_Transport.py.
+# That module replaces the old recursive-bisection design (root-caused in
+# Live Signal Engine/Phase2 Failure Evidence/2026-07-30_AMZN_Wikipedia_180s/)
+# with deterministic calendar-month chunks, a persistent cross-run cache,
+# genuinely killable subprocess isolation per chunk (wiki_transport.CHUNK_TIMEOUT_S,
+# proven by a real terminated-process test, unlike the daemon-thread wrapper
+# still used below for the other legs), and a single bounded second pass
+# over failed chunks run once at the RUN level after all 24 tickers'
+# first-pass attempts, not per-ticker and not inline. A ticker whose
+# Wikipedia chunks aren't all resolved after the second pass is left
+# incomplete -- see main()'s WIKIPEDIA SECOND PASS section -- but this does
+# NOT abort the run; other tickers are unaffected, matching the RUN-LEVEL
+# FAILURE POLICY this rewrite implements for the Wikipedia leg specifically.
 # YF_CALL_TIMEOUT_S: outer bound per individual yfinance call (history,
 # options property, option_chain, get_earnings_dates). yfinance 1.5.1's own
 # internal default (timeout=30, retries=0, verified by reading its installed
@@ -472,11 +480,19 @@ COLUMN_ORDER = [
     "gst_retry_count", "gst_rate_limit_events", "gst_budget_exhausted",
     "wikipedia_article", "wiki_zscore", "wiki_aligned_week", "wiki_note",
     "wiki_status", "wiki_error", "wiki_elapsed_s",
+    # RECENT_LAST_KNOWN_GOOD fallback provenance (2026-07-31, approved as a
+    # narrow addition -- see GST_Phase2_Wikipedia_Transport.evaluate_recent_cache_fallback).
+    # All None/False on a normal fresh-success or plain-incomplete row;
+    # populated only when the current/open month's chunk is served from a
+    # verified recent cached snapshot instead of a fresh fetch.
+    "wiki_source_mode", "wiki_fresh_request_failed", "wiki_fresh_failure_category",
+    "wiki_fresh_failure_http_status", "wiki_fallback_retrieved_at_utc",
+    "wiki_cache_age_hours", "wiki_effective_data_end", "wiki_cache_content_hash",
     "all_six_fields_clean", "ticker_total_s",
 ]
 
 
-def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
+def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> tuple[dict, dict | None]:
     row = {c: None for c in COLUMN_ORDER}
     row["run_date"] = RUN_DATE.isoformat()
     row["ticker"] = ticker
@@ -624,36 +640,47 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
         f"retries={row['gst_retry_count']} rate_limit_events={row['gst_rate_limit_events']} "
         f"z={row.get('gst_zscore')}")
 
-    # --- Wikipedia pageview z-score: same reused functions as the July 26 pull ---
+    # --- Wikipedia pageview z-score (2026-07-31 REWRITE, see header note):
+    # deterministic calendar-month chunks + persistent cache + killable
+    # subprocess isolation, one bounded first-pass attempt per chunk. A
+    # chunk that fails here is queued for the RUN-LEVEL second pass in
+    # main() -- it does NOT retry inline and does NOT abort this ticker or
+    # the run. compute_latest_zscore/to_weekly/compute_zscore_at_anchor are
+    # UNCHANGED -- only how the daily series is gathered changed. ---
     log(f"  [{ticker}] START wiki")
     t0 = time.time()
+    wiki_pending = None
     article = TICKER_TO_WIKI_ARTICLE.get(ticker)
     if article is None:
         row["wiki_status"] = "error"
         row["wiki_error"] = "no verified Wikipedia article mapping for this ticker"
     else:
-        anchor = pd.Timestamp(run_ts.date())
-        pull_start = anchor - timedelta(days=PULL_LOOKBACK_DAYS)
-
-        def _wiki_pull():
-            daily_views = fetch_daily_pageviews(article, pull_start, anchor)
-            weekly = to_weekly(daily_views)
-            return canonical.compute_zscore_at_anchor(weekly, anchor)
-
-        wiki_result, timed_out, elapsed_wiki, err_wiki = _bounded_leg(_wiki_pull, WIKI_TICKER_BUDGET_S, ticker, "wiki")
-        if timed_out:
-            row["wiki_status"] = "timeout"
-            row["wiki_error"] = err_wiki
-        elif err_wiki is not None:
-            row["wiki_status"] = "error"
-            row["wiki_error"] = err_wiki
+        anchor_date = run_ts.date()
+        pull_start = anchor_date - timedelta(days=PULL_LOOKBACK_DAYS)
+        try:
+            cache_df = wiki_transport.load_cache()
+        except wiki_transport.CacheCorruptionError as e:
+            log(f"  [{ticker}] Wikipedia cache corruption detected, treating as empty cache this run: {e}")
+            cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
+        wiki_result = wiki_transport.get_ticker_wikipedia_daily(
+            ticker, article, pull_start, anchor_date, today=anchor_date, cache_df=cache_df,
+        )
+        for cr in wiki_result["chunk_results"]:
+            log(f"    [{ticker}] wiki chunk {cr['chunk_start']}..{cr['chunk_end']} "
+                f"source={cr['source']} status={cr['status']} "
+                f"http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "
+                f"network={cr.get('network_elapsed_s', 0.0):.2f}s sleep={cr.get('sleep_s', 0.0):.2f}s")
+        if wiki_result["failed_chunks"]:
+            row["wiki_status"] = "pending_second_pass"
+            row["wiki_error"] = (f"{len(wiki_result['failed_chunks'])} of "
+                                  f"{len(wiki_result['chunk_results'])} chunk(s) failed first pass -- queued")
+            wiki_pending = {
+                "ticker": ticker, "article": article, "run_ts": run_ts,
+                "daily_rows_so_far": wiki_result["daily_rows"],
+                "failed_chunks": wiki_result["failed_chunks"],
+            }
         else:
-            aligned_week, wiki_z, note = wiki_result
-            row["wikipedia_article"] = article
-            row["wiki_zscore"] = round(wiki_z, 4) if wiki_z is not None else None
-            row["wiki_aligned_week"] = aligned_week.date().isoformat() if aligned_week is not None else None
-            row["wiki_note"] = note
-            row["wiki_status"] = "ok"
+            _finalize_wiki_row(row, article, wiki_result["daily_rows"], run_ts)
     row["wiki_elapsed_s"] = round(time.time() - t0, 3)
     log(f"  [{ticker}] DONE  wiki  status={row['wiki_status']} elapsed={row['wiki_elapsed_s']:.2f}s "
         f"z={row.get('wiki_zscore')}")
@@ -664,7 +691,26 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
                   row.get("realized_vol"), row.get("price"), row.get("volume")]
     row["all_six_fields_clean"] = all(v is not None for v in six_fields) and days_to_earnings is not None
 
-    return row
+    return row, wiki_pending
+
+
+def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], run_ts: datetime) -> None:
+    """Assembles the daily series from whatever chunk rows are available
+    (cache + first-pass + any second-pass recoveries) and computes the wiki
+    z-score using the EXACT SAME unmodified functions as before this
+    rewrite (to_weekly(), compute_zscore_at_anchor()) -- only how the daily
+    rows were gathered changed, not the z-score methodology itself."""
+    daily_df = wiki_transport.assemble_daily_series(daily_rows)
+    weekly = to_weekly(daily_df)
+    anchor = pd.Timestamp(run_ts.date())
+    aligned_week, wiki_z, note = canonical.compute_zscore_at_anchor(weekly, anchor)
+    row["wikipedia_article"] = article
+    row["wiki_zscore"] = round(wiki_z, 4) if wiki_z is not None else None
+    row["wiki_aligned_week"] = aligned_week.date().isoformat() if aligned_week is not None else None
+    row["wiki_note"] = note
+    row["wiki_status"] = "ok"
+    row["wiki_source_mode"] = "fresh"
+    row["wiki_fresh_request_failed"] = False
 
 
 def write_checkpoint(rows: list[dict]) -> None:
@@ -714,19 +760,58 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
     log(json.dumps(marker, indent=2))
 
 
+def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[str]) -> bool:
+    """The single COMPLETE gate, pulled out as a pure function so it's
+    directly unit-testable (see test_phase2_dailypanel_gate.py, tests 14-15)
+    without running the full panel. A green run requires ALL of:
+      - the ticker loop itself reported COMPLETE (no early total-budget stop)
+      - exactly len(expected_tickers) rows, with exactly that many UNIQUE
+        tickers (a duplicate row must not silently satisfy the count)
+      - every row's all_six_fields_clean is True (which itself already
+        requires every Wikipedia chunk resolved, first pass or second pass)
+      - every row has a parseable retrieval_timestamp_utc
+    Returns False (never raises) for any malformed row -- a gate that can
+    crash on bad input is not a gate."""
+    if exit_status != "COMPLETE":
+        return False
+    if len(rows) != len(expected_tickers):
+        return False
+    tickers_seen = {r.get("ticker") for r in rows}
+    if len(tickers_seen) != len(expected_tickers) or tickers_seen != set(expected_tickers):
+        return False
+    for r in rows:
+        if not r.get("all_six_fields_clean"):
+            return False
+        ts = r.get("retrieval_timestamp_utc")
+        if not ts:
+            return False
+        try:
+            datetime.fromisoformat(ts)
+        except (TypeError, ValueError):
+            return False
+    return True
+
+
 def main():
     run_ts = datetime.now(timezone.utc)
     log("*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***")
     log(f"Run timestamp (UTC): {run_ts.isoformat()}")
     log(f"Universe: {len(TICKERS)} tickers")
-    log(f"Budgets: GST={GST_TICKER_BUDGET_S:.0f}s/ticker  Wiki={WIKI_TICKER_BUDGET_S:.0f}s/ticker  "
+    log(f"Budgets: GST={GST_TICKER_BUDGET_S:.0f}s/ticker  "
+        f"wiki-chunk={wiki_transport.CHUNK_TIMEOUT_S:.0f}s (process-isolated, calendar-chunked, cached)  "
         f"yfinance-call={YF_CALL_TIMEOUT_S:.0f}s  per-ticker={PER_TICKER_WALL_BUDGET_S:.0f}s  "
         f"total-run={TOTAL_RUN_BUDGET_S:.0f}s\n")
+    log("NOTE (scope disclosure): only the Wikipedia leg uses genuinely killable "
+        "subprocess isolation this pass. GST/earnings/price_history/iv legs still use "
+        "the daemon-thread run_bounded() wrapper -- a timeout there is logged and the "
+        "run continues, but the underlying call is not guaranteed to actually stop. "
+        "This is disclosed, not claimed otherwise.\n")
 
     pt = TrendReq(hl="en-US", tz=0, timeout=(30, 60), retries=0, backoff_factor=0.0,
                   requests_args={"verify": False})
 
     rows: list[dict] = []
+    wiki_pending_by_ticker: dict[str, dict] = {}
     wall_start = time.time()
     active_ticker = None
     exit_status = "COMPLETE"
@@ -743,7 +828,9 @@ def main():
         active_ticker = ticker
         t0 = time.time()
         try:
-            row = process_ticker(pt, ticker, run_ts)
+            row, wiki_pending = process_ticker(pt, ticker, run_ts)
+            if wiki_pending is not None:
+                wiki_pending_by_ticker[ticker] = wiki_pending
         except Exception as e:
             # Isolation: an unexpected failure for one ticker must not destroy
             # already-collected rows for every other ticker.
@@ -776,16 +863,100 @@ def main():
     else:
         active_ticker = None   # loop completed normally, without break
 
+    # --- WIKIPEDIA SECOND PASS (2026-07-31 REWRITE) -- run once at the RUN
+    # level, after every ticker's first pass, not per-ticker and not inline.
+    # A ticker queued here does NOT abort the run -- it was already
+    # preserved in `rows` (as "pending_second_pass") and every other ticker
+    # already ran to completion regardless. ---
+    if wiki_pending_by_ticker:
+        combined_queue = []
+        for pending in wiki_pending_by_ticker.values():
+            combined_queue.extend(pending["failed_chunks"])
+        remaining_budget = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
+        log(f"\n*** WIKIPEDIA SECOND PASS: {len(combined_queue)} failed chunk(s) across "
+            f"{len(wiki_pending_by_ticker)} ticker(s), remaining run budget {remaining_budget:.0f}s ***")
+        second = wiki_transport.run_bounded_second_pass(combined_queue, remaining_budget_s=remaining_budget)
+        for cr in second["chunk_results"]:
+            log(f"    [{cr['ticker']}] second-pass chunk {cr['chunk_start']}..{cr['chunk_end']} "
+                f"status={cr['status']} http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "
+                f"network={cr['network_elapsed_s']:.2f}s sleep={cr['sleep_s']:.2f}s")
+        for item in second["still_failed"]:
+            log(f"    [{item['ticker']}] chunk {item['chunk_start']}..{item['chunk_end']} "
+                f"STILL FAILED after second pass: {item['reason']}")
+
+        # --- RECENT_LAST_KNOWN_GOOD fallback (2026-07-31, approved as a
+        # narrow, strictly-bounded addition) -- runs ONLY after both the
+        # fresh attempt and the one bounded second-pass attempt have
+        # already failed, and ONLY resolves the current/open month's
+        # chunk (a closed month that failed both passes is never eligible
+        # -- see apply_recent_cache_fallback's own gating). This is a
+        # read-only evaluation: it never writes to the cache, so a failed
+        # refresh can never overwrite a valid prior snapshot. ---
+        try:
+            fallback_cache_df = wiki_transport.load_cache()
+        except wiki_transport.CacheCorruptionError as e:
+            log(f"  Wikipedia cache corruption detected during recent-cache-fallback "
+                f"evaluation -- no fallback candidates available this run: {e}")
+            fallback_cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
+        fallback = wiki_transport.apply_recent_cache_fallback(
+            second["still_failed"], fallback_cache_df, today=run_ts.date(), now_utc=datetime.now(timezone.utc))
+        for ticker, info in fallback["fallback_recovered"].items():
+            prov = info["provenance"]
+            log(f"    [{ticker}] RECENT_LAST_KNOWN_GOOD fallback used: "
+                f"age={prov['wiki_cache_age_hours']:.2f}h retrieved_at={prov['wiki_fallback_retrieved_at_utc']} "
+                f"effective_data_end={prov['wiki_effective_data_end']} "
+                f"fresh_failure_http_status={prov['wiki_fresh_failure_http_status']}")
+        for item in fallback["still_failed"]:
+            if "fallback_rejected_reason" in item:
+                log(f"    [{item['ticker']}] fallback NOT used ({item['fallback_rejected_reason']}) -- "
+                    f"remains incomplete")
+
+        for idx, row in enumerate(rows):
+            ticker = row["ticker"]
+            pending = wiki_pending_by_ticker.get(ticker)
+            if pending is None:
+                continue
+            recovered_rows = second["recovered"].get(ticker, [])
+            all_daily_rows = pending["daily_rows_so_far"] + recovered_rows
+            still_failed_for_ticker = [f for f in fallback["still_failed"] if f["ticker"] == ticker]
+            fallback_info = fallback["fallback_recovered"].get(ticker)
+            if fallback_info is not None:
+                all_daily_rows = all_daily_rows + fallback_info["rows"]
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, pending["run_ts"])
+                row.update(fallback_info["provenance"])   # overrides wiki_status/wiki_source_mode set by _finalize_wiki_row
+                log(f"    [{ticker}] wiki complete via RECENT_LAST_KNOWN_GOOD fallback: "
+                    f"z={row.get('wiki_zscore')}")
+            elif still_failed_for_ticker:
+                row["wiki_status"] = "incomplete_after_second_pass"
+                row["wiki_error"] = (f"{len(still_failed_for_ticker)} chunk(s) still failed: "
+                                      + "; ".join(f"{f['chunk_start'].isoformat()}..{f['chunk_end'].isoformat()}"
+                                                   f" ({f['reason']})" for f in still_failed_for_ticker))
+                row["wiki_fresh_request_failed"] = True
+            else:
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, pending["run_ts"])
+                log(f"    [{ticker}] wiki fully recovered after second pass: z={row.get('wiki_zscore')}")
+            six_fields = [row.get("gst_zscore"), row.get("wiki_zscore"), row.get("implied_volatility"),
+                          row.get("realized_vol"), row.get("price"), row.get("volume")]
+            row["all_six_fields_clean"] = (all(v is not None for v in six_fields)
+                                            and row.get("days_to_nearest_earnings") is not None)
+            rows[idx] = row
+        write_checkpoint(rows)
+
     wall_total = time.time() - wall_start
 
-    if exit_status == "COMPLETE" and len(rows) == len(TICKERS):
+    # COMPLETE requires 24 unique tickers, all six required fields complete,
+    # valid timestamps, and (now) every Wikipedia chunk resolved (either in
+    # the first pass or the bounded second pass) -- see is_run_complete().
+    if is_run_complete(rows, exit_status, TICKERS):
         df = pd.DataFrame(rows, columns=COLUMN_ORDER)
         df.to_csv(FINAL_OUT_PATH, index=False)
         log(f"\nWrote final (COMPLETE) output: {FINAL_OUT_PATH}")
     else:
         exit_status = "PARTIAL"
-        log(f"\n*** RUN DID NOT COMPLETE ALL {len(TICKERS)} TICKERS -- "
-            f"{len(rows)} row(s) collected. Checkpoint preserved at: {CHECKPOINT_PATH} ***")
+        log(f"\n*** RUN DID NOT PRODUCE A FULLY COMPLETE PANEL -- "
+            f"{len(rows)} row(s) collected, "
+            f"{sum(1 for r in rows if r.get('all_six_fields_clean'))} fully clean. "
+            f"Checkpoint preserved at: {CHECKPOINT_PATH} ***")
 
     n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
     log("\n=== RUN SUMMARY ===")
