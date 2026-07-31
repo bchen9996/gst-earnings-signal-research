@@ -1,5 +1,169 @@
 # Changelog
 
+## 2026-07-31 — Phase 2 Wikipedia transport rewrite: deterministic chunking, persistent cache, bounded retry, process isolation, recent-cache fallback
+
+**Why this changed.** The 2026-07-30 run-3 safeguards (below) bounded the
+Wikipedia leg per-ticker but did not fix its underlying transport. A
+subsequent investigation (preserved in `Live Signal Engine/Phase2 Failure
+Evidence/2026-07-30_AMZN_Wikipedia_180s/`) found AMZN repeatedly timing out
+under the old recursive-bisection design. Direct evidence: real network
+time across an entire failed 180s attempt was under 3 seconds; the rest was
+the old code's own mandatory 10s+20s+30s=60s retry-wait schedule, paid once
+per HTTP 404 encountered, with no caching, so successful sub-ranges were
+re-fetched from scratch on every run. A separate deterministic test also
+proved the existing daemon-thread timeout wrapper (`run_bounded()`) returns
+control to the caller while the timed-out call keeps running in the
+background -- "fail-closed" described the orchestration's exit, not a
+guarantee the underlying worker actually stopped.
+
+**What changed** (new module `GST_Phase2_Wikipedia_Transport.py`, isolated
+from the shared `GST_Wikipedia_Pageviews_Pull.py` used elsewhere --
+confirmed unmodified). None of it touches the Wikipedia z-score formula,
+any of the six locked scientific field definitions, the 24-ticker universe,
+GST collection, option selection, implied volatility, realized volatility,
+price, volume, or earnings-date methodology -- confirmed by diff review and
+by a dedicated scientific-equivalence test (below):
+
+- **Deterministic calendar-month chunking** (`calendar_month_chunks()`)
+  replacing recursive, data-dependent bisection. The exact requested
+  start/end dates are preserved; interior chunks run full calendar months.
+  Deterministic boundaries make chunks reliably cacheable, unlike
+  recursively-computed bisection midpoints.
+- **Persistent, repository-committed, human-auditable CSV cache**
+  (`Live Signal Engine/Phase2_Wikipedia_Cache.csv`, 14 columns: ticker,
+  configured/canonical article title, page ID, chunk bounds, date,
+  pageviews, source URL, HTTP status, first-retrieved/last-verified UTC
+  timestamps, schema version, content hash). Closed months are cached and
+  reused; the open/current month is always refreshed. Atomic writes
+  (temp file + `os.replace`). HTTP 404 is never cached as a legitimate
+  zero-view period; missing dates stay explicitly missing, never
+  zero-filled. Cache corruption (missing columns, schema mismatch, hash
+  mismatch) is detected and treated as a source failure, never silently
+  coerced.
+- **Bounded second-pass retry queue**: one attempt per chunk during normal
+  processing; failures queue instead of sleeping inline; after all 24
+  tickers' first passes finish, each failed chunk gets exactly one bounded
+  retry with short jitter (2-5s) for ordinary failures, honoring a real
+  `Retry-After` header (capped at 30s) for 429s. No recursive splitting of
+  a still-failing chunk. Explicitly NOT the old 10s+20s+30s schedule.
+- **Genuinely killable subprocess isolation** for the Wikipedia leg
+  (`run_process_bounded()`, Windows-safe `multiprocessing` spawn context):
+  on timeout, terminate() then kill() if needed, then join() to actually
+  reap the child before the parent continues. Proven by a deterministic
+  test that spawns a real, deliberately-hanging worker and verifies via
+  `os.kill(pid, 0)` that no process with that PID survives. **Scope
+  disclosure**: this isolation applies to the Wikipedia leg only -- GST,
+  earnings, price-history, and IV still use the older daemon-thread
+  `run_bounded()` wrapper, which does not guarantee a timed-out call
+  actually stops. Converting every leg would be a substantially larger
+  rewrite than this pass covers.
+- **Run-level fail-closed completeness**: a failed/isolated ticker no
+  longer discards other tickers' rows. `is_run_complete()` (pulled out as
+  a directly unit-tested pure function) requires the loop itself reported
+  COMPLETE, exactly the expected unique ticker count, every row's six
+  required fields complete, and every timestamp parseable -- a PARTIAL run
+  can never be mistaken for COMPLETE.
+- **RECENT_LAST_KNOWN_GOOD fallback** (approved as a narrow, strictly-bounded
+  addition, not a general staleness tolerance): for the current/open month
+  ONLY, after both the fresh attempt and the one bounded second-pass
+  attempt have failed, a persisted cache snapshot may stand in if -- and
+  only if -- it originated from a real HTTP 200, its content hash verifies,
+  its configured article title matches, it has no duplicate dates, it
+  covers every date through a lag-adjusted effective data-end date (capped
+  at yesterday, since Wikipedia's own same-day pageview count is never
+  complete yet regardless of any transient failure), and it was verified
+  within the last 24 hours. Read-only evaluation -- never writes to cache,
+  so a failed refresh can never overwrite a valid prior snapshot, and using
+  the fallback never resets that snapshot's own age. Provenance fields
+  (`wiki_source_mode`, `wiki_fresh_request_failed`,
+  `wiki_fresh_failure_http_status`, `wiki_fallback_retrieved_at_utc`,
+  `wiki_cache_age_hours`, `wiki_effective_data_end`,
+  `wiki_cache_content_hash`) preserve the ORIGINAL retrieval timestamp --
+  a fallback-served value is never mislabeled as freshly retrieved.
+- **Observational HTTP-status/Retry-After logging** (2026-07-31, purely
+  additive): chunk-level diagnostic log lines and `chunk_results` now
+  surface the raw numeric HTTP status and `Retry-After` header for both
+  the fresh attempt and the bounded second-pass attempt. No request,
+  retry, timing, budget, chunk-boundary, fallback, or completeness
+  behavior changed -- confirmed by a dedicated test
+  (`test_http_status_retry_after_logging_is_purely_additive`) and by the
+  full existing suite (26 prior tests) passing unchanged before and after.
+
+**Tests** (all passing, run directly, no external framework): 13
+deterministic transport-module tests (`test_phase2_wikipedia_transport.py`,
+covering full success, 404-then-recovery, repeated 404, 429/Retry-After,
+timeout, real process termination, malformed response, cache corruption,
+atomic-write interruption, cache resume, open-month refresh, no
+zero-filling, duplicate-date prevention) plus the purely-additive logging
+test; 2 run-level completeness-gate tests
+(`test_phase2_dailypanel_gate.py`, tests 14-15: the final gate, and PARTIAL
+never nameable COMPLETE); 11 RECENT_LAST_KNOWN_GOOD fallback tests
+(`test_phase2_wikipedia_recent_cache_fallback.py`: fresh-preferred, valid
+fallback used, stale/incomplete/mismatched/corrupt/duplicate cache
+rejected, no recursive re-use resetting the clock, failed refresh never
+overwrites cache, provenance/timestamp preserved, fallback z-score exactly
+matches the original successful response's).
+
+**Scientific-equivalence test** (`test_phase2_wikipedia_equivalence.py`,
+AAPL and AMZN): direct full-window response vs. monthly-chunk-assembled
+response (including the fallback where applicable) -- every overlapping
+date/pageview value matched exactly (300/300 both tickers), and the wiki
+z-score field agreed within tolerance for both.
+
+**AMZN-only validation** (`validate_amzn_wiki_only.py`): under live source
+conditions where AMZN's July 2026 chunk 404'd on both fresh attempts, the
+RECENT_LAST_KNOWN_GOOD fallback correctly used an 11.2-hour-old, fully
+gated snapshot; all 300 observations assembled; the resulting field matched
+the direct-response calculation exactly; status was correctly
+`complete_recent_cache_fallback`, not `fresh`; no child process remained.
+
+**24-ticker regression (2026-07-31): PARTIAL, not COMPLETE.** 2634.8s
+(43.9 min), exit code 1, no automatic restart. 24/24 unique tickers, every
+non-wiki required field 100% complete (0 nulls across `gst_zscore`,
+`implied_volatility`, `realized_vol`, `price`, `volume`). The `wiki_zscore`
+field completed for only 12/24 tickers -- 25 calendar-month chunks across
+12 tickers failed both the fresh attempt and the bounded second pass.
+Evidence preserved in `Live Signal Engine/Phase2 Failure Evidence/
+2026-07-31_TransportRewrite_12of24_Regression/` (full failure matrix,
+root-cause analysis, preserved checkpoint/marker/logs).
+
+The evidence strongly supports transient, query-specific Wikipedia API
+failures, not a defect in this rewrite: failures were scattered across 9
+calendar months with no concentration near the most recent data (11/12
+affected tickers' open/current month succeeded); a live re-probe of 6
+sampled failures recovered 5 within minutes; a minimal single-day
+availability probe (AMZN vs. AAPL, a control that fully succeeded in this
+same run) showed non-monotonic success/failure on adjacent individual
+days for both articles, not a clean recency cutoff. CDN or edge-cache
+inconsistency is a possible mechanism for this transience -- it is **not**
+confirmed; no lower-level Wikimedia-side diagnostic evidence was available
+to verify it. The RECENT_LAST_KNOWN_GOOD fallback correctly stayed out of
+scope for the 24 closed-month failures (by design) and correctly rejected
+the one open-month failure it did evaluate (NCLH, no prior snapshot
+existed).
+
+**This PARTIAL regression validates the fail-closed transport behavior --
+not 24/24 dataset completeness. No trading or substantive research
+conclusion may use this PARTIAL output.** A disclosed logging gap (the 25
+failures were recorded by status category, not raw numeric HTTP code, for
+that specific run) is closed prospectively by the observational logging
+addition above; it does not retroactively change the classification of
+that run's failures, independently confirmed HTTP 404 via a sampled spot
+re-probe.
+
+**Remaining limitations, disclosed:** GST/earnings/price-history/IV legs
+still use the older daemon-thread mechanism, not process isolation. The
+RECENT_LAST_KNOWN_GOOD fallback only ever applies to the current/open
+month -- closed-month failures under elevated source instability have no
+recovery path in this design. The fallback's effective-data-end check
+assumes a fixed 1-day Wikipedia publish lag and requires an exact match;
+on a day where the true lag is 2+ days, an otherwise-valid snapshot could
+be spuriously rejected -- not observed in the 2026-07-31 regression (whose
+one open-month failure was rejected for an unrelated reason), but a
+plausible edge case, not fixed in this pass. Commit 3 (a new COMPLETE
+24/24 regression) is reserved for a future run under calmer source
+conditions.
+
 ## 2026-07-30 — Phase 2 run-3: duration correction, operational safeguards, and a passing bounded run
 
 No CHANGELOG.md existed in this repo before this entry.
