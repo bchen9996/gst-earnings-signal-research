@@ -17,11 +17,12 @@
 # "COMPLETE" -- that gate lives in the orchestrating script.
 
 from __future__ import annotations
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 import multiprocessing
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -30,6 +31,21 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import GST_Phase2_Wikipedia_Transport as wt
 
 FAILURES = []
+
+
+def _full_coverage_rows(chunk_start: date, chunk_end: date) -> list[dict]:
+    """Every calendar date from chunk_start through chunk_end inclusive --
+    the shared validate_snapshot() gate now requires EXACT coverage for a
+    closed month to be accepted as complete, so test fixtures representing
+    a genuinely successful closed-month response must provide it (a
+    same-shaped-but-incomplete mock is correctly rejected as
+    incomplete_coverage now, not silently accepted)."""
+    rows = []
+    d = chunk_start
+    while d <= chunk_end:
+        rows.append({"date": d.strftime("%Y%m%d"), "pageviews": 10 + d.day})
+        d += timedelta(days=1)
+    return rows
 
 
 def check(name: str, condition: bool, detail: str = "") -> None:
@@ -79,20 +95,19 @@ def _restore_cache_path(tmp_dir):
 def test_1_full_successful_month():
     tmp = _use_temp_cache()
     try:
-        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200,
-                                  "items": [{"date": "20260101", "pageviews": 10},
-                                            {"date": "20260102", "pageviews": 12}],
-                                  "url": "http://x"}])
+        full_rows = _full_coverage_rows(date(2026, 1, 1), date(2026, 1, 31))
+        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200, "items": full_rows, "url": "http://x"}])
         result = wt.get_ticker_wikipedia_daily(
             "TEST", "Test Article", date(2026, 1, 1), date(2026, 1, 31),
             today=date(2026, 2, 15), cache_df=wt.load_cache(), fetch_fn=fetch_fn,
         )
-        check("1. full successful month -> 2 daily rows",
-              len(result["daily_rows"]) == 2, result["daily_rows"])
+        check("1. full successful month -> 31 daily rows",
+              len(result["daily_rows"]) == len(full_rows), len(result["daily_rows"]))
         check("1. full successful month -> no failed chunks",
               result["failed_chunks"] == [], result["failed_chunks"])
         check("1. full successful month -> cached",
-              len(wt.cached_daily_rows_for_chunk(wt.load_cache(), "TEST", date(2026, 1, 1), date(2026, 1, 31))) == 2)
+              len(wt.cached_daily_rows_for_chunk(wt.load_cache(), "TEST", date(2026, 1, 1), date(2026, 1, 31)))
+              == len(full_rows))
     finally:
         _restore_cache_path(tmp)
 
@@ -108,10 +123,10 @@ def test_2_404_then_second_pass_success():
         )
         check("2. first pass 404 -> queued for retry", len(result["failed_chunks"]) == 1)
 
-        retry_fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200,
-                                        "items": [{"date": "20260101", "pageviews": 5}], "url": "http://x"}])
+        full_rows = _full_coverage_rows(date(2026, 1, 1), date(2026, 1, 31))
+        retry_fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200, "items": full_rows, "url": "http://x"}])
         second = wt.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=60,
-                                             fetch_fn=retry_fetch_fn)
+                                             fetch_fn=retry_fetch_fn, today=date(2026, 2, 15))
         check("2. second pass recovers the chunk", "TEST" in second["recovered"], second)
         check("2. second pass -> nothing still failed", second["still_failed"] == [], second["still_failed"])
     finally:
@@ -143,10 +158,10 @@ def test_4_429_with_retry_after():
     try:
         queue = [{"ticker": "TEST", "article": "Test Article", "chunk_start": date(2026, 1, 1),
                   "chunk_end": date(2026, 1, 31), "last_status": "http_error", "retry_after": "2"}]
-        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200,
-                                  "items": [{"date": "20260101", "pageviews": 1}], "url": "http://x"}])
+        full_rows = _full_coverage_rows(date(2026, 1, 1), date(2026, 1, 31))
+        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200, "items": full_rows, "url": "http://x"}])
         t0 = time.time()
-        second = wt.run_bounded_second_pass(queue, remaining_budget_s=60, fetch_fn=fetch_fn)
+        second = wt.run_bounded_second_pass(queue, remaining_budget_s=60, fetch_fn=fetch_fn, today=date(2026, 2, 15))
         elapsed = time.time() - t0
         check("4. honors Retry-After (waited ~2s, not the jitter default)", 1.8 <= elapsed <= 3.5, elapsed)
         check("4. recovers after honoring Retry-After", "TEST" in second["recovered"])
@@ -286,21 +301,23 @@ def test_9_atomic_write_interruption():
 def test_10_resume_from_partial_cache():
     tmp = _use_temp_cache()
     try:
+        jan_rows = _full_coverage_rows(date(2026, 1, 1), date(2026, 1, 31))
+        feb_rows = _full_coverage_rows(date(2026, 2, 1), date(2026, 2, 28))
+        mar_rows = _full_coverage_rows(date(2026, 3, 1), date(2026, 3, 31))
         wt.write_chunk_to_cache("TEST", "Test Article", None, None, date(2026, 1, 1), date(2026, 1, 31),
-                                 [{"date": "20260101", "pageviews": 1}], "u", 200, "t")
+                                 jan_rows, "u", 200, "t")
         wt.write_chunk_to_cache("TEST", "Test Article", None, None, date(2026, 2, 1), date(2026, 2, 28),
-                                 [{"date": "20260201", "pageviews": 2}], "u", 200, "t")
+                                 feb_rows, "u", 200, "t")
         # March is NOT cached -- must be fetched.
-        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200,
-                                  "items": [{"date": "20260301", "pageviews": 3}], "url": "u"}])
+        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200, "items": mar_rows, "url": "u"}])
         result = wt.get_ticker_wikipedia_daily(
             "TEST", "Test Article", date(2026, 1, 1), date(2026, 3, 31),
             today=date(2026, 6, 1), cache_df=wt.load_cache(), fetch_fn=fetch_fn,
         )
         check("10a. only the uncached closed month triggers a fetch", fetch_fn.call_count() == 1,
               fetch_fn.call_count())
-        check("10b. all three months' data present in the assembled result", len(result["daily_rows"]) == 3,
-              result["daily_rows"])
+        check("10b. all three months' data present in the assembled result",
+              len(result["daily_rows"]) == len(jan_rows) + len(feb_rows) + len(mar_rows), len(result["daily_rows"]))
     finally:
         _restore_cache_path(tmp)
 
@@ -384,6 +401,182 @@ def test_http_status_retry_after_logging_is_purely_additive():
         _restore_cache_path(tmp)
 
 
+# === Rollover: an open-month snapshot must not be silently reused as a
+# complete closed month once it rolls over (2026-07-31 corrective commit) ===
+def test_rollover_open_to_closed_month_rejects_stale_snapshot():
+    tmp = _use_temp_cache()
+    try:
+        # An open July snapshot retrieved July 31 contains data only
+        # through July 30 (yesterday relative to that day) -- a perfectly
+        # valid snapshot AT THE TIME it was written.
+        july_rows_through_30 = _full_coverage_rows(date(2026, 7, 1), date(2026, 7, 30))
+        wt.write_chunk_to_cache("TEST", "Test Article", None, None, date(2026, 7, 1), date(2026, 7, 31),
+                                 july_rows_through_30, "u", 200, datetime.now(timezone.utc).isoformat())
+
+        # On August 1, July is now a CLOSED month and requires its own
+        # final day (July 31) too -- the old snapshot must be rejected as
+        # incomplete, not silently reused as a complete closed month.
+        hit_aug1 = wt.validated_cache_hit(wt.load_cache(), "TEST", "Test Article",
+                                           date(2026, 7, 1), date(2026, 7, 31), date(2026, 8, 1))
+        check("rollover: stale July snapshot (through 7/30 only) is rejected as a cache hit "
+              "once July becomes a closed month on 8/1, not silently reused as complete",
+              hit_aug1["hit"] is False, hit_aug1)
+        check("rollover: rejection reason is incomplete_coverage, not a false 'ok'",
+              hit_aug1["validation"]["category"] == "incomplete_coverage", hit_aug1["validation"])
+
+        # And the full orchestration correctly falls through to a fresh
+        # fetch for July on 8/1, rather than serving the stale snapshot.
+        full_july_rows = _full_coverage_rows(date(2026, 7, 1), date(2026, 7, 31))
+        fetch_fn = _mock_fetch([{"status": "ok", "http_status": 200, "items": full_july_rows, "url": "http://x"}])
+        result = wt.get_ticker_wikipedia_daily(
+            "TEST", "Test Article", date(2026, 7, 1), date(2026, 7, 31),
+            today=date(2026, 8, 1), cache_df=wt.load_cache(), fetch_fn=fetch_fn,
+        )
+        check("rollover: orchestration freshly re-requests the now-closed July month "
+              "rather than trusting the stale cached snapshot",
+              fetch_fn.call_count() == 1, fetch_fn.call_count())
+        check("rollover: freshly-fetched full July (31 days) is what's returned, not the "
+              "stale 30-day snapshot", len(result["daily_rows"]) == 31, len(result["daily_rows"]))
+        check("rollover: the freshly-fetched complete July replaces the stale cache entry",
+              len(wt.cached_daily_rows_for_chunk(wt.load_cache(), "TEST", date(2026, 7, 1), date(2026, 7, 31)))
+              == 31)
+    finally:
+        _restore_cache_path(tmp)
+
+
+# === no_observations_expected_yet: the very start of a new open month ===
+def test_no_observations_expected_yet_not_treated_as_error():
+    validation = wt.validate_snapshot("TEST", "Test Article", date(2026, 8, 1), date(2026, 8, 31),
+                                       [], today=date(2026, 8, 1))
+    check("no-observations-yet: an empty response at the very start of a new open month "
+          "is VALID, not an error", validation["valid"] is True, validation)
+    check("no-observations-yet: classified explicitly, not as generic 'ok'",
+          validation["category"] == "no_observations_expected_yet", validation)
+
+    # But if the response has UNEXPECTED data before coverage could exist,
+    # that IS suspicious and must be rejected, not silently accepted.
+    bogus = wt.validate_snapshot("TEST", "Test Article", date(2026, 8, 1), date(2026, 8, 31),
+                                  [{"date": "20260801", "pageviews": 5}], today=date(2026, 8, 1))
+    check("no-observations-yet: unexpected data before the coverage window starts is rejected, "
+          "not fabricated/accepted", bogus["valid"] is False, bogus)
+
+
+# === Genuinely bounded time budget (2026-07-31 corrective commit) ===
+def test_second_pass_budget_capping_and_exhaustion():
+    tmp = _use_temp_cache()
+    try:
+        captured_timeouts = []
+
+        def fetch_fn(article, start, end, timeout_s=None):
+            captured_timeouts.append(timeout_s)
+            return {"status": "ok", "http_status": 200, "items": _full_coverage_rows(start, end),
+                    "url": "http://x", "network_elapsed_s": 0.01, "terminated": False}
+
+        queue = [{"ticker": "TEST", "article": "Test Article", "chunk_start": date(2026, 1, 1),
+                  "chunk_end": date(2026, 1, 31), "last_status": "http_error", "retry_after": None}]
+
+        # A budget comfortably bigger than the max jitter wait (5s) but far
+        # smaller than CHUNK_TIMEOUT_S (35s) -- the CAPPED subprocess
+        # timeout requested must reflect what's actually left, not the
+        # full chunk_timeout_s regardless of remaining budget.
+        wt.run_bounded_second_pass(queue, remaining_budget_s=8.0, fetch_fn=fetch_fn, today=date(2026, 2, 15))
+        check("tiny-budget: a request WAS launched (budget covered the wait)",
+              len(captured_timeouts) == 1, captured_timeouts)
+        check(f"tiny-budget: the requested subprocess timeout was capped well under "
+              f"chunk_timeout_s ({wt.CHUNK_TIMEOUT_S}s), reflecting the small remaining budget",
+              captured_timeouts and captured_timeouts[0] < wt.CHUNK_TIMEOUT_S, captured_timeouts)
+
+        # A budget too small to leave any USABLE window after the mandatory
+        # wait -- no request may be launched at all.
+        captured_timeouts.clear()
+        queue2 = [{"ticker": "TEST", "article": "Test Article", "chunk_start": date(2026, 1, 1),
+                   "chunk_end": date(2026, 1, 31), "last_status": "http_error", "retry_after": None}]
+        result2 = wt.run_bounded_second_pass(queue2, remaining_budget_s=0.3, fetch_fn=fetch_fn,
+                                              today=date(2026, 2, 15))
+        check("tiny-budget: budget exhausted before any usable window -> no request launched",
+              len(captured_timeouts) == 0, captured_timeouts)
+        check("tiny-budget: item correctly marked still_failed (budget exhausted), not silently dropped",
+              len(result2["still_failed"]) == 1, result2)
+    finally:
+        _restore_cache_path(tmp)
+
+
+def test_first_pass_budget_exhaustion_stops_further_chunks():
+    tmp = _use_temp_cache()
+    try:
+        call_log = []
+
+        def fetch_fn(article, start, end, timeout_s=None):
+            call_log.append((start, end, timeout_s))
+            return {"status": "ok", "http_status": 200, "items": _full_coverage_rows(start, end),
+                    "url": "http://x", "network_elapsed_s": 0.01, "terminated": False}
+
+        # 3-month window -> 3 chunks. A near-zero remaining_budget_s must
+        # stop the loop before launching further requests, cleanly and
+        # deterministically -- no hang, no crash, remaining chunks queued.
+        result = wt.get_ticker_wikipedia_daily(
+            "TEST", "Test Article", date(2026, 1, 1), date(2026, 3, 31),
+            today=date(2026, 6, 1), cache_df=wt.load_cache(), fetch_fn=fetch_fn,
+            remaining_budget_s=0.0001,
+        )
+        check("first-pass budget: not every chunk was fetched (budget exhausted immediately)",
+              len(call_log) == 0, call_log)
+        exhausted = [f for f in result["failed_chunks"] if f["last_status"] == "first_pass_budget_exhausted"]
+        check("first-pass budget: all 3 chunks correctly queued as first_pass_budget_exhausted "
+              "(not silently dropped, not hung)", len(exhausted) == 3, result["failed_chunks"])
+    finally:
+        _restore_cache_path(tmp)
+
+
+def _hang_forever_chunk_worker(article, start_ymd, end_ymd, result_path):
+    time.sleep(9999)
+
+
+def _python_pids() -> set[int]:
+    try:
+        out = subprocess.check_output(
+            ["tasklist", "/FI", "IMAGENAME eq python.exe", "/FO", "CSV", "/NH"],
+            text=True, stderr=subprocess.DEVNULL)
+    except Exception:
+        return set()
+    pids = set()
+    for line in out.splitlines():
+        parts = [p.strip('"') for p in line.split('","')]
+        if len(parts) >= 2 and parts[1].isdigit():
+            pids.add(int(parts[1]))
+    return pids
+
+
+def test_second_pass_real_tiny_budget_no_overshoot_no_orphan():
+    """Real subprocess (not a mock): proves the CAPPED timeout, not just
+    any timeout, actually bounds a genuinely-hanging worker end-to-end
+    through run_bounded_second_pass() -- clean PARTIAL exit, no overshoot
+    toward the full CHUNK_TIMEOUT_S, no orphan process left behind."""
+    def real_fetch_fn(article, start, end, timeout_s=None):
+        return wt.fetch_chunk_isolated(article, start, end, timeout_s=timeout_s,
+                                        worker=_hang_forever_chunk_worker)
+
+    queue = [{"ticker": "TEST", "article": "Test Article", "chunk_start": date(2026, 1, 1),
+              "chunk_end": date(2026, 1, 31), "last_status": "http_error", "retry_after": None}]
+
+    pids_before = _python_pids()
+    t0 = time.time()
+    result = wt.run_bounded_second_pass(queue, remaining_budget_s=6.0, fetch_fn=real_fetch_fn,
+                                         today=date(2026, 2, 15))
+    elapsed = time.time() - t0
+    check(f"real-tiny-budget: run_bounded_second_pass returns close to the tiny 6s budget, "
+          f"not the full {wt.CHUNK_TIMEOUT_S}s chunk_timeout_s (proves genuine capping end-to-end)",
+          elapsed < 15, elapsed)
+    check("real-tiny-budget: the hung chunk is correctly reported still failed (timeout), "
+          "clean PARTIAL exit without overshoot",
+          len(result["still_failed"]) == 1, result)
+
+    time.sleep(1.0)   # let OS process-table bookkeeping settle
+    new_pids = _python_pids() - pids_before
+    check("real-tiny-budget: no orphan python.exe process remains after the capped timeout",
+          len(new_pids) == 0, f"new pids still present: {new_pids}")
+
+
 if __name__ == "__main__":
     test_1_full_successful_month()
     test_2_404_then_second_pass_success()
@@ -399,6 +592,11 @@ if __name__ == "__main__":
     test_12_no_zero_filling()
     test_13_duplicate_date_prevention()
     test_http_status_retry_after_logging_is_purely_additive()
+    test_rollover_open_to_closed_month_rejects_stale_snapshot()
+    test_no_observations_expected_yet_not_treated_as_error()
+    test_second_pass_budget_capping_and_exhaustion()
+    test_first_pass_budget_exhaustion_stops_further_chunks()
+    test_second_pass_real_tiny_budget_no_overshoot_no_orphan()
 
     print()
     if FAILURES:

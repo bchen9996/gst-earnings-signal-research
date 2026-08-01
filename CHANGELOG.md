@@ -1,5 +1,127 @@
 # Changelog
 
+## 2026-07-31 — Phase 2 corrective commit: cache completeness, identity, equivalence, and deadline gates
+
+Following a GitHub review of the two prior commits, five correctness gaps
+were closed. None of it touches request behavior, retries, budgets, chunk
+boundaries, fallback rules, z-score methodology, field definitions, ticker
+universe, or completeness policy -- confirmed by the full existing
+deterministic suite passing unchanged, plus new tests for each fix.
+
+1. **Shared validation for every fresh response and every cache hit.**
+   New `validate_snapshot()` is now the SINGLE gate used before (a) writing
+   a fresh HTTP-200 response to cache, (b) treating a fresh response as
+   successful, (c) reusing any closed-month cache entry (via new
+   `validated_cache_hit()`), and (d) accepting the open-month
+   RECENT_LAST_KNOWN_GOOD fallback (`evaluate_recent_cache_fallback()` now
+   delegates to it instead of duplicating checks). Enforces: configured
+   ticker/article identity, one content hash per snapshot with successful
+   recomputation, no duplicate dates, parseable dates, non-negative integer
+   pageviews, no dates outside the requested range, and EXACT expected
+   date coverage (closed chunk: every date through chunk_end; open chunk:
+   every date through `min(chunk_end, today-1)`). A nonempty HTTP 200 with
+   missing required dates is classified `incomplete_coverage`, never
+   cached, never treated as success, and enters the bounded second pass
+   like any other failure -- no zero-filling, ever. If today is the very
+   start of a new open month (no date could legitimately be published
+   yet), an empty response is explicitly classified
+   `no_observations_expected_yet`, not fabricated and not an error.
+   **Rollover case fixed and tested**: a month fetched while still open
+   (e.g. July 31, covering only through July 30) is correctly rejected as
+   `incomplete_coverage` once that month closes and requires its own final
+   day too -- it is never silently reused as a complete closed month; the
+   orchestration falls through to a fresh fetch instead. `verify_cache_integrity()`
+   -- previously exercised only by tests, never called from production --
+   is now also invoked once per `get_ticker_wikipedia_daily()` call as a
+   whole-cache sanity pass, on top of `validate_snapshot()`'s own per-read
+   hash re-verification, so schema-valid-but-corrupted cache content can
+   no longer bypass validation.
+2. **Split the scientific-equivalence gate.** The prior single test
+   checked only overlapping values (so it could pass even with different
+   date sets between the two routes) and treated `probe_inconclusive` as
+   acceptable -- not equivalence. Now two separate files:
+   - `test_phase2_wikipedia_equivalence_deterministic.py` (Section A,
+     mandatory): frozen, provenance-documented fixtures for AAPL and AMZN
+     (`Live Signal Engine/Phase2_Wikipedia_Equivalence_Fixtures/`, captured
+     once from the real direct-response route with exact dates, values,
+     retrieval timestamp, article identity, source URL, and content hash
+     recorded and self-verified). Requires EXACT date-set equality (not
+     overlap), exact value equality for every date, and z-score match
+     within 1e-9. No live-network dependency at test-run time. No
+     unavailable/inconclusive outcome is possible -- this test only ever
+     PASSES or FAILS.
+   - `test_phase2_wikipedia_equivalence.py` (Section B, optional,
+     observational): live smoke test against the real direct route, now
+     reporting one of exactly three verdicts per ticker -- PASS (identical
+     date sets, exact values, z-score within tolerance), INCONCLUSIVE
+     (source unavailable or date sets differ -- never counted as PASS,
+     regardless of how an independent re-probe classifies the gap), or
+     FAIL (a true value mismatch on a date both routes returned complete
+     data for). Exit code reflects only true FAILUREs; INCONCLUSIVE never
+     blocks anything. Explicitly documented as not substituting for
+     Section A.
+3. **Cache-identity honesty.** The production cache-write path has never
+   independently resolved or verified a canonical article title or
+   Wikipedia page ID -- no identity registry exists for the 24-ticker
+   universe, and `canonical_title`/`page_id` are always written blank.
+   Prior docstring wording that implied stronger verification was
+   happening has been corrected: `evaluate_recent_cache_fallback()` now
+   states plainly that only ticker + configured article title are actually
+   enforced (via `validate_snapshot()`), and that `canonical_title`/
+   `page_id` are optional, best-effort checks that only fire if a caller
+   explicitly supplies them AND a stored value happens to be non-blank
+   (which production never populates today). The schema columns remain,
+   for a future registry, but nothing claims they're checked when they
+   aren't.
+4. **Genuinely bounded time budget.** `run_bounded_second_pass()`
+   previously checked remaining budget only BEFORE the jitter/Retry-After
+   wait, then could launch a full-`chunk_timeout_s` request regardless of
+   how little budget the wait itself had consumed. Now: remaining budget
+   is recomputed AFTER any wait; a request is never launched once usable
+   budget (<1s) is gone; the subprocess timeout passed to `fetch_fn` is
+   capped to whatever budget actually remains, never the full
+   `chunk_timeout_s`. The same discipline now applies BETWEEN first-pass
+   chunks too: `get_ticker_wikipedia_daily()` accepts an optional
+   `remaining_budget_s`, and `GST_Phase2_DailyPanel.py`'s ticker loop
+   computes and passes the actual remaining total-run budget before each
+   ticker's Wikipedia leg starts, so one late ticker's first pass cannot
+   materially eat into the deadline meant for the tickers after it.
+   Verified with deterministic mock-based tests (budget capping and
+   exhaustion, both between second-pass items and between first-pass
+   chunks) AND one real-subprocess test (a genuinely-hanging worker under
+   a tiny real budget, proving the capped value -- not just any timeout
+   value -- actually bounds execution end-to-end, with no orphan process
+   left behind).
+5. **Corrected cache-persistence wording.** `Phase2_Wikipedia_Cache.csv`
+   was described as "repository-committed" while actually being untracked
+   and deliberately excluded from both prior commits. Corrected: it is
+   persistent ACROSS LOCAL RUNS on the same machine (atomic writes,
+   accumulates over time), not currently repository-committed; a future
+   unattended workflow (e.g. GitHub Actions) must explicitly persist it
+   itself; the first cache intended for repository commit is the one
+   produced by a validated COMPLETE 24/24 regression, reserved for
+   Commit 3; automation is not ready until persistence on a clean runner
+   is actually verified, not merely designed for. The volatile
+   partial-run cache accumulated locally during this branch's testing is
+   still not committed by this corrective commit either.
+
+**Tests**: full existing 26-test deterministic suite (13 transport + 2
+completeness-gate + 11 fallback) still passes unchanged after every fix
+above, plus new coverage: 1 rollover-case test, 1
+no-observations-expected-yet test, 2 tiny-budget tests (mock-based, second
+pass and first pass), 1 real-subprocess tiny-budget test (proves no
+overshoot, no orphan process), and the 2-ticker deterministic
+scientific-equivalence test (Section A). Total: 33 assertions-worth of new
+coverage across `test_phase2_wikipedia_transport.py`, plus 3 existing
+fallback-test assertions updated to match `validate_snapshot()`'s
+consolidated rejection-reason categories (no behavior change, only
+matching the now-shared error-category names).
+
+**Not run as part of this commit's test gate** (by instruction): another
+24-ticker panel, or anything depending on current Wikipedia availability
+(Section B, the live smoke test, is optional/observational and was not
+executed as a precondition for this commit).
+
 ## 2026-07-31 — Phase 2 Wikipedia transport rewrite: deterministic chunking, persistent cache, bounded retry, process isolation, recent-cache fallback
 
 **Why this changed.** The 2026-07-30 run-3 safeguards (below) bounded the

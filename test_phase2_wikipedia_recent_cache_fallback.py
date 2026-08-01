@@ -94,7 +94,12 @@ def test_1_fresh_success_preferred():
     tmp = _use_temp_cache()
     try:
         _seed_valid_cache(rows=_full_month_rows())  # eligible fallback data present
-        fresh_rows = [{"date": "20260701", "pageviews": 999999}]  # deliberately different from cache
+        # Deliberately different values from the cache, but still FULL exact
+        # coverage through EFFECTIVE_END -- validate_snapshot() requires
+        # exact coverage for the open chunk too, so a fresh response must
+        # provide it to be accepted (this is testing "fresh preferred over
+        # cache", not testing coverage validation, which has its own tests).
+        fresh_rows = [{"date": r["date"], "pageviews": 999999} for r in _full_month_rows()]
 
         def fetch_fn(article, start, end, timeout_s=None):
             return {"status": "ok", "http_status": 200, "items": fresh_rows, "url": "http://fresh",
@@ -169,8 +174,9 @@ def test_5_title_mismatch_rejected():
         now_utc = datetime.now(timezone.utc)
         result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
         check("5. configured_article_title mismatch is rejected", TICKER not in result["fallback_recovered"])
-        check("5. rejection reason cites the title mismatch",
-              "article_title_mismatch" in result["still_failed"][0]["fallback_rejected_reason"],
+        check("5. rejection reason cites the title mismatch (now via the shared validate_snapshot() "
+              "identity_mismatch category)",
+              "identity_mismatch" in result["still_failed"][0]["fallback_rejected_reason"],
               result["still_failed"])
     finally:
         _restore_cache_path(tmp)
@@ -190,8 +196,9 @@ def test_6_corrupt_hash_rejected():
         now_utc = datetime.now(timezone.utc)
         result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
         check("6. tampered/corrupt content_hash is rejected", TICKER not in result["fallback_recovered"])
-        check("6. rejection reason cites hash verification failure",
-              "content_hash_verification_failed" in result["still_failed"][0]["fallback_rejected_reason"],
+        check("6. rejection reason cites hash verification failure (now via the shared validate_snapshot() "
+              "content_hash_mismatch category)",
+              "content_hash_mismatch" in result["still_failed"][0]["fallback_rejected_reason"],
               result["still_failed"])
     finally:
         _restore_cache_path(tmp)

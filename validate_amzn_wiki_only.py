@@ -100,7 +100,7 @@ def main() -> int:
 
     # --- SECOND PASS (fresh attempt #2, bounded, exactly once) ---
     t1 = time.time()
-    second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=60.0)
+    second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=60.0, today=today)
     second_pass_elapsed = time.time() - t1
     print(f"\nSecond pass (single bounded attempt): "
           f"{len(second['chunk_results'])} attempted, {len(second['still_failed'])} still failed, "
