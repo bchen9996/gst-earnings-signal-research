@@ -488,12 +488,25 @@ COLUMN_ORDER = [
     "wiki_source_mode", "wiki_fresh_request_failed", "wiki_fresh_failure_category",
     "wiki_fresh_failure_http_status", "wiki_fallback_retrieved_at_utc",
     "wiki_cache_age_hours", "wiki_effective_data_end", "wiki_cache_content_hash",
+    # MEASURED WIKIPEDIA DATA WATERMARK provenance (2026-08-01 -- see
+    # GST_Phase2_Wikipedia_Transport.resolve_wiki_data_watermark()). RUN-LEVEL:
+    # resolved exactly once per run, before any ticker is processed, and
+    # identical across all 24 rows -- not recomputed per ticker. Establishes
+    # exactly what Wikipedia data was measured as available at the retrieval
+    # timestamp; NOT a waiver or a stale-data workaround. A row may be
+    # wiki-complete with lag 1-3 only when every required per-article date
+    # through wiki_data_watermark_date is present and validated -- the
+    # recorded lag remains visible here for later modeling/quality controls.
+    "wiki_data_watermark_date", "wiki_data_lag_days", "wiki_watermark_status",
+    "wiki_watermark_retrieved_at_utc", "wiki_watermark_source_url",
+    "wiki_watermark_http_status", "wiki_required_data_end",
     "all_six_fields_clean", "ticker_total_s",
 ]
 
 
 def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
-                    wiki_remaining_budget_s: float | None = None) -> tuple[dict, dict | None]:
+                    wiki_remaining_budget_s: float | None = None,
+                    watermark_info: dict | None = None) -> tuple[dict, dict | None]:
     row = {c: None for c in COLUMN_ORDER}
     row["run_date"] = RUN_DATE.isoformat()
     row["ticker"] = ticker
@@ -641,30 +654,58 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
         f"retries={row['gst_retry_count']} rate_limit_events={row['gst_rate_limit_events']} "
         f"z={row.get('gst_zscore')}")
 
-    # --- Wikipedia pageview z-score (2026-07-31 REWRITE, see header note):
-    # deterministic calendar-month chunks + persistent cache + killable
-    # subprocess isolation, one bounded first-pass attempt per chunk. A
-    # chunk that fails here is queued for the RUN-LEVEL second pass in
-    # main() -- it does NOT retry inline and does NOT abort this ticker or
-    # the run. compute_latest_zscore/to_weekly/compute_zscore_at_anchor are
-    # UNCHANGED -- only how the daily series is gathered changed. ---
+    # --- Wikipedia pageview z-score (2026-08-01 WATERMARK CORRECTION, see
+    # header note): deterministic calendar-month chunks + persistent cache
+    # + killable subprocess isolation, one bounded first-pass attempt per
+    # chunk, all bounded by the SINGLE frozen run-level Wikipedia data
+    # watermark resolved once in main() before any ticker was processed
+    # (GST_Phase2_Wikipedia_Transport.resolve_wiki_data_watermark()) -- NOT
+    # a fixed today-1 assumption, which was proven wrong by the 2026-08-01
+    # PARTIAL regression (Wikipedia had not yet published the prior day's
+    # data for ANY article). A chunk that fails here is queued for the
+    # RUN-LEVEL second pass in main() -- it does NOT retry inline and does
+    # NOT abort this ticker or the run. compute_latest_zscore/to_weekly/
+    # compute_zscore_at_anchor are UNCHANGED -- only how the daily series
+    # is gathered, and how much of it is expected, changed. ---
     log(f"  [{ticker}] START wiki")
     t0 = time.time()
     wiki_pending = None
     article = TICKER_TO_WIKI_ARTICLE.get(ticker)
+
+    # Watermark provenance is RUN-LEVEL -- identical on every row,
+    # regardless of whether this ticker's own wiki leg succeeds.
+    watermark_info = watermark_info or {}
+    row["wiki_data_watermark_date"] = (
+        watermark_info["watermark_date"].isoformat() if watermark_info.get("watermark_date") else None)
+    row["wiki_data_lag_days"] = watermark_info.get("lag_days")
+    row["wiki_watermark_status"] = watermark_info.get("status")
+    row["wiki_watermark_retrieved_at_utc"] = watermark_info.get("retrieved_at_utc")
+    row["wiki_watermark_source_url"] = watermark_info.get("source_url")
+    row["wiki_watermark_http_status"] = watermark_info.get("http_status")
+
     if article is None:
         row["wiki_status"] = "error"
         row["wiki_error"] = "no verified Wikipedia article mapping for this ticker"
+    elif watermark_info.get("status") != "ok":
+        # Fail closed: without a valid measured watermark there is no
+        # honest completeness bar to request or validate against -- never
+        # guess one. No network request is made for this ticker's wiki leg
+        # at all this run.
+        row["wiki_status"] = "incomplete_watermark_unavailable"
+        row["wiki_error"] = (f"no valid Wikipedia data watermark this run "
+                              f"(status={watermark_info.get('status')!r}) -- wiki leg not attempted")
     else:
+        watermark_date = watermark_info["watermark_date"]
         anchor_date = run_ts.date()
         pull_start = anchor_date - timedelta(days=PULL_LOOKBACK_DAYS)
+        row["wiki_required_data_end"] = watermark_date.isoformat()
         try:
             cache_df = wiki_transport.load_cache()
         except wiki_transport.CacheCorruptionError as e:
             log(f"  [{ticker}] Wikipedia cache corruption detected, treating as empty cache this run: {e}")
             cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
         wiki_result = wiki_transport.get_ticker_wikipedia_daily(
-            ticker, article, pull_start, anchor_date, today=anchor_date, cache_df=cache_df,
+            ticker, article, pull_start, anchor_date, watermark_date, cache_df=cache_df,
             remaining_budget_s=wiki_remaining_budget_s,
         )
         for cr in wiki_result["chunk_results"]:
@@ -728,7 +769,8 @@ def write_checkpoint(rows: list[dict]) -> None:
 
 
 def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
-                             active_ticker: str | None = None, active_leg: str | None = None) -> None:
+                             active_ticker: str | None = None, active_leg: str | None = None,
+                             watermark_info: dict | None = None) -> None:
     n_total = len(rows)
     n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
     six_fields = ["gst_zscore", "wiki_zscore", "implied_volatility", "realized_vol", "price", "volume"]
@@ -756,13 +798,24 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
         "final_path": str(FINAL_OUT_PATH) if status == "COMPLETE" else None,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     }
+    if watermark_info is not None:
+        marker["wiki_data_watermark"] = {
+            "status": watermark_info.get("status"),
+            "watermark_date": (watermark_info["watermark_date"].isoformat()
+                                if watermark_info.get("watermark_date") else None),
+            "lag_days": watermark_info.get("lag_days"),
+            "retrieved_at_utc": watermark_info.get("retrieved_at_utc"),
+            "source_url": watermark_info.get("source_url"),
+            "http_status": watermark_info.get("http_status"),
+        }
     with open(COMPLETION_MARKER_PATH, "w", encoding="utf-8") as f:
         json.dump(marker, f, indent=2)
     log(f"\nCompletion marker written: {COMPLETION_MARKER_PATH}")
     log(json.dumps(marker, indent=2))
 
 
-def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[str]) -> bool:
+def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[str],
+                     watermark_status: str | None = None) -> bool:
     """The single COMPLETE gate, pulled out as a pure function so it's
     directly unit-testable (see test_phase2_dailypanel_gate.py, tests 14-15)
     without running the full panel. A green run requires ALL of:
@@ -772,9 +825,17 @@ def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[s
       - every row's all_six_fields_clean is True (which itself already
         requires every Wikipedia chunk resolved, first pass or second pass)
       - every row has a parseable retrieval_timestamp_utc
+      - watermark_status == "ok" (2026-08-01 addition): a run cannot be
+        COMPLETE without a valid measured Wikipedia data watermark -- a
+        watermark that failed closed or found no data within
+        MAX_ACCEPTABLE_WIKI_LAG_DAYS means the wiki leg was never
+        genuinely attempted with an honest completeness bar for anyone,
+        regardless of what individual rows might otherwise show.
     Returns False (never raises) for any malformed row -- a gate that can
     crash on bad input is not a gate."""
     if exit_status != "COMPLETE":
+        return False
+    if watermark_status != "ok":
         return False
     if len(rows) != len(expected_tickers):
         return False
@@ -812,6 +873,23 @@ def main():
     pt = TrendReq(hl="en-US", tz=0, timeout=(30, 60), retries=0, backoff_factor=0.0,
                   requests_args={"verify": False})
 
+    # --- MEASURED WIKIPEDIA DATA WATERMARK (2026-08-01) -- resolved EXACTLY
+    # ONCE, here, before any ticker is processed. Not a waiver or stale-data
+    # workaround: establishes exactly what Wikipedia data was genuinely
+    # available at this retrieval timestamp, frozen for the rest of this
+    # run. See GST_Phase2_Wikipedia_Transport.resolve_wiki_data_watermark()
+    # for the full resolution policy and the 2026-08-01 PARTIAL regression
+    # this replaces (a fixed today-1 assumption that was proven wrong by a
+    # measured, confirmed 2-day Wikipedia publication lag). ---
+    watermark_info = wiki_transport.resolve_wiki_data_watermark(anchor_date=run_ts.date())
+    if watermark_info["status"] == "ok":
+        log(f"Wikipedia data watermark: {watermark_info['watermark_date']} "
+            f"(lag={watermark_info['lag_days']}d, source={watermark_info['source_url']})\n")
+    else:
+        log(f"*** WIKIPEDIA DATA WATERMARK COULD NOT BE ESTABLISHED (status={watermark_info['status']!r}) "
+            f"-- the Wikipedia leg will be skipped for every ticker this run (fail-closed, not guessed). "
+            f"probe_log={watermark_info['probe_log']} ***\n")
+
     rows: list[dict] = []
     wiki_pending_by_ticker: dict[str, dict] = {}
     wall_start = time.time()
@@ -838,7 +916,8 @@ def main():
         wiki_remaining_budget_s = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
         try:
             row, wiki_pending = process_ticker(pt, ticker, run_ts,
-                                                wiki_remaining_budget_s=wiki_remaining_budget_s)
+                                                wiki_remaining_budget_s=wiki_remaining_budget_s,
+                                                watermark_info=watermark_info)
             if wiki_pending is not None:
                 wiki_pending_by_ticker[ticker] = wiki_pending
         except Exception as e:
@@ -878,7 +957,7 @@ def main():
     # A ticker queued here does NOT abort the run -- it was already
     # preserved in `rows` (as "pending_second_pass") and every other ticker
     # already ran to completion regardless. ---
-    if wiki_pending_by_ticker:
+    if wiki_pending_by_ticker and watermark_info["status"] == "ok":
         combined_queue = []
         for pending in wiki_pending_by_ticker.values():
             combined_queue.extend(pending["failed_chunks"])
@@ -886,7 +965,7 @@ def main():
         log(f"\n*** WIKIPEDIA SECOND PASS: {len(combined_queue)} failed chunk(s) across "
             f"{len(wiki_pending_by_ticker)} ticker(s), remaining run budget {remaining_budget:.0f}s ***")
         second = wiki_transport.run_bounded_second_pass(combined_queue, remaining_budget_s=remaining_budget,
-                                                          today=run_ts.date())
+                                                          watermark=watermark_info["watermark_date"])
         for cr in second["chunk_results"]:
             log(f"    [{cr['ticker']}] second-pass chunk {cr['chunk_start']}..{cr['chunk_end']} "
                 f"status={cr['status']} http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "
@@ -910,7 +989,8 @@ def main():
                 f"evaluation -- no fallback candidates available this run: {e}")
             fallback_cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
         fallback = wiki_transport.apply_recent_cache_fallback(
-            second["still_failed"], fallback_cache_df, today=run_ts.date(), now_utc=datetime.now(timezone.utc))
+            second["still_failed"], fallback_cache_df, watermark=watermark_info["watermark_date"],
+            now_utc=datetime.now(timezone.utc))
         for ticker, info in fallback["fallback_recovered"].items():
             prov = info["provenance"]
             log(f"    [{ticker}] RECENT_LAST_KNOWN_GOOD fallback used: "
@@ -956,9 +1036,10 @@ def main():
     wall_total = time.time() - wall_start
 
     # COMPLETE requires 24 unique tickers, all six required fields complete,
-    # valid timestamps, and (now) every Wikipedia chunk resolved (either in
-    # the first pass or the bounded second pass) -- see is_run_complete().
-    if is_run_complete(rows, exit_status, TICKERS):
+    # valid timestamps, every Wikipedia chunk resolved (either in the first
+    # pass or the bounded second pass), AND a valid measured Wikipedia data
+    # watermark for this run -- see is_run_complete().
+    if is_run_complete(rows, exit_status, TICKERS, watermark_status=watermark_info["status"]):
         df = pd.DataFrame(rows, columns=COLUMN_ORDER)
         df.to_csv(FINAL_OUT_PATH, index=False)
         log(f"\nWrote final (COMPLETE) output: {FINAL_OUT_PATH}")
@@ -976,7 +1057,9 @@ def main():
         f"Incomplete: {len(rows) - n_clean}")
     log(f"Total wall time: {wall_total:.1f}s ({wall_total/60:.2f} min)")
 
-    write_completion_marker(rows, wall_total, exit_status, active_ticker=active_ticker if exit_status == "PARTIAL" else None)
+    write_completion_marker(rows, wall_total, exit_status,
+                             active_ticker=active_ticker if exit_status == "PARTIAL" else None,
+                             watermark_info=watermark_info)
 
     if exit_status != "COMPLETE":
         sys.exit(1)

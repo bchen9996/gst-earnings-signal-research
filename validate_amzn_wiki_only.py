@@ -75,6 +75,17 @@ def main() -> int:
 
     print(f"=== AMZN-ONLY WIKIPEDIA VALIDATION ({ARTICLE}), window {pull_start}..{today} ===\n")
 
+    # --- MEASURED WIKIPEDIA DATA WATERMARK (2026-08-01) -- resolved once,
+    # exactly as production main() does, before any Wikipedia chunk work. ---
+    watermark_info = wiki_transport.resolve_wiki_data_watermark(anchor_date=today)
+    print(f"Watermark: status={watermark_info['status']} watermark_date={watermark_info['watermark_date']} "
+          f"lag_days={watermark_info['lag_days']}")
+    if watermark_info["status"] != "ok":
+        print("\nNo valid watermark could be established -- the wiki leg cannot be validated this run "
+              "(fail-closed, not guessed). STOPPING.")
+        return 1
+    watermark = watermark_info["watermark_date"]
+
     pids_before = _python_pids()
 
     cache_df_before = wiki_transport.load_cache()
@@ -85,7 +96,7 @@ def main() -> int:
     # --- FIRST PASS (fresh attempt #1) ---
     t0 = time.time()
     result = wiki_transport.get_ticker_wikipedia_daily(
-        TICKER, ARTICLE, pull_start, today, today=today, cache_df=cache_df_before,
+        TICKER, ARTICLE, pull_start, today, watermark=watermark, cache_df=cache_df_before,
     )
     first_pass_elapsed = time.time() - t0
     print(f"First pass: {len(result['chunk_results'])} chunk(s), "
@@ -100,7 +111,8 @@ def main() -> int:
 
     # --- SECOND PASS (fresh attempt #2, bounded, exactly once) ---
     t1 = time.time()
-    second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=60.0, today=today)
+    second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=60.0,
+                                                      watermark=watermark)
     second_pass_elapsed = time.time() - t1
     print(f"\nSecond pass (single bounded attempt): "
           f"{len(second['chunk_results'])} attempted, {len(second['still_failed'])} still failed, "
@@ -117,7 +129,7 @@ def main() -> int:
     # writes to cache. ---
     cache_df_for_fallback = wiki_transport.load_cache()
     fallback = wiki_transport.apply_recent_cache_fallback(
-        second["still_failed"], cache_df_for_fallback, today=today, now_utc=datetime.now(timezone.utc))
+        second["still_failed"], cache_df_for_fallback, watermark=watermark, now_utc=datetime.now(timezone.utc))
     fallback_info = fallback["fallback_recovered"].get(TICKER)
     still_failed_after_fallback = [f for f in fallback["still_failed"] if f["ticker"] == TICKER]
 

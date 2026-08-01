@@ -174,17 +174,53 @@ MIN_USABLE_CHUNK_BUDGET_S = 1.0
 
 # --- RECENT_LAST_KNOWN_GOOD fallback (2026-07-31, approved as a narrow,
 # strictly-bounded addition -- NOT a general staleness tolerance). Applies
-# ONLY to the current/open Wikipedia month, and ONLY after a fresh attempt
-# AND the one bounded second-pass attempt have both already failed. See
-# evaluate_recent_cache_fallback()'s docstring for the full gate list.
+# ONLY to the chunk currently at the frontier of measured data
+# availability (see is_open_chunk(..., watermark) usage below), and ONLY
+# after a fresh attempt AND the one bounded second-pass attempt have both
+# already failed. See evaluate_recent_cache_fallback()'s docstring for the
+# full gate list.
 RECENT_CACHE_FALLBACK_MAX_AGE_HOURS = 24.0
-# Wikipedia's pageview counts have a genuine same-day processing lag --
-# "today"'s own daily total is never fully counted yet, regardless of any
-# transient 404 issue. This is a real data-availability fact, not a carve-out
-# invented to make a fallback succeed: a fresh request for a range ending
-# "today" was never going to return today's row either. The fallback's
-# completeness bar is capped at yesterday accordingly.
-RECENT_CACHE_FALLBACK_DATA_LAG_DAYS = 1
+
+# --- MEASURED WIKIPEDIA DATA WATERMARK (2026-08-01) -----------------------
+#
+# WHY THIS REPLACES THE FIXED today-1 ASSUMPTION: the 2026-08-01 24-ticker
+# regression (run within ~3.5 hours of July closing) came back PARTIAL,
+# wiki_zscore 0/24 -- every ticker's now-closed July chunk required all 31
+# days, but Wikipedia had not yet published July 31 for ANY article at the
+# time of that run (independently confirmed via direct probe, both
+# per-article and aggregate endpoints -- see
+# Live Signal Engine/Phase2 Failure Evidence/2026-08-01_Wikipedia_SourceWatermark_Lag2/).
+# A fixed "yesterday is always published" assumption is simply false on a
+# real, measured, 2-day-lag day. This is not a workaround or a staleness
+# waiver -- it establishes EXACTLY what information was available at the
+# retrieval timestamp, once, at run start, and enforces exact coverage
+# through that measured boundary for every chunk, open or closed alike (a
+# "closed" calendar month's own last day can be just as unpublished as an
+# "open" month's).
+#
+# The watermark is resolved ONCE per run (resolve_wiki_data_watermark()),
+# frozen, and threaded through every consumer: fresh-response validation,
+# closed/open cache validation, the bounded second pass, the recent-cache
+# fallback, deterministic equivalence testing, and completion gating. It is
+# measured against the SITE-WIDE AGGREGATE pageviews endpoint (not a
+# per-article one) specifically because per-article, per-request-shape
+# flakiness is independently documented throughout this investigation (a
+# single-day per-article probe can 404 even when a wider range covering
+# the same date succeeds) -- the aggregate endpoint gave a clean,
+# non-flaky, reproducible signal in the Phase B feasibility probe.
+WIKI_AGGREGATE_API = ("https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/"
+                      "en.wikipedia.org/all-access/user/daily/{start}/{end}")
+# Locked per the approved design -- do not raise without a fresh review.
+# A watermark that can't be resolved within this many days back leaves the
+# run's Wikipedia leg entirely unresolved (PARTIAL), not guessed.
+MAX_ACCEPTABLE_WIKI_LAG_DAYS = 3
+# A 404 gets exactly ONE bounded confirmation re-probe (a single retry,
+# short fixed wait) before the watermark resolver moves to the next-older
+# candidate -- guards against one transient blip being mistaken for
+# genuine unavailability, without resurrecting the old unbounded
+# retry-forever behavior.
+WATERMARK_404_CONFIRM_WAIT_S = 2.0
+WATERMARK_MAX_RETRY_AFTER_WAIT_S = 30.0
 
 
 class CacheCorruptionError(Exception):
@@ -216,13 +252,163 @@ def calendar_month_chunks(start: date, end: date) -> list[tuple[date, date]]:
     return chunks
 
 
-def is_open_chunk(chunk_start: date, chunk_end: date, today: date) -> bool:
-    """The currently open/incomplete month -- the one containing today --
-    may be refreshed on every run since it's still accumulating data. Any
-    other (fully past) chunk is closed and, once successfully cached, is
-    permanently reusable (Wikipedia's historical pageview data for a
-    completed period doesn't change)."""
-    return chunk_start <= today <= chunk_end
+def is_open_chunk(chunk_start: date, chunk_end: date, reference_date: date) -> bool:
+    """Whether `reference_date` falls inside [chunk_start, chunk_end] --
+    i.e. this chunk is currently AT THE FRONTIER relative to whatever
+    `reference_date` represents. Historically called with the real
+    calendar "today" (the chunk containing today is still accumulating
+    data); now called with the measured watermark instead (see
+    apply_recent_cache_fallback()) -- the watermark, not the calendar, is
+    what actually determines whether a chunk's boundary is still "live"."""
+    return chunk_start <= reference_date <= chunk_end
+
+
+def required_data_end(chunk_end: date, watermark: date) -> date:
+    """The measured completeness bar for ANY chunk -- open or closed
+    alike. Replaces the old fixed today-1 assumption: never request or
+    expect data beyond the run-level measured watermark, regardless of how
+    far in the future chunk_end nominally extends, and regardless of
+    whether the chunk is the calendar-current month or a fully historical
+    one -- a "closed" month's own last day can be just as unpublished as
+    an "open" month's (see the 2026-08-01 rollover PARTIAL, root-caused to
+    exactly this)."""
+    return min(chunk_end, watermark)
+
+
+def _fetch_aggregate_day(candidate: date) -> dict:
+    """Real network call (default, overridable for tests): single-day
+    probe of the SITE-WIDE aggregate pageviews endpoint (NOT a per-article
+    one -- avoids the per-article/per-request-shape flakiness documented
+    throughout this investigation; a single-day per-article probe can 404
+    even when a wider range covering the same date succeeds, confirmed
+    directly during the Phase B feasibility probe). Requires the
+    timestamp format this endpoint actually expects: YYYYMMDD + "00" (an
+    hour component) -- NOT the plain YYYYMMDD the per-article endpoint
+    uses; confirmed empirically before relying on it.
+
+    Returns {"status": "ok"/"http_error"/"malformed"/"exception",
+    "http_status": int|None, "views": int|None, "url": str,
+    "retry_after": str|None, "network_elapsed_s": float|None}."""
+    ymd = candidate.strftime("%Y%m%d") + "00"
+    url = WIKI_AGGREGATE_API.format(start=ymd, end=ymd)
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (research; GST project)"})
+    result = {"status": "error", "http_status": None, "views": None, "url": url,
+              "retry_after": None, "network_elapsed_s": None}
+    t0 = time.time()
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            body = json.load(resp)
+            result["network_elapsed_s"] = time.time() - t0
+            result["http_status"] = resp.status
+            items = body.get("items", [])
+            match = next((it for it in items if it.get("timestamp") == ymd), None)
+            if match is not None and _is_valid_nonnegative_integer_pageviews(match.get("views")):
+                result["status"] = "ok"
+                result["views"] = int(float(match["views"]))
+            else:
+                result["status"] = "malformed"
+    except urllib.error.HTTPError as e:
+        result["network_elapsed_s"] = time.time() - t0
+        result["http_status"] = e.code
+        result["retry_after"] = e.headers.get("Retry-After")
+        result["status"] = "http_error"
+    except Exception as e:
+        result["network_elapsed_s"] = time.time() - t0
+        result["status"] = "exception"
+        result["error"] = f"{type(e).__name__}: {e}"
+    return result
+
+
+def resolve_wiki_data_watermark(anchor_date: date, fetch_fn=None, now_utc: datetime | None = None) -> dict:
+    """Resolves the SINGLE run-level Wikipedia data watermark, ONCE, at
+    run start, before any ticker is processed. This is not a waiver or a
+    stale-data workaround -- it establishes exactly what information was
+    genuinely available (per the site-wide aggregate endpoint) at the
+    retrieval timestamp.
+
+    Probes candidate dates anchor_date-1, anchor_date-2, anchor_date-3
+    (newest to oldest, capped at MAX_ACCEPTABLE_WIKI_LAG_DAYS). The first
+    candidate that returns a genuine HTTP-200 with the exact expected
+    timestamp and a valid non-negative integer view count becomes the
+    frozen watermark.
+
+    - A 404 gets exactly ONE bounded confirmation re-probe (short fixed
+      wait) before moving to the next-older candidate.
+    - A 429 honors a bounded Retry-After (capped) and retries the SAME
+      candidate once -- a rate limit says nothing about data availability,
+      so it must never be treated as "move to an older date".
+    - Any OTHER unresolved outcome (network exception, non-404/429 HTTP
+      status, malformed response, or a repeat failure after the 429 retry)
+      FAILS THE WATERMARK CLOSED immediately -- never interpreted as "this
+      date is simply unpublished". An ambiguous failure must not silently
+      walk the watermark backward.
+    - If no candidate within MAX_ACCEPTABLE_WIKI_LAG_DAYS resolves (every
+      one confirmed 404), the watermark fails with status
+      "no_data_within_max_lag" -- the run's Wikipedia leg is entirely
+      unresolved this run (PARTIAL), never guessed.
+
+    fetch_fn: injectable override for _fetch_aggregate_day, for
+    deterministic testing only. Production never passes this.
+
+    Returns {"status": "ok"/"no_data_within_max_lag"/"failed_closed",
+    "watermark_date": date|None, "lag_days": int|None,
+    "retrieved_at_utc": str, "source_url": str|None, "http_status": int|None,
+    "probe_log": [...]}. This exact dict (or watermark_date/lag_days from
+    it) is what every consumer downstream must be given -- never
+    recomputed per ticker."""
+    fetch_fn = fetch_fn or _fetch_aggregate_day
+    now_utc = now_utc or datetime.now(timezone.utc)
+    probe_log = []
+
+    def _log(candidate, lag, attempt, result):
+        probe_log.append({"candidate": candidate.isoformat(), "lag_days": lag, "attempt": attempt,
+                           "status": result.get("status"), "http_status": result.get("http_status"),
+                           "retry_after": result.get("retry_after"),
+                           "network_elapsed_s": result.get("network_elapsed_s"), "url": result.get("url")})
+
+    for lag in range(1, MAX_ACCEPTABLE_WIKI_LAG_DAYS + 1):
+        candidate = anchor_date - timedelta(days=lag)
+        result = fetch_fn(candidate)
+        _log(candidate, lag, "first", result)
+
+        if result["status"] == "http_error" and result.get("http_status") == 429:
+            try:
+                wait_s = (min(float(result["retry_after"]), WATERMARK_MAX_RETRY_AFTER_WAIT_S)
+                          if result.get("retry_after") else WATERMARK_MAX_RETRY_AFTER_WAIT_S)
+            except (TypeError, ValueError):
+                wait_s = WATERMARK_MAX_RETRY_AFTER_WAIT_S
+            if wait_s > 0:
+                time.sleep(wait_s)
+            result = fetch_fn(candidate)
+            _log(candidate, lag, "after_retry_after", result)
+
+        if result["status"] == "http_error" and result.get("http_status") == 404:
+            time.sleep(WATERMARK_404_CONFIRM_WAIT_S)
+            result = fetch_fn(candidate)
+            _log(candidate, lag, "confirmation", result)
+
+        if result["status"] == "ok":
+            return {"status": "ok", "watermark_date": candidate, "lag_days": lag,
+                    "retrieved_at_utc": now_utc.isoformat(), "source_url": result.get("url"),
+                    "http_status": result.get("http_status"), "probe_log": probe_log}
+
+        if result["status"] == "http_error" and result.get("http_status") == 404:
+            # Confirmed unavailable after one bounded re-probe -- move to
+            # the next-older candidate.
+            continue
+
+        # Anything else (exception, malformed, non-404/429 HTTP status, or
+        # a repeat failure after honoring Retry-After) is an AMBIGUOUS
+        # failure -- fail the watermark closed immediately rather than
+        # guessing this date is simply unpublished.
+        return {"status": "failed_closed", "watermark_date": None, "lag_days": None,
+                "retrieved_at_utc": now_utc.isoformat(), "source_url": result.get("url"),
+                "http_status": result.get("http_status"), "probe_log": probe_log,
+                "failure_reason": result["status"]}
+
+    return {"status": "no_data_within_max_lag", "watermark_date": None, "lag_days": None,
+            "retrieved_at_utc": now_utc.isoformat(), "source_url": None, "http_status": None,
+            "probe_log": probe_log}
 
 
 def compute_chunk_hash(daily_rows: list[dict]) -> str:
@@ -301,17 +487,16 @@ def _is_valid_nonnegative_integer_pageviews(value) -> bool:
 
 
 def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: date,
-                       rows: list[dict], today: date,
+                       rows: list[dict], watermark: date,
                        stored_configured_article_title: str | None = None,
                        stored_content_hash: str | None = None) -> dict:
     """THE single shared validator for a (ticker, chunk) snapshot -- rows
     freshly fetched OR rows read from cache. Used before all four of:
     (1) writing a fresh HTTP-200 response to cache, (2) treating a fresh
     response as successful, (3) reusing any closed-month cache entry
-    (via validated_cache_hit()), (4) accepting the open-month
-    RECENT_LAST_KNOWN_GOOD fallback (evaluate_recent_cache_fallback()
-    delegates here). One function so these four call sites cannot silently
-    drift apart.
+    (via validated_cache_hit()), (4) accepting the recent-cache fallback
+    (evaluate_recent_cache_fallback() delegates here). One function so
+    these four call sites cannot silently drift apart.
 
     Checks, in order (first failure wins):
       1. identity: stored_configured_article_title (if given) == article
@@ -331,15 +516,18 @@ def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: d
          schema-valid cache data unable to bypass validation; see
          verify_cache_integrity() for the whole-cache-scan equivalent,
          also invoked in production now, not only in tests)
-      7. exact expected date coverage:
-         - closed chunk: every date chunk_start..chunk_end
-         - open chunk: every date chunk_start..min(chunk_end, today-1)
-         - special case: if the open chunk's coverage window hasn't
-           started yet (today is at/near chunk_start, so today-1 <
-           chunk_start -- e.g. the very first day of a new month), an
-           EMPTY, non-error response is valid and classified
-           "no_observations_expected_yet", never "incomplete_coverage"
-           and never fabricated
+      7. exact expected date coverage through `required_data_end(chunk_end,
+         watermark)` -- applied UNIFORMLY to every chunk, open or closed
+         (2026-08-01 correction: a fixed "closed chunks always need their
+         own chunk_end" assumption is exactly what caused the 2026-08-01
+         PARTIAL -- a closed month's own last day can be just as
+         unpublished as an open month's; the measured watermark is now the
+         single source of truth for both). Special case: if the required
+         coverage window hasn't started yet (required_data_end <
+         chunk_start -- e.g. the watermark hasn't reached this chunk at
+         all), an EMPTY, non-error response is valid and classified
+         "no_observations_expected_yet", never "incomplete_coverage" and
+         never fabricated.
 
     Returns {"valid": bool, "category": str, "reason": str,
     "content_hash": str|None, "expected_dates": set[str]}."""
@@ -384,19 +572,19 @@ def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: d
                           f"cache data tampered/corrupted",
                 "content_hash": content_hash, "expected_dates": set()}
 
-    closed = not is_open_chunk(chunk_start, chunk_end, today)
-    coverage_end = chunk_end if closed else effective_open_chunk_data_end(chunk_end, today)
+    coverage_end = required_data_end(chunk_end, watermark)
 
     if coverage_end < chunk_start:
         if rows:
             return {"valid": False, "category": "unexpected_data_before_coverage_start",
-                    "reason": f"open chunk has {len(rows)} row(s) but no date could legitimately be "
-                              f"published yet (coverage_end {coverage_end.isoformat()} < chunk_start "
+                    "reason": f"chunk has {len(rows)} row(s) but the measured watermark "
+                              f"({watermark.isoformat()}) hasn't reached this chunk yet "
+                              f"(coverage_end {coverage_end.isoformat()} < chunk_start "
                               f"{chunk_start.isoformat()})",
                     "content_hash": content_hash, "expected_dates": set()}
         return {"valid": True, "category": "no_observations_expected_yet",
-                "reason": "open chunk, no date in range has a published pageview count yet "
-                          "(today is at/near the start of this calendar month)",
+                "reason": f"no date in range has a published pageview count yet as of the measured "
+                          f"watermark ({watermark.isoformat()})",
                 "content_hash": content_hash, "expected_dates": set()}
 
     expected_dates = set()
@@ -419,16 +607,17 @@ def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: d
 
 
 def validated_cache_hit(cache_df: pd.DataFrame, ticker: str, article: str,
-                         chunk_start: date, chunk_end: date, today: date) -> dict:
-    """THE single gate for reusing ANY closed-month cache entry -- delegates
-    to validate_snapshot() for identity/hash/duplicate/pageview/coverage
-    checks. A cache group that is schema-consistent but whose CONTENT has
-    been tampered with, or that was a valid snapshot on a PRIOR day but no
-    longer covers what TODAY requires (the open-to-closed rollover case: a
-    month fetched while still open only has data through the day before
-    it was fetched; once that month closes, it needs its own final day
-    too), is correctly treated as a cache MISS here, never a corrupted or
-    stale HIT -- the caller falls through to a fresh fetch either way.
+                         chunk_start: date, chunk_end: date, watermark: date) -> dict:
+    """THE single gate for reusing ANY cache entry -- delegates to
+    validate_snapshot() for identity/hash/duplicate/pageview/coverage
+    checks, against the SAME frozen run-level watermark used everywhere
+    else. A cache group that is schema-consistent but whose CONTENT has
+    been tampered with, or that was a valid snapshot against an EARLIER
+    watermark but no longer covers what the CURRENT watermark requires
+    (the rollover case: a month fetched when the watermark only reached
+    day N doesn't cover day N+1 once the watermark advances there), is
+    correctly treated as a cache MISS here, never a corrupted or stale
+    HIT -- the caller falls through to a fresh fetch either way.
 
     Returns {"hit": bool, "rows": [...], "validation": {...}}."""
     if cache_df.empty:
@@ -454,7 +643,7 @@ def validated_cache_hit(cache_df: pd.DataFrame, ticker: str, article: str,
             "reason": f"cached group has {len(titles)} distinct configured_article_title values"}}
 
     rows = group[["date", "pageviews"]].to_dict("records")
-    validation = validate_snapshot(ticker, article, chunk_start, chunk_end, rows, today,
+    validation = validate_snapshot(ticker, article, chunk_start, chunk_end, rows, watermark,
                                     stored_configured_article_title=next(iter(titles)),
                                     stored_content_hash=hashes[0])
     if not validation["valid"]:
@@ -653,15 +842,25 @@ def fetch_chunk_isolated(article: str, start: date, end: date, timeout_s: float 
 
 # --- Orchestration ----------------------------------------------------------
 
-def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date, today: date,
+def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date, watermark: date,
                                 cache_df: pd.DataFrame, chunk_timeout_s: float = CHUNK_TIMEOUT_S,
                                 fetch_fn=None, remaining_budget_s: float | None = None) -> dict:
-    """First pass only -- no inline retry. For each calendar-month chunk:
-    use the cache if it's a closed month with a VALIDATED cached entry
-    (validated_cache_hit() -- identity, hash, and exact-coverage all
-    re-checked on every read, so a corrupted or now-stale-relative-to-today
-    cache row can never silently pass as a hit), else fetch once via
-    fetch_chunk_isolated(). A fresh HTTP-200 response is itself validated
+    """First pass only -- no inline retry. For each calendar-month chunk,
+    the completeness bar is `required_data_end(chunk_end, watermark)` --
+    the SAME frozen, run-level watermark passed to every other consumer,
+    applied uniformly whether the chunk is calendar-open or calendar-closed
+    (2026-08-01 correction: a "closed" chunk's own last day can be just as
+    unpublished as an "open" chunk's -- see resolve_wiki_data_watermark()'s
+    module-level docstring for the incident this replaces).
+
+    For each chunk: if the watermark hasn't reached chunk_start yet, no
+    request is made at all (no_observations_expected_yet). Otherwise, try
+    a VALIDATED cache hit (validated_cache_hit() -- identity, hash, and
+    exact-coverage against the CURRENT watermark all re-checked on every
+    read, so a snapshot valid against an earlier watermark can never
+    silently pass once the watermark has advanced). On a cache miss, fetch
+    ONLY chunk_start..required_data_end -- NEVER request dates beyond the
+    measured watermark. A fresh HTTP-200 response is itself validated
     (validate_snapshot()) before being trusted or cached -- an incomplete
     or malformed 200 is never cached and never treated as success. Failures
     are collected into a queue for the bounded second pass, NOT retried
@@ -699,30 +898,19 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
 
     loop_start = time.time()
     for chunk_start, chunk_end in chunks:
-        is_open = is_open_chunk(chunk_start, chunk_end, today)
+        req_end = required_data_end(chunk_end, watermark)
 
-        # PROSPECTIVE no_observations_expected_yet check (2026-07-31,
-        # closes a real gap): the real worker classifies an HTTP-200
-        # response with zero items as status="empty", NOT "ok" -- so the
-        # old code, which only ran validate_snapshot()'s
-        # no_observations_expected_yet classification AFTER a fetch and
-        # only when status=="ok", could still queue the very first day of
-        # a new open month as a genuine failure (an "empty" response is
-        # exactly what that day WOULD return, forever, since nothing can
-        # ever be published for it retroactively). Checked here BEFORE
-        # any network call: if no date in this open chunk could possibly
-        # have a published pageview count yet, skip the request entirely
-        # -- zero cost, no cache write, no failed chunk, and this check is
-        # independent of any remaining_budget_s (it costs nothing).
-        if is_open:
-            effective_data_end = effective_open_chunk_data_end(chunk_end, today)
-            if effective_data_end < chunk_start:
-                chunk_results.append({
-                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
-                    "source": "not_requested", "status": "no_observations_expected_yet",
-                    "network_elapsed_s": 0.0, "sleep_s": 0.0,
-                })
-                continue
+        # PROSPECTIVE no_observations_expected_yet check: if the measured
+        # watermark hasn't reached this chunk at all, no request is made
+        # -- zero cost, no cache write, no failed chunk, independent of
+        # any remaining_budget_s (it costs nothing either way).
+        if req_end < chunk_start:
+            chunk_results.append({
+                "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                "source": "not_requested", "status": "no_observations_expected_yet",
+                "network_elapsed_s": 0.0, "sleep_s": 0.0,
+            })
+            continue
 
         if remaining_budget_s is not None:
             budget_left = remaining_budget_s - (time.time() - loop_start)
@@ -741,23 +929,22 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
         else:
             effective_chunk_timeout = chunk_timeout_s
 
-        closed = not is_open
-        if closed:
-            hit = validated_cache_hit(cache_df, ticker, article, chunk_start, chunk_end, today)
-            if hit["hit"]:
-                daily_rows.extend(hit["rows"])
-                chunk_results.append({
-                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
-                    "source": "cache", "status": "ok", "network_elapsed_s": 0.0, "sleep_s": 0.0,
-                })
-                continue
-            # Cache MISS -- never cached, OR cached-but-failed-validation
-            # (e.g. the open-to-closed rollover case: a snapshot that was
-            # complete while this chunk was still open no longer covers
-            # what a now-closed month requires). Either way, fall through
-            # to a fresh fetch.
+        hit = validated_cache_hit(cache_df, ticker, article, chunk_start, chunk_end, watermark)
+        if hit["hit"]:
+            daily_rows.extend(hit["rows"])
+            chunk_results.append({
+                "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                "source": "cache", "status": "ok", "network_elapsed_s": 0.0, "sleep_s": 0.0,
+            })
+            continue
+        # Cache MISS -- never cached, OR cached-but-failed-validation
+        # against the current watermark (the rollover case: a snapshot
+        # valid against an earlier, smaller watermark no longer covers
+        # what the current, advanced watermark requires). Either way, fall
+        # through to a fresh fetch, requesting ONLY chunk_start..req_end --
+        # never beyond the measured watermark.
 
-        result = fetch_fn(article, chunk_start, chunk_end, timeout_s=effective_chunk_timeout)
+        result = fetch_fn(article, chunk_start, req_end, timeout_s=effective_chunk_timeout)
         base_chunk_result = {
             "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
             "source": "fetch", "network_elapsed_s": result.get("network_elapsed_s") or 0.0,
@@ -766,7 +953,7 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
         }
 
         if result["status"] == "ok":
-            validation = validate_snapshot(ticker, article, chunk_start, chunk_end, result["items"], today)
+            validation = validate_snapshot(ticker, article, chunk_start, chunk_end, result["items"], watermark)
             if validation["category"] == "no_observations_expected_yet":
                 chunk_results.append({**base_chunk_result, "status": "no_observations_expected_yet"})
                 continue
@@ -799,9 +986,8 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
             "cache_integrity_problems": cache_integrity_problems}
 
 
-def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
-                             chunk_timeout_s: float = CHUNK_TIMEOUT_S, fetch_fn=None,
-                             today: date | None = None) -> dict:
+def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float, watermark: date,
+                             chunk_timeout_s: float = CHUNK_TIMEOUT_S, fetch_fn=None) -> dict:
     """Exactly one retry attempt per queued chunk, after normal ticker
     processing has finished for every ticker -- not per-ticker, not inline,
     not recursive. Short bounded jitter for ordinary failures; honors a real
@@ -818,14 +1004,16 @@ def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
     fetch_fn: same injectable override as get_ticker_wikipedia_daily(), for
     deterministic testing only.
 
-    today: date used for validate_snapshot()'s coverage check on a
-    recovered response. Defaults to the real current UTC date if omitted
-    (matches prior behavior for existing callers that don't pass it).
+    watermark: the SAME frozen run-level watermark used everywhere else --
+    REQUIRED, no default. A retry here must never request or validate
+    against a different completeness bar than the first pass used; each
+    queued item's original chunk_end is re-truncated to
+    required_data_end(chunk_end, watermark) before the retry request is
+    made, exactly as the first pass did.
 
     Returns {"recovered": {ticker: [daily_rows...]}, "still_failed": [...],
     "chunk_results": [...]}."""
     fetch_fn = fetch_fn or fetch_chunk_isolated
-    effective_today = today if today is not None else datetime.now(timezone.utc).date()
     recovered: dict[str, list[dict]] = {}
     still_failed = []
     chunk_results = []
@@ -861,7 +1049,8 @@ def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
             continue
         capped_timeout = min(chunk_timeout_s, remaining_after_wait)
 
-        result = fetch_fn(item["article"], item["chunk_start"], item["chunk_end"],
+        req_end = required_data_end(item["chunk_end"], watermark)
+        result = fetch_fn(item["article"], item["chunk_start"], req_end,
                            timeout_s=capped_timeout)
         chunk_results.append({
             "ticker": item["ticker"], "chunk_start": item["chunk_start"].isoformat(),
@@ -872,7 +1061,7 @@ def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
         })
         if result["status"] == "ok":
             validation = validate_snapshot(item["ticker"], item["article"], item["chunk_start"],
-                                            item["chunk_end"], result["items"], effective_today)
+                                            item["chunk_end"], result["items"], watermark)
             if validation["category"] == "no_observations_expected_yet":
                 continue   # nothing to recover, but not a failure either
             if validation["valid"]:
@@ -892,32 +1081,21 @@ def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
     return {"recovered": recovered, "still_failed": still_failed, "chunk_results": chunk_results}
 
 
-def effective_open_chunk_data_end(chunk_end: date, today: date) -> date:
-    """The completeness bar for a RECENT_LAST_KNOWN_GOOD fallback candidate,
-    for the current/open chunk only. Capped at yesterday relative to
-    `today` regardless of how late `chunk_end` (the requested end of the
-    window) is -- see RECENT_CACHE_FALLBACK_DATA_LAG_DAYS: Wikipedia's own
-    same-day pageview count is never complete yet, so a fresh request
-    covering through "today" was never going to return today's row either.
-    A completed CLOSED month's chunk_end already fully precedes today and
-    is returned unchanged."""
-    return min(chunk_end, today - timedelta(days=RECENT_CACHE_FALLBACK_DATA_LAG_DAYS))
-
-
 def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article: str,
-                                    chunk_start: date, chunk_end: date, today: date,
+                                    chunk_start: date, chunk_end: date, watermark: date,
                                     now_utc: datetime, canonical_title: str | None = None,
                                     page_id: str | None = None) -> dict:
-    """Evaluates whether a persisted cache snapshot for the CURRENT/OPEN
-    chunk (ticker, chunk_start, chunk_end) may stand in as a
-    RECENT_LAST_KNOWN_GOOD result after a fresh attempt AND the one bounded
-    second-pass attempt have both already failed. This is a narrow,
-    strictly-bounded fallback -- not a general staleness tolerance.
-    Delegates identity/hash/duplicate/pageview-validity/exact-coverage
-    checks to validate_snapshot() (the same shared gate used for fresh
-    writes and closed-month cache reuse, so this fallback cannot silently
-    apply a looser standard) and layers its own two fallback-specific
-    checks on top:
+    """Evaluates whether a persisted cache snapshot for the chunk currently
+    AT THE FRONTIER of measured data availability (see
+    apply_recent_cache_fallback()'s is_open_chunk(..., watermark) gating)
+    may stand in as a RECENT_LAST_KNOWN_GOOD result after a fresh attempt
+    AND the one bounded second-pass attempt have both already failed. This
+    is a narrow, strictly-bounded fallback -- not a general staleness
+    tolerance. Delegates identity/hash/duplicate/pageview-validity/
+    exact-coverage checks to validate_snapshot() (the same shared gate
+    used for fresh writes and cache reuse, against the SAME frozen
+    watermark, so this fallback cannot silently apply a looser standard)
+    and layers its own two fallback-specific checks on top:
 
       - HTTP-200 provenance: every row in the snapshot must carry
         http_status == 200 (structurally already guaranteed by
@@ -943,7 +1121,7 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
     "content_hash": str|None, "effective_data_end": date}. `rows` and the
     provenance fields are populated only when eligible=True. Never mutates
     cache_df or the on-disk cache -- purely a read-only evaluation."""
-    effective_data_end = effective_open_chunk_data_end(chunk_end, today)
+    effective_data_end = required_data_end(chunk_end, watermark)
 
     if cache_df.empty:
         return {"eligible": False, "reason": "no_cache_at_all", "rows": [],
@@ -991,7 +1169,7 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
                 "effective_data_end": effective_data_end}
 
     rows = group[["date", "pageviews"]].to_dict("records")
-    validation = validate_snapshot(ticker, article, chunk_start, chunk_end, rows, today,
+    validation = validate_snapshot(ticker, article, chunk_start, chunk_end, rows, watermark,
                                     stored_configured_article_title=next(iter(titles)),
                                     stored_content_hash=hashes[0])
     if not validation["valid"]:
@@ -1023,32 +1201,36 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
 
 
 def apply_recent_cache_fallback(still_failed: list[dict], cache_df: pd.DataFrame,
-                                 today: date, now_utc: datetime) -> dict:
+                                 watermark: date, now_utc: datetime) -> dict:
     """Runs AFTER the bounded second pass, on whatever remains in
-    `still_failed`. Only ever considers items whose chunk IS the current
-    open chunk (is_open_chunk) -- a closed month that failed both passes is
-    never eligible for this fallback and is left in still_failed unchanged.
-    Never writes to the cache (a failed refresh must never overwrite a
-    valid prior snapshot, and a fallback usage must never reset that
-    snapshot's own age/provenance -- both are structurally guaranteed by
-    this function performing a pure read-only evaluation).
+    `still_failed`. Only ever considers items whose chunk currently
+    CONTAINS the frozen watermark (is_open_chunk(chunk_start, chunk_end,
+    watermark) -- the watermark, not the calendar, is what determines
+    which chunk is "at the frontier" now) -- a chunk fully behind or fully
+    ahead of the watermark is never eligible for this fallback and is left
+    in still_failed unchanged. Never writes to the cache (a failed refresh
+    must never overwrite a valid prior snapshot, and a fallback usage must
+    never reset that snapshot's own age/provenance -- both are
+    structurally guaranteed by this function performing a pure read-only
+    evaluation).
 
     Returns {"fallback_recovered": {ticker: {"rows": [...],
     "provenance": {...}}}, "still_failed": [...]} -- `still_failed` here
-    contains every item NOT resolved by the fallback (closed-month failures
-    unchanged, plus any open-month failures that didn't pass every gate,
-    each annotated with "fallback_rejected_reason" for honest reporting)."""
+    contains every item NOT resolved by the fallback (chunks outside the
+    watermark's frontier unchanged, plus any frontier-chunk failures that
+    didn't pass every gate, each annotated with "fallback_rejected_reason"
+    for honest reporting)."""
     fallback_recovered: dict[str, dict] = {}
     remaining_failed = []
 
     for item in still_failed:
-        if not is_open_chunk(item["chunk_start"], item["chunk_end"], today):
+        if not is_open_chunk(item["chunk_start"], item["chunk_end"], watermark):
             remaining_failed.append(item)
             continue
 
         evaluation = evaluate_recent_cache_fallback(
             cache_df, item["ticker"], item["article"], item["chunk_start"], item["chunk_end"],
-            today, now_utc,
+            watermark, now_utc,
         )
         if evaluation["eligible"]:
             fallback_recovered[item["ticker"]] = {
