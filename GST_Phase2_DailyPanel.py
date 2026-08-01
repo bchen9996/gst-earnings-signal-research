@@ -492,7 +492,8 @@ COLUMN_ORDER = [
 ]
 
 
-def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> tuple[dict, dict | None]:
+def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
+                    wiki_remaining_budget_s: float | None = None) -> tuple[dict, dict | None]:
     row = {c: None for c in COLUMN_ORDER}
     row["run_date"] = RUN_DATE.isoformat()
     row["ticker"] = ticker
@@ -664,6 +665,7 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> tuple[dict, d
             cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
         wiki_result = wiki_transport.get_ticker_wikipedia_daily(
             ticker, article, pull_start, anchor_date, today=anchor_date, cache_df=cache_df,
+            remaining_budget_s=wiki_remaining_budget_s,
         )
         for cr in wiki_result["chunk_results"]:
             log(f"    [{ticker}] wiki chunk {cr['chunk_start']}..{cr['chunk_end']} "
@@ -827,8 +829,16 @@ def main():
 
         active_ticker = ticker
         t0 = time.time()
+        # Deadline discipline (2026-07-31 correction): cap this ticker's
+        # Wikipedia first-pass chunk loop to whatever total-run budget
+        # actually remains right now, so one late ticker's Wikipedia leg
+        # cannot materially eat into the deadline meant for the tickers
+        # after it -- not just an unconditional per-chunk timeout regardless
+        # of how much run time is left.
+        wiki_remaining_budget_s = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
         try:
-            row, wiki_pending = process_ticker(pt, ticker, run_ts)
+            row, wiki_pending = process_ticker(pt, ticker, run_ts,
+                                                wiki_remaining_budget_s=wiki_remaining_budget_s)
             if wiki_pending is not None:
                 wiki_pending_by_ticker[ticker] = wiki_pending
         except Exception as e:
@@ -875,7 +885,8 @@ def main():
         remaining_budget = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
         log(f"\n*** WIKIPEDIA SECOND PASS: {len(combined_queue)} failed chunk(s) across "
             f"{len(wiki_pending_by_ticker)} ticker(s), remaining run budget {remaining_budget:.0f}s ***")
-        second = wiki_transport.run_bounded_second_pass(combined_queue, remaining_budget_s=remaining_budget)
+        second = wiki_transport.run_bounded_second_pass(combined_queue, remaining_budget_s=remaining_budget,
+                                                          today=run_ts.date())
         for cr in second["chunk_results"]:
             log(f"    [{cr['ticker']}] second-pass chunk {cr['chunk_start']}..{cr['chunk_end']} "
                 f"status={cr['status']} http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "

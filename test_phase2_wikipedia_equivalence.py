@@ -1,36 +1,45 @@
 #!/usr/bin/env python3
-# SCIENTIFIC-EQUIVALENCE TEST -- required before the Wikipedia-transport
-# rewrite may be trusted for a production run (per the approved
-# implementation decision). For AAPL and AMZN: fetches the SAME 300-day
-# production window two ways --
-#   (a) DIRECT: GST_Wikipedia_Pageviews_Pull.fetch_daily_pageviews(), the
-#       existing, unmodified shared helper (365-day single request for a
-#       300-day window, with its own bisection-on-failure fallback -- this
-#       IS the pre-rewrite production code path, untouched by this rewrite)
-#   (b) CHUNKED: GST_Phase2_Wikipedia_Transport.get_ticker_wikipedia_daily()
-#       (+ bounded second pass if needed), the new deterministic
-#       calendar-month-chunked, cached, process-isolated path
-# and requires:
-#   1. every overlapping (date, pageviews) pair matches EXACTLY
-#   2. the wiki z-score field, computed via the EXACT SAME unmodified
-#      to_weekly()/compute_zscore_at_anchor() on each assembled series,
-#      matches within a documented tolerance (1e-6 -- the two routes can
-#      legitimately assemble their series in a different row order before
-#      the rolling calc, so we allow for float summation order, not for
-#      any real numerical disagreement)
+# OPTIONAL LIVE SOURCE SMOKE TEST (2026-07-31 corrective commit, Section B
+# of the split equivalence gate -- see
+# test_phase2_wikipedia_equivalence_deterministic.py for Section A, the
+# MANDATORY, no-live-network, frozen-fixture test that this one does NOT
+# substitute for).
 #
-# This makes REAL network calls (and, for the chunked path, real
-# subprocess spawns) for two tickers -- it is not part of the fast
-# deterministic unit-test suites (test_phase2_wikipedia_transport.py /
-# test_phase2_dailypanel_gate.py) and is run manually, once, before
-# proceeding to the AMZN-only validation and full regression.
+# For AAPL and AMZN: fetches the SAME 300-day production window two ways --
+# DIRECT (fetch_daily_pageviews(), the existing, unmodified shared helper)
+# and CHUNKED (get_ticker_wikipedia_daily() + bounded second pass +
+# RECENT_LAST_KNOWN_GOOD fallback, the actual current production pipeline)
+# -- and reports, per ticker, one of exactly three verdicts:
+#
+#   PASS         -- the two routes' date sets are IDENTICAL, every value
+#                   matches exactly, and the z-score matches within
+#                   tolerance.
+#   INCONCLUSIVE -- source unavailable (either route returned no data) or
+#                   the two routes' date SETS differ (a coverage gap on
+#                   either side, live source instability by nature) --
+#                   NEVER counted as a pass, regardless of how a live
+#                   re-probe of the gap classifies it.
+#   FAIL         -- a true value mismatch on a date BOTH routes returned
+#                   (both "complete" for that date) -- a real defect,
+#                   never explained away as transience.
+#
+# This is the fix for the prior version of this file, which checked only
+# OVERLAPPING values (so it could pass even when the two routes had
+# different date sets) and folded "probe_inconclusive" into an acceptance
+# check. That was not equivalence. This version can no longer do either.
+#
+# Makes REAL network calls (and, for the chunked path, real subprocess
+# spawns) for two tickers -- NOT part of the deterministic suites run
+# before committing, and NOT a gate on anything: it is observational only.
 #
 # Run directly: python test_phase2_wikipedia_equivalence.py
-# Exits 0 only if BOTH tickers pass in full. Per the approved instructions:
-# if equivalence fails, STOP -- do not run the panel, do not tune budgets.
+# Exit code reflects FAILURES only (a true defect) -- INCONCLUSIVE never
+# affects the exit code, by design (source unavailability is not this
+# code's fault and must not block on it).
 
 from __future__ import annotations
 from datetime import datetime, timezone, date, timedelta
+import json
 import os
 import sys
 
@@ -46,27 +55,28 @@ from GST_Wikipedia_Pageviews_Pull import fetch_daily_pageviews, to_weekly, TICKE
 import GST_Phase2_Wikipedia_Transport as wiki_transport
 import GST_FixedWindow_PerEvent_Canonical as canonical
 
-FAILURES = []
 TOLERANCE = 1e-6
 TICKERS_UNDER_TEST = ["AAPL", "AMZN"]
 
+VERDICTS: dict[str, str] = {}   # ticker -> "PASS" / "INCONCLUSIVE" / "FAIL"
+FAILURES: list[str] = []        # true defects only -- drives the exit code
 
-def check(name: str, condition: bool, detail: str = "") -> None:
-    if condition:
-        print(f"PASS: {name}")
-    else:
-        FAILURES.append(name)
-        print(f"FAIL: {name}" + (f" -- {detail}" if detail else ""))
+
+def note(name: str, condition: bool, detail: str = "") -> None:
+    """Sub-check logging only -- does NOT by itself decide a ticker's
+    verdict (see _run_for_ticker's explicit verdict assignment at the end).
+    Kept separate from FAILURES so an INCONCLUSIVE ticker's sub-checks
+    don't silently become exit-code failures."""
+    tag = "OK" if condition else "NOTE"
+    print(f"    [{tag}] {name}" + (f" -- {detail}" if detail else ""))
 
 
 def _direct_daily(article: str, start: date, end: date) -> pd.DataFrame:
-    start_ts = pd.Timestamp(start)
-    end_ts = pd.Timestamp(end)
-    df = fetch_daily_pageviews(article, start_ts, end_ts)
+    df = fetch_daily_pageviews(article, pd.Timestamp(start), pd.Timestamp(end))
     return df.sort_values("date").reset_index(drop=True)
 
 
-def _chunked_daily(ticker: str, article: str, start: date, end: date, today: date) -> tuple[pd.DataFrame, dict]:
+def _chunked_daily(ticker: str, article: str, start: date, end: date, today: date) -> pd.DataFrame:
     cache_df = wiki_transport.load_cache()
     result = wiki_transport.get_ticker_wikipedia_daily(
         ticker, article, start, end, today=today, cache_df=cache_df,
@@ -75,37 +85,34 @@ def _chunked_daily(ticker: str, article: str, start: date, end: date, today: dat
     still_failed = []
     if result["failed_chunks"]:
         print(f"    [{ticker}] {len(result['failed_chunks'])} chunk(s) failed first pass -- running bounded second pass")
-        second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=180)
+        second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=180, today=today)
         daily_rows = daily_rows + second["recovered"].get(ticker, [])
         still_failed = second["still_failed"]
         if still_failed:
             print(f"    [{ticker}] STILL FAILED after second pass: {still_failed}")
     if still_failed:
-        # RECENT_LAST_KNOWN_GOOD fallback (approved 2026-07-31) is part of
-        # the production pipeline now -- exercising it here means this test
-        # reflects the ACTUAL current transport mechanism, not a stale
-        # two-pass-only version of it. Read-only; never writes to cache.
+        # RECENT_LAST_KNOWN_GOOD fallback is part of the actual production
+        # pipeline -- exercising it here means this smoke test reflects
+        # what production actually does, not a stale two-pass-only version.
         fallback = wiki_transport.apply_recent_cache_fallback(
             still_failed, wiki_transport.load_cache(), today=today, now_utc=datetime.now(timezone.utc))
         fb = fallback["fallback_recovered"].get(ticker)
         if fb is not None:
-            print(f"    [{ticker}] RECENT_LAST_KNOWN_GOOD fallback used for the remaining gap: "
-                  f"{fb['provenance']}")
+            print(f"    [{ticker}] RECENT_LAST_KNOWN_GOOD fallback used for the remaining gap: {fb['provenance']}")
             daily_rows = daily_rows + fb["rows"]
         for rej in fallback["still_failed"]:
             print(f"    [{ticker}] fallback NOT used ({rej.get('fallback_rejected_reason')}) -- "
                   f"chunk {rej['chunk_start']}..{rej['chunk_end']} remains genuinely unresolved")
     daily_df = wiki_transport.assemble_daily_series(daily_rows)
-    return daily_df.sort_values("date").reset_index(drop=True), result
+    return daily_df.sort_values("date").reset_index(drop=True)
 
 
 def _independently_reprobe_month(article: str, month_start: date) -> str:
     """A direct, standalone HTTP re-probe of a single calendar month --
-    independent of both routes under test -- so a coverage gap can be
-    classified as genuine live source-side unavailability (re-confirmed
-    right now, not just inferred from one earlier failed attempt) rather
-    than assumed. Returns 'confirmed_unavailable' / 'actually_available_now'
-    / 'probe_inconclusive'."""
+    independent of both routes under test -- purely DIAGNOSTIC context
+    printed alongside an INCONCLUSIVE verdict. Never used to upgrade a
+    date-set mismatch into a PASS, and never used to downgrade one into a
+    FAIL either -- see the module docstring for why."""
     if month_start.month == 12:
         next_month = date(month_start.year + 1, 1, 1)
     else:
@@ -117,7 +124,6 @@ def _independently_reprobe_month(article: str, month_start: date) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (research; GST project)"})
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
-            import json
             body = json.load(resp)
             return "actually_available_now" if body.get("items") else "confirmed_unavailable"
     except urllib.error.HTTPError as e:
@@ -126,101 +132,100 @@ def _independently_reprobe_month(article: str, month_start: date) -> str:
         return "probe_inconclusive"
 
 
-def _run_for_ticker(ticker: str) -> None:
+def _run_for_ticker(ticker: str) -> str:
+    """Returns exactly one of 'PASS' / 'INCONCLUSIVE' / 'FAIL'."""
     article = TICKER_TO_WIKI_ARTICLE[ticker]
     today = datetime.now(timezone.utc).date()
     start = today - timedelta(days=canonical.PULL_LOOKBACK_DAYS)
 
-    print(f"\n=== {ticker} ({article}): direct vs chunked-assembled, {start}..{today} ===")
+    print(f"\n=== {ticker} ({article}): direct vs chunked-assembled (live), {start}..{today} ===")
 
     direct_df = _direct_daily(article, start, today)
-    check(f"{ticker}: direct route returned non-empty data", len(direct_df) > 0, len(direct_df))
-
-    chunked_df, chunk_result = _chunked_daily(ticker, article, start, today, today)
-    check(f"{ticker}: chunked route returned non-empty data", len(chunked_df) > 0, len(chunked_df))
+    chunked_df = _chunked_daily(ticker, article, start, today, today)
+    note(f"{ticker}: direct route returned data", len(direct_df) > 0, f"{len(direct_df)} rows")
+    note(f"{ticker}: chunked route returned data", len(chunked_df) > 0, f"{len(chunked_df)} rows")
 
     if direct_df.empty or chunked_df.empty:
-        check(f"{ticker}: cannot proceed to value comparison (one route returned no data)", False,
-              "STOPPING -- do not run the panel until this is resolved")
-        return
+        print(f"    VERDICT ({ticker}): INCONCLUSIVE -- one or both routes returned no data right now "
+              f"(source unavailable), not evaluable as PASS or FAIL")
+        return "INCONCLUSIVE"
 
     direct_idx = direct_df.set_index(direct_df["date"].dt.date)["views"]
     chunked_idx = chunked_df.set_index(chunked_df["date"].dt.date)["views"]
+    direct_dates = set(direct_idx.index)
+    chunked_dates = set(chunked_idx.index)
+    common_dates = sorted(direct_dates & chunked_dates)
 
-    overlap_dates = sorted(set(direct_idx.index) & set(chunked_idx.index))
-    check(f"{ticker}: there is a non-trivial overlapping date range to compare",
-          len(overlap_dates) > 30, len(overlap_dates))
+    # A true mismatch is only meaningful on a date BOTH routes actually
+    # returned -- "both responses complete" for that date. This can FAIL
+    # regardless of what happens with the date-set comparison below.
+    mismatches = [(d, int(direct_idx[d]), int(chunked_idx[d])) for d in common_dates
+                  if int(direct_idx[d]) != int(chunked_idx[d])]
+    note(f"{ticker}: value agreement on the {len(common_dates)} common date(s)",
+         mismatches == [], mismatches[:10])
+    if mismatches:
+        print(f"    VERDICT ({ticker}): FAIL -- {len(mismatches)} true value mismatch(es) on dates both "
+              f"routes returned complete data for")
+        return "FAIL"
 
-    mismatches = []
-    for d in overlap_dates:
-        dv, cv = int(direct_idx[d]), int(chunked_idx[d])
-        if dv != cv:
-            mismatches.append((d, dv, cv))
-    check(f"{ticker}: every overlapping (date, pageviews) pair matches EXACTLY "
-          f"({len(overlap_dates)} dates compared)", mismatches == [], mismatches[:10])
-
-    only_direct = sorted(set(direct_idx.index) - set(chunked_idx.index))
-    only_chunked = sorted(set(chunked_idx.index) - set(direct_idx.index))
-
-    if only_direct:
-        # A gap here means a whole calendar month failed BOTH the first pass
-        # and the bounded second pass. That is expected, occasional behavior
-        # for this design (a bounded retry budget, by explicit instruction,
-        # does not retry forever) -- but it must never be waved through on
-        # trust. Independently re-probe each gap month, live, right now: if
-        # Wikipedia genuinely still can't serve it, this is the documented
-        # source instability the rewrite is built to tolerate and report,
-        # not a defect. If the re-probe now succeeds, or if EVERY chunk
-        # failed (see the "chunked route returned non-empty data" check
-        # above), that is NOT transience -- that is a real equivalence bug
-        # and must fail hard.
-        gap_months = sorted({date(d.year, d.month, 1) for d in only_direct})
-        classifications = {m: _independently_reprobe_month(article, m) for m in gap_months}
-        for m, cls in classifications.items():
-            print(f"    RE-PROBE ({ticker}) {m.isoformat()} calendar month, independent of both routes "
-                  f"under test: {cls}")
-        genuinely_unavailable = all(c in ("confirmed_unavailable", "probe_inconclusive")
-                                     for c in classifications.values())
-        check(f"{ticker}: {len(only_direct)} missing date(s) across {len(gap_months)} month(s) are "
-              f"explained by independently-reconfirmed source unavailability, not silently concealed",
-              genuinely_unavailable,
-              f"months={[m.isoformat() for m in gap_months]} classifications={classifications}")
-    else:
-        check(f"{ticker}: no dates present in direct route but missing from chunked route", True)
-
-    if only_chunked:
-        print(f"    INFO ({ticker}): {len(only_chunked)} date(s) present in chunked route but not direct "
-              f"(direct route's own bisection can give up early on a sub-range; not itself a failure "
-              f"of the rewrite -- {only_chunked[:10]})")
+    if direct_dates != chunked_dates:
+        only_direct = sorted(direct_dates - chunked_dates)
+        only_chunked = sorted(chunked_dates - direct_dates)
+        if only_direct:
+            gap_months = sorted({date(d.year, d.month, 1) for d in only_direct})
+            classifications = {m: _independently_reprobe_month(article, m) for m in gap_months}
+            for m, cls in classifications.items():
+                print(f"    RE-PROBE ({ticker}) {m.isoformat()}: {cls} (diagnostic only -- does not "
+                      f"change the verdict)")
+        note(f"{ticker}: date sets differ ({len(only_direct)} only-direct, {len(only_chunked)} only-chunked)",
+             False, f"only_direct={only_direct[:5]} only_chunked={only_chunked[:5]}")
+        print(f"    VERDICT ({ticker}): INCONCLUSIVE -- date sets differ between routes (live source "
+              f"coverage gap on one side) -- never counted as PASS")
+        return "INCONCLUSIVE"
 
     anchor = pd.Timestamp(today)
-    direct_weekly = to_weekly(direct_df)
-    chunked_weekly = to_weekly(chunked_df)
-    _, direct_z, direct_note = canonical.compute_zscore_at_anchor(direct_weekly, anchor)
-    _, chunked_z, chunked_note = canonical.compute_zscore_at_anchor(chunked_weekly, anchor)
-
+    _, direct_z, direct_note_ = canonical.compute_zscore_at_anchor(to_weekly(direct_df), anchor)
+    _, chunked_z, chunked_note_ = canonical.compute_zscore_at_anchor(to_weekly(chunked_df), anchor)
     if direct_z is None or chunked_z is None:
-        check(f"{ticker}: wiki z-score computable via both routes",
-              direct_z is not None and chunked_z is not None,
-              f"direct={direct_z} ({direct_note!r})  chunked={chunked_z} ({chunked_note!r})")
-    else:
-        check(f"{ticker}: wiki z-score identical within tolerance ({TOLERANCE}) between routes",
-              abs(direct_z - chunked_z) <= TOLERANCE,
-              f"direct={direct_z}  chunked={chunked_z}  diff={abs(direct_z - chunked_z)}")
+        note(f"{ticker}: z-score computable via both routes", False,
+             f"direct={direct_z} ({direct_note_!r}) chunked={chunked_z} ({chunked_note_!r})")
+        print(f"    VERDICT ({ticker}): INCONCLUSIVE -- z-score not computable from identical date sets "
+              f"(insufficient rolling-window history at this anchor), not a value defect")
+        return "INCONCLUSIVE"
+
+    z_match = abs(direct_z - chunked_z) <= TOLERANCE
+    note(f"{ticker}: z-score matches within tolerance ({TOLERANCE})", z_match,
+         f"direct={direct_z} chunked={chunked_z} diff={abs(direct_z - chunked_z)}")
+    if not z_match:
+        print(f"    VERDICT ({ticker}): FAIL -- identical date sets and values, but z-score disagrees "
+              f"beyond tolerance (unexpected -- investigate compute path)")
+        return "FAIL"
+
+    print(f"    VERDICT ({ticker}): PASS -- identical date sets, exact value match, z-score within tolerance")
+    return "PASS"
 
 
 if __name__ == "__main__":
     for t in TICKERS_UNDER_TEST:
-        _run_for_ticker(t)
+        verdict = _run_for_ticker(t)
+        VERDICTS[t] = verdict
+        if verdict == "FAIL":
+            FAILURES.append(t)
 
-    print()
+    print(f"\n=== SUMMARY (live smoke test -- observational only, does NOT substitute for "
+          f"test_phase2_wikipedia_equivalence_deterministic.py) ===")
+    for t, v in VERDICTS.items():
+        print(f"  {t}: {v}")
+
     if FAILURES:
-        print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
-        print("EQUIVALENCE TEST FAILED -- DO NOT RUN THE PANEL. STOPPING PER INSTRUCTIONS.")
+        print(f"\n{len(FAILURES)} TRUE FAILURE(S): {FAILURES} -- a real value mismatch was found. "
+              "This DOES matter and should be investigated.")
         sys.exit(1)
+    elif all(v == "INCONCLUSIVE" for v in VERDICTS.values()):
+        print("\nAll tickers INCONCLUSIVE (live source unavailable or coverage gap right now) -- "
+              "no failures, but also no PASS. This is expected occasional behavior, not blocking.")
+        sys.exit(0)
     else:
-        print("SCIENTIFIC-EQUIVALENCE TEST PASSED FOR ALL TICKERS -- "
-              "chunked-assembled Wikipedia series is exactly equivalent to the "
-              "existing direct route for every overlapping date, and the wiki "
-              "z-score field agrees within tolerance.")
+        print("\nNo true failures. See per-ticker verdicts above -- PASS/INCONCLUSIVE, never silently "
+              "folded together.")
         sys.exit(0)

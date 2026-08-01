@@ -67,6 +67,63 @@
 #     under real adversarial conditions) -- it does NOT validate 24/24
 #     dataset completeness, and no trading or substantive research
 #     conclusion may be drawn from that PARTIAL output.
+#
+# CACHE PERSISTENCE -- CORRECTED WORDING (2026-07-31): CACHE_PATH's CSV is
+# persistent ACROSS LOCAL RUNS on the same machine (atomic writes, survives
+# between invocations, accumulates over time) -- it is NOT currently
+# repository-committed; it is deliberately untracked/excluded from git in
+# this branch's commits so far (a partial run's accumulated cache is not a
+# curated artifact). A future unattended workflow (e.g. GitHub Actions on a
+# clean runner) must explicitly persist this file itself (checkout/restore
+# it, or commit it as part of a scheduled job) -- nothing here does that
+# automatically. The first cache seed intended for repository commit is the
+# one produced by a validated COMPLETE 24/24 regression, reserved for
+# Commit 3. Automation is not ready until cache persistence on a clean
+# GitHub runner has actually been verified, not merely designed for.
+#
+# CORRECTIVE COMMIT (2026-07-31, following GitHub review of the prior two
+# commits) -- five gaps closed, none touching request behavior, retries,
+# budgets, chunk boundaries, fallback rules, z-score methodology, field
+# definitions, ticker universe, or completeness policy:
+#   1. validate_snapshot() is now the SINGLE shared validator used before
+#      (a) writing a fresh HTTP-200 response to cache, (b) treating a fresh
+#      response as successful, (c) reusing any closed-month cache entry
+#      (via validated_cache_hit()), and (d) accepting the open-month
+#      RECENT_LAST_KNOWN_GOOD fallback (evaluate_recent_cache_fallback()
+#      now delegates to it). Previously each of these four sites had its
+#      own ad hoc checks (or, for closed-month cache reuse, NO checks at
+#      all beyond "the row exists") -- now they cannot silently drift
+#      apart, and a closed-month cache entry that was valid when it was
+#      still an OPEN month (e.g. fetched on the last day of that month,
+#      covering only through the day before) is correctly rejected as
+#      incomplete_coverage once that month closes and requires its final
+#      day too, falling through to a fresh fetch rather than being reused
+#      silently. verify_cache_integrity() -- previously exercised only by
+#      tests, never called from production -- is now also invoked once per
+#      get_ticker_wikipedia_daily() call as a whole-cache sanity pass, in
+#      addition to validate_snapshot()'s own per-chunk hash re-verification
+#      on every read.
+#   2. get_ticker_wikipedia_daily() and run_bounded_second_pass() both now
+#      accept/respect a wall-clock budget: run_bounded_second_pass()
+#      recomputes remaining budget AFTER any wait (not just before), never
+#      launches a request once usable budget is gone, and caps the
+#      subprocess timeout to whatever budget actually remains rather than
+#      always requesting the full chunk_timeout_s. get_ticker_wikipedia_daily()
+#      accepts an optional remaining_budget_s and applies the same
+#      discipline across a single ticker's first-pass chunk loop, so one
+#      ticker's Wikipedia leg cannot materially eat into the total-run
+#      deadline meant for the tickers after it.
+#   3. Cache-identity honesty: canonical_title/page_id are NOT independently
+#      resolved or verified anywhere in this codebase (no canonical-title
+#      registry exists for the 24-ticker universe) -- only ticker +
+#      configured_article_title are actually enforced on cache reuse/
+#      fallback. Prior wording that implied canonical-title/page-ID
+#      verification was happening has been corrected; the fields remain in
+#      the cache schema (for a future registry) but are not currently a
+#      checked gate.
+#   4. Fixed above (budget capping) -- see item 2.
+#   5. Fixed above (cache-persistence wording) -- see the CACHE PERSISTENCE
+#      note directly above this one.
 
 from __future__ import annotations
 from pathlib import Path
@@ -108,6 +165,11 @@ CHUNK_TIMEOUT_S = 35.0
 # assume-it's-still-retrying-forever approach).
 SECOND_PASS_JITTER_RANGE_S = (2.0, 5.0)
 SECOND_PASS_MAX_WAIT_FOR_RETRY_AFTER_S = 30.0   # cap on honoring a real Retry-After header
+# Below this much usable time, a request can't meaningfully complete --
+# don't launch it. Applies both between second-pass items (after any wait)
+# and between first-pass chunks, so a caller-supplied remaining_budget_s
+# genuinely bounds wall time rather than being checked once and ignored.
+MIN_USABLE_CHUNK_BUDGET_S = 1.0
 
 # --- RECENT_LAST_KNOWN_GOOD fallback (2026-07-31, approved as a narrow,
 # strictly-bounded addition -- NOT a general staleness tolerance). Applies
@@ -213,6 +275,166 @@ def verify_cache_integrity(df: pd.DataFrame) -> list[str]:
             problems.append(f"{ticker} {cs}..{ce}: content_hash mismatch (stored={stored_hashes[0]}, "
                              f"recomputed={recomputed}) -- treat as corrupted")
     return problems
+
+
+def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: date,
+                       rows: list[dict], today: date,
+                       stored_configured_article_title: str | None = None,
+                       stored_content_hash: str | None = None) -> dict:
+    """THE single shared validator for a (ticker, chunk) snapshot -- rows
+    freshly fetched OR rows read from cache. Used before all four of:
+    (1) writing a fresh HTTP-200 response to cache, (2) treating a fresh
+    response as successful, (3) reusing any closed-month cache entry
+    (via validated_cache_hit()), (4) accepting the open-month
+    RECENT_LAST_KNOWN_GOOD fallback (evaluate_recent_cache_fallback()
+    delegates here). One function so these four call sites cannot silently
+    drift apart.
+
+    Checks, in order (first failure wins):
+      1. identity: stored_configured_article_title (if given) == article
+      2. no duplicate dates
+      3. every date parses as YYYYMMDD
+      4. every pageviews value is a non-negative integer
+      5. no date falls outside [chunk_start, chunk_end]
+      6. content_hash recomputes cleanly; if stored_content_hash is given,
+         it must match (a mismatch means tampered/corrupted cache data --
+         this is the per-read integrity gate that makes corrupted,
+         schema-valid cache data unable to bypass validation; see
+         verify_cache_integrity() for the whole-cache-scan equivalent,
+         also invoked in production now, not only in tests)
+      7. exact expected date coverage:
+         - closed chunk: every date chunk_start..chunk_end
+         - open chunk: every date chunk_start..min(chunk_end, today-1)
+         - special case: if the open chunk's coverage window hasn't
+           started yet (today is at/near chunk_start, so today-1 <
+           chunk_start -- e.g. the very first day of a new month), an
+           EMPTY, non-error response is valid and classified
+           "no_observations_expected_yet", never "incomplete_coverage"
+           and never fabricated
+
+    Returns {"valid": bool, "category": str, "reason": str,
+    "content_hash": str|None, "expected_dates": set[str]}."""
+    if stored_configured_article_title is not None and stored_configured_article_title != article:
+        return {"valid": False, "category": "identity_mismatch",
+                "reason": f"stored configured_article_title={stored_configured_article_title!r} "
+                          f"!= currently configured {article!r} for {ticker}",
+                "content_hash": None, "expected_dates": set()}
+
+    dates = [r["date"] for r in rows]
+    if len(dates) != len(set(dates)):
+        return {"valid": False, "category": "duplicate_dates",
+                "reason": "duplicate dates present in snapshot", "content_hash": None, "expected_dates": set()}
+
+    parsed: dict = {}
+    for d in dates:
+        try:
+            parsed[d] = datetime.strptime(str(d), "%Y%m%d").date()
+        except (TypeError, ValueError):
+            return {"valid": False, "category": "unparseable_date",
+                    "reason": f"unparseable date {d!r}", "content_hash": None, "expected_dates": set()}
+
+    for r in rows:
+        try:
+            pv = int(r["pageviews"])
+        except (TypeError, ValueError):
+            return {"valid": False, "category": "invalid_pageviews",
+                    "reason": f"non-integer pageviews {r.get('pageviews')!r} for date {r.get('date')!r}",
+                    "content_hash": None, "expected_dates": set()}
+        if pv < 0:
+            return {"valid": False, "category": "invalid_pageviews",
+                    "reason": f"negative pageviews {pv} for date {r.get('date')!r}",
+                    "content_hash": None, "expected_dates": set()}
+
+    for d, dt in parsed.items():
+        if dt < chunk_start or dt > chunk_end:
+            return {"valid": False, "category": "date_outside_requested_range",
+                    "reason": f"date {d} outside requested range "
+                              f"{chunk_start.isoformat()}..{chunk_end.isoformat()}",
+                    "content_hash": None, "expected_dates": set()}
+
+    content_hash = compute_chunk_hash(rows)
+    if stored_content_hash is not None and content_hash != stored_content_hash:
+        return {"valid": False, "category": "content_hash_mismatch",
+                "reason": f"stored={stored_content_hash} recomputed={content_hash} -- "
+                          f"cache data tampered/corrupted",
+                "content_hash": content_hash, "expected_dates": set()}
+
+    closed = not is_open_chunk(chunk_start, chunk_end, today)
+    coverage_end = chunk_end if closed else effective_open_chunk_data_end(chunk_end, today)
+
+    if coverage_end < chunk_start:
+        if rows:
+            return {"valid": False, "category": "unexpected_data_before_coverage_start",
+                    "reason": f"open chunk has {len(rows)} row(s) but no date could legitimately be "
+                              f"published yet (coverage_end {coverage_end.isoformat()} < chunk_start "
+                              f"{chunk_start.isoformat()})",
+                    "content_hash": content_hash, "expected_dates": set()}
+        return {"valid": True, "category": "no_observations_expected_yet",
+                "reason": "open chunk, no date in range has a published pageview count yet "
+                          "(today is at/near the start of this calendar month)",
+                "content_hash": content_hash, "expected_dates": set()}
+
+    expected_dates = set()
+    cursor = chunk_start
+    while cursor <= coverage_end:
+        expected_dates.add(cursor.strftime("%Y%m%d"))
+        cursor += timedelta(days=1)
+    actual_dates = set(dates)
+    if actual_dates != expected_dates:
+        missing = sorted(expected_dates - actual_dates)
+        extra = sorted(actual_dates - expected_dates)
+        return {"valid": False, "category": "incomplete_coverage",
+                "reason": f"missing={missing[:5]}{'...' if len(missing) > 5 else ''} "
+                          f"extra={extra[:5]}{'...' if len(extra) > 5 else ''} "
+                          f"(of {len(expected_dates)} expected dates through {coverage_end.isoformat()})",
+                "content_hash": content_hash, "expected_dates": expected_dates}
+
+    return {"valid": True, "category": "ok", "reason": "", "content_hash": content_hash,
+            "expected_dates": expected_dates}
+
+
+def validated_cache_hit(cache_df: pd.DataFrame, ticker: str, article: str,
+                         chunk_start: date, chunk_end: date, today: date) -> dict:
+    """THE single gate for reusing ANY closed-month cache entry -- delegates
+    to validate_snapshot() for identity/hash/duplicate/pageview/coverage
+    checks. A cache group that is schema-consistent but whose CONTENT has
+    been tampered with, or that was a valid snapshot on a PRIOR day but no
+    longer covers what TODAY requires (the open-to-closed rollover case: a
+    month fetched while still open only has data through the day before
+    it was fetched; once that month closes, it needs its own final day
+    too), is correctly treated as a cache MISS here, never a corrupted or
+    stale HIT -- the caller falls through to a fresh fetch either way.
+
+    Returns {"hit": bool, "rows": [...], "validation": {...}}."""
+    if cache_df.empty:
+        return {"hit": False, "rows": [], "validation": {"category": "not_cached", "reason": "empty cache"}}
+    mask = (
+        (cache_df["ticker"] == ticker)
+        & (cache_df["chunk_start"] == chunk_start.isoformat())
+        & (cache_df["chunk_end"] == chunk_end.isoformat())
+    )
+    group = cache_df[mask]
+    if group.empty:
+        return {"hit": False, "rows": [], "validation": {"category": "not_cached", "reason": "no cached snapshot"}}
+
+    titles = set(group["configured_article_title"])
+    hashes = group["content_hash"].unique()
+    if len(hashes) != 1:
+        return {"hit": False, "rows": [], "validation": {
+            "category": "inconsistent_content_hash_within_snapshot",
+            "reason": f"cached group has {len(hashes)} distinct content_hash values"}}
+    if len(titles) != 1:
+        return {"hit": False, "rows": [], "validation": {
+            "category": "inconsistent_configured_article_title_within_snapshot",
+            "reason": f"cached group has {len(titles)} distinct configured_article_title values"}}
+
+    rows = group[["date", "pageviews"]].to_dict("records")
+    validation = validate_snapshot(ticker, article, chunk_start, chunk_end, rows, today,
+                                    stored_configured_article_title=next(iter(titles)),
+                                    stored_content_hash=hashes[0])
+    if not validation["valid"]:
+        return {"hit": False, "rows": [], "validation": validation}
+    return {"hit": True, "rows": rows, "validation": validation}
 
 
 def write_chunk_to_cache(ticker: str, article: str, canonical_title: str | None, page_id: str | None,
@@ -349,18 +571,27 @@ def run_process_bounded(target, args: tuple, timeout_s: float) -> dict:
     return {"completed": True, "terminated": False, "elapsed_s": elapsed, "pid": pid}
 
 
-def fetch_chunk_isolated(article: str, start: date, end: date, timeout_s: float = CHUNK_TIMEOUT_S) -> dict:
+def fetch_chunk_isolated(article: str, start: date, end: date, timeout_s: float = CHUNK_TIMEOUT_S,
+                          worker=None) -> dict:
     """Runs _fetch_chunk_worker in a separate PROCESS via run_process_bounded()
     -- Windows-safe, genuinely killable, unlike the old daemon-thread
     wrapper. IPC via an atomic temp result file, not a Queue -- avoids any
     pickling edge cases and matches this project's existing atomic-write
-    convention."""
+    convention.
+
+    worker: injectable override for _fetch_chunk_worker, defaulting to the
+    real one. Exists ONLY so tests can prove genuine real-subprocess timeout
+    enforcement (e.g. a deliberately-hanging worker under a tiny caller-
+    supplied budget) without depending on live Wikipedia network calls --
+    see test_phase2_wikipedia_transport.py. Production code never passes
+    this."""
+    worker = worker or _fetch_chunk_worker
     fd, result_path = tempfile.mkstemp(suffix=".json", prefix="wiki_chunk_")
     os.close(fd)
     os.remove(result_path)  # worker creates it fresh, atomically; must not pre-exist as an empty file
 
     run_result = run_process_bounded(
-        _fetch_chunk_worker, (article, start.strftime("%Y%m%d"), end.strftime("%Y%m%d"), result_path), timeout_s
+        worker, (article, start.strftime("%Y%m%d"), end.strftime("%Y%m%d"), result_path), timeout_s
     )
     elapsed = run_result["elapsed_s"]
 
@@ -399,12 +630,18 @@ def fetch_chunk_isolated(article: str, start: date, end: date, timeout_s: float 
 
 def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date, today: date,
                                 cache_df: pd.DataFrame, chunk_timeout_s: float = CHUNK_TIMEOUT_S,
-                                fetch_fn=None) -> dict:
+                                fetch_fn=None, remaining_budget_s: float | None = None) -> dict:
     """First pass only -- no inline retry. For each calendar-month chunk:
-    use the cache if it's a closed month with a valid cached entry, else
-    fetch once via fetch_chunk_isolated(). Failures are collected into a
-    queue for the bounded second pass, NOT retried inline (this is the
-    direct fix for the old code's mandatory 60s-per-404 tax).
+    use the cache if it's a closed month with a VALIDATED cached entry
+    (validated_cache_hit() -- identity, hash, and exact-coverage all
+    re-checked on every read, so a corrupted or now-stale-relative-to-today
+    cache row can never silently pass as a hit), else fetch once via
+    fetch_chunk_isolated(). A fresh HTTP-200 response is itself validated
+    (validate_snapshot()) before being trusted or cached -- an incomplete
+    or malformed 200 is never cached and never treated as success. Failures
+    are collected into a queue for the bounded second pass, NOT retried
+    inline (this is the direct fix for the old code's mandatory
+    60s-per-404 tax).
 
     fetch_fn: injectable override for fetch_chunk_isolated, defaulting to
     the real one. Exists ONLY so tests can deterministically simulate
@@ -412,57 +649,109 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
     a real subprocess spawn per case -- see
     test_phase2_wikipedia_transport.py. Production code never passes this.
 
-    Returns {"daily_rows": [...], "chunk_results": [...], "failed_chunks": [...]}.
-    chunk_results carries per-chunk network_elapsed_s and sleep_s (always 0
-    in this first pass) for logging, separately from each other -- see the
-    RETRY POLICY requirement to log network vs. sleep time separately."""
+    remaining_budget_s: optional wall-clock budget for THIS ticker's first
+    pass. When given, each chunk's fetch timeout is capped to whatever
+    budget actually remains, and once usable budget runs out, every
+    remaining chunk is recorded as failed ("first_pass_budget_exhausted",
+    queued for the run-level bounded second pass) without launching further
+    requests -- so one ticker's Wikipedia leg cannot materially eat into
+    the total-run deadline meant for the tickers after it. None (default)
+    means unbounded, matching prior behavior exactly.
+
+    Returns {"daily_rows": [...], "chunk_results": [...], "failed_chunks": [...],
+    "cache_integrity_problems": [...]}. cache_integrity_problems is a
+    whole-cache verify_cache_integrity() scan, informational (validated_cache_hit()
+    is the authoritative per-chunk gate regardless). chunk_results carries
+    per-chunk network_elapsed_s and sleep_s (always 0 in this first pass)
+    for logging, separately from each other -- see the RETRY POLICY
+    requirement to log network vs. sleep time separately."""
     fetch_fn = fetch_fn or fetch_chunk_isolated
     chunks = calendar_month_chunks(start, end)
     daily_rows: list[dict] = []
     chunk_results: list[dict] = []
     failed_chunks: list[dict] = []
+    cache_integrity_problems = verify_cache_integrity(cache_df) if not cache_df.empty else []
 
+    loop_start = time.time()
     for chunk_start, chunk_end in chunks:
+        if remaining_budget_s is not None:
+            budget_left = remaining_budget_s - (time.time() - loop_start)
+            if budget_left < MIN_USABLE_CHUNK_BUDGET_S:
+                failed_chunks.append({
+                    "ticker": ticker, "article": article, "chunk_start": chunk_start, "chunk_end": chunk_end,
+                    "last_status": "first_pass_budget_exhausted", "retry_after": None, "last_http_status": None,
+                })
+                chunk_results.append({
+                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                    "source": "skipped", "status": "first_pass_budget_exhausted",
+                    "network_elapsed_s": 0.0, "sleep_s": 0.0,
+                })
+                continue
+            effective_chunk_timeout = min(chunk_timeout_s, budget_left)
+        else:
+            effective_chunk_timeout = chunk_timeout_s
+
         closed = not is_open_chunk(chunk_start, chunk_end, today)
         if closed:
-            cached_rows = cached_daily_rows_for_chunk(cache_df, ticker, chunk_start, chunk_end)
-            if cached_rows:
-                daily_rows.extend(cached_rows)
+            hit = validated_cache_hit(cache_df, ticker, article, chunk_start, chunk_end, today)
+            if hit["hit"]:
+                daily_rows.extend(hit["rows"])
                 chunk_results.append({
                     "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
                     "source": "cache", "status": "ok", "network_elapsed_s": 0.0, "sleep_s": 0.0,
                 })
                 continue
+            # Cache MISS -- never cached, OR cached-but-failed-validation
+            # (e.g. the open-to-closed rollover case: a snapshot that was
+            # complete while this chunk was still open no longer covers
+            # what a now-closed month requires). Either way, fall through
+            # to a fresh fetch.
 
-        result = fetch_fn(article, chunk_start, chunk_end, timeout_s=chunk_timeout_s)
-        chunk_results.append({
+        result = fetch_fn(article, chunk_start, chunk_end, timeout_s=effective_chunk_timeout)
+        base_chunk_result = {
             "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
-            "source": "fetch", "status": result["status"], "network_elapsed_s": result.get("network_elapsed_s") or 0.0,
+            "source": "fetch", "network_elapsed_s": result.get("network_elapsed_s") or 0.0,
             "sleep_s": 0.0, "http_status": result.get("http_status"), "terminated": result.get("terminated"),
-            # Purely observational (2026-07-31): raw HTTP status was already
-            # captured above; retry_after wasn't previously surfaced to the
-            # chunk-level diagnostic log at all. Neither changes request
-            # behavior, retries, or classification -- both are already
-            # present on `result`, just not previously reported here.
             "retry_after": result.get("retry_after"),
-        })
-        if result["status"] == "ok" and result["items"]:
-            now_utc = datetime.now(timezone.utc).isoformat()
-            write_chunk_to_cache(ticker, article, None, None, chunk_start, chunk_end, result["items"],
-                                  result.get("url", ""), result.get("http_status"), now_utc)
-            daily_rows.extend(result["items"])
-        else:
+        }
+
+        if result["status"] == "ok":
+            validation = validate_snapshot(ticker, article, chunk_start, chunk_end, result["items"], today)
+            if validation["category"] == "no_observations_expected_yet":
+                chunk_results.append({**base_chunk_result, "status": "no_observations_expected_yet"})
+                continue
+            if validation["valid"]:
+                now_utc = datetime.now(timezone.utc).isoformat()
+                write_chunk_to_cache(ticker, article, None, None, chunk_start, chunk_end, result["items"],
+                                      result.get("url", ""), result.get("http_status"), now_utc)
+                daily_rows.extend(result["items"])
+                chunk_results.append({**base_chunk_result, "status": "ok"})
+                continue
+            # A nonempty HTTP 200 that fails validation (e.g. incomplete
+            # coverage) is NEVER cached and NEVER treated as success --
+            # queued for the bounded second pass like any other failure.
+            chunk_results.append({**base_chunk_result, "status": validation["category"]})
             failed_chunks.append({
                 "ticker": ticker, "article": article, "chunk_start": chunk_start, "chunk_end": chunk_end,
-                "last_status": result["status"], "retry_after": result.get("retry_after"),
+                "last_status": f"validation:{validation['category']}", "retry_after": result.get("retry_after"),
                 "last_http_status": result.get("http_status"),
             })
+            continue
 
-    return {"daily_rows": daily_rows, "chunk_results": chunk_results, "failed_chunks": failed_chunks}
+        chunk_results.append({**base_chunk_result, "status": result["status"]})
+        failed_chunks.append({
+            "ticker": ticker, "article": article, "chunk_start": chunk_start, "chunk_end": chunk_end,
+            "last_status": result["status"], "retry_after": result.get("retry_after"),
+            "last_http_status": result.get("http_status"),
+        })
+
+    return {"daily_rows": daily_rows, "chunk_results": chunk_results, "failed_chunks": failed_chunks,
+            "cache_integrity_problems": cache_integrity_problems}
 
 
 def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
-                             chunk_timeout_s: float = CHUNK_TIMEOUT_S, fetch_fn=None) -> dict:
+                             chunk_timeout_s: float = CHUNK_TIMEOUT_S, fetch_fn=None,
+                             today: date | None = None) -> dict:
     """Exactly one retry attempt per queued chunk, after normal ticker
     processing has finished for every ticker -- not per-ticker, not inline,
     not recursive. Short bounded jitter for ordinary failures; honors a real
@@ -470,12 +759,23 @@ def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
     SECOND_PASS_MAX_WAIT_FOR_RETRY_AFTER_S cap. No recursive splitting of a
     still-failing chunk -- it simply remains failed and is reported as such.
 
+    Genuinely bounded (2026-07-31 correction): remaining budget is
+    recomputed AFTER any wait, not just before it -- a request is never
+    launched once usable budget is gone, and the subprocess timeout passed
+    to fetch_fn is capped to whatever budget actually remains (never the
+    full chunk_timeout_s regardless of how little time is left).
+
     fetch_fn: same injectable override as get_ticker_wikipedia_daily(), for
     deterministic testing only.
+
+    today: date used for validate_snapshot()'s coverage check on a
+    recovered response. Defaults to the real current UTC date if omitted
+    (matches prior behavior for existing callers that don't pass it).
 
     Returns {"recovered": {ticker: [daily_rows...]}, "still_failed": [...],
     "chunk_results": [...]}."""
     fetch_fn = fetch_fn or fetch_chunk_isolated
+    effective_today = today if today is not None else datetime.now(timezone.utc).date()
     recovered: dict[str, list[dict]] = {}
     still_failed = []
     chunk_results = []
@@ -497,28 +797,44 @@ def run_bounded_second_pass(failed_queue: list[dict], remaining_budget_s: float,
                 wait_s = random.uniform(*SECOND_PASS_JITTER_RANGE_S)
         else:
             wait_s = random.uniform(*SECOND_PASS_JITTER_RANGE_S)
+        # Never sleep past the remaining budget either.
+        wait_s = max(0.0, min(wait_s, max(0.0, remaining_budget_s - elapsed_so_far)))
         if wait_s > 0:
             time.sleep(wait_s)
 
+        # Recompute remaining budget AFTER the wait. Do not launch a
+        # request if no usable budget remains, and cap the subprocess
+        # timeout to whatever budget actually remains.
+        remaining_after_wait = remaining_budget_s - (time.time() - budget_start)
+        if remaining_after_wait < MIN_USABLE_CHUNK_BUDGET_S:
+            still_failed.append({**item, "reason": "second_pass_budget_exhausted_after_wait"})
+            continue
+        capped_timeout = min(chunk_timeout_s, remaining_after_wait)
+
         result = fetch_fn(item["article"], item["chunk_start"], item["chunk_end"],
-                           timeout_s=chunk_timeout_s)
+                           timeout_s=capped_timeout)
         chunk_results.append({
             "ticker": item["ticker"], "chunk_start": item["chunk_start"].isoformat(),
             "chunk_end": item["chunk_end"].isoformat(), "status": result["status"],
             "network_elapsed_s": result.get("network_elapsed_s") or 0.0, "sleep_s": wait_s,
-            # Purely observational (2026-07-31): both already exist on
-            # `result` and were already used internally (http_status is
-            # written to cache on success; retry_after drives the honor-it
-            # branch above) -- this just surfaces them to the diagnostic
-            # log too. No retry/timing/classification behavior changes.
             "http_status": result.get("http_status"), "retry_after": result.get("retry_after"),
+            "timeout_s_used": capped_timeout,
         })
-        if result["status"] == "ok" and result["items"]:
-            now_utc = datetime.now(timezone.utc).isoformat()
-            write_chunk_to_cache(item["ticker"], item["article"], None, None, item["chunk_start"],
-                                  item["chunk_end"], result["items"], result.get("url", ""),
-                                  result.get("http_status"), now_utc)
-            recovered.setdefault(item["ticker"], []).extend(result["items"])
+        if result["status"] == "ok":
+            validation = validate_snapshot(item["ticker"], item["article"], item["chunk_start"],
+                                            item["chunk_end"], result["items"], effective_today)
+            if validation["category"] == "no_observations_expected_yet":
+                continue   # nothing to recover, but not a failure either
+            if validation["valid"]:
+                now_utc = datetime.now(timezone.utc).isoformat()
+                write_chunk_to_cache(item["ticker"], item["article"], None, None, item["chunk_start"],
+                                      item["chunk_end"], result["items"], result.get("url", ""),
+                                      result.get("http_status"), now_utc)
+                recovered.setdefault(item["ticker"], []).extend(result["items"])
+            else:
+                still_failed.append({**item, "reason": f"second_pass_also_failed:validation:{validation['category']}",
+                                      "last_status": f"validation:{validation['category']}",
+                                      "last_http_status": result.get("http_status")})
         else:
             still_failed.append({**item, "reason": f"second_pass_also_failed:{result['status']}",
                                   "last_status": result["status"], "last_http_status": result.get("http_status")})
@@ -546,32 +862,31 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
     chunk (ticker, chunk_start, chunk_end) may stand in as a
     RECENT_LAST_KNOWN_GOOD result after a fresh attempt AND the one bounded
     second-pass attempt have both already failed. This is a narrow,
-    strictly-bounded fallback -- not a general staleness tolerance -- and
-    every one of the following must hold, or eligible=False:
+    strictly-bounded fallback -- not a general staleness tolerance.
+    Delegates identity/hash/duplicate/pageview-validity/exact-coverage
+    checks to validate_snapshot() (the same shared gate used for fresh
+    writes and closed-month cache reuse, so this fallback cannot silently
+    apply a looser standard) and layers its own two fallback-specific
+    checks on top:
 
-      1. a cached snapshot for this exact (ticker, chunk_start, chunk_end)
-         key exists at all
-      2. every row in it carries http_status == 200 (a real success, never
-         an error response, never zero-filled/interpolated data -- those
-         are structurally impossible here too, since write_chunk_to_cache()
-         is only ever called on a genuine successful fetch with real items)
-      3. configured_article_title (and, where independently resolved,
-         canonical_title/page_id) matches the currently configured article
-         for this ticker -- NOTE: this codebase does not independently
-         resolve a canonical title/page ID per request (see module
-         docstring), so those two sub-checks only fire when a caller
-         explicitly supplies canonical_title/page_id to compare against;
-         configured_article_title equality is always enforced and is the
-         practically available form of this check today
-      4. its content_hash verifies against a fresh recomputation over its
-         own stored rows (corruption -> rejected, never silently trusted)
-      5. it contains no duplicate dates
-      6. every calendar date from chunk_start through the effective,
-         lag-adjusted data-end date (see effective_open_chunk_data_end) is
-         present -- exactly, not merely "some coverage"
-      7. all pageview values are valid (non-negative integers)
-      8. its last_verified_utc is no more than RECENT_CACHE_FALLBACK_MAX_AGE_HOURS
-         old relative to now_utc
+      - HTTP-200 provenance: every row in the snapshot must carry
+        http_status == 200 (structurally already guaranteed by
+        write_chunk_to_cache() only ever being called on a genuine
+        success, but re-checked here defensively)
+      - recency: its last_verified_utc must be no more than
+        RECENT_CACHE_FALLBACK_MAX_AGE_HOURS old relative to now_utc
+
+    canonical_title/page_id: OPTIONAL, best-effort cross-checks only. This
+    codebase does NOT independently resolve or verify a canonical article
+    title or Wikipedia page ID for any of the 24 Phase 2 tickers -- no
+    identity registry exists. These parameters only have any effect when a
+    caller explicitly supplies them AND the cache row happens to have a
+    non-blank stored value for that field (which production writes never
+    populate today -- see write_chunk_to_cache()'s canonical_title/page_id
+    always being None in every production call site). The only identity
+    check actually enforced in production is ticker + configured article
+    title, via validate_snapshot(). Documented here plainly rather than
+    implying stronger verification than exists.
 
     Returns {"eligible": bool, "reason": str, "rows": [...],
     "retrieved_at_utc": str|None, "age_hours": float|None,
@@ -601,10 +916,6 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
                 "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
                 "effective_data_end": effective_data_end}
 
-    if not (group["configured_article_title"] == article).all():
-        return {"eligible": False, "reason": "configured_article_title_mismatch", "rows": [],
-                "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
-                "effective_data_end": effective_data_end}
     if canonical_title:
         stored_canonical = set(group["canonical_title"].astype(str)) - {""}
         if stored_canonical and stored_canonical != {canonical_title}:
@@ -618,46 +929,25 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
                     "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
                     "effective_data_end": effective_data_end}
 
-    dates = list(group["date"])
-    if len(dates) != len(set(dates)):
-        return {"eligible": False, "reason": "duplicate_dates_in_cached_snapshot", "rows": [],
+    titles = set(group["configured_article_title"])
+    hashes = group["content_hash"].unique()
+    if len(hashes) != 1:
+        return {"eligible": False, "reason": "inconsistent_content_hash_within_snapshot", "rows": [],
+                "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
+                "effective_data_end": effective_data_end}
+    if len(titles) != 1:
+        return {"eligible": False, "reason": "inconsistent_configured_article_title_within_snapshot", "rows": [],
                 "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
                 "effective_data_end": effective_data_end}
 
     rows = group[["date", "pageviews"]].to_dict("records")
-    stored_hashes = group["content_hash"].unique()
-    if len(stored_hashes) != 1:
-        return {"eligible": False, "reason": "inconsistent_content_hash_within_snapshot", "rows": [],
-                "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
-                "effective_data_end": effective_data_end}
-    recomputed_hash = compute_chunk_hash(rows)
-    if recomputed_hash != stored_hashes[0]:
-        return {"eligible": False, "reason": "content_hash_verification_failed", "rows": [],
-                "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
-                "effective_data_end": effective_data_end}
-
-    try:
-        pageviews_valid = all(int(r["pageviews"]) >= 0 for r in rows)
-    except (TypeError, ValueError):
-        pageviews_valid = False
-    if not pageviews_valid:
-        return {"eligible": False, "reason": "invalid_pageview_values", "rows": [],
-                "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
-                "effective_data_end": effective_data_end}
-
-    expected_dates = set()
-    cursor = chunk_start
-    while cursor <= effective_data_end:
-        expected_dates.add(cursor.strftime("%Y%m%d"))
-        cursor += timedelta(days=1)
-    actual_dates = set(dates)
-    if actual_dates != expected_dates:
-        missing = sorted(expected_dates - actual_dates)
-        extra = sorted(actual_dates - expected_dates)
-        return {"eligible": False,
-                "reason": f"incomplete_coverage_through_effective_data_end (missing={missing[:5]} extra={extra[:5]})",
-                "rows": [], "retrieved_at_utc": None, "age_hours": None, "content_hash": None,
-                "effective_data_end": effective_data_end}
+    validation = validate_snapshot(ticker, article, chunk_start, chunk_end, rows, today,
+                                    stored_configured_article_title=next(iter(titles)),
+                                    stored_content_hash=hashes[0])
+    if not validation["valid"]:
+        return {"eligible": False, "reason": f"validation_failed:{validation['category']}:{validation['reason']}",
+                "rows": [], "retrieved_at_utc": None, "age_hours": None,
+                "content_hash": validation.get("content_hash"), "effective_data_end": effective_data_end}
 
     verified_ts = group["last_verified_utc"].unique()
     if len(verified_ts) != 1:
@@ -679,7 +969,7 @@ def evaluate_recent_cache_fallback(cache_df: pd.DataFrame, ticker: str, article:
 
     return {"eligible": True, "reason": "ok", "rows": rows,
             "retrieved_at_utc": verified_ts[0], "age_hours": age_hours,
-            "content_hash": stored_hashes[0], "effective_data_end": effective_data_end}
+            "content_hash": validation["content_hash"], "effective_data_end": effective_data_end}
 
 
 def apply_recent_cache_fallback(still_failed: list[dict], cache_df: pd.DataFrame,
