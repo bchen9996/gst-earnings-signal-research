@@ -11,6 +11,9 @@
 from __future__ import annotations
 import sys
 import os
+import json
+import tempfile
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import GST_Phase2_DailyPanel as panel
@@ -33,6 +36,8 @@ def _clean_row(ticker: str) -> dict:
     return {
         "ticker": ticker,
         "all_six_fields_clean": True,
+        "earnings_status": "ok",
+        "days_to_nearest_earnings": 42,
         "retrieval_timestamp_utc": "2026-07-31T00:00:00+00:00",
     }
 
@@ -120,16 +125,88 @@ def test_watermark_16_lag_greater_than_max_cannot_produce_complete():
               panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status=bad_status) is False)
 
 
+# === 2026-08-01 completion-gate correction: six-locked-fields vs
+# fail-closed earnings-lookup separation (GitHub review finding) ===
+def test_earnings_status_separation():
+    # (a) six fields complete + earnings_status="ok" + days_to_nearest_earnings=None
+    #     -- a genuinely successful lookup that honestly found no upcoming
+    #     earnings date (the 46aec15 baseline shape for 4/24 tickers) must
+    #     remain eligible for COMPLETE.
+    ok_no_date = [_dirty_row(t, days_to_nearest_earnings=None) for t in TICKERS]
+    check("earnings-a. six fields clean + earnings_status='ok' + date=None -> eligible for COMPLETE",
+          panel.is_run_complete(ok_no_date, "COMPLETE", TICKERS, watermark_status="ok") is True)
+
+    # (b) six fields complete but earnings_status="error" -- an actual lookup
+    #     failure must block COMPLETE even though the six research fields
+    #     are all clean.
+    earnings_error = [_clean_row(t) for t in TICKERS[:-1]] + \
+        [_dirty_row(TICKERS[-1], earnings_status="error")]
+    check("earnings-b. six fields clean but one row earnings_status='error' -> PARTIAL",
+          panel.is_run_complete(earnings_error, "COMPLETE", TICKERS, watermark_status="ok") is False)
+
+    # (c) six fields complete but earnings_status="timeout" -- same as (b),
+    #     a different fail-closed lookup outcome.
+    earnings_timeout = [_clean_row(t) for t in TICKERS[:-1]] + \
+        [_dirty_row(TICKERS[-1], earnings_status="timeout")]
+    check("earnings-c. six fields clean but one row earnings_status='timeout' -> PARTIAL",
+          panel.is_run_complete(earnings_timeout, "COMPLETE", TICKERS, watermark_status="ok") is False)
+
+    # (d) one row missing a core (six-field) value, earnings otherwise ok --
+    #     isolates that the six-field check still independently blocks
+    #     COMPLETE regardless of earnings_status.
+    missing_core = [_clean_row(t) for t in TICKERS[:-1]] + \
+        [_dirty_row(TICKERS[-1], all_six_fields_clean=False)]
+    check("earnings-d. one row missing a core six-field value (earnings ok) -> PARTIAL",
+          panel.is_run_complete(missing_core, "COMPLETE", TICKERS, watermark_status="ok") is False)
+
+
+def test_completion_marker_counts_distinguish_null_earnings_from_failure():
+    # (e) write_completion_marker()'s new counters must distinguish a
+    #     successful-but-null earnings lookup from an actual lookup failure.
+    # 2 rows: successful lookup with no upcoming date, 1 row: lookup failure.
+    rows = [
+        _dirty_row("AAA", days_to_nearest_earnings=None),
+        _dirty_row("BBB", days_to_nearest_earnings=7),
+        _dirty_row("CCC", earnings_status="error", days_to_nearest_earnings=None),
+    ]
+
+    original_path = panel.COMPLETION_MARKER_PATH
+    tmp_dir = tempfile.mkdtemp()
+    tmp_path = Path(tmp_dir) / "test_completion_marker.json"
+    panel.COMPLETION_MARKER_PATH = tmp_path
+    try:
+        panel.write_completion_marker(rows, elapsed_s=1.0, status="PARTIAL")
+        with open(tmp_path, "r", encoding="utf-8") as f:
+            marker = json.load(f)
+    finally:
+        panel.COMPLETION_MARKER_PATH = original_path
+        try:
+            os.remove(tmp_path)
+            os.rmdir(tmp_dir)
+        except OSError:
+            pass
+
+    check("marker-e. all_six_fields_clean_count unaffected by earnings outcome (3/3)",
+          marker["all_six_fields_clean_count"] == 3, str(marker.get("all_six_fields_clean_count")))
+    check("marker-e. earnings_lookup_ok_count counts only real 'ok' status (2/3)",
+          marker["earnings_lookup_ok_count"] == 2, str(marker.get("earnings_lookup_ok_count")))
+    check("marker-e. days_to_nearest_earnings_nonnull_count counts only the row with a real date (1/3)",
+          marker["days_to_nearest_earnings_nonnull_count"] == 1,
+          str(marker.get("days_to_nearest_earnings_nonnull_count")))
+
+
 if __name__ == "__main__":
     test_14_final_completeness_gate()
     test_15_partial_never_named_complete()
     test_watermark_15_completion_marker_cannot_say_complete_without_valid_watermark()
     test_watermark_16_lag_greater_than_max_cannot_produce_complete()
+    test_earnings_status_separation()
+    test_completion_marker_counts_distinguish_null_earnings_from_failure()
 
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
         sys.exit(1)
     else:
-        print("ALL DAILYPANEL GATE TESTS PASSED (tests 14-16)")
+        print("ALL DAILYPANEL GATE TESTS PASSED (tests 14-16 + earnings/marker separation)")
         sys.exit(0)
