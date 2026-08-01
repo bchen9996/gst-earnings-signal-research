@@ -130,6 +130,7 @@ from pathlib import Path
 from datetime import date, datetime, timedelta, timezone
 import hashlib
 import json
+import math
 import multiprocessing
 import os
 import random
@@ -277,6 +278,28 @@ def verify_cache_integrity(df: pd.DataFrame) -> list[str]:
     return problems
 
 
+def _is_valid_nonnegative_integer_pageviews(value) -> bool:
+    """Accepts genuinely integer-valued pageview counts: real ints,
+    integer-valued floats (5.0), and integer-valued numeric strings ("5",
+    "5.0") -- rejects fractional values (1.5, "1.5"), NaN, +/-infinity,
+    booleans, and negatives. Plain `int(value)` is NOT enough: it silently
+    truncates 1.5 to 1 and silently accepts True as 1 -- both wrong for a
+    pageview count that must be an honest integer, never coerced."""
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, int):
+        return value >= 0
+    if isinstance(value, float):
+        return math.isfinite(value) and value.is_integer() and value >= 0
+    if isinstance(value, str):
+        try:
+            f = float(value.strip())
+        except (TypeError, ValueError):
+            return False
+        return math.isfinite(f) and f.is_integer() and f >= 0
+    return False
+
+
 def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: date,
                        rows: list[dict], today: date,
                        stored_configured_article_title: str | None = None,
@@ -294,7 +317,13 @@ def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: d
       1. identity: stored_configured_article_title (if given) == article
       2. no duplicate dates
       3. every date parses as YYYYMMDD
-      4. every pageviews value is a non-negative integer
+      4. every pageviews value is a genuinely non-negative integer -- see
+         _is_valid_nonnegative_integer_pageviews(): integer-valued floats
+         (5.0) and integer-valued numeric strings ("5") are accepted,
+         fractional values (1.5, "1.5"), NaN, +/-infinity, booleans, and
+         negatives are rejected, never silently coerced (plain int(value)
+         would silently truncate 1.5 to 1 and accept True as 1 -- both
+         wrong)
       5. no date falls outside [chunk_start, chunk_end]
       6. content_hash recomputes cleanly; if stored_content_hash is given,
          it must match (a mismatch means tampered/corrupted cache data --
@@ -334,15 +363,11 @@ def validate_snapshot(ticker: str, article: str, chunk_start: date, chunk_end: d
                     "reason": f"unparseable date {d!r}", "content_hash": None, "expected_dates": set()}
 
     for r in rows:
-        try:
-            pv = int(r["pageviews"])
-        except (TypeError, ValueError):
+        if not _is_valid_nonnegative_integer_pageviews(r.get("pageviews")):
             return {"valid": False, "category": "invalid_pageviews",
-                    "reason": f"non-integer pageviews {r.get('pageviews')!r} for date {r.get('date')!r}",
-                    "content_hash": None, "expected_dates": set()}
-        if pv < 0:
-            return {"valid": False, "category": "invalid_pageviews",
-                    "reason": f"negative pageviews {pv} for date {r.get('date')!r}",
+                    "reason": f"pageviews value {r.get('pageviews')!r} for date {r.get('date')!r} is not "
+                              f"a genuinely non-negative integer -- fractional, NaN, infinite, boolean, "
+                              f"and negative values are rejected, never silently coerced",
                     "content_hash": None, "expected_dates": set()}
 
     for d, dt in parsed.items():
@@ -674,6 +699,31 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
 
     loop_start = time.time()
     for chunk_start, chunk_end in chunks:
+        is_open = is_open_chunk(chunk_start, chunk_end, today)
+
+        # PROSPECTIVE no_observations_expected_yet check (2026-07-31,
+        # closes a real gap): the real worker classifies an HTTP-200
+        # response with zero items as status="empty", NOT "ok" -- so the
+        # old code, which only ran validate_snapshot()'s
+        # no_observations_expected_yet classification AFTER a fetch and
+        # only when status=="ok", could still queue the very first day of
+        # a new open month as a genuine failure (an "empty" response is
+        # exactly what that day WOULD return, forever, since nothing can
+        # ever be published for it retroactively). Checked here BEFORE
+        # any network call: if no date in this open chunk could possibly
+        # have a published pageview count yet, skip the request entirely
+        # -- zero cost, no cache write, no failed chunk, and this check is
+        # independent of any remaining_budget_s (it costs nothing).
+        if is_open:
+            effective_data_end = effective_open_chunk_data_end(chunk_end, today)
+            if effective_data_end < chunk_start:
+                chunk_results.append({
+                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                    "source": "not_requested", "status": "no_observations_expected_yet",
+                    "network_elapsed_s": 0.0, "sleep_s": 0.0,
+                })
+                continue
+
         if remaining_budget_s is not None:
             budget_left = remaining_budget_s - (time.time() - loop_start)
             if budget_left < MIN_USABLE_CHUNK_BUDGET_S:
@@ -691,7 +741,7 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
         else:
             effective_chunk_timeout = chunk_timeout_s
 
-        closed = not is_open_chunk(chunk_start, chunk_end, today)
+        closed = not is_open
         if closed:
             hit = validated_cache_hit(cache_df, ticker, article, chunk_start, chunk_end, today)
             if hit["hit"]:

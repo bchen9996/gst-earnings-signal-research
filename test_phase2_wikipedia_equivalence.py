@@ -30,12 +30,20 @@
 #
 # Makes REAL network calls (and, for the chunked path, real subprocess
 # spawns) for two tickers -- NOT part of the deterministic suites run
-# before committing, and NOT a gate on anything: it is observational only.
+# before committing, and NOT a deterministic CI gate: this is an OPTIONAL,
+# OBSERVATIONAL live diagnostic. Its outcome depends on real-time Wikipedia
+# availability and must never be required for a commit/merge/regression
+# decision -- test_phase2_wikipedia_equivalence_deterministic.py is the
+# actual gate.
 #
 # Run directly: python test_phase2_wikipedia_equivalence.py
-# Exit code reflects FAILURES only (a true defect) -- INCONCLUSIVE never
-# affects the exit code, by design (source unavailability is not this
-# code's fault and must not block on it).
+# Exit code (see decide_exit_code(), directly unit-tested without any
+# network call in test_phase2_wikipedia_equivalence_deterministic.py):
+#   0 -- every tested ticker PASSED
+#   1 -- at least one ticker FAILed (a true value mismatch -- investigate)
+#   2 -- no FAILures, but at least one ticker was INCONCLUSIVE (source
+#        unavailable or a coverage gap right now -- not a defect, but not
+#        a clean pass either)
 
 from __future__ import annotations
 from datetime import datetime, timezone, date, timedelta
@@ -59,7 +67,23 @@ TOLERANCE = 1e-6
 TICKERS_UNDER_TEST = ["AAPL", "AMZN"]
 
 VERDICTS: dict[str, str] = {}   # ticker -> "PASS" / "INCONCLUSIVE" / "FAIL"
-FAILURES: list[str] = []        # true defects only -- drives the exit code
+FAILURES: list[str] = []        # true defects only -- reported in the summary
+
+
+def decide_exit_code(verdicts: dict[str, str]) -> int:
+    """Pure mapping from per-ticker verdicts to the process exit code --
+    extracted specifically so it can be tested deterministically, without
+    any network call, in test_phase2_wikipedia_equivalence_deterministic.py.
+    0 = all PASS, 1 = any FAIL (checked first -- a FAIL always wins over
+    any INCONCLUSIVE present), 2 = no FAIL but at least one INCONCLUSIVE.
+    An empty verdicts dict is treated as all-PASS (vacuously 0) -- callers
+    always populate it from TICKERS_UNDER_TEST before calling this."""
+    values = list(verdicts.values())
+    if any(v == "FAIL" for v in values):
+        return 1
+    if any(v == "INCONCLUSIVE" for v in values):
+        return 2
+    return 0
 
 
 def note(name: str, condition: bool, detail: str = "") -> None:
@@ -212,20 +236,23 @@ if __name__ == "__main__":
         if verdict == "FAIL":
             FAILURES.append(t)
 
-    print(f"\n=== SUMMARY (live smoke test -- observational only, does NOT substitute for "
-          f"test_phase2_wikipedia_equivalence_deterministic.py) ===")
+    counts = {"PASS": 0, "INCONCLUSIVE": 0, "FAIL": 0}
+    for v in VERDICTS.values():
+        counts[v] += 1
+
+    print(f"\n=== SUMMARY -- OPTIONAL LIVE DIAGNOSTIC, NOT a deterministic CI gate "
+          f"(does not substitute for test_phase2_wikipedia_equivalence_deterministic.py) ===")
     for t, v in VERDICTS.items():
         print(f"  {t}: {v}")
+    print(f"Counts: PASS={counts['PASS']} INCONCLUSIVE={counts['INCONCLUSIVE']} FAIL={counts['FAIL']}")
 
-    if FAILURES:
-        print(f"\n{len(FAILURES)} TRUE FAILURE(S): {FAILURES} -- a real value mismatch was found. "
+    exit_code = decide_exit_code(VERDICTS)
+    if exit_code == 0:
+        print("\nExit 0: every tested ticker PASSED.")
+    elif exit_code == 1:
+        print(f"\nExit 1: {counts['FAIL']} true FAILURE(S) found: {FAILURES} -- a real value mismatch. "
               "This DOES matter and should be investigated.")
-        sys.exit(1)
-    elif all(v == "INCONCLUSIVE" for v in VERDICTS.values()):
-        print("\nAll tickers INCONCLUSIVE (live source unavailable or coverage gap right now) -- "
-              "no failures, but also no PASS. This is expected occasional behavior, not blocking.")
-        sys.exit(0)
     else:
-        print("\nNo true failures. See per-ticker verdicts above -- PASS/INCONCLUSIVE, never silently "
-              "folded together.")
-        sys.exit(0)
+        print(f"\nExit 2: no failures, but {counts['INCONCLUSIVE']} ticker(s) INCONCLUSIVE (source "
+              "unavailable or a coverage gap right now) -- not a defect, but not a clean pass either.")
+    sys.exit(exit_code)

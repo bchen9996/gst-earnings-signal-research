@@ -577,6 +577,104 @@ def test_second_pass_real_tiny_budget_no_overshoot_no_orphan():
           len(new_pids) == 0, f"new pids still present: {new_pids}")
 
 
+# === Prospective no_observations_expected_yet orchestration (2026-07-31
+# follow-up): the real worker returns status="empty" (not "ok") for a
+# zero-item HTTP-200 response, so the OLD code -- which only classified
+# no_observations_expected_yet AFTER a fetch, and only when status=="ok" --
+# could still queue day-one-of-a-new-month as a genuine failure forever.
+# This proves the fix: no network call is made at all for that case. ===
+def test_no_observations_expected_yet_orchestration_skips_network_and_cache():
+    tmp = _use_temp_cache()
+    try:
+        def fetch_fn_that_raises(article, start, end, timeout_s=None):
+            raise AssertionError("fetch_fn must never be called for a chunk with no possible "
+                                  "observations yet (effective_data_end < chunk_start)")
+
+        fetch_was_called = False
+        result = None
+        try:
+            # today == chunk_start (August 1st, requesting exactly the
+            # August chunk) -- effective_data_end = today-1 = July 31,
+            # which is < chunk_start (August 1st): nothing in this range
+            # could possibly have a published pageview count yet.
+            result = wt.get_ticker_wikipedia_daily(
+                "TEST", "Test Article", date(2026, 8, 1), date(2026, 8, 31),
+                today=date(2026, 8, 1), cache_df=wt.load_cache(), fetch_fn=fetch_fn_that_raises,
+            )
+        except AssertionError:
+            fetch_was_called = True
+
+        check("no-obs orchestration: fetch count is zero (fetch_fn was never called)",
+              not fetch_was_called)
+        if result is not None:
+            check("no-obs orchestration: no failed chunk is produced",
+                  result["failed_chunks"] == [], result["failed_chunks"])
+            check("no-obs orchestration: no daily rows fabricated",
+                  result["daily_rows"] == [], result["daily_rows"])
+            statuses = {cr["status"] for cr in result["chunk_results"]}
+            check("no-obs orchestration: status is no_observations_expected_yet",
+                  statuses == {"no_observations_expected_yet"}, result["chunk_results"])
+            sources = {cr["source"] for cr in result["chunk_results"]}
+            check("no-obs orchestration: source is not_requested",
+                  sources == {"not_requested"}, result["chunk_results"])
+        cache_after = wt.load_cache()
+        check("no-obs orchestration: no cache write occurred", cache_after.empty, cache_after)
+    finally:
+        _restore_cache_path(tmp)
+
+
+def test_no_observations_expected_yet_run_can_still_be_complete():
+    """The run may remain complete using the preceding available dates --
+    a preceding CLOSED month succeeding plus the brand-new open month
+    correctly contributing zero (not fabricated, not failed) rows."""
+    tmp = _use_temp_cache()
+    try:
+        july_rows = _full_coverage_rows(date(2026, 7, 1), date(2026, 7, 31))
+
+        def fetch_fn(article, start, end, timeout_s=None):
+            # Only ever called for the July (closed) chunk -- August must
+            # never reach here (see the test above).
+            assert start >= date(2026, 7, 1) and end <= date(2026, 7, 31), (start, end)
+            return {"status": "ok", "http_status": 200, "items": july_rows, "url": "http://x",
+                    "network_elapsed_s": 0.01, "terminated": False}
+
+        result = wt.get_ticker_wikipedia_daily(
+            "TEST", "Test Article", date(2026, 7, 1), date(2026, 8, 31),
+            today=date(2026, 8, 1), cache_df=wt.load_cache(), fetch_fn=fetch_fn,
+        )
+        check("no-obs run-completeness: no failed chunks at all", result["failed_chunks"] == [],
+              result["failed_chunks"])
+        check("no-obs run-completeness: exactly the 31 July dates assembled (August contributes zero, "
+              "not fabricated)", len(result["daily_rows"]) == 31, len(result["daily_rows"]))
+    finally:
+        _restore_cache_path(tmp)
+
+
+# === Genuinely integral pageviews (2026-07-31 follow-up): plain int(value)
+# silently truncates 1.5 to 1 and silently accepts True as 1 -- both wrong.
+# validate_snapshot() must reject fractional/NaN/infinite/boolean/negative
+# values outright, never coerce them. ===
+def test_validate_snapshot_integral_pageviews_enforcement():
+    base_kwargs = dict(ticker="TEST", article="Test Article",
+                        chunk_start=date(2026, 1, 1), chunk_end=date(2026, 1, 1), today=date(2026, 2, 1))
+
+    def _validate_with(pv):
+        return wt.validate_snapshot(rows=[{"date": "20260101", "pageviews": pv}], **base_kwargs)
+
+    accepted_cases = [5, 0, 5.0, 0.0, "5", "0", "5.0"]
+    for pv in accepted_cases:
+        result = _validate_with(pv)
+        check(f"integral-pageviews: {pv!r} ({type(pv).__name__}) is accepted",
+              result["valid"] is True, result)
+
+    rejected_cases = [1.5, "1.5", float("nan"), float("inf"), float("-inf"),
+                       True, False, -1, -1.0, "-1", "not_a_number", None]
+    for pv in rejected_cases:
+        result = _validate_with(pv)
+        check(f"integral-pageviews: {pv!r} ({type(pv).__name__}) is rejected, not silently coerced",
+              result["valid"] is False and result["category"] == "invalid_pageviews", result)
+
+
 if __name__ == "__main__":
     test_1_full_successful_month()
     test_2_404_then_second_pass_success()
@@ -597,6 +695,9 @@ if __name__ == "__main__":
     test_second_pass_budget_capping_and_exhaustion()
     test_first_pass_budget_exhaustion_stops_further_chunks()
     test_second_pass_real_tiny_budget_no_overshoot_no_orphan()
+    test_no_observations_expected_yet_orchestration_skips_network_and_cache()
+    test_no_observations_expected_yet_run_can_still_be_complete()
+    test_validate_snapshot_integral_pageviews_enforcement()
 
     print()
     if FAILURES:

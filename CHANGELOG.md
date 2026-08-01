@@ -1,5 +1,58 @@
 # Changelog
 
+## 2026-07-31 — Phase 2 follow-up: close test-isolation and edge-case validation gaps
+
+Four further review findings closed on top of the prior corrective commit:
+
+1. **Real no-observations-yet orchestration.** The real Wikipedia worker
+   returns `status="empty"` (not `"ok"`) for a zero-item HTTP-200 response
+   -- so the prior fix (which only classified `no_observations_expected_yet`
+   AFTER a fetch, and only when `status=="ok"`) could still queue the very
+   first day of a new open month as a genuine failure forever, since that
+   day's request will always come back "empty". Fixed prospectively:
+   `get_ticker_wikipedia_daily()` now checks, BEFORE making any request for
+   an open chunk, whether `effective_data_end < chunk_start` (nothing in
+   range could possibly be published yet); if so, no network call is made,
+   `chunk_results` gets `source="not_requested"` /
+   `status="no_observations_expected_yet"` with zero network/sleep time,
+   nothing is cached, and no failed chunk is produced. Verified with an
+   orchestration-level test using a `fetch_fn` that raises if called at
+   all, plus a run-completeness test showing the run can still be COMPLETE
+   using the preceding available dates.
+2. **Deterministic equivalence test isolated from the operational cache.**
+   `test_phase2_wikipedia_equivalence_deterministic.py`'s fixture-backed
+   chunks still called the real `write_chunk_to_cache()` against the
+   module-global `CACHE_PATH` -- using the real ticker symbols AAPL/AMZN,
+   an unredirected run could pollute the actual operational
+   `Phase2_Wikipedia_Cache.csv`. Fixed: `CACHE_PATH` is now redirected to a
+   temporary file for the test's duration, restored in `finally`, and the
+   run explicitly verifies the operational cache is byte-identical before
+   and after (or confirms none was created if it didn't exist). No
+   deterministic test may mutate operational data.
+3. **Unambiguous live-smoke-test exit codes.** `test_phase2_wikipedia_equivalence.py`
+   (the optional live diagnostic) now exits 0 only if every tested ticker
+   PASSes, 1 if any ticker FAILs, 2 if none FAIL but at least one is
+   INCONCLUSIVE -- extracted into a pure `decide_exit_code()` function,
+   directly unit-tested with zero network calls. Final PASS/INCONCLUSIVE/
+   FAIL counts are printed. Explicitly documented as an optional live
+   diagnostic, not a deterministic CI gate.
+4. **Genuinely integral pageviews.** `validate_snapshot()` used
+   `int(value)`, which silently truncates `1.5` to `1` and silently
+   accepts `True` as `1`. New `_is_valid_nonnegative_integer_pageviews()`
+   accepts real integers and integer-valued numeric representations (`5.0`,
+   `"5"`, `"5.0"`), and rejects fractional values, NaN, +/-infinity,
+   booleans, and negatives outright -- never silently coerced. Tested for
+   every accepted and rejected case.
+
+None of this touches request behavior, retries, budgets, chunk boundaries,
+fallback rules, z-score methodology, field definitions, ticker universe,
+or completeness policy. Full existing deterministic suite (133 assertions
+across 4 files) passes; operational cache confirmed byte-identical before
+and after the full suite run; no orphan process from any test (two
+unrelated `llm_pull.py` processes observed on the machine were
+independently confirmed, by command line and parent PID, to belong to a
+different script entirely).
+
 ## 2026-07-31 — Phase 2 corrective commit: cache completeness, identity, equivalence, and deadline gates
 
 Following a GitHub review of the two prior commits, five correctness gaps
