@@ -1,0 +1,6 @@
+timestamp_utc,url,http_status,n_items,last_date_in_response,elapsed_s,retry_after,error
+2026-08-01T03:48:10.275704+00:00,https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Apple_Inc./daily/20260731/20260731,404,0,,0.358,,http_error
+2026-08-01T03:48:10.633854+00:00,https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Apple_Inc./daily/20260730/20260730,404,0,,0.191,,http_error
+2026-08-01T03:48:10.824952+00:00,https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Apple_Inc./daily/20260701/20260731,200,30,20260730,0.314,,
+2026-08-01T03:48:11.138989+00:00,https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Amazon_%28company%29/daily/20260731/20260731,404,0,,0.212,,http_error
+2026-08-01T03:48:11.351328+00:00,https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Amazon_%28company%29/daily/20260730/20260730,200,1,20260730,0.302,,
