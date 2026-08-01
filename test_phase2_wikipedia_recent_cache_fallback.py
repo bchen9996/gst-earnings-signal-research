@@ -93,12 +93,13 @@ def _still_failed_item(last_http_status=404) -> dict:
 def test_1_fresh_success_preferred():
     tmp = _use_temp_cache()
     try:
-        _seed_valid_cache(rows=_full_month_rows())  # eligible fallback data present
-        # Deliberately different values from the cache, but still FULL exact
-        # coverage through EFFECTIVE_END -- validate_snapshot() requires
-        # exact coverage for the open chunk too, so a fresh response must
-        # provide it to be accepted (this is testing "fresh preferred over
-        # cache", not testing coverage validation, which has its own tests).
+        # Cache is one day SHORT of the current watermark's required
+        # coverage -- a genuine cache MISS under the unified watermark-driven
+        # model (validated_cache_hit() correctly rejects it as
+        # incomplete_coverage), so get_ticker_wikipedia_daily() must fall
+        # through to a fresh fetch. Deliberately different values from the
+        # stale cache so a leak would be obvious.
+        _seed_valid_cache(rows=_full_month_rows(end=EFFECTIVE_END - timedelta(days=1)))
         fresh_rows = [{"date": r["date"], "pageviews": 999999} for r in _full_month_rows()]
 
         def fetch_fn(article, start, end, timeout_s=None):
@@ -106,7 +107,7 @@ def test_1_fresh_success_preferred():
                      "network_elapsed_s": 0.01, "terminated": False}
 
         result = wt.get_ticker_wikipedia_daily(
-            TICKER, ARTICLE, CHUNK_START, TODAY, today=TODAY, cache_df=wt.load_cache(), fetch_fn=fetch_fn,
+            TICKER, ARTICLE, CHUNK_START, TODAY, watermark=EFFECTIVE_END, cache_df=wt.load_cache(), fetch_fn=fetch_fn,
         )
         check("1. fresh fetch succeeded, no failed chunks -> fallback never invoked",
               result["failed_chunks"] == [], result["failed_chunks"])
@@ -122,7 +123,7 @@ def test_2_fallback_used_when_eligible():
     try:
         _seed_valid_cache(retrieved_at_utc=datetime.now(timezone.utc) - timedelta(hours=2))
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         check("2. fallback recovers the ticker", TICKER in result["fallback_recovered"], result)
         check("2. nothing left in still_failed", result["still_failed"] == [], result["still_failed"])
         prov = result["fallback_recovered"][TICKER]["provenance"]
@@ -142,7 +143,7 @@ def test_3_stale_cache_rejected():
     try:
         _seed_valid_cache(retrieved_at_utc=datetime.now(timezone.utc) - timedelta(hours=25))
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         check("3. stale (>24h) cache is rejected, not used", TICKER not in result["fallback_recovered"])
         check("3. rejection reason cites cache age", "cache_too_old" in result["still_failed"][0]["fallback_rejected_reason"],
               result["still_failed"])
@@ -157,7 +158,7 @@ def test_4_missing_final_date_rejected():
         incomplete_rows = _full_month_rows(end=EFFECTIVE_END - timedelta(days=1))  # missing the last day
         _seed_valid_cache(rows=incomplete_rows)
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         check("4. cache missing the required final date is rejected", TICKER not in result["fallback_recovered"])
         check("4. rejection reason cites incomplete coverage",
               "incomplete_coverage" in result["still_failed"][0]["fallback_rejected_reason"],
@@ -172,7 +173,7 @@ def test_5_title_mismatch_rejected():
     try:
         _seed_valid_cache(article="Some Other Article Entirely")
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         check("5. configured_article_title mismatch is rejected", TICKER not in result["fallback_recovered"])
         check("5. rejection reason cites the title mismatch (now via the shared validate_snapshot() "
               "identity_mismatch category)",
@@ -194,7 +195,7 @@ def test_6_corrupt_hash_rejected():
         os.replace(tmp_path, wt.CACHE_PATH)
 
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         check("6. tampered/corrupt content_hash is rejected", TICKER not in result["fallback_recovered"])
         check("6. rejection reason cites hash verification failure (now via the shared validate_snapshot() "
               "content_hash_mismatch category)",
@@ -212,7 +213,7 @@ def test_7_duplicate_dates_rejected():
         rows.append(dict(rows[0]))  # duplicate an existing date
         _seed_valid_cache(rows=rows)
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         check("7. duplicate dates in the cached snapshot are rejected", TICKER not in result["fallback_recovered"])
         check("7. rejection reason cites duplicate dates",
               "duplicate_dates" in result["still_failed"][0]["fallback_rejected_reason"],
@@ -229,7 +230,7 @@ def test_8_fallback_usage_not_recursively_refreshed():
         _seed_valid_cache(retrieved_at_utc=original_ts)
 
         # First fallback usage, still within the 24h window.
-        result1 = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY,
+        result1 = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END,
                                                    datetime.now(timezone.utc))
         check("8a. first fallback usage succeeds (still <24h old)", TICKER in result1["fallback_recovered"])
 
@@ -241,7 +242,7 @@ def test_8_fallback_usage_not_recursively_refreshed():
         # attempt against the SAME, never-rewritten cache entry must now be
         # rejected on age, proving the first usage did not "refresh" it.
         later_now = datetime.now(timezone.utc) + timedelta(hours=2)
-        result2 = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, later_now)
+        result2 = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, later_now)
         check("8c. the SAME underlying snapshot is correctly rejected once truly stale -- "
               "proving the earlier fallback usage did not reset its age",
               TICKER not in result2["fallback_recovered"])
@@ -261,10 +262,12 @@ def test_9_failed_refresh_never_overwrites_cache():
                      "network_elapsed_s": 0.1, "terminated": False, "retry_after": None}
 
         result = wt.get_ticker_wikipedia_daily(
-            TICKER, ARTICLE, CHUNK_START, TODAY, today=TODAY, cache_df=wt.load_cache(), fetch_fn=failing_fetch_fn,
+            TICKER, ARTICLE, CHUNK_START, TODAY, watermark=EFFECTIVE_END, cache_df=wt.load_cache(),
+            fetch_fn=failing_fetch_fn,
         )
-        second = wt.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=30, fetch_fn=failing_fetch_fn)
-        wt.apply_recent_cache_fallback(second["still_failed"], wt.load_cache(), TODAY, datetime.now(timezone.utc))
+        second = wt.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=30,
+                                             fetch_fn=failing_fetch_fn, watermark=EFFECTIVE_END)
+        wt.apply_recent_cache_fallback(second["still_failed"], wt.load_cache(), EFFECTIVE_END, datetime.now(timezone.utc))
 
         check("9. cache file is byte-identical after a failed refresh + fallback evaluation",
               wt.CACHE_PATH.read_text() == cache_content_before)
@@ -279,7 +282,7 @@ def test_10_provenance_preserves_original_timestamp():
         original_ts = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat()
         _seed_valid_cache(retrieved_at_utc=datetime.fromisoformat(original_ts))
         now_utc = datetime.now(timezone.utc)
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY, now_utc)
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END, now_utc)
         prov = result["fallback_recovered"][TICKER]["provenance"]
         check("10. wiki_fallback_retrieved_at_utc equals the ORIGINAL retrieval timestamp, "
               "not 'now'", prov["wiki_fallback_retrieved_at_utc"] == original_ts,
@@ -310,7 +313,7 @@ def test_11_zscore_matches_original_successful_response():
 
         # Fallback path: evaluate + assemble + compute using the SAME rows
         # retrieved via apply_recent_cache_fallback().
-        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), TODAY,
+        result = wt.apply_recent_cache_fallback([_still_failed_item()], wt.load_cache(), EFFECTIVE_END,
                                                   datetime.now(timezone.utc))
         fallback_rows = result["fallback_recovered"][TICKER]["rows"]
         fallback_df = wt.assemble_daily_series(fallback_rows)

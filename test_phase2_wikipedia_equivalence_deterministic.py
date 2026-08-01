@@ -121,14 +121,25 @@ def _run_for_ticker(ticker: str) -> None:
     article = fixture["configured_article_title"]
     start = date.fromisoformat(fixture["requested_start"])
     end = date.fromisoformat(fixture["requested_end"])
+    # The watermark must reflect what the fixture ACTUALLY contains, not
+    # its aspirational "requested_end" -- the fixture was captured via the
+    # direct route, which (like everything else in this investigation) can
+    # itself lag behind the nominal request end by a day or more. Deriving
+    # the watermark from the fixture's own real last date means this test
+    # verifies exact reproduction of what was genuinely captured, not
+    # whether the pipeline can conjure data beyond what was ever fetched.
+    fixture_last_date = max(date.fromisoformat(r["date"][:4] + "-" + r["date"][4:6] + "-" + r["date"][6:])
+                             for r in fixture["daily_rows"])
+    watermark = min(end, fixture_last_date)
 
     print(f"\n=== {ticker} ({article}): deterministic equivalence against frozen fixture "
-          f"(captured {fixture['retrieval_timestamp_utc']}, {fixture['n_observations']} observations) ===")
+          f"(captured {fixture['retrieval_timestamp_utc']}, {fixture['n_observations']} observations, "
+          f"watermark={watermark.isoformat()}) ===")
 
     fetch_fn = _frozen_fetch_fn(fixture)
     cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)   # empty -- every chunk must be "fetched"
     result = wiki_transport.get_ticker_wikipedia_daily(
-        ticker, article, start, end, today=end, cache_df=cache_df, fetch_fn=fetch_fn,
+        ticker, article, start, end, watermark=watermark, cache_df=cache_df, fetch_fn=fetch_fn,
     )
     check(f"{ticker}: no failed chunks against the frozen fixture (fully deterministic, no live network)",
           result["failed_chunks"] == [], result["failed_chunks"])
@@ -163,6 +174,64 @@ def _run_for_ticker(ticker: str) -> None:
               f"fixture={fixture_z} assembled={assembled_z} diff={abs(fixture_z - assembled_z)}")
 
 
+# === Watermark truncation test 13 (2026-08-01): a deterministic fixture
+# z-score, computed via the chunked pipeline with a watermark set EARLIER
+# than the fixture's own natural end, must exactly equal the z-score
+# computed from a MANUALLY watermark-truncated copy of the same frozen
+# fixture -- proving the truncation logic itself is correct, not just that
+# an already-complete fixture round-trips. ===
+def test_watermark_truncation_matches_manually_truncated_fixture():
+    for ticker in TICKERS_UNDER_TEST:
+        fixture = _load_fixture(ticker)
+        article = fixture["configured_article_title"]
+        start = date.fromisoformat(fixture["requested_start"])
+        end = date.fromisoformat(fixture["requested_end"])
+
+        # Deliberately set the watermark 5 days earlier than the fixture's
+        # own last real date -- forces the chunked pipeline to truncate.
+        fixture_last_date = max(date.fromisoformat(r["date"][:4] + "-" + r["date"][4:6] + "-" + r["date"][6:])
+                                 for r in fixture["daily_rows"])
+        early_watermark = fixture_last_date - pd.Timedelta(days=5)
+        early_watermark = date(early_watermark.year, early_watermark.month, early_watermark.day)
+
+        fetch_fn = _frozen_fetch_fn(fixture)
+        cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
+        result = wiki_transport.get_ticker_wikipedia_daily(
+            ticker, article, start, end, watermark=early_watermark, cache_df=cache_df, fetch_fn=fetch_fn,
+        )
+        check(f"{ticker}: no failed chunks when truncating to an earlier watermark",
+              result["failed_chunks"] == [], result["failed_chunks"])
+
+        # Manual truncation: filter the frozen fixture's own rows to dates
+        # <= early_watermark -- this is the independently-computed "expected"
+        # answer the pipeline's own truncation must match exactly.
+        manually_truncated = [r for r in fixture["daily_rows"]
+                               if date.fromisoformat(r["date"][:4] + "-" + r["date"][4:6] + "-" + r["date"][6:])
+                               <= early_watermark]
+        assembled_dates = {r["date"] for r in result["daily_rows"]}
+        manual_dates = {r["date"] for r in manually_truncated}
+        check(f"{ticker}: watermark-truncated chunked assembly matches the manually-truncated "
+              f"fixture's date set exactly", assembled_dates == manual_dates,
+              f"missing={sorted(manual_dates - assembled_dates)[:5]} "
+              f"extra={sorted(assembled_dates - manual_dates)[:5]}")
+
+        manual_df = wiki_transport.assemble_daily_series(manually_truncated)
+        assembled_df = wiki_transport.assemble_daily_series(result["daily_rows"])
+        # Anchor at the (early) watermark itself, not the original `end` --
+        # this test isolates truncation-arithmetic correctness from the
+        # separate anchor-alignment-window question (already exercised by
+        # _run_for_ticker's full, untruncated comparison above).
+        anchor = pd.Timestamp(early_watermark)
+        _, manual_z, _ = canonical.compute_zscore_at_anchor(to_weekly(manual_df), anchor)
+        _, assembled_z, _ = canonical.compute_zscore_at_anchor(to_weekly(assembled_df), anchor)
+        if manual_z is None or assembled_z is None:
+            check(f"{ticker}: z-score computable from both the manual truncation and the "
+                  f"pipeline's own truncation", False, f"manual={manual_z} assembled={assembled_z}")
+        else:
+            check(f"{ticker}: watermark-truncated z-score exactly equals the manually-truncated "
+                  f"fixture's z-score", manual_z == assembled_z, f"manual={manual_z} assembled={assembled_z}")
+
+
 # === Live smoke test exit-code mapping (2026-07-31 follow-up): a pure
 # function, tested here with zero network calls -- importing
 # test_phase2_wikipedia_equivalence only executes its live network code
@@ -193,6 +262,7 @@ if __name__ == "__main__":
     try:
         for t in TICKERS_UNDER_TEST:
             _run_for_ticker(t)
+        test_watermark_truncation_matches_manually_truncated_fixture()
     finally:
         _restore_cache_path(tmp)
 

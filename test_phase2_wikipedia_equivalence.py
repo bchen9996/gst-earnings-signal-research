@@ -100,16 +100,17 @@ def _direct_daily(article: str, start: date, end: date) -> pd.DataFrame:
     return df.sort_values("date").reset_index(drop=True)
 
 
-def _chunked_daily(ticker: str, article: str, start: date, end: date, today: date) -> pd.DataFrame:
+def _chunked_daily(ticker: str, article: str, start: date, end: date, watermark: date) -> pd.DataFrame:
     cache_df = wiki_transport.load_cache()
     result = wiki_transport.get_ticker_wikipedia_daily(
-        ticker, article, start, end, today=today, cache_df=cache_df,
+        ticker, article, start, end, watermark=watermark, cache_df=cache_df,
     )
     daily_rows = result["daily_rows"]
     still_failed = []
     if result["failed_chunks"]:
         print(f"    [{ticker}] {len(result['failed_chunks'])} chunk(s) failed first pass -- running bounded second pass")
-        second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=180, today=today)
+        second = wiki_transport.run_bounded_second_pass(result["failed_chunks"], remaining_budget_s=180,
+                                                          watermark=watermark)
         daily_rows = daily_rows + second["recovered"].get(ticker, [])
         still_failed = second["still_failed"]
         if still_failed:
@@ -119,7 +120,7 @@ def _chunked_daily(ticker: str, article: str, start: date, end: date, today: dat
         # pipeline -- exercising it here means this smoke test reflects
         # what production actually does, not a stale two-pass-only version.
         fallback = wiki_transport.apply_recent_cache_fallback(
-            still_failed, wiki_transport.load_cache(), today=today, now_utc=datetime.now(timezone.utc))
+            still_failed, wiki_transport.load_cache(), watermark=watermark, now_utc=datetime.now(timezone.utc))
         fb = fallback["fallback_recovered"].get(ticker)
         if fb is not None:
             print(f"    [{ticker}] RECENT_LAST_KNOWN_GOOD fallback used for the remaining gap: {fb['provenance']}")
@@ -156,16 +157,17 @@ def _independently_reprobe_month(article: str, month_start: date) -> str:
         return "probe_inconclusive"
 
 
-def _run_for_ticker(ticker: str) -> str:
+def _run_for_ticker(ticker: str, watermark: date) -> str:
     """Returns exactly one of 'PASS' / 'INCONCLUSIVE' / 'FAIL'."""
     article = TICKER_TO_WIKI_ARTICLE[ticker]
     today = datetime.now(timezone.utc).date()
     start = today - timedelta(days=canonical.PULL_LOOKBACK_DAYS)
 
-    print(f"\n=== {ticker} ({article}): direct vs chunked-assembled (live), {start}..{today} ===")
+    print(f"\n=== {ticker} ({article}): direct vs chunked-assembled (live), {start}..{today}, "
+          f"watermark={watermark} ===")
 
     direct_df = _direct_daily(article, start, today)
-    chunked_df = _chunked_daily(ticker, article, start, today, today)
+    chunked_df = _chunked_daily(ticker, article, start, today, watermark)
     note(f"{ticker}: direct route returned data", len(direct_df) > 0, f"{len(direct_df)} rows")
     note(f"{ticker}: chunked route returned data", len(chunked_df) > 0, f"{len(chunked_df)} rows")
 
@@ -230,11 +232,23 @@ def _run_for_ticker(ticker: str) -> str:
 
 
 if __name__ == "__main__":
-    for t in TICKERS_UNDER_TEST:
-        verdict = _run_for_ticker(t)
-        VERDICTS[t] = verdict
-        if verdict == "FAIL":
-            FAILURES.append(t)
+    # Resolved ONCE for this diagnostic run, exactly as production main()
+    # does -- never recomputed per ticker.
+    watermark_info = wiki_transport.resolve_wiki_data_watermark(anchor_date=datetime.now(timezone.utc).date())
+    print(f"Watermark: status={watermark_info['status']} watermark_date={watermark_info['watermark_date']} "
+          f"lag_days={watermark_info['lag_days']}\n")
+
+    if watermark_info["status"] != "ok":
+        print("No valid watermark could be established -- marking all tickers INCONCLUSIVE "
+              "(source unavailable), not FAIL.")
+        for t in TICKERS_UNDER_TEST:
+            VERDICTS[t] = "INCONCLUSIVE"
+    else:
+        for t in TICKERS_UNDER_TEST:
+            verdict = _run_for_ticker(t, watermark_info["watermark_date"])
+            VERDICTS[t] = verdict
+            if verdict == "FAIL":
+                FAILURES.append(t)
 
     counts = {"PASS": 0, "INCONCLUSIVE": 0, "FAIL": 0}
     for v in VERDICTS.values():

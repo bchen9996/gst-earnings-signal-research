@@ -46,60 +46,90 @@ def _dirty_row(ticker: str, **overrides) -> dict:
 # === 14. Final completeness gate ===
 def test_14_final_completeness_gate():
     all_clean = [_clean_row(t) for t in TICKERS]
-    check("14a. 3/3 unique tickers, all clean, COMPLETE status -> gate passes",
-          panel.is_run_complete(all_clean, "COMPLETE", TICKERS) is True)
+    check("14a. 3/3 unique tickers, all clean, COMPLETE status, valid watermark -> gate passes",
+          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="ok") is True)
 
     missing = [_clean_row(t) for t in TICKERS[:-1]]
     check("14b. fewer rows than expected tickers -> gate fails",
-          panel.is_run_complete(missing, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(missing, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     duplicate = [_clean_row("AAA"), _clean_row("AAA"), _clean_row("CCC")]
     check("14c. duplicate ticker (not 3 unique) -> gate fails, does not silently satisfy count",
-          panel.is_run_complete(duplicate, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(duplicate, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     one_incomplete = [_clean_row("AAA"), _clean_row("BBB"), _dirty_row("CCC", all_six_fields_clean=False)]
     check("14d. one row missing a required field -> gate fails",
-          panel.is_run_complete(one_incomplete, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(one_incomplete, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     bad_ts = [_clean_row("AAA"), _clean_row("BBB"), _dirty_row("CCC", retrieval_timestamp_utc="not-a-timestamp")]
     check("14e. unparseable retrieval timestamp -> gate fails",
-          panel.is_run_complete(bad_ts, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(bad_ts, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     missing_ts = [_clean_row("AAA"), _clean_row("BBB"), _dirty_row("CCC", retrieval_timestamp_utc=None)]
     check("14f. missing retrieval timestamp -> gate fails",
-          panel.is_run_complete(missing_ts, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(missing_ts, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     wrong_universe = [_clean_row("AAA"), _clean_row("BBB"), _clean_row("ZZZ")]
     check("14g. rows cover a different ticker set entirely -> gate fails",
-          panel.is_run_complete(wrong_universe, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(wrong_universe, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     check("14h. gate never raises on a malformed row (empty dict)",
-          panel.is_run_complete([{}], "COMPLETE", TICKERS) is False)
+          panel.is_run_complete([{}], "COMPLETE", TICKERS, watermark_status="ok") is False)
 
 
 # === 15. PARTIAL output never named COMPLETE ===
 def test_15_partial_never_named_complete():
     all_clean = [_clean_row(t) for t in TICKERS]
     check("15a. all rows clean but exit_status already PARTIAL (e.g. total-budget stop) -> gate still fails",
-          panel.is_run_complete(all_clean, "PARTIAL", TICKERS) is False)
+          panel.is_run_complete(all_clean, "PARTIAL", TICKERS, watermark_status="ok") is False)
 
     pending_second_pass = [_clean_row("AAA"), _clean_row("BBB"),
                             _dirty_row("CCC", all_six_fields_clean=False)]
     check("15b. a ticker left in pending_second_pass/incomplete state -> COMPLETE status alone is not enough",
-          panel.is_run_complete(pending_second_pass, "COMPLETE", TICKERS) is False)
+          panel.is_run_complete(pending_second_pass, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     check("15c. empty rows with COMPLETE status (pathological) -> gate fails, not vacuously true",
-          panel.is_run_complete([], "COMPLETE", TICKERS) is False)
+          panel.is_run_complete([], "COMPLETE", TICKERS, watermark_status="ok") is False)
+
+
+# === 2026-08-01 watermark additions: tests 15/16 from the watermark spec ===
+def test_watermark_15_completion_marker_cannot_say_complete_without_valid_watermark():
+    all_clean = [_clean_row(t) for t in TICKERS]
+    check("watermark-15: all rows perfectly clean, COMPLETE status, but NO watermark_status given "
+          "(None) -> gate still fails", panel.is_run_complete(all_clean, "COMPLETE", TICKERS) is False)
+    check("watermark-15: watermark_status='failed_closed' -> gate fails even with perfectly clean rows",
+          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="failed_closed") is False)
+    check("watermark-15: watermark_status='no_data_within_max_lag' -> gate fails even with "
+          "perfectly clean rows",
+          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="no_data_within_max_lag") is False)
+    check("watermark-15: watermark_status='ok' with otherwise-clean rows -> gate passes",
+          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="ok") is True)
+
+
+def test_watermark_16_lag_greater_than_max_cannot_produce_complete():
+    """A watermark resolution that exceeded MAX_ACCEPTABLE_WIKI_LAG_DAYS
+    never reaches status='ok' in the first place (see
+    resolve_wiki_data_watermark() -- it returns 'no_data_within_max_lag'
+    once every candidate within the lag budget is exhausted), so lag>3 can
+    structurally never produce COMPLETE via this gate regardless of what
+    individual rows show."""
+    all_clean = [_clean_row(t) for t in TICKERS]
+    for bad_status in ("no_data_within_max_lag", "failed_closed"):
+        check(f"watermark-16: watermark_status={bad_status!r} (the only way an out-of-budget lag "
+              f"surfaces) cannot produce COMPLETE",
+              panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status=bad_status) is False)
 
 
 if __name__ == "__main__":
     test_14_final_completeness_gate()
     test_15_partial_never_named_complete()
+    test_watermark_15_completion_marker_cannot_say_complete_without_valid_watermark()
+    test_watermark_16_lag_greater_than_max_cannot_produce_complete()
 
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
         sys.exit(1)
     else:
-        print("ALL DAILYPANEL GATE TESTS PASSED (tests 14-15)")
+        print("ALL DAILYPANEL GATE TESTS PASSED (tests 14-16)")
         sys.exit(0)

@@ -1,5 +1,125 @@
 # Changelog
 
+## 2026-08-01 — Phase 2: measure and enforce a Wikimedia publication watermark
+
+**Why this changed.** The 2026-08-01 24-ticker regression (the PR's
+operational merge gate) came back PARTIAL: `wiki_zscore` 0/24. Root cause,
+independently confirmed via direct probe of both the per-article and the
+site-wide aggregate Wikipedia endpoints: this run landed ~3.5 hours into
+August 1, immediately after July closed, and Wikipedia had not yet
+published July 31 for any article. The fixed "coverage through `today-1`"
+assumption -- previously baked into `effective_open_chunk_data_end()` and
+applied only to the calendar-open month -- was proven false on a real,
+measured day, and it never protected CLOSED months at all (a closed
+month's own last day can be just as unpublished). Evidence preserved in
+`Live Signal Engine/Phase2 Failure Evidence/2026-08-01_Wikipedia_SourceWatermark_Lag2/`.
+
+**Phase B feasibility probe** (read-only, before any implementation):
+tested the site-wide aggregate pageviews endpoint
+(`.../pageviews/aggregate/en.wikipedia.org/all-access/user/daily/{start}/{end}`,
+requiring `YYYYMMDD` + a trailing `"00"` hour component -- a different
+format than the per-article endpoint) for July 31 and July 30
+individually. Result: clean, non-flaky, reproducible --  July 30 returned
+HTTP 200 consistently, July 31 returned HTTP 404 consistently (confirmed
+twice, 2 seconds apart), and a 3-day range query correctly omitted the
+unavailable trailing date rather than erroring the whole range. This
+endpoint does NOT exhibit the per-article/per-request-shape flakiness
+documented elsewhere in this investigation, making it a reliable
+foundation for a watermark. Evidence:
+`aggregate_endpoint_probe_evidence.csv`.
+
+**What changed** (none of it touches the Wikipedia z-score formula, GST
+methodology, the ticker universe, any option/price/volume field, the six
+required research-field meanings, historical datasets, or existing
+PARTIAL evidence):
+
+- **`resolve_wiki_data_watermark()`** (new): resolves the SINGLE run-level
+  Wikipedia data watermark exactly once, at run start, before any ticker
+  is processed. Probes candidates `anchor_date-1` through `anchor_date-3`
+  (`MAX_ACCEPTABLE_WIKI_LAG_DAYS`, locked) newest-to-oldest against the
+  aggregate endpoint. A 404 gets exactly one bounded confirmation re-probe
+  before moving to the next-older candidate. A 429 honors a bounded
+  `Retry-After` and retries the SAME candidate (never walks back on a rate
+  limit). Any other ambiguous outcome (exception, non-404/429 HTTP status,
+  malformed response) FAILS THE WATERMARK CLOSED immediately -- never
+  interpreted as "unpublished". No watermark within the lag budget leaves
+  the run's Wikipedia leg entirely unresolved (PARTIAL), never guessed.
+- **`required_data_end(chunk_end, watermark) = min(chunk_end, watermark)`**
+  replaces `effective_open_chunk_data_end()` and is now applied UNIFORMLY
+  to every chunk, open or closed alike -- the exact fix for the incident,
+  since the old code only ever capped the open month.
+- **`today` removed from the transport module's public API entirely**,
+  replaced by `watermark` throughout: `validate_snapshot()`,
+  `validated_cache_hit()`, `get_ticker_wikipedia_daily()`,
+  `run_bounded_second_pass()` (now a required parameter, no silent
+  default), `evaluate_recent_cache_fallback()`/`apply_recent_cache_fallback()`
+  (the fallback's "current chunk" gate is now `is_open_chunk(chunk_start,
+  chunk_end, watermark)` -- the watermark, not the calendar, defines the
+  frontier). A fresh fetch now requests ONLY `chunk_start..required_data_end`
+  -- never a date beyond the measured watermark, and never the chunk's
+  full nominal end.
+- **Rollover behavior now generalizes correctly**: a cache snapshot valid
+  against an earlier, smaller watermark is rejected (`incomplete_coverage`)
+  and refetched once the watermark advances -- for BOTH open and closed
+  chunks, closing the exact gap that caused the 2026-08-01 PARTIAL (23 of
+  24 tickers' cached July snapshots, valid through July 30, will now be
+  accepted directly once the watermark reaches July 30, and correctly
+  refreshed once it reaches July 31).
+- **7 new additive, run-level provenance columns** (identical across every
+  row of a run, never recomputed per ticker): `wiki_data_watermark_date`,
+  `wiki_data_lag_days`, `wiki_watermark_status`,
+  `wiki_watermark_retrieved_at_utc`, `wiki_watermark_source_url`,
+  `wiki_watermark_http_status`, `wiki_required_data_end`. The same
+  metadata is added to the completion marker
+  (`wiki_data_watermark` object).
+- **`is_run_complete()`** now requires `watermark_status == "ok"` in
+  addition to its existing checks -- a run cannot be COMPLETE without a
+  valid measured watermark, and a lag exceeding `MAX_ACCEPTABLE_WIKI_LAG_DAYS`
+  structurally can never reach `watermark_status == "ok"` in the first
+  place, so it can never produce COMPLETE either.
+- `GST_Phase2_DailyPanel.py`'s `main()` resolves the watermark once,
+  before the ticker loop; if resolution fails, every ticker's wiki leg is
+  marked `incomplete_watermark_unavailable` and skipped entirely (fail
+  closed, no network request, no guess) while the other five fields still
+  process normally.
+
+**Tests**: 5 files updated for the `today` -> `watermark` API change (all
+prior tests re-verified passing under the new semantics, several fixed
+where their setup's premise no longer applied under the unified
+watermark-driven model -- e.g. a cache exactly satisfying the current
+watermark is now legitimately reused rather than always refetched). New
+coverage: `test_phase2_wikipedia_watermark.py` (48 assertions, tests 1-12:
+lag 1/2/3 resolution, no-data-within-max-lag, 429/Retry-After, fail-closed
+on ambiguous errors, request truncated exactly to the watermark, no
+request for chunks entirely beyond it, July-rollover cache valid/rejected
+across a watermark advance, exact coverage enforcement, identical
+provenance across rows); `test_phase2_wikipedia_equivalence_deterministic.py`
+gains a watermark-truncation test (13: a manually-truncated frozen fixture
+exactly matches the pipeline's own truncation); `test_phase2_dailypanel_gate.py`
+gains tests 15/16 (no COMPLETE without a valid watermark; lag > max cannot
+produce COMPLETE). Total deterministic suite: 193 assertions across 5
+files, all passing; operational cache confirmed byte-identical before and
+after.
+
+**Live diagnostic** (the only live check run before this commit, per
+instruction -- no full panel): `diagnose_wiki_watermark_only.py` exercises
+only `resolve_wiki_data_watermark()` against the real aggregate endpoint.
+Result at commit time: `status=ok`, `watermark_date=2026-07-31`,
+`lag_days=1` -- Wikipedia's publication lag had already recovered to 1 day
+by the time of this commit (confirming the earlier 2-day lag was
+genuinely transient, exactly as classified throughout this investigation).
+
+**Remaining limitations, disclosed:** the watermark is resolved from the
+SITE-WIDE aggregate endpoint, which is a proxy for per-article
+availability, not a per-article guarantee -- an individual article could
+theoretically still lag behind the aggregate signal (not observed in this
+investigation). `MAX_ACCEPTABLE_WIKI_LAG_DAYS=3` is a locked policy
+constant, not derived; a genuinely longer Wikipedia-side outage would
+still correctly produce PARTIAL rather than an incorrect COMPLETE, but
+requires a deliberate policy change (not an automatic escalation) to
+extend. No new 24-ticker regression has been run under this watermark
+implementation -- per instruction, none was authorized this pass.
+
 ## 2026-07-31 — Phase 2 follow-up: close test-isolation and edge-case validation gaps
 
 Four further review findings closed on top of the prior corrective commit:
