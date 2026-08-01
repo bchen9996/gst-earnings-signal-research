@@ -1,5 +1,55 @@
 # Changelog
 
+## 2026-08-01 — Phase 2: align completion gate with six-field contract
+
+**Why this changed.** GitHub review of the watermark commits (`7fa1762`,
+`e2d7d80`) found a real logic bug in the completion gate. The locked six
+research fields are `gst_zscore`, `wiki_zscore`, `implied_volatility`,
+`realized_vol`, `price`, `volume`; `days_to_nearest_earnings` is contextual
+metadata, not one of them. `all_six_fields_clean` had drifted to require
+all six fields **and** `days_to_nearest_earnings` non-null, and
+`is_run_complete()` required `all_six_fields_clean=True` for every row.
+Under that logic, the successful `46aec15` baseline -- which had all six
+research fields 24/24 but legitimately found no upcoming earnings date for
+four tickers (`earnings_status="ok"`, `days_to_nearest_earnings=None`) --
+would have been incorrectly classified PARTIAL. A genuinely successful
+"no earnings found" result is not a failure and must not block COMPLETE.
+
+**What changed** (completion-gate logic only; watermark algorithm,
+Wikipedia transport, z-score formulas, ticker universe, retry policy,
+budgets, option selection, and historical data are all untouched):
+
+- `all_six_fields_clean` (both computation sites: `process_ticker()` and
+  the post-second-pass/fallback finalization loop in `main()`) now covers
+  **only** the six locked research fields.
+- `is_run_complete()` separately and independently requires
+  `earnings_status == "ok"` for every row -- fail-closed: `"error"` or
+  `"timeout"` still block COMPLETE, but a null `days_to_nearest_earnings`
+  alongside `earnings_status="ok"` does not. No earnings date is ever
+  fabricated.
+- `write_completion_marker()` gains two additive observability fields,
+  `earnings_lookup_ok_count` and `days_to_nearest_earnings_nonnull_count`,
+  so a successful-null-earnings run is visibly distinguishable from an
+  earnings-lookup failure. No existing marker field was removed or renamed.
+- Corrected the RUN SUMMARY log line, which previously read "Clean (all 6
+  fields + earnings)" -- now "Clean (six locked research fields only)"
+  with a separate "Earnings lookup ok (date may still be null)" count.
+- Added 7 new deterministic assertions to
+  `test_phase2_dailypanel_gate.py` (`earnings-a` through `earnings-d`,
+  `marker-e` x3) proving: six fields clean + `earnings_status="ok"` +
+  null date is COMPLETE-eligible; `earnings_status="error"` or `"timeout"`
+  forces PARTIAL even with six clean fields; a missing core field still
+  forces PARTIAL independent of earnings status; and the new marker
+  counters correctly distinguish a successful-null-earnings row from a
+  lookup-failure row.
+- Full deterministic suite re-run after this change: 200 assertions
+  passing across `test_phase2_wikipedia_transport.py` (79),
+  `test_phase2_dailypanel_gate.py` (24),
+  `test_phase2_wikipedia_recent_cache_fallback.py` (26),
+  `test_phase2_wikipedia_watermark.py` (48), and
+  `test_phase2_wikipedia_equivalence_deterministic.py` (23). No live
+  network test was run in this pass; the 24-ticker panel was not run.
+
 ## 2026-08-01 — Phase 2: measure and enforce a Wikimedia publication watermark
 
 **Why this changed.** The 2026-08-01 24-ticker regression (the PR's

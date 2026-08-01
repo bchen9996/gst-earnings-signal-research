@@ -730,9 +730,16 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
 
     row["ticker_total_s"] = round(time.time() - t_ticker_start, 3)
 
+    # all_six_fields_clean covers ONLY the six locked research fields
+    # (2026-08-01 correction). days_to_nearest_earnings is contextual
+    # metadata, not one of the six -- a successful earnings lookup that
+    # honestly finds no upcoming earnings date (earnings_status="ok",
+    # days_to_nearest_earnings=None) must NOT make this False. Fail-closed
+    # earnings handling is enforced separately by is_run_complete()
+    # requiring earnings_status=="ok" for every row.
     six_fields = [row.get("gst_zscore"), row.get("wiki_zscore"), row.get("implied_volatility"),
                   row.get("realized_vol"), row.get("price"), row.get("volume")]
-    row["all_six_fields_clean"] = all(v is not None for v in six_fields) and days_to_earnings is not None
+    row["all_six_fields_clean"] = all(v is not None for v in six_fields)
 
     return row, wiki_pending
 
@@ -782,12 +789,23 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
     for leg in ["earnings", "price_history", "realized_vol", "iv", "gst", "wiki"]:
         failed_sources[leg] = sum(1 for r in rows if r.get(f"{leg}_status") not in ("ok", None))
 
+    # Additive observability (2026-08-01): distinguishes a genuinely
+    # successful earnings lookup that honestly found no upcoming date
+    # (earnings_lookup_ok_count high, days_to_nearest_earnings_nonnull_count
+    # lower) from an actual lookup FAILURE (earnings_lookup_ok_count itself
+    # lower) -- neither of these gates all_six_fields_clean_count, which
+    # covers only the six locked research fields above.
+    n_earnings_ok = sum(1 for r in rows if r.get("earnings_status") == "ok")
+    n_earnings_date_nonnull = sum(1 for r in rows if r.get("days_to_nearest_earnings") is not None)
+
     marker = {
         "status": status,   # "COMPLETE" or "PARTIAL"
         "row_count": n_total,
         "unique_ticker_count": len(set(r["ticker"] for r in rows)),
         "expected_ticker_count": len(TICKERS),
         "all_six_fields_clean_count": n_clean,
+        "earnings_lookup_ok_count": n_earnings_ok,
+        "days_to_nearest_earnings_nonnull_count": n_earnings_date_nonnull,
         "field_completeness_pct": {f: round(v * 100, 2) for f, v in field_completeness.items()},
         "failed_source_counts": failed_sources,
         "elapsed_s": round(elapsed_s, 1),
@@ -817,13 +835,29 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
 def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[str],
                      watermark_status: str | None = None) -> bool:
     """The single COMPLETE gate, pulled out as a pure function so it's
-    directly unit-testable (see test_phase2_dailypanel_gate.py, tests 14-15)
-    without running the full panel. A green run requires ALL of:
+    directly unit-testable (see test_phase2_dailypanel_gate.py) without
+    running the full panel. A green run requires ALL of:
       - the ticker loop itself reported COMPLETE (no early total-budget stop)
       - exactly len(expected_tickers) rows, with exactly that many UNIQUE
         tickers (a duplicate row must not silently satisfy the count)
-      - every row's all_six_fields_clean is True (which itself already
-        requires every Wikipedia chunk resolved, first pass or second pass)
+      - every row's all_six_fields_clean is True -- covers ONLY the six
+        LOCKED research fields (gst_zscore, wiki_zscore,
+        implied_volatility, realized_vol, price, volume; which itself
+        already requires every Wikipedia chunk resolved, first pass or
+        second pass). days_to_nearest_earnings is contextual metadata, NOT
+        one of the six, and is deliberately NOT part of this check (see
+        below for its own, separate, fail-closed requirement) --
+        2026-08-01 correction: the 46aec15 baseline's successful 24/24 run
+        legitimately had 4 tickers with earnings_status="ok" but no
+        upcoming earnings date found; conflating that honest null into
+        all_six_fields_clean would have falsely made that baseline PARTIAL.
+      - earnings_status == "ok" for every row (fail-closed, checked
+        SEPARATELY from all_six_fields_clean): a successful lookup that
+        honestly finds no future earnings date (days_to_nearest_earnings
+        is None) is fine and does not block COMPLETE; earnings_status of
+        "error" or "timeout" -- an actual lookup FAILURE, not a genuine
+        "none found" result -- does block it. No earnings date is ever
+        fabricated to satisfy this.
       - every row has a parseable retrieval_timestamp_utc
       - watermark_status == "ok" (2026-08-01 addition): a run cannot be
         COMPLETE without a valid measured Wikipedia data watermark -- a
@@ -844,6 +878,8 @@ def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[s
         return False
     for r in rows:
         if not r.get("all_six_fields_clean"):
+            return False
+        if r.get("earnings_status") != "ok":
             return False
         ts = r.get("retrieval_timestamp_utc")
         if not ts:
@@ -1026,10 +1062,13 @@ def main():
             else:
                 _finalize_wiki_row(row, pending["article"], all_daily_rows, pending["run_ts"])
                 log(f"    [{ticker}] wiki fully recovered after second pass: z={row.get('wiki_zscore')}")
+            # all_six_fields_clean covers ONLY the six locked research
+            # fields (2026-08-01 correction) -- see the matching comment in
+            # process_ticker(). Recomputed here after second-pass/fallback
+            # recovery may have changed wiki_zscore.
             six_fields = [row.get("gst_zscore"), row.get("wiki_zscore"), row.get("implied_volatility"),
                           row.get("realized_vol"), row.get("price"), row.get("volume")]
-            row["all_six_fields_clean"] = (all(v is not None for v in six_fields)
-                                            and row.get("days_to_nearest_earnings") is not None)
+            row["all_six_fields_clean"] = all(v is not None for v in six_fields)
             rows[idx] = row
         write_checkpoint(rows)
 
@@ -1051,10 +1090,11 @@ def main():
             f"Checkpoint preserved at: {CHECKPOINT_PATH} ***")
 
     n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
+    n_earnings_ok = sum(1 for r in rows if r.get("earnings_status") == "ok")
     log("\n=== RUN SUMMARY ===")
     log(f"Status: {exit_status}")
-    log(f"Tickers: {len(rows)}/{len(TICKERS)}  Clean (all 6 fields + earnings): {n_clean}  "
-        f"Incomplete: {len(rows) - n_clean}")
+    log(f"Tickers: {len(rows)}/{len(TICKERS)}  Clean (six locked research fields only): {n_clean}  "
+        f"Incomplete: {len(rows) - n_clean}  Earnings lookup ok (date may still be null): {n_earnings_ok}")
     log(f"Total wall time: {wall_total:.1f}s ({wall_total/60:.2f} min)")
 
     write_completion_marker(rows, wall_total, exit_status,
