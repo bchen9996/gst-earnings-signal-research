@@ -21,6 +21,18 @@
 #   - no unavailable/inconclusive condition may count as PASS -- this test
 #     only ever PASSES or FAILS
 #
+# TEST ISOLATION (2026-07-31 follow-up): a successful fixture-backed chunk
+# still goes through the real write_chunk_to_cache(), which writes through
+# the module-global wiki_transport.CACHE_PATH -- with the REAL ticker
+# symbols "AAPL"/"AMZN", an unredirected run of this test would write into
+# (and could corrupt/pollute) the actual operational
+# Live Signal Engine/Phase2_Wikipedia_Cache.csv. This is a DETERMINISTIC
+# test and must never mutate operational data, so CACHE_PATH is redirected
+# to a temporary, test-only file for the duration of the run, restored
+# afterward no matter what, and the operational cache's untouched state is
+# explicitly verified (byte-identical if it existed, still absent if it
+# didn't) before reporting results.
+#
 # Run directly: python test_phase2_wikipedia_equivalence_deterministic.py
 
 from __future__ import annotations
@@ -28,7 +40,9 @@ from datetime import date
 from pathlib import Path
 import json
 import os
+import shutil
 import sys
+import tempfile
 
 import pandas as pd
 
@@ -42,6 +56,19 @@ FAILURES = []
 TOLERANCE = 1e-9
 FIXTURE_DIR = Path("Live Signal Engine") / "Phase2_Wikipedia_Equivalence_Fixtures"
 TICKERS_UNDER_TEST = ["AAPL", "AMZN"]
+
+_ORIGINAL_CACHE_PATH = wiki_transport.CACHE_PATH
+
+
+def _use_temp_cache() -> str:
+    tmp_dir = tempfile.mkdtemp(prefix="wiki_equivalence_test_")
+    wiki_transport.CACHE_PATH = Path(tmp_dir) / "test_cache.csv"
+    return tmp_dir
+
+
+def _restore_cache_path(tmp_dir: str) -> None:
+    wiki_transport.CACHE_PATH = _ORIGINAL_CACHE_PATH
+    shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 def check(name: str, condition: bool, detail: str = "") -> None:
@@ -136,9 +163,51 @@ def _run_for_ticker(ticker: str) -> None:
               f"fixture={fixture_z} assembled={assembled_z} diff={abs(fixture_z - assembled_z)}")
 
 
+# === Live smoke test exit-code mapping (2026-07-31 follow-up): a pure
+# function, tested here with zero network calls -- importing
+# test_phase2_wikipedia_equivalence only executes its live network code
+# inside `if __name__ == "__main__":`, which this import never triggers. ===
+def test_live_smoke_verdict_exit_code_mapping():
+    import test_phase2_wikipedia_equivalence as live_smoke
+
+    check("exit-code mapping: all PASS -> 0",
+          live_smoke.decide_exit_code({"AAPL": "PASS", "AMZN": "PASS"}) == 0)
+    check("exit-code mapping: any FAIL -> 1, even alongside a PASS",
+          live_smoke.decide_exit_code({"AAPL": "PASS", "AMZN": "FAIL"}) == 1)
+    check("exit-code mapping: any FAIL -> 1, even alongside an INCONCLUSIVE (FAIL always wins)",
+          live_smoke.decide_exit_code({"AAPL": "INCONCLUSIVE", "AMZN": "FAIL"}) == 1)
+    check("exit-code mapping: no FAIL but some INCONCLUSIVE -> 2",
+          live_smoke.decide_exit_code({"AAPL": "PASS", "AMZN": "INCONCLUSIVE"}) == 2)
+    check("exit-code mapping: all INCONCLUSIVE -> 2",
+          live_smoke.decide_exit_code({"AAPL": "INCONCLUSIVE", "AMZN": "INCONCLUSIVE"}) == 2)
+    check("exit-code mapping: all FAIL -> 1",
+          live_smoke.decide_exit_code({"AAPL": "FAIL", "AMZN": "FAIL"}) == 1)
+
+
 if __name__ == "__main__":
-    for t in TICKERS_UNDER_TEST:
-        _run_for_ticker(t)
+    operational_cache_existed_before = _ORIGINAL_CACHE_PATH.exists()
+    operational_cache_bytes_before = (
+        _ORIGINAL_CACHE_PATH.read_bytes() if operational_cache_existed_before else None)
+
+    tmp = _use_temp_cache()
+    try:
+        for t in TICKERS_UNDER_TEST:
+            _run_for_ticker(t)
+    finally:
+        _restore_cache_path(tmp)
+
+    test_live_smoke_verdict_exit_code_mapping()
+
+    operational_cache_exists_after = _ORIGINAL_CACHE_PATH.exists()
+    if operational_cache_existed_before:
+        unchanged = (operational_cache_exists_after
+                     and _ORIGINAL_CACHE_PATH.read_bytes() == operational_cache_bytes_before)
+        check("operational cache: pre-existing Phase2_Wikipedia_Cache.csv is byte-identical "
+              "before and after this deterministic test", unchanged)
+    else:
+        check("operational cache: no Phase2_Wikipedia_Cache.csv was created by this deterministic "
+              "test (it did not exist before and must not exist after)",
+              not operational_cache_exists_after)
 
     print()
     if FAILURES:
@@ -146,5 +215,6 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         print("DETERMINISTIC SCIENTIFIC-EQUIVALENCE TEST PASSED FOR ALL TICKERS -- exact date-set and "
-              "value equality against frozen, provenance-documented fixtures, no live-network dependency.")
+              "value equality against frozen, provenance-documented fixtures, no live-network dependency, "
+              "and the operational cache was verified untouched.")
         sys.exit(0)
