@@ -1,0 +1,3 @@
+claim_id,event_id,dossier_section,claim_text,value_type,claim_category,numeric_value,unit,gaap_basis,currency_basis,fiscal_period_basis,comparison_period,consensus_provider,consensus_asof_date,novelty_eval_basis,verification_status,layer,created_at_utc
+EVT-AAPL-FY26Q3-ERN-CLM-0001,EVT-AAPL-FY26Q3-ERN,results,Revenue was 90.0 billion up 18 percent year over year,qualitative,reported_fact,,,NA,NA,FY26Q3,NA,,,not_evaluated,verified,A_blinded_core,2026-08-02T00:00:00+00:00
+EVT-AAPL-FY26Q3-ERN-CLM-0003,EVT-AAPL-FY26Q3-ERN,results,The stock jumped 8% in after-hours trading following the report.,qualitative,analyst_interpretation,,,NA,NA,FY26Q3,NA,,,not_evaluated,verified,A_blinded_core,2026-08-02T00:00:00+00:00

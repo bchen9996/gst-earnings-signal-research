@@ -1,0 +1,2 @@
+addendum_id,event_id,linked_label_id,captured_at_utc,captured_by,price_reaction_pct,price_reaction_window,volume_reaction,iv_reaction,options_reaction_notes,post_event_analyst_target_change_claim_ids,post_event_media_sentiment_notes,notes
+EVT-AAPL-FY26Q3-ERN-ADD-01,EVT-AAPL-FY26Q3-ERN,EVT-AAPL-FY26Q3-ERN-LBL-01,2026-08-02T09:00:00+00:00,ai,8.0,after_hours,,,,,,
