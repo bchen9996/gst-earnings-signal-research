@@ -511,6 +511,16 @@ COLUMN_ORDER = [
     # the only value -- present for forward compatibility/auditability, not
     # because alternate sources exist today).
     "wiki_zscore_anchor_date", "wiki_zscore_anchor_source",
+    # WIKI SOURCE PROVENANCE (2026-08-02 additive correction -- see
+    # _wiki_source_provenance()). wiki_source_mode is now DERIVED from the
+    # chunks that actually contributed rows, never hardcoded: one of
+    # "fresh_only", "exact_cache_only", "cache_union_only", "mixed", or
+    # (via the existing recent_last_known_good override, applied after
+    # this derivation, unchanged) "recent_last_known_good". The four
+    # *_json fields use deterministic, sort_keys=True JSON so identical
+    # underlying provenance always serializes identically.
+    "wiki_cache_union_used", "wiki_cache_union_chunk_count",
+    "wiki_source_components_json", "wiki_cache_union_provenance_json",
     "all_six_fields_clean", "ticker_total_s",
 ]
 
@@ -745,9 +755,17 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
                 "ticker": ticker, "article": article, "run_ts": run_ts,
                 "daily_rows_so_far": wiki_result["daily_rows"],
                 "failed_chunks": wiki_result["failed_chunks"],
+                # 2026-08-02 additive correction: first-pass chunk_results
+                # (including any successful cache/fetch/cache_union_
+                # reconstruction chunks alongside the ones that failed and
+                # are queued above) must survive into the second pass so
+                # the ticker's FINAL source provenance -- computed after
+                # second-pass recovery -- reflects every contributing
+                # chunk, not just the ones recovered in second pass.
+                "chunk_results": wiki_result["chunk_results"],
             }
         else:
-            _finalize_wiki_row(row, article, wiki_result["daily_rows"], watermark_date)
+            _finalize_wiki_row(row, article, wiki_result["daily_rows"], watermark_date, wiki_result["chunk_results"])
     row["wiki_elapsed_s"] = round(time.time() - t0, 3)
     log(f"  [{ticker}] DONE  wiki  status={row['wiki_status']} elapsed={row['wiki_elapsed_s']:.2f}s "
         f"z={row.get('wiki_zscore')}")
@@ -768,7 +786,73 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
     return row, wiki_pending
 
 
-def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], watermark_date: date) -> None:
+def _wiki_source_provenance(chunk_results: list[dict]) -> dict:
+    """Derives final wiki-leg source provenance from the chunks that
+    ACTUALLY contributed rows -- never hardcoded (2026-08-02 correction:
+    _finalize_wiki_row() previously wrote wiki_source_mode="fresh"
+    unconditionally, which was simply false for a cache hit, a cache-union
+    reconstruction, or any mix of the two).
+
+    chunk_results is the FULL set of chunk attempts behind this ticker's
+    finalized wiki_zscore: first-pass entries as returned by
+    get_ticker_wikipedia_daily(), plus -- when a second-pass retry
+    recovered a chunk that failed first pass -- one NORMALIZED entry per
+    recovered chunk with source="fetch" added by the caller (second-pass
+    chunk_results carry no "source" field of their own; second pass is
+    always a live fetch, never a cache or union hit, by construction). A
+    chunk that was never requested (no_observations_expected_yet) or that
+    ultimately failed contributes nothing here.
+
+    Returns the four additive COLUMN_ORDER fields as a dict:
+      wiki_source_mode: "fresh_only" | "exact_cache_only" |
+        "cache_union_only" | "mixed" | None (only if literally no chunk
+        contributed -- should not happen whenever wiki_zscore ends up
+        non-None, but this function never invents a value to paper over
+        that). The caller may still overwrite this afterward for the
+        UNRELATED recent_last_known_good case (see main()'s second-pass
+        loop) -- that override, and its own existing provenance, are
+        untouched by this function.
+      wiki_cache_union_used / wiki_cache_union_chunk_count: whether/how
+        many chunks were recovered via cache_union_reconstruction.
+      wiki_source_components_json / wiki_cache_union_provenance_json:
+        deterministic JSON (sort_keys=True over already-sorted inputs) so
+        identical underlying provenance always serializes identically."""
+    ok_chunks = [cr for cr in chunk_results
+                 if cr.get("status") == "ok" and cr.get("source") in ("cache", "fetch", "cache_union_reconstruction")]
+    sources_used = sorted({cr["source"] for cr in ok_chunks})
+
+    if not sources_used:
+        mode = None
+    elif sources_used == ["fetch"]:
+        mode = "fresh_only"
+    elif sources_used == ["cache"]:
+        mode = "exact_cache_only"
+    elif sources_used == ["cache_union_reconstruction"]:
+        mode = "cache_union_only"
+    else:
+        mode = "mixed"
+
+    union_chunks = [cr for cr in ok_chunks if cr["source"] == "cache_union_reconstruction"]
+    union_provenance_list = [
+        {
+            "requested_chunk_start": cr.get("chunk_start"),
+            "requested_chunk_end": cr.get("chunk_end"),
+            **(cr.get("cache_union_provenance") or {}),
+        }
+        for cr in sorted(union_chunks, key=lambda c: (c.get("chunk_start") or "", c.get("chunk_end") or ""))
+    ]
+
+    return {
+        "wiki_source_mode": mode,
+        "wiki_cache_union_used": len(union_chunks) > 0,
+        "wiki_cache_union_chunk_count": len(union_chunks),
+        "wiki_source_components_json": json.dumps(sources_used, sort_keys=True),
+        "wiki_cache_union_provenance_json": json.dumps(union_provenance_list, sort_keys=True),
+    }
+
+
+def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], watermark_date: date,
+                        chunk_results: list[dict]) -> None:
     """Assembles the daily series from whatever chunk rows are available
     (cache + first-pass + any second-pass recoveries) and computes the wiki
     z-score using the EXACT SAME unmodified functions as before this
@@ -788,6 +872,13 @@ def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], watermar
     SAME watermark_date used to truncate this ticker's chunk fetching --
     this function has no wall-clock fallback and fails closed (raises) if
     watermark_date is missing, rather than silently substituting one.
+
+    chunk_results (2026-08-02 additive correction): the chunk attempts
+    behind `daily_rows`, REQUIRED (no default) -- this function no longer
+    hardcodes wiki_source_mode="fresh"; see _wiki_source_provenance() for
+    exactly how it is derived instead. Passing an accurate chunk_results
+    list is the caller's responsibility (see process_ticker() and main()'s
+    second-pass loop for the two production call sites).
     """
     if watermark_date is None:
         raise ValueError(
@@ -811,10 +902,10 @@ def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], watermar
     row["wiki_aligned_week"] = aligned_week.date().isoformat() if aligned_week is not None else None
     row["wiki_note"] = note
     row["wiki_status"] = "ok"
-    row["wiki_source_mode"] = "fresh"
     row["wiki_fresh_request_failed"] = False
     row["wiki_zscore_anchor_date"] = watermark_date.isoformat()
     row["wiki_zscore_anchor_source"] = "measured_watermark"
+    row.update(_wiki_source_provenance(chunk_results))
 
 
 def write_checkpoint(rows: list[dict]) -> None:
@@ -1101,10 +1192,38 @@ def main():
             all_daily_rows = pending["daily_rows_so_far"] + recovered_rows
             still_failed_for_ticker = [f for f in fallback["still_failed"] if f["ticker"] == ticker]
             fallback_info = fallback["fallback_recovered"].get(ticker)
+            # 2026-08-02 additive correction: combine this ticker's
+            # preserved first-pass chunk_results (cache/fetch/cache_union_
+            # reconstruction successes alongside whatever failed) with a
+            # NORMALIZED view of this ticker's second-pass chunk_results
+            # (source="fetch" added -- second pass is always a live fetch
+            # retry, never a cache or union hit, by construction; the
+            # transport module's own chunk_results dicts for second pass
+            # carry no "source" field of their own) -- so the final
+            # provenance derivation sees every chunk that ever contributed,
+            # not just the ones from whichever pass happened to run last.
+            ticker_second_pass_results = [
+                {**cr, "source": "fetch"} for cr in second["chunk_results"] if cr["ticker"] == ticker
+            ]
+            combined_chunk_results = pending["chunk_results"] + ticker_second_pass_results
             if fallback_info is not None:
                 all_daily_rows = all_daily_rows + fallback_info["rows"]
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"])
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"],
+                                    combined_chunk_results)
                 row.update(fallback_info["provenance"])   # overrides wiki_status/wiki_source_mode set by _finalize_wiki_row
+                # The RECENT_LAST_KNOWN_GOOD fallback's own existing
+                # provenance (set above) is untouched and remains
+                # authoritative for wiki_status/wiki_source_mode. This
+                # purely ADDS "recent_last_known_good" into the newer,
+                # more granular component listing alongside whatever other
+                # chunks for this ticker still contributed normally (e.g.
+                # cache or cache_union_reconstruction hits for the ticker's
+                # other, non-fallback months) -- never removes or
+                # overrides anything apply_recent_cache_fallback() itself
+                # produced.
+                existing_components = json.loads(row.get("wiki_source_components_json") or "[]")
+                merged_components = sorted(set(existing_components) | {"recent_last_known_good"})
+                row["wiki_source_components_json"] = json.dumps(merged_components, sort_keys=True)
                 log(f"    [{ticker}] wiki complete via RECENT_LAST_KNOWN_GOOD fallback: "
                     f"z={row.get('wiki_zscore')}")
             elif still_failed_for_ticker:
@@ -1114,7 +1233,8 @@ def main():
                                                    f" ({f['reason']})" for f in still_failed_for_ticker))
                 row["wiki_fresh_request_failed"] = True
             else:
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"])
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"],
+                                    combined_chunk_results)
                 log(f"    [{ticker}] wiki fully recovered after second pass: z={row.get('wiki_zscore')}")
             # all_six_fields_clean covers ONLY the six locked research
             # fields (2026-08-01 correction) -- see the matching comment in

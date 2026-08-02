@@ -733,11 +733,25 @@ def attempt_cache_union_reconstruction(cache_df: pd.DataFrame, ticker: str, arti
     # hash doesn't match a hash recomputed from its OWN full row set is
     # excluded entirely (its rows never contribute), not silently trusted
     # just because one field happens to be non-null.
+    #
+    # The full-group re-lookup below MUST also filter on
+    # configured_article_title, not just (ticker, chunk_start, chunk_end)
+    # -- two different article mappings for the SAME ticker (e.g. an older,
+    # superseded TICKER_TO_WIKI_ARTICLE entry) can otherwise share an
+    # identical chunk-boundary key. Without the article filter here, the
+    # "full group" pulled for hash recomputation would silently mix rows
+    # from both articles, almost certainly breaking the hash match (or,
+    # worse, coincidentally NOT breaking it) -- an identity leak this
+    # function must never allow even though `candidates` itself was
+    # already filtered to `article` above.
     candidate_groups = {(r["chunk_start"], r["chunk_end"]) for _, r in candidates.iterrows()}
     hash_valid_groups = set()
     for cs, ce in candidate_groups:
         full_group = cache_df[
-            (cache_df["ticker"] == ticker) & (cache_df["chunk_start"] == cs) & (cache_df["chunk_end"] == ce)
+            (cache_df["ticker"] == ticker)
+            & (cache_df["configured_article_title"] == article)
+            & (cache_df["chunk_start"] == cs)
+            & (cache_df["chunk_end"] == ce)
         ]
         stored_hashes = full_group["content_hash"].unique()
         if len(stored_hashes) != 1 or not stored_hashes[0]:

@@ -51,12 +51,25 @@ def _fresh_row() -> dict:
             "realized_vol": 0.3, "price": 100.0, "volume": 1000}
 
 
+def _fresh_chunk_results(daily_rows: list[dict]) -> list[dict]:
+    """A single synthetic 'fetch' chunk covering daily_rows' full span --
+    these tests exercise the anchor/tolerance/fail-closed behavior, not
+    source-provenance labeling (see test_phase2_wiki_source_provenance.py
+    for that), so a minimal, valid, always-"fresh" chunk_results is
+    sufficient here; chunk_results is a REQUIRED _finalize_wiki_row
+    argument (2026-08-02 additive correction) with no default."""
+    if not daily_rows:
+        return []
+    dates = sorted(r["date"] for r in daily_rows)
+    return [{"chunk_start": dates[0], "chunk_end": dates[-1], "source": "fetch", "status": "ok"}]
+
+
 # === Test 1: run date Aug 2, watermark Aug 1, nearest week Jul 26 -> valid within 6-day tolerance ===
 def test_1_watermark_anchor_within_tolerance():
     watermark_date = date(2026, 8, 1)
     daily_rows = _daily_rows(watermark_date, n_days=15 * 7)  # 15 weeks of history
     row = _fresh_row()
-    panel._finalize_wiki_row(row, "Test_Article", daily_rows, watermark_date)
+    panel._finalize_wiki_row(row, "Test_Article", daily_rows, watermark_date, _fresh_chunk_results(daily_rows))
     check("1a. wiki_zscore is not None when anchored at the watermark (gap<=6d)",
           row.get("wiki_zscore") is not None, f"note={row.get('wiki_note')!r}")
     check("1b. wiki_status == 'ok'", row.get("wiki_status") == "ok")
@@ -71,9 +84,9 @@ def test_2_wall_clock_independence():
     daily_rows = _daily_rows(watermark_date, n_days=15 * 7)
 
     row_a = _fresh_row()
-    panel._finalize_wiki_row(row_a, "Test_Article", daily_rows, watermark_date)
+    panel._finalize_wiki_row(row_a, "Test_Article", daily_rows, watermark_date, _fresh_chunk_results(daily_rows))
     row_b = _fresh_row()
-    panel._finalize_wiki_row(row_b, "Test_Article", daily_rows, watermark_date)
+    panel._finalize_wiki_row(row_b, "Test_Article", daily_rows, watermark_date, _fresh_chunk_results(daily_rows))
 
     check("2a. identical inputs (data+watermark) produce an identical z-score regardless of when the test runs",
           row_a.get("wiki_zscore") == row_b.get("wiki_zscore"),
@@ -93,13 +106,15 @@ def test_3_observation_after_watermark_excluded():
     daily_rows = _daily_rows(watermark_date, n_days=15 * 7)
 
     row_without_future = _fresh_row()
-    panel._finalize_wiki_row(row_without_future, "Test_Article", daily_rows, watermark_date)
+    panel._finalize_wiki_row(row_without_future, "Test_Article", daily_rows, watermark_date,
+                              _fresh_chunk_results(daily_rows))
 
     daily_rows_with_future = daily_rows + [
         {"date": (watermark_date + timedelta(days=4)).strftime("%Y%m%d"), "pageviews": 999_999_999},
     ]
     row_with_future = _fresh_row()
-    panel._finalize_wiki_row(row_with_future, "Test_Article", daily_rows_with_future, watermark_date)
+    panel._finalize_wiki_row(row_with_future, "Test_Article", daily_rows_with_future, watermark_date,
+                              _fresh_chunk_results(daily_rows_with_future))
 
     check("3. an observation dated after the watermark has zero effect on the computed z-score (excluded)",
           row_without_future.get("wiki_zscore") == row_with_future.get("wiki_zscore"),
@@ -112,7 +127,7 @@ def test_4_missing_watermark_fails_closed():
     row = _fresh_row()
     raised = False
     try:
-        panel._finalize_wiki_row(row, "Test_Article", daily_rows, None)
+        panel._finalize_wiki_row(row, "Test_Article", daily_rows, None, _fresh_chunk_results(daily_rows))
     except ValueError:
         raised = True
     check("4. _finalize_wiki_row(watermark_date=None) raises ValueError (fail closed, no wall-clock fallback)",
@@ -130,7 +145,8 @@ def test_5_watermark_error_fails_closed():
     row = _fresh_row()
     raised = False
     try:
-        panel._finalize_wiki_row(row, "Test_Article", daily_rows, watermark_info["watermark_date"])
+        panel._finalize_wiki_row(row, "Test_Article", daily_rows, watermark_info["watermark_date"],
+                                  _fresh_chunk_results(daily_rows))
     except ValueError:
         raised = True
     check("5. a watermark-resolution error (status != 'ok', watermark_date=None) fails closed the same way",
@@ -162,7 +178,7 @@ def test_8_provenance_records_watermark_anchor():
     watermark_date = date(2026, 8, 1)
     daily_rows = _daily_rows(watermark_date, n_days=15 * 7)
     row = _fresh_row()
-    panel._finalize_wiki_row(row, "Test_Article", daily_rows, watermark_date)
+    panel._finalize_wiki_row(row, "Test_Article", daily_rows, watermark_date, _fresh_chunk_results(daily_rows))
     check("8a. wiki_zscore_anchor_date == watermark_date",
           row.get("wiki_zscore_anchor_date") == watermark_date.isoformat(),
           f"got {row.get('wiki_zscore_anchor_date')!r}")
