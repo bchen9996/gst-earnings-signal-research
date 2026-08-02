@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gst-information-arrival-project/event-dossier-protocol/freeze_manifest.schema.json",
+  "title": "Event Dossier Freeze Manifest",
+  "description": "One freeze_manifest.json per event_labels.csv row that reaches label_status=human_frozen. Records the frozen Layer A artifact hashes, the freeze timestamp/actor, and every recorded Layer B/C reviewer exposure and reveal event, so reveal-before-freeze and exposure-before-freeze violations can be checked mechanically. See EVENT_DOSSIER_PROTOCOL_v0.1_DRAFT.md Section 17.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "label_id",
+    "protocol_version",
+    "layer_a_artifact_hashes",
+    "freeze_timestamp_utc",
+    "frozen_by"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "pattern": "^EVT-[A-Z0-9-]+-FY\\d{2}Q\\d-[A-Z]+$"
+    },
+    "label_id": {
+      "type": "string",
+      "pattern": "^EVT-[A-Z0-9-]+-FY\\d{2}Q\\d-[A-Z]+-LBL-\\d{2}$"
+    },
+    "protocol_version": {
+      "type": "string"
+    },
+    "layer_a_artifact_hashes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["artifact_path", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "artifact_path": { "type": "string" },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "freeze_timestamp_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "frozen_by": {
+      "type": "string"
+    },
+    "reviewer_capture_exposure_log": {
+      "description": "Every recorded instance of a reviewer being shown Layer B/C content for this event, regardless of when. Used to detect a disqualifying exposure: an entry here with exposure_timestamp_utc < freeze_timestamp_utc whose reviewer_id also appears as frozen_by is a validation failure.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["reviewer_id", "layer", "exposure_timestamp_utc"],
+        "additionalProperties": false,
+        "properties": {
+          "reviewer_id": { "type": "string" },
+          "layer": {
+            "type": "string",
+            "enum": ["B_market_response", "C_attention_feature"]
+          },
+          "exposure_timestamp_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "reveal_events": {
+      "description": "Every recorded instance of Layer B/C content being formally revealed (as distinct from merely captured) for this event. Every revealed_at_utc here must be >= freeze_timestamp_utc.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "required": ["layer", "revealed_at_utc", "revealed_by"],
+        "additionalProperties": false,
+        "properties": {
+          "layer": {
+            "type": "string",
+            "enum": ["B_market_response", "C_attention_feature"]
+          },
+          "revealed_at_utc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revealed_by": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "event_disposition_at_freeze": {
+      "type": "string",
+      "enum": ["development_pilot", "confirmatory", "compromised"]
+    },
+    "amendment_of_manifest_path": {
+      "description": "Set if this manifest itself amends a prior frozen manifest for the same event (mirrors event_labels.amendment_of_label_id).",
+      "type": ["string", "null"]
+    }
+  }
+}
