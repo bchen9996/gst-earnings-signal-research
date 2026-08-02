@@ -651,6 +651,154 @@ def validated_cache_hit(cache_df: pd.DataFrame, ticker: str, article: str,
     return {"hit": True, "rows": rows, "validation": validation}
 
 
+def attempt_cache_union_reconstruction(cache_df: pd.DataFrame, ticker: str, article: str,
+                                        chunk_start: date, req_end: date, watermark: date) -> dict:
+    """Conservative, read-only fallback for a CLOSED historical interval
+    whose exact (ticker, chunk_start, chunk_end) cache key misses,
+    attempted BEFORE any network request -- the caller must never invoke
+    this for the open/current chunk (see is_open_chunk() gating at the
+    call site in get_ticker_wikipedia_daily()); that path is unchanged:
+    live-first, then the existing recent_last_known_good fallback only
+    after both a fresh fetch and the bounded second pass have failed.
+
+    Motivating case (2026-08-02): a ticker's oldest rolling-lookback chunk
+    shifts its chunk_start forward by one day on every run, so it can
+    never hit the exact-key cache even though the underlying calendar
+    dates were already fetched and validated under yesterday's (or an
+    earlier) chunk boundary -- forcing a daily re-fetch against a
+    documented-flaky per-article endpoint for data that, for a closed
+    historical month, will never change again.
+
+    Reconstructs the required date range from a day-level UNION of
+    already-validated cache rows for the same ticker+configured article,
+    regardless of which (chunk_start, chunk_end) key they were originally
+    fetched under. Fails closed (returns hit=False) unless ALL of:
+      1. Every calendar date in [chunk_start, req_end] is present in the
+         union -- no partial-coverage union is ever accepted.
+      2. Every contributing row carries http_status == 200, a non-null
+         content_hash, and a genuinely nonnegative-integer pageviews value
+         (_is_valid_nonnegative_integer_pageviews()).
+      3. If more than one cached row exists for the same date, they must
+         agree EXACTLY on pageviews -- any disagreement fails the WHOLE
+         reconstruction closed for this interval, never averaged or
+         arbitrarily picked.
+      4. No contributing date is later than `watermark` (defensive -- by
+         construction req_end <= watermark already, via required_data_end()
+         at the call site, but checked again here independently).
+
+    Never writes anything back to the cache -- this is a read-only,
+    derived view over already-validated data, not a new network
+    observation, and must never be persisted as though it were one (see
+    the call site: no write_chunk_to_cache() call follows a union hit).
+
+    Returns {"hit": bool, "rows": [...], "provenance": {...} | None}. On a
+    hit, provenance carries wiki_source_mode="cache_union_reconstruction",
+    every contributing (chunk_start, chunk_end) key, every distinct
+    contributing content_hash, and every distinct contributing
+    last_verified_utc timestamp, so a recovered chunk is fully auditable."""
+    if cache_df.empty:
+        return {"hit": False, "rows": [], "provenance": None}
+
+    needed_dates: list[date] = []
+    d = chunk_start
+    while d <= req_end:
+        needed_dates.append(d)
+        d += timedelta(days=1)
+    needed_date_strs = {d.strftime("%Y%m%d") for d in needed_dates}
+    if not needed_date_strs:
+        return {"hit": False, "rows": [], "provenance": None}
+
+    candidates = cache_df[
+        (cache_df["ticker"] == ticker)
+        & (cache_df["configured_article_title"] == article)
+        & (cache_df["http_status"] == 200)
+        & (cache_df["date"].isin(needed_date_strs))
+    ]
+    if candidates.empty:
+        return {"hit": False, "rows": [], "provenance": None}
+
+    # Belt-and-suspenders watermark exclusion, independent of the fact
+    # that needed_dates itself never extends past req_end (<= watermark
+    # by construction at the call site) -- never trust a single boundary
+    # check alone for "no post-watermark observation may enter."
+    candidates = candidates[candidates["date"].apply(
+        lambda s: datetime.strptime(str(s), "%Y%m%d").date() <= watermark)]
+    if candidates.empty:
+        return {"hit": False, "rows": [], "provenance": None}
+
+    # "Retain valid ... hash" means each contributing row's PARENT chunk
+    # group must itself be internally hash-consistent -- the same
+    # recompute-and-compare check verify_cache_integrity() runs over the
+    # whole cache, applied here per candidate group. A group whose stored
+    # hash doesn't match a hash recomputed from its OWN full row set is
+    # excluded entirely (its rows never contribute), not silently trusted
+    # just because one field happens to be non-null.
+    candidate_groups = {(r["chunk_start"], r["chunk_end"]) for _, r in candidates.iterrows()}
+    hash_valid_groups = set()
+    for cs, ce in candidate_groups:
+        full_group = cache_df[
+            (cache_df["ticker"] == ticker) & (cache_df["chunk_start"] == cs) & (cache_df["chunk_end"] == ce)
+        ]
+        stored_hashes = full_group["content_hash"].unique()
+        if len(stored_hashes) != 1 or not stored_hashes[0]:
+            continue
+        recomputed = compute_chunk_hash(full_group[["date", "pageviews"]].to_dict("records"))
+        if recomputed == stored_hashes[0]:
+            hash_valid_groups.add((cs, ce))
+    candidates = candidates[candidates.apply(
+        lambda r: (r["chunk_start"], r["chunk_end"]) in hash_valid_groups, axis=1)]
+    if candidates.empty:
+        return {"hit": False, "rows": [], "provenance": None}
+
+    resolved_rows: dict[str, dict] = {}
+    for _, r in candidates.iterrows():
+        if not _is_valid_nonnegative_integer_pageviews(r.get("pageviews")):
+            continue
+        if not r.get("content_hash"):
+            continue
+        date_str = str(r["date"])
+        pv = int(float(r["pageviews"]))
+        existing = resolved_rows.get(date_str)
+        if existing is not None:
+            if existing["pageviews"] != pv:
+                # Disagreement across contributing snapshots -- fail the
+                # WHOLE reconstruction closed, not just this one date.
+                return {"hit": False, "rows": [], "provenance": {
+                    "rejected_reason": "conflicting_pageviews_across_cached_chunks",
+                    "conflict_date": date_str,
+                }}
+            continue
+        resolved_rows[date_str] = {
+            "date": date_str, "pageviews": pv,
+            "chunk_start": r["chunk_start"], "chunk_end": r["chunk_end"],
+            "content_hash": r["content_hash"], "last_verified_utc": r.get("last_verified_utc"),
+        }
+
+    if not needed_date_strs.issubset(resolved_rows.keys()):
+        missing = sorted(needed_date_strs - resolved_rows.keys())
+        return {"hit": False, "rows": [], "provenance": {
+            "rejected_reason": "incomplete_union_coverage",
+            "missing_dates": missing,
+        }}
+
+    ordered_dates = sorted(needed_date_strs)
+    rows = [{"date": ds, "pageviews": resolved_rows[ds]["pageviews"]} for ds in ordered_dates]
+    contributing_keys = sorted({(resolved_rows[ds]["chunk_start"], resolved_rows[ds]["chunk_end"])
+                                 for ds in ordered_dates})
+    contributing_hashes = sorted({resolved_rows[ds]["content_hash"] for ds in ordered_dates})
+    contributing_timestamps = sorted({resolved_rows[ds]["last_verified_utc"] for ds in ordered_dates
+                                       if resolved_rows[ds]["last_verified_utc"]})
+    provenance = {
+        "wiki_source_mode": "cache_union_reconstruction",
+        "contributing_chunk_keys": contributing_keys,
+        "contributing_content_hashes": contributing_hashes,
+        "contributing_retrieval_timestamps": contributing_timestamps,
+        "reconstructed_at_utc": datetime.now(timezone.utc).isoformat(),
+        "date_count": len(rows),
+    }
+    return {"hit": True, "rows": rows, "provenance": provenance}
+
+
 def write_chunk_to_cache(ticker: str, article: str, canonical_title: str | None, page_id: str | None,
                           chunk_start: date, chunk_end: date, daily_rows: list[dict],
                           source_url: str, http_status: int, now_utc: str) -> None:
@@ -943,6 +1091,27 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
         # what the current, advanced watermark requires). Either way, fall
         # through to a fresh fetch, requesting ONLY chunk_start..req_end --
         # never beyond the measured watermark.
+
+        # CLOSED-HISTORICAL-INTERVAL cache-union reconstruction (2026-08-02
+        # addition): tried only for a chunk that is NOT the open/current
+        # one, and only before the network request below -- never for the
+        # open chunk, whose behavior is deliberately unchanged (live-first,
+        # then the existing recent_last_known_good fallback later). See
+        # attempt_cache_union_reconstruction() for the full acceptance
+        # rules (exact coverage, HTTP-200/identity/hash/pageview validity
+        # per contributing row, conflict-fails-closed, watermark exclusion).
+        # Never writes to the cache -- a read-only reconstruction only.
+        if not is_open_chunk(chunk_start, chunk_end, watermark):
+            union = attempt_cache_union_reconstruction(cache_df, ticker, article, chunk_start, req_end, watermark)
+            if union["hit"]:
+                daily_rows.extend(union["rows"])
+                chunk_results.append({
+                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                    "source": "cache_union_reconstruction", "status": "ok",
+                    "network_elapsed_s": 0.0, "sleep_s": 0.0,
+                    "cache_union_provenance": union["provenance"],
+                })
+                continue
 
         result = fetch_fn(article, chunk_start, req_end, timeout_s=effective_chunk_timeout)
         base_chunk_result = {
