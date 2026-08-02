@@ -500,6 +500,17 @@ COLUMN_ORDER = [
     "wiki_data_watermark_date", "wiki_data_lag_days", "wiki_watermark_status",
     "wiki_watermark_retrieved_at_utc", "wiki_watermark_source_url",
     "wiki_watermark_http_status", "wiki_required_data_end",
+    # Z-SCORE ANCHOR provenance (2026-08-02 correction -- see
+    # _finalize_wiki_row()). The anchor passed to compute_zscore_at_anchor()
+    # must be the measured watermark date, never the script's real
+    # wall-clock run date -- see CHANGELOG.md 2026-08-02 entry for the bug
+    # this fixes (a 1-day mismatch pushed 16/24 tickers past the existing
+    # 6-day alignment tolerance). wiki_zscore_anchor_date always equals
+    # wiki_data_watermark_date on a finalized row; wiki_zscore_anchor_source
+    # records how the anchor was derived ("measured_watermark" is currently
+    # the only value -- present for forward compatibility/auditability, not
+    # because alternate sources exist today).
+    "wiki_zscore_anchor_date", "wiki_zscore_anchor_source",
     "all_six_fields_clean", "ticker_total_s",
 ]
 
@@ -723,7 +734,7 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
                 "failed_chunks": wiki_result["failed_chunks"],
             }
         else:
-            _finalize_wiki_row(row, article, wiki_result["daily_rows"], run_ts)
+            _finalize_wiki_row(row, article, wiki_result["daily_rows"], watermark_date)
     row["wiki_elapsed_s"] = round(time.time() - t0, 3)
     log(f"  [{ticker}] DONE  wiki  status={row['wiki_status']} elapsed={row['wiki_elapsed_s']:.2f}s "
         f"z={row.get('wiki_zscore')}")
@@ -744,15 +755,43 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
     return row, wiki_pending
 
 
-def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], run_ts: datetime) -> None:
+def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], watermark_date: date) -> None:
     """Assembles the daily series from whatever chunk rows are available
     (cache + first-pass + any second-pass recoveries) and computes the wiki
     z-score using the EXACT SAME unmodified functions as before this
     rewrite (to_weekly(), compute_zscore_at_anchor()) -- only how the daily
-    rows were gathered changed, not the z-score methodology itself."""
+    rows were gathered changed, not the z-score methodology itself.
+
+    2026-08-02 correction: the anchor passed to compute_zscore_at_anchor()
+    is the measured run-level Wikipedia watermark date, NEVER the script's
+    real wall-clock run date. Wikipedia data is truncated at the watermark
+    (required_data_end = min(chunk_end, watermark)), so anchoring against
+    "today" when today is genuinely ahead of the watermark manufactures a
+    spurious gap between the anchor and the nearest available week --
+    exactly what caused a systemic wiki_zscore=None across 16/24 tickers on
+    2026-08-02 despite every one of their Wikipedia chunks resolving
+    cleanly (see Live Signal Engine/Phase2 Failure Evidence/
+    2026-08-02_WatermarkAnchor_And_Endpoint_PARTIAL/). Callers must pass the
+    SAME watermark_date used to truncate this ticker's chunk fetching --
+    this function has no wall-clock fallback and fails closed (raises) if
+    watermark_date is missing, rather than silently substituting one.
+    """
+    if watermark_date is None:
+        raise ValueError(
+            "_finalize_wiki_row: watermark_date is required and must not be None -- "
+            "the wiki z-score anchor must never fall back to a wall-clock date. "
+            "Fail closed: do not call this function without a confirmed measured watermark."
+        )
+    # Defense in depth: no observation dated after the watermark may enter
+    # the z-score, regardless of how daily_rows was assembled upstream.
+    # Chunk-level truncation (required_data_end) already enforces this at
+    # fetch time; this filter makes the invariant hold at the z-score
+    # boundary itself, independent of the fetch path.
+    daily_rows = [r for r in daily_rows
+                  if datetime.strptime(str(r["date"]), "%Y%m%d").date() <= watermark_date]
     daily_df = wiki_transport.assemble_daily_series(daily_rows)
     weekly = to_weekly(daily_df)
-    anchor = pd.Timestamp(run_ts.date())
+    anchor = pd.Timestamp(watermark_date)
     aligned_week, wiki_z, note = canonical.compute_zscore_at_anchor(weekly, anchor)
     row["wikipedia_article"] = article
     row["wiki_zscore"] = round(wiki_z, 4) if wiki_z is not None else None
@@ -761,6 +800,8 @@ def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], run_ts: 
     row["wiki_status"] = "ok"
     row["wiki_source_mode"] = "fresh"
     row["wiki_fresh_request_failed"] = False
+    row["wiki_zscore_anchor_date"] = watermark_date.isoformat()
+    row["wiki_zscore_anchor_source"] = "measured_watermark"
 
 
 def write_checkpoint(rows: list[dict]) -> None:
@@ -1049,7 +1090,7 @@ def main():
             fallback_info = fallback["fallback_recovered"].get(ticker)
             if fallback_info is not None:
                 all_daily_rows = all_daily_rows + fallback_info["rows"]
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, pending["run_ts"])
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"])
                 row.update(fallback_info["provenance"])   # overrides wiki_status/wiki_source_mode set by _finalize_wiki_row
                 log(f"    [{ticker}] wiki complete via RECENT_LAST_KNOWN_GOOD fallback: "
                     f"z={row.get('wiki_zscore')}")
@@ -1060,7 +1101,7 @@ def main():
                                                    f" ({f['reason']})" for f in still_failed_for_ticker))
                 row["wiki_fresh_request_failed"] = True
             else:
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, pending["run_ts"])
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"])
                 log(f"    [{ticker}] wiki fully recovered after second pass: z={row.get('wiki_zscore')}")
             # all_six_fields_clean covers ONLY the six locked research
             # fields (2026-08-01 correction) -- see the matching comment in

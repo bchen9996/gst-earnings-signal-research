@@ -1,5 +1,70 @@
 # Changelog
 
+## 2026-08-02 — Phase 2: anchor the wiki z-score on the measured watermark, not wall-clock time
+
+**Why this changed.** A bounded 24-ticker regression on 2026-08-02 (commit
+`50c4916`) came back PARTIAL with `wiki_zscore` 0/24, even though the
+watermark mechanism (`e2d7d80`) and the completion gate (`50c4916`) both
+worked correctly this run (watermark `status=ok`, `lag_days=1`; every row
+`earnings_status=ok`). Root cause, confirmed via each affected row's
+`wiki_note`: `_finalize_wiki_row()` in `GST_Phase2_DailyPanel.py` anchored
+`compute_zscore_at_anchor()` on `pd.Timestamp(run_ts.date())` — the
+script's real wall-clock run date — instead of the measured watermark
+date. Since Wikipedia data is genuinely truncated at the watermark
+(`required_data_end = min(chunk_end, watermark)`), anchoring one day past
+it manufactured a 7-day gap to the nearest available week for 16/24
+tickers, one day past the existing 6-day alignment tolerance in
+`compute_zscore_at_anchor()` (unchanged, not touched by this fix).
+Evidence preserved in `Live Signal Engine/Phase2 Failure Evidence/
+2026-08-02_WatermarkAnchor_And_Endpoint_PARTIAL/`.
+
+**What changed** (the anchor computation only; chunk boundaries, budgets,
+retry counts, source hierarchy, the six locked research fields, and the
+core z-score formula in `GST_FixedWindow_PerEvent_Canonical.py` are all
+untouched):
+
+- `_finalize_wiki_row(row, article, daily_rows, watermark_date)` — the
+  `run_ts: datetime` parameter is replaced by a required `watermark_date:
+  date` parameter (no default; matches this project's established
+  "no implicit today" pattern). The function now raises `ValueError` if
+  `watermark_date` is `None` — fail-closed, no wall-clock fallback.
+- Added a defense-in-depth filter inside `_finalize_wiki_row()`: any
+  `daily_rows` entry dated after `watermark_date` is excluded before the
+  weekly series is assembled, independent of whatever upstream chunk
+  truncation already did.
+- Two new provenance columns: `wiki_zscore_anchor_date` (always equal to
+  the watermark date on a finalized row) and `wiki_zscore_anchor_source`
+  (currently always `"measured_watermark"`).
+- All three call sites (`process_ticker()`'s first pass, and both
+  finalization branches in `main()`'s second-pass/fallback loop) updated
+  to pass `watermark_info["watermark_date"]` instead of a wall-clock
+  timestamp.
+- Added `test_phase2_wiki_zscore_anchor.py`: 8 required scenarios / 14
+  assertions, covering the exact within-tolerance/over-tolerance
+  boundary, wall-clock independence, post-watermark exclusion, and
+  fail-closed behavior on a missing/errored watermark.
+- Full deterministic suite re-run after this change: **214 assertions**
+  passing across `test_phase2_wikipedia_transport.py` (79),
+  `test_phase2_dailypanel_gate.py` (24),
+  `test_phase2_wikipedia_recent_cache_fallback.py` (26),
+  `test_phase2_wikipedia_watermark.py` (48),
+  `test_phase2_wikipedia_equivalence_deterministic.py` (23), and the new
+  `test_phase2_wiki_zscore_anchor.py` (14).
+
+**Separately investigated, not fixed:** the same regression's 8/24
+"genuine endpoint failure" tickers (ADBE, AMZN, BKR, CTSH, GME, LDOS,
+NCLH, TSLA) were diagnosed read-only. No narrow implementation bug was
+found — the existing `recent_last_known_good` fallback is correctly
+scoped to the open month only and correctly does not apply to the
+closed-month chunks that failed (October 2025, January 2026, July 2026),
+and the open-month failures for CTSH/GME/NCLH have zero cached history to
+fall back to. A forward-looking design proposal for reconstructing a
+complete chunk from a day-level union of overlapping cached fetches
+(rather than requiring an exact chunk-boundary cache key match) is
+documented, **not implemented**, in
+`COMPOSITE_SNAPSHOT_DESIGN_PROPOSAL_NOT_IMPLEMENTED.md` alongside the
+evidence. No fallback logic was changed in this pass.
+
 ## 2026-08-01 — Phase 2: align completion gate with six-field contract
 
 **Why this changed.** GitHub review of the watermark commits (`7fa1762`,
