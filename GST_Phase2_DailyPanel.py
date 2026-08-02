@@ -708,7 +708,20 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
     else:
         watermark_date = watermark_info["watermark_date"]
         anchor_date = run_ts.date()
-        pull_start = anchor_date - timedelta(days=PULL_LOOKBACK_DAYS)
+        # 2026-08-02 correction: pull_start is derived from watermark_date,
+        # not wall-clock anchor_date. The observation window's actual
+        # right edge is the measured watermark (data beyond it is never
+        # observable), so anchoring the LEFT edge on wall-clock time
+        # instead shortens the effective lookback by exactly the
+        # watermark's lag whenever it lags anchor_date -- the same class
+        # of wall-clock-vs-watermark bug already fixed for the z-score
+        # anchor itself. The request horizon/end-date passed to the
+        # transport (anchor_date below) is deliberately left unchanged --
+        # get_ticker_wikipedia_daily()/required_data_end() already
+        # truncate any chunk beyond the watermark, so widening the
+        # generated-chunk horizon to wall-clock time is harmless and
+        # out of scope for this fix.
+        pull_start = watermark_date - timedelta(days=PULL_LOOKBACK_DAYS)
         row["wiki_required_data_end"] = watermark_date.isoformat()
         try:
             cache_df = wiki_transport.load_cache()
