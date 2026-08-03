@@ -514,13 +514,27 @@ COLUMN_ORDER = [
     # WIKI SOURCE PROVENANCE (2026-08-02 additive correction -- see
     # _wiki_source_provenance()). wiki_source_mode is now DERIVED from the
     # chunks that actually contributed rows, never hardcoded: one of
-    # "fresh_only", "exact_cache_only", "cache_union_only", "mixed", or
+    # "fresh_only", "exact_cache_only", "cache_union_only",
+    # "subchunk_salvage_only" (2026-08-03 addition), "mixed", or
     # (via the existing recent_last_known_good override, applied after
-    # this derivation, unchanged) "recent_last_known_good". The four
-    # *_json fields use deterministic, sort_keys=True JSON so identical
-    # underlying provenance always serializes identically.
+    # this derivation, unchanged) "recent_last_known_good". The *_json
+    # fields use deterministic, sort_keys=True JSON so identical underlying
+    # provenance always serializes identically.
     "wiki_cache_union_used", "wiki_cache_union_chunk_count",
     "wiki_source_components_json", "wiki_cache_union_provenance_json",
+    # BOUNDED CLOSED-MONTH SUBCHUNK RECOVERY provenance (2026-08-03 additive
+    # correction -- see GST_Phase2_Wikipedia_Transport
+    # .run_bounded_subchunk_recovery()). None/"[]" on every row where this
+    # last-resort mechanism was never invoked (i.e. every row that didn't
+    # still have a closed-month chunk failing after both the second pass
+    # and the recent-cache fallback). When invoked, carries the full
+    # per-subchunk provenance record (original failed interval, subchunk
+    # boundaries, response status, elapsed time, content hashes, retrieval
+    # timestamps, expected/observed date counts, and budgets consumed) --
+    # whether or not the recovery attempt ultimately succeeded, so a
+    # rejected/incomplete attempt is exactly as auditable as a successful
+    # one.
+    "wiki_subchunk_recovery_attempted", "wiki_subchunk_recovery_provenance_json",
     "all_six_fields_clean", "ticker_total_s",
 ]
 
@@ -805,20 +819,24 @@ def _wiki_source_provenance(chunk_results: list[dict]) -> dict:
 
     Returns the four additive COLUMN_ORDER fields as a dict:
       wiki_source_mode: "fresh_only" | "exact_cache_only" |
-        "cache_union_only" | "mixed" | None (only if literally no chunk
-        contributed -- should not happen whenever wiki_zscore ends up
-        non-None, but this function never invents a value to paper over
-        that). The caller may still overwrite this afterward for the
-        UNRELATED recent_last_known_good case (see main()'s second-pass
-        loop) -- that override, and its own existing provenance, are
-        untouched by this function.
+        "cache_union_only" | "subchunk_salvage_only" (2026-08-03 addition
+        -- every contributing chunk recovered via the bounded closed-month
+        subchunk mechanism, see GST_Phase2_Wikipedia_Transport
+        .run_bounded_subchunk_recovery()) | "mixed" | None (only if
+        literally no chunk contributed -- should not happen whenever
+        wiki_zscore ends up non-None, but this function never invents a
+        value to paper over that). The caller may still overwrite this
+        afterward for the UNRELATED recent_last_known_good case (see
+        main()'s second-pass loop) -- that override, and its own existing
+        provenance, are untouched by this function.
       wiki_cache_union_used / wiki_cache_union_chunk_count: whether/how
         many chunks were recovered via cache_union_reconstruction.
       wiki_source_components_json / wiki_cache_union_provenance_json:
         deterministic JSON (sort_keys=True over already-sorted inputs) so
         identical underlying provenance always serializes identically."""
     ok_chunks = [cr for cr in chunk_results
-                 if cr.get("status") == "ok" and cr.get("source") in ("cache", "fetch", "cache_union_reconstruction")]
+                 if cr.get("status") == "ok"
+                 and cr.get("source") in ("cache", "fetch", "cache_union_reconstruction", "subchunk_salvage")]
     sources_used = sorted({cr["source"] for cr in ok_chunks})
 
     if not sources_used:
@@ -829,6 +847,8 @@ def _wiki_source_provenance(chunk_results: list[dict]) -> dict:
         mode = "exact_cache_only"
     elif sources_used == ["cache_union_reconstruction"]:
         mode = "cache_union_only"
+    elif sources_used == ["subchunk_salvage"]:
+        mode = "subchunk_salvage_only"
     else:
         mode = "mixed"
 
@@ -1183,6 +1203,23 @@ def main():
                 log(f"    [{item['ticker']}] fallback NOT used ({item['fallback_rejected_reason']}) -- "
                     f"remains incomplete")
 
+        # --- BOUNDED CLOSED-MONTH SUBCHUNK RECOVERY (2026-08-03) -- runs
+        # ONLY after both the second pass and the recent-cache fallback
+        # have already left something failed. Only closed months are
+        # eligible (the fallback above already claimed the open/current
+        # chunk, successfully or not); see
+        # GST_Phase2_Wikipedia_Transport.run_bounded_subchunk_recovery()
+        # for the full bounded, non-recursive, fail-closed contract. ---
+        subchunk_remaining_budget = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
+        subchunk = wiki_transport.run_bounded_subchunk_recovery(
+            fallback["still_failed"], remaining_budget_s=subchunk_remaining_budget,
+            watermark=watermark_info["watermark_date"])
+        for ticker, prov in subchunk["subchunk_provenance"].items():
+            log(f"    [{ticker}] subchunk recovery for {prov['original_chunk_start']}.."
+                f"{prov['original_chunk_end']}: recovered={prov['recovered']} reason={prov['reason']!r} "
+                f"requests_used={prov['requests_used']} wall_clock_s={prov['wall_clock_s']:.1f} "
+                f"budget_exhausted={prov['budget_exhausted']}")
+
         for idx, row in enumerate(rows):
             ticker = row["ticker"]
             pending = wiki_pending_by_ticker.get(ticker)
@@ -1190,8 +1227,12 @@ def main():
                 continue
             recovered_rows = second["recovered"].get(ticker, [])
             all_daily_rows = pending["daily_rows_so_far"] + recovered_rows
-            still_failed_for_ticker = [f for f in fallback["still_failed"] if f["ticker"] == ticker]
+            still_failed_for_ticker = [f for f in subchunk["still_failed"] if f["ticker"] == ticker]
             fallback_info = fallback["fallback_recovered"].get(ticker)
+            subchunk_rows = subchunk["recovered"].get(ticker)
+            subchunk_prov = subchunk["subchunk_provenance"].get(ticker)
+            row["wiki_subchunk_recovery_attempted"] = subchunk_prov is not None
+            row["wiki_subchunk_recovery_provenance_json"] = json.dumps(subchunk_prov, sort_keys=True) if subchunk_prov else None
             # 2026-08-02 additive correction: combine this ticker's
             # preserved first-pass chunk_results (cache/fetch/cache_union_
             # reconstruction successes alongside whatever failed) with a
@@ -1225,6 +1266,26 @@ def main():
                 merged_components = sorted(set(existing_components) | {"recent_last_known_good"})
                 row["wiki_source_components_json"] = json.dumps(merged_components, sort_keys=True)
                 log(f"    [{ticker}] wiki complete via RECENT_LAST_KNOWN_GOOD fallback: "
+                    f"z={row.get('wiki_zscore')}")
+            elif subchunk_rows is not None:
+                all_daily_rows = all_daily_rows + subchunk_rows
+                # Normalized entry so _wiki_source_provenance() recognizes
+                # this chunk's contribution -- source="subchunk_salvage" is
+                # never emitted by the transport module's own chunk_results
+                # (that module reports subchunk-level detail separately, in
+                # subchunk_prov["subchunks"]); this single normalized entry
+                # represents the ORIGINAL failed chunk, now recovered, at
+                # the same granularity as every other entry in
+                # combined_chunk_results.
+                recovered_entry = {
+                    "chunk_start": subchunk_prov["original_chunk_start"],
+                    "chunk_end": subchunk_prov["original_chunk_end"],
+                    "source": "subchunk_salvage", "status": "ok",
+                    "network_elapsed_s": subchunk_prov["wall_clock_s"], "sleep_s": 0.0,
+                }
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"],
+                                    combined_chunk_results + [recovered_entry])
+                log(f"    [{ticker}] wiki fully recovered via bounded closed-month subchunk recovery: "
                     f"z={row.get('wiki_zscore')}")
             elif still_failed_for_ticker:
                 row["wiki_status"] = "incomplete_after_second_pass"
