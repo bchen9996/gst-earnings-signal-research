@@ -7,7 +7,11 @@ reads real Layer B/C feature data -- fixtures are small, synthetic, self-contain
 directories built specifically to exercise one or more validation gates.
 
 Usage:
-    python validate_event_dossier.py <fixture_dir> [<fixture_dir> ...]
+    python validate_event_dossier.py [--mode draft|proposed|freeze] <fixture_dir> [<fixture_dir> ...]
+
+--mode defaults to "freeze" (the strictest mode, and the one every fixture built
+before the 2026-08-03 mode split implicitly assumed). See VALIDATION_MODES /
+REQUIRED_TABLES_BY_MODE for what each mode requires.
 
 Exit code: 0 if every supplied fixture passes, 1 if any fixture has at least one
 FAIL-severity finding. Findings are printed as human-readable lines; nothing is
@@ -25,6 +29,16 @@ from dataclasses import dataclass, field
 from datetime import datetime, date
 from pathlib import Path
 from typing import Any
+
+try:
+    import jsonschema
+    from jsonschema import FormatChecker
+    _HAVE_JSONSCHEMA = True
+except ImportError:  # pragma: no cover -- exercised only in an environment
+    # missing the pinned dependency (see requirements.txt). The freeze-manifest
+    # gate below fails closed with a clear diagnostic rather than silently
+    # falling back to a weaker hand-rolled check when this happens.
+    _HAVE_JSONSCHEMA = False
 
 PROTOCOL_ROOT = Path(__file__).resolve().parent.parent
 LOCKED_UNIVERSE_PATH = PROTOCOL_ROOT / "locked_universe_v0.1.json"
@@ -81,14 +95,78 @@ EVENT_TYPES = {"ERN"}
 NICHE_VALUES = {"fixed_24_ticker_earnings_panel"}
 REACTION_WINDOWS = {"after_hours", "next_session_close", "multi_session"}
 
+# 2026-08-03 (second correction pass): a controlled metric classification for
+# every claim, so a surprise-percentage linkage can mechanically confirm an
+# EPS claim was never accidentally paired with a revenue claim (or vice
+# versa). Optional per-row (not every claim is metric-bearing commentary),
+# but enum-checked whenever populated, and REQUIRED on any claim actually
+# used as eps/revenue actual-or-consensus surprise evidence (enforced in
+# gate_surprise_linkage, not here, since that requirement is conditional on
+# the claim's role, not an unconditional per-row rule).
+METRIC_NAMES = {"eps", "revenue", "guidance_revenue", "cloud_growth", "margin", "capex", "other"}
+
+# 2026-08-03 (second correction pass): a null eps_surprise_pct/revenue_surprise_pct
+# must now carry an explicit, enum-controlled reason -- an unexplained blank is
+# a validation failure, not a silently accepted absence.
+SURPRISE_NULL_REASONS = {"consensus_unavailable", "consensus_unverifiable", "not_applicable"}
+
 SCORE_MIN, SCORE_MAX = 1, 5
 SURPRISE_PCT_TOLERANCE = 0.05  # documented tolerance, in percentage points, for recomputed-vs-stored surprise agreement
 
-# Layer-A source tables every human_frozen label's freeze manifest must
-# reference exactly once (by basename) -- see gate_freeze_manifest().
-REQUIRED_LAYER_A_ARTIFACT_BASENAMES = {"events.csv", "claims.csv", "claim_sources.csv", "management_qna.csv"}
+# --- Validation modes (2026-08-03, second correction pass) -----------------
+# A fixture is validated against exactly one mode. Each mode's required-table
+# floor is checked FIRST (gate_required_tables) -- an empty directory, or a
+# directory missing something the mode structurally depends on, fails before
+# any other gate even runs, rather than silently producing zero findings.
+VALIDATION_MODES = {"draft", "proposed", "freeze"}
+REQUIRED_TABLES_BY_MODE: dict[str, set[str]] = {
+    # A draft dossier is, at minimum, an identified event.
+    "draft": {"events"},
+    # An AI-proposed label under review needs the full Layer-A evidentiary
+    # base plus the label row itself.
+    "proposed": {"events", "claims", "claim_sources", "management_qna", "event_labels"},
+    # A freeze-ready event needs the same core tables as "proposed" PLUS (see
+    # the dedicated check in gate_required_tables) at least one genuinely
+    # human_frozen label. The stronger "all seven artifact types present
+    # exactly once, including header-only child files when empty" rule is
+    # enforced at the level of each individual frozen BUNDLE
+    # (frozen/{event_id}/{label_id}/, see gate_freeze_manifest) -- it is a
+    # property of the bundle a freeze actually produced, not a blanket
+    # requirement that every fixture directory carry two otherwise-unused
+    # child-table files at its root regardless of whether any label in it
+    # is being frozen.
+    "freeze": {"events", "claims", "claim_sources", "management_qna", "event_labels"},
+}
+
+# --- Immutable freeze bundle (2026-08-03, second correction pass) ----------
+#
+# WHY: the original design hashed the fixture's own MUTABLE working CSVs
+# (events.csv, claims.csv, etc. at the fixture root) directly. That is
+# structurally unsound -- those same files are exactly what a later amendment
+# or an unrelated event in the same batch would go on to edit. A frozen
+# label's evidence trail must be an independent, immutable snapshot, not a
+# live reference into tables that keep changing underneath it.
+#
+# Every freeze_manifest*.json now names artifacts that must live under
+# frozen/{event_id}/{label_id}/ -- a directory scoped to exactly one label
+# version, containing canonical, never-edited-after-the-fact copies of all
+# seven Layer-A artifact types (the four original tables, PLUS the one
+# frozen event_labels.csv ROW as its own single-row event_label.csv file,
+# PLUS the two normalized child tables, present even when empty/header-only).
+# An amendment creates label_id-v2's OWN frozen/{event_id}/{label_id_v2}/
+# bundle; it never edits label_id-v1's bundle, which must remain
+# independently hash-valid forever.
+#
+# NOTE the deliberate naming split: "event_label.csv" (singular) inside a
+# frozen bundle is the ONE frozen label-version row; "event_labels.csv"
+# (plural) at the fixture root is the mutable WORKING table with every
+# label row/version. They are never the same file.
+FROZEN_BUNDLE_REQUIRED_BASENAMES = {
+    "events.csv", "claims.csv", "claim_sources.csv", "management_qna.csv",
+    "event_label.csv", "event_label_capex_effects.csv", "event_label_cross_company_implications.csv",
+}
 # Any artifact_path containing one of these is a Layer-B/C leak into a
-# Layer-A freeze manifest -- forbidden outright.
+# Layer-A freeze bundle -- forbidden outright.
 FORBIDDEN_MANIFEST_PATH_MARKERS = ("market_response_addendum", "B_Market_Response_Addendum", "C_Attention_Feature_Join")
 
 # Reaction-language patterns: stock/share PRICE, OPTIONS/IV, VOLUME, and ANALYST
@@ -121,12 +199,12 @@ FORBIDDEN_FEATURE_PATTERNS = [
 ]
 
 # ---------------------------------------------------------------------------
-# Declarative per-table field rules (2026-08-03 addition). Mechanically
-# enforced by gate_field_types() below: required (non-blank) fields, enum
-# membership, boolean parsing, date parsing, and timezone-AWARE timestamp
-# parsing. Conditional requirements (a field required only when some other
-# field has a certain value) and cross-row/cross-table rules are NOT
-# expressible here and are handled by their own dedicated gates.
+# Declarative per-table field rules. Mechanically enforced by
+# gate_field_types() below: required (non-blank) fields, enum membership,
+# boolean parsing, date parsing, and timezone-AWARE timestamp parsing.
+# Conditional requirements (a field required only when some other field has a
+# certain value) and cross-row/cross-table rules are NOT expressible here and
+# are handled by their own dedicated gates.
 # ---------------------------------------------------------------------------
 FIELD_RULES: dict[str, dict[str, Any]] = {
     "events": {
@@ -145,7 +223,7 @@ FIELD_RULES: dict[str, dict[str, Any]] = {
         "enums": {"value_type": VALUE_TYPES, "claim_category": CLAIM_CATEGORIES, "gaap_basis": GAAP_BASES,
                   "currency_basis": CURRENCY_BASES, "comparison_period": COMPARISON_PERIODS,
                   "novelty_eval_basis": NOVELTY_EVAL_BASES, "verification_status": VERIFICATION_STATUSES,
-                  "layer": LAYERS},
+                  "layer": LAYERS, "metric_name": METRIC_NAMES},
         "dates": ["consensus_asof_date"],
         "timestamps": ["created_at_utc"],
         "numeric_optional": ["numeric_value"],
@@ -172,7 +250,8 @@ FIELD_RULES: dict[str, dict[str, Any]] = {
                   "guidance_direction": GUIDANCE_DIRECTIONS, "cloud_surprise_direction": CLOUD_SURPRISE_DIRECTIONS,
                   "margin_surprise_direction": MARGIN_SURPRISE_DIRECTIONS,
                   "capex_operational_direction": CAPEX_OP_DIRECTIONS,
-                  "human_verification_status": HUMAN_VERIFICATION_STATUSES, "event_disposition": EVENT_DISPOSITIONS},
+                  "human_verification_status": HUMAN_VERIFICATION_STATUSES, "event_disposition": EVENT_DISPOSITIONS,
+                  "eps_surprise_null_reason": SURPRISE_NULL_REASONS, "revenue_surprise_null_reason": SURPRISE_NULL_REASONS},
         "timestamps": ["frozen_at_utc"],
         "numeric_optional": ["eps_surprise_pct", "revenue_surprise_pct"],
         "integer_scores_1_5": ["information_novelty_score_1_to_5", "uncertainty_remaining_score_1_to_5"],
@@ -190,6 +269,21 @@ FIELD_RULES: dict[str, dict[str, Any]] = {
         "timestamps": ["captured_at_utc"],
     },
 }
+
+ID_COL_BY_TABLE = {
+    "events": "event_id", "claims": "claim_id", "claim_sources": "claim_source_id",
+    "management_qna": "qna_id", "event_labels": "label_id",
+    "event_label_capex_effects": "capex_effect_id",
+    "event_label_cross_company_implications": "implication_id",
+    "market_response_addendum": "addendum_id",
+}
+
+# Claim categories acceptable as evidence for a capex effect or a
+# cross-company implication -- excludes meta-categories that describe the
+# labeling process itself (ai_proposed_classification, human_frozen_label)
+# and the consensus-estimate category (which is pre-event expectation, not
+# an implication/effect grounded in reported/observed fact).
+CHILD_TABLE_EVIDENCE_CLAIM_CATEGORIES = {"reported_fact", "management_claim", "analyst_interpretation"}
 
 
 @dataclass
@@ -218,6 +312,11 @@ class FixtureData:
     reviewer_access_log: list[dict] = field(default_factory=list)
     disposition_history: list[dict] = field(default_factory=list)
     present_tables: set[str] = field(default_factory=set)
+    # Actual CSV header read from disk for every present table, captured
+    # regardless of whether the file has zero or more data rows -- a
+    # header-only (0-row) file with a wrong/missing column is otherwise
+    # invisible to csv.DictReader-based row inspection.
+    table_headers: dict[str, list[str]] = field(default_factory=dict)
 
 
 def _read_csv(path: Path) -> list[dict]:
@@ -225,6 +324,20 @@ def _read_csv(path: Path) -> list[dict]:
         return []
     with path.open("r", encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def _read_csv_header(path: Path) -> list[str] | None:
+    """Reads just the header row, even when the file has zero data rows.
+    Returns None if the file does not exist; [] if the file exists but is
+    completely empty (not even a header line)."""
+    if not path.exists():
+        return None
+    with path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.reader(f)
+        try:
+            return next(reader)
+        except StopIteration:
+            return []
 
 
 def _read_schema_header(path: Path) -> list[str]:
@@ -257,6 +370,8 @@ def load_fixture(fixture_dir: Path) -> FixtureData:
         setattr(fd, attr, rows)
         if p.exists():
             fd.present_tables.add(attr)
+            header = _read_csv_header(p)
+            fd.table_headers[attr] = header if header is not None else []
 
     for manifest_path in sorted(fixture_dir.glob("freeze_manifest*.json")):
         try:
@@ -358,8 +473,39 @@ def _split_semicolon_ids(value: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Gate 0: required tables / validation mode (2026-08-03, second correction
+# pass). Runs first. An empty directory, or a directory missing whatever its
+# claimed mode structurally depends on, fails HERE rather than silently
+# passing because every other gate's loops simply have nothing to iterate.
+# ---------------------------------------------------------------------------
+
+def gate_required_tables(fd: FixtureData, mode: str) -> list[Finding]:
+    findings: list[Finding] = []
+    gate = "required_tables"
+
+    required = REQUIRED_TABLES_BY_MODE[mode]
+    missing = required - fd.present_tables
+    if missing:
+        findings.append(Finding(gate, "FAIL",
+            f"mode={mode!r} requires table(s) {sorted(missing)} to be present in the fixture directory "
+            f"(missing: {sorted(missing)})"))
+
+    if mode == "freeze":
+        frozen_rows = [r for r in fd.event_labels if r.get("label_status") == "human_frozen"]
+        if not frozen_rows:
+            findings.append(Finding(gate, "FAIL",
+                "mode='freeze' requires at least one event_labels.csv row with label_status=human_frozen "
+                "(a complete, freeze-ready event) -- none found"))
+
+    return findings
+
+
+# ---------------------------------------------------------------------------
 # Gate 1: identity and schema (structural: headers, IDs, event_id format,
-# ticker-in-universe, fiscal_period format)
+# ticker-in-universe, fiscal_period format). Header comparison now uses the
+# ACTUAL header line read from disk (fd.table_headers), so a header-only
+# (0-row) CSV with a missing/extra/misspelled column is caught -- previously
+# this check only ran `if rows:`, silently skipping any header-only file.
 # ---------------------------------------------------------------------------
 
 def gate_identity_and_schema(fd: FixtureData, universe: set[str]) -> list[Finding]:
@@ -367,27 +513,18 @@ def gate_identity_and_schema(fd: FixtureData, universe: set[str]) -> list[Findin
     gate = "identity_and_schema"
 
     for table, schema_path in SCHEMA_FILES.items():
-        rows = getattr(fd, table)
         if table not in fd.present_tables:
             continue
         expected_cols = _read_schema_header(schema_path)
-        if rows:
-            actual_cols = list(rows[0].keys())
-            missing = [c for c in expected_cols if c not in actual_cols]
-            extra = [c for c in actual_cols if c not in expected_cols]
-            if missing:
-                findings.append(Finding(gate, "FAIL", f"{table}.csv missing required column(s): {missing}"))
-            if extra:
-                findings.append(Finding(gate, "FAIL", f"{table}.csv has undeclared column(s) not in schema: {extra}"))
+        actual_cols = fd.table_headers.get(table, [])
+        missing = [c for c in expected_cols if c not in actual_cols]
+        extra = [c for c in actual_cols if c not in expected_cols]
+        if missing:
+            findings.append(Finding(gate, "FAIL", f"{table}.csv missing required column(s): {missing}"))
+        if extra:
+            findings.append(Finding(gate, "FAIL", f"{table}.csv has undeclared column(s) not in schema: {extra}"))
 
-    id_cols = {
-        "events": "event_id", "claims": "claim_id", "claim_sources": "claim_source_id",
-        "management_qna": "qna_id", "event_labels": "label_id",
-        "event_label_capex_effects": "capex_effect_id",
-        "event_label_cross_company_implications": "implication_id",
-        "market_response_addendum": "addendum_id",
-    }
-    for table, id_col in id_cols.items():
+    for table, id_col in ID_COL_BY_TABLE.items():
         rows = getattr(fd, table)
         seen: dict[str, int] = {}
         for r in rows:
@@ -414,7 +551,7 @@ def gate_identity_and_schema(fd: FixtureData, universe: set[str]) -> list[Findin
 # ---------------------------------------------------------------------------
 # Gate 1b: field types -- required/enum/boolean/date/timestamp, mechanically
 # applied from FIELD_RULES, plus the handful of numeric/integer/conditional
-# checks that don't fit a pure per-field table (2026-08-03 addition).
+# checks that don't fit a pure per-field table.
 # ---------------------------------------------------------------------------
 
 def gate_field_types(fd: FixtureData) -> list[Finding]:
@@ -425,13 +562,7 @@ def gate_field_types(fd: FixtureData) -> list[Finding]:
         if table not in fd.present_tables:
             continue
         rows = getattr(fd, table)
-        id_col = {
-            "events": "event_id", "claims": "claim_id", "claim_sources": "claim_source_id",
-            "management_qna": "qna_id", "event_labels": "label_id",
-            "event_label_capex_effects": "capex_effect_id",
-            "event_label_cross_company_implications": "implication_id",
-            "market_response_addendum": "addendum_id",
-        }[table]
+        id_col = ID_COL_BY_TABLE[table]
         for r in rows:
             rid = r.get(id_col, "<no id>")
             for req in rules.get("required", []):
@@ -486,6 +617,26 @@ def gate_field_types(fd: FixtureData) -> list[Finding]:
                     findings.append(Finding(gate, "FAIL", f"event_labels.csv[{lid}]: label_status=human_frozen requires non-blank {req}"))
         if r.get("amendment_of_label_id") and not (r.get("amendment_reason") or "").strip():
             findings.append(Finding(gate, "FAIL", f"event_labels.csv[{lid}]: amendment_of_label_id set but amendment_reason is blank"))
+
+        # Null-surprise reason requirement (2026-08-03, second correction
+        # pass): a blank surprise percentage is no longer accepted silently
+        # -- it must carry an explicit, enum-controlled reason. Conversely a
+        # NON-blank percentage must not also carry a null_reason (contradictory).
+        for pct_field, reason_field in (
+            ("eps_surprise_pct", "eps_surprise_null_reason"),
+            ("revenue_surprise_pct", "revenue_surprise_null_reason"),
+        ):
+            pct_raw = (r.get(pct_field) or "").strip()
+            reason_raw = (r.get(reason_field) or "").strip()
+            if not pct_raw and not reason_raw:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_labels.csv[{lid}]: {pct_field} is blank but {reason_field} is also blank -- "
+                    f"an unexplained null surprise is not allowed, set an explicit reason"))
+            if pct_raw and reason_raw:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_labels.csv[{lid}]: {pct_field}={pct_raw!r} is set but {reason_field}={reason_raw!r} "
+                    f"is also set -- a populated surprise percentage cannot also carry a null-reason"))
+
         for pct_field, actual_field, consensus_field in (
             ("eps_surprise_pct", "eps_actual_claim_id", "eps_consensus_claim_id"),
             ("revenue_surprise_pct", "revenue_actual_claim_id", "revenue_consensus_claim_id"),
@@ -499,9 +650,9 @@ def gate_field_types(fd: FixtureData) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# Gate 1c: cross-row / cross-table consistency (2026-08-03 addition):
-# earnings-date/event-timestamp consistency, consensus_asof_date strictly
-# before the earnings event, protocol_version consistency.
+# Gate 1c: cross-row / cross-table consistency: earnings-date/event-timestamp
+# consistency, consensus_asof_date strictly before the earnings event,
+# protocol_version consistency.
 # ---------------------------------------------------------------------------
 
 def gate_cross_row_consistency(fd: FixtureData) -> list[Finding]:
@@ -612,13 +763,17 @@ def gate_source_integrity(fd: FixtureData) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# Gate 2b: surprise-percentage evidence linkage (2026-08-03 addition). A
-# surprise percentage must link to the EXACT actual and consensus claim IDs
-# it was computed from -- not merely "any" consensus claim for the event.
-# For a human_frozen label, every linkage is validated end-to-end and the
-# stored percentage is independently recomputed and compared within
-# SURPRISE_PCT_TOLERANCE. Never infers a missing value: a null stored
-# percentage is never computed or filled in here.
+# Gate 2b: surprise-percentage evidence linkage. A surprise percentage must
+# link to the EXACT actual and consensus claim IDs it was computed from --
+# not merely "any" consensus claim for the event. Both linked claims must be
+# value_type=numeric with parseable numeric values, share unit AND GAAP
+# basis (neither may be blank), share the SAME metric_name matching the
+# field being computed (eps<->eps, revenue<->revenue), and consensus must be
+# nonzero. For a human_frozen label, every linkage is additionally validated
+# end-to-end and the stored percentage is independently recomputed and
+# compared within SURPRISE_PCT_TOLERANCE. Never infers a missing value: a
+# null stored percentage is never computed or filled in here (its
+# null_reason is checked in gate_field_types instead).
 # ---------------------------------------------------------------------------
 
 def gate_surprise_linkage(fd: FixtureData) -> list[Finding]:
@@ -638,20 +793,20 @@ def gate_surprise_linkage(fd: FixtureData) -> list[Finding]:
         lid = lr.get("label_id", "<no id>")
         is_frozen = lr.get("label_status") == "human_frozen"
 
-        for label, pct_field, actual_field, consensus_field, expected_actual_cat in (
+        for label, pct_field, actual_field, consensus_field, expected_actual_cat, expected_metric in (
             ("EPS", "eps_surprise_pct", "eps_actual_claim_id", "eps_consensus_claim_id",
-             {"reported_fact", "management_claim"}),
+             {"reported_fact", "management_claim"}, "eps"),
             ("Revenue", "revenue_surprise_pct", "revenue_actual_claim_id", "revenue_consensus_claim_id",
-             {"reported_fact", "management_claim"}),
+             {"reported_fact", "management_claim"}, "revenue"),
         ):
             pct_raw = (lr.get(pct_field) or "").strip()
             actual_id = (lr.get(actual_field) or "").strip()
             consensus_id = (lr.get(consensus_field) or "").strip()
 
             if not pct_raw:
-                # Null surprise remains valid when consensus is unverifiable
-                # (or simply not computed) -- nothing to check further, and
-                # this function never infers or fills a value here.
+                # Null surprise: handled by gate_field_types' null_reason
+                # check. Nothing further to validate here, and this
+                # function never infers or fills a value.
                 continue
 
             pct = _parse_float(pct_raw)
@@ -677,15 +832,42 @@ def gate_surprise_linkage(fd: FixtureData) -> list[Finding]:
                     f"event_labels.csv[{lid}]: {label} consensus claim {consensus_id} has claim_category="
                     f"{consensus_claim.get('claim_category')!r}, expected 'pre_event_consensus_estimate'"))
 
+            # Both claims must be genuinely numeric.
+            for role, claim, claim_id in (("actual", actual_claim, actual_id), ("consensus", consensus_claim, consensus_id)):
+                if claim.get("value_type") != "numeric":
+                    findings.append(Finding(gate, "FAIL",
+                        f"event_labels.csv[{lid}]: {label} {role} claim {claim_id} has value_type="
+                        f"{claim.get('value_type')!r}, must be 'numeric' to back a surprise percentage"))
+
+            # Both claims must explicitly identify the SAME metric, matching
+            # the field being computed (an EPS surprise must link eps<->eps,
+            # never eps<->revenue or blank<->eps).
+            for role, claim, claim_id in (("actual", actual_claim, actual_id), ("consensus", consensus_claim, consensus_id)):
+                mn = claim.get("metric_name", "")
+                if mn != expected_metric:
+                    findings.append(Finding(gate, "FAIL",
+                        f"event_labels.csv[{lid}]: {label} {role} claim {claim_id} has metric_name={mn!r}, "
+                        f"expected {expected_metric!r} -- a {label} surprise must link {expected_metric} to {expected_metric}"))
+
+            # Unit and GAAP basis must both exist AND match -- a blank on
+            # either side is now a failure, not merely a skipped comparison.
             actual_unit = actual_claim.get("unit", "")
             consensus_unit = consensus_claim.get("unit", "")
-            if actual_unit and consensus_unit and actual_unit != consensus_unit:
+            if not actual_unit or not consensus_unit:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_labels.csv[{lid}]: {label} linkage requires a unit on both claims "
+                    f"(actual={actual_unit!r}, consensus={consensus_unit!r})"))
+            elif actual_unit != consensus_unit:
                 findings.append(Finding(gate, "FAIL",
                     f"event_labels.csv[{lid}]: {label} actual unit {actual_unit!r} != consensus unit {consensus_unit!r}"))
 
             actual_gaap = actual_claim.get("gaap_basis", "")
             consensus_gaap = consensus_claim.get("gaap_basis", "")
-            if actual_gaap and consensus_gaap and actual_gaap != consensus_gaap:
+            if not actual_gaap or not consensus_gaap:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_labels.csv[{lid}]: {label} linkage requires a gaap_basis on both claims "
+                    f"(actual={actual_gaap!r}, consensus={consensus_gaap!r})"))
+            elif actual_gaap != consensus_gaap:
                 findings.append(Finding(gate, "FAIL",
                     f"event_labels.csv[{lid}]: {label} actual GAAP basis {actual_gaap!r} != consensus GAAP basis {consensus_gaap!r} "
                     f"-- a surprise percentage must pair actual and consensus on the SAME basis"))
@@ -702,19 +884,32 @@ def gate_surprise_linkage(fd: FixtureData) -> list[Finding]:
 
             actual_val = _parse_float(actual_claim.get("numeric_value", ""))
             consensus_val = _parse_float(consensus_claim.get("numeric_value", ""))
-            if actual_val is not None and consensus_val is not None and consensus_val != 0:
-                recomputed = (actual_val - consensus_val) / abs(consensus_val) * 100.0
-                if abs(recomputed - pct) > SURPRISE_PCT_TOLERANCE:
+            if actual_val is None:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_labels.csv[{lid}]: {label} actual claim {actual_id}.numeric_value="
+                    f"{actual_claim.get('numeric_value')!r} does not parse as a number -- cannot verify the stored surprise percentage"))
+            if consensus_val is None:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_labels.csv[{lid}]: {label} consensus claim {consensus_id}.numeric_value="
+                    f"{consensus_claim.get('numeric_value')!r} does not parse as a number -- cannot verify the stored surprise percentage"))
+            if actual_val is not None and consensus_val is not None:
+                if consensus_val == 0:
                     findings.append(Finding(gate, "FAIL",
-                        f"event_labels.csv[{lid}]: stored {pct_field}={pct} does not match recomputed "
-                        f"surprise {recomputed:.4f} from claims {actual_id}/{consensus_id} "
-                        f"(tolerance={SURPRISE_PCT_TOLERANCE})"))
+                        f"event_labels.csv[{lid}]: {label} consensus claim {consensus_id} has numeric_value=0 -- "
+                        f"a surprise percentage cannot be meaningfully computed against a zero consensus"))
+                else:
+                    recomputed = (actual_val - consensus_val) / abs(consensus_val) * 100.0
+                    if abs(recomputed - pct) > SURPRISE_PCT_TOLERANCE:
+                        findings.append(Finding(gate, "FAIL",
+                            f"event_labels.csv[{lid}]: stored {pct_field}={pct} does not match recomputed "
+                            f"surprise {recomputed:.4f} from claims {actual_id}/{consensus_id} "
+                            f"(tolerance={SURPRISE_PCT_TOLERANCE})"))
 
     return findings
 
 
 # ---------------------------------------------------------------------------
-# Gate 3: blinding (expanded 2026-08-03 to every Layer-A free-text location)
+# Gate 3: blinding (every Layer-A free-text location)
 # ---------------------------------------------------------------------------
 
 def gate_blinding(fd: FixtureData) -> list[Finding]:
@@ -722,7 +917,6 @@ def gate_blinding(fd: FixtureData) -> list[Finding]:
     gate = "blinding"
 
     layer_a_claim_ids = {c.get("claim_id") for c in fd.claims if c.get("layer") == "A_blinded_core"}
-    layer_a_event_ids = {r.get("event_id") for r in fd.events}  # events.csv has no "layer" column -- every event's Layer A text is in scope
 
     def check_text(label: str, text: str) -> None:
         for hit in _scan(REACTION_PATTERNS, text):
@@ -766,14 +960,19 @@ def gate_blinding(fd: FixtureData) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# Gate 4: foreign keys (2026-08-03 expansion: every FK, including
-# corroborates_claim_source_id, capex-effect evidence claims, the new
-# cross-company-implications child table, and label/event + claim/event
-# consistency). No semicolon-delimited ID field is silently trusted --
-# controlled/FK-bearing multi-value fields now live in normalized child
-# tables (event_label_capex_effects.csv,
-# event_label_cross_company_implications.csv); any remaining
-# semicolon-delimited value is split and every individual ID validated.
+# Gate 4: foreign keys and cross-table event/layer consistency. Every FK is
+# validated, including corroborates_claim_source_id, capex-effect and
+# cross-company-implication evidence claims (now ALSO checked for event/layer
+# consistency: the evidence claim must belong to the SAME event as the
+# label it supports, and must be Layer A -- a Layer-B claim or a
+# wrong-event claim backing a Layer-A child-table row is a validation
+# failure), and market-response addendum event consistency (the addendum's
+# own event_id must match its linked label's event_id, and every claim in
+# post_event_analyst_target_change_claim_ids must belong to that SAME event
+# AND be Layer B). No semicolon-delimited ID field is silently trusted --
+# controlled/FK-bearing multi-value fields live in normalized child tables;
+# any remaining semicolon-delimited value is split and every individual ID
+# validated.
 # ---------------------------------------------------------------------------
 
 def gate_foreign_keys(fd: FixtureData) -> list[Finding]:
@@ -785,6 +984,7 @@ def gate_foreign_keys(fd: FixtureData) -> list[Finding]:
     label_ids = {r.get("label_id") for r in fd.event_labels}
     claim_source_ids = {s.get("claim_source_id") for s in fd.claim_sources}
     claims_by_id = {c.get("claim_id"): c for c in fd.claims}
+    labels_by_id = {r.get("label_id"): r for r in fd.event_labels}
 
     def _fk(table: str, row_id: str, field_name: str, value: str, target_set: set, target_table_present: bool) -> None:
         if value and target_table_present and value not in target_set:
@@ -844,20 +1044,71 @@ def gate_foreign_keys(fd: FixtureData) -> list[Finding]:
         ceid = cc.get("capex_effect_id", "<no id>")
         _fk("event_label_capex_effects", ceid, "label_id", cc.get("label_id", ""), label_ids, bool(fd.event_labels))
         _fk("event_label_capex_effects", ceid, "evidence_claim_id", cc.get("evidence_claim_id", ""), claim_ids, bool(fd.claims))
+        label = labels_by_id.get(cc.get("label_id"))
+        claim = claims_by_id.get(cc.get("evidence_claim_id"))
+        if label is not None and claim is not None:
+            if claim.get("event_id") != label.get("event_id"):
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_capex_effects.csv[{ceid}].evidence_claim_id={cc.get('evidence_claim_id')!r} belongs to "
+                    f"event {claim.get('event_id')!r}, not label {cc.get('label_id')!r}'s event {label.get('event_id')!r}"))
+            if claim.get("layer") != "A_blinded_core":
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_capex_effects.csv[{ceid}].evidence_claim_id={cc.get('evidence_claim_id')!r} has layer="
+                    f"{claim.get('layer')!r}, must be 'A_blinded_core' -- Layer-A child rows cannot cite Layer-B evidence"))
+            if claim.get("claim_category") not in CHILD_TABLE_EVIDENCE_CLAIM_CATEGORIES:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_capex_effects.csv[{ceid}].evidence_claim_id={cc.get('evidence_claim_id')!r} has claim_category="
+                    f"{claim.get('claim_category')!r}, expected one of {sorted(CHILD_TABLE_EVIDENCE_CLAIM_CATEGORIES)}"))
 
     for ci in fd.event_label_cross_company_implications:
         ciid = ci.get("implication_id", "<no id>")
         _fk("event_label_cross_company_implications", ciid, "label_id", ci.get("label_id", ""), label_ids, bool(fd.event_labels))
         _fk("event_label_cross_company_implications", ciid, "claim_id", ci.get("claim_id", ""), claim_ids, bool(fd.claims))
+        label = labels_by_id.get(ci.get("label_id"))
+        claim = claims_by_id.get(ci.get("claim_id"))
+        if label is not None and claim is not None:
+            if claim.get("event_id") != label.get("event_id"):
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_cross_company_implications.csv[{ciid}].claim_id={ci.get('claim_id')!r} belongs to "
+                    f"event {claim.get('event_id')!r}, not label {ci.get('label_id')!r}'s event {label.get('event_id')!r}"))
+            if claim.get("layer") != "A_blinded_core":
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_cross_company_implications.csv[{ciid}].claim_id={ci.get('claim_id')!r} has layer="
+                    f"{claim.get('layer')!r}, must be 'A_blinded_core' -- Layer-A child rows cannot cite Layer-B evidence"))
+            if claim.get("claim_category") not in CHILD_TABLE_EVIDENCE_CLAIM_CATEGORIES:
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_cross_company_implications.csv[{ciid}].claim_id={ci.get('claim_id')!r} has claim_category="
+                    f"{claim.get('claim_category')!r}, expected one of {sorted(CHILD_TABLE_EVIDENCE_CLAIM_CATEGORIES)}"))
+            if not claim.get("metric_name"):
+                findings.append(Finding(gate, "FAIL",
+                    f"event_label_cross_company_implications.csv[{ciid}].claim_id={ci.get('claim_id')!r} has no "
+                    f"metric_name -- a cross-company implication claim must carry an explicit metric classification"))
 
     for r in fd.market_response_addendum:
         aid = r.get("addendum_id", "<no id>")
         _fk("market_response_addendum", aid, "event_id", r.get("event_id", ""), event_ids, bool(fd.events))
         _fk("market_response_addendum", aid, "linked_label_id", r.get("linked_label_id", ""), label_ids, bool(fd.event_labels))
+        label = labels_by_id.get(r.get("linked_label_id"))
+        if label is not None and r.get("event_id") and label.get("event_id") and r.get("event_id") != label.get("event_id"):
+            findings.append(Finding(gate, "FAIL",
+                f"market_response_addendum.csv[{aid}]: event_id={r.get('event_id')!r} does not match linked_label_id "
+                f"{r.get('linked_label_id')!r}'s own event {label.get('event_id')!r}"))
         target_ids_raw = r.get("post_event_analyst_target_change_claim_ids", "")
         for individual_id in _split_semicolon_ids(target_ids_raw):
             if fd.claims and individual_id not in claim_ids:
                 findings.append(Finding(gate, "FAIL", f"market_response_addendum.csv[{aid}].post_event_analyst_target_change_claim_ids contains unknown claim_id {individual_id!r}"))
+                continue
+            claim = claims_by_id.get(individual_id)
+            if claim is None:
+                continue
+            if r.get("event_id") and claim.get("event_id") != r.get("event_id"):
+                findings.append(Finding(gate, "FAIL",
+                    f"market_response_addendum.csv[{aid}].post_event_analyst_target_change_claim_ids references "
+                    f"{individual_id!r} from event {claim.get('event_id')!r}, not this addendum's event {r.get('event_id')!r}"))
+            if claim.get("layer") != "B_market_response":
+                findings.append(Finding(gate, "FAIL",
+                    f"market_response_addendum.csv[{aid}].post_event_analyst_target_change_claim_ids references "
+                    f"{individual_id!r} with layer={claim.get('layer')!r}, must be 'B_market_response'"))
 
     return findings
 
@@ -899,12 +1150,26 @@ def gate_label_integrity(fd: FixtureData) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# Gate 6: freeze manifest hardening (2026-08-03 rewrite). Treats
-# freeze_manifest.schema.json as an executable contract: required fields,
-# additionalProperties=false, path containment/no traversal, exactly-once
-# required Layer-A inventory, no Layer-B/C leakage, hash match, and
-# manifest/event_labels.csv cross-consistency (event_id, label_id,
-# frozen_by, freeze timestamp).
+# Gate 6: freeze manifest / immutable freeze bundle. Structural validation
+# (required fields, additionalProperties, enums, patterns -- INCLUDING nested
+# array items like reveal_events[]/reviewer_capture_exposure_log[]) is now
+# delegated to the actual freeze_manifest.schema.json via the pinned
+# `jsonschema` library (see requirements.txt), rather than a hand-rolled
+# top-level-only required/additionalProperties check that silently ignored
+# violations nested inside array items.
+#
+# Every referenced artifact must live under frozen/{event_id}/{label_id}/ --
+# an immutable, label-version-scoped bundle -- and containment is checked
+# with Path.is_relative_to() against that bundle's resolved real path (never
+# a string-prefix comparison, which a directory named e.g.
+# "frozen/EVT-X/LBL-01_evil/" would defeat). .resolve() follows symlinks, so
+# a symlink planted inside the bundle that points outside it is caught by the
+# same containment check. All seven required artifact basenames
+# (FROZEN_BUNDLE_REQUIRED_BASENAMES) must appear exactly once; no Layer-B/C
+# path may be referenced; hashes are recomputed against the frozen copies
+# (never the mutable working tables); and the manifest's own filename must
+# match event_labels.csv's declared freeze_manifest_path exactly, in
+# addition to the existing event_id/frozen_by/freeze-timestamp cross-checks.
 # ---------------------------------------------------------------------------
 
 def _load_manifest_schema() -> dict:
@@ -915,12 +1180,20 @@ def _load_manifest_schema() -> dict:
 def gate_freeze_manifest(fd: FixtureData, fixture_dir: Path) -> list[Finding]:
     findings: list[Finding] = []
     gate = "freeze_manifest"
+
+    if not _HAVE_JSONSCHEMA:
+        findings.append(Finding(gate, "FAIL",
+            "the 'jsonschema' package (pinned in validator/requirements.txt) is not installed -- "
+            "freeze-manifest structural validation cannot run. Install it before validating any "
+            "fixture containing a freeze_manifest*.json."))
+        return findings
+
     schema = _load_manifest_schema()
-    required_top = set(schema.get("required", []))
-    allowed_top = set(schema.get("properties", {}).keys())
+    validator_cls = jsonschema.validators.validator_for(schema)
+    validator_cls.check_schema(schema)
+    schema_validator = validator_cls(schema, format_checker=FormatChecker())
 
     labels_by_id = {r.get("label_id"): r for r in fd.event_labels}
-    fixture_root = fixture_dir.resolve()
 
     for label_id, manifest in fd.freeze_manifests.items():
         manifest_file = fd.freeze_manifest_files.get(label_id, "freeze_manifest.json")
@@ -928,14 +1201,24 @@ def gate_freeze_manifest(fd: FixtureData, fixture_dir: Path) -> list[Finding]:
             findings.append(Finding(gate, "FAIL", f"{manifest_file}: malformed JSON, could not parse"))
             continue
 
-        missing_required = required_top - set(manifest.keys())
-        if missing_required:
-            findings.append(Finding(gate, "FAIL", f"{manifest_file}: missing required field(s) {sorted(missing_required)}"))
-        extra_top = set(manifest.keys()) - allowed_top
-        if extra_top:
-            findings.append(Finding(gate, "FAIL", f"{manifest_file}: additionalProperties violation -- unexpected field(s) {sorted(extra_top)}"))
+        schema_errors = sorted(schema_validator.iter_errors(manifest), key=lambda e: list(e.absolute_path))
+        for err in schema_errors:
+            loc = "$" + "".join(f"[{p!r}]" if isinstance(p, str) else f"[{p}]" for p in err.absolute_path)
+            findings.append(Finding(gate, "FAIL", f"{manifest_file}: JSON Schema violation at {loc}: {err.message}"))
+        if schema_errors:
+            # Structural violations make artifact-level inspection below
+            # unreliable (e.g. layer_a_artifact_hashes might not even be a
+            # list) -- still attempt best-effort semantic checks using
+            # .get() defaults, but don't let a missing/malformed field raise.
+            pass
+
+        event_id = manifest.get("event_id", "")
+        fixture_root = fixture_dir.resolve()
+        bundle_root = (fixture_dir / "frozen" / event_id / label_id).resolve()
 
         artifact_entries = manifest.get("layer_a_artifact_hashes", [])
+        if not isinstance(artifact_entries, list):
+            artifact_entries = []
         seen_paths: dict[str, int] = {}
         seen_basenames: dict[str, int] = {}
         for entry in artifact_entries:
@@ -951,47 +1234,52 @@ def gate_freeze_manifest(fd: FixtureData, fixture_dir: Path) -> list[Finding]:
                 findings.append(Finding(gate, "FAIL", f"{manifest_file}: malformed sha256 for {artifact_path!r}"))
                 continue
 
-            # No path traversal, no absolute escape: the resolved path must
-            # stay strictly within this fixture's own directory (standing
-            # in for "that event's Layer-A directory").
             candidate = (fixture_dir / artifact_path)
             try:
                 resolved = candidate.resolve()
             except (OSError, ValueError):
                 findings.append(Finding(gate, "FAIL", f"{manifest_file}: artifact_path {artifact_path!r} could not be resolved"))
                 continue
-            if Path(artifact_path).is_absolute() or ".." in Path(artifact_path).parts or not str(resolved).startswith(str(fixture_root)):
-                findings.append(Finding(gate, "FAIL", f"{manifest_file}: artifact_path {artifact_path!r} escapes the Layer-A directory (path traversal)"))
+
+            # Component-aware containment (Path.is_relative_to), not a
+            # string-prefix check -- and specifically scoped to THIS label's
+            # immutable bundle directory, not merely "somewhere in the
+            # fixture". .resolve() already follows symlinks, so a symlink
+            # planted inside the bundle pointing outside it is caught here
+            # too: its resolved (real) target simply won't be relative_to
+            # bundle_root.
+            if Path(artifact_path).is_absolute() or ".." in Path(artifact_path).parts:
+                findings.append(Finding(gate, "FAIL", f"{manifest_file}: artifact_path {artifact_path!r} escapes the frozen bundle directory (path traversal)"))
+                continue
+            if not resolved.is_relative_to(bundle_root):
+                findings.append(Finding(gate, "FAIL",
+                    f"{manifest_file}: artifact_path {artifact_path!r} resolves to {resolved}, which is outside "
+                    f"this label's immutable bundle directory {bundle_root} (path/symlink escape)"))
                 continue
 
             if any(marker in artifact_path for marker in FORBIDDEN_MANIFEST_PATH_MARKERS):
-                findings.append(Finding(gate, "FAIL", f"{manifest_file}: artifact_path {artifact_path!r} references a Layer-B/C location -- forbidden in a Layer-A freeze manifest"))
+                findings.append(Finding(gate, "FAIL", f"{manifest_file}: artifact_path {artifact_path!r} references a Layer-B/C location -- forbidden in a Layer-A freeze bundle"))
 
             if not (resolved.exists() and resolved.is_file()):
-                # 2026-08-03 correction: "every referenced artifact exists"
-                # is a hard requirement, not a best-effort check skipped
-                # when a fixture happens to omit the file. A manifest that
-                # references a nonexistent artifact fails closed -- a
-                # frozen label's evidence trail must be real, not aspirational.
-                findings.append(Finding(gate, "FAIL", f"{manifest_file}: referenced artifact {artifact_path!r} does not exist in this event's Layer-A directory"))
+                findings.append(Finding(gate, "FAIL", f"{manifest_file}: referenced artifact {artifact_path!r} does not exist in this label's frozen bundle"))
                 continue
 
             actual_hash = hashlib.sha256(resolved.read_bytes()).hexdigest()
             if actual_hash != recorded_hash:
                 findings.append(Finding(gate, "FAIL",
                     f"{manifest_file}: recorded sha256 for {artifact_path!r} ({recorded_hash}) does not match "
-                    f"the artifact's actual current hash ({actual_hash}) -- Layer A content changed after freeze"))
+                    f"the artifact's actual current hash ({actual_hash}) -- frozen bundle content changed after freeze"))
 
         for path, count in seen_paths.items():
             if count > 1:
                 findings.append(Finding(gate, "FAIL", f"{manifest_file}: duplicate artifact_path entry {path!r} ({count} times)"))
 
-        missing_required_artifacts = REQUIRED_LAYER_A_ARTIFACT_BASENAMES - set(seen_basenames.keys())
+        missing_required_artifacts = FROZEN_BUNDLE_REQUIRED_BASENAMES - set(seen_basenames.keys())
         if missing_required_artifacts:
-            findings.append(Finding(gate, "FAIL", f"{manifest_file}: missing required Layer-A artifact(s) from inventory: {sorted(missing_required_artifacts)}"))
-        for basename in REQUIRED_LAYER_A_ARTIFACT_BASENAMES:
+            findings.append(Finding(gate, "FAIL", f"{manifest_file}: missing required frozen-bundle artifact(s) from inventory: {sorted(missing_required_artifacts)}"))
+        for basename in FROZEN_BUNDLE_REQUIRED_BASENAMES:
             if seen_basenames.get(basename, 0) > 1:
-                findings.append(Finding(gate, "FAIL", f"{manifest_file}: required Layer-A artifact {basename!r} appears {seen_basenames[basename]} times, must appear exactly once"))
+                findings.append(Finding(gate, "FAIL", f"{manifest_file}: required frozen-bundle artifact {basename!r} appears {seen_basenames[basename]} times, must appear exactly once"))
 
         if not artifact_entries:
             findings.append(Finding(gate, "FAIL", f"{manifest_file}: layer_a_artifact_hashes is empty"))
@@ -1003,6 +1291,11 @@ def gate_freeze_manifest(fd: FixtureData, fixture_dir: Path) -> list[Finding]:
         # Manifest <-> event_labels.csv cross-consistency
         label_row = labels_by_id.get(label_id)
         if label_row is not None:
+            declared_path = label_row.get("freeze_manifest_path", "")
+            if declared_path and Path(declared_path).name != manifest_file:
+                findings.append(Finding(gate, "FAIL",
+                    f"{manifest_file}: this manifest's own filename does not match event_labels.csv "
+                    f"freeze_manifest_path={declared_path!r} (expected filename {Path(declared_path).name!r}) for {label_id}"))
             if label_row.get("event_id") and manifest.get("event_id") and label_row.get("event_id") != manifest.get("event_id"):
                 findings.append(Finding(gate, "FAIL", f"{manifest_file}: manifest event_id={manifest.get('event_id')!r} != event_labels.csv event_id={label_row.get('event_id')!r} for {label_id}"))
             if label_row.get("frozen_by") and manifest.get("frozen_by") and label_row.get("frozen_by") != manifest.get("frozen_by"):
@@ -1026,9 +1319,9 @@ def gate_freeze_manifest(fd: FixtureData, fixture_dir: Path) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# Gate 7: layer separation (2026-08-03 correction: STRICT reveal > freeze;
-# equal timestamps fail as ambiguous; naive/mixed-tz values fail closed via
-# _parse_ts_strict rather than raising a comparison exception)
+# Gate 7: layer separation (STRICT reveal > freeze; equal timestamps fail as
+# ambiguous; naive/mixed-tz values fail closed via _parse_ts_strict rather
+# than raising a comparison exception)
 # ---------------------------------------------------------------------------
 
 def gate_layer_separation(fd: FixtureData) -> list[Finding]:
@@ -1092,39 +1385,50 @@ def gate_layer_separation(fd: FixtureData) -> list[Finding]:
 
 
 GATE_FUNCS = [
-    ("identity_and_schema", lambda fd, fx, uni: gate_identity_and_schema(fd, uni)),
-    ("field_types", lambda fd, fx, uni: gate_field_types(fd)),
-    ("cross_row_consistency", lambda fd, fx, uni: gate_cross_row_consistency(fd)),
-    ("source_integrity", lambda fd, fx, uni: gate_source_integrity(fd)),
-    ("surprise_linkage", lambda fd, fx, uni: gate_surprise_linkage(fd)),
-    ("blinding", lambda fd, fx, uni: gate_blinding(fd)),
-    ("foreign_keys", lambda fd, fx, uni: gate_foreign_keys(fd)),
-    ("label_integrity", lambda fd, fx, uni: gate_label_integrity(fd)),
-    ("freeze_manifest", lambda fd, fx, uni: gate_freeze_manifest(fd, fx)),
-    ("layer_separation", lambda fd, fx, uni: gate_layer_separation(fd)),
+    ("required_tables", lambda fd, fx, uni, mode: gate_required_tables(fd, mode)),
+    ("identity_and_schema", lambda fd, fx, uni, mode: gate_identity_and_schema(fd, uni)),
+    ("field_types", lambda fd, fx, uni, mode: gate_field_types(fd)),
+    ("cross_row_consistency", lambda fd, fx, uni, mode: gate_cross_row_consistency(fd)),
+    ("source_integrity", lambda fd, fx, uni, mode: gate_source_integrity(fd)),
+    ("surprise_linkage", lambda fd, fx, uni, mode: gate_surprise_linkage(fd)),
+    ("blinding", lambda fd, fx, uni, mode: gate_blinding(fd)),
+    ("foreign_keys", lambda fd, fx, uni, mode: gate_foreign_keys(fd)),
+    ("label_integrity", lambda fd, fx, uni, mode: gate_label_integrity(fd)),
+    ("freeze_manifest", lambda fd, fx, uni, mode: gate_freeze_manifest(fd, fx)),
+    ("layer_separation", lambda fd, fx, uni, mode: gate_layer_separation(fd)),
 ]
 
 
-def validate(fixture_dir: Path) -> tuple[bool, list[Finding]]:
+def validate(fixture_dir: Path, mode: str = "freeze") -> tuple[bool, list[Finding]]:
+    if mode not in VALIDATION_MODES:
+        raise ValueError(f"mode must be one of {sorted(VALIDATION_MODES)}, got {mode!r}")
     fd = load_fixture(fixture_dir)
     universe = load_locked_universe()
     findings: list[Finding] = []
     for _name, fn in GATE_FUNCS:
-        findings.extend(fn(fd, fixture_dir, universe))
+        findings.extend(fn(fd, fixture_dir, universe, mode))
     ok = not any(f.severity == "FAIL" for f in findings)
     return ok, findings
 
 
 def main(argv: list[str]) -> int:
-    if not argv:
-        print("usage: validate_event_dossier.py <fixture_dir> [<fixture_dir> ...]", file=sys.stderr)
+    mode = "freeze"
+    args = list(argv)
+    if args and args[0] == "--mode":
+        if len(args) < 2 or args[1] not in VALIDATION_MODES:
+            print(f"usage: --mode must be one of {sorted(VALIDATION_MODES)}", file=sys.stderr)
+            return 2
+        mode = args[1]
+        args = args[2:]
+    if not args:
+        print("usage: validate_event_dossier.py [--mode draft|proposed|freeze] <fixture_dir> [<fixture_dir> ...]", file=sys.stderr)
         return 2
     overall_ok = True
-    for arg in argv:
+    for arg in args:
         fixture_dir = Path(arg)
-        ok, findings = validate(fixture_dir)
+        ok, findings = validate(fixture_dir, mode=mode)
         status = "PASS" if ok else "FAIL"
-        print(f"=== {fixture_dir.name}: {status} ===")
+        print(f"=== {fixture_dir.name} (mode={mode}): {status} ===")
         for f in findings:
             print(f"  {f}")
         if not findings:

@@ -1,6 +1,8 @@
 # Deterministic Validation Checklist — v0.1 DRAFT
 
-Pre-freeze gate. Every item must pass before an `event_labels.csv` row may move from `ai_proposed` to `human_frozen`. **Implemented** as `validator/validate_event_dossier.py` (run: `python validator/validate_event_dossier.py <fixture_dir>`); this document is the human-readable specification the validator's gates were built from, kept in sync with it. See `validator/README.md` for gate-by-gate implementation detail and `validator/test_validate_event_dossier.py` for the 48-fixture regression suite proving each item below.
+Pre-freeze gate. Every item must pass before an `event_labels.csv` row may move from `ai_proposed` to `human_frozen`. **Implemented** as `validator/validate_event_dossier.py` (run: `python validator/validate_event_dossier.py [--mode draft|proposed|freeze] <fixture_dir>`); this document is the human-readable specification the validator's gates were built from, kept in sync with it. See `validator/README.md` for gate-by-gate implementation detail and `validator/test_validate_event_dossier.py` for the 66-fixture regression suite proving each item below (48 from the first 2026-08-03 hardening pass, 18 from the second).
+
+**2026-08-03, second correction pass**: added items 17–22 below (required-table/mode enforcement, header-only column validation, surprise-linkage correctness additions, child-table/market-response event-layer consistency, the immutable freeze-bundle architecture, and real JSON Schema validation with component-aware path containment); items 6, 12, and 13 updated in place to reflect the new claim `metric_name` field, the new `*_surprise_null_reason` fields, and the new `frozen/{event_id}/{label_id}/` bundle location.
 
 ## 1. Stable IDs
 - [x] `event_id` matches `EVT-{TICKER}-{FISCAL_PERIOD_COMPACT}-{EVENT_TYPE}` and is unique across `events.csv`
@@ -37,9 +39,10 @@ Pre-freeze gate. Every item must pass before an `event_labels.csv` row may move 
 - [x] `claims.event_id`, `management_qna.event_id`, `market_response_addendum.event_id`/`linked_label_id` all resolve
 - [x] `event_labels.event_id`, `primary_positive_catalyst_claim_id`, `primary_negative_catalyst_claim_id`, `eps_actual_claim_id`, `eps_consensus_claim_id`, `revenue_actual_claim_id`, `revenue_consensus_claim_id`, `amendment_of_label_id` all resolve, and no linked claim belongs to a DIFFERENT event than the label (claim/event consistency)
 - [x] `claim_sources.claim_id` resolves; `corroborates_claim_source_id` resolves, does not self-reference, and belongs to the SAME `claim_id` as the referencing row
-- [x] `event_label_capex_effects.label_id`/`evidence_claim_id` resolve
-- [x] `event_label_cross_company_implications.label_id`/`claim_id` resolve — this new normalized child table replaces the old semicolon-delimited `event_labels.cross_company_implications_claim_id` column, whose individual IDs were never validated
-- [x] Any remaining semicolon-delimited reference field (`market_response_addendum.post_event_analyst_target_change_claim_ids`) is split and every individual ID validated, not trusted as an opaque string
+- [x] `event_label_capex_effects.label_id`/`evidence_claim_id` resolve, `evidence_claim_id` belongs to the SAME event as `label_id`'s event, is `layer=A_blinded_core`, and has an appropriate `claim_category` (item 19)
+- [x] `event_label_cross_company_implications.label_id`/`claim_id` resolve — this new normalized child table replaces the old semicolon-delimited `event_labels.cross_company_implications_claim_id` column, whose individual IDs were never validated — with the same event/layer/category checks as above, plus a required `metric_name` (item 19)
+- [x] Any remaining semicolon-delimited reference field (`market_response_addendum.post_event_analyst_target_change_claim_ids`) is split and every individual ID validated, not trusted as an opaque string; each resolved claim must belong to the addendum's own event and be `layer=B_market_response` (item 19)
+- [x] `market_response_addendum.event_id` matches its `linked_label_id`'s own event (item 19)
 
 ## 7. Direct-source requirement
 - [x] Every numeric claim feeding a to-be-frozen label has ≥1 linked `claim_sources.csv` row with `retrieval_method = direct_fetch` and `source_tier ≤ 3` — including, specifically, the EPS/revenue actual and consensus claims linked via item 12
@@ -63,21 +66,26 @@ Pre-freeze gate. Every item must pass before an `event_labels.csv` row may move 
 - [x] Every `claim_sources.source_name` used within Layer A is checked against the same reaction-language pattern list as item 10 — a source may be *cited* (by URL/paraphrased description) even if its own title contains such language, but the title string itself must not be reproduced verbatim in a Layer-A field
 - [x] This check specifically fails the MSFT pilot's source-inventory table (S5 title quoted verbatim) — used as a second regression case
 
-## 12. Explicit surprise-percentage evidence linkage (new 2026-08-03)
+## 12. Explicit surprise-percentage evidence linkage (2026-08-03, updated in second pass)
 - [x] A non-null `eps_surprise_pct`/`revenue_surprise_pct` requires its own `*_actual_claim_id` and `*_consensus_claim_id`, not merely "any" consensus claim for the event
 - [x] The actual claim's `claim_category ∈ {reported_fact, management_claim}`; the consensus claim's `claim_category = pre_event_consensus_estimate`
-- [x] Actual and consensus claims must share a compatible `unit` and the SAME `gaap_basis` — a GAAP-actual paired with a non-GAAP-consensus fails
+- [x] Both linked claims must have `value_type = numeric` and a parseable `numeric_value` (item 18)
+- [x] Actual and consensus claims must BOTH carry a non-blank `unit`, and those units must match; both must carry a non-blank `gaap_basis`, and those bases must match — a blank on either side now fails, not just a mismatch (item 18)
+- [x] Both linked claims must carry the SAME `metric_name`, matching the field being computed (`eps`↔`eps`, `revenue`↔`revenue` — never a cross-metric pairing) (item 18)
+- [x] The consensus claim's `numeric_value` must be nonzero (item 18)
 - [x] For a `human_frozen` label, both linked claims independently satisfy the direct-source and provider/as-of requirements (items 7–8), and the stored surprise percentage is INDEPENDENTLY RECOMPUTED from the linked claims' `numeric_value`s and compared to the stored value within a documented tolerance (`SURPRISE_PCT_TOLERANCE = 0.05` percentage points) — disagreement fails
-- [x] A null surprise percentage remains valid (no linkage required) when consensus is unverifiable or was never computed — never inferred or filled in by the validator
+- [x] A null surprise percentage requires an explicit, enum-controlled `*_surprise_null_reason` (`consensus_unavailable`/`consensus_unverifiable`/`not_applicable`) — an unexplained blank now fails, and a populated percentage cannot also carry a null_reason (item 18)
 
-## 13. Freeze-manifest hardening (2026-08-03: `freeze_manifest.schema.json` as an executable contract)
-- [x] Every `layer_a_artifact_hashes[].artifact_path` resolves to a file that ACTUALLY EXISTS within that event's fixture (Layer-A) directory — a referenced-but-missing artifact fails, it is never treated as a soft/optional check
-- [x] The resolved path stays strictly within the fixture directory — no path traversal (`..`, absolute paths) is accepted
-- [x] Every required Layer-A artifact basename (`events.csv`, `claims.csv`, `claim_sources.csv`, `management_qna.csv`) appears in the inventory EXACTLY ONCE — missing or duplicated entries both fail
-- [x] No artifact_path referencing a Layer-B/C location (`market_response_addendum.csv`, `B_Market_Response_Addendum`, `C_Attention_Feature_Join`) is accepted in a Layer-A manifest
-- [x] Recorded `sha256` values match the artifact's actual current hash — a changed Layer-A artifact after freeze fails (unchanged from Revision 2)
+## 13. Freeze-manifest / immutable freeze-bundle hardening (2026-08-03, rewritten in second pass)
+- [x] Every referenced artifact must live under `frozen/{event_id}/{label_id}/` — an immutable, per-label-version bundle, never the mutable working tables at the fixture root (item 21)
+- [x] Every `layer_a_artifact_hashes[].artifact_path` resolves to a file that ACTUALLY EXISTS within that bundle — a referenced-but-missing artifact fails, it is never treated as a soft/optional check
+- [x] The resolved path stays strictly within THIS label's bundle directory, checked via `Path.is_relative_to()` (component-aware, not a string-prefix comparison) — rejects `..` traversal, absolute paths, a sibling-directory prefix collision, and a symlink that resolves outside the bundle (item 21)
+- [x] All seven required bundle-artifact basenames (`events.csv`, `claims.csv`, `claim_sources.csv`, `management_qna.csv`, the singular `event_label.csv`, `event_label_capex_effects.csv`, `event_label_cross_company_implications.csv`) appear in the inventory EXACTLY ONCE — missing or duplicated entries both fail
+- [x] No artifact_path referencing a Layer-B/C location is accepted in a Layer-A freeze bundle
+- [x] Recorded `sha256` values match the FROZEN copy's actual current hash — never the mutable working table's hash; editing the working table after freeze does not invalidate the bundle, and editing the frozen copy itself does
+- [x] The manifest's own filename matches `event_labels.csv`'s declared `freeze_manifest_path` (item 21)
 - [x] The manifest's own `event_id`, `label_id`, `frozen_by`, and `freeze_timestamp_utc` must agree with the matching `event_labels.csv` row — any disagreement fails
-- [x] The manifest is validated against `freeze_manifest.schema.json`'s own `required`/`additionalProperties: false` contract: a missing required top-level field, or an undeclared extra field, fails
+- [x] The manifest is validated against the ACTUAL `freeze_manifest.schema.json` via the pinned `jsonschema` library (`required`/`additionalProperties: false`/enum/pattern/type), INCLUDING nested array items (`reveal_events[]`, `reviewer_capture_exposure_log[]`) that a hand-rolled top-level-only check would miss (item 22)
 - [x] Malformed JSON fails outright, not silently skipped
 
 ## 14. Timestamp ordering (2026-08-03 correction)
@@ -92,6 +100,40 @@ Pre-freeze gate. Every item must pass before an `event_labels.csv` row may move 
 ## 16. Confirmatory events cannot be relabeled after feature reveal without an amendment record
 - [x] No `event_labels.csv` row is edited in place; every correction is a new row with `amendment_of_label_id` set and `amendment_reason` populated
 - [x] `events.event_disposition` cannot move back to `confirmatory` after being `development_pilot`/`compromised` (via optional `disposition_history.csv`)
+
+## 17. Required tables and validation modes (new, second pass)
+- [x] The validator is invoked with an explicit mode (`draft`/`proposed`/`freeze`; defaults to `freeze`), each requiring progressively more tables to be present before any other gate is evaluated as meaningful
+- [x] `draft` requires only `events.csv`; `proposed` additionally requires `claims.csv`/`claim_sources.csv`/`management_qna.csv`/`event_labels.csv`; `freeze` requires the same as `proposed` PLUS at least one `event_labels.csv` row with `label_status=human_frozen`
+- [x] A completely empty fixture directory fails in EVERY mode
+- [x] Every other gate runs unconditionally regardless of mode — mode only gates the required-table floor, never weakens any other check
+
+## 18. Header-only CSV column validation (new, second pass)
+- [x] A CSV file's column header is checked against its canonical schema even when the file has zero data rows — a header-only file with a missing, extra, or misspelled column fails; it is never silently skipped because there happen to be no rows to inspect
+
+## 19. Child-table and market-response event/layer consistency (new, second pass — see also item 6)
+- [x] `event_label_capex_effects.evidence_claim_id` and `event_label_cross_company_implications.claim_id` must belong to the SAME event as the label they support, must be `layer=A_blinded_core`, and must have `claim_category ∈ {reported_fact, management_claim, analyst_interpretation}`
+- [x] A cross-company-implication claim must additionally carry a non-blank `metric_name`
+- [x] `market_response_addendum.event_id` matches its `linked_label_id`'s own event; every claim in `post_event_analyst_target_change_claim_ids` belongs to that same event and is `layer=B_market_response`
+
+## 20. Surprise-linkage correctness (new, second pass — see also item 12)
+- [x] Both linked claims are `value_type=numeric` with a parseable `numeric_value`
+- [x] Both linked claims carry a non-blank, matching `unit` and `gaap_basis`
+- [x] Both linked claims carry the SAME `metric_name`, matching the field being computed
+- [x] The consensus claim's `numeric_value` is nonzero
+- [x] A null surprise percentage requires an explicit `*_surprise_null_reason`; a populated percentage cannot also carry one
+
+## 21. Immutable freeze-bundle architecture (new, second pass — see also item 13)
+- [x] A freeze manifest references artifacts under `frozen/{event_id}/{label_id}/`, an immutable snapshot scoped to exactly one label version — never the mutable working tables, which later events or amendments may go on to edit
+- [x] The bundle contains all seven required artifact types exactly once, including the singular frozen `event_label.csv` (one row) and header-only child tables when empty
+- [x] Editing the mutable working table AFTER a bundle is created does not invalidate that bundle (the manifest hashes the frozen copy); editing the frozen copy itself DOES invalidate it
+- [x] A later amendment creates its own new bundle under the amendment's own `label_id`; it never edits the prior label's bundle, which remains independently valid
+- [x] Path containment for every artifact_path uses `Path.is_relative_to()` against the bundle's own resolved directory — not a string-prefix comparison, which a sibling directory whose name is a string-prefix superset of the real bundle (or a symlink resolving outside it) would defeat
+- [x] The manifest's own filename must match `event_labels.csv`'s declared `freeze_manifest_path`
+
+## 22. Real JSON Schema validation (new, second pass)
+- [x] Freeze-manifest structural validation (required/additionalProperties/enum/pattern/type) runs against the actual `freeze_manifest.schema.json` via the pinned `jsonschema` library (`validator/requirements.txt`), not a hand-rolled subset
+- [x] Validation recurses into nested array items (`reveal_events[]`, `reviewer_capture_exposure_log[]`, `layer_a_artifact_hashes[]`) — a missing required field or invalid enum value inside an array item is caught, where a top-level-only hand-rolled check would miss it
+- [x] `date-time` format is enforced via `jsonschema`'s `FormatChecker()` (backed by `rfc3339-validator`), rejecting naive timestamps at the schema level in addition to the validator's own `_parse_ts_strict()` checks
 
 ---
 
