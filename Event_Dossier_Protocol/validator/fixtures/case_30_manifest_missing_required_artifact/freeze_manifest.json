@@ -1,0 +1,23 @@
+{
+  "event_id": "EVT-AAPL-FY26Q3-ERN",
+  "label_id": "EVT-AAPL-FY26Q3-ERN-LBL-01",
+  "protocol_version": "0.1",
+  "layer_a_artifact_hashes": [
+    {
+      "artifact_path": "events.csv",
+      "sha256": "0044b86c81d99833a1c369ec0031772484c0f342588f3057208c9e314e012294"
+    },
+    {
+      "artifact_path": "claims.csv",
+      "sha256": "050922033ff201f239c1896af12b0cbf7e4a68698553ec26c1de60a0642fca54"
+    },
+    {
+      "artifact_path": "management_qna.csv",
+      "sha256": "274dc2215585b51948ff4f553a56b0b22554d21ace24c5a21371423eb0b5f8df"
+    }
+  ],
+  "freeze_timestamp_utc": "2026-08-02T10:00:00+00:00",
+  "frozen_by": "jane.reviewer",
+  "reviewer_capture_exposure_log": [],
+  "reveal_events": []
+}

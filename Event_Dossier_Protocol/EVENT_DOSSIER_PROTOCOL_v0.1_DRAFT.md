@@ -1,6 +1,6 @@
 # Event Dossier Protocol — v0.1 DRAFT
 
-**Status:** Draft architecture. Not yet used to produce a confirmatory-event label. **Revision 2** (2026-08-02): corrects the capture-vs-reveal rule, locks the v0.1 confirmatory universe to the exact existing Phase 2 24-ticker list, and aligns taxonomy field names with the executable validator (`validator/validate_event_dossier.py`).
+**Status:** Draft architecture. Not yet used to produce a confirmatory-event label. **Revision 3** (2026-08-03, validator hardening pass): renames the niche to `fixed_24_ticker_earnings_panel` (§1); mechanically enforces every documented required/conditional field, enum, numeric/integer/date/timestamp type, and cross-row consistency rule (§9, §15) instead of only some of them; completes foreign-key validation everywhere, including a new `event_label_cross_company_implications.csv` child table replacing a semicolon-delimited FK field, and `corroborates_claim_source_id`; hardens freeze-manifest validation into a full executable contract (artifact existence, path containment, exactly-once required inventory, no Layer-B/C leakage, manifest/label cross-consistency); expands blinding-language scanning to every Layer-A free-text field; corrects reveal/freeze timestamp ordering to strict `>` (equal timestamps now fail as ambiguous) and makes naive/mixed-timezone timestamps fail validation instead of raising; and adds explicit EPS/revenue actual+consensus claim-ID linkage with independent surprise-percentage recomputation. See `CHANGELOG.md` for the full list. **Revision 2** (2026-08-02): corrects the capture-vs-reveal rule, locks the v0.1 confirmatory universe to the exact existing Phase 2 24-ticker list, and aligns taxonomy field names with the executable validator (`validator/validate_event_dossier.py`).
 **Branch:** `phase2-event-dossiers` (worktree: `gst-event-dossiers-worktree`, sibling to the frozen `phase2-wikipedia-reliability` regression worktree — never modified by this lane).
 **Motivating incident:** the MSFT FY2026 Q4 pilot dossier (see `MSFT_PILOT_QC_AND_DISPOSITION.md`) exposed reviewers to post-event stock-price-reaction language in its narrative text, despite its machine-readable table remaining feature-clean. That single breach is the reason this protocol exists as a formal document rather than ad hoc practice.
 
@@ -12,10 +12,11 @@ This document defines the process, directory/schema separation, taxonomies, and 
 
 ## 1. Initial narrow research niche
 
-**Large-cap single-name earnings events only**, for the initial version of this protocol:
-- U.S.-listed, large-cap (approximate float-adjusted market cap threshold to be fixed by the human reviewer before the first confirmatory event; not fixed in this draft)
-- Regularly scheduled quarterly earnings releases with an associated SEC filing (8-K or equivalent) and a public conference call
+**`fixed_24_ticker_earnings_panel`** (renamed 2026-08-03 from `large_cap_earnings` — see below), for the initial version of this protocol:
+- Single-name earnings events for the exact locked v0.1 24-ticker universe (§1.1) only — U.S.-listed, regularly scheduled quarterly earnings releases with an associated SEC filing (8-K or equivalent) and a public conference call
 - Excludes: M&A announcements, guidance-only pre-announcements, regulatory events, macro/Fed events, and any company without a public earnings call — these may become separate niches under their own protocol versions later, not silently folded into this one.
+
+**Why the rename.** The niche was originally named `large_cap_earnings`, describing the universe as uniformly large-cap. That was materially inaccurate: the locked v0.1 universe (§1.1) includes tickers like `GME` and `NCLH`, which are not large-cap by any conventional market-cap definition. The niche is honestly defined by what it actually is — the exact fixed 24-ticker panel already locked for the Phase 2 GST/Wikipedia panel — not by an invented, and wrong, size classification. `niche = "fixed_24_ticker_earnings_panel"` is now the only accepted value, mechanically enforced by the validator (`NICHE_VALUES` in `validator/validate_event_dossier.py`); `large_cap_earnings` is rejected.
 
 ### 1.1 Locked v0.1 confirmatory universe
 
