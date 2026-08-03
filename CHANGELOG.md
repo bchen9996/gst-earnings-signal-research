@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-08-03 — Safety correction: live equivalence smoke test can no longer mutate operational data by default
+
+**Why this changed.** The prior cache-hash-discrepancy reconciliation identified the exact mechanism: `test_phase2_wikipedia_equivalence.py` is a genuinely live-network test (unlike `test_phase2_wikipedia_equivalence_deterministic.py`) that never redirected `GST_Phase2_Wikipedia_Transport.CACHE_PATH`, so any accidental inclusion in a "run every test file" pass wrote real fetched data into the real operational cache. This closes that gap structurally rather than relying on remembering to exclude one filename.
+
+**What changed:**
+
+- Renamed `test_phase2_wikipedia_equivalence.py` → `phase2_live_smoke_wiki_equivalence.py`, off the `test_*.py` pattern, so no glob-based or `test_*` discovery convention (including this project's own regression-check loops) can ever pick it up by accident again.
+- `main()` now requires `RUN_PHASE2_LIVE_WIKI_SMOKE=1` to do anything at all. Without it: zero network calls, zero access to `CACHE_PATH` (real or otherwise), and the existing three-state `PASS`/`INCONCLUSIVE`/`FAIL` contract is reused rather than inventing a fourth state — every ticker reports `INCONCLUSIVE` with an explicit "skipped, not evaluated" reason, preserving `decide_exit_code()`'s existing exit-code mapping (0/1/2).
+- When explicitly enabled, `_run_live_smoke()` redirects `CACHE_PATH` to an isolated temp file for the entire run via a new `_TempCacheRedirect` context manager (unconditional restore-and-cleanup in `__exit__`, including on an exception), then independently hash-verifies the REAL operational cache is byte-identical before and after as defense in depth — a hard failure (exit 1) if that check ever disagrees, rather than a silent pass.
+- Fixed a resulting breakage: `test_phase2_wikipedia_equivalence_deterministic.py`'s `test_live_smoke_verdict_exit_code_mapping` imported the old module name; updated to import `phase2_live_smoke_wiki_equivalence`.
+
+**Tests**: `test_phase2_live_wiki_smoke_gating.py` (new, 18 assertions, zero network calls, live mode never invoked) proves: default invocation never calls `_run_live_smoke()`; default invocation makes zero network calls even if one were attempted (patched `urlopen` never reached); default invocation never reassigns `CACHE_PATH` and leaves the real cache byte-identical; `_TempCacheRedirect` genuinely isolates `CACHE_PATH` to a different, non-operational path; the redirect restores `CACHE_PATH` and deletes its temp directory both on normal exit AND when an exception is raised inside it; the real operational cache is byte-identical before and after the whole test file. Full deterministic suite (11 files) re-run: all passing, operational cache verified byte-identical before and after.
+
+Only deterministic tests were run. Live mode was not invoked at any point while producing this correction.
+
 ## 2026-08-03 — Correction: cache-hash discrepancy reconciled (report-only, no cache/code change)
 
 **What was flagged.** The prior report for the subchunk-recovery pass recorded the operational cache's SHA-256 as `e3ebecd2...` at Lane B preflight, then `29d072f2...` "immediately before the deterministic suite" a few steps later, without explaining the difference. This entry reconciles it.

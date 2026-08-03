@@ -5,6 +5,19 @@
 # MANDATORY, no-live-network, frozen-fixture test that this one does NOT
 # substitute for).
 #
+# 2026-08-03 SAFETY CORRECTION: this file was previously named
+# test_phase2_wikipedia_equivalence.py and was silently swept up by any
+# "run every test_*.py" loop or discovery tool -- including this project's
+# own CI-style regression checks -- even though it makes REAL network calls
+# and, without this correction, wrote directly to the REAL operational
+# Phase2_Wikipedia_Cache.csv. Renamed off the test_*.py pattern specifically
+# so ordinary deterministic test discovery can never pick it up by
+# accident, and gated behind an explicit environment variable (below) so it
+# can never run -- let alone touch the network or the operational cache --
+# without a human deliberately opting in for this one invocation. See
+# CHANGELOG.md's 2026-08-03 "cache-hash discrepancy" entry for the incident
+# that motivated this.
+#
 # For AAPL and AMZN: fetches the SAME 300-day production window two ways --
 # DIRECT (fetch_daily_pageviews(), the existing, unmodified shared helper)
 # and CHUNKED (get_ticker_wikipedia_daily() + bounded second pass +
@@ -36,7 +49,8 @@
 # decision -- test_phase2_wikipedia_equivalence_deterministic.py is the
 # actual gate.
 #
-# Run directly: python test_phase2_wikipedia_equivalence.py
+# Run directly (only with the explicit opt-in below):
+#   RUN_PHASE2_LIVE_WIKI_SMOKE=1 python phase2_live_smoke_wiki_equivalence.py
 # Exit code (see decide_exit_code(), directly unit-tested without any
 # network call in test_phase2_wikipedia_equivalence_deterministic.py):
 #   0 -- every tested ticker PASSED
@@ -47,9 +61,13 @@
 
 from __future__ import annotations
 from datetime import datetime, timezone, date, timedelta
+from pathlib import Path
+import hashlib
 import json
 import os
+import shutil
 import sys
+import tempfile
 
 import pandas as pd
 
@@ -66,8 +84,47 @@ import GST_FixedWindow_PerEvent_Canonical as canonical
 TOLERANCE = 1e-6
 TICKERS_UNDER_TEST = ["AAPL", "AMZN"]
 
+# Explicit opt-in required for this file to make any network call or touch
+# GST_Phase2_Wikipedia_Transport.CACHE_PATH at all. Unset (the default in
+# every normal invocation, including any "run every test file" loop) means
+# this file does nothing but print a skip notice and return -- no import-
+# time side effect, no network access, no cache access.
+LIVE_SMOKE_ENV_VAR = "RUN_PHASE2_LIVE_WIKI_SMOKE"
+
 VERDICTS: dict[str, str] = {}   # ticker -> "PASS" / "INCONCLUSIVE" / "FAIL"
 FAILURES: list[str] = []        # true defects only -- reported in the summary
+
+
+def _hash_or_none(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+class _TempCacheRedirect:
+    """Context manager: swaps GST_Phase2_Wikipedia_Transport.CACHE_PATH to
+    a fresh, empty temp file for its entire duration, unconditionally
+    restoring the original CACHE_PATH and deleting the temp directory on
+    the way out -- including when the body raises (the restore happens in
+    __exit__, which always runs). This is its own small, independently
+    testable unit specifically so deterministic tests can prove the
+    isolation and cleanup-on-exception behavior without invoking any live
+    network code (see test_phase2_live_wiki_smoke_gating.py)."""
+
+    def __enter__(self) -> Path:
+        self._original_cache_path = wiki_transport.CACHE_PATH
+        self._tmp_dir = tempfile.mkdtemp(prefix="phase2_live_smoke_cache_")
+        wiki_transport.CACHE_PATH = Path(self._tmp_dir) / "live_smoke_isolated_cache.csv"
+        return wiki_transport.CACHE_PATH
+
+    def __exit__(self, exc_type, exc, tb) -> bool:
+        wiki_transport.CACHE_PATH = self._original_cache_path
+        shutil.rmtree(self._tmp_dir, ignore_errors=True)
+        return False  # never swallow an exception
 
 
 def decide_exit_code(verdicts: dict[str, str]) -> int:
@@ -231,42 +288,102 @@ def _run_for_ticker(ticker: str, watermark: date) -> str:
     return "PASS"
 
 
-if __name__ == "__main__":
-    # Resolved ONCE for this diagnostic run, exactly as production main()
-    # does -- never recomputed per ticker.
-    watermark_info = wiki_transport.resolve_wiki_data_watermark(anchor_date=datetime.now(timezone.utc).date())
-    print(f"Watermark: status={watermark_info['status']} watermark_date={watermark_info['watermark_date']} "
-          f"lag_days={watermark_info['lag_days']}\n")
-
-    if watermark_info["status"] != "ok":
-        print("No valid watermark could be established -- marking all tickers INCONCLUSIVE "
-              "(source unavailable), not FAIL.")
-        for t in TICKERS_UNDER_TEST:
-            VERDICTS[t] = "INCONCLUSIVE"
-    else:
-        for t in TICKERS_UNDER_TEST:
-            verdict = _run_for_ticker(t, watermark_info["watermark_date"])
-            VERDICTS[t] = verdict
-            if verdict == "FAIL":
-                FAILURES.append(t)
-
+def _print_summary(verdicts: dict[str, str], failures: list[str]) -> int:
     counts = {"PASS": 0, "INCONCLUSIVE": 0, "FAIL": 0}
-    for v in VERDICTS.values():
+    for v in verdicts.values():
         counts[v] += 1
 
     print(f"\n=== SUMMARY -- OPTIONAL LIVE DIAGNOSTIC, NOT a deterministic CI gate "
           f"(does not substitute for test_phase2_wikipedia_equivalence_deterministic.py) ===")
-    for t, v in VERDICTS.items():
+    for t, v in verdicts.items():
         print(f"  {t}: {v}")
     print(f"Counts: PASS={counts['PASS']} INCONCLUSIVE={counts['INCONCLUSIVE']} FAIL={counts['FAIL']}")
 
-    exit_code = decide_exit_code(VERDICTS)
+    exit_code = decide_exit_code(verdicts)
     if exit_code == 0:
         print("\nExit 0: every tested ticker PASSED.")
     elif exit_code == 1:
-        print(f"\nExit 1: {counts['FAIL']} true FAILURE(S) found: {FAILURES} -- a real value mismatch. "
+        print(f"\nExit 1: {counts['FAIL']} true FAILURE(S) found: {failures} -- a real value mismatch. "
               "This DOES matter and should be investigated.")
     else:
         print(f"\nExit 2: no failures, but {counts['INCONCLUSIVE']} ticker(s) INCONCLUSIVE (source "
-              "unavailable or a coverage gap right now) -- not a defect, but not a clean pass either.")
-    sys.exit(exit_code)
+              "unavailable, a coverage gap right now, or this live probe was skipped) -- not a "
+              "defect, but not a clean pass either.")
+    return exit_code
+
+
+def _run_live_smoke() -> int:
+    """The actual live-network smoke run. Only ever called when
+    LIVE_SMOKE_ENV_VAR is explicitly set (see main()) -- never at import
+    time, never as a side effect of any other function in this module.
+
+    Redirects GST_Phase2_Wikipedia_Transport.CACHE_PATH to an isolated temp
+    file for the ENTIRE run via _TempCacheRedirect (restored unconditionally
+    on the way out, including on an exception), then independently
+    hash-verifies the REAL operational cache file is byte-identical before
+    and after -- defense in depth on top of the redirect itself, in case
+    any code path were ever to reference the real path directly."""
+    real_cache_path = wiki_transport.CACHE_PATH
+    real_hash_before = _hash_or_none(real_cache_path)
+
+    with _TempCacheRedirect() as tmp_cache_path:
+        print(f"Operational cache isolated for this run: CACHE_PATH -> {tmp_cache_path} "
+              f"(real path {real_cache_path} is not read or written by this run)")
+
+        # Resolved ONCE for this diagnostic run, exactly as production
+        # main() does -- never recomputed per ticker.
+        watermark_info = wiki_transport.resolve_wiki_data_watermark(anchor_date=datetime.now(timezone.utc).date())
+        print(f"Watermark: status={watermark_info['status']} watermark_date={watermark_info['watermark_date']} "
+              f"lag_days={watermark_info['lag_days']}\n")
+
+        if watermark_info["status"] != "ok":
+            print("No valid watermark could be established -- marking all tickers INCONCLUSIVE "
+                  "(source unavailable), not FAIL.")
+            for t in TICKERS_UNDER_TEST:
+                VERDICTS[t] = "INCONCLUSIVE"
+        else:
+            for t in TICKERS_UNDER_TEST:
+                verdict = _run_for_ticker(t, watermark_info["watermark_date"])
+                VERDICTS[t] = verdict
+                if verdict == "FAIL":
+                    FAILURES.append(t)
+
+        exit_code = _print_summary(VERDICTS, FAILURES)
+
+    real_hash_after = _hash_or_none(real_cache_path)
+    if real_hash_before != real_hash_after:
+        # Should be structurally impossible given the redirect above --
+        # printed loudly and forced to a hard failure if it ever happens,
+        # rather than silently accepted.
+        print(f"\n*** ALARM: the REAL operational cache changed during this run despite CACHE_PATH "
+              f"isolation (before={real_hash_before} after={real_hash_after}). This should never "
+              f"happen -- treat as a defect in the isolation mechanism, not in Wikipedia data. ***")
+        return 1
+    print(f"\nOperational cache verified byte-identical before and after this run "
+          f"(sha256={real_hash_before}).")
+    return exit_code
+
+
+def main() -> int:
+    """Entry point. Without LIVE_SMOKE_ENV_VAR=1 set, this makes NO network
+    call and NEVER touches GST_Phase2_Wikipedia_Transport.CACHE_PATH (real
+    or otherwise) -- every ticker is reported INCONCLUSIVE with a skip
+    reason, reusing the existing three-state PASS/INCONCLUSIVE/FAIL
+    contract and its exit codes (0/1/2) rather than inventing a fourth
+    state, exactly as intended when INCONCLUSIVE was designed to mean
+    "not evaluable right now, not a defect.\""""
+    if os.environ.get(LIVE_SMOKE_ENV_VAR) != "1":
+        print(f"SKIPPED: {LIVE_SMOKE_ENV_VAR}=1 is not set. This is an OPTIONAL live-network smoke "
+              f"test that is never run by default, by any deterministic test suite, or by any "
+              f"ordinary test_*.py discovery loop -- it makes real HTTP requests and must be a "
+              f"deliberate, explicit, single invocation. No network request was made and the "
+              f"operational cache was not accessed.\n"
+              f"To run it deliberately: {LIVE_SMOKE_ENV_VAR}=1 python {Path(__file__).name}")
+        for t in TICKERS_UNDER_TEST:
+            VERDICTS[t] = "INCONCLUSIVE"
+        return _print_summary(VERDICTS, FAILURES)
+    return _run_live_smoke()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
