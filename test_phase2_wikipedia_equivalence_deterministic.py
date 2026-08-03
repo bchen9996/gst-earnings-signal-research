@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # DETERMINISTIC SCIENTIFIC-EQUIVALENCE TEST (2026-07-31 corrective commit,
 # Section A of the split equivalence gate -- see
-# test_phase2_wikipedia_equivalence.py for Section B, the OPTIONAL live
+# phase2_live_smoke_wiki_equivalence.py (renamed 2026-08-03, formerly
+# test_phase2_wikipedia_equivalence.py, off the test_*.py pattern and
+# gated behind RUN_PHASE2_LIVE_WIKI_SMOKE=1 -- see that file and
+# test_phase2_live_wiki_smoke_gating.py) for Section B, the OPTIONAL live
 # smoke test that does NOT substitute for this one).
 #
 # Uses FROZEN, provenance-documented fixtures captured once from the real
@@ -232,12 +235,14 @@ def test_watermark_truncation_matches_manually_truncated_fixture():
                   f"fixture's z-score", manual_z == assembled_z, f"manual={manual_z} assembled={assembled_z}")
 
 
-# === Live smoke test exit-code mapping (2026-07-31 follow-up): a pure
-# function, tested here with zero network calls -- importing
-# test_phase2_wikipedia_equivalence only executes its live network code
-# inside `if __name__ == "__main__":`, which this import never triggers. ===
+# === Live smoke test exit-code mapping (2026-07-31 follow-up, updated
+# 2026-08-03 for the module rename): a pure function, tested here with
+# zero network calls -- importing phase2_live_smoke_wiki_equivalence never
+# makes a network call or touches CACHE_PATH on its own; that only happens
+# inside main(), and only when RUN_PHASE2_LIVE_WIKI_SMOKE=1 is set (see
+# test_phase2_live_wiki_smoke_gating.py for the dedicated gating tests). ===
 def test_live_smoke_verdict_exit_code_mapping():
-    import test_phase2_wikipedia_equivalence as live_smoke
+    import phase2_live_smoke_wiki_equivalence as live_smoke
 
     check("exit-code mapping: all PASS -> 0",
           live_smoke.decide_exit_code({"AAPL": "PASS", "AMZN": "PASS"}) == 0)
