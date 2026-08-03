@@ -1436,6 +1436,320 @@ def apply_recent_cache_fallback(still_failed: list[dict], cache_df: pd.DataFrame
     return {"fallback_recovered": fallback_recovered, "still_failed": remaining_failed}
 
 
+# --- BOUNDED CLOSED-MONTH SUBCHUNK RECOVERY (2026-08-03) -------------------
+#
+# WHY: the CTSH/GME 2026-08-03 PARTIAL (see Live Signal Engine/Phase2
+# Failure Evidence/2026-08-03_CTSH_GME_Historical_Endpoint_PARTIAL/) traced
+# to two mid-history full-month chunks returning HTTP 404 on both the first
+# attempt and the bounded second pass, while a read-only diagnostic later
+# showed the SAME exact request succeeded cleanly on retry, as did every
+# fixed 7-day subrange of it -- consistent with transient/rate-limited
+# server behavior rather than a genuine data-availability gap. This is a
+# THIRD, last-resort recovery stage -- strictly bounded, strictly
+# closed-month-only, never recursive -- that gives a failed month one more
+# chance at fine-grained partial recovery before it is accepted as
+# genuinely incomplete.
+#
+# Deliberately narrower than the existing recovery mechanisms it sits
+# alongside: cache_union_reconstruction (attempt_cache_union_reconstruction)
+# reads ONLY what is already cached; recent_last_known_good
+# (evaluate_recent_cache_fallback) applies ONLY to the open/current chunk.
+# This mechanism is the closed-month counterpart -- it makes NEW network
+# requests, but only ever fixed, calendar-aligned, non-overlapping 7-day
+# slices of an already-twice-failed month, each attempted exactly once.
+
+SUBCHUNK_INTERVAL_DAYS = 7
+# ceil(31/7) = 5 subchunks for the longest possible month; +1 headroom,
+# still a tight, fixed ceiling -- never a function of how many actually
+# fail.
+SUBCHUNK_MAX_REQUESTS_PER_MONTH = 6
+# Independent of (and much smaller than) the run-level TOTAL_RUN_BUDGET_S --
+# a last-resort mechanism must not be able to materially eat into the
+# budget meant for tickers/legs that haven't run yet.
+SUBCHUNK_MAX_WALL_CLOCK_S = 120.0
+# Same production-appropriate jitter as the existing second pass
+# (SECOND_PASS_JITTER_RANGE_S) -- deliberately NOT zero-paced. An earlier
+# zero-pacing read-only diagnostic of this exact failure independently
+# demonstrated that firing requests back-to-back with no delay trips
+# Wikimedia's burst rate limiter on the very next request, where paced
+# requests at this same cadence succeeded cleanly across every partition
+# size tested.
+SUBCHUNK_PACING_RANGE_S = (2.0, 5.0)
+
+
+def week_aligned_subchunks(start: date, end: date) -> list[tuple[date, date]]:
+    """Deterministic, fixed 7-day partition of [start, end] -- the FINAL
+    interval only is shortened as necessary to fit `end`. Purely a function
+    of (start, end), exactly like calendar_month_chunks(): the same inputs
+    always produce the same boundaries, and there is no recursive or
+    data-dependent splitting anywhere in this module's subchunk logic."""
+    if start > end:
+        return []
+    chunks = []
+    cursor = start
+    while cursor <= end:
+        chunk_end = min(cursor + timedelta(days=SUBCHUNK_INTERVAL_DAYS - 1), end)
+        chunks.append((cursor, chunk_end))
+        cursor = chunk_end + timedelta(days=1)
+    return chunks
+
+
+def attempt_closed_month_subchunk_recovery(item: dict, watermark: date, remaining_budget_s: float,
+                                            fetch_fn=None) -> dict:
+    """Bounded, last-resort recovery for ONE chunk that already failed both
+    the first pass and the bounded second pass. `item` is a `still_failed`
+    entry (same shape produced by run_bounded_second_pass()/
+    apply_recent_cache_fallback(): ticker, article, chunk_start, chunk_end,
+    last_status, retry_after, last_http_status, reason).
+
+    Applies ONLY to a CLOSED chunk -- returns immediately, unattempted, if
+    `item`'s chunk currently contains the watermark (is_open_chunk()); the
+    open/current chunk is evaluate_recent_cache_fallback()'s exclusive
+    domain and this function never touches it, mirroring the same gate used
+    at the run_bounded_subchunk_recovery() call site so the property holds
+    even if called directly.
+
+    Splits [chunk_start, required_data_end(chunk_end, watermark)] into
+    fixed 7-day intervals (week_aligned_subchunks()) and makes EXACTLY ONE
+    attempt per subchunk -- no inline retry, no recursive re-splitting of a
+    subchunk that itself fails; it simply stays unrecovered. Bounded by
+    BOTH SUBCHUNK_MAX_REQUESTS_PER_MONTH and
+    min(SUBCHUNK_MAX_WALL_CLOCK_S, remaining_budget_s); once either limit
+    is reached, every remaining subchunk is recorded as
+    not_attempted_* and left un-fetched -- never zero-filled, never
+    fabricated.
+
+    Every subchunk response is validated through THE SAME shared
+    validate_snapshot() gate used by every other consumer in this module
+    (identity, duplicate dates, invalid pageviews, date-outside-range,
+    content-hash, exact coverage through required_data_end -- which also
+    structurally guarantees no observation past the watermark ever enters
+    the union). A subchunk that individually validates is cached
+    IMMEDIATELY through the existing write_chunk_to_cache() path, keyed by
+    its OWN (sub_start, sub_end) boundaries -- never a synthesized
+    whole-month cache entry -- so a genuine partial recovery is preserved
+    even if the overall month does not end up fully recovered.
+
+    The overall recovery is accepted ONLY when the union of every
+    successfully fetched subchunk's rows exactly equals the full expected
+    date set for [chunk_start, required_data_end(chunk_end, watermark)],
+    with no duplicate or conflicting (same date, different pageviews)
+    observation across subchunks. If even one required date remains
+    unavailable -- a subchunk failed, was skipped for budget reasons, or a
+    conflict was detected -- the WHOLE recovery fails closed; the caller's
+    `item` stays in still_failed and wiki_zscore is never computed from
+    this partial data (the caller only ever folds recovered==True rows into
+    a ticker's daily series).
+
+    Returns {"recovered": bool, "rows": [...], "reason": str,
+    "subchunk_results": [...], "requests_used": int, "wall_clock_s": float,
+    "budget_exhausted": bool}. subchunk_results is the full per-subchunk
+    provenance record (requested boundaries, http_status, network elapsed
+    time, retrieval timestamp, content hash, expected/observed date counts,
+    and outcome status) consumed by the call site to build
+    wiki_source_components_json-style provenance."""
+    fetch_fn = fetch_fn or fetch_chunk_isolated
+    ticker, article = item["ticker"], item["article"]
+    chunk_start, chunk_end = item["chunk_start"], item["chunk_end"]
+
+    if is_open_chunk(chunk_start, chunk_end, watermark):
+        return {"recovered": False, "rows": [], "reason": "not_eligible_open_chunk",
+                "subchunk_results": [], "requests_used": 0, "wall_clock_s": 0.0, "budget_exhausted": False}
+
+    req_end = required_data_end(chunk_end, watermark)
+    if req_end < chunk_start:
+        return {"recovered": False, "rows": [], "reason": "no_observations_expected_yet",
+                "subchunk_results": [], "requests_used": 0, "wall_clock_s": 0.0, "budget_exhausted": False}
+
+    subchunks = week_aligned_subchunks(chunk_start, req_end)
+    effective_wall_budget = max(0.0, min(SUBCHUNK_MAX_WALL_CLOCK_S, remaining_budget_s))
+
+    subchunk_results: list[dict] = []
+    unioned_rows: list[dict] = []
+    seen_dates: dict[str, object] = {}
+    budget_start = time.time()
+    requests_used = 0
+    budget_exhausted = False
+    conflict = False
+
+    for sub_start, sub_end in subchunks:
+        if requests_used >= SUBCHUNK_MAX_REQUESTS_PER_MONTH:
+            budget_exhausted = True
+            subchunk_results.append({"requested_start": sub_start.isoformat(), "requested_end": sub_end.isoformat(),
+                                      "status": "not_attempted_request_count_exhausted"})
+            continue
+
+        elapsed_so_far = time.time() - budget_start
+        if elapsed_so_far >= effective_wall_budget:
+            budget_exhausted = True
+            subchunk_results.append({"requested_start": sub_start.isoformat(), "requested_end": sub_end.isoformat(),
+                                      "status": "not_attempted_wall_clock_exhausted"})
+            continue
+
+        # Production-appropriate pacing between distinct requests -- never
+        # a zero-delay burst (see module comment above).
+        wait_s = random.uniform(*SUBCHUNK_PACING_RANGE_S)
+        wait_s = max(0.0, min(wait_s, max(0.0, effective_wall_budget - elapsed_so_far)))
+        if wait_s > 0:
+            time.sleep(wait_s)
+
+        remaining_after_wait = effective_wall_budget - (time.time() - budget_start)
+        if remaining_after_wait < MIN_USABLE_CHUNK_BUDGET_S:
+            budget_exhausted = True
+            subchunk_results.append({"requested_start": sub_start.isoformat(), "requested_end": sub_end.isoformat(),
+                                      "status": "not_attempted_wall_clock_exhausted"})
+            continue
+
+        capped_timeout = min(CHUNK_TIMEOUT_S, remaining_after_wait)
+        result = fetch_fn(article, sub_start, sub_end, timeout_s=capped_timeout)
+        requests_used += 1
+        retrieved_at = datetime.now(timezone.utc).isoformat()
+        entry = {
+            "requested_start": sub_start.isoformat(), "requested_end": sub_end.isoformat(),
+            "http_status": result.get("http_status"),
+            "network_elapsed_s": round(result.get("network_elapsed_s") or 0.0, 4),
+            "retrieved_at_utc": retrieved_at,
+        }
+
+        if result["status"] != "ok":
+            entry["status"] = f"fetch_failed:{result['status']}"
+            subchunk_results.append(entry)
+            continue
+
+        validation = validate_snapshot(ticker, article, sub_start, sub_end, result["items"], watermark)
+        entry["expected_date_count"] = len(validation.get("expected_dates") or set())
+        entry["observed_date_count"] = len(result["items"])
+        entry["content_hash"] = validation.get("content_hash")
+
+        if validation["category"] == "no_observations_expected_yet":
+            entry["status"] = "ok_no_observations_expected_yet"
+            subchunk_results.append(entry)
+            continue
+        if not validation["valid"]:
+            entry["status"] = f"validation_failed:{validation['category']}"
+            entry["reason"] = validation["reason"]
+            subchunk_results.append(entry)
+            continue
+
+        # Cross-subchunk conflict/duplicate check. Subchunk date ranges are
+        # disjoint by construction (week_aligned_subchunks() never
+        # overlaps), so this should never trip in practice -- checked
+        # defensively rather than assumed, exactly like every other
+        # fail-closed gate in this module.
+        subchunk_conflict = False
+        for row in result["items"]:
+            d = row["date"]
+            if d in seen_dates:
+                subchunk_conflict = True
+                entry["status"] = "conflicting_or_duplicate_date_across_subchunks"
+                entry["reason"] = f"date {d} already present from an earlier subchunk this recovery attempt"
+                break
+            seen_dates[d] = row["pageviews"]
+        if subchunk_conflict:
+            conflict = True
+            subchunk_results.append(entry)
+            continue
+
+        entry["status"] = "ok"
+        subchunk_results.append(entry)
+        unioned_rows.extend(result["items"])
+        write_chunk_to_cache(ticker, article, None, None, sub_start, sub_end, result["items"],
+                              result.get("url", ""), result.get("http_status"), retrieved_at)
+
+    wall_clock_s = time.time() - budget_start
+
+    if conflict:
+        return {"recovered": False, "rows": [], "reason": "conflicting_or_duplicate_dates_across_subchunks",
+                "subchunk_results": subchunk_results, "requests_used": requests_used,
+                "wall_clock_s": round(wall_clock_s, 4), "budget_exhausted": budget_exhausted}
+
+    expected_dates = set()
+    cursor = chunk_start
+    while cursor <= req_end:
+        expected_dates.add(cursor.strftime("%Y%m%d"))
+        cursor += timedelta(days=1)
+    actual_dates = {r["date"] for r in unioned_rows}
+
+    if actual_dates != expected_dates:
+        missing = sorted(expected_dates - actual_dates)
+        return {"recovered": False, "rows": [],
+                "reason": f"incomplete_union: missing {len(missing)} of {len(expected_dates)} date(s) "
+                          f"(first few: {missing[:5]})",
+                "subchunk_results": subchunk_results, "requests_used": requests_used,
+                "wall_clock_s": round(wall_clock_s, 4), "budget_exhausted": budget_exhausted}
+
+    return {"recovered": True, "rows": unioned_rows, "reason": "",
+            "subchunk_results": subchunk_results, "requests_used": requests_used,
+            "wall_clock_s": round(wall_clock_s, 4), "budget_exhausted": budget_exhausted}
+
+
+def run_bounded_subchunk_recovery(still_failed: list[dict], remaining_budget_s: float, watermark: date,
+                                   fetch_fn=None) -> dict:
+    """Batch entry point, mirroring run_bounded_second_pass()'s and
+    apply_recent_cache_fallback()'s own call shape. Runs AFTER both the
+    bounded second pass and the recent-cache fallback, on whatever remains
+    in `still_failed`. Only CLOSED chunks are eligible for THIS mechanism --
+    an item whose chunk currently contains the watermark (the open/current
+    chunk, apply_recent_cache_fallback()'s exclusive domain) is passed
+    through unchanged, exactly like apply_recent_cache_fallback() passes
+    through closed chunks unchanged for the mechanism before it.
+
+    The outer `remaining_budget_s` (the run-level clock) is still respected
+    across items even though each individual item's own recovery attempt
+    is additionally capped by SUBCHUNK_MAX_WALL_CLOCK_S -- once outer
+    budget is too low to usefully attempt anything, every remaining item is
+    left in still_failed rather than launched.
+
+    Returns {"recovered": {ticker: [rows...]}, "still_failed": [...],
+    "subchunk_provenance": {ticker: {...}}}. subchunk_provenance carries
+    the full per-item recovery record (original failed range, outcome,
+    requests/wall-clock consumed, and the per-subchunk detail from
+    attempt_closed_month_subchunk_recovery()) for wiki_source_mode /
+    wiki_source_components_json / wiki_cache_union_provenance_json-style
+    provenance at the call site -- keyed by ticker, since at most one
+    closed-chunk failure per ticker is expected to survive to this stage in
+    the locked 24-ticker panel's own chunking (one chunk per calendar
+    month; a ticker with more than one surviving closed-month failure would
+    simply overwrite this key with its last attempt, which does not affect
+    correctness of `recovered`/`still_failed` -- only the logged detail for
+    that ticker's later failure)."""
+    fetch_fn = fetch_fn or fetch_chunk_isolated
+    recovered: dict[str, list[dict]] = {}
+    subchunk_provenance: dict[str, dict] = {}
+    remaining_failed: list[dict] = []
+    budget_start = time.time()
+
+    for item in still_failed:
+        outer_budget_left = max(0.0, remaining_budget_s - (time.time() - budget_start))
+        if outer_budget_left < MIN_USABLE_CHUNK_BUDGET_S:
+            remaining_failed.append({**item, "reason": item.get("reason", "") + "|subchunk_recovery_run_budget_exhausted"})
+            continue
+        if is_open_chunk(item["chunk_start"], item["chunk_end"], watermark):
+            remaining_failed.append(item)
+            continue
+
+        outcome = attempt_closed_month_subchunk_recovery(
+            item, watermark=watermark, remaining_budget_s=outer_budget_left, fetch_fn=fetch_fn,
+        )
+        subchunk_provenance[item["ticker"]] = {
+            "original_chunk_start": item["chunk_start"].isoformat(),
+            "original_chunk_end": item["chunk_end"].isoformat(),
+            "original_failure_reason": item.get("reason", item.get("last_status", "")),
+            "recovered": outcome["recovered"],
+            "reason": outcome["reason"],
+            "requests_used": outcome["requests_used"],
+            "wall_clock_s": outcome["wall_clock_s"],
+            "budget_exhausted": outcome["budget_exhausted"],
+            "subchunks": outcome["subchunk_results"],
+        }
+        if outcome["recovered"]:
+            recovered.setdefault(item["ticker"], []).extend(outcome["rows"])
+        else:
+            remaining_failed.append({**item, "reason": f"subchunk_recovery_failed:{outcome['reason']}"})
+
+    return {"recovered": recovered, "still_failed": remaining_failed, "subchunk_provenance": subchunk_provenance}
+
+
 def assemble_daily_series(daily_rows: list[dict]) -> pd.DataFrame:
     """Same shape/semantics as the original fetch_daily_pageviews()'s return
     value: sorted, de-duplicated on date. Missing dates are simply absent
