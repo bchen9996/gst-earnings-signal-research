@@ -1,5 +1,25 @@
 # Event Dossier Protocol — Changelog
 
+## 2026-08-03 — CI, MSFT pilot structured migration, end-to-end tests
+
+**Why this changed.** Closing out the infrastructure phase: a narrow CI gate so the deterministic validator suite runs automatically on every PR touching this protocol, and a genuine end-to-end exercise of the full validation sequence (draft → proposed → human-review readiness → freeze → immutable bundle) against real, imperfect, pre-protocol data rather than only hand-built fixtures.
+
+### 1. GitHub Actions CI
+
+`.github/workflows/event-dossier-validator-tests.yml` (new): runs `validator/test_validate_event_dossier.py` on `pull_request` (scoped to `Event_Dossier_Protocol/**` changes) and `workflow_dispatch`. Pinned Python 3.12, dependencies installed from `validator/requirements.txt`, `permissions: contents: read` (least privilege — no write access anywhere), no other step. Never touches live market data, GST, Wikipedia, SEC, or news sources — there is no network access in the job beyond checkout/dependency installation, and the validator itself is statically guarded against ever importing one.
+
+### 2. MSFT FY2026 Q4 pilot: structured migration and full validation-sequence exercise
+
+`Event_Dossier_Protocol/migrations/MSFT_FY2026Q4_pilot_migration/` (new): a separate, structured migration of the existing MSFT pilot into the current schema (`events.csv`/`claims.csv`/`claim_sources.csv`/`management_qna.csv`/`event_labels.csv`/`event_label_capex_effects.csv`/`narrative_text.txt`), built by hand-transcribing every value from `dossier.md`/`dossier_table.csv` and `MSFT_PILOT_QC_AND_DISPOSITION.md` — the raw original dossier files were not read programmatically and remain byte-for-byte unchanged (hashes verified before and after). Permanent classification unchanged and reaffirmed: `event_disposition=development_pilot`, `blinding_compromised_for_confirmatory_use=true` — this event can never become confirmatory, under any remediation.
+
+Ran the full validation sequence against this migration and recorded the REAL results, without weakening any gate to force a pass: draft and proposed modes both fail with 10 genuine findings (two consensus claims missing a `consensus_asof_date` that was never stated anywhere in the source material; eight blinding-gate hits from the original dossier's own verbatim reaction-language source title and narrative excerpts, migrated as-is rather than sanitized). Freeze mode fails with those same 10 findings plus the expected missing-`human_frozen`-row requirement. No immutable bundle or manifest was built, since there is no legitimate frozen label to bundle. `MSFT_MIGRATION_QC_REPORT.md` records the exact failing gates, a human-review-readiness assessment, and what a future prospectively-collected dossier must contain to pass — preserved as negative development evidence, per the protocol's own stated purpose for retaining this pilot.
+
+### 3. End-to-end tests
+
+`validator/test_event_dossier_e2e.py` (new, 26 assertions): a legitimate development-pilot freeze succeeding; a freeze blocked by inadequate (non-direct-fetch) sources; a freeze blocked by outcome-leakage (blinding breach); an amendment producing a new immutable bundle without modifying the prior one; a later, unrelated event's rows added to the same shared mutable working tables not invalidating an earlier event's frozen bundle; and the CI workflow itself statically verified to be scoped to the deterministic validator suite only, with no live market/GST/Wikipedia/SEC/news reference anywhere in it.
+
+Only deterministic tests were run. No live research, no market-data joins, no Phase 2 panel execution, no GST/Wikipedia operation was performed from this worktree.
+
 ## 2026-08-03 — Validator SECOND correction pass
 
 **Why this changed.** A follow-up review of the first hardening pass (commit `401c94c`) found six further gaps: an empty or under-populated fixture directory could pass simply because every gate's loop had nothing to iterate over; a header-only (0-row) CSV's own column header was never checked; surprise-percentage linkage didn't verify both claims were genuinely numeric, didn't require unit/GAAP basis on both sides (only checked mismatch when both happened to be present), didn't check consensus was nonzero, and had no way to confirm an EPS claim wasn't accidentally paired with a revenue claim; child-table evidence claims (capex effects, cross-company implications) and market-response addendum rows were never checked for event/layer consistency; freeze manifests hashed the fixture's own MUTABLE working tables directly, which are exactly what a later amendment or an unrelated event would go on to edit; and the freeze-manifest structural check was a hand-rolled, top-level-only required/additionalProperties comparison using string-prefix path containment, missing nested array-item violations and vulnerable to a sibling-directory or symlink path escape. This pass closes all six gaps, entirely within `Event_Dossier_Protocol/` — no change to the raw MSFT pilot dossier, PR #1/#2, the Wikipedia reliability worktree, or any operational artifact.
