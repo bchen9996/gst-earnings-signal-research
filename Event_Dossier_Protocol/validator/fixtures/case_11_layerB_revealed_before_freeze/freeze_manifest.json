@@ -4,8 +4,20 @@
   "protocol_version": "0.1",
   "layer_a_artifact_hashes": [
     {
-      "artifact_path": "dossier_narrative_v1.md",
-      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      "artifact_path": "events.csv",
+      "sha256": "0044b86c81d99833a1c369ec0031772484c0f342588f3057208c9e314e012294"
+    },
+    {
+      "artifact_path": "claims.csv",
+      "sha256": "050922033ff201f239c1896af12b0cbf7e4a68698553ec26c1de60a0642fca54"
+    },
+    {
+      "artifact_path": "claim_sources.csv",
+      "sha256": "498717192f25fcda549adc5edcc2b0578c4252ded3ab6b7e37b31f893dbae271"
+    },
+    {
+      "artifact_path": "management_qna.csv",
+      "sha256": "274dc2215585b51948ff4f553a56b0b22554d21ace24c5a21371423eb0b5f8df"
     }
   ],
   "freeze_timestamp_utc": "2026-08-02T10:00:00+00:00",

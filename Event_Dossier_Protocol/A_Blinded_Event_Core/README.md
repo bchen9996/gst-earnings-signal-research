@@ -32,4 +32,8 @@ Layer A is the layer that is both captured **and** revealed to the labeling proc
 
 ## Schemas
 
-See `schemas/`: `events.csv`, `claims.csv`, `claim_sources.csv`, `management_qna.csv`, `event_labels.csv`, `event_label_capex_effects.csv`. Headers only — no populated data in this draft. Field-level detail in `SCHEMA_FIELD_DICTIONARY.md`.
+See `schemas/`: `events.csv`, `claims.csv`, `claim_sources.csv`, `management_qna.csv`, `event_labels.csv`, `event_label_capex_effects.csv`, `event_label_cross_company_implications.csv` (new 2026-08-03 — normalized child table for a label's cross-company/supplier/sector implications, replacing the earlier semicolon-delimited `event_labels.cross_company_implications_claim_id` column). Headers only — no populated data in this draft. Field-level detail in `SCHEMA_FIELD_DICTIONARY.md`.
+
+## Niche (2026-08-03 correction)
+
+`events.niche` is `fixed_24_ticker_earnings_panel`, not `large_cap_earnings` — the locked v0.1 universe (`../locked_universe_v0.1.json`) includes tickers such as `GME` and `NCLH` that are not large-cap by any conventional definition. See `../EVENT_DOSSIER_PROTOCOL_v0.1_DRAFT.md` §1.
