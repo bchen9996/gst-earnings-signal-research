@@ -4,19 +4,31 @@
   "protocol_version": "0.1",
   "layer_a_artifact_hashes": [
     {
-      "artifact_path": "events.csv",
-      "sha256": "0044b86c81d99833a1c369ec0031772484c0f342588f3057208c9e314e012294"
-    },
-    {
-      "artifact_path": "claims.csv",
-      "sha256": "c64a2eadcdc2cb5d4c22481d7639c048ebc1b80bf3258c0977bf76ff25e385cb"
-    },
-    {
-      "artifact_path": "claim_sources.csv",
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claim_sources.csv",
       "sha256": "2641e67d66e474432a28ff6ed9d3ee2d80d481f0f653adbd6bb9c041dc0c8bde"
     },
     {
-      "artifact_path": "management_qna.csv",
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claims.csv",
+      "sha256": "df341ab90aa21a9fe165aea2f8c3107fc241a1fbcb49ea20d2e6ab1fef65779d"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label.csv",
+      "sha256": "6e9b5542c24bfab50b33663a4f337c190f3ed3804ae05b04f8828313e09dc551"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_capex_effects.csv",
+      "sha256": "c9794959c9e3e51ee14df676ff93b87bc4c4a69a96adce8276e1647e2f8e2919"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_cross_company_implications.csv",
+      "sha256": "9ad898fd0d3b3001f208fbf84d1404a2c445ad5c05b39614766c8e910aab58d1"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/events.csv",
+      "sha256": "0044b86c81d99833a1c369ec0031772484c0f342588f3057208c9e314e012294"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/management_qna.csv",
       "sha256": "274dc2215585b51948ff4f553a56b0b22554d21ace24c5a21371423eb0b5f8df"
     }
   ],

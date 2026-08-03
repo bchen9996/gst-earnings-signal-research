@@ -1,6 +1,42 @@
 # Event Dossier Protocol — Changelog
 
-## 2026-08-03 — Validator hardening pass
+## 2026-08-03 — Validator SECOND correction pass
+
+**Why this changed.** A follow-up review of the first hardening pass (commit `401c94c`) found six further gaps: an empty or under-populated fixture directory could pass simply because every gate's loop had nothing to iterate over; a header-only (0-row) CSV's own column header was never checked; surprise-percentage linkage didn't verify both claims were genuinely numeric, didn't require unit/GAAP basis on both sides (only checked mismatch when both happened to be present), didn't check consensus was nonzero, and had no way to confirm an EPS claim wasn't accidentally paired with a revenue claim; child-table evidence claims (capex effects, cross-company implications) and market-response addendum rows were never checked for event/layer consistency; freeze manifests hashed the fixture's own MUTABLE working tables directly, which are exactly what a later amendment or an unrelated event would go on to edit; and the freeze-manifest structural check was a hand-rolled, top-level-only required/additionalProperties comparison using string-prefix path containment, missing nested array-item violations and vulnerable to a sibling-directory or symlink path escape. This pass closes all six gaps, entirely within `Event_Dossier_Protocol/` — no change to the raw MSFT pilot dossier, PR #1/#2, the Wikipedia reliability worktree, or any operational artifact.
+
+### 1. Required tables and validation modes
+
+Added three validation modes (`draft`/`proposed`/`freeze`, `--mode` CLI flag, default `freeze`), each with an explicit required-table floor checked by a new `gate_required_tables` that runs first. `draft` requires only `events.csv`; `proposed` additionally requires `claims.csv`/`claim_sources.csv`/`management_qna.csv`/`event_labels.csv`; `freeze` requires the same as `proposed` plus at least one genuinely `human_frozen` `event_labels.csv` row. An empty fixture directory now fails in every mode. Every other gate still runs unconditionally regardless of mode.
+
+### 2. Header-only CSV column validation
+
+`load_fixture()` now captures each present table's actual CSV header line regardless of row count, and `gate_identity_and_schema` compares against it directly — a header-only (0-row) file with a missing/extra/misspelled column now fails, where the old `if rows:`-guarded check silently skipped it.
+
+### 3. Surprise-linkage correctness and `metric_name`
+
+Added `claims.metric_name` (`eps`/`revenue`/`guidance_revenue`/`cloud_growth`/`margin`/`capex`/`other`). `gate_surprise_linkage` now additionally requires: both linked claims `value_type=numeric` with a parseable `numeric_value`; both claims carry a non-blank, matching `unit` and `gaap_basis` (previously a blank on either side silently skipped the mismatch check instead of failing); both claims carry the SAME `metric_name` matching the field being computed (an EPS surprise must link `eps`↔`eps`, never `eps`↔`revenue`); and the consensus claim's `numeric_value` is nonzero (previously a zero consensus silently skipped recomputation with no failure raised).
+
+Added `event_labels.eps_surprise_null_reason`/`revenue_surprise_null_reason` (`consensus_unavailable`/`consensus_unverifiable`/`not_applicable`). A blank surprise percentage now REQUIRES its matching null_reason to be set — an unexplained null fails — and a populated percentage cannot also carry a null_reason.
+
+### 4. Child-table and market-response event/layer consistency
+
+`event_label_capex_effects.evidence_claim_id` and `event_label_cross_company_implications.claim_id` must now belong to the SAME event as the label they support, must be `layer=A_blinded_core`, and must have an appropriate `claim_category`; a cross-company-implication claim must additionally carry a non-blank `metric_name`. `market_response_addendum.event_id` must match its `linked_label_id`'s own event, and every claim in `post_event_analyst_target_change_claim_ids` must belong to that same event and be `layer=B_market_response`.
+
+### 5. Immutable freeze-bundle architecture
+
+Freeze manifests now reference an immutable, per-label-version bundle under `frozen/{event_id}/{label_id}/`, containing seven artifact types exactly once — the four original Layer-A tables, the new singular `event_label.csv` (one frozen label-version row, distinct from the mutable working `event_labels.csv`), and the two child tables (header-only when empty). The manifest hashes these frozen copies, never the mutable working tables — editing the working table after freeze no longer invalidates the bundle, and a later amendment creates its own separate bundle without touching the prior label's. `FROZEN_BUNDLE_REQUIRED_BASENAMES` (7 items) replaces the old 4-item `REQUIRED_LAYER_A_ARTIFACT_BASENAMES` for this inventory check. The manifest's own filename is now also checked against `event_labels.csv`'s declared `freeze_manifest_path`.
+
+### 6. Real JSON Schema validation and component-aware path containment
+
+`gate_freeze_manifest`'s structural checks now run against the actual `freeze_manifest.schema.json` via the pinned `jsonschema` library (`validator/requirements.txt`, `jsonschema==4.26.0`) with `FormatChecker()` enabled, replacing the hand-rolled top-level-only required/additionalProperties comparison — this now recurses into nested array items (`reveal_events[]`, `reviewer_capture_exposure_log[]`), which the old check never inspected, and enforces `date-time` format (rejecting naive timestamps) at the schema level too. Path containment for every `artifact_path` now uses `Path.is_relative_to()` against the bundle's own resolved directory instead of `str.startswith()` — a sibling directory whose name is a string-prefix superset of the real bundle (e.g. `LBL-01_evil/` vs. `LBL-01/`), or a symlink planted inside the bundle that resolves outside it, is now correctly rejected; the old string-prefix check would have wrongly accepted the former.
+
+### 7. Tests and fixtures
+
+All 48 fixture outcomes from the first hardening pass preserved (rebuilt against the updated schema, validated under `mode=draft` — a strict subset of what was already implicitly enforced, since every other gate still runs in full). 18 new fixtures added (66 total) covering: empty directory, mode-specific missing required tables (`proposed` and `freeze`), malformed header-only CSV, unexplained vs. legitimate null surprise, nonnumeric linked claim, missing unit, missing GAAP basis, zero consensus, EPS-linked-to-revenue-claim, wrong-event and Layer-B child claims, a working file changed after freeze (still passes), a prior bundle valid after a later amendment (still passes), manifest filename/path disagreement, a sibling-directory path-escape, and a nested JSON Schema violation. Full suite: `python validator/test_validate_event_dossier.py` — 21 test methods, all passing.
+
+Only deterministic validator tests were run. No live research, no market-data joins, no Phase 2 panel execution, no GST/Wikipedia operation was performed from this worktree.
+
+## 2026-08-03 — Validator hardening pass (first pass)
 
 **Why this changed.** The v0.1 draft (committed `1d8d496`, PR #2) established the three-layer architecture, schemas, and a first-pass deterministic validator (5 gates, 20 fixtures). A follow-up review found the niche label was factually wrong, and that several documented rules (required fields, complete FK validation, freeze-manifest artifact existence, strict timestamp ordering, exact surprise-claim linkage) were either unenforced or only partially enforced. This pass closes those gaps, entirely within `Event_Dossier_Protocol/` — no change to the raw MSFT pilot dossier, PR #1, the Wikipedia reliability worktree, or any operational artifact.
 
