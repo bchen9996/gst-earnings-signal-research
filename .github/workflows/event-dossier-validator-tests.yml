@@ -1,10 +1,12 @@
 name: Event Dossier Validator Tests
 
-# Narrow, deterministic-only CI: runs ONLY the offline unit tests for
-# Event_Dossier_Protocol/validator/validate_event_dossier.py against its
-# synthetic fixtures/ directory. Never touches live market data, GST,
-# Wikipedia, SEC filings, or news sources -- there is no network access in
-# this job at all, and the validator itself is statically guarded against
+# Narrow, deterministic-only CI: discovers and runs EVERY test_*.py file in
+# Event_Dossier_Protocol/validator/ -- currently test_validate_event_dossier.py
+# (the 66-fixture unit suite) and test_event_dossier_e2e.py (the 6-scenario
+# end-to-end suite), and automatically picks up any future validator test
+# file without requiring a workflow edit. Never touches live market data,
+# GST, Wikipedia, SEC filings, or news sources -- there is no network access
+# in this job at all, and the validator itself is statically guarded against
 # ever importing one (see
 # test_validate_event_dossier.py::test_validator_never_touches_network_or_operational_paths).
 on:
@@ -36,6 +38,14 @@ jobs:
       - name: Install validator dependencies
         run: pip install -r Event_Dossier_Protocol/validator/requirements.txt
 
-      - name: Run deterministic validator tests
+      - name: Discover and run every validator test file
         working-directory: Event_Dossier_Protocol/validator
-        run: python test_validate_event_dossier.py -v
+        run: |
+          set -e
+          files=$(ls test_*.py)
+          echo "Discovered test files:"
+          echo "$files"
+          for f in $files; do
+            echo "=== Running $f ==="
+            python "$f"
+          done

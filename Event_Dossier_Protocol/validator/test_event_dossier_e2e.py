@@ -345,8 +345,11 @@ def test_6_ci_workflow_is_network_free_and_scoped():
     check("6c. workflow pins a specific Python version", 'python-version: "3.12"' in text or "python-version:" in text)
     check("6d. workflow installs from validator/requirements.txt",
           "Event_Dossier_Protocol/validator/requirements.txt" in text)
-    check("6e. workflow's only test invocation is the deterministic validator suite",
-          "test_validate_event_dossier.py" in text)
+    check("6e. workflow discovers and runs every test_*.py file (not a single hardcoded filename)",
+          "test_*.py" in text or "test_*" in text)
+    check("6e2. discovered test files on disk are exactly what CI would run: both required suites present",
+          {"test_validate_event_dossier.py", "test_event_dossier_e2e.py"} <=
+          {p.name for p in Path(__file__).resolve().parent.glob("test_*.py")})
     for forbidden in ("GST_Phase2_DailyPanel", "Phase2_Wikipedia_Cache", "wikimedia.org", "yfinance",
                        "sec.gov", "polygon.io", "alphavantage"):
         check(f"6f. workflow never references {forbidden!r} (no live market/GST/Wikipedia/SEC data access)",
