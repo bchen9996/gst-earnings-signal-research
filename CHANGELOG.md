@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-03 — Correction: cache-hash discrepancy reconciled (report-only, no cache/code change)
+
+**What was flagged.** The prior report for the subchunk-recovery pass recorded the operational cache's SHA-256 as `e3ebecd2...` at Lane B preflight, then `29d072f2...` "immediately before the deterministic suite" a few steps later, without explaining the difference. This entry reconciles it.
+
+**Finding.** Both hashes were computed identically — same absolute path (`Live Signal Engine/Phase2_Wikipedia_Cache.csv` under this repo root), same tool (`sha256sum`, which hashes raw bytes with no line-ending normalization), same algorithm. This is not a hashing-procedure or path artifact: the file's content genuinely changed between the two checkpoints, from 8,162 to 8,163 data rows (net +1).
+
+**Root cause.** Between preflight and the "before suite" checkpoint, an initial regression-check pass mistakenly included `test_phase2_wikipedia_equivalence.py` — a live-network test (distinct from `test_phase2_wikipedia_equivalence_deterministic.py`) that never overrides `CACHE_PATH` and therefore reads/writes the real operational cache by design. It fetched fresh AAPL/AMZN Wikipedia data to compare direct-vs-chunked equivalence; AMZN came back INCONCLUSIVE (nothing written), AAPL succeeded. `write_chunk_to_cache()` first removes any existing rows for the same `(ticker, chunk_start, chunk_end)` key before appending — AAPL's existing 1-row group for chunk `(2026-08-01, 2026-08-03)` (from the earlier 24-ticker regression, watermark then at 2026-08-01) was replaced by a fresh 2-row group (`20260801`, `20260802`; watermark had since advanced to 2026-08-02), both `last_verified_utc=2026-08-03T20:35:45+00:00`, matching the file's own recorded mtime exactly. Net effect: −1 row, +2 rows = +1, fully accounted for.
+
+**Legitimacy.** Both changed rows carry `http_status=200` and a genuine `wikimedia.org` per-article URL, written through the same production `get_ticker_wikipedia_daily()` → `validate_snapshot()` → `write_chunk_to_cache()` path used everywhere else in this module — not a bug, not corruption, not a test artifact bypassing validation. The gap was in test-run *hygiene* (a live test was run during a "confirm no regressions" pass that should have been deterministic-only) and in *reporting* (the subsequent "byte-identical before/after the deterministic suite" claim was true for that specific window but did not disclose that the cache had already changed once, earlier, for an unrelated reason).
+
+**No correction to the subchunk-recovery mechanism, its tests, or the operational cache was needed or made.** The cache was not modified, restored, or normalized as part of producing this note — it was only inspected.
+
 ## 2026-08-03 — Phase 2: bounded closed-month Wikipedia subchunk recovery
 
 **Why this changed.** The 2026-08-03 CTSH/GME PARTIAL regression traced to two mid-history full-month chunks returning HTTP 404 on both the first attempt and the bounded second pass, while a read-only diagnostic (`Live Signal Engine/Phase2 Failure Evidence/2026-08-03_CTSH_GME_Historical_Endpoint_PARTIAL/`) later showed the exact same requests succeeded cleanly on retry, as did every fixed 7-day subrange of each — consistent with transient/rate-limited server behavior on a per-request-shape basis, not a genuine data-availability gap. This adds a third, strictly bounded, last-resort recovery mechanism for exactly that failure pattern.
