@@ -361,6 +361,60 @@ with operationally-eligible ones, still without registering a real event. Nothin
 
 **Still true**: no real event has been registered. No trading strategy is selected. No profitability claim exists.
 
+## Live-validation addendum (2026-08-04, third pass)
+
+This addendum records the first execution of the bounded live Alpaca diagnostic and a correction to how the sector
+mapping states its own basis. **Nothing in sections 1-10 above changed.**
+
+### Provider status: `LIVE_DIAGNOSTIC_FAILED` — ineligible
+
+Two diagnostics were run, exactly once each, against the completed 2026-08-03 XNYS session; neither registered a
+research event. Both returned HTTP 200 with `feed=sip`, `timeframe=5Min`, `adjustment=raw` confirmed on the wire,
+and both **FAILED**: Alpaca returned **79 bars where the calendar requires 78**, with a trailing bar starting
+16:00 ET.
+
+**Defect ALP-1.** `fetch_bars_alpaca_sip` requests `end = session_close_utc(...)` (20:00:00Z / 16:00 ET). Alpaca's
+`end` is **inclusive** of a bar whose start equals `end`, so every request admits one after-hours (16:00–16:05 ET)
+bar. Because `bars.extract_session_fields()` derives `session_close` from `bars[-1].close`, that after-hours bar
+silently became the session close — shifting SPY's `open_to_close` by 6.7 bp and full-session volume by 3.1%.
+
+Per the governing status rule, **the provider is ineligible for real event capture until a live diagnostic
+passes.** No fallback to IEX, yfinance, Yahoo, any other provider, or synthetic data was made. The fix (request
+`end = last_bar_start_utc`) is prescribed but **deliberately not applied**, because the one-run-only rule for this
+pass meant it could not be live-validated; it is instead pinned by characterization tests so it cannot land
+silently. Full evidence, including the corroborating daily cross-check and the separate -15.50% daily-volume
+finding, is in `GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md`.
+
+`BRK-B -> BRK.B` symbol translation is now **live-verified** — Alpaca echoed `"symbol": "BRK.B"` in its response
+body. That assumption from the second pass is discharged; BRK-B's ineligibility is inherited from ALP-1, which
+affects all 24 tickers equally.
+
+### Section 7.1 restated — the mapping is a GICS-sector benchmark, not a membership claim
+
+The mapping rule was always "assign the broad sector ETF for the company's GICS sector", but
+`mapping_version` 0.2 *described* itself in terms of how many tickers were verified to be holdings of their
+assigned ETF. That framing was wrong in kind: it presented fund membership as the thing being verified, when only
+the GICS sector ever mattered. **The benchmark methodology itself is unchanged.**
+
+`mapping_version` 0.3 (`schema_version` 0.2) separates the concepts into distinct per-ticker fields —
+`gics_sector`, `benchmark_etf`, `benchmark_basis`, `constituent_status`, `constituent_status_source`,
+`classification_source`, `retrieval_date`. `benchmark_basis` is constrained to `gics_sector`; `etf_membership` is
+not an accepted value, so membership can never silently become the justification for an assignment.
+
+**A confirmed nonconstituent can hold an approved sector benchmark.** GME is the worked example: its GICS
+Consumer Discretionary classification is authoritatively confirmed by S&P Dow Jones Indices — GICS co-owner — in
+its own index announcement, and it is recorded as `constituent_status: "confirmed_nonconstituent"` of XLY. That is
+structural rather than anomalous: XLY tracks the Consumer Discretionary Select Sector Index, whose eligible
+universe is the S&P 500, and GME is an S&P MidCap 400 member. GME is therefore correctly benchmarked against XLY
+and is **nowhere represented as an XLY holding**. GPN remains XLF.
+
+`APPROVED` is now mechanically conditional on all 24 entries having actually been reviewed: any ticker missing a
+`classification_source` or `retrieval_date`, or still carrying `constituent_status="not_verified"`, invalidates an
+APPROVED mapping (the same entry remains acceptable while DRAFT).
+
+**Still true**: no real event has been registered. No trading strategy is selected. No profitability claim exists.
+**One complete prospective earnings event is still required** before this lane can be considered production-ready.
+
 ## Explicitly out of scope for v0.1
 
 - Real-time news sentiment

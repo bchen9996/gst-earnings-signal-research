@@ -11,8 +11,9 @@ import hashlib
 import random
 import time as _time
 from dataclasses import asdict, dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time as _dtime, timedelta, timezone
 from typing import Optional
+from urllib.parse import urlencode
 
 import requests
 
@@ -139,6 +140,17 @@ class AlpacaProvenance:
     raw_response_content_sha256: str
     canonical_ticker: str
     provider_symbol: str
+    # The exact query string sent on the LAST request of this fetch. Credentials
+    # travel in headers only, never in the query, so this is safe to record and
+    # commit -- and it is the only first-hand evidence of what feed/timeframe/
+    # adjustment/window were actually requested. Alpaca's single-symbol bars
+    # response does not echo `feed`, so a diagnostic must assert on this rather
+    # than on a server-side echo it does not receive.
+    request_query_string: str = ""
+    # Alpaca DOES echo the resolved symbol in the response body. This is the
+    # server's own confirmation that the translated provider symbol resolved to
+    # a real tape entry -- the only first-hand check available for BRK-B->BRK.B.
+    response_symbol_echo: Optional[str] = None
 
 
 @dataclass
@@ -175,16 +187,30 @@ def fetch_bars_alpaca_sip(
     sleep_fn=_time.sleep,
     now_fn=lambda: datetime.now(timezone.utc),
     timeframe: str = TIMEFRAME,
+    start_utc_override: Optional[datetime] = None,
+    end_utc_override: Optional[datetime] = None,
 ) -> AlpacaFetchResult:
     """The ONE network entry point in this module. Fetches every bar (at
     `timeframe` granularity, 5Min by default) for canonical_ticker's regular
     XNYS session on session_date, handling pagination and bounded retries.
     Raises AlpacaProviderError (or a subclass) on any failure -- never
     returns synthetic/partial-silently bars and never calls a different
-    provider itself."""
+    provider itself.
+
+    The two window overrides exist only for the 1Day cross-check, whose bar is
+    timestamped at midnight ET and therefore falls OUTSIDE the regular-session
+    window -- requesting it with the 09:30-16:00 window would silently return
+    zero bars and look like a vendor gap. They default to the regular session
+    and are never used on the 5Min research path. The freshness gate applies to
+    the effective end either way."""
     provider_symbol = provider_symbol_for(canonical_ticker)
-    start_utc = session_open_utc(session_date)
-    end_utc = session_close_utc(session_date)
+    # Called unconditionally, even when overridden, so a non-trading date still
+    # raises ExchangeCalendarError rather than being smuggled past the calendar
+    # by an override.
+    regular_open_utc = session_open_utc(session_date)
+    regular_close_utc = session_close_utc(session_date)
+    start_utc = start_utc_override or regular_open_utc
+    end_utc = end_utc_override or regular_close_utc
 
     now = now_fn()
     assert_end_is_stale_enough(end_utc, now)
@@ -203,6 +229,8 @@ def fetch_bars_alpaca_sip(
     retry_count = 0
     attempts_this_page = 0
     last_status: Optional[int] = None
+    last_query_string = ""
+    symbol_echo: Optional[str] = None
     deadline = _time.monotonic() + MAX_WALL_CLOCK_S
 
     while True:
@@ -220,6 +248,7 @@ def fetch_bars_alpaca_sip(
         }
         if page_token:
             params["page_token"] = page_token
+        last_query_string = urlencode(sorted(params.items()))
 
         try:
             resp = http.get(endpoint, params=params, headers=headers, timeout=(CONNECT_TIMEOUT_S, READ_TIMEOUT_S))
@@ -258,6 +287,8 @@ def fetch_bars_alpaca_sip(
         payload = resp.json()
         page_bars = payload.get("bars") or []
         all_bars_raw.extend(page_bars)
+        if payload.get("symbol") is not None:
+            symbol_echo = payload["symbol"]
 
         page_token = payload.get("next_page_token")
         if not page_token:
@@ -295,6 +326,8 @@ def fetch_bars_alpaca_sip(
         raw_response_content_sha256=content_hash,
         canonical_ticker=canonical_ticker,
         provider_symbol=provider_symbol,
+        request_query_string=last_query_string,
+        response_symbol_echo=symbol_echo,
     )
     return AlpacaFetchResult(bars=parsed_bars, provenance=provenance)
 
@@ -312,15 +345,38 @@ def fetch_daily_bar_alpaca_sip(
     ONLY by the diagnostic's aggregated-intraday-vs-daily cross-check (SPEC
     section 5 doesn't require this for real event capture -- only the 5Min
     bars are). Same retry/pagination/freshness machinery as
-    fetch_bars_alpaca_sip, just a different timeframe."""
+    fetch_bars_alpaca_sip, just a different timeframe and a calendar-day
+    window: a 1Day bar is timestamped at midnight ET, so the 09:30-16:00
+    regular-session window would exclude it entirely and the absent bar would
+    be indistinguishable from a genuine vendor gap.
+
+    Returns None only when Alpaca genuinely returns no daily bar. Raises
+    AlpacaProviderError if MORE than one bar comes back, rather than silently
+    picking bars[0] and cross-checking the intraday session against some other
+    day's daily bar."""
+    day_start = datetime.combine(session_date, _dtime(0, 0), tzinfo=timezone.utc)
+    day_end = datetime.combine(session_date, _dtime(23, 59, 59), tzinfo=timezone.utc)
     result = fetch_bars_alpaca_sip(
         canonical_ticker=canonical_ticker, session_date=session_date, credentials=credentials,
         session=session, sleep_fn=sleep_fn, now_fn=now_fn, timeframe="1Day",
+        start_utc_override=day_start, end_utc_override=day_end,
     )
     if not result.bars:
         return None
+    if len(result.bars) != 1:
+        raise AlpacaProviderError(
+            f"1Day cross-check for {canonical_ticker} on {session_date} returned {len(result.bars)} bars, expected exactly 1 "
+            f"(timestamps: {[b.timestamp_utc.isoformat() for b in result.bars]})"
+        )
     b = result.bars[0]
-    return {"open": b.open, "high": b.high, "low": b.low, "close": b.close, "volume": b.volume}
+    return {
+        "open": b.open, "high": b.high, "low": b.low, "close": b.close, "volume": b.volume,
+        "bar_timestamp_utc": b.timestamp_utc.isoformat(),
+        "request_query_string": result.provenance.request_query_string,
+        "http_status": result.provenance.http_status,
+        "page_count": result.provenance.page_count,
+        "raw_response_content_sha256": result.provenance.raw_response_content_sha256,
+    }
 
 
 class AlpacaHistoricalSipIntradayProvider(IntradayOHLCVProvider):
