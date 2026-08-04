@@ -5,17 +5,117 @@
 document, or anywhere else in this module, claims exchange-grade, NBBO, or institutional execution quality for any
 data sourced through `yfinance`.
 
-**`AlpacaHistoricalSipIntradayProvider` (`gst_market_response.alpaca_provider`) is NOT currently eligible in
-practice.** Its code still carries `is_eligible_for_real_event == True`, but its one and only live diagnostic
-(2026-08-04, Pass 3, below) **FAILED**, and per the governing status rule the provider is treated as **ineligible
-for real event capture** until a subsequent live diagnostic passes. The transport itself is sound -- delayed
-/historical SIP data via Alpaca's documented REST endpoint, never IEX real-time, never Alpaca's free indicative
-options data used as an OPRA benchmark -- and the failure is a single, precisely located, fully reproduced
-request-window defect. See "Open defect ALP-1" below.
+**`AlpacaHistoricalSipIntradayProvider` (`gst_market_response.alpaca_provider`) is CLEARED for real event
+capture** as of the post-fix validation (2026-08-04, Pass 4, below): `operational_clearance_status ==
+LIVE_DIAGNOSTIC_PASSED`, and `is_eligible_for_real_event` -- now a *derived* property -- evaluates True. Defect
+ALP-1 is **fixed and closed**. Delayed/historical SIP data via Alpaca's documented REST endpoint, never IEX
+real-time, never Alpaca's free indicative options data used as an OPRA benchmark.
 
-## Bounded live diagnostics (2026-08-04, three passes)
+**Clearance is not production-readiness.** It means one bounded live diagnostic passed against two benchmark
+tickers on one historical session. **One complete prospective earnings event is still required** before this lane
+can be called production-ready.
 
-### Pass 3 (2026-08-04, this document's most recent update): Alpaca -- RAN, **FAILED**
+## Eligibility is derived, not declared
+
+Before Pass 4, `is_eligible_for_real_event` was a hard-coded `True` on this provider. That single flag fused two
+unrelated ideas, and as a result it read as clearance for real capture while no live diagnostic had ever run --
+and kept reading that way after one FAILED. They are now separate:
+
+| Property | Meaning | Alpaca | yfinance |
+|---|---|---|---|
+| `supports_real_event_semantics` | **Structural**, permanent: does the provider implement the SIP/raw/exact-session contract at all? | `True` | `False` |
+| `operational_clearance_status` | **Operational**, changes over time: what a live diagnostic has actually demonstrated | `LIVE_DIAGNOSTIC_PASSED` | `LIVE_DIAGNOSTIC_FAILED` |
+| `is_eligible_for_real_event` | **Derived** -- never set directly | `True` | `False` |
+
+`providers.compute_real_event_eligibility()` is the single definition, a pure function requiring *all* of:
+`supports_real_event_semantics`, clearance `== LIVE_DIAGNOSTIC_PASSED`, `feed == "sip"`, `adjustment == "raw"`,
+the ALP-1 session-grid guard active, and credentials present. `NOT_RUN`, `LIVE_DIAGNOSTIC_FAILED`, an
+unrecognized status, `feed="iex"`, a non-raw adjustment, a disabled grid guard, or absent credentials each make it
+ineligible on their own. Being pure, the full truth table is deterministically tested without constructing a
+provider or touching a network -- including `feed="iex"`, which is exercised as an *input* so no IEX code path
+needs to exist.
+
+## Bounded live diagnostics (2026-08-04, four passes)
+
+### Pass 4 (2026-08-04, this document's most recent update): Alpaca post-fix -- RAN, **PASSED**
+
+Run exactly once per ticker after the ALP-1 fix, against the same completed 2026-08-03 XNYS session. Neither
+registered a research event. The pass-3 failure evidence is preserved untouched alongside this.
+
+| Evidence | SPY | BRK-B |
+|---|---|---|
+| Verdict | **PASSED 33/33** | **PASSED 29/29** |
+| HTTP status | 200 | 200 |
+| Query string on the wire | `adjustment=raw&end=2026-08-03T19:55:00Z&feed=sip&limit=10000&sort=asc&start=2026-08-03T13:30:00Z&timeframe=5Min` | identical |
+| `feed` / `timeframe` / `adjustment` | `sip` / `5Min` / `raw` | `sip` / `5Min` / `raw` |
+| Alpaca's echoed symbol | `SPY` | **`BRK.B`** |
+| Pages / retries | 1 / 0 | 1 / 0 |
+| Raw-response SHA-256 | `1313d07b2a5843d89d6e3bd0cc7c4cb3e011482709812cc21cb1132a18aa7af2` | `4d3c6713b6ce1f6b75f9d53dfe73a32c13f569bab18f1e2a36021e9983d0ffd9` |
+| **Bars returned** | **78 / 78 expected** | **78 / 78 expected** |
+| First bar | **09:30:00 ET** | **09:30:00 ET** |
+| Last bar | **15:55:00 ET** | **15:55:00 ET** |
+| Off-grid bars | 0 | 0 |
+| Missing bars | 0 | 0 |
+
+Note the requested `end` is now `19:55:00Z` (15:55 ET), not `20:00:00Z`. That one change is the fix.
+
+**The daily cross-check independently confirms it.** Aggregating the 78 regular-session bars now reproduces
+Alpaca's own 1Day SIP OHLC **exactly** -- and, unlike Pass 3, this is the *uncontaminated* aggregate:
+
+| Field | Aggregated 78 × 5Min | Alpaca 1Day SIP | Relative difference |
+|---|---|---|---|
+| open | 749.44 | 749.44 | **0.0** |
+| high | 758.58 | 758.58 | **0.0** |
+| low | 748.80 | 748.80 | **0.0** |
+| close | **757.67** | **757.67** | **0.0** |
+| volume | 50,712,611 | 60,014,445 | −15.499% *(informational only -- see below)* |
+
+In Pass 3 the contaminated 79-bar aggregate put close at 757.72, 6.6 bp off the daily bar. Post-fix the two
+independent Alpaca endpoints agree to the cent on all four OHLC fields.
+
+### Correction: the daily-volume difference has NO established explanation
+
+**Retracted.** The Pass 3 write-up stated the −15.50% daily-vs-aggregate volume gap was *"most likely"* because
+Alpaca's 1Day equity bar includes extended-hours volume. **That was an unsupported guess and is withdrawn.** It
+was never verified against vendor documentation or a controlled experiment, and it should not have been offered as
+a leading explanation.
+
+The difference is now recorded as **`unresolved_provider_aggregation_semantics`**. The aggregation semantics of
+Alpaca's 1Day bar relative to its 5Min bars are simply **not established**: which trades each series counts is
+unknown. No explanation is offered.
+
+Consequently:
+
+- **Daily OHLC remains a genuine sanity comparison** and *is* gated (check 29, 10 bp tolerance). Both series
+  should describe the same regular session, so a material OHLC difference is a real signal -- as Pass 3
+  demonstrated when contamination pushed close 6.6 bp off.
+- **Daily volume is informational only** (check 30) and is **not an equality gate**. It becomes one only if
+  identical aggregation semantics are first proven. Until then, an Alpaca 1Day volume must not be compared
+  against, or substituted for, a regular-session volume aggregate.
+
+### The ALP-1 fix, in three independent layers
+
+1. **Request** -- `fetch_bars_alpaca_sip` sets `end` to the **final expected bar start** from
+   `exchange_calendar.expected_bar_starts_utc()`, never `session_close_utc`. Derived dynamically, so an early
+   close asks through 12:55 ET (42 bars) rather than a hard-coded 15:55.
+2. **Validation** -- `_assert_exact_session_grid()` requires the returned timestamp set to **equal** the expected
+   set. Missing, extra, duplicate, misaligned and out-of-session bars each raise `AlpacaSessionGridError`.
+   Nothing trims, pads, re-sorts or de-duplicates: silently repairing a malformed response is precisely how ALP-1
+   stayed invisible.
+3. **Extraction** -- `bars.extract_session_fields()` selects the open and close bars **by their expected
+   timestamps**, never `bars[0]`/`bars[-1]`. Even with layers 1-2 bypassed entirely, a stray 16:00 ET bar cannot
+   become `session_close`, cannot set the session high/low, and cannot inflate volume. Extraction is also now
+   order-independent.
+
+Disabling layer 2 (`SESSION_GRID_ENFORCED`) mechanically revokes real-event eligibility, so the fix cannot be
+turned off without also removing clearance.
+
+### Pass 3 (2026-08-04): Alpaca pre-fix -- RAN, **FAILED**
+
+*Preserved verbatim as the evidence that produced defect ALP-1. Superseded by Pass 4 above; the
+`..._LIVE_DIAGNOSTIC_SPY_2026-08-03.json` / `..._BRK-B_...` reports are likewise preserved unmodified alongside
+the new `..._POSTFIX_...` ones. The one edit below is the retraction of the daily-volume explanation, marked
+inline.*
 
 **Credentials present** at preflight (`APCA_API_KEY_ID`, `APCA_API_SECRET_KEY`; presence confirmed, values never
 printed, logged, serialized or committed). Two diagnostics were run, **exactly once each**, against the completed
@@ -100,21 +200,25 @@ agreeing exactly on the 78-bar OHLC, and disagreeing under the 79-bar aggregate,
 of ALP-1 as this diagnostic can produce.
 
 **The remaining volume discrepancy (-15.50%) is a genuine, separate finding and is reported, not explained away.**
-It is a vendor session-definition difference: Alpaca's 1Day equity bar includes extended-hours volume, while a
-regular-session 5-minute aggregate by construction does not. The four OHLC fields matching to the cent while volume
-alone differs is consistent with that and with nothing else obvious. This has **not** been confirmed against Alpaca
-documentation in this pass, and is recorded as the leading explanation, not an established fact. Practical
-consequence: **an Alpaca 1Day volume must never be compared against, or substituted for, a regular-session volume
-aggregate** in this module.
 
-**Prescribed fix (NOT applied in this pass).** Request `end = last_bar_start_utc` (19:55:00Z), or an exclusive end
-one interval before the close, so the grid closes at 15:55 ET. The fix was deliberately **not** applied here: the
-governing instruction was to run each diagnostic exactly once and not restart a failed one, so a fix could not be
-live-validated in this pass, and committing an unvalidated change would have left the committed failure evidence
-describing code that no longer exists. Instead the defect is pinned by characterization tests
-(`test_market_response_alpaca_provider.py::test_known_defect_end_boundary_is_inclusive`, checks 22a-22f) which
-assert the current boundary **and its downstream consequence**, so the fix cannot land silently -- landing it
-requires consciously updating those assertions.
+> **RETRACTED (Pass 4, 2026-08-04).** This paragraph originally continued: *"It is a vendor session-definition
+> difference: Alpaca's 1Day equity bar includes extended-hours volume ... recorded as the leading explanation, not
+> an established fact."* **That explanation was an unsupported guess and is withdrawn.** It was never verified
+> against vendor documentation or a controlled experiment. The difference is now classified
+> **`unresolved_provider_aggregation_semantics`**: the aggregation semantics of Alpaca's 1Day bar relative to its
+> 5Min bars are not established, and no explanation is offered. The practical consequence is unchanged and stands
+> on its own: **an Alpaca 1Day volume must never be compared against, or substituted for, a regular-session volume
+> aggregate** in this module. Daily volume is informational only and is not an equality gate; daily OHLC remains a
+> genuine sanity comparison. See the Pass 4 correction section above.
+
+**Prescribed fix (not applied in Pass 3; APPLIED AND VALIDATED IN PASS 4).** Request
+`end = last_bar_start_utc` (19:55:00Z) so the grid closes at 15:55 ET. It was deliberately not applied in Pass 3
+because that pass's governing instruction was to run each diagnostic exactly once and not restart a failed one, so
+a fix could not have been live-validated then. It was pinned in the interim by a characterization test
+(`test_known_defect_end_boundary_is_inclusive`) asserting the defective boundary and its downstream consequence,
+so the fix could not land silently. Pass 4 landed it and, exactly as that test's docstring instructed, replaced
+those assertions with ones asserting the *corrected* boundary. See "The ALP-1 fix, in three independent layers"
+above.
 
 **The harness's detectors are themselves proven.** `test_market_response_alpaca_diagnostic_harness.py` (47 checks)
 reconstructs the exact 79-bar response offline and confirms the harness fails checks 8/10/12/19 and *only* those,
@@ -127,9 +231,10 @@ rather than a vacuous pass. The FAILED verdict above is therefore a measured res
 `BRK-B -> BRK.B` is **live-verified**. Alpaca returned HTTP 200 and echoed `"symbol": "BRK.B"` in the response
 body, and the returned bars are real BRK.B tape data (79 bars, valid OHLC, ~2.93M regular-session shares). Both
 identifiers are preserved in provenance (`canonical_ticker="BRK-B"`, `provider_symbol="BRK.B"`). This assumption is
-no longer an assumption. It is recorded here separately from the overall verdict because it is independently
-useful: BRK-B's ineligibility is inherited from ALP-1, which affects all 24 tickers equally, and is **not** a
-symbol-translation problem.
+no longer an assumption. It was recorded separately from the Pass 3 verdict because it was independently useful:
+BRK-B's ineligibility was inherited from ALP-1, which affected all 24 tickers equally, and was **not** a
+symbol-translation problem. Pass 4 re-confirmed the same echo on a clean 78-bar response, and BRK-B is now
+eligible along with the rest of the universe.
 
 ### Data handling for Pass 3
 

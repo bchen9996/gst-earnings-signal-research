@@ -92,6 +92,29 @@ class SessionBarBoundaries:
     expected_bar_count: int
 
 
+def expected_bar_starts_utc(d: date) -> list[datetime]:
+    """THE authoritative, ordered list of 5-minute bar START timestamps for
+    session d, derived from the calendar's own real open/close.
+
+    Every consumer that needs to know "which bars must exist" derives it from
+    here rather than assuming 78 -- an early close yields a correspondingly
+    shorter list (e.g. 42 starts, 09:30..12:55 ET, on a 13:00 close).
+
+    The LAST element is the final legitimate bar start (15:55 ET on an
+    ordinary session). That value -- not the 16:00 session close -- is what a
+    vendor whose `end` parameter is INCLUSIVE must be asked for; see
+    alpaca_provider and defect ALP-1."""
+    open_utc = session_open_utc(d)
+    close_utc = session_close_utc(d)
+    total_minutes = int((close_utc - open_utc).total_seconds() // 60)
+    if total_minutes <= 0 or total_minutes % BAR_INTERVAL_MINUTES != 0:
+        raise ExchangeCalendarError(
+            f"{d}: session length {total_minutes}min is not a positive multiple of {BAR_INTERVAL_MINUTES}min"
+        )
+    count = total_minutes // BAR_INTERVAL_MINUTES
+    return [open_utc + timedelta(minutes=BAR_INTERVAL_MINUTES * i) for i in range(count)]
+
+
 def expected_bar_boundaries(d: date) -> SessionBarBoundaries:
     """Authoritative expected 5-minute-bar grid for a session, DERIVED from
     the calendar's own real open/close -- correctly shrinks the expected

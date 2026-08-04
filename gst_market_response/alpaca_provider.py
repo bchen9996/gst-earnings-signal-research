@@ -19,8 +19,13 @@ import requests
 
 from .bars import Bar
 from .constants import LOCKED_24_TICKER_UNIVERSE
-from .exchange_calendar import session_close_utc, session_open_utc
-from .providers import IntradayOHLCVProvider
+from .exchange_calendar import expected_bar_starts_utc, session_close_utc, session_open_utc
+from .providers import (
+    CLEARANCE_LIVE_DIAGNOSTIC_FAILED,
+    CLEARANCE_LIVE_DIAGNOSTIC_PASSED,
+    CLEARANCE_NOT_RUN,
+    IntradayOHLCVProvider,
+)
 
 ALPACA_DATA_HOST = "https://data.alpaca.markets"
 ALPACA_BARS_PATH_TEMPLATE = "/v2/stocks/{symbol}/bars"
@@ -46,6 +51,33 @@ DEFAULT_PAGE_LIMIT = 10000
 # real-time SIP subscription (or fall inside the free IEX real-time tier,
 # which this provider deliberately never uses -- see hard-stop list).
 MIN_END_AGE_MINUTES = 15
+
+# True once the exact-session-grid guard (_assert_exact_session_grid) is wired
+# into the 5-minute research path. An input to eligibility, so that disabling
+# the ALP-1 guard would mechanically revoke real-event clearance rather than
+# quietly widening what counts as a valid session.
+SESSION_GRID_ENFORCED = True
+
+# --- Operational clearance --------------------------------------------------
+# What a live diagnostic has actually demonstrated, in this environment, most
+# recently. NOT a statement about what this provider is capable of -- see
+# supports_real_event_semantics for that. Only ever advanced to
+# LIVE_DIAGNOSTIC_PASSED by a real live diagnostic that actually passed, and
+# only in the same pass that produced the committed evidence.
+#
+# 2026-08-04, pass 3: LIVE_DIAGNOSTIC_FAILED (defect ALP-1, 79 bars vs 78).
+# 2026-08-04, pass 4: LIVE_DIAGNOSTIC_PASSED. Post-fix validation, one run per
+#   ticker against the real SIP tape for the 2026-08-03 session:
+#     SPY   33/33 checks, 78/78 bars, 09:30-15:55 ET, raw sha256 1313d07b...
+#     BRK-B 29/29 checks, 78/78 bars, 09:30-15:55 ET, raw sha256 4d3c6713...
+#   Aggregated 5Min OHLC now matches Alpaca's own 1Day SIP OHLC exactly
+#   (0.0 relative difference on open/high/low/close), where the contaminated
+#   pass-3 aggregate was 6.6 bp off on close.
+#
+# This clears the provider for real event capture. It does NOT mean the lane
+# is production-ready: one complete prospective earnings event is still
+# required, and that is tracked separately in the readiness checklist.
+OPERATIONAL_CLEARANCE_STATUS = CLEARANCE_LIVE_DIAGNOSTIC_PASSED
 
 
 # --- Canonical-to-provider symbol mapping -----------------------------------
@@ -87,6 +119,15 @@ class AlpacaAuthError(AlpacaProviderError):
 
 class AlpacaRetryExhaustedError(AlpacaProviderError):
     pass
+
+
+class AlpacaSessionGridError(AlpacaProviderError):
+    """The returned bar timestamps are not EXACTLY the calendar's expected
+    5-minute grid for the session. Raised on missing, extra, duplicate,
+    misaligned or out-of-session bars alike -- every one of those is a
+    fail-closed condition, never something to trim, pad, re-sort or
+    tolerate. This is the mechanical guard against defect ALP-1 recurring in
+    any form."""
 
 
 @dataclass(frozen=True)
@@ -178,6 +219,41 @@ def _sleep_for_retry(attempt: int, retry_after_header: Optional[str]) -> float:
     return max(wait, 0.0)
 
 
+def _assert_exact_session_grid(
+    bars: list[Bar], expected_starts: list[datetime], canonical_ticker: str, session_date: date
+) -> None:
+    """The returned timestamp set must EQUAL the calendar's expected set --
+    not be a superset, not a subset, not the same size with a different
+    alignment. Every deviation raises. Nothing here trims, pads, re-sorts or
+    de-duplicates: silently repairing a malformed response is precisely how
+    ALP-1 stayed invisible until a live diagnostic looked for it."""
+    returned = [b.timestamp_utc for b in bars]
+    expected_set = set(expected_starts)
+
+    duplicates = sorted({t for t in returned if returned.count(t) > 1})
+    if duplicates:
+        raise AlpacaSessionGridError(
+            f"{canonical_ticker} {session_date}: {len(duplicates)} duplicate bar timestamp(s), "
+            f"first {[t.isoformat() for t in duplicates[:3]]}"
+        )
+
+    if any(returned[i] >= returned[i + 1] for i in range(len(returned) - 1)):
+        raise AlpacaSessionGridError(
+            f"{canonical_ticker} {session_date}: bars are not strictly chronologically ordered"
+        )
+
+    returned_set = set(returned)
+    extra = sorted(returned_set - expected_set)
+    missing = sorted(expected_set - returned_set)
+    if extra or missing:
+        raise AlpacaSessionGridError(
+            f"{canonical_ticker} {session_date}: returned bar grid does not match the XNYS calendar "
+            f"(expected {len(expected_starts)} bars {expected_starts[0].isoformat()}..{expected_starts[-1].isoformat()}, "
+            f"got {len(bars)}); {len(extra)} unexpected {[t.isoformat() for t in extra[:3]]}, "
+            f"{len(missing)} missing {[t.isoformat() for t in missing[:3]]}"
+        )
+
+
 def fetch_bars_alpaca_sip(
     *,
     canonical_ticker: str,
@@ -189,6 +265,7 @@ def fetch_bars_alpaca_sip(
     timeframe: str = TIMEFRAME,
     start_utc_override: Optional[datetime] = None,
     end_utc_override: Optional[datetime] = None,
+    enforce_session_grid: bool = True,
 ) -> AlpacaFetchResult:
     """The ONE network entry point in this module. Fetches every bar (at
     `timeframe` granularity, 5Min by default) for canonical_ticker's regular
@@ -209,8 +286,18 @@ def fetch_bars_alpaca_sip(
     # by an override.
     regular_open_utc = session_open_utc(session_date)
     regular_close_utc = session_close_utc(session_date)
-    start_utc = start_utc_override or regular_open_utc
-    end_utc = end_utc_override or regular_close_utc
+    expected_starts = expected_bar_starts_utc(session_date)
+
+    # --- DEFECT ALP-1 FIX ---------------------------------------------------
+    # Alpaca's `end` is INCLUSIVE of a bar whose START equals `end`. Asking
+    # for end = regular_close_utc (16:00 ET) therefore returned the
+    # 16:00-16:05 ET AFTER-HOURS bar as a 79th bar on an ordinary session.
+    # The correct end is the FINAL EXPECTED BAR START -- 15:55 ET on an
+    # ordinary session, and derived dynamically from the calendar so an early
+    # close asks through 12:55 ET instead. `regular_close_utc` is deliberately
+    # NOT used as a request bound anywhere.
+    start_utc = start_utc_override or expected_starts[0]
+    end_utc = end_utc_override or expected_starts[-1]
 
     now = now_fn()
     assert_end_is_stale_enough(end_utc, now)
@@ -311,6 +398,9 @@ def fetch_bars_alpaca_sip(
             )
         )
 
+    if enforce_session_grid:
+        _assert_exact_session_grid(parsed_bars, expected_starts, canonical_ticker, session_date)
+
     provenance = AlpacaProvenance(
         provider="alpaca-historical-sip",
         api_endpoint=endpoint,
@@ -360,6 +450,9 @@ def fetch_daily_bar_alpaca_sip(
         canonical_ticker=canonical_ticker, session_date=session_date, credentials=credentials,
         session=session, sleep_fn=sleep_fn, now_fn=now_fn, timeframe="1Day",
         start_utc_override=day_start, end_utc_override=day_end,
+        # The 5-minute grid is meaningless for a 1Day bar; this path does its
+        # own "exactly one bar" check below instead.
+        enforce_session_grid=False,
     )
     if not result.bars:
         return None
@@ -380,10 +473,14 @@ def fetch_daily_bar_alpaca_sip(
 
 
 class AlpacaHistoricalSipIntradayProvider(IntradayOHLCVProvider):
-    """The eligible (non-development) intraday provider. Requires real
-    credentials -- construction raises AlpacaCredentialsMissingError if
-    load_alpaca_credentials() returns None, so a caller can never silently
-    end up with a provider that quietly does nothing."""
+    """The SIP intraday provider. Requires real credentials -- construction
+    raises AlpacaCredentialsMissingError if load_alpaca_credentials() returns
+    None, so a caller can never silently end up with a provider that quietly
+    does nothing.
+
+    Whether it may back a REAL event is not a property of this class: see
+    OPERATIONAL_CLEARANCE_STATUS and providers.compute_real_event_eligibility.
+    """
 
     def __init__(self, credentials: Optional[AlpacaCredentials] = None):
         self._credentials = credentials or load_alpaca_credentials()
@@ -394,12 +491,39 @@ class AlpacaHistoricalSipIntradayProvider(IntradayOHLCVProvider):
         self.last_provenance: Optional[AlpacaProvenance] = None
 
     @property
+    def supports_real_event_semantics(self) -> bool:
+        # Structural: SIP feed, raw adjustment, exact calendar-derived
+        # session grid enforced fail-closed. True permanently.
+        return True
+
+    @property
+    def operational_clearance_status(self) -> str:
+        return OPERATIONAL_CLEARANCE_STATUS
+
+    @property
+    def _eligibility_feed(self) -> str:
+        return FEED
+
+    @property
+    def _eligibility_adjustment(self) -> str:
+        return ADJUSTMENT
+
+    @property
+    def _eligibility_session_grid_enforced(self) -> bool:
+        return SESSION_GRID_ENFORCED
+
+    @property
+    def _eligibility_has_credentials(self) -> bool:
+        return self._credentials is not None
+
+    @property
     def provider_label(self) -> str:
         return "alpaca-historical-sip"
 
-    @property
-    def is_eligible_for_real_event(self) -> bool:
-        return True
+    # is_eligible_for_real_event is inherited and DERIVED -- deliberately not
+    # overridden here. Hard-coding it to True was how a provider with a failed
+    # (and, before that, never-run) live diagnostic advertised itself as
+    # cleared for real capture.
 
     def get_bars(self, symbol: str, session_date: date) -> list[Bar]:
         result = fetch_bars_alpaca_sip(canonical_ticker=symbol, session_date=session_date, credentials=self._credentials)

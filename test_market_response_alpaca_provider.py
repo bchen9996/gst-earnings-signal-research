@@ -26,6 +26,7 @@ from gst_market_response.bars import (
     validate_ohlc_and_volume,
 )
 from gst_market_response.exchange_calendar import expected_bar_boundaries
+from gst_market_response import providers
 from gst_market_response.providers import YFinanceDevIntradayProvider
 
 FAILURES: list[str] = []
@@ -76,9 +77,16 @@ FAKE_CREDS = ap.AlpacaCredentials(key_id="AKFAKE1234567890", secret_key="SECRETF
 
 
 def _fetch(session, **overrides):
+    """Transport-level helper. `enforce_session_grid=False` because these
+    tests are about retries, pagination, auth, timeouts and provenance -- they
+    use 0-2 synthetic bars, which the ALP-1 grid guard would (correctly)
+    reject before the transport behaviour under test could be observed. The
+    grid guard itself is exercised exhaustively in
+    test_market_response_alp1_session_grid.py."""
     kwargs = dict(
         canonical_ticker="AAPL", session_date=SESSION_DATE, credentials=FAKE_CREDS,
         session=session, sleep_fn=lambda s: None, now_fn=lambda: FAR_FUTURE_NOW,
+        enforce_session_grid=False,
     )
     kwargs.update(overrides)
     return ap.fetch_bars_alpaca_sip(**kwargs)
@@ -277,6 +285,7 @@ def test_end_timestamp_freshness_gate():
     ap.fetch_bars_alpaca_sip(
         canonical_ticker="AAPL", session_date=SESSION_DATE, credentials=FAKE_CREDS,
         session=session2, sleep_fn=lambda s: None, now_fn=far_enough_now,
+        enforce_session_grid=False,  # this test is about the freshness gate, not the grid
     )
     check("14c. An end timestamp 16+ minutes old passes the gate and proceeds", len(session2.calls) == 1)
 
@@ -292,10 +301,27 @@ def test_yfinance_provider_ineligible_alpaca_eligible():
     # Constructing a real YFinanceDevIntradayProvider() imports yfinance
     # (fine, already a dependency) but touches no network -- safe here.
     yf_provider = YFinanceDevIntradayProvider()
-    check("16a. YFinanceDevIntradayProvider is explicitly ineligible for a real event", yf_provider.is_eligible_for_real_event is False)
+    check("16a. YFinanceDevIntradayProvider is ineligible for a real event", yf_provider.is_eligible_for_real_event is False)
+    check("16b. ...and structurally so -- it does not support real-event semantics at all, so no clearance status could change that",
+          yf_provider.supports_real_event_semantics is False)
 
     alpaca_provider = ap.AlpacaHistoricalSipIntradayProvider(credentials=FAKE_CREDS)
-    check("16b. AlpacaHistoricalSipIntradayProvider IS eligible for a real event", alpaca_provider.is_eligible_for_real_event is True)
+    check("16c. AlpacaHistoricalSipIntradayProvider DOES support real-event semantics (structural)",
+          alpaca_provider.supports_real_event_semantics is True)
+    # Eligibility is DERIVED, so this asserts consistency with the pure rule
+    # rather than a hard-coded expectation -- it stays correct across a
+    # clearance change without being vacuous.
+    expected = providers.compute_real_event_eligibility(
+        supports_real_event_semantics=True,
+        operational_clearance_status=ap.OPERATIONAL_CLEARANCE_STATUS,
+        feed=ap.FEED, adjustment=ap.ADJUSTMENT,
+        session_grid_enforced=ap.SESSION_GRID_ENFORCED, has_credentials=True,
+    )
+    check("16d. Its eligibility is derived from the clearance rule, not hard-coded",
+          alpaca_provider.is_eligible_for_real_event == expected,
+          f"clearance={ap.OPERATIONAL_CLEARANCE_STATUS} eligible={alpaca_provider.is_eligible_for_real_event}")
+    check("16e. Its recorded clearance status is one of the three recognized values",
+          ap.OPERATIONAL_CLEARANCE_STATUS in providers.VALID_CLEARANCE_STATUSES, ap.OPERATIONAL_CLEARANCE_STATUS)
 
 
 def test_raw_data_never_written_to_disk_by_this_module():
@@ -410,57 +436,10 @@ def test_window_overrides_cannot_smuggle_a_nonsession_date():
 
     default_session = FakeSession([FakeResponse(200, json_data={"bars": [], "next_page_token": None})])
     _fetch(default_session)
-    check("21c. With no overrides the 5Min path still uses the exact regular-session window",
+    check("21c. With no overrides the 5Min path uses [first expected bar start, LAST expected bar start]",
           default_session.calls[0]["params"]["start"] == "2026-08-03T13:30:00Z"
-          and default_session.calls[0]["params"]["end"] == "2026-08-03T20:00:00Z")
-
-
-def test_known_defect_end_boundary_is_inclusive():
-    """CHARACTERIZATION TEST -- pins a KNOWN, OPEN DEFECT found by the
-    2026-08-04 live diagnostic.
-
-    The 5Min path requests end == the calendar's session close (20:00Z /
-    16:00 ET). Alpaca's `end` is INCLUSIVE of a bar whose START equals `end`,
-    so the real SIP response contained 79 bars: the 78 regular-session bars
-    plus the 16:00-16:05 ET after-hours bar. That trailing bar then became
-    `session_close` in extract_session_fields(), shifting SPY's measured
-    open-to-close by 6.7 bp.
-
-    This test asserts the CURRENT behaviour so the defect cannot drift
-    unnoticed. When the fix lands (request end = last_bar_start, or an
-    exclusive end), this test MUST be updated to assert the corrected
-    boundary -- that update is the intended signal, not a nuisance.
-    """
-    boundaries = expected_bar_boundaries(SESSION_DATE)
-    session = FakeSession([FakeResponse(200, json_data={"bars": [], "next_page_token": None})])
-    _fetch(session)
-    requested_end = session.calls[0]["params"]["end"]
-    check("22a. KNOWN DEFECT: the 5Min request's end is the session CLOSE (20:00Z), which Alpaca treats inclusively",
-          requested_end == "2026-08-03T20:00:00Z", requested_end)
-    check("22b. The calendar's own last legitimate bar START is 15:55 ET (19:55Z) -- 5 minutes before that end",
-          boundaries.last_bar_start_utc == "2026-08-03T19:55:00+00:00", boundaries.last_bar_start_utc)
-    check("22c. So a bar starting exactly at the requested end is admitted, and it is an after-hours bar",
-          boundaries.close_utc == "2026-08-03T20:00:00+00:00")
-
-    # And confirm the downstream consequence deterministically: a 79th bar at
-    # 16:00 ET silently becomes the session close.
-    from gst_market_response.bars import extract_session_fields
-
-    bars_78 = [
-        Bar(symbol="SPY", timestamp_utc=datetime(2026, 8, 3, 13, 30, tzinfo=UTC) + timedelta(minutes=5 * i),
-            open=100.0, high=101.0, low=99.0, close=100.0 + i * 0.01, volume=1000)
-        for i in range(78)
-    ]
-    after_hours = Bar(symbol="SPY", timestamp_utc=datetime(2026, 8, 3, 20, 0, tzinfo=UTC),
-                      open=100.77, high=102.0, low=99.0, close=999.0, volume=1)
-    clean = extract_session_fields(bars_78)
-    contaminated = extract_session_fields(bars_78 + [after_hours])
-    check("22d. With the correct 78 bars, session_close is the 15:55 ET bar's close",
-          clean.session_close == bars_78[-1].close, str(clean.session_close))
-    check("22e. DEFECT CONSEQUENCE: one extra 16:00 ET bar silently becomes session_close",
-          contaminated.session_close == 999.0, str(contaminated.session_close))
-    check("22f. ...and the contaminated full-session volume differs from the clean one",
-          contaminated.full_session_volume != clean.full_session_volume)
+          and default_session.calls[0]["params"]["end"] == "2026-08-03T19:55:00Z",
+          str(default_session.calls[0]["params"]))
 
 
 if __name__ == "__main__":
@@ -485,7 +464,6 @@ if __name__ == "__main__":
     test_sanitized_request_evidence_recorded()
     test_daily_cross_check_uses_a_calendar_day_window()
     test_window_overrides_cannot_smuggle_a_nonsession_date()
-    test_known_defect_end_boundary_is_inclusive()
 
     print()
     if FAILURES:
