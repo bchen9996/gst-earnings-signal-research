@@ -11,6 +11,64 @@ from typing import Optional, Sequence
 
 from .bars import Bar
 
+# --- Operational clearance --------------------------------------------------
+# Deliberately SEPARATE from "does this provider implement real-event
+# semantics". Before defect ALP-1 those two ideas were fused into a single
+# is_eligible_for_real_event=True on the Alpaca provider, which meant the flag
+# read as clearance for real capture while no live diagnostic had ever passed
+# -- and kept reading that way even after one FAILED. They are now distinct
+# inputs and eligibility is derived from both.
+CLEARANCE_NOT_RUN = "NOT_RUN"
+CLEARANCE_LIVE_DIAGNOSTIC_FAILED = "LIVE_DIAGNOSTIC_FAILED"
+CLEARANCE_LIVE_DIAGNOSTIC_PASSED = "LIVE_DIAGNOSTIC_PASSED"
+
+VALID_CLEARANCE_STATUSES = (
+    CLEARANCE_NOT_RUN,
+    CLEARANCE_LIVE_DIAGNOSTIC_FAILED,
+    CLEARANCE_LIVE_DIAGNOSTIC_PASSED,
+)
+
+REQUIRED_FEED = "sip"
+REQUIRED_ADJUSTMENT = "raw"
+
+
+def compute_real_event_eligibility(
+    *,
+    supports_real_event_semantics: bool,
+    operational_clearance_status: str,
+    feed: Optional[str],
+    adjustment: Optional[str],
+    session_grid_enforced: bool,
+    has_credentials: bool,
+) -> bool:
+    """The single definition of "may this provider back a real event's
+    COMPLETE status". Every condition must hold:
+
+      - the provider structurally implements real-event semantics
+        (yfinance does not, regardless of anything else);
+      - its operational clearance is LIVE_DIAGNOSTIC_PASSED -- NOT_RUN and
+        LIVE_DIAGNOSTIC_FAILED are both ineligible, and an unrecognized
+        status is ineligible too (unknown fails closed, never opens);
+      - the feed is SIP -- an IEX-configured provider is ineligible by this
+        rule alone, which is why the rule lives in a pure function that can
+        be exercised with feed='iex' without any IEX code path existing;
+      - the adjustment is raw;
+      - the exact-session-grid guard is active (the ALP-1 fix);
+      - credentials are actually present.
+
+    Pure and side-effect free, so the full truth table is deterministically
+    testable without constructing providers or touching a network."""
+    if operational_clearance_status not in VALID_CLEARANCE_STATUSES:
+        return False
+    return bool(
+        supports_real_event_semantics
+        and operational_clearance_status == CLEARANCE_LIVE_DIAGNOSTIC_PASSED
+        and feed == REQUIRED_FEED
+        and adjustment == REQUIRED_ADJUSTMENT
+        and session_grid_enforced
+        and has_credentials
+    )
+
 
 class IntradayOHLCVProvider(ABC):
     """Retrieves 5-minute OHLCV bars for one symbol/session. Implementations
@@ -30,13 +88,48 @@ class IntradayOHLCVProvider(ABC):
         ...
 
     @property
-    def is_eligible_for_real_event(self) -> bool:
-        """False by default -- a provider must explicitly opt in. Checked
-        before any raw-bar capture that would back a real (non-demo)
-        event's COMPLETE status; see
-        gst_market_response.alpaca_provider.AlpacaHistoricalSipIntradayProvider
-        (True) vs. YFinanceDevIntradayProvider (False, unchanged)."""
+    def supports_real_event_semantics(self) -> bool:
+        """STRUCTURAL: does this provider implement the SIP/raw/exact-session
+        contract a real event requires? A permanent property of the provider
+        class, independent of whether any diagnostic has ever run. False by
+        default -- a provider must explicitly opt in."""
         return False
+
+    @property
+    def operational_clearance_status(self) -> str:
+        """OPERATIONAL: what a live diagnostic has actually demonstrated
+        about this provider, in this environment, most recently. Moves over
+        time; says nothing about the provider's structural capabilities."""
+        return CLEARANCE_NOT_RUN
+
+    @property
+    def _eligibility_feed(self) -> Optional[str]:
+        return None
+
+    @property
+    def _eligibility_adjustment(self) -> Optional[str]:
+        return None
+
+    @property
+    def _eligibility_session_grid_enforced(self) -> bool:
+        return False
+
+    @property
+    def _eligibility_has_credentials(self) -> bool:
+        return False
+
+    @property
+    def is_eligible_for_real_event(self) -> bool:
+        """DERIVED -- never set directly. Checked before any raw-bar capture
+        that would back a real (non-demo) event's COMPLETE status."""
+        return compute_real_event_eligibility(
+            supports_real_event_semantics=self.supports_real_event_semantics,
+            operational_clearance_status=self.operational_clearance_status,
+            feed=self._eligibility_feed,
+            adjustment=self._eligibility_adjustment,
+            session_grid_enforced=self._eligibility_session_grid_enforced,
+            has_credentials=self._eligibility_has_credentials,
+        )
 
 
 @dataclass(frozen=True)
@@ -80,12 +173,18 @@ class YFinanceDevIntradayProvider(IntradayOHLCVProvider):
         return "yfinance-development"
 
     @property
-    def is_eligible_for_real_event(self) -> bool:
-        # Explicit, not just the inherited default -- this provider must
-        # never be usable to back a real event's COMPLETE status, only
-        # deterministic fixtures and the bounded diagnostic. See
-        # GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md.
+    def supports_real_event_semantics(self) -> bool:
+        # Explicit, not just the inherited default. Structural and permanent:
+        # yfinance is not a SIP feed, does not guarantee raw adjustment, and
+        # does not honour an exact regular-session grid. No diagnostic result
+        # could make this True, so no clearance status can make this provider
+        # eligible. See GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md.
         return False
+
+    @property
+    def operational_clearance_status(self) -> str:
+        # Its one live diagnostic (2026-08-04, SPY) returned zero bars.
+        return CLEARANCE_LIVE_DIAGNOSTIC_FAILED
 
     def get_bars(self, symbol: str, session_date: date) -> list[Bar]:
         # NOTE: this method is exercised only by live capture and the single

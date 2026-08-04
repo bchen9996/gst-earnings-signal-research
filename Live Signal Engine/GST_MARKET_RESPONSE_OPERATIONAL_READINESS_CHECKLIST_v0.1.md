@@ -1,13 +1,16 @@
 # Market Response — Operational Readiness Checklist (v0.1)
 
-Status as of the 2026-08-04 **live-validation pass** (third pass; PR #3, branch `phase2-market-response`, stacked
-on PR #1). **No real event has been registered. No trading strategy is selected. No profitability claim exists.**
+Status as of the 2026-08-04 **post-fix validation pass** (fourth pass; PR #3, branch `phase2-market-response`,
+stacked on PR #1). **No real event has been registered. No trading strategy is selected. No profitability claim
+exists.**
 
-**Provider status: `LIVE_DIAGNOSTIC_FAILED` — the Alpaca provider is INELIGIBLE for real event capture.** The one
-permitted live diagnostic ran and failed on a located, reproduced request-window defect (ALP-1). This is *not*
-"fully production-validated", and it is not partially validated either: the status rule for a failed SPY
-diagnostic is that the provider stays ineligible. No fallback to IEX, yfinance, Yahoo, any other provider, or
-synthetic data was made or considered.
+**Provider status: `LIVE_DIAGNOSTIC_PASSED` — the Alpaca provider is CLEARED for real event capture.** Defect
+ALP-1 is fixed and closed; the post-fix live diagnostic passed for both SPY (33/33) and BRK-B (29/29), each
+returning **exactly 78 SIP/raw 5-minute bars from 09:30 through 15:55 ET** with no extra or missing timestamps.
+
+**Clearance is not production-readiness.** It means one bounded live diagnostic passed against two benchmark
+tickers on one historical session. **One complete prospective earnings event is still required** before this lane
+can be called production-ready — see the blockers below.
 
 ## Done — first pass (2026-08-04)
 
@@ -87,16 +90,51 @@ synthetic data was made or considered.
       (20 → 47). **Full 20-file deterministic suite: 737 checks, all passing, zero regressions** (baseline 638 /
       19 files). All 17 untouched test files pass unchanged.
 
+## Done — fourth pass (2026-08-04, this update): ALP-1 fix and post-fix validation
+
+- [x] **Defect ALP-1 FIXED**, in three independent layers:
+  1. **Request** — `end` is now the **final expected bar start** from `exchange_calendar.expected_bar_starts_utc()`
+     (19:55Z / 15:55 ET), never `session_close_utc`. Derived dynamically, so an early close asks through 12:55 ET
+     (42 bars) instead of a hard-coded 15:55.
+  2. **Validation** — `_assert_exact_session_grid()` requires the returned timestamp set to **equal** the expected
+     set. Missing, extra, duplicate, misaligned and out-of-session bars each raise `AlpacaSessionGridError`.
+     Nothing trims, pads, re-sorts or de-duplicates.
+  3. **Extraction** — `extract_session_fields()` selects open/close bars **by expected timestamp**, never
+     `bars[0]`/`bars[-1]`. A stray 16:00 ET bar cannot become the close, set the high/low, or inflate volume even
+     if layers 1–2 were bypassed. Extraction is now also order-independent.
+- [x] **Post-fix live diagnostic PASSED**, one run per ticker, 2026-08-03 session, neither registering an event:
+  - **SPY — 33/33 checks.** HTTP 200, `feed=sip`/`timeframe=5Min`/`adjustment=raw` on the wire, **78/78 bars,
+    09:30 → 15:55 ET**, 0 off-grid, 0 missing, 1 page, 0 retries, raw SHA-256 `1313d07b…`.
+  - **BRK-B (`BRK.B`) — 29/29 checks.** Same window and counts, Alpaca echoed `"symbol": "BRK.B"`, raw SHA-256
+    `4d3c6713…`.
+  - **Daily cross-check now matches exactly**: aggregated 78 × 5Min OHLC vs Alpaca's 1Day SIP bar gives **0.0**
+    relative difference on open/high/low/close (749.44 / 758.58 / 748.80 / **757.67**). The contaminated pass-3
+    aggregate had been 6.6 bp off on close.
+- [x] **Eligibility split.** `supports_real_event_semantics` (structural, permanent) is now separate from
+      `operational_clearance_status` (operational, changes over time), and `is_eligible_for_real_event` is
+      **derived** from both via the pure `providers.compute_real_event_eligibility()`. It requires SIP feed, raw
+      adjustment, the ALP-1 grid guard active, and credentials present. `NOT_RUN`, `LIVE_DIAGNOSTIC_FAILED`, an
+      unrecognized status, `feed="iex"`, and yfinance are each ineligible on their own. Disabling the grid guard
+      mechanically revokes clearance.
+- [x] **Retraction.** The pass-3 claim that the −15.50% daily-vs-aggregate volume difference was "most likely"
+      extended-hours volume is **withdrawn** — it was an unsupported guess. It is now classified
+      **`unresolved_provider_aggregation_semantics`**: daily OHLC remains a gated sanity comparison (10 bp), daily
+      volume is **informational only and not an equality gate** unless identical aggregation semantics are proven.
+- [x] **89 new deterministic checks, 3 removed, net +86** — `test_market_response_alp1_session_grid.py` (79, new:
+      request boundary, dynamic early-close end, extra 16:00 bar, missing 15:55 bar, missing interior bar,
+      duplicates, unordered input, misalignment, premarket bar, exact-boundary extraction, order independence,
+      and the full eligibility truth table), harness 47 → 57, provider 70 → 67 (the 3 removed are the ALP-1
+      characterization checks, which asserted the *defective* boundary and were replaced — exactly as their own
+      docstring instructed — by corrected-boundary assertions in the new file). **Full 21-file suite: 737 → 823
+      checks, all passing, zero regressions**, verified in *both* clearance states.
+
 ## NOT done — remaining blockers before the first real event can be registered
 
-1. **ALP-1 is unfixed and the Alpaca provider is INELIGIBLE.** Its one live diagnostic failed. The fix is
-   prescribed and the defect is pinned by tests, but neither the fix nor a passing live diagnostic exists yet.
-   **A live diagnostic must be re-run, and pass, before any real capture.** Note `is_eligible_for_real_event` still
-   returns `True` in code — that flag describes the provider's *class* (a real SIP provider, unlike yfinance), not
-   its current validation state, and it must not be read as clearance.
-2. **One complete prospective earnings event is still required** before this lane can be called production-ready,
-   independently of ALP-1. Nothing about a benchmark-ticker diagnostic substitutes for capturing one real event end
-   to end.
+1. **One complete prospective earnings event is still required.** This is now the primary blocker. Nothing about a
+   benchmark-ticker diagnostic on a historical session substitutes for capturing one real event end to end.
+2. **Clearance rests on one session and two benchmark tickers.** Neither ticker is in the locked 24-ticker
+   universe, and no early-close session has been live-validated (the early-close path is deterministically tested,
+   not live-tested). The vendor's 1Day aggregation semantics remain unresolved.
 3. **`YFinanceDevIntradayProvider` remains explicitly ineligible** (`is_eligible_for_real_event = False`) and its
    one live diagnostic to date FAILED (2026-08-04, SPY, root cause likely environment-specific, not remediated).
    Not a blocker for Alpaca-based capture, but yfinance itself is not, and will not become, usable for a real event.

@@ -57,6 +57,22 @@ REGULAR_LAST_BAR_START_ET = _dtime(15, 55)
 # they should agree to within representation error, not merely "closely".
 DERIVATION_EXACTNESS_TOLERANCE = 1e-12
 
+# Tolerance for the OHLC sanity comparison between the aggregated 5-minute
+# bars and Alpaca's own 1Day SIP bar. Both should describe the same regular
+# session, so this is deliberately tight (10 bp); a difference beyond it is a
+# real signal, not rounding.
+OHLC_CROSS_CHECK_RELATIVE_TOLERANCE = 0.001
+
+# The aggregation semantics of Alpaca's 1Day equity bar relative to its 5Min
+# bars are NOT established. An earlier draft of this module's report asserted
+# the daily-vs-aggregate volume gap was "most likely" extended-hours volume;
+# that was an unsupported guess and has been retracted. Until identical
+# semantics are proven, a volume difference is uninterpretable and is recorded
+# as informational only -- never as an equality gate. OHLC is different: both
+# series should describe the same regular session, so OHLC remains a genuine
+# sanity comparison.
+VOLUME_COMPARISON_STATUS = "unresolved_provider_aggregation_semantics"
+
 
 @dataclass
 class CheckResult:
@@ -219,14 +235,26 @@ def run_diagnostic(
     report.last_bar_et = last_bar_et.isoformat()
 
     # --- 2. Session-window evidence --------------------------------------
+    # ALP-1: the requested end must be the FINAL EXPECTED BAR START (15:55 ET
+    # on an ordinary session), never the 16:00 session close, because Alpaca's
+    # `end` is inclusive of a bar starting exactly at `end`.
+    grid = _expected_grid_utc(session_date)
     report.add(
-        "7. Requested window is exactly the calendar's XNYS regular session",
-        prov.requested_start_utc == boundaries.open_utc and prov.requested_end_utc == boundaries.close_utc,
-        f"requested=[{prov.requested_start_utc}, {prov.requested_end_utc}] calendar=[{boundaries.open_utc}, {boundaries.close_utc}]",
+        "7. Requested window is exactly [first expected bar start, LAST expected bar start] -- "
+        "not the session close, which an inclusive `end` would turn into an after-hours bar",
+        prov.requested_start_utc == boundaries.first_bar_start_utc
+        and prov.requested_end_utc == boundaries.last_bar_start_utc
+        and prov.requested_end_utc != boundaries.close_utc,
+        f"requested=[{prov.requested_start_utc}, {prov.requested_end_utc}] "
+        f"expected=[{boundaries.first_bar_start_utc}, {boundaries.last_bar_start_utc}] "
+        f"session_close={boundaries.close_utc}",
     )
 
-    grid = _expected_grid_utc(session_date)
     grid_set = set(grid)
+    # The on-grid subset, ordered by timestamp. Everything downstream that
+    # asks "what did this session do" works from this, never from raw list
+    # position -- see the note above check 21.
+    in_grid = sorted((b for b in bars if b.timestamp_utc in grid_set), key=lambda b: b.timestamp_utc)
     returned_set = {b.timestamp_utc for b in bars}
     extra_ts = sorted(returned_set - grid_set)
     missing_ts = sorted(grid_set - returned_set)
@@ -308,7 +336,7 @@ def run_diagnostic(
     )
 
     # --- 5. Market-response derivations -----------------------------------
-    fields = extract_session_fields(bars)
+    fields = extract_session_fields(bars, session_date)
     o2c = open_to_close(fields.session_close, fields.session_open)
     o230 = open_to_30m(fields.price_at_30m, fields.session_open)
     t2c = thirty_min_to_close(fields.session_close, fields.price_at_30m)
@@ -316,7 +344,7 @@ def run_diagnostic(
     vshare = volume_share(fields.first_30m_volume, fields.full_session_volume)
 
     first_30m_bars = [
-        b for b in bars if REGULAR_OPEN_ET <= b.local_time().time() <= _dtime(9, 55)
+        b for b in in_grid if REGULAR_OPEN_ET <= b.local_time().time() <= _dtime(9, 55)
     ]
     report.add(
         f"20. Exactly {FIRST_30M_BAR_COUNT} bars constitute the first 30 minutes (09:30-09:55 starts)",
@@ -324,16 +352,37 @@ def run_diagnostic(
         f"actual={len(first_30m_bars)}",
     )
 
-    # Independent recomputation straight off the bar list, NOT reusing the
-    # derivations module -- so an error inside derivations cannot validate
-    # itself.
-    ind_open = bars[0].open
-    ind_close = bars[-1].close
-    ind_high = max(b.high for b in bars)
-    ind_low = min(b.low for b in bars)
-    ind_30m_bar = next((b for b in bars if b.local_time().time() == _dtime(9, 55)), None)
+    # Independent recomputation, NOT reusing the derivations module -- so an
+    # error inside derivations cannot validate itself.
+    #
+    # It runs over the ON-GRID bars, selecting the open/close bars by their
+    # expected timestamps rather than positionally. Two reasons: (a) it must
+    # cover the same domain as extract_session_fields(), or this becomes a
+    # duplicate contamination detector instead of an arithmetic cross-check --
+    # grid deviations are already reported by checks 8/9/10/12/19; and (b)
+    # positional bars[0]/bars[-1] is exactly the pattern defect ALP-1
+    # exploited, so it has no place in the code that verifies the fix.
+    by_ts = {b.timestamp_utc: b for b in in_grid}
+    open_bar = by_ts.get(grid[0])
+    close_bar = by_ts.get(grid[-1])
+    if open_bar is None or close_bar is None:
+        report.add(
+            "21. Market-response derivations match an independent recomputation off the raw bars",
+            False,
+            f"expected open bar {grid[0].isoformat()} present={open_bar is not None}, "
+            f"expected close bar {grid[-1].isoformat()} present={close_bar is not None}",
+        )
+        report.finalize()
+        _write_report(report, out_dir)
+        return report
+
+    ind_open = open_bar.open
+    ind_close = close_bar.close
+    ind_high = max(b.high for b in in_grid)
+    ind_low = min(b.low for b in in_grid)
+    ind_30m_bar = next((b for b in in_grid if b.local_time().time() == _dtime(9, 55)), None)
     ind_first30_vol = sum(b.volume for b in first_30m_bars)
-    ind_total_vol = sum(b.volume for b in bars)
+    ind_total_vol = sum(b.volume for b in in_grid)
     if ind_30m_bar is None:
         report.add(
             "21. Market-response derivations match an independent recomputation off the raw bars",
@@ -434,23 +483,48 @@ def run_diagnostic(
                 "daily_request_query_string": daily.get("request_query_string"),
                 "daily_http_status": daily.get("http_status"),
                 "daily_raw_response_sha256": daily.get("raw_response_content_sha256"),
+                "ohlc_role": "sanity_comparison",
+                "volume_role": "informational_only",
+                "volume_status": VOLUME_COMPARISON_STATUS,
+                "volume_caveat": (
+                    "The aggregation semantics of Alpaca's 1Day bar relative to its 5Min bars are not "
+                    "established: which trades each series counts is unknown and has not been determined "
+                    "from vendor documentation or a controlled experiment. A volume difference is therefore "
+                    "uninterpretable, and no explanation for one is offered here. It is recorded as "
+                    "informational only and is NOT an equality gate; it becomes one only once identical "
+                    "aggregation semantics are proven."
+                ),
             }
             report.daily_bar_comparison = comparison
-            # Recorded, never suppressed. This check asserts only that the
-            # comparison was computed and preserved in full -- the OHLC/volume
-            # deltas themselves are reported as data, because Alpaca's 1Day
-            # bar's session definition is the vendor's, not ours, and a
-            # nonzero delta is a finding to report rather than a pass/fail.
+            # Recorded, never suppressed. OHLC is a genuine sanity comparison
+            # -- both series should describe the same regular session, so a
+            # material OHLC difference is a real signal. VOLUME is not: see
+            # volume_caveat. Neither is gated here; both are reported as data.
             report.add(
                 "28. Aggregated-5Min vs 1Day comparison computed and recorded in full (all five deltas, none suppressed)",
                 all(k in comparison["relative_difference"] for k in ("open", "high", "low", "close", "volume")),
                 json.dumps(comparison["relative_difference"]),
             )
+            ohlc_deltas = {
+                k: v for k, v in comparison["relative_difference"].items() if k != "volume" and v is not None
+            }
+            report.add(
+                "29. OHLC sanity comparison: aggregated 5Min OHLC matches Alpaca's own 1Day SIP OHLC",
+                all(abs(v) <= OHLC_CROSS_CHECK_RELATIVE_TOLERANCE for v in ohlc_deltas.values()),
+                json.dumps(ohlc_deltas),
+            )
+            report.add(
+                f"30. Volume difference recorded as INFORMATIONAL ONLY ({VOLUME_COMPARISON_STATUS}) -- "
+                f"not an equality gate, because the vendor's 1Day aggregation semantics are unproven",
+                comparison["volume_role"] == "informational_only"
+                and comparison["volume_status"] == VOLUME_COMPARISON_STATUS,
+                f"observed relative volume difference={comparison['relative_difference']['volume']}",
+            )
 
     # --- 8. Data protection ------------------------------------------------
     serialized = json.dumps(report.to_json_dict(), default=str)
     report.add(
-        "29. Neither credential appears anywhere in this report",
+        "31. Neither credential appears anywhere in this report",
         credentials.key_id not in serialized and credentials.secret_key not in serialized,
     )
     # Structural, not textual: assert the report object itself holds no
@@ -466,7 +540,7 @@ def run_diagnostic(
         return False
 
     report.add(
-        "30. This report contains no raw bar rows anywhere in its structure -- only aggregates, statuses, and hashes",
+        "32. This report contains no raw bar rows anywhere in its structure -- only aggregates, statuses, and hashes",
         not _holds_bar_rows(report.to_json_dict()) and len(serialized) < 20000,
         f"serialized_report_bytes={len(serialized)}",
     )

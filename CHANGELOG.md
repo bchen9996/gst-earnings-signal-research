@@ -1,5 +1,124 @@
 # Changelog
 
+## 2026-08-04 — Market Response: ALP-1 fix + post-fix validation (PR #3, fourth pass, no real event registered)
+
+**What this is.** Fix defect ALP-1, split provider eligibility into its two real components, retract an
+unsupported claim from the pass-3 report, and run one post-fix live validation. **No earnings event was
+registered, no Radar integration, no backtest, no other worktree touched, nothing merged.**
+
+**Preflight**: HEAD `34bf25033e9174405e76b4901d0fe2610fb70645` as expected, tracked tree clean, no relevant
+process running, Wikipedia cache `29d072f2…` and both preserved panel artifacts unchanged, both credentials
+present (presence only — never printed, logged, serialized or committed).
+
+### Defect ALP-1: FIXED and CLOSED
+
+Alpaca treats `end` as **inclusive** of a bar whose start equals `end`, so requesting `end = session_close_utc`
+(16:00 ET) pulled the 16:00–16:05 ET after-hours bar into every regular-session request as a 79th bar. Fixed in
+three independent layers, each of which alone would prevent the observed corruption:
+
+1. **Request boundary** — `fetch_bars_alpaca_sip` now sets `end` to the **final expected bar start** from the new
+   `exchange_calendar.expected_bar_starts_utc()` (19:55Z / 15:55 ET), never `session_close_utc`. Derived
+   dynamically from the calendar, so an early close asks through 12:55 ET (42 bars) with no special case.
+2. **Fail-closed validation** — new `_assert_exact_session_grid()` requires the returned timestamp set to
+   **equal** the expected set. Missing, extra, duplicate, misaligned and out-of-session bars each raise the new
+   `AlpacaSessionGridError`. It never trims, pads, re-sorts or de-duplicates: silently repairing a malformed
+   response is exactly how ALP-1 stayed invisible until a live diagnostic looked for it. Bypassed only on the
+   1Day cross-check path, which does its own "exactly one bar" check.
+3. **Boundary selection** — `bars.extract_session_fields()` now selects the open and close bars **by their
+   expected timestamps**, never `bars[0]`/`bars[-1]`, and aggregates high/low/volume over on-grid bars only. A
+   stray 16:00 ET bar cannot become `session_close`, set the session high/low, or inflate volume even with layers
+   1–2 bypassed entirely. Extraction is now order-independent, and bars spanning two sessions raise the new
+   `MixedSessionError` rather than silently using one.
+
+### Post-fix live validation: **BOTH PASSED**
+
+One run per ticker, 2026-08-03 XNYS session, neither registering a research event.
+
+| | SPY | BRK-B (`BRK.B`) |
+|---|---|---|
+| Verdict | **PASSED 33/33** | **PASSED 29/29** |
+| HTTP | 200 | 200 |
+| Query on the wire | `adjustment=raw&end=2026-08-03T19:55:00Z&feed=sip&limit=10000&sort=asc&start=2026-08-03T13:30:00Z&timeframe=5Min` | identical |
+| Symbol echo | `SPY` | **`BRK.B`** |
+| **Bars** | **78 / 78** | **78 / 78** |
+| First → last bar | **09:30 → 15:55 ET** | **09:30 → 15:55 ET** |
+| Off-grid / missing | 0 / 0 | 0 / 0 |
+| Pages / retries | 1 / 0 | 1 / 0 |
+| Raw SHA-256 | `1313d07b2a5843d89d6e3bd0cc7c4cb3e011482709812cc21cb1132a18aa7af2` | `4d3c6713b6ce1f6b75f9d53dfe73a32c13f569bab18f1e2a36021e9983d0ffd9` |
+
+The requested `end` is now `19:55:00Z` rather than `20:00:00Z` — that single change is the fix.
+
+**The daily cross-check independently confirms it.** The uncontaminated 78-bar aggregate reproduces Alpaca's own
+1Day SIP OHLC **exactly**: open 749.44, high 758.58, low 748.80, close **757.67**, all at **0.0** relative
+difference. The pass-3 contaminated 79-bar aggregate had put close at 757.72, 6.6 bp off.
+
+**Provider status advanced to `LIVE_DIAGNOSTIC_PASSED`.** This clears the provider for real event capture. It is
+**not** production-readiness: one complete prospective earnings event is still required.
+
+### Eligibility split
+
+`is_eligible_for_real_event` was a hard-coded `True` on the Alpaca provider. That one flag fused two unrelated
+ideas, so it read as clearance for real capture while no live diagnostic had ever run — and kept reading that way
+after one FAILED. Now separate:
+
+- **`supports_real_event_semantics`** — structural, permanent. `True` for Alpaca, `False` for yfinance.
+- **`operational_clearance_status`** — operational, changes over time: `NOT_RUN` / `LIVE_DIAGNOSTIC_FAILED` /
+  `LIVE_DIAGNOSTIC_PASSED`.
+- **`is_eligible_for_real_event`** — **derived**, never set directly, via the new pure
+  `providers.compute_real_event_eligibility()`, which additionally requires `feed == "sip"`,
+  `adjustment == "raw"`, the ALP-1 grid guard active, and credentials present.
+
+`NOT_RUN`, `LIVE_DIAGNOSTIC_FAILED`, an unrecognized clearance string (unknown fails closed), `feed="iex"`, a
+non-raw adjustment, a disabled grid guard, absent credentials, and yfinance are each independently disqualifying.
+Disabling the ALP-1 guard mechanically revokes clearance. Being pure, the full truth table is deterministically
+tested without constructing a provider or touching a network — `feed="iex"` is exercised as an *input*, so no IEX
+code path exists.
+
+### Correction to the pass-3 report
+
+**Retracted:** the claim that the −15.50% daily-vs-aggregate **volume** difference was "most likely" extended-hours
+volume. That was an unsupported guess, never verified against vendor documentation or a controlled experiment, and
+it should not have been offered as a leading explanation. It is now classified
+**`unresolved_provider_aggregation_semantics`** — which trades each series counts is unknown, and **no explanation
+is offered**. The retraction is recorded inline in the preserved pass-3 section rather than by rewriting it.
+
+Consequently: daily **OHLC** remains a genuine sanity comparison and *is* gated (10 bp) — as pass 3 demonstrated
+when contamination pushed close 6.6 bp off. Daily **volume** is **informational only and not an equality gate**,
+and becomes one only if identical aggregation semantics are first proven. An Alpaca 1Day volume must never be
+compared against, or substituted for, a regular-session volume aggregate.
+
+### Tests
+
+New `test_market_response_alp1_session_grid.py` (**79 checks**): inclusive-`end` request boundary; dynamically
+derived early-close end (42 bars, 12:55 ET); normal session returning exactly 78 bars 09:30→15:55; extra 16:00 ET
+bar; missing 15:55 ET bar; missing interior bar; duplicate bar; unordered response; misaligned bar; premarket bar;
+clean-grid acceptance; exact-boundary extraction; a stray 16:00 bar being unable to affect close/high/low/volume;
+order independence; early-close extraction; missing-boundary-yields-None; mixed-session rejection; and the full
+eligibility truth table across every clearance state.
+
+Harness 47 → 57 (corrected daily-comparison semantics, OHLC-gated vs volume-informational, retraction enforced by
+test). Provider 70 → 67: the 3 removed are the ALP-1 characterization checks that asserted the *defective*
+boundary — replaced, exactly as their own docstring instructed, by corrected-boundary assertions in the new file.
+
+**Full suite: 21 files, 737 → 823 checks, all passing, zero regressions** (+89 added, −3 replaced). Verified in
+**both** clearance states — the truth-table tests are deliberately state-independent, so flipping the constant
+cannot make them vacuous.
+
+### Data protection
+
+Credentials never printed, logged, serialized or committed. Raw bars written only to the session scratchpad
+outside the repository. **The pass-3 failed diagnostic reports are preserved byte-identical**; the new post-fix
+evidence is committed alongside as `..._LIVE_DIAGNOSTIC_POSTFIX_{SPY,BRK-B}_2026-08-03.json` (checks, aggregates,
+statuses, provenance and hashes only — no bar rows). Byte-level credential scan over all tracked and untracked
+files plus staged/unstaged diffs: zero hits. Wikipedia cache `29d072f2…` and both preserved panel artifacts
+re-verified byte-identical. No child process remained.
+
+**Remaining blockers**: one complete prospective earnings event; clearance rests on one session and two
+non-universe benchmark tickers; no early-close session has been live-validated (deterministically tested only);
+the vendor's 1Day aggregation semantics remain unresolved.
+
+**No real event has been registered. No trading strategy is selected. No profitability claim exists.**
+
 ## 2026-08-04 — Market Response: live-validation pass (PR #3, third pass, no real event registered)
 
 **What this is.** One narrow live-validation pass on the Earnings Market-Response Decomposition lane (PR #3,

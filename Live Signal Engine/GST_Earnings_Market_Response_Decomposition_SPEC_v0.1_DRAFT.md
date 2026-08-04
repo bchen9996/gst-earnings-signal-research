@@ -415,6 +415,55 @@ APPROVED mapping (the same entry remains acceptable while DRAFT).
 **Still true**: no real event has been registered. No trading strategy is selected. No profitability claim exists.
 **One complete prospective earnings event is still required** before this lane can be considered production-ready.
 
+## Post-fix validation addendum (2026-08-04, fourth pass)
+
+Defect ALP-1 is **fixed and closed**, and the post-fix live diagnostic **PASSED**. Nothing in sections 1-10
+changed. Section 6.1's bar-boundary contract is unchanged in intent; what changed is that it is now mechanically
+enforced end to end rather than assumed.
+
+### Provider status: `LIVE_DIAGNOSTIC_PASSED` — cleared for real event capture
+
+Both diagnostics returned **exactly 78 SIP/raw 5-minute bars, 09:30 through 15:55 ET, with no extra or missing
+timestamps**: SPY 33/33 checks (raw SHA-256 `1313d07b…`), BRK-B via `BRK.B` 29/29 checks (raw SHA-256
+`4d3c6713…`), one run each, neither registering a research event. The aggregated 5-minute OHLC now reproduces
+Alpaca's own 1Day SIP OHLC **exactly** (0.0 relative difference on open/high/low/close), where the contaminated
+pass-3 aggregate had been 6.6 bp off on close.
+
+**Clearance is not production-readiness.** One complete prospective earnings event is still required.
+
+### The fix — three independent layers
+
+1. **Request boundary.** `end` is the **final expected bar start** from `exchange_calendar.expected_bar_starts_utc()`
+   (19:55Z / 15:55 ET on an ordinary session), never `session_close_utc`. Alpaca's `end` is inclusive of a bar
+   starting exactly at `end`. The end is derived dynamically, so an early close asks through 12:55 ET (42 bars).
+2. **Fail-closed validation.** The returned timestamp set must **equal** the calendar's expected set. Missing,
+   extra, duplicate, misaligned and out-of-session bars each raise `AlpacaSessionGridError`. Nothing trims, pads,
+   re-sorts or de-duplicates — silently repairing a malformed response is how ALP-1 stayed invisible.
+3. **Boundary selection by timestamp.** `bars.extract_session_fields()` selects the open and close bars **by their
+   expected timestamps**, never `bars[0]`/`bars[-1]`. A stray 16:00 ET bar cannot become `session_close`, set the
+   session high/low, or inflate volume, even with layers 1-2 bypassed. Extraction is now order-independent, and
+   bars spanning two sessions raise `MixedSessionError` rather than silently using one.
+
+### Eligibility is derived, not declared
+
+`supports_real_event_semantics` (**structural**, permanent) is now separate from `operational_clearance_status`
+(**operational**, changes over time). `is_eligible_for_real_event` is derived from both via the pure
+`providers.compute_real_event_eligibility()`, which additionally requires `feed == "sip"`, `adjustment == "raw"`,
+the ALP-1 grid guard active, and credentials present. `NOT_RUN`, `LIVE_DIAGNOSTIC_FAILED`, an unrecognized status,
+`feed="iex"`, a non-raw adjustment, a disabled grid guard, absent credentials, and yfinance are each ineligible on
+their own. Disabling the grid guard mechanically revokes clearance.
+
+### Correction to the pass-3 report
+
+The claim that the −15.50% daily-vs-aggregate **volume** difference was "most likely" extended-hours volume is
+**retracted** — it was an unsupported guess, never verified against vendor documentation or a controlled
+experiment. It is now classified `unresolved_provider_aggregation_semantics`: which trades each series counts is
+unknown, and no explanation is offered. Daily **OHLC** remains a genuine sanity comparison and is gated at 10 bp;
+daily **volume** is informational only and is **not** an equality gate unless identical aggregation semantics are
+first proven.
+
+**Still true**: no real event has been registered. No trading strategy is selected. No profitability claim exists.
+
 ## Explicitly out of scope for v0.1
 
 - Real-time news sentiment

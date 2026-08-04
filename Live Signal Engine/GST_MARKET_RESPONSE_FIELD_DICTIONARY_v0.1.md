@@ -335,23 +335,62 @@ membership entails that sector — but the underlying observation is one source 
 `reviewed_by` records this was a sourced desk review conducted via live web search/fetch, explicitly not a
 domain-expert manual sign-off -- read literally, not as a claim of human financial-analyst review.
 
-## Live Alpaca diagnostic result (live-validation addendum, 2026-08-04)
+## Provider eligibility (post-fix addendum, 2026-08-04)
 
-**Provider status: `LIVE_DIAGNOSTIC_FAILED`. `AlpacaHistoricalSipIntradayProvider` is INELIGIBLE for real event
-capture.** Two diagnostics (SPY and BRK-B, 2026-08-03 session, run exactly once each, neither registering a
-research event) both returned HTTP 200 with `feed=sip`/`timeframe=5Min`/`adjustment=raw` confirmed on the wire, and
-both **FAILED** on returning **79 bars where the calendar requires 78**.
+Three distinct properties on `providers.IntradayOHLCVProvider`. They were previously fused into one hard-coded
+flag, which is how a provider whose live diagnostic had never run — and later, had FAILED — advertised itself as
+cleared for real capture.
 
-**Defect ALP-1**: Alpaca's `end` parameter is inclusive of a bar starting exactly at `end`, so requesting
-`end = session_close_utc` admits one after-hours (16:00–16:05 ET) bar. Since `extract_session_fields()` takes
-`session_close` from `bars[-1].close`, that bar silently became the session close (SPY `open_to_close` shifted
-6.7 bp; full-session volume 3.1%). Aggregating only the 78 regular-session bars reproduces Alpaca's own 1Day SIP
-OHLC exactly, which independently corroborates the diagnosis.
+| Property | Kind | Meaning |
+|---|---|---|
+| `supports_real_event_semantics` | **Structural**, permanent | Does the provider implement the SIP/raw/exact-session contract at all? `True` for Alpaca, `False` for yfinance. No diagnostic result can change it. |
+| `operational_clearance_status` | **Operational**, changes over time | What a live diagnostic has actually demonstrated in this environment. One of `NOT_RUN`, `LIVE_DIAGNOSTIC_FAILED`, `LIVE_DIAGNOSTIC_PASSED`. |
+| `is_eligible_for_real_event` | **Derived** — never set directly | Computed by `providers.compute_real_event_eligibility()`. |
 
-Note that `is_eligible_for_real_event` still returns `True` in code. **That flag describes the provider's class**
-(a genuine SIP provider, as opposed to `YFinanceDevIntradayProvider`'s `False`), **not its current validation
-state, and must not be read as clearance for capture.** Full evidence, the separate -15.50% daily-volume finding,
-and the prescribed-but-unapplied fix are in `GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md`.
+`compute_real_event_eligibility()` is pure and requires **all** of: `supports_real_event_semantics`, clearance
+`== LIVE_DIAGNOSTIC_PASSED`, `feed == "sip"`, `adjustment == "raw"`, `session_grid_enforced` (the ALP-1 guard), and
+`has_credentials`. Any of the following is independently disqualifying: `NOT_RUN`, `LIVE_DIAGNOSTIC_FAILED`, an
+unrecognized clearance string (unknown fails closed), `feed="iex"`, a non-raw adjustment, a disabled grid guard,
+absent credentials. Because it is pure, the whole truth table is deterministically tested without constructing a
+provider or touching a network — including `feed="iex"` as an input, so no IEX code path needs to exist.
+
+Current values: **Alpaca `LIVE_DIAGNOSTIC_PASSED` → eligible**; yfinance `LIVE_DIAGNOSTIC_FAILED` and
+structurally unsupported → ineligible.
+
+## Session grid: the ALP-1 fix (post-fix addendum, 2026-08-04)
+
+`exchange_calendar.expected_bar_starts_utc(d)` is the authoritative, ordered list of 5-minute bar **start**
+timestamps for a session, derived from the calendar's real open/close — 78 entries (09:30…15:55 ET) on an ordinary
+session, 42 (09:30…12:55 ET) on a 13:00 early close. Three consumers depend on it:
+
+1. **Request boundary.** `fetch_bars_alpaca_sip` sets `end` to `expected_bar_starts_utc(d)[-1]`, **never**
+   `session_close_utc`. Alpaca's `end` is inclusive of a bar starting exactly at `end`, so asking for the 16:00 ET
+   close returned the 16:00–16:05 ET after-hours bar as a 79th bar. Derived dynamically, so early closes are
+   handled without a special case.
+2. **Fail-closed validation.** `_assert_exact_session_grid()` requires the returned timestamp set to **equal** the
+   expected set, raising `AlpacaSessionGridError` on missing, extra, duplicate, misaligned or out-of-session bars.
+   It never trims, pads, re-sorts or de-duplicates. Bypassed only on the 1Day cross-check path
+   (`enforce_session_grid=False`), which does its own "exactly one bar" check instead.
+3. **Boundary selection.** `bars.extract_session_fields(bars, session_date=None)` selects the open and close bars
+   **by expected timestamp**, never `bars[0]`/`bars[-1]`; aggregates high/low/volume over on-grid bars only; is
+   order-independent; returns `None` for any absent boundary bar rather than substituting a neighbour; and raises
+   `MixedSessionError` if handed bars from more than one session. `session_date` may be passed explicitly or is
+   derived from the bars.
+
+## Daily cross-check semantics (post-fix addendum, 2026-08-04)
+
+| Component | Role | Gated? |
+|---|---|---|
+| Daily **OHLC** vs aggregated 5Min OHLC | `sanity_comparison` — both should describe the same regular session | **Yes**, 10 bp tolerance |
+| Daily **volume** vs aggregated 5Min volume | `informational_only`, status `unresolved_provider_aggregation_semantics` | **No** |
+
+**Retraction.** An earlier report stated the −15.50% daily-vs-aggregate volume difference was "most likely"
+extended-hours volume. That was an unsupported guess and is withdrawn: it was never verified against vendor
+documentation or a controlled experiment. The aggregation semantics of Alpaca's 1Day bar relative to its 5Min bars
+are **not established** — which trades each series counts is unknown — and no explanation is offered. A volume
+difference is therefore uninterpretable and must not gate anything; it becomes an equality gate only once
+identical aggregation semantics are proven. An Alpaca 1Day volume must never be compared against, or substituted
+for, a regular-session volume aggregate.
 
 ### Superseded: sector-ETF mapping v0.2 (operational-data addendum, 2026-08-04)
 

@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import date, datetime, time
 from typing import Optional, Sequence
 from zoneinfo import ZoneInfo
 
@@ -100,19 +100,63 @@ class SessionFields:
     full_session_volume: Optional[int]
 
 
-def extract_session_fields(bars: Sequence[Bar]) -> SessionFields:
-    """Derives session-level fields from a validated, chronologically-sorted
-    list of same-session 5-minute bars. Any boundary bar that's absent from
-    the input produces a None field -- never an estimate from adjacent
-    bars."""
+class MixedSessionError(BarValidationError):
+    """Raised when one call is handed bars from more than one session date --
+    a session-level field derived across two sessions is meaningless, so this
+    fails closed rather than silently reporting one of them."""
+
+
+def extract_session_fields(bars: Sequence[Bar], session_date: Optional[date] = None) -> SessionFields:
+    """Derives session-level fields from same-session 5-minute bars.
+
+    Boundary bars are selected by their EXPECTED timestamps, taken from the
+    authoritative XNYS calendar -- never positionally as bars[0]/bars[-1].
+    That distinction is the whole point: under defect ALP-1 an extra
+    after-hours bar starting at 16:00 ET arrived at the end of the list and,
+    being bars[-1], silently became `session_close`. Selecting the close bar
+    by "the calendar says the last bar starts at 15:55 ET" makes that
+    impossible -- a stray 16:00 bar simply is not the close bar, whatever
+    position it occupies.
+
+    Consequences of that, all deliberate:
+      - Input order does not matter. Unordered input yields identical fields.
+      - A missing boundary bar yields None for that field, never an estimate
+        from an adjacent bar.
+      - An early close is handled by the calendar, not by an assumption: the
+        expected last bar start is 12:55 ET on a 13:00 close.
+
+    `session_date` may be passed explicitly; otherwise it is derived from the
+    bars themselves (which must all belong to one session)."""
     if not bars:
         return SessionFields(None, None, None, None, None, None, None)
 
-    open_bar = next((b for b in bars if b.local_time().time() == SESSION_OPEN_TIME), None)
+    session_dates = {b.local_time().date() for b in bars}
+    if session_date is None:
+        if len(session_dates) != 1:
+            raise MixedSessionError(
+                f"bars span {len(session_dates)} session dates {sorted(session_dates)} -- "
+                f"pass session_date explicitly or split the input"
+            )
+        session_date = next(iter(session_dates))
+
+    # Imported here rather than at module scope purely to keep bars.py's
+    # import cost independent of the exchange_calendars package for callers
+    # that only build/validate Bar objects.
+    from .exchange_calendar import expected_bar_starts_utc
+
+    expected_starts = expected_bar_starts_utc(session_date)
+    expected_open_start = expected_starts[0]
+    expected_close_start = expected_starts[-1]
+
+    by_timestamp: dict[datetime, Bar] = {}
+    for b in bars:
+        by_timestamp.setdefault(b.timestamp_utc, b)
+
+    open_bar = by_timestamp.get(expected_open_start)
+    close_bar = by_timestamp.get(expected_close_start)
     thirty_min_bar = next(
         (b for b in bars if b.local_time().time() == THIRTY_MIN_BOUNDARY_LAST_BAR_START), None
     )
-    close_bar = bars[-1]  # last bar of the session, whatever the session's actual close time is (half-day aware)
 
     first_30m_bars = [
         b for b in bars if SESSION_OPEN_TIME <= b.local_time().time() <= THIRTY_MIN_BOUNDARY_LAST_BAR_START
@@ -122,12 +166,18 @@ def extract_session_fields(bars: Sequence[Bar]) -> SessionFields:
     # attention open, so it fails closed to None instead.
     has_full_30m_window = thirty_min_bar is not None and open_bar is not None
 
+    # High/low/volume aggregate only over bars on the expected grid. A stray
+    # out-of-session bar must not be able to set the session high or inflate
+    # the volume any more than it can become the close.
+    expected_set = set(expected_starts)
+    in_session = [b for b in bars if b.timestamp_utc in expected_set]
+
     return SessionFields(
         session_open=open_bar.open if open_bar else None,
         price_at_30m=thirty_min_bar.close if thirty_min_bar else None,
         session_close=close_bar.close if close_bar else None,
-        session_high=max((b.high for b in bars), default=None),
-        session_low=min((b.low for b in bars), default=None),
+        session_high=max((b.high for b in in_session), default=None),
+        session_low=min((b.low for b in in_session), default=None),
         first_30m_volume=(sum(b.volume for b in first_30m_bars) if has_full_30m_window else None),
-        full_session_volume=sum(b.volume for b in bars),
+        full_session_volume=sum(b.volume for b in in_session) if in_session else None,
     )

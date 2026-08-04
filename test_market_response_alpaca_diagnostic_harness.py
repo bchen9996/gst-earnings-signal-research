@@ -32,7 +32,11 @@ from gst_market_response.alpaca_provider import (
     provider_symbol_for,
 )
 from gst_market_response.bars import Bar
-from gst_market_response.exchange_calendar import session_close_utc, session_open_utc
+from gst_market_response.exchange_calendar import (
+    expected_bar_starts_utc,
+    session_close_utc,
+    session_open_utc,
+)
 
 FAILURES: list[str] = []
 
@@ -74,8 +78,10 @@ def _provenance(symbol_canonical: str) -> AlpacaProvenance:
         provider="alpaca-historical-sip",
         api_endpoint=f"https://data.alpaca.markets/v2/stocks/{ps}/bars",
         feed="sip", timeframe="5Min", adjustment="raw",
-        requested_start_utc=session_open_utc(SESSION).isoformat(),
-        requested_end_utc=session_close_utc(SESSION).isoformat(),
+        # ALP-1 fix: the request ends at the LAST EXPECTED BAR START (15:55 ET),
+        # never at the 16:00 session close.
+        requested_start_utc=expected_bar_starts_utc(SESSION)[0].isoformat(),
+        requested_end_utc=expected_bar_starts_utc(SESSION)[-1].isoformat(),
         retrieved_at_utc=datetime.now(UTC).isoformat(),
         http_status=200, retry_count=0, page_count=1,
         raw_response_content_sha256="a" * 64,
@@ -200,43 +206,84 @@ def test_symbol_translation_is_checked_against_alpacas_own_echo():
     check("7d. A mismatched echo fails check 26 rather than being absorbed", _failed(report2, "26."))
 
 
-def test_daily_comparison_is_reported_in_full_including_discrepancies():
-    bars = _clean_bars("SPY")
-    agg_close = bars[-1].close
-    daily = {
+def _daily_for(bars, *, close_mult=1.0, volume_mult=1.0):
+    return {
         "open": bars[0].open, "high": max(b.high for b in bars), "low": min(b.low for b in bars),
-        "close": agg_close * 1.001,                      # deliberate 10 bp close discrepancy
-        "volume": int(sum(b.volume for b in bars) * 1.2),  # deliberate +20% volume discrepancy
+        "close": bars[-1].close * close_mult,
+        "volume": int(sum(b.volume for b in bars) * volume_mult),
         "bar_timestamp_utc": "2026-08-03T04:00:00+00:00",
         "request_query_string": "timeframe=1Day&feed=sip", "http_status": 200,
         "raw_response_content_sha256": "b" * 64,
     }
-    report = _run(bars, daily=daily)
+
+
+def test_daily_comparison_is_reported_in_full():
+    bars = _clean_bars("SPY")
+    report = _run(bars, daily=_daily_for(bars))
     comp = report.daily_bar_comparison
     check("8a. The daily comparison block is present", comp is not None)
     check("8b. All five deltas are recorded, none suppressed",
           set(comp["relative_difference"]) == {"open", "high", "low", "close", "volume"})
-    check("8c. The close discrepancy is reported, not zeroed out",
-          abs(comp["relative_difference"]["close"] + 0.000999) < 1e-4,
-          str(comp["relative_difference"]["close"]))
-    check("8d. The volume discrepancy is reported, not zeroed out",
+    check("8c. A matching daily bar yields verdict PASSED", report.verdict == "PASSED",
+          str(report.failed_checks))
+    check("8d. The daily bar's own provenance is preserved",
+          comp["daily_http_status"] == 200 and comp["daily_raw_response_sha256"] == "b" * 64)
+
+
+def test_daily_volume_difference_is_informational_not_a_gate():
+    """CORRECTION (pass 4). The pass-3 report asserted the daily-vs-aggregate
+    volume gap was 'most likely' extended-hours volume. That was an
+    unsupported guess and is retracted: Alpaca's 1Day aggregation semantics
+    are not established. Volume is therefore recorded as informational only
+    and must never gate the verdict."""
+    bars = _clean_bars("SPY")
+    report = _run(bars, daily=_daily_for(bars, volume_mult=1.2))  # +20% volume difference
+    comp = report.daily_bar_comparison
+
+    check("9a. A large volume difference is reported, not zeroed out",
           abs(comp["relative_difference"]["volume"] + 0.1666667) < 1e-4,
           str(comp["relative_difference"]["volume"]))
-    check("8e. A discrepancy is reported as DATA and does not by itself fail the run "
-          "-- the vendor's daily session definition is the vendor's, not ours",
+    check("9b. It does NOT fail the run -- volume is not an equality gate",
           report.verdict == "PASSED", str(report.failed_checks))
-    check("8f. The daily bar's own provenance is preserved", comp["daily_http_status"] == 200
-          and comp["daily_raw_response_sha256"] == "b" * 64)
+    check("9c. It is explicitly labelled informational_only",
+          comp["volume_role"] == "informational_only")
+    check("9d. Its status is unresolved_provider_aggregation_semantics",
+          comp["volume_status"] == "unresolved_provider_aggregation_semantics")
+    # Scoped to the daily-comparison block: "extended-hours" legitimately
+    # appears in check 8's name (the contamination check), which is a
+    # different subject entirely.
+    daily_blob = json.dumps(comp, default=str).lower()
+    check("9e. The retracted extended-hours explanation appears nowhere in the daily-comparison block",
+          "extended-hours" not in daily_blob and "extended hours" not in daily_blob, daily_blob[:200])
+    check("9g. No explanation of any kind is offered for the volume difference",
+          "no explanation for one is offered" in comp["volume_caveat"])
+    check("9f. The caveat states the semantics are unknown rather than offering a guess",
+          "not established" in comp["volume_caveat"] and "unknown" in comp["volume_caveat"])
+
+
+def test_daily_ohlc_remains_a_real_sanity_gate():
+    """OHLC is different from volume: both series should describe the same
+    regular session, so a material OHLC difference IS a signal."""
+    bars = _clean_bars("SPY")
+    ok = _run(bars, daily=_daily_for(bars))
+    check("10a. Matching OHLC passes the sanity check", not _failed(ok, "29."))
+
+    bad = _run(bars, daily=_daily_for(bars, close_mult=1.05))  # 5% close difference
+    check("10b. A 5% close difference FAILS the OHLC sanity check", _failed(bad, "29."))
+    check("10c. ...and therefore fails the run", bad.verdict == "FAILED")
+    check("10d. The volume check is unaffected by an OHLC discrepancy", not _failed(bad, "30."))
+    check("10e. OHLC is labelled a sanity comparison, distinct from volume's role",
+          bad.daily_bar_comparison["ohlc_role"] == "sanity_comparison")
 
 
 def test_report_leaks_neither_credentials_nor_raw_bars():
     report = _run(_clean_bars("SPY"))
     blob = json.dumps(report.to_json_dict(), default=str)
-    check("9a. The key id appears nowhere in the report", CREDS.key_id not in blob)
-    check("9b. The secret key appears nowhere in the report", CREDS.secret_key not in blob)
-    check("9c. The no-credential check itself passes", not _failed(report, "29."))
-    check("9d. The no-raw-bars check passes", not _failed(report, "30."))
-    check("9e. The report holds no per-bar rows -- 78 bars in, no bar rows out",
+    check("11a. The key id appears nowhere in the report", CREDS.key_id not in blob)
+    check("11b. The secret key appears nowhere in the report", CREDS.secret_key not in blob)
+    check("11c. The no-credential check itself passes", not _failed(report, "31."))
+    check("11d. The no-raw-bars check passes", not _failed(report, "32."))
+    check("11e. The report holds no per-bar rows -- 78 bars in, no bar rows out",
           '"t_et"' not in blob and blob.count('"volume"') <= 2, str(blob.count('"volume"')))
 
 
@@ -257,16 +304,16 @@ def test_a_provider_error_is_reported_as_a_failure_not_an_empty_pass():
             )
     finally:
         diag.fetch_bars_alpaca_sip = real
-    check("10a. A provider error yields verdict FAILED", report.verdict == "FAILED")
-    check("10b. The failure names the underlying error", "AlpacaRetryExhaustedError" in report.checks[0].detail)
-    check("10c. No fallback provider was consulted -- the report has exactly one check",
+    check("12a. A provider error yields verdict FAILED", report.verdict == "FAILED")
+    check("12b. The failure names the underlying error", "AlpacaRetryExhaustedError" in report.checks[0].detail)
+    check("12c. No fallback provider was consulted -- the report has exactly one check",
           len(report.checks) == 1, str(len(report.checks)))
 
 
 def test_empty_bar_set_fails_rather_than_passing_vacuously():
     report = _run([])
-    check("11a. A zero-bar response yields verdict FAILED", report.verdict == "FAILED")
-    check("11b. It fails the non-empty check specifically", _failed(report, "6."))
+    check("13a. A zero-bar response yields verdict FAILED", report.verdict == "FAILED")
+    check("13b. It fails the non-empty check specifically", _failed(report, "6."))
 
 
 if __name__ == "__main__":
@@ -277,7 +324,9 @@ if __name__ == "__main__":
     test_invalid_ohlc_and_negative_volume_detected()
     test_derivations_are_checked_against_an_independent_recomputation()
     test_symbol_translation_is_checked_against_alpacas_own_echo()
-    test_daily_comparison_is_reported_in_full_including_discrepancies()
+    test_daily_comparison_is_reported_in_full()
+    test_daily_volume_difference_is_informational_not_a_gate()
+    test_daily_ohlc_remains_a_real_sanity_gate()
     test_report_leaks_neither_credentials_nor_raw_bars()
     test_a_provider_error_is_reported_as_a_failure_not_an_empty_pass()
     test_empty_bar_set_fails_rather_than_passing_vacuously()
