@@ -71,16 +71,24 @@ class YFinanceDevIntradayProvider(IntradayOHLCVProvider):
         return "yfinance-development"
 
     def get_bars(self, symbol: str, session_date: date) -> list[Bar]:
-        # NOTE: this method is exercised only by live capture, never by
-        # deterministic tests (which construct Bar objects directly). See
-        # SPEC "Explicitly out of scope for v0.1" -- no live network call is
-        # made anywhere in this package's test suite.
+        # NOTE: this method is exercised only by live capture and the single
+        # bounded diagnostic in gst_market_response/diagnostics/ -- never by
+        # the deterministic test suite (which constructs Bar objects
+        # directly). See SPEC "Explicitly out of scope for v0.1".
+        #
+        # auto_adjust and prepost are passed EXPLICITLY rather than relying
+        # on yfinance's own default (which has changed across versions):
+        # auto_adjust=False because a single trading day has no split/
+        # dividend event to adjust for, and leaving it implicit would make
+        # an intraday/daily OHLC cross-check (see the diagnostic) compare
+        # two differently-adjusted series; prepost=False because this
+        # module's SPEC section 6 is regular-session-only by definition.
         from datetime import timedelta, timezone as _tz
 
         ticker = self._yf.Ticker(symbol)
         start = session_date
         end = session_date + timedelta(days=1)
-        hist = ticker.history(start=start, end=end, interval="5m")
+        hist = ticker.history(start=start, end=end, interval="5m", auto_adjust=False, prepost=False)
         bars: list[Bar] = []
         for ts, row in hist.iterrows():
             ts_utc = ts.tz_convert("UTC").to_pydatetime() if ts.tzinfo else ts.replace(tzinfo=_tz.utc)
@@ -96,3 +104,26 @@ class YFinanceDevIntradayProvider(IntradayOHLCVProvider):
                 )
             )
         return bars
+
+    def get_daily_bar(self, symbol: str, session_date: date) -> Optional[dict]:
+        """Fetches the provider's own single daily OHLCV bar for
+        session_date, using the SAME explicit auto_adjust/prepost settings
+        as get_bars() -- used only by the diagnostic to cross-check
+        aggregated intraday OHLC against this independently-computed daily
+        bar. Not used anywhere in normal derivation logic."""
+        from datetime import timedelta
+
+        ticker = self._yf.Ticker(symbol)
+        start = session_date
+        end = session_date + timedelta(days=1)
+        hist = ticker.history(start=start, end=end, interval="1d", auto_adjust=False, prepost=False)
+        if hist.empty:
+            return None
+        row = hist.iloc[0]
+        return {
+            "open": float(row["Open"]),
+            "high": float(row["High"]),
+            "low": float(row["Low"]),
+            "close": float(row["Close"]),
+            "volume": int(row["Volume"]),
+        }
