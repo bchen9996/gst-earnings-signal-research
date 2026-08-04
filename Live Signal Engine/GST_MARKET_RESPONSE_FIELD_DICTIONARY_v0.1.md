@@ -152,6 +152,78 @@ Optional fields (`open_interest_call/put`, `volume_call/put`, all `_minus_sector
 treated as equivalent to a missing required price bar — see `completeness.OPTION_BENCHMARK_OPTIONAL_FIELDS` and
 `test_failure_fixture_partial_sector_data`.
 
+## Human-verified event registry (operational-readiness addendum, 2026-08-04)
+
+`gst_market_response.event_registry.HumanVerifiedEventRegistry` -- append-only, one JSONL row per registration or
+amendment. Schema (`registry_version = "0.1"`):
+
+| Field | Meaning |
+|---|---|
+| `event_id` | Same format as everywhere else in this module. |
+| `ticker`, `fiscal_period` | |
+| `earnings_date`, `earnings_datetime_utc` | Human-verified, not scraped or inferred. |
+| `release_market_session` | `BMO`/`AMC`/`INTRADAY` -- must be independently confirmed; `identity.determine_release_market_session()` (reused unchanged) raises otherwise. |
+| `source_url`, `source_title`, `source_type` | Primary-source citation (company IR release, exchange notice, SEC filing, etc.) -- what a human actually verified. |
+| `source_retrieved_at_utc`, `verified_at_utc`, `verified_by` | |
+| `verification_status` | `verified` \| `pending` \| `rejected`. **Only `verified` rows can reach `to_event_identity()` / `REGISTERED`.** |
+| `expected_response_session` | **Never a manual input** -- always computed by `compute_expected_next_full_trading_session()` at write time. |
+| `exchange_calendar` | `NYSE_NASDAQ_MON_FRI_PARTIAL_HOLIDAYS_V0.1` -- Mon-Fri plus a small, explicitly versioned, non-exhaustive list of documented US market holidays. **This is disclosed as a partial list, not an authoritative multi-decade NYSE calendar** -- extending it requires a new calendar-ID version, never a silent edit. |
+| `registry_version`, `notes` | |
+| `row_id`, `row_type` (`REGISTRATION`/`AMENDMENT`), `amends_row_id` | Append-only bookkeeping -- a correction is always a new `AMENDMENT` row; `HumanVerifiedEventRegistry` never rewrites an existing row's bytes (same `atomic_io.append_bytes_never_truncate` discipline as `event_record.py`). |
+
+## Phase 2 pre-event adapter (operational-readiness addendum, 2026-08-04)
+
+`gst_market_response.phase2_adapter.import_pre_event_fields_for_ticker(csv_path, marker_path, ticker,
+research_commit_sha, methodology_version)` -- both paths must be given explicitly; there is no discovery of "the
+latest panel run." Field mapping from the Phase 2 panel's own columns:
+
+| Phase 2 panel column | Adapter field | Notes |
+|---|---|---|
+| `gst_zscore` | `gst_zscore` | |
+| `wiki_zscore` | `wiki_zscore` | |
+| `realized_vol` | `realized_volatility` | |
+| `price` | `price` AND `previous_close` | The panel's `price` is already "last close as of retrieval" -- imported into both fields; `previous_close` is what `completeness.is_valid_pre_event_observation()` actually checks. |
+| `volume` | `volume` | |
+| `days_to_nearest_earnings` | `days_to_earnings` | |
+| `retrieval_timestamp_utc` | `pre_event_snapshot_asof_utc`, and mirrored into `retrieved_at_utc_gst`/`_wiki`/`_price` | The panel records one retrieval timestamp per ticker row, not per leg -- this adapter mirrors that single timestamp into all three per-leg fields rather than fabricating distinct ones (disclosed here, not silently done). |
+| `gst_status`/`wiki_status`/`price_history_status` | `source_status_gst`/`_wiki`/`_price` | Normalized via `_normalize_leg_status()`: panel's `"ok"` → `ok`; empty/missing → `missing`; anything else (a free-text error string) → `error`. The panel has no native "partial" per-leg status. |
+| `implied_volatility` | **never imported anywhere** | See SPEC section 5 -- this field is deliberately excluded; `option_chain_adapter.py` is the only legitimate source for any implied-move-shaped field. |
+
+Every call also verifies (`_cross_verify_marker_against_csv`) that the marker's own `row_count`,
+`unique_ticker_count`, and `all_six_fields_clean_count` match what's actually in the CSV, and hashes both files
+(`source_csv_sha256`, `source_marker_sha256`) -- the marker is never trusted blindly. `panel_status` (`COMPLETE` /
+`PARTIAL`) is preserved exactly as the marker states it. `eligible_for_pre_event_captured` is computed via the same
+`completeness.is_valid_pre_event_observation()` gate used everywhere else -- a ticker whose panel data fails that
+gate is explicitly flagged ineligible, never silently passed through.
+
+## Sector-ETF mapping review gate (operational-readiness addendum, 2026-08-04)
+
+`gst_market_response.sector_mapping.validate_sector_mapping()` mechanically checks: exactly the locked 24 tickers
+(no fewer, no extra), one `sector` name and one `sector_etf` per ticker, `sector_etf` drawn from the 11 SPDR Select
+Sector ETF symbols, `mapping_version` present, and `review_status` one of `DRAFT`/`APPROVED`/`REJECTED` (with
+`reviewed_by`/`reviewed_at_utc` required when `APPROVED`). `assert_usable_for_real_event(mapping, is_demo=...)`
+raises `SectorMappingNotApprovedError` for any non-demo use while `review_status != "APPROVED"` -- a DRAFT mapping
+may power deterministic fixtures but cannot produce a `COMPLETE` real event. **The mapping is explicitly documented,
+in the JSON file's own `description` field, as a benchmark-design choice for computing a relative-return control --
+not an assertion that any given sector ETF is the "correct" peer group in an alpha-generating sense.** As of this
+pass, `GST_Sector_ETF_Mapping_v0.1.json` remains `review_status: "DRAFT"` -- it has not been human-reviewed.
+
+## Development-provider diagnostic result (operational-readiness addendum, 2026-08-04)
+
+See `GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md` for the full bounded live diagnostic of
+`YFinanceDevIntradayProvider` (ticker SPY, session 2026-08-03) and its result: **FAILED** (zero bars returned).
+**YFinance remains a development provider** -- this result is additional, direct evidence for that label, not a
+one-off fluke to be waved away. No workaround was applied in this pass.
+
+## Standing disclaimers (restated -- true both before and after this pass)
+
+- **The event registry requires human-verified primary-source timing.** No event can reach `REGISTERED` on
+  scraped or inferred timing.
+- **No trading strategy is selected** anywhere in this module, this pass, or its documentation.
+- **No profitability claim exists** for any field, benchmark, or provider in this module.
+- **The first real event has not yet been registered.** `HumanVerifiedEventRegistry` contains zero rows outside of
+  test fixtures as of this pass.
+
 ## Provider labeling
 
 `providers.YFinanceDevIntradayProvider.provider_label == "yfinance-development"` — recorded on every raw-bar

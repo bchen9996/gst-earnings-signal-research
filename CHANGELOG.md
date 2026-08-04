@@ -1,5 +1,58 @@
 # Changelog
 
+## 2026-08-04 — Market Response: operational-readiness pass (PR #3, no real event registered)
+
+**What this is.** An operational-readiness pass on top of the Earnings Market-Response Decomposition lane
+(PR #3, `phase2-market-response`, stacked on PR #1) -- not a new research module, and no strategy test, backtest,
+24-ticker panel run, Radar integration, or real-money trade was performed.
+
+**What changed** (all additive, scoped to `gst_market_response/` and its docs):
+
+- `gst_market_response/event_registry.py` (new) -- `HumanVerifiedEventRegistry` + `RegistryBackedEventTimingProvider`,
+  a `providers.EventTimingProvider` implementation backed entirely by human-verified primary-source rows (never
+  scraped/inferred). A date without `verification_status == "verified"` cannot reach `REGISTERED`
+  (`to_event_identity()` raises). `expected_response_session` is always mechanically derived, never a manual input.
+  Corrections are append-only `AMENDMENT` rows; originals are never overwritten. Synthetic fixtures only -- no real
+  event was populated.
+- `gst_market_response/phase2_adapter.py` (new) -- explicit-path-only Phase 2 pre-event importer. Never discovers
+  "the latest file," hashes both the CSV and completion marker, cross-verifies the marker's claimed counts against
+  the CSV's actual content (rejects on mismatch), preserves `COMPLETE`/`PARTIAL` and all nulls/source statuses
+  exactly, and structurally excludes the panel's generic `implied_volatility` from ever being imported as
+  `earnings_implied_move`.
+- `gst_market_response/sector_mapping.py` (modified, additive) -- `validate_sector_mapping()` and
+  `assert_usable_for_real_event()`. `Live Signal Engine/GST_Sector_ETF_Mapping_v0.1.json` (modified) now carries
+  `mapping_version`, `review_status` (currently `DRAFT`), `reviewed_by`, `reviewed_at_utc`, and per-ticker `sector`
+  names alongside `sector_etf`; the file's own `description` field now states explicitly this is a benchmark-design
+  choice, not an alpha assertion. The mapping is **not** silently declared final by this change.
+- `gst_market_response/providers.py` (modified) -- `YFinanceDevIntradayProvider.get_bars()`/`get_daily_bar()` now
+  pass `auto_adjust=False, prepost=False` to `yfinance` explicitly rather than relying on its library default;
+  added `get_daily_bar()` for cross-checking aggregated intraday OHLC.
+- `gst_market_response/diagnostics/intraday_provider_diagnostic.py` (new) -- the bounded live-diagnostic harness
+  (code only; produces no committed data).
+
+**Bounded live diagnostic result: FAILED.** One live diagnostic of `YFinanceDevIntradayProvider` was run against
+SPY (not a locked-universe ticker, no earnings date -- structurally non-research) for the 2026-08-03 session.
+The provider returned zero bars. A direct `curl` request to the identical Yahoo Finance endpoint succeeded with
+real data immediately afterward, pointing to an environment-specific defect in `yfinance`'s own cookie/crumb
+negotiation pipeline rather than a genuine data gap -- but per instruction, no workaround was applied and no
+substitute provider was used. Classified FAILED and stopped. Full detail:
+`GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md`.
+
+**Tests**: 4 new deterministic test files -- `test_market_response_amendment_semantics.py` (21 checks: PARTIAL
+immutability/terminality, amendment linkage, byte-identical originals, independent per-tier gate satisfaction,
+full chronology reconstruction), `test_market_response_event_registry.py` (16 checks), `test_market_response_phase2_adapter.py`
+(27 checks), `test_market_response_sector_mapping_gate.py` (13 checks) -- 77 new checks total, all passing. Full
+17-file deterministic suite (11 pre-existing Phase 2/Wikipedia files + 6 market-response files, 2 pre-existing plus
+these 4 new) re-run: all passing, zero regressions, zero live network calls beyond the single bounded diagnostic
+above. Operational Wikipedia cache independently re-verified byte-identical (`29d072f2...`) before and after.
+
+Documentation updated: spec (new "Operational-readiness addendum" section, nothing in sections 1-10 changed),
+field dictionary (new sections for the registry/adapter/mapping-gate/diagnostic result + restated standing
+disclaimers), two new docs (`GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md`,
+`GST_MARKET_RESPONSE_OPERATIONAL_READINESS_CHECKLIST_v0.1.md`).
+
+**No real event has been registered. No trading strategy is selected. No profitability claim exists.**
+
 ## 2026-08-04 — New lane: Earnings Market-Response Decomposition (measurement module, v0.1 draft)
 
 **Branch:** `phase2-market-response`, a new sibling worktree at `gst-market-response-worktree`, based on

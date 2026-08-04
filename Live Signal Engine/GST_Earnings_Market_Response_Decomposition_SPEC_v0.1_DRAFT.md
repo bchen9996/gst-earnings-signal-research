@@ -272,6 +272,45 @@ A missing **optional** field (`open_interest_call`, `volume_call`, `open_interes
 
 ---
 
+## Operational-readiness addendum (2026-08-04)
+
+This addendum documents the operational-readiness pass that implemented the pieces needed to eventually register a
+real event, WITHOUT registering one and without changing any locked definition above. Nothing in sections 1-10
+above was modified by this pass.
+
+- **`gst_market_response/event_registry.py`** implements `HumanVerifiedEventRegistryProvider` (via
+  `RegistryBackedEventTimingProvider`, adapting `HumanVerifiedEventRegistry` to the `EventTimingProvider` interface
+  from section "Reused components"). It does NOT scrape or infer timing -- every row requires a human-supplied
+  primary source (`source_url`/`source_title`/`source_type`/`verified_by`). `to_event_identity()` raises unless
+  `verification_status == "verified"`, which is the mechanical enforcement of "a date without verified release
+  timing cannot reach REGISTERED." `expected_response_session` is never accepted as an input parameter -- it is
+  always computed from `compute_expected_next_full_trading_session()` (unchanged, section 3.3/9). Corrections are
+  `AMENDMENT` rows (`amend_event()`), never in-place edits -- same append-only discipline as section 9's event
+  state machine.
+- **`gst_market_response/phase2_adapter.py`** implements the narrow, explicit-path-only Phase 2 pre-event import
+  described in this addendum's TASK 2. It never discovers "the latest file," hashes both inputs, cross-verifies the
+  completion marker's claimed counts against the CSV's actual content (rejecting on any mismatch), and never reads
+  the panel's `implied_volatility` column into anything resembling `earnings_implied_move` (see section 5's own
+  "Never substitute midpoint for executable cost" rule -- this is the same discipline applied to a different
+  import path).
+- **`gst_market_response/sector_mapping.py`** gained `validate_sector_mapping()` and
+  `assert_usable_for_real_event()`. `GST_Sector_ETF_Mapping_v0.1.json` now carries `review_status` (currently
+  `DRAFT`), `reviewed_by`, `reviewed_at_utc`, and per-ticker `sector` names alongside `sector_etf`. A DRAFT mapping
+  remains usable in deterministic fixtures but `assert_usable_for_real_event(is_demo=False)` raises for it -- a
+  real event cannot reach `COMPLETE` on an unapproved mapping.
+- **One bounded live diagnostic** of `YFinanceDevIntradayProvider` was performed against SPY (not a member of the
+  locked 24-ticker universe, no earnings date -- structurally not a research event) for the 2026-08-03 regular
+  session. **Result: FAILED** -- the provider returned zero bars. See
+  `GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md` for the full result and root-cause investigation. No
+  workaround was applied and no substitute provider was used, per instruction.
+- **`gst_market_response/event_record.py`**'s amendment semantics (section 9) were further tested (not changed) to
+  prove a `PARTIAL` record's later recovery is recorded as a distinct, linked `AMENDMENT` -- never a mutation of
+  the original -- and that an amendment "counts" toward a completeness tier only if it is independently checked
+  against that tier's gate, never merely by virtue of being an amendment.
+
+**No real event has been registered.** `HumanVerifiedEventRegistry` in every test and in this pass's actual usage
+starts empty; nothing populates a real upcoming ticker/date.
+
 ## Explicitly out of scope for v0.1
 
 - Real-time news sentiment
