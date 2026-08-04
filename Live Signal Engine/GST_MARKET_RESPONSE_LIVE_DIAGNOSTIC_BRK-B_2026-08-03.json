@@ -1,0 +1,170 @@
+{
+  "ticker": "BRK-B",
+  "provider_symbol": "BRK.B",
+  "session_date": "2026-08-03",
+  "reason_for_selection": "Non-research diagnostic only: validates the canonical BRK-B -> provider BRK.B symbol translation against the real SIP tape. NOT registered as a research event.",
+  "started_at_utc": "2026-08-04T07:46:54.060880+00:00",
+  "finished_at_utc": "2026-08-04T07:46:54.232473+00:00",
+  "http_status": 200,
+  "feed_requested": "sip",
+  "timeframe_requested": "5Min",
+  "adjustment_requested": "raw",
+  "request_query_string": "adjustment=raw&end=2026-08-03T20%3A00%3A00Z&feed=sip&limit=10000&sort=asc&start=2026-08-03T13%3A30%3A00Z&timeframe=5Min",
+  "response_symbol_echo": "BRK.B",
+  "retry_count": 0,
+  "page_count": 1,
+  "raw_response_sha256": "9b0bb3aa1edf784f475209b93a5997a6afe2763da1eaa2b94af10b8ef18d6a0f",
+  "bar_count": 79,
+  "expected_bar_count": 78,
+  "first_bar_et": "2026-08-03T09:30:00-04:00",
+  "last_bar_et": "2026-08-03T16:00:00-04:00",
+  "daily_bar_comparison": null,
+  "checks": [
+    {
+      "name": "0. Live fetch completed without a provider error",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "1. HTTP 200",
+      "passed": true,
+      "detail": "http_status=200"
+    },
+    {
+      "name": "2. feed=sip requested on the wire (Alpaca's single-symbol bars response does not echo feed; the query string is the first-hand evidence)",
+      "passed": true,
+      "detail": "query=adjustment=raw&end=2026-08-03T20%3A00%3A00Z&feed=sip&limit=10000&sort=asc&start=2026-08-03T13%3A30%3A00Z&timeframe=5Min"
+    },
+    {
+      "name": "3. timeframe=5Min requested on the wire",
+      "passed": true,
+      "detail": "timeframe=5Min"
+    },
+    {
+      "name": "4. adjustment=raw requested on the wire",
+      "passed": true,
+      "detail": "adjustment=raw"
+    },
+    {
+      "name": "5. IEX was never requested -- no feed other than sip appears in the query string",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "6. Non-empty bar set returned",
+      "passed": true,
+      "detail": "79 bars"
+    },
+    {
+      "name": "7. Requested window is exactly the calendar's XNYS regular session",
+      "passed": true,
+      "detail": "requested=[2026-08-03T13:30:00+00:00, 2026-08-03T20:00:00+00:00] calendar=[2026-08-03T13:30:00+00:00, 2026-08-03T20:00:00+00:00]"
+    },
+    {
+      "name": "8. No extended-hours contamination -- every returned bar start lies on the regular-session grid",
+      "passed": false,
+      "detail": "1 off-grid/out-of-session bars: ['2026-08-03T20:00:00+00:00']"
+    },
+    {
+      "name": "9. No regular-session bar is missing -- returned set exactly equals the calendar grid",
+      "passed": true,
+      "detail": "0 missing: []"
+    },
+    {
+      "name": "10. Expected bar count matches the calendar (78)",
+      "passed": false,
+      "detail": "actual=79"
+    },
+    {
+      "name": "11. First bar starts at 09:30 ET",
+      "passed": true,
+      "detail": "first_bar_et=2026-08-03T09:30:00-04:00, is_early_close=False"
+    },
+    {
+      "name": "12. Last bar starts at 15:55 ET (3:55 pm), i.e. the final 5-minute bar of the regular session",
+      "passed": false,
+      "detail": "last_bar_et=2026-08-03T16:00:00-04:00"
+    },
+    {
+      "name": "13. Unique, strictly monotonically increasing timestamps",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "14. Every consecutive gap is exactly 5 minutes -- no silently-collapsed interval",
+      "passed": true,
+      "detail": "observed gaps (minutes)=[5]"
+    },
+    {
+      "name": "15. Valid OHLC relationships (low <= open/close <= high) on every bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "16. Nonnegative volume on every bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "17. No bar carries the zero-fill signature (zero volume AND a flat O=H=L=C)",
+      "passed": true,
+      "detail": "0 suspect bars: []"
+    },
+    {
+      "name": "18. No zero-volume bar at all in this session (recorded separately -- a real quiet interval is legal, a fabricated one is not)",
+      "passed": true,
+      "detail": "0 zero-volume bars"
+    },
+    {
+      "name": "19. Bar count and grid coverage agree -- an incomplete response would surface as a FAILED check above, never as a filled gap",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "name": "20. Exactly 6 bars constitute the first 30 minutes (09:30-09:55 starts)",
+      "passed": true,
+      "detail": "actual=6"
+    },
+    {
+      "name": "21. Market-response derivations match an independent recomputation off the raw bars",
+      "passed": true,
+      "detail": "{\"open_to_close\": -0.00351504, \"open_to_30m\": 0.00506865, \"thirty_min_to_close\": -0.0085404, \"full_session_range\": 0.01910939, \"first_30m_volume_share\": 0.14439817}"
+    },
+    {
+      "name": "22. Session boundary fields all resolved (none fell back to None)",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "23. Pagination handled and recorded -- page_count >= 1 and within the bound",
+      "passed": true,
+      "detail": "page_count=1, retry_count=0"
+    },
+    {
+      "name": "24. Provenance is complete -- no field left unset",
+      "passed": true,
+      "detail": "{}"
+    },
+    {
+      "name": "25. Both the canonical ticker and the provider symbol are preserved in provenance",
+      "passed": true,
+      "detail": "canonical=BRK-B, provider=BRK.B"
+    },
+    {
+      "name": "26. Alpaca's own response echoes the translated provider symbol -- server-side confirmation the symbol resolved",
+      "passed": true,
+      "detail": "echo='BRK.B', expected='BRK.B'"
+    },
+    {
+      "name": "29. Neither credential appears anywhere in this report",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "30. This report contains no raw bar rows anywhere in its structure -- only aggregates, statuses, and hashes",
+      "passed": true,
+      "detail": "serialized_report_bytes=4863"
+    }
+  ],
+  "verdict": "FAILED"
+}

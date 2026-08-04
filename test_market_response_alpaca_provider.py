@@ -89,14 +89,25 @@ def test_credentials_absent():
     check("1a. load_alpaca_credentials() returns None when both vars are absent", creds is None)
     creds2 = ap.load_alpaca_credentials(env={"APCA_API_KEY_ID": "x"})
     check("1b. Returns None when only one of the two vars is present", creds2 is None)
+
+    # The constructor falls back to load_alpaca_credentials() from the real
+    # process environment. This test must therefore CREATE the absent-
+    # credential condition rather than assume it: as of the live-validation
+    # pass these variables are genuinely present in the operator's
+    # environment, and an assume-empty test would silently invert.
+    saved = {k: os.environ.pop(k, None) for k in ("APCA_API_KEY_ID", "APCA_API_SECRET_KEY")}
     try:
         ap.AlpacaHistoricalSipIntradayProvider(credentials=None)
-        # constructor falls back to load_alpaca_credentials() from the real
-        # env, which we've already confirmed is empty in this environment
         ok = False
     except ap.AlpacaCredentialsMissingError:
         ok = True
+    finally:
+        for k, v in saved.items():
+            if v is not None:
+                os.environ[k] = v
     check("1c. Provider construction raises AlpacaCredentialsMissingError rather than silently doing nothing", ok)
+    check("1d. The test restored the ambient credential environment it temporarily cleared",
+          all(os.environ.get(k) == v for k, v in saved.items() if v is not None))
 
 
 def test_401_403_never_retried():
@@ -316,6 +327,142 @@ def test_secrets_never_appear_in_provenance_or_repr():
     check("18g. The request URL itself never embeds the secret", secret_marker not in session.calls[0]["url"])
 
 
+def test_sanitized_request_evidence_recorded():
+    """The provenance must carry first-hand evidence of what was actually put
+    on the wire. Alpaca's single-symbol bars response does not echo `feed`, so
+    the query string is the only place a reviewer can confirm feed=sip /
+    timeframe=5Min / adjustment=raw were genuinely requested."""
+    session = FakeSession([FakeResponse(200, json_data={"bars": [_bar_json("2026-08-03T13:30:00Z")], "symbol": "AAPL", "next_page_token": None})])
+    result = _fetch(session)
+    q = result.provenance.request_query_string
+    check("19a. request_query_string is recorded", bool(q), repr(q))
+    check("19b. It shows feed=sip on the wire", "feed=sip" in q, q)
+    check("19c. It shows timeframe=5Min on the wire", "timeframe=5Min" in q, q)
+    check("19d. It shows adjustment=raw on the wire", "adjustment=raw" in q, q)
+    check("19e. It carries no credential material", FAKE_CREDS.key_id not in q and FAKE_CREDS.secret_key not in q)
+    check("19f. Alpaca's echoed symbol is captured from the response body", result.provenance.response_symbol_echo == "AAPL")
+
+    brk = FakeSession([FakeResponse(200, json_data={"bars": [], "symbol": "BRK.B", "next_page_token": None})])
+    r2 = _fetch(brk, canonical_ticker="BRK-B")
+    check("19g. For BRK-B the echoed symbol is the TRANSLATED provider symbol -- server-side confirmation the translation resolved",
+          r2.provenance.response_symbol_echo == "BRK.B" and r2.provenance.canonical_ticker == "BRK-B")
+
+
+def test_daily_cross_check_uses_a_calendar_day_window():
+    """A 1Day bar is timestamped at midnight ET, so requesting it with the
+    09:30-16:00 regular-session window returns nothing and the absent bar is
+    indistinguishable from a genuine vendor gap. Regression guard for that."""
+    daily_bar = _bar_json("2026-08-03T04:00:00Z", o=749.44, h=758.58, l=748.80, c=757.67, v=60014445)
+    session = FakeSession([FakeResponse(200, json_data={"bars": [daily_bar], "symbol": "SPY", "next_page_token": None})])
+    out = ap.fetch_daily_bar_alpaca_sip(
+        canonical_ticker="SPY", session_date=SESSION_DATE, credentials=FAKE_CREDS,
+        session=session, sleep_fn=lambda s: None, now_fn=lambda: FAR_FUTURE_NOW,
+    )
+    params = session.calls[0]["params"]
+    check("20a. The 1Day request uses timeframe=1Day", params.get("timeframe") == "1Day")
+    check("20b. Its window starts at 00:00Z of the session date, NOT the 13:30Z session open",
+          params.get("start") == "2026-08-03T00:00:00Z", str(params.get("start")))
+    check("20c. Its window ends at 23:59:59Z of the session date, NOT the 20:00Z session close",
+          params.get("end") == "2026-08-03T23:59:59Z", str(params.get("end")))
+    check("20d. The midnight-ET-stamped daily bar is therefore inside the window and returned",
+          out is not None and out["close"] == 757.67)
+    check("20e. The daily result carries its own sanitized provenance", out is not None and out["http_status"] == 200 and len(out["raw_response_content_sha256"]) == 64)
+    check("20f. The daily request still requests feed=sip", params.get("feed") == "sip")
+
+    multi = FakeSession([FakeResponse(200, json_data={"bars": [daily_bar, _bar_json("2026-08-04T04:00:00Z")], "symbol": "SPY", "next_page_token": None})])
+    try:
+        ap.fetch_daily_bar_alpaca_sip(
+            canonical_ticker="SPY", session_date=SESSION_DATE, credentials=FAKE_CREDS,
+            session=multi, sleep_fn=lambda s: None, now_fn=lambda: FAR_FUTURE_NOW,
+        )
+        ok = False
+    except ap.AlpacaProviderError:
+        ok = True
+    check("20g. More than one daily bar raises rather than silently cross-checking against bars[0]", ok)
+
+    empty = FakeSession([FakeResponse(200, json_data={"bars": [], "symbol": "SPY", "next_page_token": None})])
+    out_empty = ap.fetch_daily_bar_alpaca_sip(
+        canonical_ticker="SPY", session_date=SESSION_DATE, credentials=FAKE_CREDS,
+        session=empty, sleep_fn=lambda s: None, now_fn=lambda: FAR_FUTURE_NOW,
+    )
+    check("20h. A genuinely absent daily bar returns None -- never a fabricated one", out_empty is None)
+
+
+def test_window_overrides_cannot_smuggle_a_nonsession_date():
+    """The overrides exist only for the 1Day cross-check. They must not be
+    usable to bypass the exchange calendar."""
+    from gst_market_response.exchange_calendar import ExchangeCalendarError
+
+    saturday = date(2026, 8, 1)
+    session = FakeSession([FakeResponse(200, json_data={"bars": [], "next_page_token": None})])
+    try:
+        ap.fetch_bars_alpaca_sip(
+            canonical_ticker="AAPL", session_date=saturday, credentials=FAKE_CREDS,
+            session=session, sleep_fn=lambda s: None, now_fn=lambda: FAR_FUTURE_NOW,
+            start_utc_override=datetime(2026, 8, 1, 0, 0, tzinfo=UTC),
+            end_utc_override=datetime(2026, 8, 1, 23, 59, 59, tzinfo=UTC),
+        )
+        ok = False
+    except ExchangeCalendarError:
+        ok = True
+    check("21a. A non-session date still raises even when both window overrides are supplied", ok)
+    check("21b. No HTTP call was made for the non-session date", len(session.calls) == 0)
+
+    default_session = FakeSession([FakeResponse(200, json_data={"bars": [], "next_page_token": None})])
+    _fetch(default_session)
+    check("21c. With no overrides the 5Min path still uses the exact regular-session window",
+          default_session.calls[0]["params"]["start"] == "2026-08-03T13:30:00Z"
+          and default_session.calls[0]["params"]["end"] == "2026-08-03T20:00:00Z")
+
+
+def test_known_defect_end_boundary_is_inclusive():
+    """CHARACTERIZATION TEST -- pins a KNOWN, OPEN DEFECT found by the
+    2026-08-04 live diagnostic.
+
+    The 5Min path requests end == the calendar's session close (20:00Z /
+    16:00 ET). Alpaca's `end` is INCLUSIVE of a bar whose START equals `end`,
+    so the real SIP response contained 79 bars: the 78 regular-session bars
+    plus the 16:00-16:05 ET after-hours bar. That trailing bar then became
+    `session_close` in extract_session_fields(), shifting SPY's measured
+    open-to-close by 6.7 bp.
+
+    This test asserts the CURRENT behaviour so the defect cannot drift
+    unnoticed. When the fix lands (request end = last_bar_start, or an
+    exclusive end), this test MUST be updated to assert the corrected
+    boundary -- that update is the intended signal, not a nuisance.
+    """
+    boundaries = expected_bar_boundaries(SESSION_DATE)
+    session = FakeSession([FakeResponse(200, json_data={"bars": [], "next_page_token": None})])
+    _fetch(session)
+    requested_end = session.calls[0]["params"]["end"]
+    check("22a. KNOWN DEFECT: the 5Min request's end is the session CLOSE (20:00Z), which Alpaca treats inclusively",
+          requested_end == "2026-08-03T20:00:00Z", requested_end)
+    check("22b. The calendar's own last legitimate bar START is 15:55 ET (19:55Z) -- 5 minutes before that end",
+          boundaries.last_bar_start_utc == "2026-08-03T19:55:00+00:00", boundaries.last_bar_start_utc)
+    check("22c. So a bar starting exactly at the requested end is admitted, and it is an after-hours bar",
+          boundaries.close_utc == "2026-08-03T20:00:00+00:00")
+
+    # And confirm the downstream consequence deterministically: a 79th bar at
+    # 16:00 ET silently becomes the session close.
+    from gst_market_response.bars import extract_session_fields
+
+    bars_78 = [
+        Bar(symbol="SPY", timestamp_utc=datetime(2026, 8, 3, 13, 30, tzinfo=UTC) + timedelta(minutes=5 * i),
+            open=100.0, high=101.0, low=99.0, close=100.0 + i * 0.01, volume=1000)
+        for i in range(78)
+    ]
+    after_hours = Bar(symbol="SPY", timestamp_utc=datetime(2026, 8, 3, 20, 0, tzinfo=UTC),
+                      open=100.77, high=102.0, low=99.0, close=999.0, volume=1)
+    clean = extract_session_fields(bars_78)
+    contaminated = extract_session_fields(bars_78 + [after_hours])
+    check("22d. With the correct 78 bars, session_close is the 15:55 ET bar's close",
+          clean.session_close == bars_78[-1].close, str(clean.session_close))
+    check("22e. DEFECT CONSEQUENCE: one extra 16:00 ET bar silently becomes session_close",
+          contaminated.session_close == 999.0, str(contaminated.session_close))
+    check("22f. ...and the contaminated full-session volume differs from the clean one",
+          contaminated.full_session_volume != clean.full_session_volume)
+
+
 if __name__ == "__main__":
     test_credentials_absent()
     test_401_403_never_retried()
@@ -335,6 +482,10 @@ if __name__ == "__main__":
     test_yfinance_provider_ineligible_alpaca_eligible()
     test_raw_data_never_written_to_disk_by_this_module()
     test_secrets_never_appear_in_provenance_or_repr()
+    test_sanitized_request_evidence_recorded()
+    test_daily_cross_check_uses_a_calendar_day_window()
+    test_window_overrides_cannot_smuggle_a_nonsession_date()
+    test_known_defect_end_boundary_is_inclusive()
 
     print()
     if FAILURES:

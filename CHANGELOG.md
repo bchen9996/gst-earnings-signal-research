@@ -1,5 +1,145 @@
 # Changelog
 
+## 2026-08-04 — Market Response: live-validation pass (PR #3, third pass, no real event registered)
+
+**What this is.** One narrow live-validation pass on the Earnings Market-Response Decomposition lane (PR #3,
+stacked on PR #1): correct how the sector mapping states its own basis, and run the single permitted bounded live
+Alpaca diagnostic. **No earnings event was registered, no Radar integration was started, no strategy or backtest
+was run, no other worktree was modified, nothing was merged.**
+
+**Preflight**: branch `phase2-market-response` confirmed, local HEAD == `origin/phase2-market-response` ==
+`ca7fca61f91b08b76241f4a7d6c2c8dd1b8a45fc` as expected, tracked working tree clean, no market-response/Phase 2
+process running (the seven live Python processes belong to an unrelated `charis11_offset_analysis.py` run),
+operational Wikipedia cache hash `29d072f2...` unchanged. `APCA_API_KEY_ID`/`APCA_API_SECRET_KEY` both confirmed
+**present** (presence only — values never printed, logged, serialized or committed). PR #3 confirmed to exist and
+be unmerged via `refs/pull/3/head == ca7fca6` (distinct from `main` @ `46aec158`); **its draft flag could not be
+read** — `gh` is not installed, the repository is private so the unauthenticated API returns 404, and a
+credential-based API probe was blocked by the environment's permission policy. Nothing in this pass alters PR
+state; pushing commits to a draft PR's branch leaves it draft.
+
+### Bounded live Alpaca diagnostic: **RAN — FAILED** (both tickers)
+
+Two diagnostics, **exactly once each**, against the completed 2026-08-03 XNYS session. Neither registered a
+research event. No fallback to IEX, yfinance, Yahoo, another provider, or synthetic data was made or considered,
+and neither diagnostic was restarted.
+
+- **Diagnostic A — SPY** (not in the locked universe, no earnings date): HTTP 200; `feed=sip`, `timeframe=5Min`,
+  `adjustment=raw` all confirmed **on the wire**; 1 page; 0 retries; raw-response SHA-256 `e253a7b6...`.
+  **27/31 checks passed. Verdict FAILED.**
+- **Diagnostic B — canonical `BRK-B` / provider `BRK.B`**, same session, symbol-translation validation only:
+  HTTP 200; **Alpaca echoed `"symbol": "BRK.B"`**; raw-response SHA-256 `9b0bb3aa...`. **25/29 checks passed.
+  Verdict FAILED**, on the identical four checks and no others.
+
+**Defect ALP-1 (open).** Both returned **79 bars where the XNYS calendar requires 78**, with a trailing bar
+starting 16:00 ET. Root cause: `fetch_bars_alpaca_sip` requests `end = session_close_utc` (20:00:00Z), and
+Alpaca's `end` is **inclusive** of a bar whose start equals `end` — so every request admits one after-hours
+(16:00–16:05 ET) bar. This is not cosmetic: `extract_session_fields()` takes `session_close` from `bars[-1].close`,
+so the after-hours bar silently *became* the session close, shifting SPY's `open_to_close` from `0.01098153` to
+`0.01104825` (**+6.7 bp**) and full-session volume from 50,712,611 to 52,265,414 (**+3.1%**).
+
+**The daily cross-check independently corroborates it.** Aggregating only the 78 regular-session bars reproduces
+Alpaca's own 1Day SIP bar's OHLC **exactly, to the cent** (open/high/low/close all `0.0` relative difference:
+749.44 / 758.58 / 748.80 / 757.67). Under the contaminated 79-bar aggregate the close diverges by 6.6 bp.
+**Separate finding, reported not explained away**: aggregate volume differs from the 1Day bar by **-15.50%**
+(50,712,611 vs 60,014,445). Leading explanation — Alpaca's 1Day equity bar includes extended-hours volume, so a
+regular-session aggregate by construction will not match. Not confirmed against Alpaca documentation in this pass.
+Practical consequence: an Alpaca 1Day volume must never be compared against or substituted for a regular-session
+volume aggregate.
+
+**Everything else passed**, on both tickers: exact XNYS window requested; **zero missing** regular-session bars;
+first bar exactly 09:30 ET; unique, strictly monotonically increasing timestamps; every consecutive gap exactly
+5 minutes; valid OHLC and nonnegative volume on every bar; no zero-fill signature and no zero-volume bar at all;
+exactly 6 bars in the first 30 minutes; all five market-response derivations matching an independent recomputation
+off the raw bars to within 1e-12; pagination handled and bounded; provenance complete; both canonical and provider
+symbols preserved; IEX never requested.
+
+**Status per the governing rule: `LIVE_DIAGNOSTIC_FAILED`. The Alpaca provider is INELIGIBLE for real event
+capture.** It is not production-validated and not partially validated. `BRK-B` events are ineligible too, but by
+inheritance from ALP-1 (which affects all 24 tickers equally) — **not** for a symbol-translation reason, since
+`BRK-B -> BRK.B` is now live-verified and no longer an assumption. Note `is_eligible_for_real_event` still returns
+`True` in code; that flag describes the provider's *class*, not its validation state, and is documented as not
+constituting clearance.
+
+**The fix is prescribed but deliberately NOT applied** (request `end = last_bar_start_utc`). The pass's one-run
+rule meant a fix could not be live-validated here, and committing an unvalidated change would have left the
+committed failure evidence describing code that no longer exists. It is pinned instead by characterization tests
+that assert the current boundary **and its downstream consequence**, so it cannot land silently.
+
+### Sector-mapping correction (v0.2 → v0.3, `schema_version` 0.1 → 0.2)
+
+The mapping assigns each stock the broad sector ETF for its **GICS sector**; the company need not be a constituent.
+v0.2 nonetheless summarised itself as a count of tickers verified to be *holdings* of their assigned ETF, flagging
+GME as an unresolved ambiguity for failing that check — wrong in kind, not merely in wording. **The benchmark
+methodology itself is unchanged.**
+
+- Per-ticker fields separated into `gics_sector`, `benchmark_etf`, `benchmark_basis`, `constituent_status`,
+  `constituent_status_source`, `classification_source`, `retrieval_date`. `benchmark_basis` is constrained to
+  `"gics_sector"`; `"etf_membership"` is not an accepted value.
+- The membership-count framing is **gone entirely**, and a test blocks any restatement of it.
+- **GPN stays XLF.** **GME stays XLY**: its GICS Consumer Discretionary classification is **authoritatively
+  confirmed by S&P Dow Jones Indices** (GICS co-owner) in its own index-announcement press release, corroborated
+  by GME's current S&P MidCap 400 constituent row. GME is recorded as a **`confirmed_nonconstituent`** of XLY —
+  structural, since XLY's eligible universe is the S&P 500 and GME is an S&P MidCap 400 member. **GME is nowhere
+  represented as an XLY holding.**
+- **`APPROVED` is now mechanically conditional on all 24 entries actually having been reviewed** — any ticker
+  missing a `classification_source`/`retrieval_date`, or still `constituent_status="not_verified"`, invalidates an
+  APPROVED mapping (the same entry stays fine while DRAFT).
+- **Source-quality caveat disclosed in the file**: for the 22 tickers whose GICS sector was established via
+  confirmed Select-Sector-ETF membership, the membership evidence is a third-party aggregator's holdings page, not
+  an issuer-published holdings file.
+
+### Code changes
+
+- `gst_market_response/alpaca_provider.py` — added two sanitized provenance fields, `request_query_string` (the
+  only first-hand evidence of what was requested, since Alpaca's single-symbol bars response does not echo `feed`)
+  and `response_symbol_echo` (server-side confirmation the translated symbol resolved). `fetch_daily_bar_alpaca_sip`
+  now requests the **calendar day** rather than the regular session — a 1Day bar is timestamped at midnight ET, so
+  the old window excluded it and the absent bar was indistinguishable from a vendor gap — and raises rather than
+  silently taking `bars[0]` if more than one comes back. The two window-override parameters serve only that path
+  and cannot bypass the exchange calendar. **No SIP-only, raw-adjustment, timeout, retry, pagination or
+  fail-closed rule was weakened.**
+- `gst_market_response/diagnostics/alpaca_intraday_diagnostic.py` — rewritten from 13 partly-tautological checks
+  to 31 real ones, covering every requirement of this pass. The prior check 9 ("missing intervals cause failure
+  rather than zero-fill") was `missing == (len(bars) != expected)`, which is true unconditionally; it is replaced
+  by exact grid-set comparison plus an explicit zero-fill-signature scan. Session boundaries are now compared as
+  datetimes rather than ISO strings.
+- `gst_market_response/sector_mapping.py` — `SectorMappingEntry` restructured to the seven separated fields;
+  `VALID_BENCHMARK_BASES`/`VALID_CONSTITUENT_STATUSES` added; loader rejects an entry missing any required field;
+  `validate_sector_mapping()` enforces the APPROVED-requires-actual-review gate. `sector_etf_for()`/`sector_for()`
+  retained as aliases.
+
+**Tests**: 1 new file — `test_market_response_alpaca_diagnostic_harness.py` (47 checks) proves the harness's own
+detectors are real: it reconstructs the exact 79-bar response offline and confirms checks 8/10/12/19 fail and
+*only* those, that a clean 78-bar session passes, that a 77-bar session fails *differently* (missing, not
+contaminated), that zero-fill signatures / invalid OHLC / negative volume are each caught, that a mismatched symbol
+echo fails, and that a provider error yields FAILED rather than a vacuous pass. `test_market_response_alpaca_provider.py`
+**45 → 70** checks (sanitized request evidence, the calendar-day daily window, override-cannot-bypass-calendar, and
+the ALP-1 characterization tests). `test_market_response_sector_mapping_gate.py` **20 → 47** checks, including the
+required proof that a **confirmed nonconstituent can hold an approved sector benchmark without being represented as
+an ETF holding**. One pre-existing test was corrected: `test_credentials_absent` asserted the provider constructor
+raises because the ambient environment was empty — no longer true with credentials present, and confirmed to fail
+when the baseline file is run against this environment — so it now creates and restores the absent-credential
+condition explicitly instead of assuming it.
+
+**Full deterministic suite re-run: 20 files, 737 checks, all passing, zero regressions** (baseline was 638 checks /
+19 files; 638 − 45 − 20 + 70 + 47 + 47 = 737). All 17 untouched test files pass unchanged. Zero live network calls
+beyond the two permitted bounded diagnostics. *(The prior pass's "43 checks" figure for the Alpaca provider file
+counted `check()` call sites; 45 is the number actually executed, since one call site sits inside a four-iteration
+loop. Corrected here for consistency — no test was removed.)*
+
+**Data protection**: raw bars (79 rows × 2 tickers) written **only** to the session scratchpad outside the
+repository, never committed. Committed artifacts are the two sanitized harness reports
+(`GST_MARKET_RESPONSE_LIVE_DIAGNOSTIC_{SPY,BRK-B}_2026-08-03.json`) — check names, pass/fail, aggregates, statuses,
+provenance and content hashes only, no bar rows, no credentials. A byte-level scan of all **3,605** tracked and
+untracked files, plus the staged and unstaged diffs, found **zero** occurrences of either credential. Operational
+Wikipedia cache re-verified byte-identical (`29d072f2...`) and the preserved Phase 2 panel CSV + completion marker
+re-verified byte-identical, before and after. No child process remained afterward.
+
+**Remaining blockers**: ALP-1 unfixed and the provider ineligible until a live diagnostic passes; **one complete
+prospective earnings event is still required** regardless.
+
+**No real event has been registered. No trading strategy is selected. No profitability claim exists.**
+
 ## 2026-08-04 — Market Response: operational-data pass (PR #3, second pass, no real event registered)
 
 **What this is.** A second, narrower operational-data pass on the Earnings Market-Response Decomposition lane

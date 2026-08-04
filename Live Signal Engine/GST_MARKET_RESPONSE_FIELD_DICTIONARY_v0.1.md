@@ -242,6 +242,8 @@ SDK) with `timeframe=5Min, feed=sip, adjustment=raw, sort=asc`.
 | `page_count` | Number of pages fetched via `next_page_token` |
 | `raw_response_content_sha256` | SHA-256 of the concatenated raw response bodies across all pages |
 | `canonical_ticker`, `provider_symbol` | Both always recorded -- e.g. `BRK-B` / `BRK.B` |
+| `request_query_string` | *(added in the live-validation pass)* The exact query string of the last request. Credentials travel in headers only, so this is safe to record and commit -- and it is the **only** first-hand evidence of what `feed`/`timeframe`/`adjustment`/window were actually requested, because Alpaca's single-symbol bars response does not echo `feed`. |
+| `response_symbol_echo` | *(added in the live-validation pass)* The `symbol` Alpaca echoes in the response body. Server-side confirmation that the translated provider symbol resolved to a real tape entry -- the only first-hand check available for `BRK-B -> BRK.B`. |
 
 **Retry/timeout policy**: `CONNECT_TIMEOUT_S=5.0`, `READ_TIMEOUT_S=15.0`, `MAX_ATTEMPTS=5` per page,
 `MAX_WALL_CLOCK_S=60.0` for the whole call, `MAX_PAGES=20`. 401/403 raise `AlpacaAuthError` immediately, never
@@ -255,8 +257,16 @@ close is less than `MIN_END_AGE_MINUTES=15` old, checked **before** any HTTP cal
 requests free historical SIP data, never anything that would require a real-time entitlement.
 
 **Symbol translation**: `CANONICAL_TO_ALPACA_SYMBOL` maps `BRK-B -> BRK.B`; every other locked-universe ticker
-maps to itself. **Not yet live-verified** against a real Alpaca response (no credentials available in this pass)
--- treat as a documented assumption pending the first live diagnostic.
+maps to itself. **LIVE-VERIFIED 2026-08-04** -- Alpaca returned HTTP 200 and echoed `"symbol": "BRK.B"` in the
+response body, with real BRK.B tape data. No longer an assumption.
+
+**Daily cross-check window**: `fetch_daily_bar_alpaca_sip()` requests the **calendar day** (`00:00:00Z` to
+`23:59:59Z` of the session date), not the regular-session window. A 1Day bar is timestamped at midnight ET, so the
+09:30-16:00 window would exclude it entirely and the absent bar would be indistinguishable from a genuine vendor
+gap. It raises rather than silently picking `bars[0]` if more than one daily bar comes back, and returns `None`
+only when Alpaca genuinely returns none. The two window-override parameters that make this possible are used
+**only** on this 1Day path, never on the 5Min research path, and cannot bypass the exchange calendar (a
+non-session date still raises `ExchangeCalendarError`).
 
 **Secrets**: `AlpacaCredentials.__repr__`/`__str__` are redacted (`***`). Credentials travel only in HTTP headers
 (`APCA-API-KEY-ID`/`APCA-API-SECRET-KEY`), never in the URL, never in `AlpacaProvenance`, never written to disk by
@@ -275,23 +285,79 @@ the source for auditability of earlier rows only, never reintroduced as a live d
 open/close, correctly shrinking on an early-close session (e.g. 42 bars, not 78, on the day after Thanksgiving)
 rather than assuming a fixed count.
 
-## Sector-ETF mapping v0.2 (operational-data addendum, 2026-08-04)
+## Sector-BENCHMARK mapping v0.3 (live-validation addendum, 2026-08-04)
 
-`GST_Sector_ETF_Mapping_v0.1.json`'s `mapping_version` is now `0.2`, `review_status: "APPROVED"`. Every one of the
-24 tickers carries its own `review` block (`status`, `source`, `retrieved_date`, `reason`):
+Supersedes the v0.2 description below. `GST_Sector_ETF_Mapping_v0.1.json` is now `schema_version: "0.2"`,
+`mapping_version: "0.3"`, `review_status: "APPROVED"`.
 
-- **22 tickers**: `status: "confirmed"` -- verified as a current constituent of their assigned sector ETF via that
-  ETF's actual disclosed holdings list (or, for XLC, a sourced web search), retrieved 2026-08-04.
-- **GPN**: `status: "corrected"` -- moved from XLK to XLF. Confirmed absent from XLK's 77 holdings and present in
-  XLF's holdings (0.24% weight); corroborated by the real 2023 GICS structure update that moved the "Transaction &
-  Payment Processing Services" sub-industry from Information Technology to Financials.
-- **GME**: `status: "unresolved_ambiguity_documented"` -- GICS sector (Consumer Discretionary) is source-confirmed
-  and matches the same assignment rule used for every other ticker, but GME could not be confirmed as a current
-  constituent of XLY's disclosed ~50-holding list. Kept as XLY, with the open question stated explicitly rather
-  than silently resolved either way.
+**The rule**: each ticker is benchmarked against the broad SPDR Select Sector ETF corresponding to its **GICS
+sector**. That is the entire basis of the assignment. Whether the fund actually holds the company is a separate,
+independently recorded observation that never affects it. **The benchmark methodology itself is unchanged from
+v0.2** -- what changed is that the file no longer describes itself in membership terms.
+
+Each entry now carries these fields separately:
+
+| Field | Meaning |
+|---|---|
+| `gics_sector` | The company's GICS sector. This, and only this, determines `benchmark_etf`. |
+| `benchmark_etf` | The broad SPDR Select Sector ETF used as the sector-return benchmark. |
+| `benchmark_basis` | Why that ETF was chosen. Constrained to `"gics_sector"`. `"etf_membership"` is **not** an accepted value, so membership can never silently become the justification. |
+| `constituent_status` | Independent observation: `confirmed_constituent`, `confirmed_nonconstituent`, or `not_verified`. Never affects `benchmark_etf`. A `confirmed_nonconstituent` is **not** a defect. |
+| `constituent_status_source` | Evidence behind `constituent_status`. |
+| `classification_source` | Evidence behind `gics_sector`. |
+| `retrieval_date` | ISO-8601 date both sources were retrieved. |
+
+**`APPROVED` is mechanically conditional on all 24 having actually been reviewed.** `validate_sector_mapping()`
+rejects an APPROVED mapping if any ticker lacks a `classification_source` or `retrieval_date`, or still carries
+`constituent_status="not_verified"`. The same entry is perfectly acceptable while the mapping is `DRAFT` -- the
+gate is on the approval claim, not on the data.
+
+**GME is the worked example of the rule.** `gics_sector: "Consumer Discretionary"` (authoritatively confirmed by
+**S&P Dow Jones Indices**, GICS co-owner, in its own index-announcement press release, corroborated by GME's
+current S&P MidCap 400 constituent row), `benchmark_etf: "XLY"`, `benchmark_basis: "gics_sector"`,
+`constituent_status: "confirmed_nonconstituent"`. The nonconstituency is structural, not anomalous: XLY tracks the
+Consumer Discretionary Select Sector Index, whose eligible universe is the S&P 500, and GME is an S&P MidCap 400
+member — ineligible for XLY by index construction. **GME is nowhere represented as an XLY holding**, and
+`test_market_response_sector_mapping_gate.py` enforces that no sentence in the file affirmatively claims otherwise.
+GPN remains XLF (`gics_sector: "Financials"`, per the 2023 GICS payment-processor reclassification).
+
+**Retracted framing.** v0.2 summarised the mapping as a count of tickers verified to be holdings of their assigned
+ETF, with GME flagged as an unresolved ambiguity for failing that check. That was wrong in kind, not just wording:
+it treated fund membership as the thing being verified. No count of that form appears anywhere in the file now, and
+a test asserts it cannot reappear.
+
+**Source-quality caveat** (disclosed in the file itself): for the 22 tickers whose GICS sector was established via
+confirmed Select-Sector-ETF membership, the membership evidence is a third-party aggregator's holdings page
+(companiesmarketcap.com), not an issuer-published holdings file. The inference is sound — S&P DJI builds the Select
+Sector Indices by partitioning S&P 500 members across the eleven sector indices by GICS sector, so confirmed
+membership entails that sector — but the underlying observation is one source tier below ideal.
 
 `reviewed_by` records this was a sourced desk review conducted via live web search/fetch, explicitly not a
 domain-expert manual sign-off -- read literally, not as a claim of human financial-analyst review.
+
+## Live Alpaca diagnostic result (live-validation addendum, 2026-08-04)
+
+**Provider status: `LIVE_DIAGNOSTIC_FAILED`. `AlpacaHistoricalSipIntradayProvider` is INELIGIBLE for real event
+capture.** Two diagnostics (SPY and BRK-B, 2026-08-03 session, run exactly once each, neither registering a
+research event) both returned HTTP 200 with `feed=sip`/`timeframe=5Min`/`adjustment=raw` confirmed on the wire, and
+both **FAILED** on returning **79 bars where the calendar requires 78**.
+
+**Defect ALP-1**: Alpaca's `end` parameter is inclusive of a bar starting exactly at `end`, so requesting
+`end = session_close_utc` admits one after-hours (16:00–16:05 ET) bar. Since `extract_session_fields()` takes
+`session_close` from `bars[-1].close`, that bar silently became the session close (SPY `open_to_close` shifted
+6.7 bp; full-session volume 3.1%). Aggregating only the 78 regular-session bars reproduces Alpaca's own 1Day SIP
+OHLC exactly, which independently corroborates the diagnosis.
+
+Note that `is_eligible_for_real_event` still returns `True` in code. **That flag describes the provider's class**
+(a genuine SIP provider, as opposed to `YFinanceDevIntradayProvider`'s `False`), **not its current validation
+state, and must not be read as clearance for capture.** Full evidence, the separate -15.50% daily-volume finding,
+and the prescribed-but-unapplied fix are in `GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md`.
+
+### Superseded: sector-ETF mapping v0.2 (operational-data addendum, 2026-08-04)
+
+Retained for auditability. v0.2 gave each ticker a single `review` block (`status`, `source`, `retrieved_date`,
+`reason`) with `status` one of `confirmed` (22 tickers), `corrected` (GPN, XLK → XLF) or
+`unresolved_ambiguity_documented` (GME). Replaced wholesale by the seven separated fields above.
 
 ## Phase 2 adapter real-data dry run (operational-data addendum, 2026-08-04)
 
