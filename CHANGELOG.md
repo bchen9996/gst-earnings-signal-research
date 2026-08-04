@@ -1,5 +1,80 @@
 # Changelog
 
+## 2026-08-04 — New lane: Earnings Market-Response Decomposition (measurement module, v0.1 draft)
+
+**Branch:** `phase2-market-response`, a new sibling worktree at `gst-market-response-worktree`, based on
+`origin/phase2-wikipedia-reliability` @ `b400af239d89b313f7705e941ddfa7b4c2beb76b`. **Stacked on PR #1** — this
+branch depends on `phase2-wikipedia-reliability` and must not be reviewed or merged ahead of it.
+
+**What this is.** A new, isolated research lane collecting the data needed to determine WHERE earnings-related
+market movement occurs relative to a pre-event GST/Wikipedia attention observation — overnight gap, first 30
+minutes, rest of session, and the next two trading sessions, each also computed relative to a locked sector-ETF
+mapping and SPY. **This is a measurement module. It does not test, optimize, select, or report a trading strategy**
+— see `GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md` for the explicit non-advisory framing.
+
+**What changed** (entirely additive, new files only — nothing in the existing Wikipedia transport, GST z-score
+methodology, six-field contract, locked 24-ticker universe, or Event Dossier Protocol was touched):
+
+- `Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md` (new) — locked draft spec:
+  event identity (BMO/AMC/INTRADAY fail-closed, never inferred from price), pre-event snapshot (including two new
+  development-only, separately-versioned features, `gst_slope_v0.1`/`gst_persistence_v0.1` — no locked definition
+  for either existed anywhere in the codebase before this), an earnings-specific option benchmark deliberately
+  distinct from the Phase 2 panel's generic nearest-expiry-after-today IV, market-response interval formulas,
+  sector/SPY relative-return controls (never called "abnormal return"/"alpha"), immutable raw-bar storage, an
+  append-only forward-only event state machine, and an explicit completeness policy (missing data stays null,
+  never zero).
+- `gst_market_response/` (new package) — `constants.py` (24-ticker universe + six-field contract, mirrored
+  verbatim from `GST_Phase2_DailyPanel.py`, unchanged), `identity.py` (event_id format mirrored from the Event
+  Dossier Protocol's validator regex; BMO/AMC/INTRADAY fail-closed determination; the D1 trading-session day-count
+  rule), `bars.py` (5-minute bar validation — rejects duplicate/non-monotonic/wrong-ticker bars — and
+  America/New_York session-boundary extraction), `derivations.py` (every return-interval formula, null-safe by
+  construction), `providers.py` (abstract `IntradayOHLCVProvider`/`EventTimingProvider` interfaces, plus a
+  `YFinanceDevIntradayProvider` explicitly labeled development-only, not exchange-grade/NBBO/institutional),
+  `option_chain_adapter.py` (reuses `get_nearest_post_earnings_expiry()`/`get_option_snapshot()` from
+  `GST_MultiTicker_Forward_Log.py` as-is, called with the verified earnings date as anchor; adds the
+  reject-on-crossed-quote, reject-on-on/before-event-expiry, and reject-on-incompatible-timestamp rules on top),
+  `sector_mapping.py` + `Live Signal Engine/GST_Sector_ETF_Mapping_v0.1.json` (new locked mapping — nothing
+  existed to reuse), `atomic_io.py` (write-temp-then-rename; append-only, never-truncating log writes),
+  `raw_bars.py` (immutable raw-bar files + SHA-256 manifest, `verify()` for hash-mismatch detection),
+  `event_record.py` (append-only JSONL event log; forward-only state-transition validation; `PARTIAL`/
+  `ABSTAIN_DATA_QUALITY` are terminal by construction, so `PARTIAL` can never later become `COMPLETE`; amendment
+  records that never rewrite an earlier record's bytes), `completeness.py` (the four completeness tiers, required
+  vs. explicitly-optional fields enumerated once), `pipeline.py` (orchestrates the state machine from
+  already-resolved field dicts — no provider I/O of its own, which is what keeps it deterministically testable),
+  `completion_marker.py` + `cli.py` (nonzero exit on a failed required-data gate; reuses this project's existing
+  0/1/2 PASS-equivalent/FAIL/INCONCLUSIVE exit-code convention rather than inventing a new one).
+- `Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md` (new) — field-by-field reference, with the
+  explicit non-advisory framing required by the spec (historical association is retrospective; prospective value
+  is still under collection; this module does not establish profitability; options are a benchmark, not the only
+  future instrument; no strategy is selected in v0.1; strategy selection may occur only after the first
+  development earnings cycle completes).
+
+**Reused vs. new** (full detail in the spec's "Reused components" table): earnings-date lookup, option-expiration
+selection, and the ATM option-chain snapshot are reused from existing functions with documented semantic caveats
+(all existing earnings-date lookups are forward-only; `pick_expiration()` in `GST_Live_Straddle_Logger.py` was
+identified and deliberately NOT reused, since its DTE-floor selection rule is unrelated to event-date anchoring).
+The GST z-score formula, the 24-ticker universe, and the `event_id` scheme are reused unchanged. Intraday OHLCV
+retrieval, the sector-ETF mapping, `gst_slope`/`gst_persistence`, and the BMO/AMC D1 day-count rule are new — none
+of them existed anywhere in the codebase before this lane.
+
+**Tests**: `test_market_response_decomposition.py` (new, 74 checks) covers all 20 required scenarios (AMC/BMO/
+weekend/holiday/half-day timing; missing-boundary-bar fail-closed; duplicate/non-monotonic/wrong-ticker bar
+rejection; stock/sector/SPY interval alignment; every return formula; null-never-zero in both directions;
+PARTIAL-never-becomes-COMPLETE; byte-identical raw files; non-destructive amendments; raw-file hash-mismatch
+rejection; on/before-event expiration rejection including a defensive double-check independent of the reused
+selector; crossed-quote rejection; incompatible-timestamp rejection; the generic Phase 2 IV is structurally
+excluded from ever being imported as `earnings_implied_move`; no trading-decision/P&L field exists in the schema),
+a full synthetic `REGISTERED → PRE_EVENT_CAPTURED → D1_COMPLETE → COMPLETE` end-to-end event, and 5 failure
+fixtures (missing event timing, missing opening bar, invalid option expiration, partial sector data, raw-file hash
+mismatch). `test_market_response_cli_gate.py` (new, 9 checks) covers the completion marker and the CLI's nonzero
+exit codes (gate pass / gate fail / unregistered event → INCONCLUSIVE, never a false pass).
+
+Full deterministic suite re-run: 13 files (11 pre-existing Phase 2/Wikipedia files + the 2 new market-response
+files), all passing. **No live network call was made at any point.** The 24-ticker panel was not run. The
+operational Wikipedia cache does not exist in this new worktree at all (git worktree checkout of tracked files
+only) and the source worktree's cache was independently re-verified byte-identical (`29d072f2...`) before and
+after this work.
+
 ## 2026-08-03 — Safety correction: live equivalence smoke test can no longer mutate operational data by default
 
 **Why this changed.** The prior cache-hash-discrepancy reconciliation identified the exact mechanism: `test_phase2_wikipedia_equivalence.py` is a genuinely live-network test (unlike `test_phase2_wikipedia_equivalence_deterministic.py`) that never redirected `GST_Phase2_Wikipedia_Transport.CACHE_PATH`, so any accidental inclusion in a "run every test file" pass wrote real fetched data into the real operational cache. This closes that gap structurally rather than relying on remembering to exclude one filename.

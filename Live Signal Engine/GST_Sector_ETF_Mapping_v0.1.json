@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.1",
+  "description": "Locked ticker-to-sector-ETF mapping for the 24-ticker Phase 2 universe, GICS-sector-consistent. See SPEC section 7.1. Locked at v0.1 -- a later change requires a new versioned file, never an in-place edit.",
+  "spy_benchmark": "SPY",
+  "mapping": {
+    "AAPL": "XLK",
+    "ABBV": "XLV",
+    "ADBE": "XLK",
+    "AMZN": "XLY",
+    "BKR": "XLE",
+    "BRK-B": "XLF",
+    "CTSH": "XLK",
+    "DELL": "XLK",
+    "DVN": "XLE",
+    "GME": "XLY",
+    "GOOGL": "XLC",
+    "GPN": "XLK",
+    "INTC": "XLK",
+    "LDOS": "XLI",
+    "MSFT": "XLK",
+    "NCLH": "XLY",
+    "NKE": "XLY",
+    "QCOM": "XLK",
+    "SBUX": "XLY",
+    "STZ": "XLP",
+    "SYK": "XLV",
+    "TSLA": "XLY",
+    "TTWO": "XLC",
+    "UAL": "XLI"
+  }
+}
