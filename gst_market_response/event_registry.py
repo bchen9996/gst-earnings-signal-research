@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from .atomic_io import append_bytes_never_truncate
+from .exchange_calendar import EXCHANGE_CALENDAR_ID, is_early_close, is_trading_day as is_trading_day_xnys
 from .identity import (
     EventIdentity,
     EventIdentityError,
@@ -29,18 +30,16 @@ from .providers import EventTimingProvider, EventTimingResult
 
 REGISTRY_SCHEMA_VERSION = "0.1"
 
-# Versioned identifier for the calendar this registry uses to derive
-# expected_response_session. v0.1 is Mon-Fri plus a small, explicitly
-# versioned, non-exhaustive set of documented US market holidays -- NOT an
-# authoritative multi-decade NYSE calendar. Half-day (early-close) sessions
-# are still ordinary trading days for day-count purposes (they only affect
-# session-close bar time, handled in bars.py) -- listed here for provenance/
-# documentation only, not because they change is_trading_day().
-EXCHANGE_CALENDAR_ID = "NYSE_NASDAQ_MON_FRI_PARTIAL_HOLIDAYS_V0.1"
+# --- SUPERSEDED (2026-08-04) -----------------------------------------------
+# This hand-maintained partial holiday list was the v0.1 calendar. It is
+# REPLACED for all operational use by gst_market_response.exchange_calendar
+# (backed by the `exchange_calendars` package's real, maintained XNYS
+# calendar data). Kept here, unused by any default parameter below, solely
+# for auditability of what earlier registry rows were computed against --
+# do not reintroduce it as a live default.
+_SUPERSEDED_EXCHANGE_CALENDAR_ID_V0_1 = "NYSE_NASDAQ_MON_FRI_PARTIAL_HOLIDAYS_V0.1"
 
-# Disclosed, versioned, non-exhaustive -- see EXCHANGE_CALENDAR_ID docstring
-# above. Extend deliberately (new calendar version) rather than silently.
-_KNOWN_MARKET_HOLIDAYS_V0_1: frozenset[date] = frozenset(
+_SUPERSEDED_KNOWN_MARKET_HOLIDAYS_V0_1: frozenset[date] = frozenset(
     {
         date(2026, 1, 1),   # New Year's Day
         date(2026, 1, 19),  # MLK Day (observed)
@@ -55,24 +54,33 @@ _KNOWN_MARKET_HOLIDAYS_V0_1: frozenset[date] = frozenset(
     }
 )
 
-_KNOWN_HALF_DAYS_V0_1: frozenset[date] = frozenset(
+_SUPERSEDED_KNOWN_HALF_DAYS_V0_1: frozenset[date] = frozenset(
     {
         date(2026, 11, 27),  # day after Thanksgiving
-        date(2026, 7, 2) if date(2026, 7, 3) in _KNOWN_MARKET_HOLIDAYS_V0_1 else date(2026, 7, 3),
+        date(2026, 7, 2) if date(2026, 7, 3) in _SUPERSEDED_KNOWN_MARKET_HOLIDAYS_V0_1 else date(2026, 7, 3),
     }
 )
 
 
 def is_trading_day_v0_1(d: date) -> bool:
-    """The calendar backing EXCHANGE_CALENDAR_ID: Mon-Fri, minus the
-    disclosed partial holiday list above. Half-days remain trading days."""
+    """SUPERSEDED -- see module note above. Historical/auditability only;
+    no default parameter in this module uses this anymore."""
     if d.weekday() >= 5:
         return False
-    return d not in _KNOWN_MARKET_HOLIDAYS_V0_1
+    return d not in _SUPERSEDED_KNOWN_MARKET_HOLIDAYS_V0_1
 
 
 def is_half_day_v0_1(d: date) -> bool:
-    return d in _KNOWN_HALF_DAYS_V0_1
+    """SUPERSEDED -- see module note above."""
+    return d in _SUPERSEDED_KNOWN_HALF_DAYS_V0_1
+
+
+# --- Current operational calendar (2026-08-04) -----------------------------
+# is_trading_day_xnys (imported above from exchange_calendar.py) is now the
+# default calendar for every function in this module. EXCHANGE_CALENDAR_ID
+# (also imported) is what gets recorded in every registry row from this
+# point forward.
+is_trading_day_v0_2 = is_trading_day_xnys
 
 
 class EventRegistryError(ValueError):
@@ -162,7 +170,7 @@ class HumanVerifiedEventRegistry:
         verification_status: str,
         notes: str = "",
         event_type: str = "ERN",
-        is_trading_day: Callable[[date], bool] = is_trading_day_v0_1,
+        is_trading_day: Callable[[date], bool] = is_trading_day_xnys,
     ) -> EventRegistryRow:
         """Registers a human-verified event. release_market_session must be
         independently confirmed by the human verifier -- this function never
@@ -212,7 +220,7 @@ class HumanVerifiedEventRegistry:
         verified_at_utc: datetime,
         verified_by: str,
         notes: str,
-        is_trading_day: Callable[[date], bool] = is_trading_day_v0_1,
+        is_trading_day: Callable[[date], bool] = is_trading_day_xnys,
     ) -> EventRegistryRow:
         """Appends a new AMENDMENT row. Never rewrites amends_row_id's bytes.
         If earnings_date or release_market_session is corrected,

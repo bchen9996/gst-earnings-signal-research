@@ -36,7 +36,7 @@ def _valid_full_mapping(**overrides) -> SectorMapping:
     mapping = {t: SectorMappingEntry(sector="Some Sector", sector_etf="XLK") for t in LOCKED_24_TICKER_UNIVERSE}
     base = dict(
         schema_version="0.1", mapping_version="0.1", spy_benchmark="SPY",
-        review_status="DRAFT", reviewed_by=None, reviewed_at_utc=None, mapping=mapping,
+        review_status="DRAFT", reviewed_by=None, reviewed_at_utc=None, effective_date=None, mapping=mapping,
     )
     base.update(overrides)
     return SectorMapping(**base)
@@ -46,7 +46,33 @@ def test_shipped_mapping_file_is_mechanically_valid():
     sm = load_sector_mapping()
     errors = validate_sector_mapping(sm)
     check("1a. Shipped GST_Sector_ETF_Mapping_v0.1.json currently has no validation errors", errors == [], str(errors))
-    check("1b. Shipped mapping is not silently declared final -- review_status is DRAFT", sm.review_status == "DRAFT")
+    # As of the Section D sourced review (2026-08-04), the mapping was
+    # individually reviewed (all 24 tickers) and legitimately promoted to
+    # APPROVED -- not because it was merely mechanically valid, but because
+    # every entry now carries a per-ticker `review` block with a source or a
+    # documented, defensible rule. See test_shipped_mapping_every_ticker_has_review().
+    check("1b. Shipped mapping has been through Section D's sourced review and is APPROVED", sm.review_status == "APPROVED")
+    check("1c. reviewed_by/reviewed_at_utc/effective_date are all populated for an APPROVED mapping", sm.reviewed_by and sm.reviewed_at_utc and sm.effective_date)
+    check("1d. mapping_version was bumped (0.2) rather than silently edited in place", sm.mapping_version == "0.2")
+
+
+def test_shipped_mapping_every_ticker_has_review():
+    sm = load_sector_mapping()
+    missing_review = [t for t, entry in sm.mapping.items() if not entry.review]
+    check("1e. Every one of the 24 tickers carries its own review block (source or defensible rule)", missing_review == [], str(missing_review))
+
+    gpn_review = sm.mapping["GPN"].review
+    check("1f. GPN's review is explicitly marked 'corrected' (not silently left as XLK)", gpn_review is not None and gpn_review.get("status") == "corrected")
+    check("1g. GPN was actually corrected to XLF", sm.sector_etf_for("GPN") == "XLF")
+
+    gme_review = sm.mapping["GME"].review
+    check(
+        "1h. GME's remaining ambiguity is visibly documented, not silently resolved as a clean confirmation",
+        gme_review is not None and gme_review.get("status") == "unresolved_ambiguity_documented",
+    )
+
+    confirmed_count = sum(1 for entry in sm.mapping.values() if entry.review and entry.review.get("status") == "confirmed")
+    check("1i. The remaining 22 tickers are marked 'confirmed' via a sourced check", confirmed_count == 22, str(confirmed_count))
 
 
 def test_exactly_locked_24_tickers_required():
@@ -126,6 +152,7 @@ def test_benchmark_design_choice_documented_not_alpha():
 
 if __name__ == "__main__":
     test_shipped_mapping_file_is_mechanically_valid()
+    test_shipped_mapping_every_ticker_has_review()
     test_exactly_locked_24_tickers_required()
     test_valid_etf_symbols_enforced()
     test_mapping_version_and_review_fields_required()

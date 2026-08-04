@@ -311,6 +311,56 @@ above was modified by this pass.
 **No real event has been registered.** `HumanVerifiedEventRegistry` in every test and in this pass's actual usage
 starts empty; nothing populates a real upcoming ticker/date.
 
+## Operational-data addendum (2026-08-04, second pass)
+
+This addendum documents replacing the development-only building blocks from the first operational-readiness pass
+with operationally-eligible ones, still without registering a real event. Nothing in sections 1-10 above changed.
+
+- **`gst_market_response/alpaca_provider.py`** implements `AlpacaHistoricalSipIntradayProvider`, calling Alpaca's
+  documented `GET /v2/stocks/{symbol}/bars` endpoint directly (`timeframe=5Min`, `feed=sip`, `adjustment=raw`,
+  `sort=asc`, bounded pagination via `next_page_token`). Credentials come only from `APCA_API_KEY_ID`/
+  `APCA_API_SECRET_KEY`; 401/403 fail immediately (never retried); 429/5xx retry up to `MAX_ATTEMPTS=5` honoring
+  `Retry-After` (capped at `MAX_RETRY_AFTER_S=30`); a `MAX_WALL_CLOCK_S=60` budget and `MAX_PAGES=20` bound the
+  whole call. **Never falls back to IEX, yfinance, an undocumented endpoint, another vendor, or synthetic bars** --
+  a failure is `AlpacaProviderError` (or a subclass), full stop. Requires the requested session's close to be at
+  least `MIN_END_AGE_MINUTES=15` old before making any request (checked before the HTTP call, not after).
+  `is_eligible_for_real_event = True`, versus `YFinanceDevIntradayProvider.is_eligible_for_real_event = False`
+  (explicit, unchanged from the first pass). Canonical-to-provider symbol translation
+  (`CANONICAL_TO_ALPACA_SYMBOL`) maps `BRK-B -> BRK.B`; both identifiers are always recorded in
+  `AlpacaProvenance.canonical_ticker`/`provider_symbol`. **This mapping is not yet live-verified** (no credentials
+  were available in this pass) -- see `GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md`.
+- **`gst_market_response/exchange_calendar.py`** replaces the hand-maintained partial holiday list
+  (`event_registry.is_trading_day_v0_1`/`_SUPERSEDED_*`, kept only for auditability, no longer used as any
+  function's default) with the `exchange_calendars` package's real XNYS calendar. `is_trading_day()`,
+  `previous_session()`/`next_session()`, `session_open_utc()`/`session_close_utc()`, `is_early_close()`, and
+  `expected_bar_boundaries()` (which correctly shrinks the expected 5-minute-bar count on an early-close session,
+  e.g. 42 bars instead of 78 on the day after Thanksgiving) are all derived from it. `event_registry.py`'s
+  `register_verified_event()`/`amend_event()` now default to this calendar; `EXCHANGE_CALENDAR_ID` recorded in new
+  registry rows is `XNYS_exchange_calendars_v4.13.2`.
+- **`gst_market_response/bars.py`** gained `validate_ohlc_and_volume()` (raises `InvalidOHLCError`/
+  `NegativeVolumeError`) -- a single shared check used by both the yfinance and Alpaca diagnostics rather than each
+  reimplementing its own tolerance.
+- **`GST_Sector_ETF_Mapping_v0.1.json`** (`mapping_version` bumped 0.1 -> 0.2) was individually reviewed against
+  each candidate sector ETF's actual current holdings (or GICS sector classification where fund-holdings data was
+  incomplete). **GPN corrected from XLK to XLF** -- confirmed absent from XLK's holdings and present in XLF's
+  (0.24% weight), consistent with the 2023 GICS reclassification of payment processors into Financials. **GME's
+  fund-constituency in XLY could not be confirmed** and is left visibly documented as an open question (GICS
+  sector itself is confirmed Consumer Discretionary, the same rule used for every other ticker). `review_status`
+  promoted to `APPROVED` on this basis -- every one of the 24 entries carries its own sourced or documented-rule
+  `review` block; see the file itself and `GST_MARKET_RESPONSE_OPERATIONAL_READINESS_CHECKLIST_v0.1.md`.
+- **`requirements.txt`** (new) pins `exchange_calendars==4.13.2` and documents (without pinning the rest of this
+  research repository's dependencies, out of scope) `requests`, `yfinance`, `pandas` for `gst_market_response/`.
+- **Phase 2 adapter dry run**: `import_pre_event_fields_for_ticker()` was run read-only against a real preserved
+  panel run (`GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv` + its `COMPLETION_MARKER.json`, from the
+  `phase2-wikipedia-reliability` worktree) -- 24/24 tickers imported cleanly, `panel_status="COMPLETE"` preserved
+  exactly, all 24 rows eligible for `PRE_EVENT_CAPTURED`, both input files verified byte-identical before and
+  after. **The adapter is confirmed operationally compatible with a real Phase 2 panel run.**
+- **No live Alpaca diagnostic was run.** `APCA_API_KEY_ID`/`APCA_API_SECRET_KEY` were absent from the environment
+  at preflight -- per instruction, the pass stopped before any live Alpaca call. `alpaca_intraday_diagnostic.py`
+  (the harness for when credentials become available) was written and its imports verified, but never executed.
+
+**Still true**: no real event has been registered. No trading strategy is selected. No profitability claim exists.
+
 ## Explicitly out of scope for v0.1
 
 - Real-time news sentiment

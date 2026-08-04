@@ -31,6 +31,14 @@ class WrongTickerError(BarValidationError):
     pass
 
 
+class InvalidOHLCError(BarValidationError):
+    pass
+
+
+class NegativeVolumeError(BarValidationError):
+    pass
+
+
 @dataclass(frozen=True)
 class Bar:
     symbol: str
@@ -43,6 +51,19 @@ class Bar:
 
     def local_time(self) -> datetime:
         return self.timestamp_utc.astimezone(ET_ZONE)
+
+
+def validate_ohlc_and_volume(bars: Sequence[Bar]) -> None:
+    """Raises InvalidOHLCError on any bar where low > open/close/high (or
+    low > high), and NegativeVolumeError on any negative volume. Used by
+    every provider-diagnostic path (yfinance dev diagnostic, Alpaca live
+    diagnostic) as a single, shared check rather than each reimplementing
+    its own tolerance."""
+    for b in bars:
+        if not (b.low <= b.open <= b.high and b.low <= b.close <= b.high and b.low <= b.high):
+            raise InvalidOHLCError(f"bar at {b.timestamp_utc} fails OHLC consistency: {b}")
+        if b.volume < 0:
+            raise NegativeVolumeError(f"bar at {b.timestamp_utc} has negative volume: {b.volume}")
 
 
 def validate_bars(bars: Sequence[Bar], expected_symbol: str) -> list[Bar]:

@@ -1,5 +1,76 @@
 # Changelog
 
+## 2026-08-04 — Market Response: operational-data pass (PR #3, second pass, no real event registered)
+
+**What this is.** A second, narrower operational-data pass on the Earnings Market-Response Decomposition lane
+(PR #3, stacked on PR #1): replaces the development-only intraday provider path and hand-maintained calendar with
+operationally-eligible ones, reviews the sector mapping against real current data, and dry-runs the Phase 2
+adapter against a real preserved panel run. **No research event was registered, no strategy/backtest was run, no
+Radar integration was started.**
+
+**Preflight**: branch/HEAD confirmed (`e755a90c14200633043fd3bba030557a6b4358b7`), no tracked/untracked drift, no
+market-response/Phase 2 process running, PR #3 confirmed draft/open/stacked, operational Wikipedia cache hash
+recorded (`29d072f2...`, unchanged throughout). **`APCA_API_KEY_ID`/`APCA_API_SECRET_KEY` confirmed absent** (both
+Bash and PowerShell, process and user scope, values never printed) -- this gated Section F (live Alpaca diagnostic)
+to a documented stop-before-call, per instruction.
+
+**What changed:**
+
+- `gst_market_response/alpaca_provider.py` (new) -- `AlpacaHistoricalSipIntradayProvider`, calling
+  `GET /v2/stocks/{symbol}/bars` directly (`timeframe=5Min, feed=sip, adjustment=raw, sort=asc`), bounded
+  pagination, 401/403 fail immediately, 429/5xx retry (honoring `Retry-After`, capped) up to `MAX_ATTEMPTS=5`
+  within `MAX_WALL_CLOCK_S=60`, a 15-minute freshness gate checked before any HTTP call, sanitized
+  `AlpacaProvenance` (10 fields, never a secret), `BRK-B -> BRK.B` symbol translation (both identifiers always
+  recorded, not yet live-verified), and `is_eligible_for_real_event = True` -- never falls back to IEX/yfinance/an
+  undocumented endpoint/another vendor/synthetic bars on any failure.
+- `gst_market_response/providers.py` (modified) -- added `IntradayOHLCVProvider.is_eligible_for_real_event`
+  (default `False`); `YFinanceDevIntradayProvider` overrides it explicitly to `False` (unchanged behavior, now
+  structurally enforced rather than only documented).
+- `gst_market_response/exchange_calendar.py` (new) -- wraps `exchange_calendars` (`XNYS`, pinned
+  `exchange_calendars==4.13.2` in new `requirements.txt`) for `is_trading_day`/`previous_session`/`next_session`/
+  `session_open_utc`/`session_close_utc`/`is_early_close`/`expected_bar_boundaries` (correctly shrinks the expected
+  5-minute-bar count on an early-close session, e.g. 42 instead of 78 on the day after Thanksgiving).
+- `gst_market_response/event_registry.py` (modified) -- the hand-maintained partial holiday list
+  (`is_trading_day_v0_1` and its constants) is superseded, renamed with a `_SUPERSEDED_` prefix, and kept only for
+  auditability; `register_verified_event()`/`amend_event()` now default to the real XNYS calendar;
+  `EXCHANGE_CALENDAR_ID` recorded in new rows is `XNYS_exchange_calendars_v4.13.2`.
+- `gst_market_response/bars.py` (modified) -- added `validate_ohlc_and_volume()` (`InvalidOHLCError`/
+  `NegativeVolumeError`), shared by both the yfinance and Alpaca diagnostics.
+- `gst_market_response/diagnostics/alpaca_intraday_diagnostic.py` (new) -- the bounded live-diagnostic harness for
+  Alpaca (12 checks matching Section F's requirements). **Not executed in this pass** -- credentials absent.
+- `Live Signal Engine/GST_Sector_ETF_Mapping_v0.1.json` (modified, `mapping_version` 0.1 -> 0.2,
+  `review_status` DRAFT -> **APPROVED**) -- all 24 tickers individually reviewed against actual current sector-ETF
+  holdings (companiesmarketcap.com fund-holdings pages) or sourced GICS classification, retrieved 2026-08-04.
+  **GPN corrected from XLK to XLF** -- confirmed absent from XLK's 77 holdings, confirmed present in XLF's holdings
+  (0.24% weight), consistent with the real 2023 GICS reclassification of the "Transaction & Payment Processing
+  Services" sub-industry from Information Technology to Financials. **GME's XLY fund-constituency could not be
+  confirmed** against XLY's disclosed ~50-holding list (GICS sector itself -- Consumer Discretionary -- is
+  source-confirmed and unchanged) -- left explicitly documented as an open question, not silently resolved.
+  22 other tickers confirmed as current constituents of their existing assignment, unchanged.
+- `gst_market_response/sector_mapping.py` (modified, additive) -- `SectorMappingEntry`/`SectorMapping` gained
+  `review`/`effective_date` fields to carry the above per-ticker provenance.
+- Phase 2 adapter dry run (no code change) -- `import_pre_event_fields_for_ticker()` run read-only against
+  `GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv` + its completion marker (a real, preserved, COMPLETE 24-row
+  panel run from the `phase2-wikipedia-reliability` worktree). **24/24 tickers imported without error,
+  `panel_status="COMPLETE"` preserved exactly, 24/24 rows eligible for `PRE_EVENT_CAPTURED`, both input files
+  SHA-256-verified byte-identical before and after.** Confirms the adapter is operationally compatible with a real
+  panel run, not just synthetic fixtures.
+
+**Tests**: 2 new deterministic test files -- `test_market_response_alpaca_provider.py` (43 checks: credentials
+absent, 401/403 never retried, 429+Retry-After, transient 5xx recovery, bounded retry exhaustion, timeout, empty
+bars, pagination, duplicate-timestamp/out-of-session/missing-bar detection via composition with existing
+validators, invalid OHLC/negative volume, symbol translation, 15-minute freshness gate, IEX never requested,
+yfinance-ineligible/Alpaca-eligible, no file writes, secrets never in logs/provenance/repr) and
+`test_market_response_exchange_calendar.py` (29 checks: ordinary session, weekend, full holiday, early close, DST
+both directions, AMC, BMO, INTRADAY, exact first/last bar, no after-hours contamination, non-session error). 7
+checks added to the existing sector-mapping test file (13 -> 20) proving every ticker carries a review block, GPN's
+correction, and GME's documented ambiguity. **116 new checks total.** Full 19-file deterministic suite (11
+pre-existing + 8 market-response) re-run: **638 checks, all passing, zero regressions.** Zero live network calls
+(the one permitted live diagnostic did not run -- credentials absent). Operational Wikipedia cache re-verified
+byte-identical (`29d072f2...`); the real preserved Phase 2 panel CSV and its marker also re-verified byte-identical.
+
+**No real event has been registered. No trading strategy is selected. No profitability claim exists.**
+
 ## 2026-08-04 — Market Response: operational-readiness pass (PR #3, no real event registered)
 
 **What this is.** An operational-readiness pass on top of the Earnings Market-Response Decomposition lane
