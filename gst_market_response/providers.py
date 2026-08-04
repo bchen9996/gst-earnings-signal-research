@@ -29,6 +29,15 @@ class IntradayOHLCVProvider(ABC):
         -- every raw-bar manifest entry records this."""
         ...
 
+    @property
+    def is_eligible_for_real_event(self) -> bool:
+        """False by default -- a provider must explicitly opt in. Checked
+        before any raw-bar capture that would back a real (non-demo)
+        event's COMPLETE status; see
+        gst_market_response.alpaca_provider.AlpacaHistoricalSipIntradayProvider
+        (True) vs. YFinanceDevIntradayProvider (False, unchanged)."""
+        return False
+
 
 @dataclass(frozen=True)
 class EventTimingResult:
@@ -69,6 +78,14 @@ class YFinanceDevIntradayProvider(IntradayOHLCVProvider):
     @property
     def provider_label(self) -> str:
         return "yfinance-development"
+
+    @property
+    def is_eligible_for_real_event(self) -> bool:
+        # Explicit, not just the inherited default -- this provider must
+        # never be usable to back a real event's COMPLETE status, only
+        # deterministic fixtures and the bounded diagnostic. See
+        # GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md.
+        return False
 
     def get_bars(self, symbol: str, session_date: date) -> list[Bar]:
         # NOTE: this method is exercised only by live capture and the single

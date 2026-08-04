@@ -39,6 +39,7 @@ class SectorMappingNotApprovedError(SectorMappingError):
 class SectorMappingEntry:
     sector: str
     sector_etf: str
+    review: Optional[dict] = None  # {status, source, retrieved_date, reason} -- see Section D review
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,7 @@ class SectorMapping:
     review_status: str
     reviewed_by: Optional[str]
     reviewed_at_utc: Optional[str]
+    effective_date: Optional[str]
     mapping: dict[str, SectorMappingEntry]
 
     def sector_etf_for(self, ticker: str) -> Optional[str]:
@@ -68,7 +70,7 @@ def load_sector_mapping(path: Optional[Path] = None) -> SectorMapping:
         if required not in data:
             raise SectorMappingError(f"sector mapping file missing required key {required!r}: {target}")
     mapping = {
-        ticker: SectorMappingEntry(sector=entry["sector"], sector_etf=entry["sector_etf"])
+        ticker: SectorMappingEntry(sector=entry["sector"], sector_etf=entry["sector_etf"], review=entry.get("review"))
         for ticker, entry in data["mapping"].items()
     }
     return SectorMapping(
@@ -78,6 +80,7 @@ def load_sector_mapping(path: Optional[Path] = None) -> SectorMapping:
         review_status=data["review_status"],
         reviewed_by=data.get("reviewed_by"),
         reviewed_at_utc=data.get("reviewed_at_utc"),
+        effective_date=data.get("effective_date"),
         mapping=mapping,
     )
 

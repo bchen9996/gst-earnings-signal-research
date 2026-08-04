@@ -1,9 +1,40 @@
-# Market Response — Development Provider Limitations (v0.1)
+# Market Response — Provider Limitations (v0.1)
 
-**YFinance remains a development provider.** Nothing in this document, or anywhere else in this module, claims
-exchange-grade, NBBO, or institutional execution quality for any data sourced through `yfinance`.
+**YFinance remains a development provider**, ineligible for a real event's `COMPLETE` status
+(`YFinanceDevIntradayProvider.is_eligible_for_real_event == False`, explicit and unchanged). Nothing in this
+document, or anywhere else in this module, claims exchange-grade, NBBO, or institutional execution quality for any
+data sourced through `yfinance`.
 
-## Bounded live diagnostic (2026-08-04)
+**`AlpacaHistoricalSipIntradayProvider` (`gst_market_response.alpaca_provider`) is the eligible provider**
+(`is_eligible_for_real_event == True`) for real event capture -- delayed/historical SIP data via Alpaca's
+documented REST endpoint, never IEX real-time, never Alpaca's free indicative options data used as an OPRA
+benchmark. Its retry/timeout/pagination/freshness-gate contract is fully deterministically tested (43 checks,
+`test_market_response_alpaca_provider.py`) but **has never been exercised against a real Alpaca response** --
+`APCA_API_KEY_ID`/`APCA_API_SECRET_KEY` were absent from the environment throughout both operational-readiness
+passes to date. Its canonical-to-provider symbol mapping (`BRK-B -> BRK.B`) is a documented assumption, not yet
+live-verified.
+
+## Bounded live diagnostics (2026-08-04, two passes)
+
+### Pass 2 (2026-08-04, this document's most recent update): Alpaca -- NOT RUN, credentials absent
+
+**Preflight confirmed `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` were both absent** from the process environment
+and the user-scope environment (checked via both a Bash shell and PowerShell, values never printed -- only
+presence/absence checked). Per instruction, the live diagnostic was not attempted; no fake or claimed result is
+recorded here. `gst_market_response/diagnostics/alpaca_intraday_diagnostic.py` (the harness for when credentials
+become available) was written, and its imports were verified to load cleanly, but it was never executed.
+
+**Missing environment variables**: `APCA_API_KEY_ID`, `APCA_API_SECRET_KEY`.
+
+**What running it later will look like**: exactly one call against SPY (not a locked-universe ticker, no earnings
+date), for the most recent fully completed ordinary XNYS session more than 15 minutes old at call time, checking
+HTTP 200 + `feed=="sip"`, exact XNYS session boundaries (via `exchange_calendar`), monotonic/unique timestamps, no
+premarket/after-hours bars, the calendar-derived expected bar count, OHLC consistency + nonnegative volume, the
+first-30-minutes 6-bar count, every derivation formula, missing-interval failure (never zero-fill), pagination
+handling, and an aggregated-5Min-vs-Alpaca's-own-1Day cross-check with every discrepancy reported. No raw bars
+would be committed; only a compact JSON summary + hashes, exactly like Pass 1 below.
+
+### Pass 1 (2026-08-04): yfinance -- RAN, FAILED
 
 **Scope**: one narrowly bounded live diagnostic of `gst_market_response.providers.YFinanceDevIntradayProvider`,
 performed as part of an operational-readiness pass, not a research event and not a hypothesis test.

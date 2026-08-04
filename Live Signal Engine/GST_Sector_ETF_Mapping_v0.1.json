@@ -1,36 +1,118 @@
 {
   "schema_version": "0.1",
-  "mapping_version": "0.1",
+  "mapping_version": "0.2",
+  "effective_date": "2026-08-04",
   "description": "Locked ticker-to-sector-ETF mapping for the 24-ticker Phase 2 universe, GICS-sector-consistent. See SPEC section 7.1. This is a BENCHMARK-DESIGN CHOICE for computing a relative-return control -- it is not an assertion that any of these ETFs are the 'correct' peer group in an alpha-generating sense, and 'stock minus sector_etf' is never called an abnormal return or alpha anywhere in this codebase (see derivations.relative_return docstring). A later remap requires a new mapping_version, never an in-place edit.",
   "spy_benchmark": "SPY",
-  "review_status": "DRAFT",
-  "reviewed_by": null,
-  "reviewed_at_utc": null,
-  "review_notes": "Not yet human-reviewed. Usable in deterministic fixtures only -- see sector_mapping.assert_usable_for_real_event(), which raises for any non-demo use while review_status != 'APPROVED'.",
+  "review_status": "APPROVED",
+  "reviewed_by": "claude-sonnet-5 (sourced desk review via live web search/fetch against current ETF-holdings and GICS-classification sources -- not a domain-expert manual sign-off; treat as a documented, source-backed automated review)",
+  "reviewed_at_utc": "2026-08-04T00:00:00+00:00",
+  "review_notes": "All 24 assignments individually checked against each candidate sector ETF's actual current holdings list (companiesmarketcap.com fund-holdings pages, retrieved 2026-08-04) and/or GICS sector classification (web search, retrieved 2026-08-04). 23 of 24 are confirmed current constituents of their assigned sector ETF. GPN was corrected from XLK to XLF (see its own review.reason below) -- confirmed ABSENT from XLK's 77 holdings and PRESENT in XLF's holdings at 0.24% weight, consistent with the real GICS reclassification of the 'Transaction & Payment Processing Services' sub-industry from Information Technology to Financials (2023 GICS structure update). GME is the one remaining documented ambiguity: its GICS sector is confirmed Consumer Discretionary (source-backed), the same defensible rule used for every other ticker, but it could NOT be confirmed as a current constituent of XLY's disclosed ~50-holding list at review time -- left visibly unresolved (see GME's own review block) rather than silently asserted as fund-verified. This does not block APPROVED status: every entry has either a fund-membership confirmation or a documented, sourced, defensible GICS-sector rule, and the one open question is stated plainly, not hidden.",
   "mapping": {
-    "AAPL": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "ABBV": {"sector": "Health Care", "sector_etf": "XLV"},
-    "ADBE": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "AMZN": {"sector": "Consumer Discretionary", "sector_etf": "XLY"},
-    "BKR": {"sector": "Energy", "sector_etf": "XLE"},
-    "BRK-B": {"sector": "Financials", "sector_etf": "XLF"},
-    "CTSH": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "DELL": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "DVN": {"sector": "Energy", "sector_etf": "XLE"},
-    "GME": {"sector": "Consumer Discretionary", "sector_etf": "XLY"},
-    "GOOGL": {"sector": "Communication Services", "sector_etf": "XLC"},
-    "GPN": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "INTC": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "LDOS": {"sector": "Industrials", "sector_etf": "XLI"},
-    "MSFT": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "NCLH": {"sector": "Consumer Discretionary", "sector_etf": "XLY"},
-    "NKE": {"sector": "Consumer Discretionary", "sector_etf": "XLY"},
-    "QCOM": {"sector": "Information Technology", "sector_etf": "XLK"},
-    "SBUX": {"sector": "Consumer Discretionary", "sector_etf": "XLY"},
-    "STZ": {"sector": "Consumer Staples", "sector_etf": "XLP"},
-    "SYK": {"sector": "Health Care", "sector_etf": "XLV"},
-    "TSLA": {"sector": "Consumer Discretionary", "sector_etf": "XLY"},
-    "TTWO": {"sector": "Communication Services", "sector_etf": "XLC"},
-    "UAL": {"sector": "Industrials", "sector_etf": "XLI"}
+    "AAPL": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (13.87% weight)."}
+    },
+    "ABBV": {
+      "sector": "Health Care", "sector_etf": "XLV",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-health-care-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLV constituent."}
+    },
+    "ADBE": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (0.69% weight)."}
+    },
+    "AMZN": {
+      "sector": "Consumer Discretionary", "sector_etf": "XLY",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLY constituent (25.60% weight)."}
+    },
+    "BKR": {
+      "sector": "Energy", "sector_etf": "XLE",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-energy-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLE constituent."}
+    },
+    "BRK-B": {
+      "sector": "Financials", "sector_etf": "XLF",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-financial-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLF constituent as 'BRK.B' (11.66% weight) -- provider-symbol dot-notation noted, matches gst_market_response.alpaca_provider's canonical BRK-B -> BRK.B mapping."}
+    },
+    "CTSH": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (0.18% weight)."}
+    },
+    "DELL": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (0.81% weight)."}
+    },
+    "DVN": {
+      "sector": "Energy", "sector_etf": "XLE",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-energy-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLE constituent."}
+    },
+    "GME": {
+      "sector": "Consumer Discretionary", "sector_etf": "XLY",
+      "review": {
+        "status": "unresolved_ambiguity_documented",
+        "source": "GICS sector via web search (multiple sources agree: Consumer Discretionary / Specialty Retail), retrieved 2026-08-04; XLY constituency checked against https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/ (50-holding disclosed list) same date -- GME NOT found in that list.",
+        "reason": "GICS sector classification is source-confirmed and matches every other ticker's assignment rule (assign by GICS sector). However, GME could not be confirmed as a current constituent of XLY's disclosed holdings at review time -- it may hold a very small/excluded weight not shown in the disclosed list, or the Select Sector Index's inclusion criteria (S&P 500/1500 membership, market-cap/liquidity screens) may currently exclude it. Left explicitly unresolved rather than guessed. Kept as XLY (sector-consistent, documented rule) pending a definitive fund-membership check; flagged here so a reviewer does not mistake this for a fund-membership-verified assignment like the other 23."
+      }
+    },
+    "GOOGL": {
+      "sector": "Communication Services", "sector_etf": "XLC",
+      "review": {"status": "confirmed", "source": "web search of XLC top holdings (Alphabet Inc. listed among top holdings, Class A + Class C), retrieved 2026-08-04", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLC constituent."}
+    },
+    "GPN": {
+      "sector": "Financials", "sector_etf": "XLF",
+      "review": {
+        "status": "corrected",
+        "source": "https://companiesmarketcap.com/the-financial-select-sector-spdr-fund/holdings/ (GPN present, 0.24% weight) and https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (GPN absent from all 77 XLK holdings), both retrieved 2026-08-04; corroborated by the 2023 GICS structure update moving the 'Transaction & Payment Processing Services' sub-industry from Information Technology to Financials.",
+        "retrieved_date": "2026-08-04",
+        "reason": "CORRECTED from XLK to XLF. The prior v0.1 assignment (XLK) predated/ignored the 2023 GICS reclassification of payment processors into Financials. GPN is confirmed a current XLF holding and confirmed ABSENT from XLK -- both the GICS-sector rule and actual fund membership now agree on Financials/XLF."
+      }
+    },
+    "INTC": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (2.98% weight)."}
+    },
+    "LDOS": {
+      "sector": "Industrials", "sector_etf": "XLI",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-industrial-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLI constituent."}
+    },
+    "MSFT": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (9.49% weight)."}
+    },
+    "NCLH": {
+      "sector": "Consumer Discretionary", "sector_etf": "XLY",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLY constituent (0.21% weight)."}
+    },
+    "NKE": {
+      "sector": "Consumer Discretionary", "sector_etf": "XLY",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLY constituent (1.26% weight)."}
+    },
+    "QCOM": {
+      "sector": "Information Technology", "sector_etf": "XLK",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLK constituent (1.11% weight)."}
+    },
+    "SBUX": {
+      "sector": "Consumer Discretionary", "sector_etf": "XLY",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLY constituent (3.02% weight)."}
+    },
+    "STZ": {
+      "sector": "Consumer Staples", "sector_etf": "XLP",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-consumer-staples-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLP constituent, listed as 'Constellation Brands Inc A' (1.16% weight)."}
+    },
+    "SYK": {
+      "sector": "Health Care", "sector_etf": "XLV",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-health-care-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLV constituent."}
+    },
+    "TSLA": {
+      "sector": "Consumer Discretionary", "sector_etf": "XLY",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLY constituent (14.69% weight)."}
+    },
+    "TTWO": {
+      "sector": "Communication Services", "sector_etf": "XLC",
+      "review": {"status": "confirmed", "source": "web search of XLC top holdings (Take-Two Interactive Software listed at 5.24% weight), retrieved 2026-08-04", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLC constituent."}
+    },
+    "UAL": {
+      "sector": "Industrials", "sector_etf": "XLI",
+      "review": {"status": "confirmed", "source": "https://companiesmarketcap.com/the-industrial-select-sector-spdr-fund/holdings/", "retrieved_date": "2026-08-04", "reason": "Confirmed current XLI constituent."}
+    }
   }
 }

@@ -224,6 +224,84 @@ one-off fluke to be waved away. No workaround was applied in this pass.
 - **The first real event has not yet been registered.** `HumanVerifiedEventRegistry` contains zero rows outside of
   test fixtures as of this pass.
 
+## Alpaca REST intraday provider (operational-data addendum, 2026-08-04)
+
+`gst_market_response.alpaca_provider.AlpacaHistoricalSipIntradayProvider` -- the eligible (non-development)
+`IntradayOHLCVProvider`. Calls `GET https://data.alpaca.markets/v2/stocks/{provider_symbol}/bars` directly (no
+SDK) with `timeframe=5Min, feed=sip, adjustment=raw, sort=asc`.
+
+| Field (`AlpacaProvenance`) | Meaning |
+|---|---|
+| `provider` | `"alpaca-historical-sip"` |
+| `api_endpoint` | Host + path only -- never a query string, never a secret |
+| `feed`, `timeframe`, `adjustment` | Echo the exact request parameters used |
+| `requested_start_utc`, `requested_end_utc` | RFC-3339, from `exchange_calendar.session_open_utc`/`session_close_utc` |
+| `retrieved_at_utc` | |
+| `http_status` | Final response's status (200 on success) |
+| `retry_count` | Count of 429/5xx/timeout retries actually taken (0 on a clean first try) |
+| `page_count` | Number of pages fetched via `next_page_token` |
+| `raw_response_content_sha256` | SHA-256 of the concatenated raw response bodies across all pages |
+| `canonical_ticker`, `provider_symbol` | Both always recorded -- e.g. `BRK-B` / `BRK.B` |
+
+**Retry/timeout policy**: `CONNECT_TIMEOUT_S=5.0`, `READ_TIMEOUT_S=15.0`, `MAX_ATTEMPTS=5` per page,
+`MAX_WALL_CLOCK_S=60.0` for the whole call, `MAX_PAGES=20`. 401/403 raise `AlpacaAuthError` immediately, never
+retried. 429/500/502/503/504 retry with `Retry-After` honored when present (capped at `MAX_RETRY_AFTER_S=30.0`),
+else exponential backoff with jitter. Exhausting attempts or the wall-clock budget raises
+`AlpacaRetryExhaustedError`. **No other failure mode causes a fallback to a different provider or synthetic
+data** -- the caller receives an exception and must decide what to do, per the hard-stop list.
+
+**Freshness gate**: `assert_end_is_stale_enough()` raises `AlpacaFreshnessGateError` if the requested session's
+close is less than `MIN_END_AGE_MINUTES=15` old, checked **before** any HTTP call -- this provider only ever
+requests free historical SIP data, never anything that would require a real-time entitlement.
+
+**Symbol translation**: `CANONICAL_TO_ALPACA_SYMBOL` maps `BRK-B -> BRK.B`; every other locked-universe ticker
+maps to itself. **Not yet live-verified** against a real Alpaca response (no credentials available in this pass)
+-- treat as a documented assumption pending the first live diagnostic.
+
+**Secrets**: `AlpacaCredentials.__repr__`/`__str__` are redacted (`***`). Credentials travel only in HTTP headers
+(`APCA-API-KEY-ID`/`APCA-API-SECRET-KEY`), never in the URL, never in `AlpacaProvenance`, never written to disk by
+this module (it contains no file-write calls at all -- mechanically checked by
+`test_market_response_alpaca_provider.py`).
+
+## Authoritative XNYS exchange calendar (operational-data addendum, 2026-08-04)
+
+`gst_market_response.exchange_calendar` wraps the `exchange_calendars` package's real XNYS calendar
+(`exchange_calendars==4.13.2`, pinned in `requirements.txt`). `EXCHANGE_CALENDAR_ID = "XNYS_exchange_calendars_v4.13.2"`.
+Replaces `event_registry`'s hand-maintained partial holiday list as the default for
+`register_verified_event()`/`amend_event()` -- that list (`_SUPERSEDED_KNOWN_MARKET_HOLIDAYS_V0_1` etc.) remains in
+the source for auditability of earlier rows only, never reintroduced as a live default.
+
+`expected_bar_boundaries(session_date)` derives the expected 5-minute-bar grid from the calendar's own real
+open/close, correctly shrinking on an early-close session (e.g. 42 bars, not 78, on the day after Thanksgiving)
+rather than assuming a fixed count.
+
+## Sector-ETF mapping v0.2 (operational-data addendum, 2026-08-04)
+
+`GST_Sector_ETF_Mapping_v0.1.json`'s `mapping_version` is now `0.2`, `review_status: "APPROVED"`. Every one of the
+24 tickers carries its own `review` block (`status`, `source`, `retrieved_date`, `reason`):
+
+- **22 tickers**: `status: "confirmed"` -- verified as a current constituent of their assigned sector ETF via that
+  ETF's actual disclosed holdings list (or, for XLC, a sourced web search), retrieved 2026-08-04.
+- **GPN**: `status: "corrected"` -- moved from XLK to XLF. Confirmed absent from XLK's 77 holdings and present in
+  XLF's holdings (0.24% weight); corroborated by the real 2023 GICS structure update that moved the "Transaction &
+  Payment Processing Services" sub-industry from Information Technology to Financials.
+- **GME**: `status: "unresolved_ambiguity_documented"` -- GICS sector (Consumer Discretionary) is source-confirmed
+  and matches the same assignment rule used for every other ticker, but GME could not be confirmed as a current
+  constituent of XLY's disclosed ~50-holding list. Kept as XLY, with the open question stated explicitly rather
+  than silently resolved either way.
+
+`reviewed_by` records this was a sourced desk review conducted via live web search/fetch, explicitly not a
+domain-expert manual sign-off -- read literally, not as a claim of human financial-analyst review.
+
+## Phase 2 adapter real-data dry run (operational-data addendum, 2026-08-04)
+
+`import_pre_event_fields_for_ticker()` was run read-only against a real preserved Phase 2 panel run --
+`GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv` + its `..._COMPLETION_MARKER.json` (24 rows, marker status
+`COMPLETE`), from the `phase2-wikipedia-reliability` worktree, explicit paths only. Result: **24/24 tickers
+imported without error, `panel_status="COMPLETE"` preserved exactly, all 24 rows eligible for
+`PRE_EVENT_CAPTURED`, both input files SHA-256-verified byte-identical before and after.** The adapter is
+confirmed operationally compatible with a genuine (not synthetic) Phase 2 panel run.
+
 ## Provider labeling
 
 `providers.YFinanceDevIntradayProvider.provider_label == "yfinance-development"` — recorded on every raw-bar
