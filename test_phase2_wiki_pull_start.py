@@ -96,6 +96,28 @@ def _watermark_info(watermark_date: date, lag_days: int) -> dict:
     }
 
 
+def _effective_info(watermark_date: date, tickers=(TICKER,)) -> dict:
+    """2026-08-05: the BINDING watermark is now the effective panel
+    watermark (min of validated per-article latest-available dates), not
+    the aggregate one. These tests model the healthy case where every
+    article has published through the aggregate watermark, so the effective
+    watermark equals it -- which keeps each test probing the dimension it
+    was written for. Divergence between the two is covered in
+    test_phase2_wiki_effective_panel_watermark.py."""
+    return {
+        "status": "ok",
+        "effective_panel_watermark_date": watermark_date,
+        "method": panel.wiki_transport.EFFECTIVE_WATERMARK_METHOD,
+        "aggregate_watermark_date": watermark_date,
+        "aggregate_vs_panel_lag_days": 0,
+        "per_ticker_latest": {t: watermark_date for t in tickers},
+        "measurements": [], "unmeasured": [],
+        "measured_count": len(tickers), "expected_count": len(tickers),
+        "binding_tickers": sorted(tickers),
+        "resolved_at_utc": "2026-08-01T00:00:00+00:00",
+    }
+
+
 # === Tests for watermark lags 0, 1, 2, 3 days ===
 def test_pull_start_fixed_relative_to_watermark_across_lags():
     watermark_date = date(2026, 8, 1)
@@ -111,7 +133,8 @@ def test_pull_start_fixed_relative_to_watermark_across_lags():
         restore = _install_stubs(capture)
         try:
             panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                                  watermark_info=_watermark_info(watermark_date, lag))
+                                  watermark_info=_watermark_info(watermark_date, lag),
+                                  effective_info=_effective_info(watermark_date))
         finally:
             restore()
         check(f"lag={lag}d: get_ticker_wikipedia_daily was called exactly once",
@@ -150,7 +173,8 @@ def test_wall_clock_cannot_change_zscore_when_data_and_watermark_fixed():
         restore = _install_stubs(capture)
         try:
             row, _ = panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                                           watermark_info=_watermark_info(watermark_date, lag))
+                                           watermark_info=_watermark_info(watermark_date, lag),
+                                  effective_info=_effective_info(watermark_date))
         finally:
             restore()
         results.append(row.get("wiki_zscore"))
@@ -185,7 +209,8 @@ def test_no_post_watermark_observation_reaches_the_calculation():
         )
         try:
             row, _ = panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                                           watermark_info=_watermark_info(watermark_date, 1))
+                                           watermark_info=_watermark_info(watermark_date, 1),
+                                  effective_info=_effective_info(watermark_date))
         finally:
             restore()
         zscores.append(row.get("wiki_zscore"))
