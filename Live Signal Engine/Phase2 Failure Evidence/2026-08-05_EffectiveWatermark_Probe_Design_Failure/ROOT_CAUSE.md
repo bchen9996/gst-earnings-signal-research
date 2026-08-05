@@ -1,5 +1,10 @@
 # Root cause — the separate availability probe cannot certify production retrieval
 
+> **CORRECTED — see [`CORRECTION.md`](CORRECTION.md).** This document's SYK finding is
+> wrong: production already truncates its request to the watermark, so all three prior
+> blockers are transient failures now resolved, and the `:752` comment was not falsified.
+> The two release-blocking defects in `9990c39` are unaffected and still stand.
+
 **This directory documents a regression introduced by commit `9990c39`** ("Phase 2:
 common per-article availability watermark for the whole panel"), found by a
 read-only live diagnostic before any panel run. No production panel was run and
