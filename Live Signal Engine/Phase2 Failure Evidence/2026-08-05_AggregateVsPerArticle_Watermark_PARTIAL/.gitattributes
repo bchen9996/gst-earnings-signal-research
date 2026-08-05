@@ -1,0 +1,8 @@
+# This directory is hash-anchored evidence. The repo runs with
+# core.autocrlf=true, which would rewrite CRLF->LF on commit and LF->CRLF on
+# checkout, so a fresh clone would NOT reproduce the SHA-256 values recorded
+# in raw_artifact_hash_verification.csv and cache_hashes.md.
+#
+# -text disables all end-of-line conversion here, so every committed byte is
+# the byte that was hashed. Do not remove.
+* -text

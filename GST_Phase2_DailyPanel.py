@@ -215,7 +215,8 @@ from GST_Live_Signal_Engine import (
     GEO as GST_GEO, GPROP as GST_GPROP, CATEGORY as GST_CATEGORY,
 )
 import GST_FixedWindow_PerEvent_Canonical as canonical
-from GST_Wikipedia_Pageviews_Pull import TICKER_TO_WIKI_ARTICLE, fetch_daily_pageviews, to_weekly
+from GST_Wikipedia_Pageviews_Pull import TICKER_TO_WIKI_ARTICLE, to_weekly
+import GST_Phase2_Wikipedia_Transport as wiki_transport
 from GST_MultiTicker_Forward_Log import get_option_snapshot, get_nearest_post_earnings_expiry
 
 
@@ -275,13 +276,20 @@ GST_TICKER_BUDGET_S = 480.0
 # verified-by-injection backstop in case that assumption is ever wrong, same
 # reasoning as YF_CALL_TIMEOUT_S below.
 GST_ATTEMPT_TIMEOUT_S = 100.0
-# WIKI_TICKER_BUDGET_S: the existing Wikipedia pull's own worst case is 2700s
-# (45 min) per ticker -- far too long relative to a 45-minute TOTAL run
-# budget. This wraps the whole fetch_daily_pageviews() call (not its
-# internals, which are not modified) at a much tighter bound; normal
-# successful pulls take a few seconds, so this only sacrifices tickers stuck
-# deep in bisection on a bad day, in exchange for keeping the run bounded.
-WIKI_TICKER_BUDGET_S = 90.0
+# WIKIPEDIA LEG (2026-07-31 REWRITE): no longer goes through run_bounded()/
+# WIKI_TICKER_BUDGET_S at all -- see GST_Phase2_Wikipedia_Transport.py.
+# That module replaces the old recursive-bisection design (root-caused in
+# Live Signal Engine/Phase2 Failure Evidence/2026-07-30_AMZN_Wikipedia_180s/)
+# with deterministic calendar-month chunks, a persistent cross-run cache,
+# genuinely killable subprocess isolation per chunk (wiki_transport.CHUNK_TIMEOUT_S,
+# proven by a real terminated-process test, unlike the daemon-thread wrapper
+# still used below for the other legs), and a single bounded second pass
+# over failed chunks run once at the RUN level after all 24 tickers'
+# first-pass attempts, not per-ticker and not inline. A ticker whose
+# Wikipedia chunks aren't all resolved after the second pass is left
+# incomplete -- see main()'s WIKIPEDIA SECOND PASS section -- but this does
+# NOT abort the run; other tickers are unaffected, matching the RUN-LEVEL
+# FAILURE POLICY this rewrite implements for the Wikipedia leg specifically.
 # YF_CALL_TIMEOUT_S: outer bound per individual yfinance call (history,
 # options property, option_chain, get_earnings_dates). yfinance 1.5.1's own
 # internal default (timeout=30, retries=0, verified by reading its installed
@@ -472,11 +480,109 @@ COLUMN_ORDER = [
     "gst_retry_count", "gst_rate_limit_events", "gst_budget_exhausted",
     "wikipedia_article", "wiki_zscore", "wiki_aligned_week", "wiki_note",
     "wiki_status", "wiki_error", "wiki_elapsed_s",
+    # RECENT_LAST_KNOWN_GOOD fallback provenance (2026-07-31, approved as a
+    # narrow addition -- see GST_Phase2_Wikipedia_Transport.evaluate_recent_cache_fallback).
+    # All None/False on a normal fresh-success or plain-incomplete row;
+    # populated only when the current/open month's chunk is served from a
+    # verified recent cached snapshot instead of a fresh fetch.
+    "wiki_source_mode", "wiki_fresh_request_failed", "wiki_fresh_failure_category",
+    "wiki_fresh_failure_http_status", "wiki_fallback_retrieved_at_utc",
+    "wiki_cache_age_hours", "wiki_effective_data_end", "wiki_cache_content_hash",
+    # MEASURED WIKIPEDIA DATA WATERMARK provenance (2026-08-01 -- see
+    # GST_Phase2_Wikipedia_Transport.resolve_wiki_data_watermark()). RUN-LEVEL:
+    # resolved exactly once per run, before any ticker is processed, and
+    # identical across all 24 rows -- not recomputed per ticker. Establishes
+    # exactly what Wikipedia data was measured as available at the retrieval
+    # timestamp; NOT a waiver or a stale-data workaround. A row may be
+    # wiki-complete with lag 1-3 only when every required per-article date
+    # through wiki_data_watermark_date is present and validated -- the
+    # recorded lag remains visible here for later modeling/quality controls.
+    "wiki_data_watermark_date", "wiki_data_lag_days", "wiki_watermark_status",
+    "wiki_watermark_retrieved_at_utc", "wiki_watermark_source_url",
+    "wiki_watermark_http_status", "wiki_required_data_end",
+    # EFFECTIVE PANEL WATERMARK provenance (2026-08-05 -- see
+    # GST_Phase2_Wikipedia_Transport.resolve_effective_panel_watermark()).
+    # ADDITIVE: the aggregate-watermark fields above are unchanged and
+    # retained as a source-health observation. What changed is which date
+    # BINDS: the aggregate endpoint answers "did en.wikipedia.org publish
+    # day D site-wide?", never "did THIS article publish day D?", and the
+    # 2026-08-05 PARTIAL proved the two diverge (aggregate said 2026-08-04;
+    # only 5 of 24 articles had it). The binding date is now the MINIMUM of
+    # the 24 validated per-article latest-available dates, identical on
+    # every row of a run -- it is the date every article has demonstrably
+    # published, so requiring exact coverage through it asks nothing the
+    # source has not already delivered.
+    #   wiki_article_latest_available_date is this ticker's OWN measured
+    # latest date (per-row, for auditability -- it is NOT what anchors this
+    # row's z-score; wiki_effective_panel_watermark_date is).
+    #   wiki_aggregate_vs_panel_lag_days = aggregate - effective, in days.
+    # Positive means the panel is behind the site-wide aggregate, i.e. at
+    # least one article had not yet caught up. Negative would mean an
+    # article is ahead of the aggregate -- a source-health anomaly worth
+    # seeing, recorded rather than clamped.
+    # This addresses TRAILING publication lag only. Exact coverage across
+    # the complete required lookback is still required of every ticker; an
+    # internal historical gap sits below this watermark and still produces
+    # PARTIAL.
+    "wiki_aggregate_watermark_date", "wiki_article_latest_available_date",
+    "wiki_effective_panel_watermark_date", "wiki_effective_watermark_method",
+    "wiki_aggregate_vs_panel_lag_days",
+    # ANCHOR-MONTH STAGE-1 TRANSPORT provenance (2026-08-05). Per-ticker, and
+    # deliberately verbose: the 2026-08-05 22/24 gate failed on single 404s
+    # that a bounded identical-request retry now absorbs, and it must stay
+    # auditable afterwards exactly HOW a measurement was obtained -- first
+    # try, or recovered after a transient 404, and at what cost. All five are
+    # additive; none participates in any gate.
+    #   anchor_month_attempt_statuses / _retry_wait_seconds are deterministic
+    # JSON lists in attempt order, so an identical attempt sequence always
+    # serializes identically.
+    "wiki_anchor_month_attempt_count", "wiki_anchor_month_attempt_statuses",
+    "wiki_anchor_month_retry_wait_seconds",
+    "wiki_anchor_month_recovered_after_transient_404",
+    "wiki_anchor_month_final_http_status",
+    # Z-SCORE ANCHOR provenance (2026-08-02 correction -- see
+    # _finalize_wiki_row()). The anchor passed to compute_zscore_at_anchor()
+    # must be the measured watermark date, never the script's real
+    # wall-clock run date -- see CHANGELOG.md 2026-08-02 entry for the bug
+    # this fixes (a 1-day mismatch pushed 16/24 tickers past the existing
+    # 6-day alignment tolerance). wiki_zscore_anchor_date always equals
+    # wiki_data_watermark_date on a finalized row; wiki_zscore_anchor_source
+    # records how the anchor was derived ("measured_watermark" is currently
+    # the only value -- present for forward compatibility/auditability, not
+    # because alternate sources exist today).
+    "wiki_zscore_anchor_date", "wiki_zscore_anchor_source",
+    # WIKI SOURCE PROVENANCE (2026-08-02 additive correction -- see
+    # _wiki_source_provenance()). wiki_source_mode is now DERIVED from the
+    # chunks that actually contributed rows, never hardcoded: one of
+    # "fresh_only", "exact_cache_only", "cache_union_only",
+    # "subchunk_salvage_only" (2026-08-03 addition), "mixed", or
+    # (via the existing recent_last_known_good override, applied after
+    # this derivation, unchanged) "recent_last_known_good". The *_json
+    # fields use deterministic, sort_keys=True JSON so identical underlying
+    # provenance always serializes identically.
+    "wiki_cache_union_used", "wiki_cache_union_chunk_count",
+    "wiki_source_components_json", "wiki_cache_union_provenance_json",
+    # BOUNDED CLOSED-MONTH SUBCHUNK RECOVERY provenance (2026-08-03 additive
+    # correction -- see GST_Phase2_Wikipedia_Transport
+    # .run_bounded_subchunk_recovery()). None/"[]" on every row where this
+    # last-resort mechanism was never invoked (i.e. every row that didn't
+    # still have a closed-month chunk failing after both the second pass
+    # and the recent-cache fallback). When invoked, carries the full
+    # per-subchunk provenance record (original failed interval, subchunk
+    # boundaries, response status, elapsed time, content hashes, retrieval
+    # timestamps, expected/observed date counts, and budgets consumed) --
+    # whether or not the recovery attempt ultimately succeeded, so a
+    # rejected/incomplete attempt is exactly as auditable as a successful
+    # one.
+    "wiki_subchunk_recovery_attempted", "wiki_subchunk_recovery_provenance_json",
     "all_six_fields_clean", "ticker_total_s",
 ]
 
 
-def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
+def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
+                    wiki_remaining_budget_s: float | None = None,
+                    watermark_info: dict | None = None,
+                    effective_info: dict | None = None) -> tuple[dict, dict | None]:
     row = {c: None for c in COLUMN_ORDER}
     row["run_date"] = RUN_DATE.isoformat()
     row["ticker"] = ticker
@@ -624,47 +730,309 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime) -> dict:
         f"retries={row['gst_retry_count']} rate_limit_events={row['gst_rate_limit_events']} "
         f"z={row.get('gst_zscore')}")
 
-    # --- Wikipedia pageview z-score: same reused functions as the July 26 pull ---
+    # --- Wikipedia pageview z-score (2026-08-01 WATERMARK CORRECTION, see
+    # header note): deterministic calendar-month chunks + persistent cache
+    # + killable subprocess isolation, one bounded first-pass attempt per
+    # chunk, all bounded by the SINGLE frozen run-level Wikipedia data
+    # watermark resolved once in main() before any ticker was processed
+    # (GST_Phase2_Wikipedia_Transport.resolve_wiki_data_watermark()) -- NOT
+    # a fixed today-1 assumption, which was proven wrong by the 2026-08-01
+    # PARTIAL regression (Wikipedia had not yet published the prior day's
+    # data for ANY article). A chunk that fails here is queued for the
+    # RUN-LEVEL second pass in main() -- it does NOT retry inline and does
+    # NOT abort this ticker or the run. compute_latest_zscore/to_weekly/
+    # compute_zscore_at_anchor are UNCHANGED -- only how the daily series
+    # is gathered, and how much of it is expected, changed. ---
     log(f"  [{ticker}] START wiki")
     t0 = time.time()
+    wiki_pending = None
     article = TICKER_TO_WIKI_ARTICLE.get(ticker)
+
+    # Watermark provenance is RUN-LEVEL -- identical on every row,
+    # regardless of whether this ticker's own wiki leg succeeds.
+    watermark_info = watermark_info or {}
+    effective_info = effective_info or {}
+    row["wiki_data_watermark_date"] = (
+        watermark_info["watermark_date"].isoformat() if watermark_info.get("watermark_date") else None)
+    row["wiki_data_lag_days"] = watermark_info.get("lag_days")
+    row["wiki_watermark_status"] = watermark_info.get("status")
+    row["wiki_watermark_retrieved_at_utc"] = watermark_info.get("retrieved_at_utc")
+    row["wiki_watermark_source_url"] = watermark_info.get("source_url")
+    row["wiki_watermark_http_status"] = watermark_info.get("http_status")
+
+    # --- EFFECTIVE PANEL WATERMARK provenance (2026-08-05). Also RUN-LEVEL
+    # and identical on every row, EXCEPT wiki_article_latest_available_date,
+    # which is this ticker's own measured value and is recorded purely for
+    # auditability -- it never anchors anything. ---
+    effective_watermark_date = effective_info.get("effective_panel_watermark_date")
+    aggregate_watermark_date = watermark_info.get("watermark_date")
+    row["wiki_aggregate_watermark_date"] = (
+        watermark_info["watermark_date"].isoformat() if watermark_info.get("watermark_date") else None)
+    # 2026-08-05: sourced from the ticker's own anchor-month response -- the
+    # very response whose rows are reused below -- not from a separate probe.
+    _article_latest = (effective_info.get("per_ticker_latest") or {}).get(ticker)
+    row["wiki_article_latest_available_date"] = _article_latest.isoformat() if _article_latest else None
+    row["wiki_effective_panel_watermark_date"] = (
+        effective_watermark_date.isoformat() if effective_watermark_date else None)
+    row["wiki_effective_watermark_method"] = effective_info.get("method")
+    row["wiki_aggregate_vs_panel_lag_days"] = effective_info.get("aggregate_vs_panel_lag_days")
+    _s1 = next((r for r in (effective_info.get("stage1_results") or [])
+                if r.get("ticker") == ticker), None)
+    row["wiki_anchor_month_attempt_count"] = _s1.get("anchor_month_attempt_count") if _s1 else None
+    row["wiki_anchor_month_attempt_statuses"] = (
+        json.dumps(_s1.get("anchor_month_attempt_statuses") or []) if _s1 else None)
+    row["wiki_anchor_month_retry_wait_seconds"] = (
+        json.dumps(_s1.get("anchor_month_retry_wait_seconds") or []) if _s1 else None)
+    row["wiki_anchor_month_recovered_after_transient_404"] = (
+        _s1.get("anchor_month_recovered_after_transient_404") if _s1 else None)
+    row["wiki_anchor_month_final_http_status"] = (
+        _s1.get("anchor_month_final_http_status") if _s1 else None)
+
     if article is None:
         row["wiki_status"] = "error"
         row["wiki_error"] = "no verified Wikipedia article mapping for this ticker"
+    elif watermark_info.get("status") != "ok":
+        # Fail closed: without a valid measured watermark there is no
+        # honest completeness bar to request or validate against -- never
+        # guess one. No network request is made for this ticker's wiki leg
+        # at all this run.
+        row["wiki_status"] = "incomplete_watermark_unavailable"
+        row["wiki_error"] = (f"no valid Wikipedia data watermark this run "
+                              f"(status={watermark_info.get('status')!r}) -- wiki leg not attempted")
+    elif effective_info.get("status") != "ok" or effective_watermark_date is None:
+        # Fail closed, same discipline one level up (2026-08-05): a valid
+        # AGGREGATE watermark is not on its own proof that every article
+        # has published that date. Without a complete set of 24 validated
+        # per-article measurements there is no honest shared completeness
+        # bar, and the aggregate watermark must NOT be substituted for one.
+        # No network request is made for this ticker's wiki leg this run.
+        row["wiki_status"] = "incomplete_effective_watermark_unavailable"
+        row["wiki_error"] = (f"no valid effective panel watermark this run "
+                              f"(status={effective_info.get('status')!r}, "
+                              f"measured={effective_info.get('measured_count')}/"
+                              f"{effective_info.get('expected_count')}) -- wiki leg not attempted")
     else:
-        anchor = pd.Timestamp(run_ts.date())
-        pull_start = anchor - timedelta(days=PULL_LOOKBACK_DAYS)
-
-        def _wiki_pull():
-            daily_views = fetch_daily_pageviews(article, pull_start, anchor)
-            weekly = to_weekly(daily_views)
-            return canonical.compute_zscore_at_anchor(weekly, anchor)
-
-        wiki_result, timed_out, elapsed_wiki, err_wiki = _bounded_leg(_wiki_pull, WIKI_TICKER_BUDGET_S, ticker, "wiki")
-        if timed_out:
-            row["wiki_status"] = "timeout"
-            row["wiki_error"] = err_wiki
-        elif err_wiki is not None:
-            row["wiki_status"] = "error"
-            row["wiki_error"] = err_wiki
+        # THE BINDING WATERMARK (2026-08-05): the effective panel watermark,
+        # not the aggregate one. Identical for all 24 tickers this run, so
+        # pull_start, expected coverage and the z-score anchor below are the
+        # same date for every row -- never ticker-specific.
+        watermark_date = effective_watermark_date
+        anchor_date = run_ts.date()
+        # 2026-08-02 correction: pull_start is derived from the binding
+        # watermark, not wall-clock anchor_date. The observation window's
+        # actual right edge is the measured watermark (data beyond it is
+        # never observable), so anchoring the LEFT edge on wall-clock time
+        # instead shortens the effective lookback by exactly the
+        # watermark's lag -- the same class of wall-clock-vs-watermark bug
+        # already fixed for the z-score anchor itself.
+        #
+        # 2026-08-05: the request HORIZON is now the aggregate watermark,
+        # not wall-clock anchor_date. An earlier version of this comment
+        # argued the horizon could safely stay on wall-clock time because
+        # required_data_end() truncates each chunk's request anyway. That
+        # reasoning was correct as far as it went -- the HTTP request was
+        # already truncated -- but it left the generated chunk's nominal
+        # end past the watermark, which (a) made the chunk key assert a
+        # coverage boundary the response never reaches, and (b) is the
+        # wrong shape to match Stage-1's anchor-month request against.
+        # Setting the horizon to the aggregate watermark makes the final
+        # generated chunk EXACTLY anchor_month_start..aggregate_watermark,
+        # which is precisely what Stage 1 already fetched and validated.
+        pull_start = watermark_date - timedelta(days=PULL_LOOKBACK_DAYS)
+        request_horizon = aggregate_watermark_date or watermark_date
+        row["wiki_required_data_end"] = watermark_date.isoformat()
+        try:
+            cache_df = wiki_transport.load_cache()
+        except wiki_transport.CacheCorruptionError as e:
+            log(f"  [{ticker}] Wikipedia cache corruption detected, treating as empty cache this run: {e}")
+            cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
+        # Stage-2 REUSE: the anchor-month rows Stage 1 already retrieved and
+        # validated, sliced to the effective watermark, handed over IN MEMORY
+        # so no second anchor-month request is issued and nothing
+        # trailing-short is ever cached.
+        prefetched = {}
+        _anchor_rows = (effective_info.get("anchor_month_rows") or {}).get(ticker)
+        if _anchor_rows is not None and effective_info.get("anchor_month_start"):
+            prefetched[(effective_info["anchor_month_start"],
+                        effective_info["anchor_month_requested_end"])] = _anchor_rows
+        wiki_result = wiki_transport.get_ticker_wikipedia_daily(
+            ticker, article, pull_start, request_horizon, watermark_date, cache_df=cache_df,
+            remaining_budget_s=wiki_remaining_budget_s,
+            prefetched_chunk_rows=prefetched,
+        )
+        for cr in wiki_result["chunk_results"]:
+            log(f"    [{ticker}] wiki chunk {cr['chunk_start']}..{cr['chunk_end']} "
+                f"source={cr['source']} status={cr['status']} "
+                f"http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "
+                f"network={cr.get('network_elapsed_s', 0.0):.2f}s sleep={cr.get('sleep_s', 0.0):.2f}s")
+        if wiki_result["failed_chunks"]:
+            row["wiki_status"] = "pending_second_pass"
+            row["wiki_error"] = (f"{len(wiki_result['failed_chunks'])} of "
+                                  f"{len(wiki_result['chunk_results'])} chunk(s) failed first pass -- queued")
+            wiki_pending = {
+                "ticker": ticker, "article": article, "run_ts": run_ts,
+                "daily_rows_so_far": wiki_result["daily_rows"],
+                "failed_chunks": wiki_result["failed_chunks"],
+                # 2026-08-02 additive correction: first-pass chunk_results
+                # (including any successful cache/fetch/cache_union_
+                # reconstruction chunks alongside the ones that failed and
+                # are queued above) must survive into the second pass so
+                # the ticker's FINAL source provenance -- computed after
+                # second-pass recovery -- reflects every contributing
+                # chunk, not just the ones recovered in second pass.
+                "chunk_results": wiki_result["chunk_results"],
+            }
         else:
-            aligned_week, wiki_z, note = wiki_result
-            row["wikipedia_article"] = article
-            row["wiki_zscore"] = round(wiki_z, 4) if wiki_z is not None else None
-            row["wiki_aligned_week"] = aligned_week.date().isoformat() if aligned_week is not None else None
-            row["wiki_note"] = note
-            row["wiki_status"] = "ok"
+            _finalize_wiki_row(row, article, wiki_result["daily_rows"], watermark_date, wiki_result["chunk_results"])
     row["wiki_elapsed_s"] = round(time.time() - t0, 3)
     log(f"  [{ticker}] DONE  wiki  status={row['wiki_status']} elapsed={row['wiki_elapsed_s']:.2f}s "
         f"z={row.get('wiki_zscore')}")
 
     row["ticker_total_s"] = round(time.time() - t_ticker_start, 3)
 
+    # all_six_fields_clean covers ONLY the six locked research fields
+    # (2026-08-01 correction). days_to_nearest_earnings is contextual
+    # metadata, not one of the six -- a successful earnings lookup that
+    # honestly finds no upcoming earnings date (earnings_status="ok",
+    # days_to_nearest_earnings=None) must NOT make this False. Fail-closed
+    # earnings handling is enforced separately by is_run_complete()
+    # requiring earnings_status=="ok" for every row.
     six_fields = [row.get("gst_zscore"), row.get("wiki_zscore"), row.get("implied_volatility"),
                   row.get("realized_vol"), row.get("price"), row.get("volume")]
-    row["all_six_fields_clean"] = all(v is not None for v in six_fields) and days_to_earnings is not None
+    row["all_six_fields_clean"] = all(v is not None for v in six_fields)
 
-    return row
+    return row, wiki_pending
+
+
+def _wiki_source_provenance(chunk_results: list[dict]) -> dict:
+    """Derives final wiki-leg source provenance from the chunks that
+    ACTUALLY contributed rows -- never hardcoded (2026-08-02 correction:
+    _finalize_wiki_row() previously wrote wiki_source_mode="fresh"
+    unconditionally, which was simply false for a cache hit, a cache-union
+    reconstruction, or any mix of the two).
+
+    chunk_results is the FULL set of chunk attempts behind this ticker's
+    finalized wiki_zscore: first-pass entries as returned by
+    get_ticker_wikipedia_daily(), plus -- when a second-pass retry
+    recovered a chunk that failed first pass -- one NORMALIZED entry per
+    recovered chunk with source="fetch" added by the caller (second-pass
+    chunk_results carry no "source" field of their own; second pass is
+    always a live fetch, never a cache or union hit, by construction). A
+    chunk that was never requested (no_observations_expected_yet) or that
+    ultimately failed contributes nothing here.
+
+    Returns the four additive COLUMN_ORDER fields as a dict:
+      wiki_source_mode: "fresh_only" | "exact_cache_only" |
+        "cache_union_only" | "subchunk_salvage_only" (2026-08-03 addition
+        -- every contributing chunk recovered via the bounded closed-month
+        subchunk mechanism, see GST_Phase2_Wikipedia_Transport
+        .run_bounded_subchunk_recovery()) | "mixed" | None (only if
+        literally no chunk contributed -- should not happen whenever
+        wiki_zscore ends up non-None, but this function never invents a
+        value to paper over that). The caller may still overwrite this
+        afterward for the UNRELATED recent_last_known_good case (see
+        main()'s second-pass loop) -- that override, and its own existing
+        provenance, are untouched by this function.
+      wiki_cache_union_used / wiki_cache_union_chunk_count: whether/how
+        many chunks were recovered via cache_union_reconstruction.
+      wiki_source_components_json / wiki_cache_union_provenance_json:
+        deterministic JSON (sort_keys=True over already-sorted inputs) so
+        identical underlying provenance always serializes identically."""
+    ok_chunks = [cr for cr in chunk_results
+                 if cr.get("status") == "ok"
+                 and cr.get("source") in ("cache", "fetch", "cache_union_reconstruction",
+                                          "subchunk_salvage", "anchor_month_stage1")]
+    sources_used = sorted({cr["source"] for cr in ok_chunks})
+
+    if not sources_used:
+        mode = None
+    elif sources_used == ["fetch"]:
+        mode = "fresh_only"
+    elif sources_used == ["cache"]:
+        mode = "exact_cache_only"
+    elif sources_used == ["cache_union_reconstruction"]:
+        mode = "cache_union_only"
+    elif sources_used == ["subchunk_salvage"]:
+        mode = "subchunk_salvage_only"
+    elif sources_used == ["anchor_month_stage1"]:
+        mode = "anchor_month_stage1_only"
+    else:
+        mode = "mixed"
+
+    union_chunks = [cr for cr in ok_chunks if cr["source"] == "cache_union_reconstruction"]
+    union_provenance_list = [
+        {
+            "requested_chunk_start": cr.get("chunk_start"),
+            "requested_chunk_end": cr.get("chunk_end"),
+            **(cr.get("cache_union_provenance") or {}),
+        }
+        for cr in sorted(union_chunks, key=lambda c: (c.get("chunk_start") or "", c.get("chunk_end") or ""))
+    ]
+
+    return {
+        "wiki_source_mode": mode,
+        "wiki_cache_union_used": len(union_chunks) > 0,
+        "wiki_cache_union_chunk_count": len(union_chunks),
+        "wiki_source_components_json": json.dumps(sources_used, sort_keys=True),
+        "wiki_cache_union_provenance_json": json.dumps(union_provenance_list, sort_keys=True),
+    }
+
+
+def _finalize_wiki_row(row: dict, article: str, daily_rows: list[dict], watermark_date: date,
+                        chunk_results: list[dict]) -> None:
+    """Assembles the daily series from whatever chunk rows are available
+    (cache + first-pass + any second-pass recoveries) and computes the wiki
+    z-score using the EXACT SAME unmodified functions as before this
+    rewrite (to_weekly(), compute_zscore_at_anchor()) -- only how the daily
+    rows were gathered changed, not the z-score methodology itself.
+
+    2026-08-02 correction: the anchor passed to compute_zscore_at_anchor()
+    is the measured run-level Wikipedia watermark date, NEVER the script's
+    real wall-clock run date. Wikipedia data is truncated at the watermark
+    (required_data_end = min(chunk_end, watermark)), so anchoring against
+    "today" when today is genuinely ahead of the watermark manufactures a
+    spurious gap between the anchor and the nearest available week --
+    exactly what caused a systemic wiki_zscore=None across 16/24 tickers on
+    2026-08-02 despite every one of their Wikipedia chunks resolving
+    cleanly (see Live Signal Engine/Phase2 Failure Evidence/
+    2026-08-02_WatermarkAnchor_And_Endpoint_PARTIAL/). Callers must pass the
+    SAME watermark_date used to truncate this ticker's chunk fetching --
+    this function has no wall-clock fallback and fails closed (raises) if
+    watermark_date is missing, rather than silently substituting one.
+
+    chunk_results (2026-08-02 additive correction): the chunk attempts
+    behind `daily_rows`, REQUIRED (no default) -- this function no longer
+    hardcodes wiki_source_mode="fresh"; see _wiki_source_provenance() for
+    exactly how it is derived instead. Passing an accurate chunk_results
+    list is the caller's responsibility (see process_ticker() and main()'s
+    second-pass loop for the two production call sites).
+    """
+    if watermark_date is None:
+        raise ValueError(
+            "_finalize_wiki_row: watermark_date is required and must not be None -- "
+            "the wiki z-score anchor must never fall back to a wall-clock date. "
+            "Fail closed: do not call this function without a confirmed measured watermark."
+        )
+    # Defense in depth: no observation dated after the watermark may enter
+    # the z-score, regardless of how daily_rows was assembled upstream.
+    # Chunk-level truncation (required_data_end) already enforces this at
+    # fetch time; this filter makes the invariant hold at the z-score
+    # boundary itself, independent of the fetch path.
+    daily_rows = [r for r in daily_rows
+                  if datetime.strptime(str(r["date"]), "%Y%m%d").date() <= watermark_date]
+    daily_df = wiki_transport.assemble_daily_series(daily_rows)
+    weekly = to_weekly(daily_df)
+    anchor = pd.Timestamp(watermark_date)
+    aligned_week, wiki_z, note = canonical.compute_zscore_at_anchor(weekly, anchor)
+    row["wikipedia_article"] = article
+    row["wiki_zscore"] = round(wiki_z, 4) if wiki_z is not None else None
+    row["wiki_aligned_week"] = aligned_week.date().isoformat() if aligned_week is not None else None
+    row["wiki_note"] = note
+    row["wiki_status"] = "ok"
+    row["wiki_fresh_request_failed"] = False
+    row["wiki_zscore_anchor_date"] = watermark_date.isoformat()
+    row["wiki_zscore_anchor_source"] = "measured_watermark"
+    row.update(_wiki_source_provenance(chunk_results))
 
 
 def write_checkpoint(rows: list[dict]) -> None:
@@ -680,7 +1048,9 @@ def write_checkpoint(rows: list[dict]) -> None:
 
 
 def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
-                             active_ticker: str | None = None, active_leg: str | None = None) -> None:
+                             active_ticker: str | None = None, active_leg: str | None = None,
+                             watermark_info: dict | None = None,
+                             effective_info: dict | None = None) -> None:
     n_total = len(rows)
     n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
     six_fields = ["gst_zscore", "wiki_zscore", "implied_volatility", "realized_vol", "price", "volume"]
@@ -692,12 +1062,23 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
     for leg in ["earnings", "price_history", "realized_vol", "iv", "gst", "wiki"]:
         failed_sources[leg] = sum(1 for r in rows if r.get(f"{leg}_status") not in ("ok", None))
 
+    # Additive observability (2026-08-01): distinguishes a genuinely
+    # successful earnings lookup that honestly found no upcoming date
+    # (earnings_lookup_ok_count high, days_to_nearest_earnings_nonnull_count
+    # lower) from an actual lookup FAILURE (earnings_lookup_ok_count itself
+    # lower) -- neither of these gates all_six_fields_clean_count, which
+    # covers only the six locked research fields above.
+    n_earnings_ok = sum(1 for r in rows if r.get("earnings_status") == "ok")
+    n_earnings_date_nonnull = sum(1 for r in rows if r.get("days_to_nearest_earnings") is not None)
+
     marker = {
         "status": status,   # "COMPLETE" or "PARTIAL"
         "row_count": n_total,
         "unique_ticker_count": len(set(r["ticker"] for r in rows)),
         "expected_ticker_count": len(TICKERS),
         "all_six_fields_clean_count": n_clean,
+        "earnings_lookup_ok_count": n_earnings_ok,
+        "days_to_nearest_earnings_nonnull_count": n_earnings_date_nonnull,
         "field_completeness_pct": {f: round(v * 100, 2) for f, v in field_completeness.items()},
         "failed_source_counts": failed_sources,
         "elapsed_s": round(elapsed_s, 1),
@@ -708,10 +1089,167 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
         "final_path": str(FINAL_OUT_PATH) if status == "COMPLETE" else None,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
     }
+    if watermark_info is not None:
+        marker["wiki_data_watermark"] = {
+            "status": watermark_info.get("status"),
+            "watermark_date": (watermark_info["watermark_date"].isoformat()
+                                if watermark_info.get("watermark_date") else None),
+            "lag_days": watermark_info.get("lag_days"),
+            "retrieved_at_utc": watermark_info.get("retrieved_at_utc"),
+            "source_url": watermark_info.get("source_url"),
+            "http_status": watermark_info.get("http_status"),
+        }
+    if effective_info is not None:
+        # 2026-08-05: the binding watermark and the full per-article
+        # availability measurement behind it. Recorded whether the run
+        # succeeded or failed closed -- a failed measurement set is exactly
+        # the evidence needed to diagnose the next PARTIAL.
+        eff_date = effective_info.get("effective_panel_watermark_date")
+        marker["wiki_effective_panel_watermark"] = {
+            "status": effective_info.get("status"),
+            "effective_panel_watermark_date": eff_date.isoformat() if eff_date else None,
+            "method": effective_info.get("method"),
+            "aggregate_vs_panel_lag_days": effective_info.get("aggregate_vs_panel_lag_days"),
+            "measured_count": effective_info.get("measured_count"),
+            "expected_count": effective_info.get("expected_count"),
+            "binding_tickers": effective_info.get("binding_tickers"),
+            "unmeasured": effective_info.get("unmeasured"),
+            "resolved_at_utc": effective_info.get("resolved_at_utc"),
+            "per_ticker_latest_available_date": {
+                t: (d.isoformat() if d else None)
+                for t, d in sorted((effective_info.get("per_ticker_latest") or {}).items())
+            },
+            # 2026-08-05 additive: Stage-1 request boundaries, what each
+            # response actually observed, and proof of Stage-2 reuse.
+            "anchor_month_request": {
+                "requested_start": (effective_info["anchor_month_start"].isoformat()
+                                    if effective_info.get("anchor_month_start") else None),
+                "requested_end": (effective_info["anchor_month_requested_end"].isoformat()
+                                  if effective_info.get("anchor_month_requested_end") else None),
+                "request_count": effective_info.get("request_count"),
+                "total_pacing_wait_s": round(
+                    sum(w["waited_s"] for w in effective_info.get("pacing_waits", [])), 3),
+                "min_request_interval_s": wiki_transport.AVAILABILITY_MIN_REQUEST_INTERVAL_S,
+            },
+            "anchor_month_observed": {
+                r["ticker"]: {
+                    "status": r["status"],
+                    "observed_count": r.get("observed_count"),
+                    "latest_available_date": (r["latest_available_date"].isoformat()
+                                              if r.get("latest_available_date") else None),
+                    "http_status": r.get("http_status"), "attempts": r.get("attempts"),
+                    "reason": r.get("reason"),
+                    "anchor_month_attempt_count": r.get("anchor_month_attempt_count"),
+                    "anchor_month_attempt_statuses": r.get("anchor_month_attempt_statuses"),
+                    "anchor_month_retry_wait_seconds": r.get("anchor_month_retry_wait_seconds"),
+                    "anchor_month_recovered_after_transient_404":
+                        r.get("anchor_month_recovered_after_transient_404"),
+                    "anchor_month_final_http_status": r.get("anchor_month_final_http_status"),
+                }
+                for r in sorted(effective_info.get("stage1_results", []),
+                                key=lambda x: x["ticker"])
+            },
+            "anchor_month_response_reuse": {
+                "tickers_reused": sorted(effective_info.get("anchor_month_rows", {})),
+                "reused_in_memory_only": True,
+                "written_to_cache": False,
+                "second_anchor_month_request_issued":
+                    effective_info.get("second_anchor_month_request_issued", False),
+            },
+        }
     with open(COMPLETION_MARKER_PATH, "w", encoding="utf-8") as f:
         json.dump(marker, f, indent=2)
     log(f"\nCompletion marker written: {COMPLETION_MARKER_PATH}")
     log(json.dumps(marker, indent=2))
+
+
+def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[str],
+                     watermark_status: str | None = None,
+                     effective_watermark_status: str | None = None,
+                     effective_watermark_date: date | None = None) -> bool:
+    """The single COMPLETE gate, pulled out as a pure function so it's
+    directly unit-testable (see test_phase2_dailypanel_gate.py) without
+    running the full panel. A green run requires ALL of:
+      - the ticker loop itself reported COMPLETE (no early total-budget stop)
+      - exactly len(expected_tickers) rows, with exactly that many UNIQUE
+        tickers (a duplicate row must not silently satisfy the count)
+      - every row's all_six_fields_clean is True -- covers ONLY the six
+        LOCKED research fields (gst_zscore, wiki_zscore,
+        implied_volatility, realized_vol, price, volume; which itself
+        already requires every Wikipedia chunk resolved, first pass or
+        second pass). days_to_nearest_earnings is contextual metadata, NOT
+        one of the six, and is deliberately NOT part of this check (see
+        below for its own, separate, fail-closed requirement) --
+        2026-08-01 correction: the 46aec15 baseline's successful 24/24 run
+        legitimately had 4 tickers with earnings_status="ok" but no
+        upcoming earnings date found; conflating that honest null into
+        all_six_fields_clean would have falsely made that baseline PARTIAL.
+      - earnings_status == "ok" for every row (fail-closed, checked
+        SEPARATELY from all_six_fields_clean): a successful lookup that
+        honestly finds no future earnings date (days_to_nearest_earnings
+        is None) is fine and does not block COMPLETE; earnings_status of
+        "error" or "timeout" -- an actual lookup FAILURE, not a genuine
+        "none found" result -- does block it. No earnings date is ever
+        fabricated to satisfy this.
+      - every row has a parseable retrieval_timestamp_utc
+      - watermark_status == "ok" (2026-08-01 addition): a run cannot be
+        COMPLETE without a valid measured Wikipedia data watermark -- a
+        watermark that failed closed or found no data within
+        MAX_ACCEPTABLE_WIKI_LAG_DAYS means the wiki leg was never
+        genuinely attempted with an honest completeness bar for anyone,
+        regardless of what individual rows might otherwise show.
+      - effective_watermark_status == "ok" (2026-08-05 addition): a valid
+        AGGREGATE watermark is necessary but no longer sufficient. Without
+        a complete set of validated per-article availability measurements
+        there is no honest shared completeness bar, and the aggregate
+        watermark must never be substituted for one.
+      - EVERY row carries the SAME non-null
+        wiki_effective_panel_watermark_date, equal to the run's resolved
+        effective watermark, and that same date is also every row's
+        wiki_zscore_anchor_date (2026-08-05 addition). One panel means one
+        anchor: rows that disagree on the effective watermark, or whose
+        z-score was anchored somewhere other than it, are not a comparable
+        cross-section and can never be COMPLETE. This is what forbids
+        ticker-specific anchor dates inside a single panel.
+    Note what is deliberately NOT relaxed here: the effective watermark
+    lowers a shared TRAILING edge, and every row must still satisfy
+    all_six_fields_clean, which requires exact daily coverage across the
+    complete required lookback. An internal historical gap sits BELOW the
+    effective watermark and still fails this gate.
+    Returns False (never raises) for any malformed row -- a gate that can
+    crash on bad input is not a gate."""
+    if exit_status != "COMPLETE":
+        return False
+    if watermark_status != "ok":
+        return False
+    if effective_watermark_status != "ok":
+        return False
+    if effective_watermark_date is None:
+        return False
+    if len(rows) != len(expected_tickers):
+        return False
+    tickers_seen = {r.get("ticker") for r in rows}
+    if len(tickers_seen) != len(expected_tickers) or tickers_seen != set(expected_tickers):
+        return False
+    expected_effective = effective_watermark_date.isoformat()
+    for r in rows:
+        if not r.get("all_six_fields_clean"):
+            return False
+        if r.get("earnings_status") != "ok":
+            return False
+        # One panel, one watermark, one anchor -- no per-ticker anchors.
+        if r.get("wiki_effective_panel_watermark_date") != expected_effective:
+            return False
+        if r.get("wiki_zscore_anchor_date") != expected_effective:
+            return False
+        ts = r.get("retrieval_timestamp_utc")
+        if not ts:
+            return False
+        try:
+            datetime.fromisoformat(ts)
+        except (TypeError, ValueError):
+            return False
+    return True
 
 
 def main():
@@ -719,14 +1257,116 @@ def main():
     log("*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***")
     log(f"Run timestamp (UTC): {run_ts.isoformat()}")
     log(f"Universe: {len(TICKERS)} tickers")
-    log(f"Budgets: GST={GST_TICKER_BUDGET_S:.0f}s/ticker  Wiki={WIKI_TICKER_BUDGET_S:.0f}s/ticker  "
+    log(f"Budgets: GST={GST_TICKER_BUDGET_S:.0f}s/ticker  "
+        f"wiki-chunk={wiki_transport.CHUNK_TIMEOUT_S:.0f}s (process-isolated, calendar-chunked, cached)  "
         f"yfinance-call={YF_CALL_TIMEOUT_S:.0f}s  per-ticker={PER_TICKER_WALL_BUDGET_S:.0f}s  "
         f"total-run={TOTAL_RUN_BUDGET_S:.0f}s\n")
+    log("NOTE (scope disclosure): only the Wikipedia leg uses genuinely killable "
+        "subprocess isolation this pass. GST/earnings/price_history/iv legs still use "
+        "the daemon-thread run_bounded() wrapper -- a timeout there is logged and the "
+        "run continues, but the underlying call is not guaranteed to actually stop. "
+        "This is disclosed, not claimed otherwise.\n")
 
     pt = TrendReq(hl="en-US", tz=0, timeout=(30, 60), retries=0, backoff_factor=0.0,
                   requests_args={"verify": False})
 
+    # --- MEASURED WIKIPEDIA DATA WATERMARK (2026-08-01) -- resolved EXACTLY
+    # ONCE, here, before any ticker is processed. Not a waiver or stale-data
+    # workaround: establishes exactly what Wikipedia data was genuinely
+    # available at this retrieval timestamp, frozen for the rest of this
+    # run. See GST_Phase2_Wikipedia_Transport.resolve_wiki_data_watermark()
+    # for the full resolution policy and the 2026-08-01 PARTIAL regression
+    # this replaces (a fixed today-1 assumption that was proven wrong by a
+    # measured, confirmed 2-day Wikipedia publication lag). ---
+    watermark_info = wiki_transport.resolve_wiki_data_watermark(anchor_date=run_ts.date())
+    if watermark_info["status"] == "ok":
+        log(f"Wikipedia data watermark: {watermark_info['watermark_date']} "
+            f"(lag={watermark_info['lag_days']}d, source={watermark_info['source_url']})\n")
+    else:
+        log(f"*** WIKIPEDIA DATA WATERMARK COULD NOT BE ESTABLISHED (status={watermark_info['status']!r}) "
+            f"-- the Wikipedia leg will be skipped for every ticker this run (fail-closed, not guessed). "
+            f"probe_log={watermark_info['probe_log']} ***\n")
+
+    # --- EFFECTIVE PANEL WATERMARK (2026-08-05) -- resolved EXACTLY ONCE,
+    # here, before any ticker is processed, and binding for the whole run.
+    # The aggregate watermark above is retained as a source-health /
+    # provenance observation but no longer binds on its own: it answers
+    # "did en.wikipedia.org publish day D site-wide?", never "did THIS
+    # article publish day D?". The 2026-08-05 PARTIAL proved the gap
+    # (aggregate: 2026-08-04; only 5 of 24 articles actually had it). See
+    # GST_Phase2_Wikipedia_Transport.resolve_effective_panel_watermark().
+    #
+    # This addresses TRAILING publication lag only. Exact coverage across
+    # the complete required lookback is still demanded of every ticker, so
+    # an internal historical gap (e.g. CTSH 2026-07-08..14) still produces
+    # PARTIAL -- lowering a shared trailing edge is not forgiving a hole. ---
+    if watermark_info["status"] == "ok":
+        _anchor_ms = wiki_transport.anchor_month_start(watermark_info["watermark_date"])
+        log(f"STAGE 1 -- anchor-month availability retrieval for all {len(TICKERS)} locked tickers: "
+            f"one request each, {_anchor_ms}..{watermark_info['watermark_date']} "
+            f"(never past the aggregate watermark), globally paced at "
+            f"{wiki_transport.AVAILABILITY_MIN_REQUEST_INTERVAL_S:.1f}s minimum interval "
+            f"through one shared limiter.")
+        effective_info = wiki_transport.resolve_effective_panel_watermark(
+            TICKERS, TICKER_TO_WIKI_ARTICLE, aggregate_watermark_info=watermark_info,
+            # Stage 1 runs before the ticker loop's wall clock starts, so the
+            # whole total-run budget is nominally available to it. Passing it
+            # here bounds the bounded-404-retry waits specifically: a sweep of
+            # retries can never on its own consume the budget the panel needs.
+            remaining_budget_s=TOTAL_RUN_BUDGET_S)
+        for r in effective_info.get("stage1_results", []):
+            log(f"    [{r['ticker']}] anchor-month {r['requested_start']}..{r['requested_end']} "
+                f"status={r['status']} http={r.get('http_status')} "
+                f"retry_after={r.get('retry_after')} attempts={r.get('attempts')} "
+                f"n={r.get('observed_count')} latest={r.get('latest_available_date')} "
+                f"{r.get('reason') or ''}")
+        log(f"  Stage 1 issued {effective_info.get('request_count')} request(s); "
+            f"total pacing wait "
+            f"{sum(w['waited_s'] for w in effective_info.get('pacing_waits', [])):.1f}s")
+    else:
+        effective_info = {
+            "status": "not_attempted_aggregate_watermark_failed",
+            "effective_panel_watermark_date": None,
+            "method": wiki_transport.EFFECTIVE_WATERMARK_METHOD,
+            "aggregate_watermark_date": None, "aggregate_vs_panel_lag_days": None,
+            "per_ticker_latest": {}, "stage1_results": [], "unmeasured": [],
+            "measured_count": 0, "expected_count": len(TICKERS),
+            "binding_tickers": [], "anchor_month_rows": {},
+            "anchor_month_start": None, "anchor_month_requested_end": None,
+            "request_count": 0, "pacing_waits": [],
+            "second_anchor_month_request_issued": False,
+            "resolved_at_utc": datetime.now(timezone.utc).isoformat(),
+        }
+
+    if effective_info["status"] == "ok":
+        eff_date = effective_info["effective_panel_watermark_date"]
+        log(f"Effective panel watermark: {eff_date} "
+            f"(method={effective_info['method']}, "
+            f"aggregate={effective_info['aggregate_watermark_date']}, "
+            f"aggregate_vs_panel_lag_days={effective_info['aggregate_vs_panel_lag_days']}, "
+            f"measured={effective_info['measured_count']}/{effective_info['expected_count']})")
+        log(f"  binding ticker(s) at the minimum: {', '.join(effective_info['binding_tickers'])}")
+        log(f"  STAGE 2 -- anchor-month responses reused in memory for "
+            f"{len(effective_info.get('anchor_month_rows', {}))} ticker(s); "
+            f"no second anchor-month request, nothing trailing-short cached.")
+        _ahead = sorted(t for t, d in effective_info["per_ticker_latest"].items() if d > eff_date)
+        if _ahead:
+            log(f"  {len(_ahead)} ticker(s) had newer data available and are deliberately "
+                f"truncated to the shared watermark: {', '.join(_ahead)}")
+        log("")
+    elif watermark_info["status"] == "ok":
+        log(f"*** EFFECTIVE PANEL WATERMARK COULD NOT BE ESTABLISHED "
+            f"(status={effective_info['status']!r}, "
+            f"measured={effective_info['measured_count']}/{effective_info['expected_count']}) -- "
+            f"the Wikipedia leg will be skipped for every ticker this run (fail-closed; the "
+            f"aggregate watermark is NOT substituted). unmeasured={effective_info['unmeasured']} ***\n")
+
+    # The single binding watermark for every downstream stage this run.
+    binding_watermark = effective_info.get("effective_panel_watermark_date")
+    wiki_leg_enabled = watermark_info["status"] == "ok" and effective_info["status"] == "ok"
+
     rows: list[dict] = []
+    wiki_pending_by_ticker: dict[str, dict] = {}
     wall_start = time.time()
     active_ticker = None
     exit_status = "COMPLETE"
@@ -742,8 +1382,20 @@ def main():
 
         active_ticker = ticker
         t0 = time.time()
+        # Deadline discipline (2026-07-31 correction): cap this ticker's
+        # Wikipedia first-pass chunk loop to whatever total-run budget
+        # actually remains right now, so one late ticker's Wikipedia leg
+        # cannot materially eat into the deadline meant for the tickers
+        # after it -- not just an unconditional per-chunk timeout regardless
+        # of how much run time is left.
+        wiki_remaining_budget_s = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
         try:
-            row = process_ticker(pt, ticker, run_ts)
+            row, wiki_pending = process_ticker(pt, ticker, run_ts,
+                                                wiki_remaining_budget_s=wiki_remaining_budget_s,
+                                                watermark_info=watermark_info,
+                                                effective_info=effective_info)
+            if wiki_pending is not None:
+                wiki_pending_by_ticker[ticker] = wiki_pending
         except Exception as e:
             # Isolation: an unexpected failure for one ticker must not destroy
             # already-collected rows for every other ticker.
@@ -776,25 +1428,190 @@ def main():
     else:
         active_ticker = None   # loop completed normally, without break
 
+    # --- WIKIPEDIA SECOND PASS (2026-07-31 REWRITE) -- run once at the RUN
+    # level, after every ticker's first pass, not per-ticker and not inline.
+    # A ticker queued here does NOT abort the run -- it was already
+    # preserved in `rows` (as "pending_second_pass") and every other ticker
+    # already ran to completion regardless. ---
+    if wiki_pending_by_ticker and wiki_leg_enabled:
+        combined_queue = []
+        for pending in wiki_pending_by_ticker.values():
+            combined_queue.extend(pending["failed_chunks"])
+        remaining_budget = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
+        log(f"\n*** WIKIPEDIA SECOND PASS: {len(combined_queue)} failed chunk(s) across "
+            f"{len(wiki_pending_by_ticker)} ticker(s), remaining run budget {remaining_budget:.0f}s ***")
+        second = wiki_transport.run_bounded_second_pass(combined_queue, remaining_budget_s=remaining_budget,
+                                                          watermark=binding_watermark)
+        for cr in second["chunk_results"]:
+            log(f"    [{cr['ticker']}] second-pass chunk {cr['chunk_start']}..{cr['chunk_end']} "
+                f"status={cr['status']} http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "
+                f"network={cr['network_elapsed_s']:.2f}s sleep={cr['sleep_s']:.2f}s")
+        for item in second["still_failed"]:
+            log(f"    [{item['ticker']}] chunk {item['chunk_start']}..{item['chunk_end']} "
+                f"STILL FAILED after second pass: {item['reason']}")
+
+        # --- RECENT_LAST_KNOWN_GOOD fallback (2026-07-31, approved as a
+        # narrow, strictly-bounded addition) -- runs ONLY after both the
+        # fresh attempt and the one bounded second-pass attempt have
+        # already failed, and ONLY resolves the current/open month's
+        # chunk (a closed month that failed both passes is never eligible
+        # -- see apply_recent_cache_fallback's own gating). This is a
+        # read-only evaluation: it never writes to the cache, so a failed
+        # refresh can never overwrite a valid prior snapshot. ---
+        try:
+            fallback_cache_df = wiki_transport.load_cache()
+        except wiki_transport.CacheCorruptionError as e:
+            log(f"  Wikipedia cache corruption detected during recent-cache-fallback "
+                f"evaluation -- no fallback candidates available this run: {e}")
+            fallback_cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
+        fallback = wiki_transport.apply_recent_cache_fallback(
+            second["still_failed"], fallback_cache_df, watermark=binding_watermark,
+            now_utc=datetime.now(timezone.utc))
+        for ticker, info in fallback["fallback_recovered"].items():
+            prov = info["provenance"]
+            log(f"    [{ticker}] RECENT_LAST_KNOWN_GOOD fallback used: "
+                f"age={prov['wiki_cache_age_hours']:.2f}h retrieved_at={prov['wiki_fallback_retrieved_at_utc']} "
+                f"effective_data_end={prov['wiki_effective_data_end']} "
+                f"fresh_failure_http_status={prov['wiki_fresh_failure_http_status']}")
+        for item in fallback["still_failed"]:
+            if "fallback_rejected_reason" in item:
+                log(f"    [{item['ticker']}] fallback NOT used ({item['fallback_rejected_reason']}) -- "
+                    f"remains incomplete")
+
+        # --- BOUNDED CLOSED-MONTH SUBCHUNK RECOVERY (2026-08-03) -- runs
+        # ONLY after both the second pass and the recent-cache fallback
+        # have already left something failed. Only closed months are
+        # eligible (the fallback above already claimed the open/current
+        # chunk, successfully or not); see
+        # GST_Phase2_Wikipedia_Transport.run_bounded_subchunk_recovery()
+        # for the full bounded, non-recursive, fail-closed contract. ---
+        subchunk_remaining_budget = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
+        subchunk = wiki_transport.run_bounded_subchunk_recovery(
+            fallback["still_failed"], remaining_budget_s=subchunk_remaining_budget,
+            watermark=binding_watermark)
+        for ticker, prov in subchunk["subchunk_provenance"].items():
+            log(f"    [{ticker}] subchunk recovery for {prov['original_chunk_start']}.."
+                f"{prov['original_chunk_end']}: recovered={prov['recovered']} reason={prov['reason']!r} "
+                f"requests_used={prov['requests_used']} wall_clock_s={prov['wall_clock_s']:.1f} "
+                f"budget_exhausted={prov['budget_exhausted']}")
+
+        for idx, row in enumerate(rows):
+            ticker = row["ticker"]
+            pending = wiki_pending_by_ticker.get(ticker)
+            if pending is None:
+                continue
+            recovered_rows = second["recovered"].get(ticker, [])
+            all_daily_rows = pending["daily_rows_so_far"] + recovered_rows
+            still_failed_for_ticker = [f for f in subchunk["still_failed"] if f["ticker"] == ticker]
+            fallback_info = fallback["fallback_recovered"].get(ticker)
+            subchunk_rows = subchunk["recovered"].get(ticker)
+            subchunk_prov = subchunk["subchunk_provenance"].get(ticker)
+            row["wiki_subchunk_recovery_attempted"] = subchunk_prov is not None
+            row["wiki_subchunk_recovery_provenance_json"] = json.dumps(subchunk_prov, sort_keys=True) if subchunk_prov else None
+            # 2026-08-02 additive correction: combine this ticker's
+            # preserved first-pass chunk_results (cache/fetch/cache_union_
+            # reconstruction successes alongside whatever failed) with a
+            # NORMALIZED view of this ticker's second-pass chunk_results
+            # (source="fetch" added -- second pass is always a live fetch
+            # retry, never a cache or union hit, by construction; the
+            # transport module's own chunk_results dicts for second pass
+            # carry no "source" field of their own) -- so the final
+            # provenance derivation sees every chunk that ever contributed,
+            # not just the ones from whichever pass happened to run last.
+            ticker_second_pass_results = [
+                {**cr, "source": "fetch"} for cr in second["chunk_results"] if cr["ticker"] == ticker
+            ]
+            combined_chunk_results = pending["chunk_results"] + ticker_second_pass_results
+            if fallback_info is not None:
+                all_daily_rows = all_daily_rows + fallback_info["rows"]
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, binding_watermark,
+                                    combined_chunk_results)
+                row.update(fallback_info["provenance"])   # overrides wiki_status/wiki_source_mode set by _finalize_wiki_row
+                # The RECENT_LAST_KNOWN_GOOD fallback's own existing
+                # provenance (set above) is untouched and remains
+                # authoritative for wiki_status/wiki_source_mode. This
+                # purely ADDS "recent_last_known_good" into the newer,
+                # more granular component listing alongside whatever other
+                # chunks for this ticker still contributed normally (e.g.
+                # cache or cache_union_reconstruction hits for the ticker's
+                # other, non-fallback months) -- never removes or
+                # overrides anything apply_recent_cache_fallback() itself
+                # produced.
+                existing_components = json.loads(row.get("wiki_source_components_json") or "[]")
+                merged_components = sorted(set(existing_components) | {"recent_last_known_good"})
+                row["wiki_source_components_json"] = json.dumps(merged_components, sort_keys=True)
+                log(f"    [{ticker}] wiki complete via RECENT_LAST_KNOWN_GOOD fallback: "
+                    f"z={row.get('wiki_zscore')}")
+            elif subchunk_rows is not None:
+                all_daily_rows = all_daily_rows + subchunk_rows
+                # Normalized entry so _wiki_source_provenance() recognizes
+                # this chunk's contribution -- source="subchunk_salvage" is
+                # never emitted by the transport module's own chunk_results
+                # (that module reports subchunk-level detail separately, in
+                # subchunk_prov["subchunks"]); this single normalized entry
+                # represents the ORIGINAL failed chunk, now recovered, at
+                # the same granularity as every other entry in
+                # combined_chunk_results.
+                recovered_entry = {
+                    "chunk_start": subchunk_prov["original_chunk_start"],
+                    "chunk_end": subchunk_prov["original_chunk_end"],
+                    "source": "subchunk_salvage", "status": "ok",
+                    "network_elapsed_s": subchunk_prov["wall_clock_s"], "sleep_s": 0.0,
+                }
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, binding_watermark,
+                                    combined_chunk_results + [recovered_entry])
+                log(f"    [{ticker}] wiki fully recovered via bounded closed-month subchunk recovery: "
+                    f"z={row.get('wiki_zscore')}")
+            elif still_failed_for_ticker:
+                row["wiki_status"] = "incomplete_after_second_pass"
+                row["wiki_error"] = (f"{len(still_failed_for_ticker)} chunk(s) still failed: "
+                                      + "; ".join(f"{f['chunk_start'].isoformat()}..{f['chunk_end'].isoformat()}"
+                                                   f" ({f['reason']})" for f in still_failed_for_ticker))
+                row["wiki_fresh_request_failed"] = True
+            else:
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, binding_watermark,
+                                    combined_chunk_results)
+                log(f"    [{ticker}] wiki fully recovered after second pass: z={row.get('wiki_zscore')}")
+            # all_six_fields_clean covers ONLY the six locked research
+            # fields (2026-08-01 correction) -- see the matching comment in
+            # process_ticker(). Recomputed here after second-pass/fallback
+            # recovery may have changed wiki_zscore.
+            six_fields = [row.get("gst_zscore"), row.get("wiki_zscore"), row.get("implied_volatility"),
+                          row.get("realized_vol"), row.get("price"), row.get("volume")]
+            row["all_six_fields_clean"] = all(v is not None for v in six_fields)
+            rows[idx] = row
+        write_checkpoint(rows)
+
     wall_total = time.time() - wall_start
 
-    if exit_status == "COMPLETE" and len(rows) == len(TICKERS):
+    # COMPLETE requires 24 unique tickers, all six required fields complete,
+    # valid timestamps, every Wikipedia chunk resolved (either in the first
+    # pass or the bounded second pass), AND a valid measured Wikipedia data
+    # watermark for this run -- see is_run_complete().
+    if is_run_complete(rows, exit_status, TICKERS, watermark_status=watermark_info["status"],
+                        effective_watermark_status=effective_info["status"],
+                        effective_watermark_date=binding_watermark):
         df = pd.DataFrame(rows, columns=COLUMN_ORDER)
         df.to_csv(FINAL_OUT_PATH, index=False)
         log(f"\nWrote final (COMPLETE) output: {FINAL_OUT_PATH}")
     else:
         exit_status = "PARTIAL"
-        log(f"\n*** RUN DID NOT COMPLETE ALL {len(TICKERS)} TICKERS -- "
-            f"{len(rows)} row(s) collected. Checkpoint preserved at: {CHECKPOINT_PATH} ***")
+        log(f"\n*** RUN DID NOT PRODUCE A FULLY COMPLETE PANEL -- "
+            f"{len(rows)} row(s) collected, "
+            f"{sum(1 for r in rows if r.get('all_six_fields_clean'))} fully clean. "
+            f"Checkpoint preserved at: {CHECKPOINT_PATH} ***")
 
     n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
+    n_earnings_ok = sum(1 for r in rows if r.get("earnings_status") == "ok")
     log("\n=== RUN SUMMARY ===")
     log(f"Status: {exit_status}")
-    log(f"Tickers: {len(rows)}/{len(TICKERS)}  Clean (all 6 fields + earnings): {n_clean}  "
-        f"Incomplete: {len(rows) - n_clean}")
+    log(f"Tickers: {len(rows)}/{len(TICKERS)}  Clean (six locked research fields only): {n_clean}  "
+        f"Incomplete: {len(rows) - n_clean}  Earnings lookup ok (date may still be null): {n_earnings_ok}")
     log(f"Total wall time: {wall_total:.1f}s ({wall_total/60:.2f} min)")
 
-    write_completion_marker(rows, wall_total, exit_status, active_ticker=active_ticker if exit_status == "PARTIAL" else None)
+    write_completion_marker(rows, wall_total, exit_status,
+                             active_ticker=active_ticker if exit_status == "PARTIAL" else None,
+                             watermark_info=watermark_info, effective_info=effective_info)
 
     if exit_status != "COMPLETE":
         sys.exit(1)
