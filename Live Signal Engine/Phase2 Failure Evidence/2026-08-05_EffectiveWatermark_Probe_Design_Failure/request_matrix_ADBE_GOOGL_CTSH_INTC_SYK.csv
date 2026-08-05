@@ -1,0 +1,25 @@
+ticker,article,diagnostic_pass,requested_start,requested_end,requested_days,transport_status,http_status,retry_after_s,observed_count,observed_first,observed_last,validation_valid,validation_category,purpose
+ADBE,Adobe Inc.,pass3_controlled_range_matrix,2026-07-22,2026-08-04,14,ok,200,,14,20260722,20260804,True,ok,"same window, end truncated to the watermark"
+ADBE,Adobe Inc.,pass1_unpaced_availability_probe,2026-07-22,2026-08-05,15,http_error,404,,0,,,,,14-day fixed availability probe (unpaced)
+ADBE,Adobe Inc.,pass2_paced_availability_probe,2026-07-22,2026-08-05,15,http_error,404,,0,,,,,14-day fixed availability probe (paced)
+ADBE,Adobe Inc.,pass3_controlled_range_matrix,2026-07-22,2026-08-05,15,http_error,404,,0,,,False,,repeat of the failing probe window -- is the 404 deterministic?
+ADBE,Adobe Inc.,pass3_controlled_range_matrix,2026-08-01,2026-08-04,4,ok,200,,3,20260801,20260803,False,incomplete_coverage,open-month chunk truncated to the watermark
+ADBE,Adobe Inc.,pass2_interval_probe,2026-08-01,2026-08-05,5,ok,200,,4,20260801,20260804,,,Diagnostic B B1:ADBE:production
+CTSH,Cognizant,pass2_interval_probe,2026-07-08,2026-07-14,7,ok,200,,7,20260708,20260714,,,Diagnostic B B1:CTSH:production
+CTSH,Cognizant,pass1_unpaced_availability_probe,2026-07-22,2026-08-05,15,ok,200,,14,20260722,20260804,,,14-day fixed availability probe (unpaced)
+CTSH,Cognizant,pass2_paced_availability_probe,2026-07-22,2026-08-05,15,ok,200,,14,20260722,20260804,,,14-day fixed availability probe (paced)
+GOOGL,Alphabet Inc.,pass3_controlled_range_matrix,2026-07-22,2026-08-04,14,ok,200,,14,20260722,20260804,True,ok,"same window, end truncated to the watermark"
+GOOGL,Alphabet Inc.,pass1_unpaced_availability_probe,2026-07-22,2026-08-05,15,http_error,429,39,0,,,,,14-day fixed availability probe (unpaced)
+GOOGL,Alphabet Inc.,pass2_paced_availability_probe,2026-07-22,2026-08-05,15,http_error,404,,0,,,,,14-day fixed availability probe (paced)
+GOOGL,Alphabet Inc.,pass3_controlled_range_matrix,2026-07-22,2026-08-05,15,http_error,404,,0,,,False,,repeat of the failing probe window -- is the 404 deterministic?
+GOOGL,Alphabet Inc.,pass3_controlled_range_matrix,2026-08-01,2026-08-04,4,ok,200,,3,20260801,20260803,False,incomplete_coverage,open-month chunk truncated to the watermark
+GOOGL,Alphabet Inc.,pass3_controlled_range_matrix,2026-08-01,2026-08-05,5,ok,200,,4,20260801,20260804,True,ok,open-month chunk as production builds it (past the watermark)
+INTC,Intel,pass1_unpaced_availability_probe,2026-07-22,2026-08-05,15,http_error,429,36,0,,,,,14-day fixed availability probe (unpaced)
+INTC,Intel,pass2_paced_availability_probe,2026-07-22,2026-08-05,15,ok,200,,14,20260722,20260804,,,14-day fixed availability probe (paced)
+INTC,Intel,pass2_interval_probe,2026-08-01,2026-08-05,5,ok,200,,4,20260801,20260804,,,Diagnostic B B1:INTC:production
+SYK,Stryker Corporation,pass3_controlled_range_matrix,2026-07-22,2026-08-04,14,ok,200,,14,20260722,20260804,True,ok,probe window truncated to the watermark
+SYK,Stryker Corporation,pass1_unpaced_availability_probe,2026-07-22,2026-08-05,15,http_error,429,24,0,,,,,14-day fixed availability probe (unpaced)
+SYK,Stryker Corporation,pass2_paced_availability_probe,2026-07-22,2026-08-05,15,ok,200,,14,20260722,20260804,,,14-day fixed availability probe (paced)
+SYK,Stryker Corporation,pass3_controlled_range_matrix,2026-07-22,2026-08-05,15,ok,200,,14,20260722,20260804,True,ok,probe window past the watermark (probe-loop shape)
+SYK,Stryker Corporation,pass2_interval_probe,2026-08-01,2026-08-04,4,ok,200,,4,20260801,20260804,,,Diagnostic B B2:SYK:7day
+SYK,Stryker Corporation,pass2_interval_probe,2026-08-01,2026-08-05,5,http_error,404,,0,,,,,Diagnostic B B1:SYK:production
