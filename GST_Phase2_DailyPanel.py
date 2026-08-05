@@ -527,6 +527,19 @@ COLUMN_ORDER = [
     "wiki_aggregate_watermark_date", "wiki_article_latest_available_date",
     "wiki_effective_panel_watermark_date", "wiki_effective_watermark_method",
     "wiki_aggregate_vs_panel_lag_days",
+    # ANCHOR-MONTH STAGE-1 TRANSPORT provenance (2026-08-05). Per-ticker, and
+    # deliberately verbose: the 2026-08-05 22/24 gate failed on single 404s
+    # that a bounded identical-request retry now absorbs, and it must stay
+    # auditable afterwards exactly HOW a measurement was obtained -- first
+    # try, or recovered after a transient 404, and at what cost. All five are
+    # additive; none participates in any gate.
+    #   anchor_month_attempt_statuses / _retry_wait_seconds are deterministic
+    # JSON lists in attempt order, so an identical attempt sequence always
+    # serializes identically.
+    "wiki_anchor_month_attempt_count", "wiki_anchor_month_attempt_statuses",
+    "wiki_anchor_month_retry_wait_seconds",
+    "wiki_anchor_month_recovered_after_transient_404",
+    "wiki_anchor_month_final_http_status",
     # Z-SCORE ANCHOR provenance (2026-08-02 correction -- see
     # _finalize_wiki_row()). The anchor passed to compute_zscore_at_anchor()
     # must be the measured watermark date, never the script's real
@@ -763,6 +776,17 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
         effective_watermark_date.isoformat() if effective_watermark_date else None)
     row["wiki_effective_watermark_method"] = effective_info.get("method")
     row["wiki_aggregate_vs_panel_lag_days"] = effective_info.get("aggregate_vs_panel_lag_days")
+    _s1 = next((r for r in (effective_info.get("stage1_results") or [])
+                if r.get("ticker") == ticker), None)
+    row["wiki_anchor_month_attempt_count"] = _s1.get("anchor_month_attempt_count") if _s1 else None
+    row["wiki_anchor_month_attempt_statuses"] = (
+        json.dumps(_s1.get("anchor_month_attempt_statuses") or []) if _s1 else None)
+    row["wiki_anchor_month_retry_wait_seconds"] = (
+        json.dumps(_s1.get("anchor_month_retry_wait_seconds") or []) if _s1 else None)
+    row["wiki_anchor_month_recovered_after_transient_404"] = (
+        _s1.get("anchor_month_recovered_after_transient_404") if _s1 else None)
+    row["wiki_anchor_month_final_http_status"] = (
+        _s1.get("anchor_month_final_http_status") if _s1 else None)
 
     if article is None:
         row["wiki_status"] = "error"
@@ -1115,6 +1139,12 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
                                               if r.get("latest_available_date") else None),
                     "http_status": r.get("http_status"), "attempts": r.get("attempts"),
                     "reason": r.get("reason"),
+                    "anchor_month_attempt_count": r.get("anchor_month_attempt_count"),
+                    "anchor_month_attempt_statuses": r.get("anchor_month_attempt_statuses"),
+                    "anchor_month_retry_wait_seconds": r.get("anchor_month_retry_wait_seconds"),
+                    "anchor_month_recovered_after_transient_404":
+                        r.get("anchor_month_recovered_after_transient_404"),
+                    "anchor_month_final_http_status": r.get("anchor_month_final_http_status"),
                 }
                 for r in sorted(effective_info.get("stage1_results", []),
                                 key=lambda x: x["ticker"])
@@ -1278,7 +1308,12 @@ def main():
             f"{wiki_transport.AVAILABILITY_MIN_REQUEST_INTERVAL_S:.1f}s minimum interval "
             f"through one shared limiter.")
         effective_info = wiki_transport.resolve_effective_panel_watermark(
-            TICKERS, TICKER_TO_WIKI_ARTICLE, aggregate_watermark_info=watermark_info)
+            TICKERS, TICKER_TO_WIKI_ARTICLE, aggregate_watermark_info=watermark_info,
+            # Stage 1 runs before the ticker loop's wall clock starts, so the
+            # whole total-run budget is nominally available to it. Passing it
+            # here bounds the bounded-404-retry waits specifically: a sweep of
+            # retries can never on its own consume the budget the panel needs.
+            remaining_budget_s=TOTAL_RUN_BUDGET_S)
         for r in effective_info.get("stage1_results", []):
             log(f"    [{r['ticker']}] anchor-month {r['requested_start']}..{r['requested_end']} "
                 f"status={r['status']} http={r.get('http_status')} "

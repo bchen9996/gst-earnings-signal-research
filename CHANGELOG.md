@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-08-05 — Phase 2: bounded identical-request retry on HTTP 404 in the anchor-month availability stage
+
+**Why.** The 22/24 availability gate (`4501e36`, evidence in `Live Signal Engine/Phase2 Failure Evidence/2026-08-05_AnchorMonth_AvailabilityGate_22of24/`) confirmed the pacing fix works — zero unhandled 429s across 26 requests — but left GPN and TTWO failing on a *single* HTTP 404 against the exact anchor-month request. That is transient CDN transport behaviour, not unavailable data and not an identity problem: both articles are locked and previously identity-validated, the set of 404-ing articles changes between runs, and CTSH/INTC/SYK (the three previously "unresolved" intervals) all returned clean 200s in the same gate.
+
+**What changed** (`GST_Phase2_Wikipedia_Transport.py`, Stage 1 only):
+
+- A 404 now triggers a bounded retry of the **identical** request — same article title, same date boundaries, same endpoint/access/agent/granularity. Stage 1 has exactly one `fetch_fn` call site with a fixed argument tuple, so no code path can vary the request between attempts (asserted by test 25).
+- `ANCHOR_MONTH_MAX_ATTEMPTS = 3` (initial + 2 retries); `ANCHOR_MONTH_404_BACKOFF_S = [20.0, 40.0]` plus bounded 0–5 s jitter. A longer server `Retry-After` is honoured over the schedule, still capped at `AVAILABILITY_MAX_RETRY_AFTER_WAIT_S`.
+- Every attempt, retries included, passes through the one `SharedRequestLimiter`; the backoff is applied *through* that shared gate, so a burst of retries cannot exceed the global rate.
+- Retries stop early if the next wait would push past the total-run safety budget (`remaining_budget_s`, wired to `TOTAL_RUN_BUDGET_S`).
+- **First structurally valid HTTP 200 wins** — no further attempt is ever made to chase a fresher watermark (test 26).
+- Only a 404 *opens* a retry sequence; an invalid 200 may *continue* an open one, so a first-attempt malformed response keeps its prior fail-closed behaviour. 400/401/403 are never retried. 429 and 5xx/timeout keep their pre-existing bounded handling unchanged.
+- A 404 surviving all three attempts remains a hard fail-closed result. No alternate request shape, cached magnitude data, zero-fill, interpolation, synthetic observation, or aggregate-watermark substitution — and Stage-1 responses are still never written to the operational cache.
+
+**Additive provenance** (per ticker, on the panel row, in `stage1_results`, and in the completion marker): `anchor_month_attempt_count`, `anchor_month_attempt_statuses`, `anchor_month_retry_wait_seconds`, `anchor_month_recovered_after_transient_404`, `anchor_month_final_http_status`. None participates in any gate.
+
+**Tests**: 15 new deterministic tests (19–33) covering every required case — success on attempt 1; 404→200; 404,404→200; three 404s fail closed; 404 then malformed 200 (with and without a later valid attempt); 400/401/403 never retried; identical URL and boundaries on every attempt; no alternative-range fallback; first valid 200 stops further calls; all attempts through the shared limiter; `Retry-After` honoured, capped, and not shrinking the schedule; total-run budget stopping retries; deterministic jitter injection; provenance matching the real attempt sequence; no cache writes; and magnitude-independence of retry and watermark decisions. Full deterministic suite: **12 files, 617 assertions, all passing**; operational cache byte-identical (`2cc29dde…ad93d`, 8238 rows).
+
+**Live availability gate (cache-isolated, no panel): 23/24, still failed closed.** The mechanism works as intended — **GPN recovered on attempt 2** (`404, 200_ok`, 24.8 s wait), exactly the case it was built for, and zero 429s occurred across 27 requests. **TTWO exhausted all three attempts** (`404, 404, 404`; waits 24.6 s and 43.8 s; ~68 s span). Of the 23 that succeeded, 12 reported `2026-08-03` and 11 reported `2026-08-04`, so the candidate common watermark would have been `2026-08-03`. Per the gate, no panel was run, the gate was not rerun, and no further fallback was added.
+
 ## 2026-08-05 — Phase 2 correction: two-stage anchor-month watermark replaces the separate availability probe
 
 **Corrects commit `9990c39`**, which a read-only live diagnostic proved release-blocking before it ever ran a panel. Full evidence: `Live Signal Engine/Phase2 Failure Evidence/2026-08-05_EffectiveWatermark_Probe_Design_Failure/` (commits `a0ec503`, `1ec102a`).

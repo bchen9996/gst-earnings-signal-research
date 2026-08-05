@@ -716,6 +716,419 @@ def _eff_info(effective, aggregate=AGG, tickers=("AAPL", "MSFT")):
             "resolved_at_utc": "2026-08-05T02:00:00+00:00"}
 
 
+
+
+# =============================================================================
+# BOUNDED IDENTICAL-REQUEST RETRY ON HTTP 404 (2026-08-05)
+#
+# The 22/24 availability gate left GPN and TTWO failing on a single 404 against
+# the exact anchor-month request -- transient CDN transport, not unavailable
+# data (the set of 404-ing articles changes between runs, and CTSH/INTC/SYK,
+# the three previously "unresolved" intervals, all returned clean 200s in the
+# same gate). See Live Signal Engine/Phase2 Failure Evidence/
+# 2026-08-05_AnchorMonth_AvailabilityGate_22of24/.
+# =============================================================================
+
+ONE = ["T00"]
+ONE_ART = {"T00": "Article_T00"}
+
+
+def _scripted(script):
+    """fetch stub driven by a per-attempt script. Each entry is one of:
+    'ok' | 'invalid' | 'timeout' | int status | (status, retry_after).
+    Records the exact (article, start, end, timeout_s) of every call so tests
+    can assert the request never varies between attempts."""
+    calls = []
+
+    def fn(a, start, end, timeout_s=None):
+        calls.append({"article": a, "start": start, "end": end, "timeout_s": timeout_s})
+        step = script[min(len(calls) - 1, len(script) - 1)]
+        if step == "ok":
+            return {"status": "ok", "http_status": 200, "items": _rows(start, min(end, AGG)),
+                    "url": "http://mock/x", "network_elapsed_s": 0.01, "retry_after": None}
+        if step == "invalid":   # HTTP 200 but structurally unusable (interior gap)
+            return {"status": "ok", "http_status": 200,
+                    "items": _rows(start, min(end, AGG), skip=(MONTH_START + timedelta(days=1),)),
+                    "url": "http://mock/x", "network_elapsed_s": 0.01, "retry_after": None}
+        if step == "timeout":
+            return {"status": "timeout", "http_status": None, "items": [], "url": "http://mock/x",
+                    "network_elapsed_s": None, "retry_after": None, "terminated": True}
+        if isinstance(step, tuple):
+            code, ra = step
+            return {"status": "http_error", "http_status": code, "items": [],
+                    "url": "http://mock/x", "network_elapsed_s": 0.01, "retry_after": ra}
+        return {"status": "http_error", "http_status": step, "items": [],
+                "url": "http://mock/x", "network_elapsed_s": 0.01, "retry_after": None}
+
+    fn.calls = calls
+    return fn
+
+
+def _no_jitter(lo, hi):
+    return 0.0
+
+
+def _stage1(script, **kw):
+    """Runs Stage 1 for a single ticker under a deterministic clock."""
+    fn = _scripted(script)
+    lim, clock = _limiter()
+    res = wt.retrieve_anchor_month_availability(
+        ONE, ONE_ART, AGG, fetch_fn=fn, limiter=lim,
+        jitter_fn=kw.pop("jitter_fn", _no_jitter), **kw)
+    return res, res["results"][0], fn, lim, clock
+
+
+# === 19. 200 on attempt 1 -> exactly one request ===
+def test_19_success_first_attempt():
+    res, r, fn, lim, _ = _stage1(["ok"])
+    check("19. exactly one request issued", len(fn.calls) == 1, len(fn.calls))
+    check("19. attempt count is 1", r["anchor_month_attempt_count"] == 1, r)
+    check("19. attempt statuses == ['200_ok']", r["anchor_month_attempt_statuses"] == ["200_ok"], r)
+    check("19. no retry waits recorded", r["anchor_month_retry_wait_seconds"] == [], r)
+    check("19. not flagged as recovered after a transient 404",
+          r["anchor_month_recovered_after_transient_404"] is False, r)
+    check("19. final http status 200", r["anchor_month_final_http_status"] == 200, r)
+    check("19. usable", r["status"] == "ok" and res["usable_count"] == 1, r)
+
+
+# === 20. 404 then 200 -> accepted on attempt 2 ===
+def test_20_404_then_200():
+    res, r, fn, lim, clock = _stage1([404, "ok"])
+    check("20. exactly two requests", len(fn.calls) == 2, len(fn.calls))
+    check("20. accepted on attempt 2", r["anchor_month_attempt_count"] == 2, r)
+    check("20. statuses are ['404', '200_ok']",
+          r["anchor_month_attempt_statuses"] == ["404", "200_ok"], r)
+    check("20. one retry wait recorded, 20s + zero jitter",
+          r["anchor_month_retry_wait_seconds"] == [20.0], r["anchor_month_retry_wait_seconds"])
+    check("20. flagged as recovered after a transient 404",
+          r["anchor_month_recovered_after_transient_404"] is True, r)
+    check("20. the 20s wait was genuinely slept",
+          any(abs(s - 20.0) < 1e-6 for s in clock.sleeps), clock.sleeps)
+    check("20. measurement is usable", r["status"] == "ok" and res["usable_count"] == 1, r)
+    check("20. final http status 200", r["anchor_month_final_http_status"] == 200, r)
+
+
+# === 21. 404, 404, then 200 -> accepted on attempt 3 ===
+def test_21_404_404_then_200():
+    res, r, fn, lim, clock = _stage1([404, 404, "ok"])
+    check("21. exactly three requests", len(fn.calls) == 3, len(fn.calls))
+    check("21. accepted on attempt 3", r["anchor_month_attempt_count"] == 3, r)
+    check("21. statuses are ['404','404','200_ok']",
+          r["anchor_month_attempt_statuses"] == ["404", "404", "200_ok"], r)
+    check("21. waits are the scheduled 20s then 40s",
+          r["anchor_month_retry_wait_seconds"] == [20.0, 40.0],
+          r["anchor_month_retry_wait_seconds"])
+    check("21. both waits genuinely slept",
+          any(abs(s - 20.0) < 1e-6 for s in clock.sleeps)
+          and any(abs(s - 40.0) < 1e-6 for s in clock.sleeps), clock.sleeps)
+    check("21. usable and flagged recovered",
+          r["status"] == "ok" and r["anchor_month_recovered_after_transient_404"] is True, r)
+
+
+# === 22. Three 404s -> failed closed ===
+def test_22_three_404s_fail_closed():
+    res, r, fn, _, _ = _stage1([404, 404, 404])
+    check("22. exactly three requests -- never a fourth",
+          len(fn.calls) == wt.ANCHOR_MONTH_MAX_ATTEMPTS, len(fn.calls))
+    check("22. ticker is unusable", r["status"] == "unusable", r["status"])
+    check("22. statuses are three 404s",
+          r["anchor_month_attempt_statuses"] == ["404", "404", "404"], r)
+    check("22. no latest date was invented", r["latest_available_date"] is None, r)
+    check("22. Stage 1 reports the failure",
+          res["usable_count"] == 0 and len(res["failures"]) == 1, res["failures"])
+    check("22. the reason names the attempt count", "3 attempt(s)" in r["reason"], r["reason"])
+    full = wt.resolve_effective_panel_watermark(ONE, ONE_ART, _agg(),
+                                                 fetch_fn=_scripted([404, 404, 404]),
+                                                 limiter=_limiter()[0], jitter_fn=_no_jitter)
+    check("22. panel fails closed with no effective watermark",
+          full["status"] == "failed_closed"
+          and full["effective_panel_watermark_date"] is None, full["status"])
+    check("22. the aggregate watermark is NOT substituted",
+          full["effective_panel_watermark_date"] != AGG)
+
+
+# === 23. 404 then malformed 200, then a valid 200 on the last allowed attempt ===
+def test_23_404_then_malformed_then_valid():
+    res, r, fn, _, _ = _stage1([404, "invalid", "ok"])
+    check("23. all three attempts used", len(fn.calls) == 3, len(fn.calls))
+    check("23. the malformed 200 did not end the sequence",
+          r["anchor_month_attempt_statuses"] == ["404", "200_invalid:internal_gap", "200_ok"],
+          r["anchor_month_attempt_statuses"])
+    check("23. the later valid 200 is accepted", r["status"] == "ok", r)
+
+    res2, r2, fn2, _, _ = _stage1([404, "invalid", "invalid"])
+    check("23. 404 + two malformed 200s -> failed closed", r2["status"] == "unusable", r2["status"])
+    check("23. the malformed response was never accepted as data",
+          r2["latest_available_date"] is None, r2)
+    check("23. reason names the structural category", "internal_gap" in r2["reason"], r2["reason"])
+
+    res3, r3, fn3, _, _ = _stage1(["invalid", "ok"])
+    check("23. a first-attempt malformed 200 is NOT retried (prior behaviour preserved)",
+          len(fn3.calls) == 1 and r3["status"] == "unusable", (len(fn3.calls), r3["status"]))
+
+
+# === 24. 400 / 401 / 403 are never retried; 5xx and timeout keep prior handling ===
+def test_24_no_retry_on_client_errors():
+    for code in (400, 401, 403):
+        res, r, fn, _, _ = _stage1([code, "ok"])
+        check(f"24. HTTP {code}: exactly one request, no retry", len(fn.calls) == 1, len(fn.calls))
+        check(f"24. HTTP {code}: fails closed", r["status"] == "unusable", r["status"])
+        check(f"24. HTTP {code}: recorded as the final status",
+              r["anchor_month_final_http_status"] == code, r)
+        check(f"24. HTTP {code}: no retry wait", r["anchor_month_retry_wait_seconds"] == [], r)
+
+    for label, step in (("500", 500), ("timeout", "timeout")):
+        res, r, fn, _, _ = _stage1([step, "ok"])
+        check(f"24. {label}: prior bounded handling preserved -- one request, fails closed",
+              len(fn.calls) == 1 and r["status"] == "unusable", (len(fn.calls), r["status"]))
+
+
+# === 25. Same URL and boundaries on every attempt; no alternative shape ===
+def test_25_identical_request_every_attempt():
+    res, r, fn, _, _ = _stage1([404, 404, "ok"])
+    shapes = {(c["article"], c["start"], c["end"]) for c in fn.calls}
+    check("25. all three attempts used ONE identical (article, start, end)",
+          len(shapes) == 1, shapes)
+    check("25. the article title never varied",
+          {c["article"] for c in fn.calls} == {"Article_T00"})
+    check("25. the boundaries are exactly the anchor month through the aggregate watermark",
+          shapes == {("Article_T00", MONTH_START, AGG)}, shapes)
+    check("25. no attempt used a wider or narrower range (no alternative-range fallback)",
+          all(c["start"] == MONTH_START and c["end"] == AGG for c in fn.calls))
+    check("25. the timeout passed is identical on every attempt",
+          len({c["timeout_s"] for c in fn.calls}) == 1, {c["timeout_s"] for c in fn.calls})
+    import inspect
+    src = inspect.getsource(wt.retrieve_anchor_month_availability)
+    stripped = (src.replace("fetch_fn(article, month_start, requested_end, timeout_s)", "")
+                   .replace("fetch_fn = fetch_fn or fetch_chunk_isolated", ""))
+    check("25. Stage 1 has exactly ONE fetch call site, with a fixed argument tuple -- "
+          "endpoint/access/agent/granularity cannot vary between attempts",
+          src.count("fetch_fn(article, month_start, requested_end, timeout_s)") == 1
+          and "fetch_fn(" not in stripped)
+
+
+# === 26. First valid 200 stops further calls ===
+def test_26_first_valid_200_wins():
+    calls = []
+
+    def fn(a, start, end, timeout_s=None):
+        calls.append(1)
+        latest = AGG - timedelta(days=1) if len(calls) == 1 else AGG
+        return {"status": "ok", "http_status": 200, "items": _rows(start, latest),
+                "url": "u", "network_elapsed_s": 0.01, "retry_after": None}
+
+    lim, _ = _limiter()
+    res = wt.retrieve_anchor_month_availability(ONE, ONE_ART, AGG, fetch_fn=fn, limiter=lim,
+                                                 jitter_fn=_no_jitter)
+    r = res["results"][0]
+    check("26. only one request was made", len(calls) == 1, len(calls))
+    check("26. the FIRST valid response's date is kept, not a fresher one",
+          r["latest_available_date"] == AGG - timedelta(days=1), r["latest_available_date"])
+    check("26. no second attempt was made to chase a fresher watermark",
+          r["anchor_month_attempt_count"] == 1, r)
+
+
+# === 27. Every attempt passes through the shared limiter ===
+def test_27_retries_use_shared_limiter():
+    res, r, fn, lim, clock = _stage1([404, 404, "ok"])
+    check("27. the limiter counted all three attempts", lim.request_count == 3, lim.request_count)
+    check("27. one pacing record per attempt", len(lim.waits) == 3, len(lim.waits))
+    check("27. retry waits were enforced BY the limiter, not an ad-hoc sleep",
+          [round(x) for x in clock.sleeps if x > 0] == [20, 40], clock.sleeps)
+    check("27. the backoff SUPERSEDES the shared minimum interval rather than adding to it "
+          "(the limiter gate is a max, so a 20s backoff already covers the 3.5s floor)",
+          all(x >= wt.AVAILABILITY_MIN_REQUEST_INTERVAL_S for x in clock.sleeps if x > 0),
+          clock.sleeps)
+    check("27. total elapsed covers both backoffs (rate genuinely bounded across retries)",
+          clock.t >= 60.0, clock.t)
+
+    seen = []
+    target = ARTICLES[UNIVERSE[0]]
+
+    def fn24(a, start, end, timeout_s=None):
+        seen.append(a)
+        if a == target and len([x for x in seen if x == a]) == 1:
+            return {"status": "http_error", "http_status": 404, "items": [], "url": "u",
+                    "network_elapsed_s": 0.0, "retry_after": None}
+        return {"status": "ok", "http_status": 200, "items": _rows(start, min(end, AGG)),
+                "url": "u", "network_elapsed_s": 0.0, "retry_after": None}
+
+    lim2, clock2 = _limiter()
+    res2 = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn24,
+                                                 limiter=lim2, jitter_fn=_no_jitter)
+    check("27. 24 tickers + 1 retry = 25 limiter-gated requests",
+          lim2.request_count == 25, lim2.request_count)
+    check("27. the retry did not bypass the global rate",
+          len(lim2.waits) == 25 and res2["status"] == "ok", res2["status"])
+
+
+# === 28. Retry-After honored when it asks for longer; 429 unchanged ===
+def test_28_retry_after_on_404():
+    res, r, fn, _, clock = _stage1([(404, 55), "ok"])
+    check("28. a 404 carrying a longer Retry-After overrides the 20s schedule",
+          r["anchor_month_retry_wait_seconds"] == [55.0], r["anchor_month_retry_wait_seconds"])
+    check("28. the 55s wait was genuinely slept",
+          any(abs(s - 55.0) < 1e-6 for s in clock.sleeps), clock.sleeps)
+
+    res2, r2, _, _, _ = _stage1([(404, 3), "ok"])
+    check("28. a SHORTER Retry-After does not shrink the scheduled backoff",
+          r2["anchor_month_retry_wait_seconds"] == [20.0], r2["anchor_month_retry_wait_seconds"])
+
+    res3, r3, _, _, _ = _stage1([(404, 10 ** 6), "ok"])
+    check("28. an absurd Retry-After is capped at the module bound",
+          r3["anchor_month_retry_wait_seconds"] == [wt.AVAILABILITY_MAX_RETRY_AFTER_WAIT_S],
+          r3["anchor_month_retry_wait_seconds"])
+
+    res4, r4, fn4, _, clock4 = _stage1([(429, 12), "ok"])
+    check("28. 429 still retried once via its own pre-existing path",
+          len(fn4.calls) == 2 and r4["status"] == "ok", (len(fn4.calls), r4["status"]))
+    check("28. 429 honored its Retry-After of 12s",
+          any(abs(s - 12.0) < 1e-6 for s in clock4.sleeps), clock4.sleeps)
+    res5, r5, fn5, _, _ = _stage1([429, 429, 429])
+    check("28. 429 retries stay bounded at the pre-existing limit (2 attempts, not 3)",
+          len(fn5.calls) == wt.AVAILABILITY_MAX_429_RETRIES + 1, len(fn5.calls))
+
+
+# === 29. Total-run budget exhaustion stops retries ===
+def test_29_budget_stops_retries():
+    res, r, fn, _, _ = _stage1([404, "ok"], remaining_budget_s=5.0)
+    check("29. the retry wait would exceed the budget, so no second attempt was made",
+          len(fn.calls) == 1, len(fn.calls))
+    check("29. the ticker fails closed rather than overrunning the budget",
+          r["status"] == "unusable", r["status"])
+    check("29. the budget stop is recorded in the attempt statuses",
+          "budget_exhausted_no_further_attempt" in r["anchor_month_attempt_statuses"],
+          r["anchor_month_attempt_statuses"])
+    check("29. the reason names the budget", "budget" in r["reason"], r["reason"])
+    check("29. no wait was recorded for the attempt that never happened",
+          r["anchor_month_retry_wait_seconds"] == [], r)
+
+    res2, r2, fn2, _, _ = _stage1([404, "ok"], remaining_budget_s=10_000.0)
+    check("29. with ample budget the retry proceeds normally",
+          len(fn2.calls) == 2 and r2["status"] == "ok", (len(fn2.calls), r2["status"]))
+
+    res3, r3, fn3, _, _ = _stage1([404, 404, "ok"], remaining_budget_s=40.0)
+    check("29. a budget allowing the first retry but not the second stops after two attempts",
+          len(fn3.calls) == 2, len(fn3.calls))
+
+
+# === 30. Deterministic jitter injection ===
+def test_30_deterministic_jitter():
+    for j in (0.0, 2.5, 5.0):
+        res, r, _, _, _ = _stage1([404, "ok"], jitter_fn=lambda lo, hi, _j=j: _j)
+        check(f"30. jitter {j}s is added to the 20s schedule",
+              r["anchor_month_retry_wait_seconds"] == [20.0 + j],
+              r["anchor_month_retry_wait_seconds"])
+    seen = []
+
+    def spy(lo, hi):
+        seen.append((lo, hi))
+        return 1.0
+
+    _stage1([404, 404, "ok"], jitter_fn=spy)
+    check("30. jitter is drawn from the bounded 0..ANCHOR_MONTH_404_JITTER_S range",
+          seen == [(0.0, wt.ANCHOR_MONTH_404_JITTER_S)] * 2, seen)
+
+
+# === 31. Provenance matches the actual attempt sequence ===
+def test_31_provenance_matches_attempts():
+    cases = [
+        (["ok"], 1, ["200_ok"], [], False, 200),
+        ([404, "ok"], 2, ["404", "200_ok"], [20.0], True, 200),
+        ([404, 404, "ok"], 3, ["404", "404", "200_ok"], [20.0, 40.0], True, 200),
+        ([404, 404, 404], 3, ["404", "404", "404"], [20.0, 40.0], False, 404),
+    ]
+    for script, n, statuses, waits, recovered, final in cases:
+        _, r, fn, _, _ = _stage1(script)
+        check(f"31. {script}: attempt_count matches the real request count",
+              r["anchor_month_attempt_count"] == n == len(fn.calls),
+              (r["anchor_month_attempt_count"], len(fn.calls)))
+        check(f"31. {script}: attempt_statuses in order",
+              r["anchor_month_attempt_statuses"] == statuses, r["anchor_month_attempt_statuses"])
+        check(f"31. {script}: retry_wait_seconds matches the waits taken",
+              r["anchor_month_retry_wait_seconds"] == waits, r["anchor_month_retry_wait_seconds"])
+        check(f"31. {script}: recovered_after_transient_404 == {recovered}",
+              r["anchor_month_recovered_after_transient_404"] is recovered, r)
+        check(f"31. {script}: final_http_status == {final}",
+              r["anchor_month_final_http_status"] == final, r)
+
+    eff = _eff_info(AGG - timedelta(days=1))
+    eff["stage1_results"] = [{"ticker": TICKER, "anchor_month_attempt_count": 2,
+                              "anchor_month_attempt_statuses": ["404", "200_ok"],
+                              "anchor_month_retry_wait_seconds": [20.0],
+                              "anchor_month_recovered_after_transient_404": True,
+                              "anchor_month_final_http_status": 200}]
+    cap = []
+    restore = _install_stubs(cap)
+    try:
+        row, _ = panel.process_ticker(None, TICKER, datetime(2026, 8, 5, 2, 0, tzinfo=timezone.utc),
+                                       wiki_remaining_budget_s=100.0, watermark_info=_agg(),
+                                       effective_info=eff)
+    finally:
+        restore()
+    import json as _json
+    check("31. panel row carries the attempt count",
+          row["wiki_anchor_month_attempt_count"] == 2, row["wiki_anchor_month_attempt_count"])
+    check("31. panel row carries the attempt statuses as deterministic JSON",
+          _json.loads(row["wiki_anchor_month_attempt_statuses"]) == ["404", "200_ok"],
+          row["wiki_anchor_month_attempt_statuses"])
+    check("31. panel row carries the retry waits",
+          _json.loads(row["wiki_anchor_month_retry_wait_seconds"]) == [20.0],
+          row["wiki_anchor_month_retry_wait_seconds"])
+    check("31. panel row flags the transient-404 recovery",
+          row["wiki_anchor_month_recovered_after_transient_404"] is True, row)
+    check("31. panel row carries the final http status",
+          row["wiki_anchor_month_final_http_status"] == 200, row)
+
+
+# === 32. Retries write nothing to the cache ===
+def test_32_no_cache_writes_from_retries():
+    before = wt.CACHE_PATH.exists()
+    for script in ([404, "ok"], [404, 404, "ok"], [404, 404, 404]):
+        _stage1(script)
+    check("32. no cache file was created by any retry path",
+          wt.CACHE_PATH.exists() == before, str(wt.CACHE_PATH))
+
+    full = wt.resolve_effective_panel_watermark(ONE, ONE_ART, _agg(),
+                                                 fetch_fn=_scripted([404, "ok"]),
+                                                 limiter=_limiter()[0], jitter_fn=_no_jitter)
+    check("32. a recovered response is carried in memory, not cached",
+          full["status"] == "ok" and ONE[0] in full["anchor_month_rows"]
+          and not wt.CACHE_PATH.exists(), full["status"])
+    import inspect
+    check("32. Stage 1 contains no cache-write call at all",
+          "write_chunk_to_cache" not in inspect.getsource(wt.retrieve_anchor_month_availability))
+
+
+# === 33. Pageview magnitudes cannot affect retry or watermark decisions ===
+def test_33_magnitude_cannot_affect_retry():
+    outcomes = []
+    for mag in (0, 1, 10 ** 9):
+        calls = []
+
+        def fn(a, start, end, timeout_s=None, _m=mag):
+            calls.append(1)
+            if len(calls) == 1:
+                return {"status": "http_error", "http_status": 404, "items": [], "url": "u",
+                        "network_elapsed_s": 0.0, "retry_after": None}
+            return {"status": "ok", "http_status": 200,
+                    "items": _rows(start, min(end, AGG), views=_m), "url": "u",
+                    "network_elapsed_s": 0.0, "retry_after": None}
+
+        lim, _ = _limiter()
+        res = wt.retrieve_anchor_month_availability(ONE, ONE_ART, AGG, fetch_fn=fn, limiter=lim,
+                                                     jitter_fn=_no_jitter)
+        r = res["results"][0]
+        outcomes.append((len(calls), r["anchor_month_attempt_count"],
+                         tuple(r["anchor_month_attempt_statuses"]),
+                         tuple(r["anchor_month_retry_wait_seconds"]),
+                         r["latest_available_date"]))
+    check("33. retry count, statuses, waits and measured date are identical across magnitudes",
+          len(set(outcomes)) == 1, outcomes)
+    check("33. an all-zero-views response is accepted exactly like any other",
+          outcomes[0][4] == AGG, outcomes[0])
+
+
 if __name__ == "__main__":
     _bh = _sha256(_OPERATIONAL_CACHE)
     _bs = _OPERATIONAL_CACHE.stat().st_size if _OPERATIONAL_CACHE.exists() else None
@@ -738,6 +1151,21 @@ if __name__ == "__main__":
         test_15_uniform_watermark_across_rows()
         test_16_order_invariance()
         test_17_magnitude_invariance()
+        test_19_success_first_attempt()
+        test_20_404_then_200()
+        test_21_404_404_then_200()
+        test_22_three_404s_fail_closed()
+        test_23_404_then_malformed_then_valid()
+        test_24_no_retry_on_client_errors()
+        test_25_identical_request_every_attempt()
+        test_26_first_valid_200_wins()
+        test_27_retries_use_shared_limiter()
+        test_28_retry_after_on_404()
+        test_29_budget_stops_retries()
+        test_30_deterministic_jitter()
+        test_31_provenance_matches_attempts()
+        test_32_no_cache_writes_from_retries()
+        test_33_magnitude_cannot_affect_retry()
     finally:
         _restore_cache_path(_tmp)
     test_18_operational_cache_untouched(_bh, _bs)
