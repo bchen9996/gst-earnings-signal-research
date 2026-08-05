@@ -1,5 +1,10 @@
 # 2026-08-05 — read-only diagnostic: effective-watermark probe design failure
 
+> **CORRECTED — see [`CORRECTION.md`](CORRECTION.md).** This document's SYK finding is
+> wrong: production already truncates its request to the watermark, so all three prior
+> blockers are transient failures now resolved, and the `:752` comment was not falsified.
+> The two release-blocking defects in `9990c39` are unaffected and still stand.
+
 **This is a regression report against commit `9990c39`, caught before it ever ran
 a panel.** The commit is on PR #1 (draft, unmerged). PR #1's merge gate remains
 unsatisfied.
