@@ -187,7 +187,7 @@ def test_1_union_only_not_labeled_fresh():
     run_ts = datetime(2026, 8, 2, 12, 0, 0, tzinfo=timezone.utc)
     daily_rows = _daily_rows(watermark_date, 15 * 7)
 
-    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None):
+    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None, prefetched_chunk_rows=None):
         return {
             "chunk_results": [{
                 "chunk_start": start.isoformat(), "chunk_end": end.isoformat(),
@@ -236,7 +236,7 @@ def test_2_provenance_survives_serialization():
         "date_count": len(daily_rows),
     }
 
-    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None):
+    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None, prefetched_chunk_rows=None):
         return {
             "chunk_results": [{
                 "chunk_start": start.isoformat(), "chunk_end": end.isoformat(),

@@ -135,6 +135,7 @@ import multiprocessing
 import os
 import random
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -222,35 +223,51 @@ MAX_ACCEPTABLE_WIKI_LAG_DAYS = 3
 WATERMARK_404_CONFIRM_WAIT_S = 2.0
 WATERMARK_MAX_RETRY_AFTER_WAIT_S = 30.0
 
-# --- PER-ARTICLE AVAILABILITY MEASUREMENT (2026-08-05) ---------------------
-# The aggregate endpoint (_fetch_aggregate_day / resolve_wiki_data_watermark)
-# answers "has en.wikipedia.org published day D site-wide?". It does NOT
-# answer "has THIS article's daily row for day D been published?" -- two
-# different publication pipelines. The 2026-08-05 PARTIAL proved the gap
-# empirically: the aggregate endpoint reported 2026-08-04 as published while
-# only 5 of the 24 locked articles actually contained that date, so 19
-# tickers returned HTTP 200 with a short series and were correctly rejected
-# as incomplete_coverage. See Live Signal Engine/Phase2 Failure Evidence/
-# 2026-08-05_AggregateVsPerArticle_Watermark_PARTIAL/ROOT_CAUSE.md.
+# --- PER-ARTICLE AVAILABILITY MEASUREMENT (2026-08-05, REDESIGNED same day) --
+# The aggregate endpoint answers "has en.wikipedia.org published day D
+# site-wide?". It does NOT answer "has THIS article's daily row for day D been
+# published?" -- two different publication pipelines. The 2026-08-05 PARTIAL
+# proved the gap: the aggregate reported 2026-08-04 while only 5 of the 24
+# locked articles contained that date.
 #
-# PER_ARTICLE_PROBE_WINDOW_DAYS: how far back the availability probe's date
-# range starts, relative to the anchor date. This is deliberately a RANGE
-# request of exactly the same shape as a normal chunk fetch
-# (fetch_chunk_isolated -> per-article/.../daily/START/END), never a
-# single-day request: a single-day per-article probe is known to 404 even
-# when a wider range covering the same date succeeds (documented in
-# _fetch_aggregate_day's own docstring, confirmed during the Phase B
-# feasibility probe). Using a different request shape for measurement than
-# for retrieval would make the measurement unfaithful to what retrieval can
-# actually obtain.
+# The FIRST attempt at closing that gap (commit 9990c39) measured availability
+# with a separate fixed-14-day per-article probe. A read-only live diagnostic
+# proved that design release-blocking on two counts before it ever ran a panel
+# (Live Signal Engine/Phase2 Failure Evidence/
+# 2026-08-05_EffectiveWatermark_Probe_Design_Failure/):
 #
-# 14 days: comfortably wider than MAX_ACCEPTABLE_WIKI_LAG_DAYS (3) so a
-# genuinely-publishing article always yields at least one observation, while
-# staying small enough that 24 probes stay cheap. Never widened adaptively
-# per ticker -- an identical window for all 24 keeps the measurement
-# comparable across the panel.
-PER_ARTICLE_PROBE_WINDOW_DAYS = 14
-EFFECTIVE_WATERMARK_METHOD = "min_validated_per_article_latest_available_date"
+#   1. 24 unpaced requests reach Wikimedia's rate limiter at request 11
+#      (14x HTTP 429, Retry-After counting down 39->20s) -> measured=9/24 ->
+#      failed closed -> EVERY run PARTIAL, strictly worse than before.
+#   2. Availability is REQUEST-SHAPE-DEPENDENT. The same date is present in one
+#      range's response and absent from another's, for the same article,
+#      seconds apart (ADBE and GOOGL both return 2026-08-04 for 07-22..08-04
+#      but NOT for 08-01..08-04) -- consistent with URL-keyed CDN response
+#      caching, each range URL being a separate cache entry with its own age.
+#
+# Consequence: "the latest date article X has published" is NOT a property of
+# the article. It is a property of (article, requested range). A probe using
+# one request shape can never certify what a differently-shaped retrieval
+# request will return -- no amount of pacing fixes that.
+#
+# The separate probe is therefore DELETED, not tuned. Availability is now
+# measured from the SAME RESPONSE production will actually use: a single
+# anchor-month calendar-chunk request per ticker, whose observations are then
+# sliced to the common effective watermark and reused in memory. See
+# retrieve_anchor_month_availability() and resolve_effective_panel_watermark().
+
+EFFECTIVE_WATERMARK_METHOD = "min_anchor_month_observed_latest_same_response"
+
+# Global pacing for the Stage-1 anchor-month sweep. Evidence from the
+# 2026-08-05 diagnostic: 10 requests at ~1.44s spacing (~0.7 req/s) triggered
+# 429 at request 11; 38 consecutive requests at ~3.5s spacing produced zero
+# 429s. 3.5s is the smallest interval this project has direct evidence for.
+AVAILABILITY_MIN_REQUEST_INTERVAL_S = 3.5
+# One bounded re-attempt per ticker on 429, after honoring a capped
+# Retry-After. A second 429 fails the ticker -- and therefore the panel --
+# closed. Never walks the watermark backward to dodge a rate limit.
+AVAILABILITY_MAX_429_RETRIES = 1
+AVAILABILITY_MAX_RETRY_AFTER_WAIT_S = 60.0
 
 
 class CacheCorruptionError(Exception):
@@ -441,191 +458,397 @@ def resolve_wiki_data_watermark(anchor_date: date, fetch_fn=None, now_utc: datet
             "probe_log": probe_log}
 
 
-def measure_article_latest_available_date(ticker: str, article: str | None, anchor_date: date,
-                                           fetch_fn=None,
-                                           probe_window_days: int = PER_ARTICLE_PROBE_WINDOW_DAYS,
-                                           timeout_s: float = CHUNK_TIMEOUT_S) -> dict:
-    """Measures the latest date THIS ARTICLE has genuinely published, using
-    ONE per-article range request of exactly the same shape production
-    retrieval uses (see PER_ARTICLE_PROBE_WINDOW_DAYS for why the shape must
-    match, and why a single-day probe is not acceptable).
+class SharedRequestLimiter:
+    """The SINGLE pacing gate for the Stage-1 anchor-month sweep.
 
-    "Genuinely published" means: the response was HTTP 200, and the row's
-    own fields are structurally valid. The measured value is
-    max(observed dates). Nothing is inferred, zero-filled, or extrapolated:
-    a date absent from the response is simply not observed, and the newest
-    date that IS observed is the answer.
+    Why one shared object rather than a sleep inside the loop: the 2026-08-05
+    diagnostic showed the failure mode is a GLOBAL request rate against
+    Wikimedia, not a per-ticker one. Any code path that can issue an
+    anchor-month request -- the sweep itself and its bounded 429 re-attempt --
+    must pass through this same instance, so their combined rate is bounded,
+    not each independently.
 
-    NON-CIRCULARITY (locked contract): this function reads ONLY `date` and
-    transport metadata (HTTP status, URL, elapsed time). The single
-    predicate applied to `pageviews` is the same structural
-    non-negative-integer check `validate_snapshot()` already uses to reject
-    malformed rows -- no threshold, no ranking, no comparison of one
-    ticker's counts to another's, and no magnitude-derived quantity of any
-    kind influences the result. It never sees a z-score, a market outcome,
-    an earnings field, or any hypothesis label. `test_16_measurement_is_
-    invariant_to_pageview_magnitude` in
-    test_phase2_wiki_effective_panel_watermark.py proves this directly by
-    holding the dates fixed and varying the counts wildly.
+    Subprocess note: fetch_chunk_isolated() spawns one worker process per
+    request and that worker issues EXACTLY ONE HTTP request. The limiter is
+    therefore held in the parent and acquired BEFORE the spawn, which bounds
+    every request that can reach the network. A worker cannot issue an
+    unpaced second request because it never issues a second request at all.
 
-    FAILS CLOSED. Anything other than a 200-with-at-least-one-valid-row --
-    a 404, a timeout, a malformed payload, a missing article mapping, an
-    empty item list -- returns status "unmeasured" with a reason. It never
-    falls back to a wider window, a different endpoint, a different request
-    shape, or a cached value: an unmeasurable article must propagate as
-    unmeasurable so resolve_effective_panel_watermark() can fail the whole
-    panel closed rather than compute a minimum over an incomplete set.
+    Thread-safe (Lock) so this property survives if the sweep is ever moved
+    off a single thread.
+    """
 
-    The cache is deliberately NOT consulted and NOT written. Availability is
-    a statement about what the source is serving right now; a cached row
-    proves what was served earlier, which is a different question. Not
-    writing also keeps the probe's non-calendar-aligned date range out of
-    the cache's (ticker, chunk_start, chunk_end) key space.
+    def __init__(self, min_interval_s: float = AVAILABILITY_MIN_REQUEST_INTERVAL_S,
+                 sleep_fn=None, clock_fn=None):
+        self.min_interval_s = min_interval_s
+        self._sleep = sleep_fn or time.sleep
+        self._clock = clock_fn or time.monotonic
+        self._lock = threading.Lock()
+        self._next_allowed_at = None
+        self.request_count = 0
+        self.waits: list[dict] = []
 
-    fetch_fn: injectable override matching fetch_chunk_isolated's signature,
-    for deterministic testing only. Production never passes this.
+    def acquire(self, reason: str = "") -> float:
+        """Blocks until the next request is allowed. Returns seconds waited."""
+        with self._lock:
+            now = self._clock()
+            waited = 0.0
+            if self._next_allowed_at is not None and now < self._next_allowed_at:
+                waited = self._next_allowed_at - now
+                self._sleep(waited)
+                now = self._clock()
+            self.request_count += 1
+            self._next_allowed_at = now + self.min_interval_s
+            self.waits.append({"request_number": self.request_count,
+                               "waited_s": round(waited, 3), "reason": reason})
+            return waited
 
-    Returns {"ticker", "article", "status": "ok"|"unmeasured",
-    "latest_available_date": date|None, "reason": str, "http_status": int|None,
-    "probe_start": date, "probe_end": date, "observed_date_count": int,
-    "source_url": str|None, "network_elapsed_s": float|None}."""
-    probe_start = anchor_date - timedelta(days=probe_window_days)
-    probe_end = anchor_date
-    base = {"ticker": ticker, "article": article, "latest_available_date": None,
-            "probe_start": probe_start, "probe_end": probe_end, "observed_date_count": 0,
-            "http_status": None, "source_url": None, "network_elapsed_s": None}
-
-    if not article:
-        return {**base, "status": "unmeasured", "reason": "no_article_mapping"}
-
-    fetch_fn = fetch_fn or fetch_chunk_isolated
-    result = fetch_fn(article, probe_start, probe_end, timeout_s)
-    base.update({"http_status": result.get("http_status"),
-                 "source_url": result.get("url"),
-                 "network_elapsed_s": result.get("network_elapsed_s")})
-
-    if result.get("status") != "ok":
-        return {**base, "status": "unmeasured",
-                "reason": f"probe_not_ok:{result.get('status')}"
-                          f"{':' + str(result.get('http_status')) if result.get('http_status') else ''}"}
-    if result.get("http_status") != 200:
-        return {**base, "status": "unmeasured",
-                "reason": f"probe_http_status_not_200:{result.get('http_status')}"}
-
-    observed = []
-    for item in result.get("items") or []:
-        if not isinstance(item, dict):
-            continue
-        if not _is_valid_nonnegative_integer_pageviews(item.get("pageviews")):
-            continue
+    def note_retry_after(self, retry_after_s) -> float:
+        """Honors a server-supplied Retry-After by pushing the shared gate out,
+        capped at AVAILABILITY_MAX_RETRY_AFTER_WAIT_S. Applies to EVERY
+        subsequent caller, not just the one that was throttled -- a 429 is a
+        statement about the whole client, not one request."""
         try:
-            observed.append(datetime.strptime(str(item.get("date")), "%Y%m%d").date())
+            wait_s = min(float(retry_after_s), AVAILABILITY_MAX_RETRY_AFTER_WAIT_S)
+        except (TypeError, ValueError):
+            wait_s = AVAILABILITY_MAX_RETRY_AFTER_WAIT_S
+        wait_s = max(0.0, wait_s)
+        with self._lock:
+            candidate = self._clock() + wait_s
+            if self._next_allowed_at is None or candidate > self._next_allowed_at:
+                self._next_allowed_at = candidate
+        return wait_s
+
+
+def anchor_month_start(watermark: date) -> date:
+    """First day of the calendar month containing the aggregate watermark.
+    This is the anchor month -- the month whose publication frontier is what
+    trailing availability is actually about."""
+    return watermark.replace(day=1)
+
+
+def validate_anchor_month_response(ticker: str, article: str, month_start: date,
+                                    requested_end: date, items: list[dict]) -> dict:
+    """Structural usability gate for a Stage-1 anchor-month response.
+
+    DELIBERATELY NOT validate_snapshot(). validate_snapshot() requires exact
+    coverage THROUGH a known watermark; that is the wrong question here,
+    because a trailing shortfall is precisely the thing being measured. What
+    this function requires instead:
+
+      - at least one observation;
+      - every pageviews value structurally valid (non-negative integer) --
+        the same check validate_snapshot() applies, and the ONLY predicate
+        applied to a count anywhere in availability measurement;
+      - no date outside [month_start, requested_end] -- a response containing
+        a date we did not ask for is not trustworthy;
+      - no duplicate dates, and no conflicting values for a repeated date;
+      - the sequence BEGINS at month_start -- a response that starts late is
+        missing interior history, not merely trailing;
+      - the sequence is CONTIGUOUS daily through its own maximum observed
+        date -- no interior holes.
+
+    A response may legitimately stop short of requested_end. That trailing
+    shortfall is the measurement, not an error (see the module note on
+    request-shape-dependent availability). An INTERIOR hole is always an
+    error and can never be forgiven by lowering the panel watermark, because
+    lowering a trailing edge cannot reach inside the sequence.
+
+    Returns {"usable": bool, "latest_available_date": date|None,
+    "observed_count": int, "reason": str, "category": str}."""
+    base = {"usable": False, "latest_available_date": None, "observed_count": 0}
+
+    if not items:
+        return {**base, "category": "empty", "reason": "no observations in response"}
+
+    seen: dict[date, object] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            return {**base, "category": "malformed", "reason": f"non-dict item: {item!r}"}
+        raw_views = item.get("pageviews")
+        if not _is_valid_nonnegative_integer_pageviews(raw_views):
+            return {**base, "category": "malformed",
+                    "reason": f"invalid pageviews value {raw_views!r} for date {item.get('date')!r}"}
+        try:
+            d = datetime.strptime(str(item.get("date")), "%Y%m%d").date()
+        except (TypeError, ValueError):
+            return {**base, "category": "malformed",
+                    "reason": f"unparseable date {item.get('date')!r}"}
+        if d < month_start or d > requested_end:
+            return {**base, "category": "out_of_range",
+                    "reason": f"date {d.isoformat()} outside requested "
+                              f"{month_start.isoformat()}..{requested_end.isoformat()}"}
+        if d in seen:
+            if seen[d] != raw_views:
+                return {**base, "category": "conflicting_duplicate",
+                        "reason": f"date {d.isoformat()} repeated with conflicting values "
+                                  f"({seen[d]!r} vs {raw_views!r})"}
+            return {**base, "category": "duplicate",
+                    "reason": f"date {d.isoformat()} appears more than once"}
+        seen[d] = raw_views
+
+    observed = sorted(seen)
+    if observed[0] != month_start:
+        return {**base, "observed_count": len(observed), "category": "does_not_start_at_month_start",
+                "reason": f"first observation {observed[0].isoformat()} != anchor month start "
+                          f"{month_start.isoformat()} -- interior history missing, not trailing lag"}
+
+    expected_n = (observed[-1] - observed[0]).days + 1
+    if len(observed) != expected_n:
+        present = set(observed)
+        missing = [(observed[0] + timedelta(days=i)).isoformat()
+                   for i in range(expected_n)
+                   if (observed[0] + timedelta(days=i)) not in present]
+        return {**base, "observed_count": len(observed), "category": "internal_gap",
+                "reason": f"internal missing date(s) {missing[:5]}"
+                          f"{'...' if len(missing) > 5 else ''} within "
+                          f"{observed[0].isoformat()}..{observed[-1].isoformat()}"}
+
+    return {"usable": True, "latest_available_date": observed[-1],
+            "observed_count": len(observed), "reason": "", "category": "ok"}
+
+
+def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: dict,
+                                        aggregate_watermark: date, fetch_fn=None,
+                                        limiter: "SharedRequestLimiter | None" = None,
+                                        timeout_s: float = CHUNK_TIMEOUT_S,
+                                        max_429_retries: int = AVAILABILITY_MAX_429_RETRIES) -> dict:
+    """STAGE 1. For every locked ticker, issue exactly ONE anchor-month
+    calendar-chunk request:
+
+        anchor_month_start(aggregate_watermark) .. aggregate_watermark
+
+    Never through wall-clock today, never past the aggregate watermark. This
+    is the same request shape whose observations production then uses -- that
+    identity is the whole point of the redesign, so the response that measures
+    availability IS the response that supplies the data.
+
+    All requests pass through one shared limiter (see SharedRequestLimiter).
+    On HTTP 429 the server's Retry-After is honored (capped) via that same
+    shared gate and the request is re-attempted at most max_429_retries times;
+    a still-throttled ticker fails closed rather than being skipped or
+    downgraded.
+
+    FAILS CLOSED per ticker on: missing article mapping, non-ok transport,
+    non-200 HTTP, 404, exhausted 429, empty/malformed payload, or any
+    structural problem from validate_anchor_month_response(). The caller must
+    treat any failure as "the panel has no honest shared bar this run" -- the
+    aggregate watermark is never substituted, no other request shape is
+    tried, and no cached magnitude data is consulted.
+
+    Returns {"month_start", "requested_end", "results": [...],
+    "responses": {ticker: [rows]}, "usable_count", "expected_count",
+    "failures": [...], "request_count", "pacing_waits": [...]}.
+    `responses` holds the raw validated rows IN MEMORY for Stage-2 reuse --
+    nothing here is written to the cache (see resolve_effective_panel_watermark
+    for why caching a trailing-short response would be a lie)."""
+    fetch_fn = fetch_fn or fetch_chunk_isolated
+    limiter = limiter or SharedRequestLimiter()
+    month_start = anchor_month_start(aggregate_watermark)
+    requested_end = aggregate_watermark
+
+    results, responses, failures = [], {}, []
+    for ticker in sorted(tickers):
+        article = ticker_to_article.get(ticker)
+        rec = {"ticker": ticker, "article": article,
+               "requested_start": month_start, "requested_end": requested_end,
+               "status": "unusable", "latest_available_date": None, "reason": "",
+               "http_status": None, "retry_after": None, "observed_count": 0,
+               "attempts": 0, "network_elapsed_s": None}
+
+        if not article:
+            rec["reason"] = "no_article_mapping"
+            results.append(rec)
+            failures.append({"ticker": ticker, "reason": rec["reason"], "http_status": None})
+            continue
+
+        result = None
+        for attempt in range(max_429_retries + 1):
+            limiter.acquire(reason=f"{ticker}:attempt{attempt + 1}")
+            rec["attempts"] = attempt + 1
+            result = fetch_fn(article, month_start, requested_end, timeout_s)
+            rec["http_status"] = result.get("http_status")
+            rec["retry_after"] = result.get("retry_after")
+            rec["network_elapsed_s"] = result.get("network_elapsed_s")
+            if result.get("http_status") == 429 and attempt < max_429_retries:
+                limiter.note_retry_after(result.get("retry_after"))
+                continue
+            break
+
+        if result.get("status") != "ok":
+            rec["reason"] = (f"transport_{result.get('status')}"
+                             f"{':' + str(result.get('http_status')) if result.get('http_status') else ''}")
+            results.append(rec)
+            failures.append({"ticker": ticker, "reason": rec["reason"],
+                             "http_status": result.get("http_status")})
+            continue
+        if result.get("http_status") != 200:
+            rec["reason"] = f"http_status_not_200:{result.get('http_status')}"
+            results.append(rec)
+            failures.append({"ticker": ticker, "reason": rec["reason"],
+                             "http_status": result.get("http_status")})
+            continue
+
+        validation = validate_anchor_month_response(ticker, article, month_start,
+                                                     requested_end, result.get("items") or [])
+        if not validation["usable"]:
+            rec["reason"] = f"{validation['category']}: {validation['reason']}"
+            rec["observed_count"] = validation["observed_count"]
+            results.append(rec)
+            failures.append({"ticker": ticker, "reason": rec["reason"],
+                             "http_status": result.get("http_status")})
+            continue
+
+        rec.update({"status": "ok", "latest_available_date": validation["latest_available_date"],
+                    "observed_count": validation["observed_count"], "reason": ""})
+        results.append(rec)
+        responses[ticker] = list(result.get("items") or [])
+
+    return {"month_start": month_start, "requested_end": requested_end,
+            "results": results, "responses": responses,
+            "usable_count": len(responses), "expected_count": len(tickers),
+            "failures": failures, "request_count": limiter.request_count,
+            "pacing_waits": limiter.waits}
+
+
+def slice_rows_to_watermark(rows: list[dict], watermark: date) -> list[dict]:
+    """Drops observations dated after `watermark`. Pure filtering: it never
+    adds, zero-fills, interpolates, or reorders a value, so a sliced response
+    contains only rows the source actually returned."""
+    out = []
+    for r in rows:
+        try:
+            d = datetime.strptime(str(r.get("date")), "%Y%m%d").date()
         except (TypeError, ValueError):
             continue
-
-    if not observed:
-        return {**base, "status": "unmeasured",
-                "reason": "no_valid_observations_in_probe_window"}
-
-    return {**base, "status": "ok", "reason": "",
-            "latest_available_date": max(observed),
-            "observed_date_count": len(observed)}
+        if d <= watermark:
+            out.append(r)
+    return out
 
 
 def resolve_effective_panel_watermark(tickers: list[str], ticker_to_article: dict,
-                                       anchor_date: date, aggregate_watermark_info: dict | None = None,
-                                       fetch_fn=None,
-                                       probe_window_days: int = PER_ARTICLE_PROBE_WINDOW_DAYS,
+                                       aggregate_watermark_info: dict | None = None,
+                                       fetch_fn=None, limiter=None,
                                        timeout_s: float = CHUNK_TIMEOUT_S,
-                                       now_utc: datetime | None = None) -> dict:
-    """Resolves the SINGLE panel-wide effective watermark, ONCE, at run
-    start, before any ticker is processed:
+                                       now_utc: datetime | None = None,
+                                       stage1: dict | None = None) -> dict:
+    """STAGE 2. Computes the single panel-wide effective watermark from the
+    Stage-1 anchor-month responses, then slices and REUSES those same
+    responses -- no second anchor-month request is ever issued.
 
-        effective_panel_watermark = min(per-article latest available date)
+        effective_panel_watermark = min(anchor-month latest observed date)
                                     over ALL tickers in the locked universe
 
+    Taking the minimum is what makes one shared date safe: it is, by
+    construction, a date every article demonstrably returned IN THE VERY
+    RESPONSE production will use. That last clause is what the deleted
+    14-day probe could not provide (see the module note) -- measurement and
+    retrieval are now the same observation, so they cannot disagree.
+
     Every ticker in a run then uses this identical date for pull_start,
-    expected coverage, z-score anchoring and provenance. Taking the MINIMUM
-    is what makes one shared date safe: it is, by construction, a date every
-    article has already published, so requiring exact coverage through it
-    asks nothing of any ticker that the source has not already delivered.
-    Per-ticker watermarks are never used -- that would give different
-    tickers different z-score anchor dates inside one panel, making the
+    expected coverage, z-score anchoring and provenance. Per-ticker watermarks
+    are never used: different anchor dates inside one panel would make the
     cross-section incomparable.
 
-    WHAT THIS DOES AND DOES NOT FIX. It addresses TRAILING PUBLICATION LAG
-    only: the newest day or two that some articles have and others have not.
-    It does NOT relax the completeness contract. Every ticker must still
-    have exact daily coverage across its complete required lookback up to
-    this date, enforced unchanged by validate_snapshot(). An INTERNAL
-    historical gap -- e.g. CTSH's missing 2026-07-08..2026-07-14 -- sits
-    below the effective watermark, is untouched by lowering it, and must
-    keep producing PARTIAL until legitimately recovered. Lowering a shared
-    trailing edge is not the same operation as forgiving a hole, and this
-    function must never be extended into the latter.
+    SCOPE, unchanged from the first attempt: this removes only TRAILING
+    unpublished dates. Each sliced response must still have EXACT daily
+    coverage from anchor_month_start through the effective watermark, and
+    every chunk before the anchor month keeps its existing exact-coverage,
+    cache-integrity, cache-union and bounded-subchunk rules untouched. An
+    interior historical gap sits below the effective watermark, is untouched
+    by lowering it, and still produces PARTIAL.
 
     The aggregate watermark is retained as a source-health / provenance
-    observation and is reported alongside (with the signed lag between the
-    two), but it is NEVER on its own treated as proof that every article has
-    published a date, and it never raises the effective watermark.
+    observation and as the Stage-1 request bound (an UPPER bound only). It is
+    never treated as proof of per-article publication and never raises the
+    effective watermark.
 
-    FAILS CLOSED: if even ONE ticker's latest available date cannot be
-    measured, status is "failed_closed" and effective_panel_watermark_date
-    is None. A minimum over a subset is not a panel watermark -- the
-    unmeasured ticker could have been the minimum. The caller must treat
-    this as "the Wikipedia leg is unresolved this run" (PARTIAL), never
-    substitute the aggregate watermark, and never proceed with a partial
-    measurement set.
+    FAILS CLOSED if any ticker's anchor-month response is unusable, or if any
+    sliced response lacks exact coverage through the effective watermark. A
+    minimum over a subset is not a panel watermark.
 
-    ORDER INVARIANCE: tickers are measured in sorted order purely so the
-    provenance listing is deterministic. The result itself is a minimum over
-    a set and is therefore invariant to processing order by construction --
-    proved in test_10_result_invariant_to_ticker_processing_order.
+    stage1: an already-executed retrieve_anchor_month_availability() result,
+    for callers that want to inspect Stage 1 separately. Omitted in normal
+    use -- this function runs Stage 1 itself.
 
-    Returns {"status": "ok"|"failed_closed",
-    "effective_panel_watermark_date": date|None, "method": str,
-    "aggregate_watermark_date": date|None, "aggregate_vs_panel_lag_days": int|None,
-    "per_ticker_latest": {ticker: date}, "measurements": [...],
-    "unmeasured": [...], "measured_count": int, "expected_count": int,
-    "binding_tickers": [...], "resolved_at_utc": str}."""
+    Returns the Stage-1 provenance plus {"status", "effective_panel_watermark_date",
+    "method", "aggregate_watermark_date", "aggregate_vs_panel_lag_days",
+    "per_ticker_latest", "binding_tickers", "anchor_month_rows", ...}.
+    anchor_month_rows holds the SLICED, exactly-validated rows per ticker, kept
+    IN MEMORY for reuse by get_ticker_wikipedia_daily(). They are deliberately
+    NOT written to the cache: a response that stops short of the aggregate
+    watermark, stored under a chunk key ending at that watermark, would assert
+    a completeness it does not have."""
     now_utc = now_utc or datetime.now(timezone.utc)
     aggregate_watermark_info = aggregate_watermark_info or {}
     aggregate_date = aggregate_watermark_info.get("watermark_date")
 
-    measurements = []
-    for ticker in sorted(tickers):
-        measurements.append(measure_article_latest_available_date(
-            ticker, ticker_to_article.get(ticker), anchor_date, fetch_fn=fetch_fn,
-            probe_window_days=probe_window_days, timeout_s=timeout_s))
+    base = {"method": EFFECTIVE_WATERMARK_METHOD, "aggregate_watermark_date": aggregate_date,
+            "resolved_at_utc": now_utc.isoformat(), "expected_count": len(tickers),
+            "effective_panel_watermark_date": None, "aggregate_vs_panel_lag_days": None,
+            "per_ticker_latest": {}, "binding_tickers": [], "anchor_month_rows": {},
+            "anchor_month_start": None, "anchor_month_requested_end": None,
+            "stage1_results": [], "measured_count": 0, "unmeasured": [],
+            "request_count": 0, "pacing_waits": [], "second_anchor_month_request_issued": False}
 
-    unmeasured = [m for m in measurements if m["status"] != "ok"]
-    per_ticker_latest = {m["ticker"]: m["latest_available_date"]
-                         for m in measurements if m["status"] == "ok"}
-
-    base = {"method": EFFECTIVE_WATERMARK_METHOD,
-            "aggregate_watermark_date": aggregate_date,
-            "per_ticker_latest": per_ticker_latest,
-            "measurements": measurements,
-            "unmeasured": [{"ticker": m["ticker"], "reason": m["reason"],
-                            "http_status": m["http_status"]} for m in unmeasured],
-            "measured_count": len(per_ticker_latest),
-            "expected_count": len(tickers),
-            "resolved_at_utc": now_utc.isoformat()}
-
-    if unmeasured or len(per_ticker_latest) != len(tickers):
+    if aggregate_date is None:
         return {**base, "status": "failed_closed",
-                "effective_panel_watermark_date": None,
-                "aggregate_vs_panel_lag_days": None,
-                "binding_tickers": [],
-                "failure_reason": (f"{len(unmeasured)} of {len(tickers)} ticker(s) unmeasured -- "
-                                    f"a minimum over a subset is not a panel watermark")}
+                "failure_reason": "no aggregate watermark -- Stage-1 request bound is undefined"}
 
+    if stage1 is None:
+        stage1 = retrieve_anchor_month_availability(
+            tickers, ticker_to_article, aggregate_date, fetch_fn=fetch_fn,
+            limiter=limiter, timeout_s=timeout_s)
+
+    base.update({"anchor_month_start": stage1["month_start"],
+                 "anchor_month_requested_end": stage1["requested_end"],
+                 "stage1_results": stage1["results"],
+                 "measured_count": stage1["usable_count"],
+                 "unmeasured": stage1["failures"],
+                 "request_count": stage1["request_count"],
+                 "pacing_waits": stage1["pacing_waits"]})
+
+    if stage1["failures"] or stage1["usable_count"] != len(tickers):
+        return {**base, "status": "failed_closed",
+                "failure_reason": (f"{len(stage1['failures'])} of {len(tickers)} ticker(s) produced no "
+                                    f"usable anchor-month response -- a minimum over a subset is not a "
+                                    f"panel watermark")}
+
+    per_ticker_latest = {r["ticker"]: r["latest_available_date"]
+                         for r in stage1["results"] if r["status"] == "ok"}
     effective = min(per_ticker_latest.values())
-    lag = (aggregate_date - effective).days if aggregate_date is not None else None
+
+    # Reuse: slice each ALREADY-RETRIEVED response. No new request.
+    sliced, coverage_failures = {}, []
+    month_start = stage1["month_start"]
+    for ticker, rows in stage1["responses"].items():
+        kept = slice_rows_to_watermark(rows, effective)
+        check = validate_anchor_month_response(ticker, ticker_to_article.get(ticker),
+                                                month_start, effective, kept)
+        if not check["usable"] or check["latest_available_date"] != effective:
+            coverage_failures.append({
+                "ticker": ticker,
+                "reason": (check["reason"] or
+                           f"sliced response ends {check['latest_available_date']}, "
+                           f"expected exactly {effective.isoformat()}"),
+                "category": check["category"]})
+            continue
+        sliced[ticker] = kept
+
+    if coverage_failures:
+        return {**base, "status": "failed_closed", "per_ticker_latest": per_ticker_latest,
+                "unmeasured": base["unmeasured"] + coverage_failures,
+                "failure_reason": (f"{len(coverage_failures)} ticker(s) lack exact coverage from "
+                                    f"{month_start.isoformat()} through the effective watermark "
+                                    f"{effective.isoformat()}")}
+
     return {**base, "status": "ok",
             "effective_panel_watermark_date": effective,
-            "aggregate_vs_panel_lag_days": lag,
-            "binding_tickers": sorted(t for t, d in per_ticker_latest.items() if d == effective)}
+            "aggregate_vs_panel_lag_days": (aggregate_date - effective).days,
+            "per_ticker_latest": per_ticker_latest,
+            "binding_tickers": sorted(t for t, d in per_ticker_latest.items() if d == effective),
+            "anchor_month_rows": sliced}
+
 
 
 def compute_chunk_hash(daily_rows: list[dict]) -> str:
@@ -1223,7 +1446,8 @@ def fetch_chunk_isolated(article: str, start: date, end: date, timeout_s: float 
 
 def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date, watermark: date,
                                 cache_df: pd.DataFrame, chunk_timeout_s: float = CHUNK_TIMEOUT_S,
-                                fetch_fn=None, remaining_budget_s: float | None = None) -> dict:
+                                fetch_fn=None, remaining_budget_s: float | None = None,
+                                prefetched_chunk_rows: dict | None = None) -> dict:
     """First pass only -- no inline retry. For each calendar-month chunk,
     the completeness bar is `required_data_end(chunk_end, watermark)` --
     the SAME frozen, run-level watermark passed to every other consumer,
@@ -1251,6 +1475,17 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
     success/404/timeout/malformed responses without a real network call or
     a real subprocess spawn per case -- see
     test_phase2_wikipedia_transport.py. Production code never passes this.
+
+    prefetched_chunk_rows (2026-08-05): {(chunk_start, chunk_end): rows}
+    already retrieved this run and already validated, supplied IN MEMORY --
+    currently the Stage-1 anchor-month response (see
+    retrieve_anchor_month_availability()). A matching chunk is satisfied from
+    these rows with NO second network request and NO cache write: the rows are
+    sliced to the effective panel watermark and so stop short of their chunk's
+    nominal end, which is exactly what must never be persisted under a key
+    implying coverage through that end. They are still put through
+    validate_snapshot() below like any other source -- reuse is not a trust
+    shortcut.
 
     remaining_budget_s: optional wall-clock budget for THIS ticker's first
     pass. When given, each chunk's fetch timeout is capped to whatever
@@ -1307,6 +1542,30 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
             effective_chunk_timeout = min(chunk_timeout_s, budget_left)
         else:
             effective_chunk_timeout = chunk_timeout_s
+
+        prefetched = (prefetched_chunk_rows or {}).get((chunk_start, chunk_end))
+        if prefetched is not None:
+            reuse_validation = validate_snapshot(ticker, article, chunk_start, chunk_end,
+                                                  prefetched, watermark)
+            if reuse_validation["valid"]:
+                daily_rows.extend(prefetched)
+                chunk_results.append({
+                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                    "source": "anchor_month_stage1", "status": "ok",
+                    "network_elapsed_s": 0.0, "sleep_s": 0.0,
+                })
+                continue
+            failed_chunks.append({
+                "ticker": ticker, "article": article, "chunk_start": chunk_start,
+                "chunk_end": chunk_end, "last_status": f"prefetched_invalid:{reuse_validation['category']}",
+                "retry_after": None, "last_http_status": None,
+            })
+            chunk_results.append({
+                "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                "source": "anchor_month_stage1", "status": f"invalid:{reuse_validation['category']}",
+                "network_elapsed_s": 0.0, "sleep_s": 0.0,
+            })
+            continue
 
         hit = validated_cache_hit(cache_df, ticker, article, chunk_start, chunk_end, watermark)
         if hit["hit"]:

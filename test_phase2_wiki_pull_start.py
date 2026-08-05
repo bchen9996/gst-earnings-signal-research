@@ -68,7 +68,8 @@ def _install_stubs(capture: list):
     panel.wiki_transport.load_cache = lambda: pd.DataFrame(columns=panel.wiki_transport.CACHE_COLUMNS)
 
     def _fake_get_ticker_wikipedia_daily(ticker, article, start, end, watermark, cache_df=None,
-                                          remaining_budget_s=None, extra_daily_rows=None):
+                                          remaining_budget_s=None, extra_daily_rows=None,
+                                          prefetched_chunk_rows=None):
         capture.append({"ticker": ticker, "article": article, "start": start, "end": end,
                          "watermark": watermark})
         daily_rows = list(extra_daily_rows or [])
@@ -145,16 +146,33 @@ def test_pull_start_fixed_relative_to_watermark_across_lags():
             check(f"lag={lag}d: pull_start == watermark_date - PULL_LOOKBACK_DAYS (fixed relative to watermark)",
                   capture[0]["start"] == expected_pull_start,
                   f"got {capture[0]['start']!r}, expected {expected_pull_start!r}")
-            check(f"lag={lag}d: request end/horizon still reflects wall-clock run_ts.date() (deliberately unchanged)",
-                  capture[0]["end"] == wall_clock_today,
-                  f"got {capture[0]['end']!r}, expected {wall_clock_today!r}")
+            # 2026-08-05 REVERSAL of the prior contract: the request horizon
+            # used to be wall-clock run_ts.date(), on the (correct but
+            # insufficient) reasoning that required_data_end() truncates each
+            # chunk's HTTP request anyway. It is now the aggregate watermark,
+            # so the final generated chunk is exactly
+            # anchor_month_start..aggregate_watermark -- the same shape Stage 1
+            # retrieved and validated, which is what makes in-memory reuse
+            # sound. See test_phase2_wiki_effective_panel_watermark.py test 2.
+            check(f"lag={lag}d: request horizon == aggregate watermark, NOT wall-clock today",
+                  capture[0]["end"] == watermark_date,
+                  f"got {capture[0]['end']!r}, expected {watermark_date!r}")
+            check(f"lag={lag}d: request horizon is never wall-clock today when the watermark lags",
+                  lag == 0 or capture[0]["end"] != wall_clock_today,
+                  f"got {capture[0]['end']!r}, wall clock {wall_clock_today!r}")
             check(f"lag={lag}d: watermark passed through to the transport unchanged",
                   capture[0]["watermark"] == watermark_date)
 
     check("all 4 lags produced the IDENTICAL pull_start (window boundary fixed relative to watermark, not wall clock)",
           len(set(captured_pull_starts)) == 1, f"distinct values: {set(captured_pull_starts)}")
-    check("request end/horizon DID vary with wall-clock across the 4 lags (confirms end-date behavior deliberately untouched)",
-          len(set(captured_ends)) == 4, f"distinct values: {set(captured_ends)}")
+    # 2026-08-05: this previously asserted the horizon DID vary with wall
+    # clock. It now must not: with watermark_date held fixed across all four
+    # lags, the horizon is the aggregate watermark and is therefore constant.
+    check("request horizon was IDENTICAL across all 4 lags (pinned to the aggregate watermark, "
+          "not wall clock)",
+          len(set(captured_ends)) == 1, f"distinct values: {set(captured_ends)}")
+    check("request horizon equals the aggregate watermark exactly",
+          set(captured_ends) == {watermark_date}, f"got {set(captured_ends)}")
 
 
 def test_wall_clock_cannot_change_zscore_when_data_and_watermark_fixed():
@@ -203,7 +221,8 @@ def test_no_post_watermark_observation_reaches_the_calculation():
         capture = []
         restore = _install_stubs(capture)
         panel.wiki_transport.get_ticker_wikipedia_daily = (
-            lambda ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None, _r=rows:
+            lambda ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None,
+                   prefetched_chunk_rows=None, _r=rows:
             (capture.append({"ticker": ticker, "start": start, "end": end, "watermark": watermark})
              or {"chunk_results": [], "failed_chunks": [], "daily_rows": _r})
         )
