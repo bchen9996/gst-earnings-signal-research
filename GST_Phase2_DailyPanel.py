@@ -500,6 +500,33 @@ COLUMN_ORDER = [
     "wiki_data_watermark_date", "wiki_data_lag_days", "wiki_watermark_status",
     "wiki_watermark_retrieved_at_utc", "wiki_watermark_source_url",
     "wiki_watermark_http_status", "wiki_required_data_end",
+    # EFFECTIVE PANEL WATERMARK provenance (2026-08-05 -- see
+    # GST_Phase2_Wikipedia_Transport.resolve_effective_panel_watermark()).
+    # ADDITIVE: the aggregate-watermark fields above are unchanged and
+    # retained as a source-health observation. What changed is which date
+    # BINDS: the aggregate endpoint answers "did en.wikipedia.org publish
+    # day D site-wide?", never "did THIS article publish day D?", and the
+    # 2026-08-05 PARTIAL proved the two diverge (aggregate said 2026-08-04;
+    # only 5 of 24 articles had it). The binding date is now the MINIMUM of
+    # the 24 validated per-article latest-available dates, identical on
+    # every row of a run -- it is the date every article has demonstrably
+    # published, so requiring exact coverage through it asks nothing the
+    # source has not already delivered.
+    #   wiki_article_latest_available_date is this ticker's OWN measured
+    # latest date (per-row, for auditability -- it is NOT what anchors this
+    # row's z-score; wiki_effective_panel_watermark_date is).
+    #   wiki_aggregate_vs_panel_lag_days = aggregate - effective, in days.
+    # Positive means the panel is behind the site-wide aggregate, i.e. at
+    # least one article had not yet caught up. Negative would mean an
+    # article is ahead of the aggregate -- a source-health anomaly worth
+    # seeing, recorded rather than clamped.
+    # This addresses TRAILING publication lag only. Exact coverage across
+    # the complete required lookback is still required of every ticker; an
+    # internal historical gap sits below this watermark and still produces
+    # PARTIAL.
+    "wiki_aggregate_watermark_date", "wiki_article_latest_available_date",
+    "wiki_effective_panel_watermark_date", "wiki_effective_watermark_method",
+    "wiki_aggregate_vs_panel_lag_days",
     # Z-SCORE ANCHOR provenance (2026-08-02 correction -- see
     # _finalize_wiki_row()). The anchor passed to compute_zscore_at_anchor()
     # must be the measured watermark date, never the script's real
@@ -541,7 +568,8 @@ COLUMN_ORDER = [
 
 def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
                     wiki_remaining_budget_s: float | None = None,
-                    watermark_info: dict | None = None) -> tuple[dict, dict | None]:
+                    watermark_info: dict | None = None,
+                    effective_info: dict | None = None) -> tuple[dict, dict | None]:
     row = {c: None for c in COLUMN_ORDER}
     row["run_date"] = RUN_DATE.isoformat()
     row["ticker"] = ticker
@@ -710,6 +738,7 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
     # Watermark provenance is RUN-LEVEL -- identical on every row,
     # regardless of whether this ticker's own wiki leg succeeds.
     watermark_info = watermark_info or {}
+    effective_info = effective_info or {}
     row["wiki_data_watermark_date"] = (
         watermark_info["watermark_date"].isoformat() if watermark_info.get("watermark_date") else None)
     row["wiki_data_lag_days"] = watermark_info.get("lag_days")
@@ -717,6 +746,20 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
     row["wiki_watermark_retrieved_at_utc"] = watermark_info.get("retrieved_at_utc")
     row["wiki_watermark_source_url"] = watermark_info.get("source_url")
     row["wiki_watermark_http_status"] = watermark_info.get("http_status")
+
+    # --- EFFECTIVE PANEL WATERMARK provenance (2026-08-05). Also RUN-LEVEL
+    # and identical on every row, EXCEPT wiki_article_latest_available_date,
+    # which is this ticker's own measured value and is recorded purely for
+    # auditability -- it never anchors anything. ---
+    effective_watermark_date = effective_info.get("effective_panel_watermark_date")
+    row["wiki_aggregate_watermark_date"] = (
+        watermark_info["watermark_date"].isoformat() if watermark_info.get("watermark_date") else None)
+    _article_latest = (effective_info.get("per_ticker_latest") or {}).get(ticker)
+    row["wiki_article_latest_available_date"] = _article_latest.isoformat() if _article_latest else None
+    row["wiki_effective_panel_watermark_date"] = (
+        effective_watermark_date.isoformat() if effective_watermark_date else None)
+    row["wiki_effective_watermark_method"] = effective_info.get("method")
+    row["wiki_aggregate_vs_panel_lag_days"] = effective_info.get("aggregate_vs_panel_lag_days")
 
     if article is None:
         row["wiki_status"] = "error"
@@ -729,8 +772,24 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
         row["wiki_status"] = "incomplete_watermark_unavailable"
         row["wiki_error"] = (f"no valid Wikipedia data watermark this run "
                               f"(status={watermark_info.get('status')!r}) -- wiki leg not attempted")
+    elif effective_info.get("status") != "ok" or effective_watermark_date is None:
+        # Fail closed, same discipline one level up (2026-08-05): a valid
+        # AGGREGATE watermark is not on its own proof that every article
+        # has published that date. Without a complete set of 24 validated
+        # per-article measurements there is no honest shared completeness
+        # bar, and the aggregate watermark must NOT be substituted for one.
+        # No network request is made for this ticker's wiki leg this run.
+        row["wiki_status"] = "incomplete_effective_watermark_unavailable"
+        row["wiki_error"] = (f"no valid effective panel watermark this run "
+                              f"(status={effective_info.get('status')!r}, "
+                              f"measured={effective_info.get('measured_count')}/"
+                              f"{effective_info.get('expected_count')}) -- wiki leg not attempted")
     else:
-        watermark_date = watermark_info["watermark_date"]
+        # THE BINDING WATERMARK (2026-08-05): the effective panel watermark,
+        # not the aggregate one. Identical for all 24 tickers this run, so
+        # pull_start, expected coverage and the z-score anchor below are the
+        # same date for every row -- never ticker-specific.
+        watermark_date = effective_watermark_date
         anchor_date = run_ts.date()
         # 2026-08-02 correction: pull_start is derived from watermark_date,
         # not wall-clock anchor_date. The observation window's actual
@@ -942,7 +1001,8 @@ def write_checkpoint(rows: list[dict]) -> None:
 
 def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
                              active_ticker: str | None = None, active_leg: str | None = None,
-                             watermark_info: dict | None = None) -> None:
+                             watermark_info: dict | None = None,
+                             effective_info: dict | None = None) -> None:
     n_total = len(rows)
     n_clean = sum(1 for r in rows if r.get("all_six_fields_clean"))
     six_fields = ["gst_zscore", "wiki_zscore", "implied_volatility", "realized_vol", "price", "volume"]
@@ -991,6 +1051,27 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
             "source_url": watermark_info.get("source_url"),
             "http_status": watermark_info.get("http_status"),
         }
+    if effective_info is not None:
+        # 2026-08-05: the binding watermark and the full per-article
+        # availability measurement behind it. Recorded whether the run
+        # succeeded or failed closed -- a failed measurement set is exactly
+        # the evidence needed to diagnose the next PARTIAL.
+        eff_date = effective_info.get("effective_panel_watermark_date")
+        marker["wiki_effective_panel_watermark"] = {
+            "status": effective_info.get("status"),
+            "effective_panel_watermark_date": eff_date.isoformat() if eff_date else None,
+            "method": effective_info.get("method"),
+            "aggregate_vs_panel_lag_days": effective_info.get("aggregate_vs_panel_lag_days"),
+            "measured_count": effective_info.get("measured_count"),
+            "expected_count": effective_info.get("expected_count"),
+            "binding_tickers": effective_info.get("binding_tickers"),
+            "unmeasured": effective_info.get("unmeasured"),
+            "resolved_at_utc": effective_info.get("resolved_at_utc"),
+            "per_ticker_latest_available_date": {
+                t: (d.isoformat() if d else None)
+                for t, d in sorted((effective_info.get("per_ticker_latest") or {}).items())
+            },
+        }
     with open(COMPLETION_MARKER_PATH, "w", encoding="utf-8") as f:
         json.dump(marker, f, indent=2)
     log(f"\nCompletion marker written: {COMPLETION_MARKER_PATH}")
@@ -998,7 +1079,9 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
 
 
 def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[str],
-                     watermark_status: str | None = None) -> bool:
+                     watermark_status: str | None = None,
+                     effective_watermark_status: str | None = None,
+                     effective_watermark_date: date | None = None) -> bool:
     """The single COMPLETE gate, pulled out as a pure function so it's
     directly unit-testable (see test_phase2_dailypanel_gate.py) without
     running the full panel. A green run requires ALL of:
@@ -1030,21 +1113,49 @@ def is_run_complete(rows: list[dict], exit_status: str, expected_tickers: list[s
         MAX_ACCEPTABLE_WIKI_LAG_DAYS means the wiki leg was never
         genuinely attempted with an honest completeness bar for anyone,
         regardless of what individual rows might otherwise show.
+      - effective_watermark_status == "ok" (2026-08-05 addition): a valid
+        AGGREGATE watermark is necessary but no longer sufficient. Without
+        a complete set of validated per-article availability measurements
+        there is no honest shared completeness bar, and the aggregate
+        watermark must never be substituted for one.
+      - EVERY row carries the SAME non-null
+        wiki_effective_panel_watermark_date, equal to the run's resolved
+        effective watermark, and that same date is also every row's
+        wiki_zscore_anchor_date (2026-08-05 addition). One panel means one
+        anchor: rows that disagree on the effective watermark, or whose
+        z-score was anchored somewhere other than it, are not a comparable
+        cross-section and can never be COMPLETE. This is what forbids
+        ticker-specific anchor dates inside a single panel.
+    Note what is deliberately NOT relaxed here: the effective watermark
+    lowers a shared TRAILING edge, and every row must still satisfy
+    all_six_fields_clean, which requires exact daily coverage across the
+    complete required lookback. An internal historical gap sits BELOW the
+    effective watermark and still fails this gate.
     Returns False (never raises) for any malformed row -- a gate that can
     crash on bad input is not a gate."""
     if exit_status != "COMPLETE":
         return False
     if watermark_status != "ok":
         return False
+    if effective_watermark_status != "ok":
+        return False
+    if effective_watermark_date is None:
+        return False
     if len(rows) != len(expected_tickers):
         return False
     tickers_seen = {r.get("ticker") for r in rows}
     if len(tickers_seen) != len(expected_tickers) or tickers_seen != set(expected_tickers):
         return False
+    expected_effective = effective_watermark_date.isoformat()
     for r in rows:
         if not r.get("all_six_fields_clean"):
             return False
         if r.get("earnings_status") != "ok":
+            return False
+        # One panel, one watermark, one anchor -- no per-ticker anchors.
+        if r.get("wiki_effective_panel_watermark_date") != expected_effective:
+            return False
+        if r.get("wiki_zscore_anchor_date") != expected_effective:
             return False
         ts = r.get("retrieval_timestamp_utc")
         if not ts:
@@ -1091,6 +1202,60 @@ def main():
             f"-- the Wikipedia leg will be skipped for every ticker this run (fail-closed, not guessed). "
             f"probe_log={watermark_info['probe_log']} ***\n")
 
+    # --- EFFECTIVE PANEL WATERMARK (2026-08-05) -- resolved EXACTLY ONCE,
+    # here, before any ticker is processed, and binding for the whole run.
+    # The aggregate watermark above is retained as a source-health /
+    # provenance observation but no longer binds on its own: it answers
+    # "did en.wikipedia.org publish day D site-wide?", never "did THIS
+    # article publish day D?". The 2026-08-05 PARTIAL proved the gap
+    # (aggregate: 2026-08-04; only 5 of 24 articles actually had it). See
+    # GST_Phase2_Wikipedia_Transport.resolve_effective_panel_watermark().
+    #
+    # This addresses TRAILING publication lag only. Exact coverage across
+    # the complete required lookback is still demanded of every ticker, so
+    # an internal historical gap (e.g. CTSH 2026-07-08..14) still produces
+    # PARTIAL -- lowering a shared trailing edge is not forgiving a hole. ---
+    if watermark_info["status"] == "ok":
+        log("Measuring per-article availability for all "
+            f"{len(TICKERS)} locked tickers (one same-shape range probe each)...")
+        effective_info = wiki_transport.resolve_effective_panel_watermark(
+            TICKERS, TICKER_TO_WIKI_ARTICLE, anchor_date=run_ts.date(),
+            aggregate_watermark_info=watermark_info)
+    else:
+        effective_info = {
+            "status": "not_attempted_aggregate_watermark_failed",
+            "effective_panel_watermark_date": None,
+            "method": wiki_transport.EFFECTIVE_WATERMARK_METHOD,
+            "aggregate_watermark_date": None, "aggregate_vs_panel_lag_days": None,
+            "per_ticker_latest": {}, "measurements": [], "unmeasured": [],
+            "measured_count": 0, "expected_count": len(TICKERS),
+            "binding_tickers": [], "resolved_at_utc": datetime.now(timezone.utc).isoformat(),
+        }
+
+    if effective_info["status"] == "ok":
+        eff_date = effective_info["effective_panel_watermark_date"]
+        log(f"Effective panel watermark: {eff_date} "
+            f"(method={effective_info['method']}, "
+            f"aggregate={effective_info['aggregate_watermark_date']}, "
+            f"aggregate_vs_panel_lag_days={effective_info['aggregate_vs_panel_lag_days']}, "
+            f"measured={effective_info['measured_count']}/{effective_info['expected_count']})")
+        log(f"  binding ticker(s) at the minimum: {', '.join(effective_info['binding_tickers'])}")
+        _ahead = sorted(t for t, d in effective_info["per_ticker_latest"].items() if d > eff_date)
+        if _ahead:
+            log(f"  {len(_ahead)} ticker(s) had newer data available and are deliberately "
+                f"truncated to the shared watermark: {', '.join(_ahead)}")
+        log("")
+    elif watermark_info["status"] == "ok":
+        log(f"*** EFFECTIVE PANEL WATERMARK COULD NOT BE ESTABLISHED "
+            f"(status={effective_info['status']!r}, "
+            f"measured={effective_info['measured_count']}/{effective_info['expected_count']}) -- "
+            f"the Wikipedia leg will be skipped for every ticker this run (fail-closed; the "
+            f"aggregate watermark is NOT substituted). unmeasured={effective_info['unmeasured']} ***\n")
+
+    # The single binding watermark for every downstream stage this run.
+    binding_watermark = effective_info.get("effective_panel_watermark_date")
+    wiki_leg_enabled = watermark_info["status"] == "ok" and effective_info["status"] == "ok"
+
     rows: list[dict] = []
     wiki_pending_by_ticker: dict[str, dict] = {}
     wall_start = time.time()
@@ -1118,7 +1283,8 @@ def main():
         try:
             row, wiki_pending = process_ticker(pt, ticker, run_ts,
                                                 wiki_remaining_budget_s=wiki_remaining_budget_s,
-                                                watermark_info=watermark_info)
+                                                watermark_info=watermark_info,
+                                                effective_info=effective_info)
             if wiki_pending is not None:
                 wiki_pending_by_ticker[ticker] = wiki_pending
         except Exception as e:
@@ -1158,7 +1324,7 @@ def main():
     # A ticker queued here does NOT abort the run -- it was already
     # preserved in `rows` (as "pending_second_pass") and every other ticker
     # already ran to completion regardless. ---
-    if wiki_pending_by_ticker and watermark_info["status"] == "ok":
+    if wiki_pending_by_ticker and wiki_leg_enabled:
         combined_queue = []
         for pending in wiki_pending_by_ticker.values():
             combined_queue.extend(pending["failed_chunks"])
@@ -1166,7 +1332,7 @@ def main():
         log(f"\n*** WIKIPEDIA SECOND PASS: {len(combined_queue)} failed chunk(s) across "
             f"{len(wiki_pending_by_ticker)} ticker(s), remaining run budget {remaining_budget:.0f}s ***")
         second = wiki_transport.run_bounded_second_pass(combined_queue, remaining_budget_s=remaining_budget,
-                                                          watermark=watermark_info["watermark_date"])
+                                                          watermark=binding_watermark)
         for cr in second["chunk_results"]:
             log(f"    [{cr['ticker']}] second-pass chunk {cr['chunk_start']}..{cr['chunk_end']} "
                 f"status={cr['status']} http_status={cr.get('http_status')} retry_after={cr.get('retry_after')} "
@@ -1190,7 +1356,7 @@ def main():
                 f"evaluation -- no fallback candidates available this run: {e}")
             fallback_cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
         fallback = wiki_transport.apply_recent_cache_fallback(
-            second["still_failed"], fallback_cache_df, watermark=watermark_info["watermark_date"],
+            second["still_failed"], fallback_cache_df, watermark=binding_watermark,
             now_utc=datetime.now(timezone.utc))
         for ticker, info in fallback["fallback_recovered"].items():
             prov = info["provenance"]
@@ -1213,7 +1379,7 @@ def main():
         subchunk_remaining_budget = max(0.0, TOTAL_RUN_BUDGET_S - (time.time() - wall_start))
         subchunk = wiki_transport.run_bounded_subchunk_recovery(
             fallback["still_failed"], remaining_budget_s=subchunk_remaining_budget,
-            watermark=watermark_info["watermark_date"])
+            watermark=binding_watermark)
         for ticker, prov in subchunk["subchunk_provenance"].items():
             log(f"    [{ticker}] subchunk recovery for {prov['original_chunk_start']}.."
                 f"{prov['original_chunk_end']}: recovered={prov['recovered']} reason={prov['reason']!r} "
@@ -1249,7 +1415,7 @@ def main():
             combined_chunk_results = pending["chunk_results"] + ticker_second_pass_results
             if fallback_info is not None:
                 all_daily_rows = all_daily_rows + fallback_info["rows"]
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"],
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, binding_watermark,
                                     combined_chunk_results)
                 row.update(fallback_info["provenance"])   # overrides wiki_status/wiki_source_mode set by _finalize_wiki_row
                 # The RECENT_LAST_KNOWN_GOOD fallback's own existing
@@ -1283,7 +1449,7 @@ def main():
                     "source": "subchunk_salvage", "status": "ok",
                     "network_elapsed_s": subchunk_prov["wall_clock_s"], "sleep_s": 0.0,
                 }
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"],
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, binding_watermark,
                                     combined_chunk_results + [recovered_entry])
                 log(f"    [{ticker}] wiki fully recovered via bounded closed-month subchunk recovery: "
                     f"z={row.get('wiki_zscore')}")
@@ -1294,7 +1460,7 @@ def main():
                                                    f" ({f['reason']})" for f in still_failed_for_ticker))
                 row["wiki_fresh_request_failed"] = True
             else:
-                _finalize_wiki_row(row, pending["article"], all_daily_rows, watermark_info["watermark_date"],
+                _finalize_wiki_row(row, pending["article"], all_daily_rows, binding_watermark,
                                     combined_chunk_results)
                 log(f"    [{ticker}] wiki fully recovered after second pass: z={row.get('wiki_zscore')}")
             # all_six_fields_clean covers ONLY the six locked research
@@ -1313,7 +1479,9 @@ def main():
     # valid timestamps, every Wikipedia chunk resolved (either in the first
     # pass or the bounded second pass), AND a valid measured Wikipedia data
     # watermark for this run -- see is_run_complete().
-    if is_run_complete(rows, exit_status, TICKERS, watermark_status=watermark_info["status"]):
+    if is_run_complete(rows, exit_status, TICKERS, watermark_status=watermark_info["status"],
+                        effective_watermark_status=effective_info["status"],
+                        effective_watermark_date=binding_watermark):
         df = pd.DataFrame(rows, columns=COLUMN_ORDER)
         df.to_csv(FINAL_OUT_PATH, index=False)
         log(f"\nWrote final (COMPLETE) output: {FINAL_OUT_PATH}")
@@ -1334,7 +1502,7 @@ def main():
 
     write_completion_marker(rows, wall_total, exit_status,
                              active_ticker=active_ticker if exit_status == "PARTIAL" else None,
-                             watermark_info=watermark_info)
+                             watermark_info=watermark_info, effective_info=effective_info)
 
     if exit_status != "COMPLETE":
         sys.exit(1)

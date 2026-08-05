@@ -222,6 +222,36 @@ MAX_ACCEPTABLE_WIKI_LAG_DAYS = 3
 WATERMARK_404_CONFIRM_WAIT_S = 2.0
 WATERMARK_MAX_RETRY_AFTER_WAIT_S = 30.0
 
+# --- PER-ARTICLE AVAILABILITY MEASUREMENT (2026-08-05) ---------------------
+# The aggregate endpoint (_fetch_aggregate_day / resolve_wiki_data_watermark)
+# answers "has en.wikipedia.org published day D site-wide?". It does NOT
+# answer "has THIS article's daily row for day D been published?" -- two
+# different publication pipelines. The 2026-08-05 PARTIAL proved the gap
+# empirically: the aggregate endpoint reported 2026-08-04 as published while
+# only 5 of the 24 locked articles actually contained that date, so 19
+# tickers returned HTTP 200 with a short series and were correctly rejected
+# as incomplete_coverage. See Live Signal Engine/Phase2 Failure Evidence/
+# 2026-08-05_AggregateVsPerArticle_Watermark_PARTIAL/ROOT_CAUSE.md.
+#
+# PER_ARTICLE_PROBE_WINDOW_DAYS: how far back the availability probe's date
+# range starts, relative to the anchor date. This is deliberately a RANGE
+# request of exactly the same shape as a normal chunk fetch
+# (fetch_chunk_isolated -> per-article/.../daily/START/END), never a
+# single-day request: a single-day per-article probe is known to 404 even
+# when a wider range covering the same date succeeds (documented in
+# _fetch_aggregate_day's own docstring, confirmed during the Phase B
+# feasibility probe). Using a different request shape for measurement than
+# for retrieval would make the measurement unfaithful to what retrieval can
+# actually obtain.
+#
+# 14 days: comfortably wider than MAX_ACCEPTABLE_WIKI_LAG_DAYS (3) so a
+# genuinely-publishing article always yields at least one observation, while
+# staying small enough that 24 probes stay cheap. Never widened adaptively
+# per ticker -- an identical window for all 24 keeps the measurement
+# comparable across the panel.
+PER_ARTICLE_PROBE_WINDOW_DAYS = 14
+EFFECTIVE_WATERMARK_METHOD = "min_validated_per_article_latest_available_date"
+
 
 class CacheCorruptionError(Exception):
     """Raised when the persistent cache file exists but doesn't match the
@@ -409,6 +439,193 @@ def resolve_wiki_data_watermark(anchor_date: date, fetch_fn=None, now_utc: datet
     return {"status": "no_data_within_max_lag", "watermark_date": None, "lag_days": None,
             "retrieved_at_utc": now_utc.isoformat(), "source_url": None, "http_status": None,
             "probe_log": probe_log}
+
+
+def measure_article_latest_available_date(ticker: str, article: str | None, anchor_date: date,
+                                           fetch_fn=None,
+                                           probe_window_days: int = PER_ARTICLE_PROBE_WINDOW_DAYS,
+                                           timeout_s: float = CHUNK_TIMEOUT_S) -> dict:
+    """Measures the latest date THIS ARTICLE has genuinely published, using
+    ONE per-article range request of exactly the same shape production
+    retrieval uses (see PER_ARTICLE_PROBE_WINDOW_DAYS for why the shape must
+    match, and why a single-day probe is not acceptable).
+
+    "Genuinely published" means: the response was HTTP 200, and the row's
+    own fields are structurally valid. The measured value is
+    max(observed dates). Nothing is inferred, zero-filled, or extrapolated:
+    a date absent from the response is simply not observed, and the newest
+    date that IS observed is the answer.
+
+    NON-CIRCULARITY (locked contract): this function reads ONLY `date` and
+    transport metadata (HTTP status, URL, elapsed time). The single
+    predicate applied to `pageviews` is the same structural
+    non-negative-integer check `validate_snapshot()` already uses to reject
+    malformed rows -- no threshold, no ranking, no comparison of one
+    ticker's counts to another's, and no magnitude-derived quantity of any
+    kind influences the result. It never sees a z-score, a market outcome,
+    an earnings field, or any hypothesis label. `test_16_measurement_is_
+    invariant_to_pageview_magnitude` in
+    test_phase2_wiki_effective_panel_watermark.py proves this directly by
+    holding the dates fixed and varying the counts wildly.
+
+    FAILS CLOSED. Anything other than a 200-with-at-least-one-valid-row --
+    a 404, a timeout, a malformed payload, a missing article mapping, an
+    empty item list -- returns status "unmeasured" with a reason. It never
+    falls back to a wider window, a different endpoint, a different request
+    shape, or a cached value: an unmeasurable article must propagate as
+    unmeasurable so resolve_effective_panel_watermark() can fail the whole
+    panel closed rather than compute a minimum over an incomplete set.
+
+    The cache is deliberately NOT consulted and NOT written. Availability is
+    a statement about what the source is serving right now; a cached row
+    proves what was served earlier, which is a different question. Not
+    writing also keeps the probe's non-calendar-aligned date range out of
+    the cache's (ticker, chunk_start, chunk_end) key space.
+
+    fetch_fn: injectable override matching fetch_chunk_isolated's signature,
+    for deterministic testing only. Production never passes this.
+
+    Returns {"ticker", "article", "status": "ok"|"unmeasured",
+    "latest_available_date": date|None, "reason": str, "http_status": int|None,
+    "probe_start": date, "probe_end": date, "observed_date_count": int,
+    "source_url": str|None, "network_elapsed_s": float|None}."""
+    probe_start = anchor_date - timedelta(days=probe_window_days)
+    probe_end = anchor_date
+    base = {"ticker": ticker, "article": article, "latest_available_date": None,
+            "probe_start": probe_start, "probe_end": probe_end, "observed_date_count": 0,
+            "http_status": None, "source_url": None, "network_elapsed_s": None}
+
+    if not article:
+        return {**base, "status": "unmeasured", "reason": "no_article_mapping"}
+
+    fetch_fn = fetch_fn or fetch_chunk_isolated
+    result = fetch_fn(article, probe_start, probe_end, timeout_s)
+    base.update({"http_status": result.get("http_status"),
+                 "source_url": result.get("url"),
+                 "network_elapsed_s": result.get("network_elapsed_s")})
+
+    if result.get("status") != "ok":
+        return {**base, "status": "unmeasured",
+                "reason": f"probe_not_ok:{result.get('status')}"
+                          f"{':' + str(result.get('http_status')) if result.get('http_status') else ''}"}
+    if result.get("http_status") != 200:
+        return {**base, "status": "unmeasured",
+                "reason": f"probe_http_status_not_200:{result.get('http_status')}"}
+
+    observed = []
+    for item in result.get("items") or []:
+        if not isinstance(item, dict):
+            continue
+        if not _is_valid_nonnegative_integer_pageviews(item.get("pageviews")):
+            continue
+        try:
+            observed.append(datetime.strptime(str(item.get("date")), "%Y%m%d").date())
+        except (TypeError, ValueError):
+            continue
+
+    if not observed:
+        return {**base, "status": "unmeasured",
+                "reason": "no_valid_observations_in_probe_window"}
+
+    return {**base, "status": "ok", "reason": "",
+            "latest_available_date": max(observed),
+            "observed_date_count": len(observed)}
+
+
+def resolve_effective_panel_watermark(tickers: list[str], ticker_to_article: dict,
+                                       anchor_date: date, aggregate_watermark_info: dict | None = None,
+                                       fetch_fn=None,
+                                       probe_window_days: int = PER_ARTICLE_PROBE_WINDOW_DAYS,
+                                       timeout_s: float = CHUNK_TIMEOUT_S,
+                                       now_utc: datetime | None = None) -> dict:
+    """Resolves the SINGLE panel-wide effective watermark, ONCE, at run
+    start, before any ticker is processed:
+
+        effective_panel_watermark = min(per-article latest available date)
+                                    over ALL tickers in the locked universe
+
+    Every ticker in a run then uses this identical date for pull_start,
+    expected coverage, z-score anchoring and provenance. Taking the MINIMUM
+    is what makes one shared date safe: it is, by construction, a date every
+    article has already published, so requiring exact coverage through it
+    asks nothing of any ticker that the source has not already delivered.
+    Per-ticker watermarks are never used -- that would give different
+    tickers different z-score anchor dates inside one panel, making the
+    cross-section incomparable.
+
+    WHAT THIS DOES AND DOES NOT FIX. It addresses TRAILING PUBLICATION LAG
+    only: the newest day or two that some articles have and others have not.
+    It does NOT relax the completeness contract. Every ticker must still
+    have exact daily coverage across its complete required lookback up to
+    this date, enforced unchanged by validate_snapshot(). An INTERNAL
+    historical gap -- e.g. CTSH's missing 2026-07-08..2026-07-14 -- sits
+    below the effective watermark, is untouched by lowering it, and must
+    keep producing PARTIAL until legitimately recovered. Lowering a shared
+    trailing edge is not the same operation as forgiving a hole, and this
+    function must never be extended into the latter.
+
+    The aggregate watermark is retained as a source-health / provenance
+    observation and is reported alongside (with the signed lag between the
+    two), but it is NEVER on its own treated as proof that every article has
+    published a date, and it never raises the effective watermark.
+
+    FAILS CLOSED: if even ONE ticker's latest available date cannot be
+    measured, status is "failed_closed" and effective_panel_watermark_date
+    is None. A minimum over a subset is not a panel watermark -- the
+    unmeasured ticker could have been the minimum. The caller must treat
+    this as "the Wikipedia leg is unresolved this run" (PARTIAL), never
+    substitute the aggregate watermark, and never proceed with a partial
+    measurement set.
+
+    ORDER INVARIANCE: tickers are measured in sorted order purely so the
+    provenance listing is deterministic. The result itself is a minimum over
+    a set and is therefore invariant to processing order by construction --
+    proved in test_10_result_invariant_to_ticker_processing_order.
+
+    Returns {"status": "ok"|"failed_closed",
+    "effective_panel_watermark_date": date|None, "method": str,
+    "aggregate_watermark_date": date|None, "aggregate_vs_panel_lag_days": int|None,
+    "per_ticker_latest": {ticker: date}, "measurements": [...],
+    "unmeasured": [...], "measured_count": int, "expected_count": int,
+    "binding_tickers": [...], "resolved_at_utc": str}."""
+    now_utc = now_utc or datetime.now(timezone.utc)
+    aggregate_watermark_info = aggregate_watermark_info or {}
+    aggregate_date = aggregate_watermark_info.get("watermark_date")
+
+    measurements = []
+    for ticker in sorted(tickers):
+        measurements.append(measure_article_latest_available_date(
+            ticker, ticker_to_article.get(ticker), anchor_date, fetch_fn=fetch_fn,
+            probe_window_days=probe_window_days, timeout_s=timeout_s))
+
+    unmeasured = [m for m in measurements if m["status"] != "ok"]
+    per_ticker_latest = {m["ticker"]: m["latest_available_date"]
+                         for m in measurements if m["status"] == "ok"}
+
+    base = {"method": EFFECTIVE_WATERMARK_METHOD,
+            "aggregate_watermark_date": aggregate_date,
+            "per_ticker_latest": per_ticker_latest,
+            "measurements": measurements,
+            "unmeasured": [{"ticker": m["ticker"], "reason": m["reason"],
+                            "http_status": m["http_status"]} for m in unmeasured],
+            "measured_count": len(per_ticker_latest),
+            "expected_count": len(tickers),
+            "resolved_at_utc": now_utc.isoformat()}
+
+    if unmeasured or len(per_ticker_latest) != len(tickers):
+        return {**base, "status": "failed_closed",
+                "effective_panel_watermark_date": None,
+                "aggregate_vs_panel_lag_days": None,
+                "binding_tickers": [],
+                "failure_reason": (f"{len(unmeasured)} of {len(tickers)} ticker(s) unmeasured -- "
+                                    f"a minimum over a subset is not a panel watermark")}
+
+    effective = min(per_ticker_latest.values())
+    lag = (aggregate_date - effective).days if aggregate_date is not None else None
+    return {**base, "status": "ok",
+            "effective_panel_watermark_date": effective,
+            "aggregate_vs_panel_lag_days": lag,
+            "binding_tickers": sorted(t for t, d in per_ticker_latest.items() if d == effective)}
 
 
 def compute_chunk_hash(daily_rows: list[dict]) -> str:
