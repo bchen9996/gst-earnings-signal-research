@@ -1,0 +1,5 @@
+# Hash-anchored evidence: core.autocrlf=true would rewrite line endings on
+# commit/checkout and break the SHA-256 values recorded in
+# raw_artifact_hash_verification.csv. -text disables EOL conversion so every
+# committed byte is the byte that was hashed. Do not remove.
+* -text
