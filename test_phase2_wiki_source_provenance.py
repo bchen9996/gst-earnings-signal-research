@@ -159,13 +159,35 @@ def _watermark_info(watermark_date: date) -> dict:
             "source_url": "https://example.org/watermark", "http_status": 200}
 
 
+def _effective_info(watermark_date: date, tickers=(TICKER,)) -> dict:
+    """2026-08-05: the BINDING watermark is now the effective panel
+    watermark (min of validated per-article latest-available dates), not
+    the aggregate one. These tests model the healthy case where every
+    article has published through the aggregate watermark, so the effective
+    watermark equals it -- which keeps each test probing the dimension it
+    was written for. Divergence between the two is covered in
+    test_phase2_wiki_effective_panel_watermark.py."""
+    return {
+        "status": "ok",
+        "effective_panel_watermark_date": watermark_date,
+        "method": panel.wiki_transport.EFFECTIVE_WATERMARK_METHOD,
+        "aggregate_watermark_date": watermark_date,
+        "aggregate_vs_panel_lag_days": 0,
+        "per_ticker_latest": {t: watermark_date for t in tickers},
+        "measurements": [], "unmeasured": [],
+        "measured_count": len(tickers), "expected_count": len(tickers),
+        "binding_tickers": sorted(tickers),
+        "resolved_at_utc": "2026-08-01T00:00:00+00:00",
+    }
+
+
 # === 1. A union-only ticker's final panel row is not labeled fresh ===
 def test_1_union_only_not_labeled_fresh():
     watermark_date = date(2026, 8, 1)
     run_ts = datetime(2026, 8, 2, 12, 0, 0, tzinfo=timezone.utc)
     daily_rows = _daily_rows(watermark_date, 15 * 7)
 
-    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None):
+    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None, prefetched_chunk_rows=None):
         return {
             "chunk_results": [{
                 "chunk_start": start.isoformat(), "chunk_end": end.isoformat(),
@@ -185,7 +207,8 @@ def test_1_union_only_not_labeled_fresh():
     restore = _install_process_ticker_stubs(fake_get_daily)
     try:
         row, _ = panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                                       watermark_info=_watermark_info(watermark_date))
+                                       watermark_info=_watermark_info(watermark_date),
+                                  effective_info=_effective_info(watermark_date))
     finally:
         restore()
 
@@ -213,7 +236,7 @@ def test_2_provenance_survives_serialization():
         "date_count": len(daily_rows),
     }
 
-    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None):
+    def fake_get_daily(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None, prefetched_chunk_rows=None):
         return {
             "chunk_results": [{
                 "chunk_start": start.isoformat(), "chunk_end": end.isoformat(),
@@ -226,7 +249,8 @@ def test_2_provenance_survives_serialization():
     restore = _install_process_ticker_stubs(fake_get_daily)
     try:
         row, _ = panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                                       watermark_info=_watermark_info(watermark_date))
+                                       watermark_info=_watermark_info(watermark_date),
+                                  effective_info=_effective_info(watermark_date))
     finally:
         restore()
 

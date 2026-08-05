@@ -1,0 +1,913 @@
+*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***
+Run timestamp (UTC): 2026-08-05T16:26:22.587987+00:00
+Universe: 24 tickers
+Budgets: GST=480s/ticker  wiki-chunk=35s (process-isolated, calendar-chunked, cached)  yfinance-call=45s  per-ticker=900s  total-run=2700s
+
+NOTE (scope disclosure): only the Wikipedia leg uses genuinely killable subprocess isolation this pass. GST/earnings/price_history/iv legs still use the daemon-thread run_bounded() wrapper -- a timeout there is logged and the run continues, but the underlying call is not guaranteed to actually stop. This is disclosed, not claimed otherwise.
+
+Wikipedia data watermark: 2026-08-04 (lag=1d, source=https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026080400/2026080400)
+
+STAGE 1 -- anchor-month availability retrieval for all 24 locked tickers: one request each, 2026-08-01..2026-08-04 (never past the aggregate watermark), globally paced at 3.5s minimum interval through one shared limiter.
+    [AAPL] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [ABBV] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [ADBE] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [AMZN] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [BKR] anchor-month 2026-08-01..2026-08-04 status=unusable http=404 retry_after=None attempts=3 n=0 latest=None transport_http_error:404 after 3 attempt(s)
+    [BRK-B] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [CTSH] anchor-month 2026-08-01..2026-08-04 status=unusable http=404 retry_after=None attempts=3 n=0 latest=None transport_http_error:404 after 3 attempt(s)
+    [DELL] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [DVN] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [GME] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [GOOGL] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [GPN] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [INTC] anchor-month 2026-08-01..2026-08-04 status=unusable http=404 retry_after=None attempts=3 n=0 latest=None transport_http_error:404 after 3 attempt(s)
+    [LDOS] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [MSFT] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [NCLH] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [NKE] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [QCOM] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [SBUX] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [STZ] anchor-month 2026-08-01..2026-08-04 status=unusable http=404 retry_after=None attempts=3 n=0 latest=None transport_http_error:404 after 3 attempt(s)
+    [SYK] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [TSLA] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [TTWO] anchor-month 2026-08-01..2026-08-04 status=ok http=200 retry_after=None attempts=1 n=4 latest=2026-08-04 
+    [UAL] anchor-month 2026-08-01..2026-08-04 status=unusable http=404 retry_after=None attempts=3 n=0 latest=None transport_http_error:404 after 3 attempt(s)
+  Stage 1 issued 34 request(s); total pacing wait 364.7s
+*** EFFECTIVE PANEL WATERMARK COULD NOT BE ESTABLISHED (status='failed_closed', measured=19/24) -- the Wikipedia leg will be skipped for every ticker this run (fail-closed; the aggregate watermark is NOT substituted). unmeasured=[{'ticker': 'BKR', 'reason': 'transport_http_error:404 after 3 attempt(s)', 'http_status': 404}, {'ticker': 'CTSH', 'reason': 'transport_http_error:404 after 3 attempt(s)', 'http_status': 404}, {'ticker': 'INTC', 'reason': 'transport_http_error:404 after 3 attempt(s)', 'http_status': 404}, {'ticker': 'STZ', 'reason': 'transport_http_error:404 after 3 attempt(s)', 'http_status': 404}, {'ticker': 'UAL', 'reason': 'transport_http_error:404 after 3 attempt(s)', 'http_status': 404}] ***
+
+  [AAPL] START earnings
+  [AAPL] DONE  earnings  status=ok elapsed=1.16s value=85
+  [AAPL] START price_history
+  [AAPL] DONE  price_history  status=ok elapsed=0.26s rows=125
+  [AAPL] START realized_vol
+  [AAPL] DONE  realized_vol  status=ok elapsed=0.00s value=0.3240135140319872
+  [AAPL] START iv
+  [AAPL] DONE  iv  status=ok elapsed=0.47s iv=0.2649
+  [AAPL] START gst
+    [AAPL] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 26.6s (budget remaining after: 453s)
+    [AAPL] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 45.4s (budget remaining after: 407s)
+    [AAPL] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 70.9s (budget remaining after: 335s)
+    [AAPL] attempt 4 failed: The request failed: Google returned a response with code 429 -- sleeping 105.7s (budget remaining after: 229s)
+    [AAPL] attempt 5 failed: The request failed: Google returned a response with code 429 -- sleeping 131.2s (budget remaining after: 97s)
+  [AAPL] DONE  gst  status=attempts_exhausted elapsed=383.38s retries=5 rate_limit_events=5 z=None
+  [AAPL] START wiki
+  [AAPL] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[1/24] AAPL: 385.28s  INCOMPLETE  gst_z=None wiki_z=None iv=0.2649 rv=0.3240135140319872 price=308.8500061035156 vol=22099165 days_to_earnings=85
+  [ABBV] START earnings
+  [ABBV] DONE  earnings  status=ok elapsed=0.94s value=85
+  [ABBV] START price_history
+  [ABBV] DONE  price_history  status=ok elapsed=0.28s rows=125
+  [ABBV] START realized_vol
+  [ABBV] DONE  realized_vol  status=ok elapsed=0.00s value=0.2921955464859294
+  [ABBV] START iv
+  [ABBV] DONE  iv  status=ok elapsed=0.39s iv=0.421148
+  [ABBV] START gst
+    [ABBV] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 25.7s (budget remaining after: 453s)
+    [ABBV] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 46.9s (budget remaining after: 406s)
+    [ABBV] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 74.8s (budget remaining after: 330s)
+    [ABBV] attempt 4 failed: The request failed: Google returned a response with code 429 -- sleeping 104.4s (budget remaining after: 225s)
+    [ABBV] attempt 5 failed: The request failed: Google returned a response with code 429 -- sleeping 130.5s (budget remaining after: 93s)
+  [ABBV] DONE  gst  status=attempts_exhausted elapsed=386.57s retries=5 rate_limit_events=5 z=None
+  [ABBV] START wiki
+  [ABBV] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[2/24] ABBV: 388.18s  INCOMPLETE  gst_z=None wiki_z=None iv=0.421148 rv=0.2921955464859294 price=246.75 vol=1955626 days_to_earnings=85
+  [ADBE] START earnings
+  [ADBE] DONE  earnings  status=ok elapsed=1.03s value=36
+  [ADBE] START price_history
+  [ADBE] DONE  price_history  status=ok elapsed=0.32s rows=125
+  [ADBE] START realized_vol
+  [ADBE] DONE  realized_vol  status=ok elapsed=0.00s value=0.5214922294959144
+  [ADBE] START iv
+  [ADBE] DONE  iv  status=ok elapsed=0.21s iv=0.556889
+  [ADBE] START gst
+    [ADBE] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 21.3s (budget remaining after: 458s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [ADBE] DONE  gst  status=ok elapsed=23.27s retries=2 rate_limit_events=1 z=-0.787
+  [ADBE] START wiki
+  [ADBE] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[3/24] ADBE: 24.83s  INCOMPLETE  gst_z=-0.787 wiki_z=None iv=0.556889 rv=0.5214922294959144 price=256.7699890136719 vol=1569814 days_to_earnings=36
+  [AMZN] START earnings
+  [AMZN] DONE  earnings  status=ok elapsed=0.80s value=85
+  [AMZN] START price_history
+  [AMZN] DONE  price_history  status=ok elapsed=0.17s rows=125
+  [AMZN] START realized_vol
+  [AMZN] DONE  realized_vol  status=ok elapsed=0.00s value=0.4515989654899777
+  [AMZN] START iv
+  [AMZN] DONE  iv  status=ok elapsed=0.26s iv=0.344977
+  [AMZN] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [AMZN] DONE  gst  status=ok elapsed=0.78s retries=1 rate_limit_events=0 z=2.853
+  [AMZN] START wiki
+  [AMZN] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[4/24] AMZN: 2.01s  INCOMPLETE  gst_z=2.853 wiki_z=None iv=0.344977 rv=0.4515989654899777 price=272.5350036621094 vol=21517080 days_to_earnings=85
+  [BKR] START earnings
+  [BKR] DONE  earnings  status=ok elapsed=0.78s value=78
+  [BKR] START price_history
+  [BKR] DONE  price_history  status=ok elapsed=0.15s rows=125
+  [BKR] START realized_vol
+  [BKR] DONE  realized_vol  status=ok elapsed=0.00s value=0.3476181697875904
+  [BKR] START iv
+  [BKR] DONE  iv  status=ok elapsed=0.29s iv=0.333991
+  [BKR] START gst
+    [BKR] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.4s (budget remaining after: 452s)
+    [BKR] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 47.4s (budget remaining after: 403s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [BKR] DONE  gst  status=ok elapsed=77.74s retries=3 rate_limit_events=2 z=-1.367
+  [BKR] START wiki
+  [BKR] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[5/24] BKR: 78.96s  INCOMPLETE  gst_z=-1.367 wiki_z=None iv=0.333991 rv=0.3476181697875904 price=61.5099983215332 vol=1627393 days_to_earnings=78
+  [BRK-B] START earnings
+  [BRK-B] DONE  earnings  status=ok elapsed=0.84s value=3
+  [BRK-B] START price_history
+  [BRK-B] DONE  price_history  status=ok elapsed=0.10s rows=125
+  [BRK-B] START realized_vol
+  [BRK-B] DONE  realized_vol  status=ok elapsed=0.00s value=0.14343249433198885
+  [BRK-B] START iv
+  [BRK-B] DONE  iv  status=ok elapsed=0.33s iv=0.182473
+  [BRK-B] START gst
+    [BRK-B] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.4s (budget remaining after: 452s)
+    [BRK-B] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 46.4s (budget remaining after: 405s)
+    [BRK-B] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 70.9s (budget remaining after: 333s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [BRK-B] DONE  gst  status=ok elapsed=148.17s retries=4 rate_limit_events=3 z=-0.968
+  [BRK-B] START wiki
+  [BRK-B] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[6/24] BRK-B: 149.44s  INCOMPLETE  gst_z=-0.968 wiki_z=None iv=0.182473 rv=0.14343249433198885 price=515.1900024414062 vol=1373613 days_to_earnings=3
+— small batch pause (20s) —
+  [CTSH] START earnings
+  [CTSH] DONE  earnings  status=ok elapsed=0.94s value=84
+  [CTSH] START price_history
+  [CTSH] DONE  price_history  status=ok elapsed=0.18s rows=125
+  [CTSH] START realized_vol
+  [CTSH] DONE  realized_vol  status=ok elapsed=0.00s value=0.5856578552723384
+  [CTSH] START iv
+  [CTSH] DONE  iv  status=ok elapsed=0.26s iv=0.521977
+  [CTSH] START gst
+    [CTSH] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 22.2s (budget remaining after: 457s)
+    [CTSH] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 47.1s (budget remaining after: 409s)
+    [CTSH] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 73.0s (budget remaining after: 335s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [CTSH] DONE  gst  status=ok elapsed=146.21s retries=4 rate_limit_events=3 z=-0.495
+  [CTSH] START wiki
+  [CTSH] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[7/24] CTSH: 147.59s  INCOMPLETE  gst_z=-0.495 wiki_z=None iv=0.521977 rv=0.5856578552723384 price=55.849998474121094 vol=1909931 days_to_earnings=84
+  [DELL] START earnings
+  [DELL] DONE  earnings  status=ok elapsed=0.65s value=29
+  [DELL] START price_history
+  [DELL] DONE  price_history  status=ok elapsed=0.20s rows=125
+  [DELL] START realized_vol
+  [DELL] DONE  realized_vol  status=ok elapsed=0.00s value=1.0647990562477598
+  [DELL] START iv
+  [DELL] DONE  iv  status=ok elapsed=0.33s iv=0.831178
+  [DELL] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [DELL] DONE  gst  status=ok elapsed=0.91s retries=1 rate_limit_events=0 z=-1.623
+  [DELL] START wiki
+  [DELL] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[8/24] DELL: 2.09s  INCOMPLETE  gst_z=-1.623 wiki_z=None iv=0.831178 rv=1.0647990562477598 price=473.6300048828125 vol=3862902 days_to_earnings=29
+  [DVN] START earnings
+  [DVN] DONE  earnings  status=ok elapsed=0.49s value=91
+  [DVN] START price_history
+  [DVN] DONE  price_history  status=ok elapsed=0.19s rows=125
+  [DVN] START realized_vol
+  [DVN] DONE  realized_vol  status=ok elapsed=0.00s value=0.3581072208561559
+  [DVN] START iv
+  [DVN] DONE  iv  status=ok elapsed=0.25s iv=0.435553
+  [DVN] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [DVN] DONE  gst  status=ok elapsed=0.97s retries=1 rate_limit_events=0 z=0.228
+  [DVN] START wiki
+  [DVN] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[9/24] DVN: 1.90s  INCOMPLETE  gst_z=0.228 wiki_z=None iv=0.435553 rv=0.3581072208561559 price=42.689998626708984 vol=6166320 days_to_earnings=91
+  [GME] START earnings
+  [GME] DONE  earnings  status=ok elapsed=0.60s value=34
+  [GME] START price_history
+  [GME] DONE  price_history  status=ok elapsed=0.11s rows=125
+  [GME] START realized_vol
+  [GME] DONE  realized_vol  status=ok elapsed=0.00s value=0.37680466009962493
+  [GME] START iv
+  [GME] DONE  iv  status=ok elapsed=0.20s iv=0.375006
+  [GME] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [GME] DONE  gst  status=ok elapsed=0.85s retries=1 rate_limit_events=0 z=0.534
+  [GME] START wiki
+  [GME] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[10/24] GME: 1.76s  INCOMPLETE  gst_z=0.534 wiki_z=None iv=0.375006 rv=0.37680466009962493 price=19.225000381469727 vol=3064052 days_to_earnings=34
+  [GOOGL] START earnings
+  [GOOGL] DONE  earnings  status=ok elapsed=0.66s value=84
+  [GOOGL] START price_history
+  [GOOGL] DONE  price_history  status=ok elapsed=0.16s rows=125
+  [GOOGL] START realized_vol
+  [GOOGL] DONE  realized_vol  status=ok elapsed=0.00s value=0.37941283331904196
+  [GOOGL] START iv
+  [GOOGL] DONE  iv  status=ok elapsed=0.20s iv=0.406256
+  [GOOGL] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [GOOGL] DONE  gst  status=ok elapsed=1.04s retries=1 rate_limit_events=0 z=-0.018
+  [GOOGL] START wiki
+  [GOOGL] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[11/24] GOOGL: 2.05s  INCOMPLETE  gst_z=-0.018 wiki_z=None iv=0.406256 rv=0.37941283331904196 price=363.7950134277344 vol=28288885 days_to_earnings=84
+  [GPN] START earnings
+  [GPN] DONE  earnings  status=ok elapsed=0.87s value=None
+  [GPN] START price_history
+  [GPN] DONE  price_history  status=ok elapsed=0.19s rows=125
+  [GPN] START realized_vol
+  [GPN] DONE  realized_vol  status=ok elapsed=0.00s value=0.4364218978273737
+  [GPN] START iv
+  [GPN] DONE  iv  status=ok elapsed=0.30s iv=0.484624
+  [GPN] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [GPN] DONE  gst  status=ok elapsed=1.04s retries=1 rate_limit_events=0 z=-0.335
+  [GPN] START wiki
+  [GPN] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[12/24] GPN: 2.40s  INCOMPLETE  gst_z=-0.335 wiki_z=None iv=0.484624 rv=0.4364218978273737 price=87.62000274658203 vol=1713648 days_to_earnings=None
+— small batch pause (20s) —
+  [INTC] START earnings
+  [INTC] DONE  earnings  status=ok elapsed=0.58s value=78
+  [INTC] START price_history
+  [INTC] DONE  price_history  status=ok elapsed=0.21s rows=125
+  [INTC] START realized_vol
+  [INTC] DONE  realized_vol  status=ok elapsed=0.00s value=0.9131676409910745
+  [INTC] START iv
+  [INTC] DONE  iv  status=ok elapsed=0.29s iv=0.831056
+  [INTC] START gst
+    [INTC] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 26.3s (budget remaining after: 453s)
+    [INTC] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 46.8s (budget remaining after: 405s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [INTC] DONE  gst  status=ok elapsed=76.00s retries=3 rate_limit_events=2 z=-0.896
+  [INTC] START wiki
+  [INTC] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[13/24] INTC: 77.09s  INCOMPLETE  gst_z=-0.896 wiki_z=None iv=0.831056 rv=0.9131676409910745 price=102.2300033569336 vol=50576391 days_to_earnings=78
+  [LDOS] START earnings
+  [LDOS] DONE  earnings  status=ok elapsed=0.54s value=90
+  [LDOS] START price_history
+  [LDOS] DONE  price_history  status=ok elapsed=0.13s rows=125
+  [LDOS] START realized_vol
+  [LDOS] DONE  realized_vol  status=ok elapsed=0.00s value=0.3864744469897341
+  [LDOS] START iv
+  [LDOS] DONE  iv  status=ok elapsed=0.30s iv=0.406012
+  [LDOS] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [LDOS] DONE  gst  status=ok elapsed=1.04s retries=1 rate_limit_events=0 z=4.09
+  [LDOS] START wiki
+  [LDOS] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[14/24] LDOS: 2.02s  INCOMPLETE  gst_z=4.09 wiki_z=None iv=0.406012 rv=0.3864744469897341 price=128.7050018310547 vol=502510 days_to_earnings=90
+  [MSFT] START earnings
+  [MSFT] DONE  earnings  status=ok elapsed=0.72s value=84
+  [MSFT] START price_history
+  [MSFT] DONE  price_history  status=ok elapsed=0.16s rows=125
+  [MSFT] START realized_vol
+  [MSFT] DONE  realized_vol  status=ok elapsed=0.00s value=0.4714546176020674
+  [MSFT] START iv
+  [MSFT] DONE  iv  status=ok elapsed=0.24s iv=0.311225
+  [MSFT] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [MSFT] DONE  gst  status=ok elapsed=0.69s retries=1 rate_limit_events=0 z=1.418
+  [MSFT] START wiki
+  [MSFT] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[15/24] MSFT: 1.82s  INCOMPLETE  gst_z=1.418 wiki_z=None iv=0.311225 rv=0.4714546176020674 price=488.239990234375 vol=16378225 days_to_earnings=84
+  [NCLH] START earnings
+  [NCLH] DONE  earnings  status=ok elapsed=0.69s value=91
+  [NCLH] START price_history
+  [NCLH] DONE  price_history  status=ok elapsed=0.12s rows=125
+  [NCLH] START realized_vol
+  [NCLH] DONE  realized_vol  status=ok elapsed=0.00s value=0.5386718624670146
+  [NCLH] START iv
+  [NCLH] DONE  iv  status=ok elapsed=0.29s iv=0.495122
+  [NCLH] START gst
+    [NCLH] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 24.0s (budget remaining after: 455s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [NCLH] DONE  gst  status=ok elapsed=26.29s retries=2 rate_limit_events=1 z=-1.222
+  [NCLH] START wiki
+  [NCLH] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[16/24] NCLH: 27.39s  INCOMPLETE  gst_z=-1.222 wiki_z=None iv=0.495122 rv=0.5386718624670146 price=20.290000915527344 vol=5513970 days_to_earnings=91
+  [NKE] START earnings
+  [NKE] DONE  earnings  status=ok elapsed=0.52s value=55
+  [NKE] START price_history
+  [NKE] DONE  price_history  status=ok elapsed=0.37s rows=125
+  [NKE] START realized_vol
+  [NKE] DONE  realized_vol  status=ok elapsed=0.00s value=0.3463382609663577
+  [NKE] START iv
+  [NKE] DONE  iv  status=ok elapsed=0.60s iv=0.378912
+  [NKE] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [NKE] DONE  gst  status=ok elapsed=0.89s retries=1 rate_limit_events=0 z=-0.424
+  [NKE] START wiki
+  [NKE] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[17/24] NKE: 2.39s  INCOMPLETE  gst_z=-0.424 wiki_z=None iv=0.378912 rv=0.3463382609663577 price=41.790000915527344 vol=9709276 days_to_earnings=55
+  [QCOM] START earnings
+  [QCOM] DONE  earnings  status=ok elapsed=0.87s value=85
+  [QCOM] START price_history
+  [QCOM] DONE  price_history  status=ok elapsed=0.11s rows=125
+  [QCOM] START realized_vol
+  [QCOM] DONE  realized_vol  status=ok elapsed=0.00s value=0.7780025577158964
+  [QCOM] START iv
+  [QCOM] DONE  iv  status=ok elapsed=0.36s iv=0.561162
+  [QCOM] START gst
+    [QCOM] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 24.3s (budget remaining after: 455s)
+    [QCOM] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 43.4s (budget remaining after: 411s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [QCOM] DONE  gst  status=ok elapsed=70.50s retries=3 rate_limit_events=2 z=-1.302
+  [QCOM] START wiki
+  [QCOM] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[18/24] QCOM: 71.84s  INCOMPLETE  gst_z=-1.302 wiki_z=None iv=0.561162 rv=0.7780025577158964 price=158.6699981689453 vol=4848931 days_to_earnings=85
+— small batch pause (20s) —
+  [SBUX] START earnings
+  [SBUX] DONE  earnings  status=ok elapsed=0.82s value=84
+  [SBUX] START price_history
+  [SBUX] DONE  price_history  status=ok elapsed=0.35s rows=125
+  [SBUX] START realized_vol
+  [SBUX] DONE  realized_vol  status=ok elapsed=0.00s value=0.2242454241229559
+  [SBUX] START iv
+  [SBUX] DONE  iv  status=ok elapsed=0.41s iv=0.334968
+  [SBUX] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [SBUX] DONE  gst  status=ok elapsed=1.60s retries=1 rate_limit_events=0 z=-0.153
+  [SBUX] START wiki
+  [SBUX] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[19/24] SBUX: 3.18s  INCOMPLETE  gst_z=-0.153 wiki_z=None iv=0.334968 rv=0.2242454241229559 price=106.27010345458984 vol=1979936 days_to_earnings=84
+  [STZ] START earnings
+  [STZ] DONE  earnings  status=ok elapsed=0.79s value=61
+  [STZ] START price_history
+  [STZ] DONE  price_history  status=ok elapsed=0.09s rows=125
+  [STZ] START realized_vol
+  [STZ] DONE  realized_vol  status=ok elapsed=0.00s value=0.2987800938418669
+  [STZ] START iv
+  [STZ] DONE  iv  status=ok elapsed=0.30s iv=0.358893
+  [STZ] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [STZ] DONE  gst  status=ok elapsed=1.16s retries=1 rate_limit_events=0 z=-1.312
+  [STZ] START wiki
+  [STZ] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[20/24] STZ: 2.35s  INCOMPLETE  gst_z=-1.312 wiki_z=None iv=0.358893 rv=0.2987800938418669 price=131.0050048828125 vol=331108 days_to_earnings=61
+  [SYK] START earnings
+  [SYK] DONE  earnings  status=ok elapsed=0.61s value=85
+  [SYK] START price_history
+  [SYK] DONE  price_history  status=ok elapsed=0.16s rows=125
+  [SYK] START realized_vol
+  [SYK] DONE  realized_vol  status=ok elapsed=0.00s value=0.399402072900947
+  [SYK] START iv
+  [SYK] DONE  iv  status=ok elapsed=0.20s iv=0.336463
+  [SYK] START gst
+    [SYK] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.7s (budget remaining after: 451s)
+    [SYK] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 47.4s (budget remaining after: 403s)
+    [SYK] attempt 3 failed: The request failed: Google returned a response with code 429 -- sleeping 75.3s (budget remaining after: 327s)
+    [SYK] attempt 4 failed: The request failed: Google returned a response with code 429 -- sleeping 107.8s (budget remaining after: 219s)
+    [SYK] attempt 5 failed: The request failed: Google returned a response with code 429 -- sleeping 135.6s (budget remaining after: 82s)
+  [SYK] DONE  gst  status=attempts_exhausted elapsed=398.06s retries=5 rate_limit_events=5 z=None
+  [SYK] START wiki
+  [SYK] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[21/24] SYK: 399.04s  INCOMPLETE  gst_z=None wiki_z=None iv=0.336463 rv=0.399402072900947 price=335.42999267578125 vol=838458 days_to_earnings=85
+  [TSLA] START earnings
+  [TSLA] DONE  earnings  status=ok elapsed=0.64s value=77
+  [TSLA] START price_history
+  [TSLA] DONE  price_history  status=ok elapsed=0.19s rows=125
+  [TSLA] START realized_vol
+  [TSLA] DONE  realized_vol  status=ok elapsed=0.00s value=0.5768175981785993
+  [TSLA] START iv
+  [TSLA] DONE  iv  status=ok elapsed=0.30s iv=0.410589
+  [TSLA] START gst
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [TSLA] DONE  gst  status=ok elapsed=1.13s retries=1 rate_limit_events=0 z=-0.512
+  [TSLA] START wiki
+  [TSLA] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[22/24] TSLA: 2.25s  INCOMPLETE  gst_z=-0.512 wiki_z=None iv=0.410589 rv=0.5768175981785993 price=323.7449951171875 vol=14909136 days_to_earnings=77
+  [TTWO] START earnings
+  [TTWO] DONE  earnings  status=ok elapsed=0.69s value=2
+  [TTWO] START price_history
+  [TTWO] DONE  price_history  status=ok elapsed=0.19s rows=125
+  [TTWO] START realized_vol
+  [TTWO] DONE  realized_vol  status=ok elapsed=0.00s value=0.35173755128172174
+  [TTWO] START iv
+  [TTWO] DONE  iv  status=ok elapsed=0.20s iv=1.198857
+  [TTWO] START gst
+    [TTWO] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.4s (budget remaining after: 452s)
+    [TTWO] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 40.4s (budget remaining after: 410s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [TTWO] DONE  gst  status=ok elapsed=71.07s retries=3 rate_limit_events=2 z=-0.813
+  [TTWO] START wiki
+  [TTWO] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[23/24] TTWO: 72.15s  INCOMPLETE  gst_z=-0.813 wiki_z=None iv=1.198857 rv=0.35173755128172174 price=234.4600067138672 vol=964242 days_to_earnings=2
+  [UAL] START earnings
+  [UAL] DONE  earnings  status=ok elapsed=0.59s value=77
+  [UAL] START price_history
+  [UAL] DONE  price_history  status=ok elapsed=0.22s rows=125
+  [UAL] START realized_vol
+  [UAL] DONE  realized_vol  status=ok elapsed=0.00s value=0.5176931118823779
+  [UAL] START iv
+  [UAL] DONE  iv  status=ok elapsed=0.34s iv=0.449224
+  [UAL] START gst
+    [UAL] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 27.6s (budget remaining after: 452s)
+C:\Users\hakur\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytrends\request.py:260: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+  df = df.fillna(False)
+  [UAL] DONE  gst  status=ok elapsed=29.65s retries=2 rate_limit_events=1 z=-2.667
+  [UAL] START wiki
+  [UAL] DONE  wiki  status=incomplete_effective_watermark_unavailable elapsed=0.00s z=None
+[24/24] UAL: 30.81s  INCOMPLETE  gst_z=-2.667 wiki_z=None iv=0.449224 rv=0.5176931118823779 price=133.5850067138672 vol=1294435 days_to_earnings=77
+
+*** RUN DID NOT PRODUCE A FULLY COMPLETE PANEL -- 24 row(s) collected, 0 fully clean. Checkpoint preserved at: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-08-05_run3_CHECKPOINT_PARTIAL.csv ***
+
+=== RUN SUMMARY ===
+Status: PARTIAL
+Tickers: 24/24  Clean (six locked research fields only): 0  Incomplete: 24  Earnings lookup ok (date may still be null): 24
+Total wall time: 1991.0s (33.18 min)
+
+Completion marker written: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-08-05_run3_COMPLETION_MARKER.json
+{
+  "status": "PARTIAL",
+  "row_count": 24,
+  "unique_ticker_count": 24,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 0,
+  "earnings_lookup_ok_count": 24,
+  "days_to_nearest_earnings_nonnull_count": 23,
+  "field_completeness_pct": {
+    "gst_zscore": 87.5,
+    "wiki_zscore": 0.0,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 3,
+    "wiki": 24
+  },
+  "elapsed_s": 1991.0,
+  "elapsed_min": 33.18,
+  "active_ticker_when_stopped": null,
+  "active_leg_when_stopped": null,
+  "checkpoint_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-08-05_run3_CHECKPOINT_PARTIAL.csv",
+  "final_path": null,
+  "generated_at_utc": "2026-08-05T17:06:52.247317+00:00",
+  "wiki_data_watermark": {
+    "status": "ok",
+    "watermark_date": "2026-08-04",
+    "lag_days": 1,
+    "retrieved_at_utc": "2026-08-05T16:26:22.979964+00:00",
+    "source_url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026080400/2026080400",
+    "http_status": 200
+  },
+  "wiki_effective_panel_watermark": {
+    "status": "failed_closed",
+    "effective_panel_watermark_date": null,
+    "method": "min_anchor_month_observed_latest_same_response",
+    "aggregate_vs_panel_lag_days": null,
+    "measured_count": 19,
+    "expected_count": 24,
+    "binding_tickers": [],
+    "unmeasured": [
+      {
+        "ticker": "BKR",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "CTSH",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "INTC",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "STZ",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "UAL",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      }
+    ],
+    "resolved_at_utc": "2026-08-05T16:26:23.226425+00:00",
+    "per_ticker_latest_available_date": {},
+    "anchor_month_request": {
+      "requested_start": "2026-08-01",
+      "requested_end": "2026-08-04",
+      "request_count": 34,
+      "total_pacing_wait_s": 364.653,
+      "min_request_interval_s": 3.5
+    },
+    "anchor_month_observed": {
+      "AAPL": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "ABBV": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "ADBE": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "AMZN": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "BKR": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          21.098,
+          43.136
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "BRK-B": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "CTSH": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          22.888,
+          43.49
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "DELL": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "DVN": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "GME": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "GOOGL": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "GPN": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "INTC": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          21.308,
+          42.115
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "LDOS": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "MSFT": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "NCLH": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "NKE": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "QCOM": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "SBUX": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "STZ": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          23.352,
+          41.762
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "SYK": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "TSLA": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "TTWO": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "UAL": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          21.728,
+          40.051
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      }
+    },
+    "anchor_month_response_reuse": {
+      "tickers_reused": [],
+      "reused_in_memory_only": true,
+      "written_to_cache": false,
+      "second_anchor_month_request_issued": false
+    }
+  }
+}

@@ -1,0 +1,928 @@
+{
+  "generated_at_utc": "2026-08-05T03:53:16.606083+00:00",
+  "cache_sha256_before": "2cc29ddeb3f8dcc7c3f1075a3a5813ff90a292341e734cf9de2255d0801ad93d",
+  "note": "Diagnostic A re-run WITH pacing (production has none -- see pass 1).",
+  "anchor_date": "2026-08-05",
+  "aggregate_watermark": {
+    "status": "ok",
+    "watermark_date": "2026-08-04",
+    "lag_days": 1,
+    "http_status": 200
+  },
+  "diagnostic_A_paced": {
+    "status": "failed_closed",
+    "effective_panel_watermark_date": null,
+    "aggregate_vs_panel_lag_days": null,
+    "measured_count": 22,
+    "expected_count": 24,
+    "binding_tickers": [],
+    "unmeasured": [
+      {
+        "ticker": "ADBE",
+        "reason": "probe_not_ok:http_error:404",
+        "http_status": 404
+      },
+      {
+        "ticker": "GOOGL",
+        "reason": "probe_not_ok:http_error:404",
+        "http_status": 404
+      }
+    ],
+    "wall_clock_s": 121.4,
+    "per_ticker": [
+      {
+        "ticker": "AAPL",
+        "article": "Apple Inc.",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "ABBV",
+        "article": "AbbVie",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "ADBE",
+        "article": "Adobe Inc.",
+        "status": "unmeasured",
+        "latest_available_date": null,
+        "reason": "probe_not_ok:http_error:404",
+        "http_status": 404,
+        "observed_date_count": 0
+      },
+      {
+        "ticker": "AMZN",
+        "article": "Amazon (company)",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "BKR",
+        "article": "Baker Hughes",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "BRK-B",
+        "article": "Berkshire Hathaway",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "CTSH",
+        "article": "Cognizant",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "DELL",
+        "article": "Dell Technologies",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "DVN",
+        "article": "Devon Energy",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "GME",
+        "article": "GameStop",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "GOOGL",
+        "article": "Alphabet Inc.",
+        "status": "unmeasured",
+        "latest_available_date": null,
+        "reason": "probe_not_ok:http_error:404",
+        "http_status": 404,
+        "observed_date_count": 0
+      },
+      {
+        "ticker": "GPN",
+        "article": "Global Payments",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "INTC",
+        "article": "Intel",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "LDOS",
+        "article": "Leidos",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "MSFT",
+        "article": "Microsoft",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "NCLH",
+        "article": "Norwegian Cruise Line Holdings",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "NKE",
+        "article": "Nike, Inc.",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "QCOM",
+        "article": "Qualcomm",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "SBUX",
+        "article": "Starbucks",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "STZ",
+        "article": "Constellation Brands",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "SYK",
+        "article": "Stryker Corporation",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "TSLA",
+        "article": "Tesla, Inc.",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "TTWO",
+        "article": "Take-Two Interactive",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      },
+      {
+        "ticker": "UAL",
+        "article": "United Airlines",
+        "status": "ok",
+        "latest_available_date": "2026-08-04",
+        "reason": "",
+        "http_status": 200,
+        "observed_date_count": 14
+      }
+    ]
+  },
+  "diagnostic_B_watermark_used": {
+    "value": "2026-08-04",
+    "is_production_effective_watermark": false,
+    "caveat": "derived from the measured subset ONLY to give Diagnostic B a concrete required interval; production would fail closed here"
+  },
+  "diagnostic_B": [
+    {
+      "ticker": "CTSH",
+      "article": "Cognizant",
+      "note": "exact interval left unrecovered by bounded subchunk recovery on 2026-08-05",
+      "production_request": {
+        "start": "2026-07-08",
+        "end": "2026-07-14"
+      },
+      "required_coverage": {
+        "start": "2026-07-08",
+        "end": "2026-07-14",
+        "dates": [
+          "20260708",
+          "20260709",
+          "20260710",
+          "20260711",
+          "20260712",
+          "20260713",
+          "20260714"
+        ]
+      },
+      "stages": [
+        {
+          "shape": "production_full_range",
+          "request": "2026-07-08..2026-07-14",
+          "transport_status": "ok",
+          "http_status": 200,
+          "retry_after": null,
+          "validation_valid": true,
+          "validation_category": "ok",
+          "validation_reason": ""
+        }
+      ],
+      "recovered_dates": [
+        "20260708",
+        "20260709",
+        "20260710",
+        "20260711",
+        "20260712",
+        "20260713",
+        "20260714"
+      ],
+      "missing_dates": [],
+      "exact_coverage_achieved": true
+    },
+    {
+      "ticker": "INTC",
+      "article": "Intel",
+      "note": "production open-month chunk; required through effective panel watermark",
+      "production_request": {
+        "start": "2026-08-01",
+        "end": "2026-08-05"
+      },
+      "required_coverage": {
+        "start": "2026-08-01",
+        "end": "2026-08-04",
+        "dates": [
+          "20260801",
+          "20260802",
+          "20260803",
+          "20260804"
+        ]
+      },
+      "stages": [
+        {
+          "shape": "production_full_range",
+          "request": "2026-08-01..2026-08-05",
+          "transport_status": "ok",
+          "http_status": 200,
+          "retry_after": null,
+          "validation_valid": true,
+          "validation_category": "ok",
+          "validation_reason": ""
+        }
+      ],
+      "recovered_dates": [
+        "20260801",
+        "20260802",
+        "20260803",
+        "20260804"
+      ],
+      "missing_dates": [],
+      "exact_coverage_achieved": true
+    },
+    {
+      "ticker": "SYK",
+      "article": "Stryker Corporation",
+      "note": "production open-month chunk; required through effective panel watermark",
+      "production_request": {
+        "start": "2026-08-01",
+        "end": "2026-08-05"
+      },
+      "required_coverage": {
+        "start": "2026-08-01",
+        "end": "2026-08-04",
+        "dates": [
+          "20260801",
+          "20260802",
+          "20260803",
+          "20260804"
+        ]
+      },
+      "stages": [
+        {
+          "shape": "production_full_range",
+          "request": "2026-08-01..2026-08-05",
+          "transport_status": "http_error",
+          "http_status": 404,
+          "retry_after": null,
+          "validation_valid": false,
+          "validation_category": "transport:http_error",
+          "validation_reason": "HTTP 404"
+        },
+        {
+          "shape": "fixed_7day_partition",
+          "request": "2026-08-01..2026-08-04",
+          "transport_status": "ok",
+          "http_status": 200,
+          "retry_after": null,
+          "validation_valid": true,
+          "validation_category": "ok",
+          "validation_reason": ""
+        }
+      ],
+      "recovered_dates": [
+        "20260801",
+        "20260802",
+        "20260803",
+        "20260804"
+      ],
+      "missing_dates": [],
+      "exact_coverage_achieved": true
+    },
+    {
+      "ticker": "ADBE",
+      "article": "Adobe Inc.",
+      "note": "NEW in pass 1: genuine 404 on the 14-day availability probe, not throttling",
+      "production_request": {
+        "start": "2026-08-01",
+        "end": "2026-08-05"
+      },
+      "required_coverage": {
+        "start": "2026-08-01",
+        "end": "2026-08-04",
+        "dates": [
+          "20260801",
+          "20260802",
+          "20260803",
+          "20260804"
+        ]
+      },
+      "stages": [
+        {
+          "shape": "production_full_range",
+          "request": "2026-08-01..2026-08-05",
+          "transport_status": "ok",
+          "http_status": 200,
+          "retry_after": null,
+          "validation_valid": true,
+          "validation_category": "ok",
+          "validation_reason": ""
+        }
+      ],
+      "recovered_dates": [
+        "20260801",
+        "20260802",
+        "20260803",
+        "20260804"
+      ],
+      "missing_dates": [],
+      "exact_coverage_achieved": true
+    }
+  ],
+  "requests": [
+    {
+      "label": "A2:availability",
+      "article": "Apple Inc.",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 2.983,
+      "network_elapsed_s": 1.781,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Apple_Inc./daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "AbbVie",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 2.541,
+      "network_elapsed_s": 1.326,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/AbbVie/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Adobe Inc.",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "http_error",
+      "http_status": 404,
+      "retry_after": null,
+      "elapsed_s": 3.281,
+      "network_elapsed_s": 2.108,
+      "observed_count": 0,
+      "observed_first": null,
+      "observed_last": null,
+      "error": "HTTP 404",
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Adobe_Inc./daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Amazon (company)",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.487,
+      "network_elapsed_s": 0.409,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Amazon_%28company%29/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Baker Hughes",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.532,
+      "network_elapsed_s": 0.514,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Baker_Hughes/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Berkshire Hathaway",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.407,
+      "network_elapsed_s": 0.374,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Berkshire_Hathaway/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Cognizant",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.389,
+      "network_elapsed_s": 0.325,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Cognizant/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Dell Technologies",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.355,
+      "network_elapsed_s": 0.343,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Dell_Technologies/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Devon Energy",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.391,
+      "network_elapsed_s": 0.354,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Devon_Energy/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "GameStop",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.24,
+      "network_elapsed_s": 0.228,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/GameStop/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Alphabet Inc.",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "http_error",
+      "http_status": 404,
+      "retry_after": null,
+      "elapsed_s": 1.368,
+      "network_elapsed_s": 0.335,
+      "observed_count": 0,
+      "observed_first": null,
+      "observed_last": null,
+      "error": "HTTP 404",
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Alphabet_Inc./daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Global Payments",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.495,
+      "network_elapsed_s": 0.462,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Global_Payments/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Intel",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.356,
+      "network_elapsed_s": 0.316,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Intel/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Leidos",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.527,
+      "network_elapsed_s": 0.474,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Leidos/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Microsoft",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.477,
+      "network_elapsed_s": 0.384,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Microsoft/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Norwegian Cruise Line Holdings",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.525,
+      "network_elapsed_s": 0.471,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Norwegian_Cruise_Line_Holdings/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Nike, Inc.",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.54,
+      "network_elapsed_s": 0.516,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Nike%2C_Inc./daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Qualcomm",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.709,
+      "network_elapsed_s": 0.64,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Qualcomm/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Starbucks",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.52,
+      "network_elapsed_s": 0.396,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Starbucks/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Constellation Brands",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.496,
+      "network_elapsed_s": 0.478,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Constellation_Brands/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Stryker Corporation",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.504,
+      "network_elapsed_s": 0.478,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Stryker_Corporation/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Tesla, Inc.",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.448,
+      "network_elapsed_s": 0.413,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Tesla%2C_Inc./daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "Take-Two Interactive",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.586,
+      "network_elapsed_s": 0.536,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Take-Two_Interactive/daily/20260722/20260805"
+    },
+    {
+      "label": "A2:availability",
+      "article": "United Airlines",
+      "requested_start": "2026-07-22",
+      "requested_end": "2026-08-05",
+      "requested_days": 15,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.501,
+      "network_elapsed_s": 0.483,
+      "observed_count": 14,
+      "observed_first": "20260722",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/United_Airlines/daily/20260722/20260805"
+    },
+    {
+      "label": "B1:CTSH:production",
+      "article": "Cognizant",
+      "requested_start": "2026-07-08",
+      "requested_end": "2026-07-14",
+      "requested_days": 7,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.715,
+      "network_elapsed_s": 0.663,
+      "observed_count": 7,
+      "observed_first": "20260708",
+      "observed_last": "20260714",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Cognizant/daily/20260708/20260714"
+    },
+    {
+      "label": "B1:INTC:production",
+      "article": "Intel",
+      "requested_start": "2026-08-01",
+      "requested_end": "2026-08-05",
+      "requested_days": 5,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.315,
+      "network_elapsed_s": 0.319,
+      "observed_count": 4,
+      "observed_first": "20260801",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Intel/daily/20260801/20260805"
+    },
+    {
+      "label": "B1:SYK:production",
+      "article": "Stryker Corporation",
+      "requested_start": "2026-08-01",
+      "requested_end": "2026-08-05",
+      "requested_days": 5,
+      "status": "http_error",
+      "http_status": 404,
+      "retry_after": null,
+      "elapsed_s": 1.493,
+      "network_elapsed_s": 0.434,
+      "observed_count": 0,
+      "observed_first": null,
+      "observed_last": null,
+      "error": "HTTP 404",
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Stryker_Corporation/daily/20260801/20260805"
+    },
+    {
+      "label": "B2:SYK:7day",
+      "article": "Stryker Corporation",
+      "requested_start": "2026-08-01",
+      "requested_end": "2026-08-04",
+      "requested_days": 4,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.54,
+      "network_elapsed_s": 0.494,
+      "observed_count": 4,
+      "observed_first": "20260801",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Stryker_Corporation/daily/20260801/20260804"
+    },
+    {
+      "label": "B1:ADBE:production",
+      "article": "Adobe Inc.",
+      "requested_start": "2026-08-01",
+      "requested_end": "2026-08-05",
+      "requested_days": 5,
+      "status": "ok",
+      "http_status": 200,
+      "retry_after": null,
+      "elapsed_s": 1.358,
+      "network_elapsed_s": 0.39,
+      "observed_count": 4,
+      "observed_first": "20260801",
+      "observed_last": "20260804",
+      "error": null,
+      "url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/Adobe_Inc./daily/20260801/20260805"
+    }
+  ],
+  "isolated_cache_was_written": false,
+  "cache_sha256_after": "2cc29ddeb3f8dcc7c3f1075a3a5813ff90a292341e734cf9de2255d0801ad93d",
+  "cache_byte_identical": true
+}

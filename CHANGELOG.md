@@ -1,5 +1,74 @@
 # Changelog
 
+
+## 2026-08-05 — Phase 2: bounded identical-request retry on HTTP 404 in the anchor-month availability stage
+
+**Why.** The 22/24 availability gate (`4501e36`, evidence in `Live Signal Engine/Phase2 Failure Evidence/2026-08-05_AnchorMonth_AvailabilityGate_22of24/`) confirmed the pacing fix works — zero unhandled 429s across 26 requests — but left GPN and TTWO failing on a *single* HTTP 404 against the exact anchor-month request. That is transient CDN transport behaviour, not unavailable data and not an identity problem: both articles are locked and previously identity-validated, the set of 404-ing articles changes between runs, and CTSH/INTC/SYK (the three previously "unresolved" intervals) all returned clean 200s in the same gate.
+
+**What changed** (`GST_Phase2_Wikipedia_Transport.py`, Stage 1 only):
+
+- A 404 now triggers a bounded retry of the **identical** request — same article title, same date boundaries, same endpoint/access/agent/granularity. Stage 1 has exactly one `fetch_fn` call site with a fixed argument tuple, so no code path can vary the request between attempts (asserted by test 25).
+- `ANCHOR_MONTH_MAX_ATTEMPTS = 3` (initial + 2 retries); `ANCHOR_MONTH_404_BACKOFF_S = [20.0, 40.0]` plus bounded 0–5 s jitter. A longer server `Retry-After` is honoured over the schedule, still capped at `AVAILABILITY_MAX_RETRY_AFTER_WAIT_S`.
+- Every attempt, retries included, passes through the one `SharedRequestLimiter`; the backoff is applied *through* that shared gate, so a burst of retries cannot exceed the global rate.
+- Retries stop early if the next wait would push past the total-run safety budget (`remaining_budget_s`, wired to `TOTAL_RUN_BUDGET_S`).
+- **First structurally valid HTTP 200 wins** — no further attempt is ever made to chase a fresher watermark (test 26).
+- Only a 404 *opens* a retry sequence; an invalid 200 may *continue* an open one, so a first-attempt malformed response keeps its prior fail-closed behaviour. 400/401/403 are never retried. 429 and 5xx/timeout keep their pre-existing bounded handling unchanged.
+- A 404 surviving all three attempts remains a hard fail-closed result. No alternate request shape, cached magnitude data, zero-fill, interpolation, synthetic observation, or aggregate-watermark substitution — and Stage-1 responses are still never written to the operational cache.
+
+**Additive provenance** (per ticker, on the panel row, in `stage1_results`, and in the completion marker): `anchor_month_attempt_count`, `anchor_month_attempt_statuses`, `anchor_month_retry_wait_seconds`, `anchor_month_recovered_after_transient_404`, `anchor_month_final_http_status`. None participates in any gate.
+
+**Tests**: 15 new deterministic tests (19–33) covering every required case — success on attempt 1; 404→200; 404,404→200; three 404s fail closed; 404 then malformed 200 (with and without a later valid attempt); 400/401/403 never retried; identical URL and boundaries on every attempt; no alternative-range fallback; first valid 200 stops further calls; all attempts through the shared limiter; `Retry-After` honoured, capped, and not shrinking the schedule; total-run budget stopping retries; deterministic jitter injection; provenance matching the real attempt sequence; no cache writes; and magnitude-independence of retry and watermark decisions. Full deterministic suite: **12 files, 617 assertions, all passing**; operational cache byte-identical (`2cc29dde…ad93d`, 8238 rows).
+
+**Live availability gate (cache-isolated, no panel): 23/24, still failed closed.** The mechanism works as intended — **GPN recovered on attempt 2** (`404, 200_ok`, 24.8 s wait), exactly the case it was built for, and zero 429s occurred across 27 requests. **TTWO exhausted all three attempts** (`404, 404, 404`; waits 24.6 s and 43.8 s; ~68 s span). Of the 23 that succeeded, 12 reported `2026-08-03` and 11 reported `2026-08-04`, so the candidate common watermark would have been `2026-08-03`. Per the gate, no panel was run, the gate was not rerun, and no further fallback was added.
+
+## 2026-08-05 — Phase 2 correction: two-stage anchor-month watermark replaces the separate availability probe
+
+**Corrects commit `9990c39`**, which a read-only live diagnostic proved release-blocking before it ever ran a panel. Full evidence: `Live Signal Engine/Phase2 Failure Evidence/2026-08-05_EffectiveWatermark_Probe_Design_Failure/` (commits `a0ec503`, `1ec102a`).
+
+**What was wrong with `9990c39`:**
+
+1. `resolve_effective_panel_watermark()` issued 24 unpaced requests. Wikimedia throttles from request 11 (14 × HTTP 429, `Retry-After` counting down 39→20 s), so `measured=9/24` → `failed_closed` → every run would be PARTIAL. Strictly worse than the behaviour it replaced.
+2. Availability is **request-shape-dependent**. The same date is present in one range's response and absent from another's, for the same article, seconds apart (ADBE and GOOGL both return `2026-08-04` for `07-22..08-04` but not for `08-01..08-04`) — consistent with URL-keyed CDN response caching. A separate fixed-14-day probe therefore cannot certify what the production calendar-chunk request returns. The premise was unsound, not merely mistuned.
+
+**What changed.** The separate probe is **deleted**, not tuned — `measure_article_latest_available_date()` and `PER_ARTICLE_PROBE_WINDOW_DAYS` no longer exist. Availability is now measured from the *same response production reuses*:
+
+- **Stage 1** (`retrieve_anchor_month_availability()`): one request per ticker, exactly `anchor_month_start(aggregate_watermark) .. aggregate_watermark` — the same calendar-chunk shape production consumes, never through wall-clock today, never past the aggregate watermark (an upper bound only). All requests pass through a single `SharedRequestLimiter` (3.5 s minimum interval — the smallest rate this project has direct evidence for) which also absorbs capped `Retry-After` backoff on behalf of every subsequent caller. One bounded 429 re-attempt per ticker; a second 429 fails closed.
+- `validate_anchor_month_response()` accepts a **trailing** shortfall (that is the measurement) but rejects empty, malformed, out-of-range, duplicate/conflicting, late-starting, or internally gapped responses.
+- **Stage 2** (`resolve_effective_panel_watermark()`): `effective = min(anchor-month latest observed)` across all 24, then each Stage-1 response is **sliced to that watermark and reused in memory** — no second anchor-month request, and nothing trailing-short is ever cached under a key implying coverage through the aggregate watermark. Each sliced response must still have exact daily coverage from `anchor_month_start` through the effective watermark.
+- `get_ticker_wikipedia_daily()` gains `prefetched_chunk_rows`; a matching chunk is satisfied from memory with zero network calls and zero cache writes, still passing through `validate_snapshot()`. New source mode `anchor_month_stage1`.
+- The request horizon in `process_ticker()` is now the aggregate watermark, so the final generated chunk is exactly the Stage-1 shape. The prior comment claiming a wall-clock horizon was harmless is rewritten: it was *accurate* about HTTP truncation (verified — production always requested `chunk_start..min(chunk_end, watermark)`), but it left the chunk's nominal end past the watermark, which is the wrong shape to match Stage 1 against.
+- Completion marker gains anchor-month request boundaries, per-ticker observed boundaries, and response-reuse provenance.
+
+**Scope, unchanged.** This removes only **trailing** unpublished dates. Interior historical gaps still fail — `validate_anchor_month_response()` rejects them outright, and lowering a trailing edge cannot reach inside a sequence. Untouched: locked 24-ticker universe, six-field contract, z-score formula, earnings rules, historical results, cache-integrity requirements, cache-union and bounded-subchunk rules, and the COMPLETE decision rule's existing criteria.
+
+**Tests**: `test_phase2_wiki_effective_panel_watermark.py` rewritten for the two-stage design (108 assertions, zero network) covering all 18 required items, including that the deleted probe is absent from production source, rollover into a prior calendar month, request-shape-dependent fixtures being unable to split measurement from retrieval, single-shared-limiter pacing under a deterministic fake clock, `Retry-After` honoured and capped, exhausted-429 and 404 fail-closed, slicing as pure filtering, and magnitude/order invariance. Full deterministic suite: **12 files, 503 assertions, all passing**; operational cache byte-identical (`2cc29dde…ad93d`, 8238 rows).
+
+**Live availability-only diagnostic (cache-isolated, no panel).** Pacing is fixed: **zero unhandled 429s** across 26 requests; two transient throttles auto-recovered via `Retry-After`. But Stage 1 **failed closed at 22/24** — GPN and TTWO returned HTTP 404 on the anchor-month range. Of the 22 that succeeded, 17 reported `2026-08-03` and 5 reported `2026-08-04`, so the common watermark would have been `2026-08-03`. Per the gate, no panel was run and no fallback was added.
+
+## 2026-08-05 — Phase 2: common per-article availability watermark (aggregate endpoint is no longer the binding bar)
+
+**Why this changed.** The 2026-08-05 PR #1 merge-gate regression returned PARTIAL with `all_six_fields_clean=5`. Root cause: the binding Wikipedia data watermark was measured from the **aggregate** pageviews endpoint (`.../aggregate/en.wikipedia.org/...`) but enforced against the **per-article** endpoints — two different publication pipelines. At 02:14Z the aggregate had published `2026-08-04`; only 5 of the 24 locked articles had. The other 19 returned HTTP 200 with a short series and were correctly rejected as `incomplete_coverage`, on the first pass and again on the second pass ~16 minutes later. Full evidence, including the cross-run lag correlation that isolates watermark lag (not the branch under test) as the discriminator: `Live Signal Engine/Phase2 Failure Evidence/2026-08-05_AggregateVsPerArticle_Watermark_PARTIAL/`.
+
+The 2026-08-01 correction was right as far as it went — it made the *measured* watermark the single source of truth for open and closed chunks alike. The residual gap was one level up: that watermark is measured from a different endpoint than the one it gates, and a single aggregate probe cannot certify 24 independent per-article publication states.
+
+**What changed** (`GST_Phase2_Wikipedia_Transport.py`, `GST_Phase2_DailyPanel.py`):
+
+- New `measure_article_latest_available_date()`: one per-article range request of **exactly the production request shape** (`fetch_chunk_isolated`, range not single-day — a single-day per-article probe is known to 404 where a wider range succeeds), returning `max(observed dates)` from validated HTTP-200 rows. Fails closed on 404/timeout/malformed/empty; never retries, widens, reshapes, or consults the cache. Reads `date` and transport metadata only.
+- New `resolve_effective_panel_watermark()`: `effective_panel_watermark = min(per-article latest available date)` across **all 24** locked tickers, resolved once at run start. Taking the minimum is what makes one shared date safe — it is by construction a date every article has already published. Fails closed if even one ticker is unmeasurable; a minimum over a subset is not a panel watermark, and the aggregate watermark is never substituted.
+- The effective watermark now binds `pull_start`, expected coverage, the z-score anchor and provenance for **every** ticker in a run. Per-ticker anchor dates inside one panel are impossible by construction and rejected by the gate.
+- The aggregate watermark is retained unchanged as a source-health/provenance observation, with the signed divergence recorded. It never raises the effective watermark.
+- Five additive provenance fields: `wiki_aggregate_watermark_date`, `wiki_article_latest_available_date` (this ticker's own measured value, for audit — it anchors nothing), `wiki_effective_panel_watermark_date`, `wiki_effective_watermark_method`, `wiki_aggregate_vs_panel_lag_days`. The completion marker gains the full per-article measurement set.
+- `is_run_complete()` gains two fail-closed conditions: the effective watermark must have resolved, and every row must carry the same non-null effective watermark **and** be anchored on it.
+
+**What deliberately did NOT change.** This lowers a shared **trailing** edge; it does not forgive a hole. Exact daily coverage across the complete required lookback is still demanded of every ticker, so an internal historical gap — CTSH's missing `2026-07-08..2026-07-14`, and the persistent INTC/SYK `2026-08` 404s — sits *below* the effective watermark and still produces PARTIAL. Untouched: the locked 24-ticker universe, the six-field contract, the z-score formula (`to_weekly`/`compute_zscore_at_anchor`), earnings rules, retry counts, subchunk boundaries, and the COMPLETE decision rule's existing criteria.
+
+**Tests**: `test_phase2_wiki_effective_panel_watermark.py` (new, 94 assertions, zero network calls) covers all 11 required scenarios — all-articles-equal-aggregate; 5-at-D/19-at-D−1 producing a common D−1; one ticker lagging two days; missing article watermark; mixed per-row anchors rejected; post-watermark observations excluded; internal historical gap still rejected (including that no lowering of the watermark rescues a gap below it); `pull_start` anchored to the effective watermark and not to the aggregate or wall clock; result invariant to ticker-processing order; no zero-fill or incomplete-coverage acceptance; operational cache byte-identical before and after — plus fail-closed gate coverage, probe-shape/no-fallback coverage, aggregate-as-provenance coverage, and a direct **non-circularity** proof that the measurement is invariant to pageview magnitude (identical result across all-1s, all-1e9, pseudo-random, and all-0 view counts).
+
+Three existing test files were updated for the new call signatures (`test_phase2_dailypanel_gate.py`, `test_phase2_wiki_pull_start.py`, `test_phase2_wiki_source_provenance.py`) — each supplies a healthy effective watermark by default so it keeps probing the dimension it was written for. Full deterministic suite: **12 files, 484 assertions, all passing**; operational cache verified byte-identical (`2cc29dde…ad93d`, 8238 rows) before and after.
+
+No live 24-ticker panel was run in this pass.
+
+
 ## 2026-08-04 — Market Response: ALP-1 fix + post-fix validation (PR #3, fourth pass, no real event registered)
 
 **What this is.** Fix defect ALP-1, split provider eligibility into its two real components, retract an
@@ -457,6 +526,7 @@ files), all passing. **No live network call was made at any point.** The 24-tick
 operational Wikipedia cache does not exist in this new worktree at all (git worktree checkout of tracked files
 only) and the source worktree's cache was independently re-verified byte-identical (`29d072f2...`) before and
 after this work.
+
 
 ## 2026-08-03 — Safety correction: live equivalence smoke test can no longer mutate operational data by default
 

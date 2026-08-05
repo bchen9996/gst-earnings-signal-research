@@ -1,0 +1,2 @@
+# Hash-anchored evidence; core.autocrlf=true would break the recorded SHA-256s.
+* -text
