@@ -269,6 +269,28 @@ AVAILABILITY_MIN_REQUEST_INTERVAL_S = 3.5
 AVAILABILITY_MAX_429_RETRIES = 1
 AVAILABILITY_MAX_RETRY_AFTER_WAIT_S = 60.0
 
+# --- BOUNDED IDENTICAL-REQUEST RETRY ON 404 (2026-08-05) -------------------
+# The 22/24 availability gate (Live Signal Engine/Phase2 Failure Evidence/
+# 2026-08-05_AnchorMonth_AvailabilityGate_22of24/) left GPN and TTWO failing
+# on a single HTTP 404 against the exact anchor-month request. That is
+# transient CDN transport behaviour, not unavailable data and not an identity
+# problem: both articles are locked and previously identity-validated, and the
+# set of 404-ing articles changes between runs -- ADBE and GOOGL 404'd earlier
+# the same day and returned 200 in that gate, while CTSH/INTC/SYK (the three
+# previously "unresolved" intervals) all returned clean 200s.
+#
+# The response is a bounded retry of the IDENTICAL request -- same article
+# title, same date boundaries, same endpoint/access/agent/granularity. Nothing
+# about the request varies between attempts; retrying a different shape is
+# precisely the mistake the deleted 14-day probe made. A 404 that survives all
+# three attempts is still a hard fail-closed result.
+ANCHOR_MONTH_MAX_ATTEMPTS = 3                    # initial + 2 retries
+ANCHOR_MONTH_404_BACKOFF_S = [20.0, 40.0]        # before attempt 2, before attempt 3
+ANCHOR_MONTH_404_JITTER_S = 5.0                  # bounded 0-5s, desynchronizes retries
+# A client/authorization verdict is not transient -- re-asking cannot change
+# it, so these are never retried.
+ANCHOR_MONTH_NEVER_RETRY_STATUSES = (400, 401, 403)
+
 
 class CacheCorruptionError(Exception):
     """Raised when the persistent cache file exists but doesn't match the
@@ -485,13 +507,23 @@ class SharedRequestLimiter:
         self._clock = clock_fn or time.monotonic
         self._lock = threading.Lock()
         self._next_allowed_at = None
+        self._started_at = None
         self.request_count = 0
         self.waits: list[dict] = []
+
+    def elapsed_since_start(self) -> float:
+        """Seconds since this limiter's first acquire(). Used to bound retry
+        waits against the run's total-run safety budget."""
+        if self._started_at is None:
+            return 0.0
+        return self._clock() - self._started_at
 
     def acquire(self, reason: str = "") -> float:
         """Blocks until the next request is allowed. Returns seconds waited."""
         with self._lock:
             now = self._clock()
+            if self._started_at is None:
+                self._started_at = now
             waited = 0.0
             if self._next_allowed_at is not None and now < self._next_allowed_at:
                 waited = self._next_allowed_at - now
@@ -612,7 +644,10 @@ def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: di
                                         aggregate_watermark: date, fetch_fn=None,
                                         limiter: "SharedRequestLimiter | None" = None,
                                         timeout_s: float = CHUNK_TIMEOUT_S,
-                                        max_429_retries: int = AVAILABILITY_MAX_429_RETRIES) -> dict:
+                                        max_429_retries: int = AVAILABILITY_MAX_429_RETRIES,
+                                        anchor_month_max_attempts: int = ANCHOR_MONTH_MAX_ATTEMPTS,
+                                        jitter_fn=None,
+                                        remaining_budget_s: float | None = None) -> dict:
     """STAGE 1. For every locked ticker, issue exactly ONE anchor-month
     calendar-chunk request:
 
@@ -623,11 +658,28 @@ def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: di
     identity is the whole point of the redesign, so the response that measures
     availability IS the response that supplies the data.
 
-    All requests pass through one shared limiter (see SharedRequestLimiter).
+    All requests pass through one shared limiter (see SharedRequestLimiter) --
+    retries included, so a burst of retries cannot exceed the global rate.
     On HTTP 429 the server's Retry-After is honored (capped) via that same
     shared gate and the request is re-attempted at most max_429_retries times;
     a still-throttled ticker fails closed rather than being skipped or
     downgraded.
+
+    BOUNDED IDENTICAL-REQUEST RETRY ON 404 (2026-08-05): a 404 from a locked,
+    previously identity-validated article is treated as transient CDN
+    transport behaviour and the IDENTICAL request is re-attempted, up to
+    ANCHOR_MONTH_MAX_ATTEMPTS total, waiting ANCHOR_MONTH_404_BACKOFF_S plus
+    bounded jitter (or a longer Retry-After if the server asks for one, still
+    capped) through the shared gate. The FIRST structurally valid HTTP-200
+    wins -- no further attempt is ever made to obtain a "fresher" watermark.
+    A 404 surviving all attempts is a hard fail-closed result. Only a 404
+    OPENS a retry sequence; an invalid 200 may CONTINUE an already-open one,
+    so a first-attempt malformed response keeps its prior fail-closed
+    behaviour. 400/401/403 are never retried. Retries stop early if the next
+    wait would push past remaining_budget_s.
+
+    jitter_fn: injectable (low, high) -> float, for deterministic tests only.
+    Production uses random.uniform.
 
     FAILS CLOSED per ticker on: missing article mapping, non-ok transport,
     non-200 HTTP, 404, exhausted 429, empty/malformed payload, or any
@@ -644,6 +696,7 @@ def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: di
     for why caching a trailing-short response would be a lie)."""
     fetch_fn = fetch_fn or fetch_chunk_isolated
     limiter = limiter or SharedRequestLimiter()
+    jitter_fn = jitter_fn or random.uniform
     month_start = anchor_month_start(aggregate_watermark)
     requested_end = aggregate_watermark
 
@@ -654,7 +707,10 @@ def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: di
                "requested_start": month_start, "requested_end": requested_end,
                "status": "unusable", "latest_available_date": None, "reason": "",
                "http_status": None, "retry_after": None, "observed_count": 0,
-               "attempts": 0, "network_elapsed_s": None}
+               "attempts": 0, "network_elapsed_s": None,
+               "anchor_month_attempt_count": 0, "anchor_month_attempt_statuses": [],
+               "anchor_month_retry_wait_seconds": [], "anchor_month_final_http_status": None,
+               "anchor_month_recovered_after_transient_404": False}
 
         if not article:
             rec["reason"] = "no_article_mapping"
@@ -662,48 +718,129 @@ def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: di
             failures.append({"ticker": ticker, "reason": rec["reason"], "http_status": None})
             continue
 
+        # --- BOUNDED IDENTICAL-REQUEST ATTEMPT LOOP (2026-08-05) ---------
+        # Every attempt reuses the SAME article title and the SAME
+        # month_start/requested_end boundaries, so the URL, endpoint,
+        # access type, agent type and granularity are byte-identical across
+        # attempts by construction -- there is no code path here that could
+        # vary them. Retrying a DIFFERENT shape is exactly the mistake the
+        # deleted 14-day probe made.
+        opened_by_404 = False       # only a 404 opens a retry sequence
+        retries_429_used = 0
         result = None
-        for attempt in range(max_429_retries + 1):
-            limiter.acquire(reason=f"{ticker}:attempt{attempt + 1}")
-            rec["attempts"] = attempt + 1
+        validation = None
+        budget_stop = False
+
+        for attempt in range(1, anchor_month_max_attempts + 1):
+            limiter.acquire(reason=f"{ticker}:attempt{attempt}")
+            rec["attempts"] = attempt
+            rec["anchor_month_attempt_count"] = attempt
             result = fetch_fn(article, month_start, requested_end, timeout_s)
-            rec["http_status"] = result.get("http_status")
+            http = result.get("http_status")
+            rec["http_status"] = http
             rec["retry_after"] = result.get("retry_after")
             rec["network_elapsed_s"] = result.get("network_elapsed_s")
-            if result.get("http_status") == 429 and attempt < max_429_retries:
-                limiter.note_retry_after(result.get("retry_after"))
-                continue
-            break
+            rec["anchor_month_final_http_status"] = http
 
-        if result.get("status") != "ok":
+            validation = None
+            if result.get("status") == "ok" and http == 200:
+                validation = validate_anchor_month_response(
+                    ticker, article, month_start, requested_end, result.get("items") or [])
+                outcome = "200_ok" if validation["usable"] else f"200_invalid:{validation['category']}"
+            elif http is not None:
+                outcome = str(http)
+            else:
+                outcome = f"transport_{result.get('status')}"
+            rec["anchor_month_attempt_statuses"].append(outcome)
+
+            if validation is not None and validation["usable"]:
+                break   # FIRST structurally valid 200 wins -- never probe for a "fresher" one
+
+            if attempt >= anchor_month_max_attempts:
+                break
+
+            # HTTP 429 keeps its PRE-EXISTING bounded handling, unchanged by
+            # the 404 work: honor a capped Retry-After through the shared
+            # gate, re-attempt at most max_429_retries times, then fail
+            # closed. It does not consume the 404 backoff schedule.
+            if http == 429:
+                if retries_429_used < max_429_retries:
+                    retries_429_used += 1
+                    applied = limiter.note_retry_after(result.get("retry_after"))
+                    rec["anchor_month_retry_wait_seconds"].append(round(applied, 3))
+                    continue
+                break
+
+            # Which failures may be re-attempted?
+            #   404 -- the transient CDN condition this mechanism exists for.
+            #          Only a 404 OPENS a retry sequence.
+            #   an invalid 200 -- only CONTINUES an already-open sequence, so
+            #          a first-attempt malformed response keeps its existing
+            #          fail-closed behavior unchanged.
+            #   400/401/403 -- never (a client/authorization verdict is not
+            #          transient; re-asking cannot change it).
+            #   429 and 5xx/timeout/malformed-transport -- existing bounded
+            #          handling below and above respectively; unchanged here.
+            if http == 404:
+                opened_by_404 = True
+            elif not (opened_by_404 and validation is not None and not validation["usable"]):
+                break
+            if http in ANCHOR_MONTH_NEVER_RETRY_STATUSES:
+                break
+
+            scheduled = ANCHOR_MONTH_404_BACKOFF_S[min(attempt - 1,
+                                                        len(ANCHOR_MONTH_404_BACKOFF_S) - 1)]
+            wait_s = scheduled + jitter_fn(0.0, ANCHOR_MONTH_404_JITTER_S)
+            # Honor a server-supplied Retry-After when it asks for LONGER,
+            # still bounded by the module cap.
+            try:
+                if result.get("retry_after") is not None:
+                    wait_s = max(wait_s, float(result["retry_after"]))
+            except (TypeError, ValueError):
+                pass
+            wait_s = min(wait_s, AVAILABILITY_MAX_RETRY_AFTER_WAIT_S)
+
+            # Never let a retry push the run past its total-run safety budget.
+            if remaining_budget_s is not None:
+                spent = limiter.elapsed_since_start()
+                if spent + wait_s > remaining_budget_s:
+                    budget_stop = True
+                    rec["anchor_month_attempt_statuses"].append("budget_exhausted_no_further_attempt")
+                    break
+
+            rec["anchor_month_retry_wait_seconds"].append(round(wait_s, 3))
+            limiter.note_retry_after(wait_s)
+
+        # --- classify the final attempt ---------------------------------
+        if validation is not None and validation["usable"]:
+            rec.update({"status": "ok",
+                        "latest_available_date": validation["latest_available_date"],
+                        "observed_count": validation["observed_count"], "reason": "",
+                        "anchor_month_recovered_after_transient_404": opened_by_404})
+            results.append(rec)
+            responses[ticker] = list(result.get("items") or [])
+            continue
+
+        if budget_stop:
+            rec["reason"] = (f"total_run_budget_exhausted_after_{rec['attempts']}_attempt(s): "
+                             f"last status {rec['anchor_month_attempt_statuses'][-2]
+                                             if len(rec['anchor_month_attempt_statuses']) > 1
+                                             else rec['anchor_month_attempt_statuses'][-1]}")
+        elif result.get("status") != "ok":
             rec["reason"] = (f"transport_{result.get('status')}"
-                             f"{':' + str(result.get('http_status')) if result.get('http_status') else ''}")
-            results.append(rec)
-            failures.append({"ticker": ticker, "reason": rec["reason"],
-                             "http_status": result.get("http_status")})
-            continue
-        if result.get("http_status") != 200:
-            rec["reason"] = f"http_status_not_200:{result.get('http_status')}"
-            results.append(rec)
-            failures.append({"ticker": ticker, "reason": rec["reason"],
-                             "http_status": result.get("http_status")})
-            continue
-
-        validation = validate_anchor_month_response(ticker, article, month_start,
-                                                     requested_end, result.get("items") or [])
-        if not validation["usable"]:
-            rec["reason"] = f"{validation['category']}: {validation['reason']}"
+                             f"{':' + str(result.get('http_status')) if result.get('http_status') else ''}"
+                             f" after {rec['attempts']} attempt(s)")
+        elif result.get("http_status") != 200:
+            rec["reason"] = (f"http_status_not_200:{result.get('http_status')} "
+                             f"after {rec['attempts']} attempt(s)")
+        else:
+            rec["reason"] = (f"{validation['category']}: {validation['reason']} "
+                             f"after {rec['attempts']} attempt(s)")
             rec["observed_count"] = validation["observed_count"]
-            results.append(rec)
-            failures.append({"ticker": ticker, "reason": rec["reason"],
-                             "http_status": result.get("http_status")})
-            continue
 
-        rec.update({"status": "ok", "latest_available_date": validation["latest_available_date"],
-                    "observed_count": validation["observed_count"], "reason": ""})
         results.append(rec)
-        responses[ticker] = list(result.get("items") or [])
-
+        failures.append({"ticker": ticker, "reason": rec["reason"],
+                         "http_status": rec["http_status"]})
     return {"month_start": month_start, "requested_end": requested_end,
             "results": results, "responses": responses,
             "usable_count": len(responses), "expected_count": len(tickers),
@@ -731,7 +868,9 @@ def resolve_effective_panel_watermark(tickers: list[str], ticker_to_article: dic
                                        fetch_fn=None, limiter=None,
                                        timeout_s: float = CHUNK_TIMEOUT_S,
                                        now_utc: datetime | None = None,
-                                       stage1: dict | None = None) -> dict:
+                                       stage1: dict | None = None,
+                                       jitter_fn=None,
+                                       remaining_budget_s: float | None = None) -> dict:
     """STAGE 2. Computes the single panel-wide effective watermark from the
     Stage-1 anchor-month responses, then slices and REUSES those same
     responses -- no second anchor-month request is ever issued.
@@ -798,7 +937,8 @@ def resolve_effective_panel_watermark(tickers: list[str], ticker_to_article: dic
     if stage1 is None:
         stage1 = retrieve_anchor_month_availability(
             tickers, ticker_to_article, aggregate_date, fetch_fn=fetch_fn,
-            limiter=limiter, timeout_s=timeout_s)
+            limiter=limiter, timeout_s=timeout_s, jitter_fn=jitter_fn,
+            remaining_budget_s=remaining_budget_s)
 
     base.update({"anchor_month_start": stage1["month_start"],
                  "anchor_month_requested_end": stage1["requested_end"],
