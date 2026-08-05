@@ -1,38 +1,45 @@
 #!/usr/bin/env python3
-# Deterministic tests for the EFFECTIVE PANEL WATERMARK (2026-08-05).
+# Deterministic tests for the TWO-STAGE EFFECTIVE PANEL WATERMARK
+# (2026-08-05 redesign; supersedes the separate-probe design of 9990c39).
 #
-# Background: the aggregate pageviews endpoint answers "did en.wikipedia.org
+# Background. The aggregate pageviews endpoint answers "did en.wikipedia.org
 # publish day D site-wide?", never "did THIS article publish day D?". The
-# 2026-08-05 merge-gate PARTIAL proved the two diverge -- the aggregate
-# reported 2026-08-04 while only 5 of the 24 locked articles actually
-# contained that date, so 19 tickers returned HTTP 200 with a short series
-# and were correctly rejected as incomplete_coverage. See Live Signal
-# Engine/Phase2 Failure Evidence/2026-08-05_AggregateVsPerArticle_Watermark_
-# PARTIAL/ROOT_CAUSE.md.
+# first attempt at closing that gap measured availability with a separate
+# fixed-14-day per-article probe. A read-only live diagnostic proved that
+# design release-blocking before it ever ran a panel -- see Live Signal
+# Engine/Phase2 Failure Evidence/
+# 2026-08-05_EffectiveWatermark_Probe_Design_Failure/:
 #
-# The fix measures each locked ticker's latest genuinely-published date from
-# validated HTTP-200 per-article data and binds the whole panel to the
-# MINIMUM of those 24 dates. Crucially it lowers a shared TRAILING edge --
-# it does NOT forgive an internal historical gap (test 7), and it does not
-# weaken the 24/24 completion gate in any other respect (tests 4, 5, 12, 13).
+#   1. 24 unpaced requests hit Wikimedia's rate limiter at request 11.
+#   2. Availability is REQUEST-SHAPE-DEPENDENT: the same date is present in
+#      one range's response and absent from another's, for the same article,
+#      seconds apart. So a probe using one request shape can never certify
+#      what a differently-shaped retrieval request returns.
 #
-# Coverage (spec items in brackets):
-#    1. all article watermarks equal the aggregate watermark        [item 1]
-#    2. 5 tickers at D, 19 at D-1 -> common D-1 watermark           [item 2]
-#    3. one ticker lagging two days -> D-2                          [item 3]
-#    4. a missing/unmeasurable article watermark fails closed       [item 4]
-#    5. mixed per-row anchors rejected by the gate                  [item 5]
-#    6. post-watermark observations excluded from the z-score       [item 6]
-#    7. internal historical gap STILL rejected                      [item 7]
-#    8. pull_start anchored to the effective panel watermark        [item 8]
-#    9. result invariant to ticker-processing order                 [item 9]
-#   10. no zero-fill / no incomplete-coverage acceptance            [item 10]
-#   11. operational cache untouched by these tests                  [item 11]
-#   12. gate fails closed when the effective watermark is unresolved
-#   13. gate fails when a row's anchor is not the effective watermark
-#   14. probe uses ONE request of the production shape, no fallback
-#   15. aggregate-vs-panel lag recorded, aggregate never raises the panel
-#   16. measurement invariant to pageview magnitude (non-circularity)
+# The redesign deletes the probe. Availability is measured from the SAME
+# anchor-month response production then reuses, and all Stage-1 requests pass
+# through one shared global limiter.
+#
+# Coverage (required-test list in brackets):
+#    1. no separate 14-day probe exists or is called                    [1]
+#    2. request end == aggregate watermark, never wall-clock today      [2]
+#    3. rollover: aggregate watermark in the prior calendar month       [3]
+#    4. ADBE-style: aggregate D, response only through D-1 -> D-1       [4]
+#    5. tickers ending D / D-1 / D-2 -> common D-2                      [5]
+#    6. Stage-1 responses reused; no second anchor-month request        [6]
+#    7. request-shape-dependent fixtures cannot cause disagreement      [7]
+#    8. all 24 requests pass through ONE shared pacing mechanism        [8]
+#    9. Retry-After honored                                            [9]
+#   10. exhausted 429 fails closed                                     [10]
+#   11. HTTP 404 fails closed                                          [11]
+#   12. trailing missing dates allowed in measurement, removed by the
+#       common watermark                                               [12]
+#   13. internal gaps still fail                                       [13]
+#   14. slicing never zero-fills or infers                             [14]
+#   15. every finalized row carries the same effective watermark       [15]
+#   16. ticker order does not change the result                        [16]
+#   17. pageview magnitudes do not affect watermark selection          [17]
+#   18. operational cache byte-identical after this file               [18]
 #
 # Run directly: python test_phase2_wiki_effective_panel_watermark.py
 
@@ -62,13 +69,11 @@ def check(name: str, condition: bool, detail: str = "") -> None:
         print(f"FAIL: {name}" + (f" -- {detail}" if detail else ""))
 
 
-ANCHOR = date(2026, 8, 5)      # "today"
-D = date(2026, 8, 4)           # aggregate watermark (lag 1)
-TICKER = "AAPL"                # a real key in TICKER_TO_WIKI_ARTICLE
+AGG = date(2026, 8, 4)          # aggregate watermark
+WALL_CLOCK_TODAY = date(2026, 8, 5)
+MONTH_START = date(2026, 8, 1)
+TICKER = "AAPL"
 
-# A 24-name stand-in universe with a stable article mapping. Deliberately
-# NOT the locked TICKERS list -- these tests must not depend on, and must
-# never be able to alter, the locked universe.
 UNIVERSE = [f"T{i:02d}" for i in range(24)]
 ARTICLES = {t: f"Article_{t}" for t in UNIVERSE}
 
@@ -76,155 +81,475 @@ _ORIGINAL_CACHE_PATH = wt.CACHE_PATH
 _OPERATIONAL_CACHE = Path("Live Signal Engine") / "Phase2_Wikipedia_Cache.csv"
 
 
-def _sha256(path: Path) -> str | None:
-    if not path.exists():
+def _sha256(p: Path):
+    if not p.exists():
         return None
     h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for block in iter(lambda: f.read(1 << 20), b""):
-            h.update(block)
+    with open(p, "rb") as f:
+        for b in iter(lambda: f.read(1 << 20), b""):
+            h.update(b)
     return h.hexdigest()
 
 
 def _use_temp_cache():
-    tmp_dir = tempfile.mkdtemp(prefix="wiki_effwm_test_")
-    wt.CACHE_PATH = Path(tmp_dir) / "test_cache.csv"
-    return tmp_dir
+    d = tempfile.mkdtemp(prefix="wiki_effwm2_")
+    wt.CACHE_PATH = Path(d) / "test_cache.csv"
+    return d
 
 
-def _restore_cache_path(tmp_dir):
+def _restore_cache_path(d):
     wt.CACHE_PATH = _ORIGINAL_CACHE_PATH
-    shutil.rmtree(tmp_dir, ignore_errors=True)
+    shutil.rmtree(d, ignore_errors=True)
 
 
-def _mock_article_fetch(latest_by_article: dict, failures: dict | None = None,
-                        views_by_article: dict | None = None):
-    """Builds a fetch_fn matching fetch_chunk_isolated's signature and
-    return shape. Each article serves a contiguous daily series from the
-    requested start through min(requested end, that article's own latest
-    published date) -- i.e. exactly the trailing-lag behaviour the real
-    endpoint exhibits.
+def _rows(start: date, end: date, views=100, skip=()):
+    out, c = [], start
+    while c <= end:
+        if c not in skip:
+            out.append({"date": c.strftime("%Y%m%d"),
+                        "pageviews": views(c) if callable(views) else views})
+        c += timedelta(days=1)
+    return out
 
-    failures: {article: response_dict} to force a non-ok / non-200 outcome.
-    views_by_article: {article: int} to vary pageview MAGNITUDE while
-    holding dates fixed (used by test 16 to prove non-circularity).
+
+def _fetch(latest_by_article, failures=None, views=None, skip_by_article=None,
+           shape_dependent=None):
+    """fetch_chunk_isolated-shaped stub. Serves month_start..min(end, latest).
+
+    shape_dependent: {article: {(start, end): latest}} -- lets a fixture make
+    an article answer DIFFERENTLY for different ranges, reproducing the exact
+    pathology the live diagnostic found. Used by test 7.
     """
     calls = []
 
-    def _fn(article, start, end, timeout_s=None):
-        calls.append({"article": article, "start": start, "end": end, "timeout_s": timeout_s})
+    def fn(article, start, end, timeout_s=None):
+        calls.append({"article": article, "start": start, "end": end})
         if failures and article in failures:
             resp = dict(failures[article])
+            if callable(resp.get("_seq")):
+                resp = resp["_seq"](len([c for c in calls if c["article"] == article]))
             resp.setdefault("items", [])
-            resp.setdefault("url", f"http://mock/{article}")
+            resp.setdefault("url", "http://mock")
             resp.setdefault("network_elapsed_s", 0.01)
+            resp.setdefault("retry_after", None)
             return resp
         latest = latest_by_article.get(article)
+        if shape_dependent and article in shape_dependent:
+            latest = shape_dependent[article].get((start, end), latest)
         items = []
         if latest is not None:
-            views = (views_by_article or {}).get(article, 100)
-            cursor = start
-            while cursor <= min(end, latest):
-                items.append({"date": cursor.strftime("%Y%m%d"), "pageviews": views})
-                cursor += timedelta(days=1)
-        return {"status": "ok", "http_status": 200, "items": items,
-                "url": f"http://mock/{article}", "network_elapsed_s": 0.01,
-                "retry_after": None, "terminated": False}
+            v = (views or {}).get(article, 100)
+            items = _rows(start, min(end, latest), views=v,
+                          skip=(skip_by_article or {}).get(article, ()))
+        return {"status": "ok", "http_status": 200, "items": items, "url": "http://mock",
+                "network_elapsed_s": 0.01, "retry_after": None, "terminated": False}
 
-    _fn.calls = calls
-    return _fn
+    fn.calls = calls
+    return fn
 
 
-def _agg(watermark_date: date | None, status: str = "ok") -> dict:
-    return {"status": status, "watermark_date": watermark_date, "lag_days": 1,
+class _FakeClock:
+    """Deterministic monotonic clock + sleep recorder for limiter tests."""
+
+    def __init__(self):
+        self.t = 0.0
+        self.sleeps = []
+
+    def clock(self):
+        return self.t
+
+    def sleep(self, s):
+        self.sleeps.append(s)
+        self.t += s
+
+
+def _limiter(interval=wt.AVAILABILITY_MIN_REQUEST_INTERVAL_S):
+    c = _FakeClock()
+    lim = wt.SharedRequestLimiter(min_interval_s=interval, sleep_fn=c.sleep, clock_fn=c.clock)
+    return lim, c
+
+
+def _agg(d=AGG, status="ok"):
+    return {"status": status, "watermark_date": d, "lag_days": 1,
             "retrieved_at_utc": "2026-08-05T02:00:00+00:00",
-            "source_url": "https://example.org/aggregate", "http_status": 200}
+            "source_url": "https://example.org/agg", "http_status": 200}
 
 
-# === 1. All article watermarks equal the aggregate watermark ===
-def test_1_all_articles_equal_aggregate():
-    fetch_fn = _mock_article_fetch({a: D for a in ARTICLES.values()})
-    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-    check("1. status ok", res["status"] == "ok", res.get("failure_reason"))
-    check("1. effective watermark == aggregate watermark (D)",
-          res["effective_panel_watermark_date"] == D, res["effective_panel_watermark_date"])
-    check("1. aggregate_vs_panel_lag_days == 0", res["aggregate_vs_panel_lag_days"] == 0,
-          res["aggregate_vs_panel_lag_days"])
-    check("1. all 24 tickers measured", res["measured_count"] == 24 and res["expected_count"] == 24, res)
-    check("1. every ticker binds at the minimum", len(res["binding_tickers"]) == 24, res["binding_tickers"])
-    check("1. method recorded", res["method"] == wt.EFFECTIVE_WATERMARK_METHOD, res["method"])
+# === 1. The separate 14-day probe is gone ===
+def test_1_no_separate_probe():
+    check("1. measure_article_latest_available_date() no longer exists",
+          not hasattr(wt, "measure_article_latest_available_date"))
+    check("1. PER_ARTICLE_PROBE_WINDOW_DAYS no longer exists",
+          not hasattr(wt, "PER_ARTICLE_PROBE_WINDOW_DAYS"))
+    src = Path("GST_Phase2_Wikipedia_Transport.py").read_text(encoding="utf-8")
+    panel_src = Path("GST_Phase2_DailyPanel.py").read_text(encoding="utf-8")
+    check("1. no reference to the removed probe anywhere in production source",
+          "measure_article_latest_available_date" not in src
+          and "measure_article_latest_available_date" not in panel_src)
+
+    # Exactly ONE request per ticker, and it is the anchor-month range.
+    fn = _fetch({a: AGG for a in ARTICLES.values()})
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("1. exactly one request per ticker", len(fn.calls) == 24, len(fn.calls))
+    check("1. every request is the anchor-month range (no 14-day window)",
+          all(c["start"] == MONTH_START and c["end"] == AGG for c in fn.calls),
+          {(c["start"], c["end"]) for c in fn.calls})
+    check("1. resolves ok", res["status"] == "ok", res.get("failure_reason"))
 
 
-# === 2. 5 tickers at D, 19 at D-1 -> common D-1 watermark (the real 2026-08-05 shape) ===
-def test_2_five_at_D_nineteen_at_D_minus_1():
-    ahead = UNIVERSE[:5]
-    latest = {ARTICLES[t]: (D if t in ahead else D - timedelta(days=1)) for t in UNIVERSE}
-    fetch_fn = _mock_article_fetch(latest)
-    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-    check("2. status ok", res["status"] == "ok", res.get("failure_reason"))
-    check("2. effective watermark is the COMMON D-1, not D",
-          res["effective_panel_watermark_date"] == D - timedelta(days=1),
+# === 2. Request end == aggregate watermark, never wall-clock today ===
+def test_2_request_end_is_aggregate_watermark():
+    fn = _fetch({a: AGG for a in ARTICLES.values()})
+    lim, _ = _limiter()
+    wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    ends = {c["end"] for c in fn.calls}
+    check("2. every Stage-1 request ends exactly at the aggregate watermark", ends == {AGG}, ends)
+    check("2. no request ends at wall-clock today", WALL_CLOCK_TODAY not in ends, ends)
+    check("2. no request ends after the aggregate watermark",
+          all(e <= AGG for e in ends), ends)
+
+    # And through the panel: process_ticker's horizon.
+    cap = []
+    restore = _install_stubs(cap)
+    try:
+        panel.process_ticker(None, TICKER, datetime(2026, 8, 5, 2, 0, tzinfo=timezone.utc),
+                             wiki_remaining_budget_s=100.0, watermark_info=_agg(),
+                             effective_info=_eff_info(AGG))
+    finally:
+        restore()
+    check("2. panel request horizon == aggregate watermark, not wall-clock today",
+          cap and cap[0]["end"] == AGG, cap[0]["end"] if cap else None)
+
+
+# === 3. Rollover: the aggregate watermark is in the prior calendar month ===
+def test_3_rollover_prior_month():
+    agg = date(2026, 7, 31)      # wall clock would be 2026-08-01/02
+    fn = _fetch({a: agg for a in ARTICLES.values()})
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(agg), fetch_fn=fn, limiter=lim)
+    check("3. anchor month is the watermark's month (July), not the wall-clock month",
+          res["anchor_month_start"] == date(2026, 7, 1), res["anchor_month_start"])
+    check("3. every request is 2026-07-01..2026-07-31",
+          all(c["start"] == date(2026, 7, 1) and c["end"] == agg for c in fn.calls))
+    check("3. effective watermark is 2026-07-31",
+          res["effective_panel_watermark_date"] == agg, res["effective_panel_watermark_date"])
+    check("3. resolves ok across the rollover", res["status"] == "ok", res.get("failure_reason"))
+
+    check("3. anchor_month_start() maps any day to its month's first day",
+          wt.anchor_month_start(date(2026, 2, 28)) == date(2026, 2, 1)
+          and wt.anchor_month_start(date(2026, 1, 1)) == date(2026, 1, 1))
+
+
+# === 4. ADBE-style: aggregate says D, the response only reaches D-1 ===
+def test_4_adbe_style_response_trails_aggregate():
+    lagger = UNIVERSE[3]
+    latest = {ARTICLES[t]: (AGG - timedelta(days=1) if t == lagger else AGG) for t in UNIVERSE}
+    fn = _fetch(latest)
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("4. a response trailing the aggregate is NOT an error", res["status"] == "ok",
+          res.get("failure_reason"))
+    check("4. effective watermark becomes D-1", res["effective_panel_watermark_date"] == AGG - timedelta(days=1),
           res["effective_panel_watermark_date"])
-    check("2. aggregate_vs_panel_lag_days == 1 (panel one day behind the aggregate)",
-          res["aggregate_vs_panel_lag_days"] == 1, res["aggregate_vs_panel_lag_days"])
-    check("2. the 5 ahead tickers are NOT binding", not set(ahead) & set(res["binding_tickers"]),
+    check("4. the trailing ticker is the binding one", res["binding_tickers"] == [lagger],
           res["binding_tickers"])
-    check("2. the 19 lagging tickers are the binding set",
-          set(res["binding_tickers"]) == set(UNIVERSE[5:]), res["binding_tickers"])
-    check("2. the 5 ahead tickers' own measured dates are still recorded as D",
-          all(res["per_ticker_latest"][t] == D for t in ahead), res["per_ticker_latest"])
+    check("4. aggregate_vs_panel_lag_days == 1", res["aggregate_vs_panel_lag_days"] == 1)
+    check("4. the aggregate watermark is still recorded", res["aggregate_watermark_date"] == AGG)
+    check("4. every reused response now ends exactly at D-1",
+          all(rows[-1]["date"] == (AGG - timedelta(days=1)).strftime("%Y%m%d")
+              for rows in res["anchor_month_rows"].values()))
 
 
-# === 3. One ticker lagging two days pulls the whole panel back ===
-def test_3_one_ticker_lagging_two_days():
-    laggard = UNIVERSE[7]
-    latest = {ARTICLES[t]: (D - timedelta(days=2) if t == laggard else D) for t in UNIVERSE}
-    fetch_fn = _mock_article_fetch(latest)
-    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-    check("3. status ok", res["status"] == "ok", res.get("failure_reason"))
-    check("3. effective watermark is D-2 (the single slowest article governs)",
-          res["effective_panel_watermark_date"] == D - timedelta(days=2),
+# === 5. Tickers ending D, D-1, D-2 -> common D-2 ===
+def test_5_mixed_endings_common_minimum():
+    latest = {}
+    for i, t in enumerate(UNIVERSE):
+        latest[ARTICLES[t]] = AGG - timedelta(days=(0 if i < 8 else 1 if i < 16 else 2))
+    fn = _fetch(latest)
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("5. effective watermark is the minimum, D-2",
+          res["effective_panel_watermark_date"] == AGG - timedelta(days=2),
           res["effective_panel_watermark_date"])
-    check("3. aggregate_vs_panel_lag_days == 2", res["aggregate_vs_panel_lag_days"] == 2,
-          res["aggregate_vs_panel_lag_days"])
-    check("3. exactly the laggard binds", res["binding_tickers"] == [laggard], res["binding_tickers"])
+    check("5. binding set is exactly the 8 D-2 tickers",
+          set(res["binding_tickers"]) == set(UNIVERSE[16:]), res["binding_tickers"])
+    check("5. all 24 sliced responses end at D-2",
+          {rows[-1]["date"] for rows in res["anchor_month_rows"].values()}
+          == {(AGG - timedelta(days=2)).strftime("%Y%m%d")})
+    check("5. aggregate_vs_panel_lag_days == 2", res["aggregate_vs_panel_lag_days"] == 2)
 
 
-# === 4. A missing / unmeasurable article watermark fails the panel closed ===
-def test_4_missing_article_watermark_fails_closed():
-    broken = UNIVERSE[3]
-    latest = {ARTICLES[t]: D for t in UNIVERSE}
-    for label, failure in [
-        ("404", {"status": "ok", "http_status": 404}),
-        ("timeout", {"status": "timeout", "http_status": None}),
-        ("empty 200", {"status": "ok", "http_status": 200, "items": []}),
-    ]:
-        fetch_fn = _mock_article_fetch(latest, failures={ARTICLES[broken]: failure})
-        res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-        check(f"4. {label}: status is failed_closed", res["status"] == "failed_closed", res["status"])
-        check(f"4. {label}: effective watermark is None (never guessed)",
-              res["effective_panel_watermark_date"] is None, res["effective_panel_watermark_date"])
-        check(f"4. {label}: the aggregate watermark is NOT substituted",
-              res["effective_panel_watermark_date"] != D, res["effective_panel_watermark_date"])
-        check(f"4. {label}: the unmeasurable ticker is named",
+# === 6. Stage-1 responses reused; no second anchor-month request ===
+def test_6_responses_reused_no_second_request():
+    fn = _fetch({a: AGG for a in ARTICLES.values()})
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("6. exactly 24 requests total for 24 tickers (no second sweep)",
+          len(fn.calls) == 24, len(fn.calls))
+    check("6. sliced rows are carried for every ticker",
+          len(res["anchor_month_rows"]) == 24, len(res["anchor_month_rows"]))
+    check("6. reuse flag reports no second anchor-month request",
+          res["second_anchor_month_request_issued"] is False)
+
+    # And the transport consumes them without a network call.
+    fetch_calls = []
+
+    def never(article, start, end, timeout_s=None):
+        fetch_calls.append((article, start, end))
+        return {"status": "http_error", "http_status": 500, "items": [], "url": "x",
+                "network_elapsed_s": 0.0, "retry_after": None}
+
+    t0 = UNIVERSE[0]
+    out = wt.get_ticker_wikipedia_daily(
+        t0, ARTICLES[t0], MONTH_START, AGG, AGG,
+        cache_df=pd.DataFrame(columns=wt.CACHE_COLUMNS), fetch_fn=never,
+        prefetched_chunk_rows={(MONTH_START, AGG): res["anchor_month_rows"][t0]})
+    check("6. the anchor-month chunk was satisfied with ZERO network calls",
+          len(fetch_calls) == 0, fetch_calls)
+    check("6. it is recorded with source=anchor_month_stage1",
+          [c["source"] for c in out["chunk_results"]] == ["anchor_month_stage1"],
+          out["chunk_results"])
+    check("6. no chunk failed", out["failed_chunks"] == [], out["failed_chunks"])
+    check("6. the reused rows became the daily rows",
+          len(out["daily_rows"]) == len(res["anchor_month_rows"][t0]))
+    check("6. reuse wrote nothing to the cache (cache file still absent)",
+          not wt.CACHE_PATH.exists(), str(wt.CACHE_PATH))
+
+
+# === 7. Request-shape-dependent fixtures cannot cause probe/retrieval disagreement ===
+def test_7_shape_dependence_cannot_split_measurement_from_retrieval():
+    # Reproduce the live pathology: this article answers D for a 14-day
+    # window but only D-1 for the anchor-month range. Under the OLD design
+    # the probe would have published D and retrieval would then have failed.
+    tricky = UNIVERSE[5]
+    art = ARTICLES[tricky]
+    probe_range = (AGG - timedelta(days=13), WALL_CLOCK_TODAY)
+    fn = _fetch({a: AGG for a in ARTICLES.values()},
+                shape_dependent={art: {(MONTH_START, AGG): AGG - timedelta(days=1),
+                                       probe_range: AGG}})
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+
+    check("7. only the anchor-month range was ever requested",
+          {(c["start"], c["end"]) for c in fn.calls} == {(MONTH_START, AGG)},
+          {(c["start"], c["end"]) for c in fn.calls})
+    check("7. the watermark follows the ANCHOR-MONTH answer (D-1), not the 14-day one (D)",
+          res["effective_panel_watermark_date"] == AGG - timedelta(days=1),
+          res["effective_panel_watermark_date"])
+    check("7. the shape-dependent ticker binds", res["binding_tickers"] == [tricky],
+          res["binding_tickers"])
+    # The decisive property: what was measured IS what is reused, so the two
+    # cannot disagree by construction.
+    reused_last = {t: rows[-1]["date"] for t, rows in res["anchor_month_rows"].items()}
+    check("7. every reused response ends exactly at the measured effective watermark",
+          set(reused_last.values()) == {(AGG - timedelta(days=1)).strftime("%Y%m%d")},
+          set(reused_last.values()))
+    check("7. measurement and retrieval are the same observation (no second request to disagree with)",
+          len(fn.calls) == 24)
+
+
+# === 8. One shared pacing mechanism for all 24 requests ===
+def test_8_single_shared_limiter():
+    fn = _fetch({a: AGG for a in ARTICLES.values()})
+    lim, clock = _limiter(interval=3.5)
+    wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("8. the limiter counted all 24 requests", lim.request_count == 24, lim.request_count)
+    check("8. 23 inter-request waits occurred (first is free)",
+          len([s for s in clock.sleeps if s > 0]) == 23, clock.sleeps[:5])
+    check("8. every enforced wait is the configured minimum interval",
+          all(abs(s - 3.5) < 1e-9 for s in clock.sleeps if s > 0), set(clock.sleeps))
+    check("8. total elapsed >= 23 * interval (rate genuinely bounded)",
+          clock.t >= 23 * 3.5 - 1e-9, clock.t)
+    check("8. a pacing record exists per request", len(lim.waits) == 24, len(lim.waits))
+    check("8. pacing records carry request number and wait, and no payload data",
+          all(set(w) == {"request_number", "waited_s", "reason"} for w in lim.waits))
+
+    # A second, independent limiter would NOT bound the combined rate --
+    # this asserts the production path passes one instance through.
+    import inspect
+    src = inspect.getsource(wt.retrieve_anchor_month_availability)
+    check("8. Stage 1 acquires from the limiter it was given (single instance)",
+          "limiter.acquire(" in src and "limiter = limiter or SharedRequestLimiter()" in src)
+
+
+# === 9. Retry-After is honored ===
+def test_9_retry_after_honored():
+    throttled = UNIVERSE[2]
+    art = ARTICLES[throttled]
+    state = {"n": 0}
+
+    def fn(article, start, end, timeout_s=None):
+        if article == art:
+            state["n"] += 1
+            if state["n"] == 1:
+                return {"status": "http_error", "http_status": 429, "retry_after": 17,
+                        "items": [], "url": "x", "network_elapsed_s": 0.01}
+        return {"status": "ok", "http_status": 200,
+                "items": _rows(start, min(end, AGG)), "url": "x",
+                "network_elapsed_s": 0.01, "retry_after": None}
+
+    lim, clock = _limiter(interval=3.5)
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("9. the 429 ticker was retried and then succeeded", res["status"] == "ok",
+          res.get("failure_reason"))
+    check("9. it took exactly 2 attempts",
+          [r["attempts"] for r in res["stage1_results"] if r["ticker"] == throttled] == [2],
+          [r["attempts"] for r in res["stage1_results"] if r["ticker"] == throttled])
+    check("9. a wait of the server-specified 17s was actually slept",
+          any(abs(s - 17.0) < 1e-6 for s in clock.sleeps), sorted(set(clock.sleeps)))
+    check("9. the limiter issued 25 requests (24 + one retry)", lim.request_count == 25,
+          lim.request_count)
+
+    # Retry-After is capped, and applies to the SHARED gate.
+    lim2, clock2 = _limiter(interval=1.0)
+    waited = lim2.note_retry_after(10 ** 6)
+    check("9. an absurd Retry-After is capped",
+          waited == wt.AVAILABILITY_MAX_RETRY_AFTER_WAIT_S, waited)
+    lim2.acquire()
+    check("9. the cap pushes out the SHARED gate, not just one caller",
+          any(abs(s - wt.AVAILABILITY_MAX_RETRY_AFTER_WAIT_S) < 1e-6 for s in clock2.sleeps),
+          clock2.sleeps)
+    check("9. a malformed Retry-After falls back to the cap rather than crashing",
+          wt.SharedRequestLimiter().note_retry_after("not-a-number")
+          == wt.AVAILABILITY_MAX_RETRY_AFTER_WAIT_S)
+
+
+# === 10. Exhausted 429 fails closed ===
+def test_10_exhausted_429_fails_closed():
+    stuck = UNIVERSE[7]
+    fn = _fetch({a: AGG for a in ARTICLES.values()},
+                failures={ARTICLES[stuck]: {"status": "http_error", "http_status": 429,
+                                            "retry_after": 5}})
+    lim, _ = _limiter()
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+    check("10. panel fails closed", res["status"] == "failed_closed", res["status"])
+    check("10. effective watermark is None -- never guessed",
+          res["effective_panel_watermark_date"] is None)
+    check("10. the aggregate watermark is NOT substituted",
+          res["effective_panel_watermark_date"] != AGG)
+    check("10. the throttled ticker is named",
+          [u["ticker"] for u in res["unmeasured"]] == [stuck], res["unmeasured"])
+    check("10. retries were bounded, not unlimited",
+          [r["attempts"] for r in res["stage1_results"] if r["ticker"] == stuck]
+          == [wt.AVAILABILITY_MAX_429_RETRIES + 1])
+    check("10. no minimum was computed over the other 23",
+          res["measured_count"] == 23 and res["effective_panel_watermark_date"] is None)
+
+
+# === 11. HTTP 404 fails closed ===
+def test_11_404_fails_closed():
+    for label, failure in [("404", {"status": "http_error", "http_status": 404}),
+                           ("empty 200", {"status": "ok", "http_status": 200, "items": []}),
+                           ("timeout", {"status": "timeout", "http_status": None}),
+                           ("500", {"status": "http_error", "http_status": 500})]:
+        broken = UNIVERSE[1]
+        fn = _fetch({a: AGG for a in ARTICLES.values()}, failures={ARTICLES[broken]: failure})
+        lim, _ = _limiter()
+        res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn, limiter=lim)
+        check(f"11. {label} -> failed_closed", res["status"] == "failed_closed", res["status"])
+        check(f"11. {label} -> no effective watermark",
+              res["effective_panel_watermark_date"] is None)
+        check(f"11. {label} -> the failing ticker is named",
               [u["ticker"] for u in res["unmeasured"]] == [broken], res["unmeasured"])
-        check(f"4. {label}: a minimum over the other 23 was NOT computed",
-              res["measured_count"] == 23 and res["effective_panel_watermark_date"] is None, res)
 
-    # A ticker with no article mapping at all is equally unmeasurable.
     no_map = dict(ARTICLES)
-    no_map.pop(UNIVERSE[11])
-    fetch_fn = _mock_article_fetch(latest)
-    res = wt.resolve_effective_panel_watermark(UNIVERSE, no_map, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-    check("4. missing article mapping: status is failed_closed", res["status"] == "failed_closed", res)
-    check("4. missing article mapping: reason recorded as no_article_mapping",
-          res["unmeasured"][0]["reason"] == "no_article_mapping", res["unmeasured"])
+    no_map.pop(UNIVERSE[9])
+    fn = _fetch({a: AGG for a in ARTICLES.values()})
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, no_map, _agg(), fetch_fn=fn,
+                                                limiter=_limiter()[0])
+    check("11. missing article mapping -> failed_closed with no_article_mapping",
+          res["status"] == "failed_closed"
+          and res["unmeasured"][0]["reason"] == "no_article_mapping", res["unmeasured"])
+
+    res_noagg = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(None, "failed_closed"),
+                                                      fetch_fn=fn, limiter=_limiter()[0])
+    check("11. no aggregate watermark -> failed closed (Stage-1 bound undefined)",
+          res_noagg["status"] == "failed_closed", res_noagg["status"])
 
 
-# === 5. Mixed per-row anchors rejected by the completion gate ===
-def test_5_mixed_per_row_anchors_rejected():
+# === 12. Trailing gaps allowed while measuring, removed by the common watermark ===
+def test_12_trailing_allowed_then_removed():
+    v = wt.validate_anchor_month_response("T", "A", MONTH_START, AGG,
+                                          _rows(MONTH_START, AGG - timedelta(days=2)))
+    check("12. a response stopping 2 days short of the aggregate is USABLE",
+          v["usable"] is True, v)
+    check("12. its latest_available_date is its own last observation",
+          v["latest_available_date"] == AGG - timedelta(days=2), v)
+
+    latest = {ARTICLES[t]: (AGG if t != UNIVERSE[0] else AGG - timedelta(days=2))
+              for t in UNIVERSE}
+    fn = _fetch(latest)
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn,
+                                                limiter=_limiter()[0])
+    ends = {rows[-1]["date"] for rows in res["anchor_month_rows"].values()}
+    check("12. after slicing, no response retains a trailing date beyond the common watermark",
+          ends == {(AGG - timedelta(days=2)).strftime("%Y%m%d")}, ends)
+    check("12. and each is exactly contiguous from anchor_month_start",
+          all(rows[0]["date"] == MONTH_START.strftime("%Y%m%d")
+              and len(rows) == (AGG - timedelta(days=2) - MONTH_START).days + 1
+              for rows in res["anchor_month_rows"].values()))
+
+
+# === 13. Internal gaps still fail ===
+def test_13_internal_gaps_still_fail():
+    gapped = _rows(MONTH_START, AGG, skip=(date(2026, 8, 2),))
+    v = wt.validate_anchor_month_response("T", "A", MONTH_START, AGG, gapped)
+    check("13. an interior hole is rejected", v["usable"] is False, v)
+    check("13. category is internal_gap", v["category"] == "internal_gap", v["category"])
+    check("13. the missing date is named", "2026-08-02" in v["reason"], v["reason"])
+
+    late = _rows(MONTH_START + timedelta(days=1), AGG)
+    v2 = wt.validate_anchor_month_response("T", "A", MONTH_START, AGG, late)
+    check("13. a response that does not start at anchor_month_start is rejected",
+          v2["usable"] is False and v2["category"] == "does_not_start_at_month_start", v2)
+
+    gap_ticker = UNIVERSE[4]
+    fn = _fetch({a: AGG for a in ARTICLES.values()},
+                skip_by_article={ARTICLES[gap_ticker]: (date(2026, 8, 2),)})
+    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, _agg(), fetch_fn=fn,
+                                                limiter=_limiter()[0])
+    check("13. one ticker with an interior gap fails the whole panel closed",
+          res["status"] == "failed_closed", res["status"])
+    check("13. lowering the watermark cannot rescue it -- it is never even computed",
+          res["effective_panel_watermark_date"] is None)
+
+    # The CTSH case, at the chunk validator: no watermark lowering heals it.
+    cs, ce = date(2026, 7, 1), date(2026, 7, 31)
+    ctsh = [r for r in _rows(cs, ce)
+            if not (date(2026, 7, 8) <= datetime.strptime(r["date"], "%Y%m%d").date()
+                    <= date(2026, 7, 14))]
+    outcomes = [wt.validate_snapshot("CTSH", "Cognizant", cs, ce, ctsh, w)["valid"]
+                for w in (date(2026, 7, 31), date(2026, 7, 25), date(2026, 7, 20), date(2026, 7, 15))]
+    check("13. CTSH's interior July gap is rejected at every watermark above it",
+          not any(outcomes), outcomes)
+
+
+# === 14. Slicing never zero-fills or infers ===
+def test_14_slicing_is_pure_filtering():
+    rows = _rows(MONTH_START, AGG, views=lambda d: d.day * 7)
+    sliced = wt.slice_rows_to_watermark(rows, AGG - timedelta(days=2))
+    check("14. slicing only removes rows", len(sliced) == len(rows) - 2, len(sliced))
+    check("14. surviving rows are byte-identical to their originals",
+          sliced == rows[:len(sliced)], sliced[:2])
+    check("14. no date beyond the watermark survives",
+          all(datetime.strptime(r["date"], "%Y%m%d").date() <= AGG - timedelta(days=2)
+              for r in sliced))
+    check("14. no zero-filled row was introduced",
+          all(r["pageviews"] != 0 for r in sliced))
+
+    with_gap = wt.slice_rows_to_watermark(
+        _rows(MONTH_START, AGG, skip=(date(2026, 8, 2),)), AGG)
+    check("14. slicing does NOT fill a pre-existing interior hole",
+          "20260802" not in {r["date"] for r in with_gap}, len(with_gap))
+    check("14. slicing a series entirely after the watermark yields nothing (never invents)",
+          wt.slice_rows_to_watermark(rows, MONTH_START - timedelta(days=1)) == [])
+
+
+# === 15. Every finalized row carries the same effective watermark ===
+def test_15_uniform_watermark_across_rows():
+    eff = AGG - timedelta(days=1)
     tickers = ["AAA", "BBB", "CCC"]
-    eff = D - timedelta(days=1)
 
     def row(t, effective=eff, anchor=eff):
         return {"ticker": t, "all_six_fields_clean": True, "earnings_status": "ok",
@@ -232,84 +557,108 @@ def test_5_mixed_per_row_anchors_rejected():
                 "wiki_effective_panel_watermark_date": effective.isoformat(),
                 "wiki_zscore_anchor_date": anchor.isoformat()}
 
-    ok_rows = [row(t) for t in tickers]
-    check("5. uniform anchors -> gate passes",
-          panel.is_run_complete(ok_rows, "COMPLETE", tickers, watermark_status="ok",
-                                 effective_watermark_status="ok", effective_watermark_date=eff) is True)
+    check("15. uniform rows pass",
+          panel.is_run_complete([row(t) for t in tickers], "COMPLETE", tickers,
+                                 watermark_status="ok", effective_watermark_status="ok",
+                                 effective_watermark_date=eff) is True)
+    check("15. one row with a different effective watermark fails",
+          panel.is_run_complete([row("AAA"), row("BBB"), row("CCC", effective=AGG)],
+                                 "COMPLETE", tickers, watermark_status="ok",
+                                 effective_watermark_status="ok",
+                                 effective_watermark_date=eff) is False)
+    check("15. one row anchored elsewhere fails",
+          panel.is_run_complete([row("AAA"), row("BBB"), row("CCC", anchor=AGG)],
+                                 "COMPLETE", tickers, watermark_status="ok",
+                                 effective_watermark_status="ok",
+                                 effective_watermark_date=eff) is False)
+    check("15. unresolved effective watermark fails even with perfect rows",
+          panel.is_run_complete([row(t) for t in tickers], "COMPLETE", tickers,
+                                 watermark_status="ok",
+                                 effective_watermark_status="failed_closed",
+                                 effective_watermark_date=eff) is False)
 
-    mixed_effective = [row("AAA"), row("BBB"), row("CCC", effective=D)]
-    check("5. one row with a DIFFERENT effective panel watermark -> gate fails",
-          panel.is_run_complete(mixed_effective, "COMPLETE", tickers, watermark_status="ok",
-                                 effective_watermark_status="ok", effective_watermark_date=eff) is False)
-
-    mixed_anchor = [row("AAA"), row("BBB"), row("CCC", anchor=D)]
-    check("5. one row anchored on its OWN date instead of the panel watermark -> gate fails",
-          panel.is_run_complete(mixed_anchor, "COMPLETE", tickers, watermark_status="ok",
-                                 effective_watermark_status="ok", effective_watermark_date=eff) is False)
-
-    all_shifted = [row(t, effective=D, anchor=D) for t in tickers]
-    check("5. rows uniformly agreeing on the WRONG date (not the run's resolved one) -> gate fails",
-          panel.is_run_complete(all_shifted, "COMPLETE", tickers, watermark_status="ok",
-                                 effective_watermark_status="ok", effective_watermark_date=eff) is False)
-
-
-# === 6. Post-watermark observations excluded from the z-score ===
-def test_6_post_watermark_observations_excluded():
-    eff = D - timedelta(days=1)
-    base = [{"date": (eff - timedelta(days=i)).strftime("%Y%m%d"), "pageviews": 100 + i}
-            for i in range(15 * 7)]
-    poisoned = base + [
-        {"date": D.strftime("%Y%m%d"), "pageviews": 10 ** 7},
-        {"date": (D + timedelta(days=1)).strftime("%Y%m%d"), "pageviews": 10 ** 8},
-    ]
-
-    clean_row, poisoned_row = {}, {}
-    panel._finalize_wiki_row(clean_row, "Article_X", base, eff, [])
-    panel._finalize_wiki_row(poisoned_row, "Article_X", poisoned, eff, [])
-
-    check("6. z-score is unchanged by observations dated after the effective watermark",
-          clean_row["wiki_zscore"] == poisoned_row["wiki_zscore"],
-          f"{clean_row['wiki_zscore']} vs {poisoned_row['wiki_zscore']}")
-    check("6. the anchor is the effective watermark, not the newest observation",
-          poisoned_row["wiki_zscore_anchor_date"] == eff.isoformat(),
-          poisoned_row["wiki_zscore_anchor_date"])
-    check("6. a huge post-watermark spike did not leak into the score",
-          poisoned_row["wiki_zscore"] == clean_row["wiki_zscore"], poisoned_row["wiki_zscore"])
-
-
-# === 7. An INTERNAL historical gap is still rejected (the CTSH case) ===
-def test_7_internal_historical_gap_still_rejected():
-    eff = D - timedelta(days=1)
-    chunk_start, chunk_end = date(2026, 7, 1), date(2026, 7, 31)
-    full = [{"date": (chunk_start + timedelta(days=i)).strftime("%Y%m%d"), "pageviews": 50}
-            for i in range((chunk_end - chunk_start).days + 1)]
-    # CTSH's real failure: 2026-07-08..2026-07-14 missing from the middle.
-    gapped = [r for r in full
-              if not (date(2026, 7, 8) <= datetime.strptime(r["date"], "%Y%m%d").date() <= date(2026, 7, 14))]
-
-    v_full = wt.validate_snapshot("CTSH", "Cognizant", chunk_start, chunk_end, full, eff)
-    v_gap = wt.validate_snapshot("CTSH", "Cognizant", chunk_start, chunk_end, gapped, eff)
-    check("7. the complete closed month validates", v_full["valid"] is True, v_full)
-    check("7. the SAME month with an internal 7-day hole is rejected",
-          v_gap["valid"] is False, v_gap)
-    check("7. rejection category is incomplete_coverage",
-          v_gap["category"] == "incomplete_coverage", v_gap["category"])
-    check("7. the missing interior dates are named in the reason",
-          "20260708" in v_gap["reason"], v_gap["reason"])
-
-    # The decisive property: lowering the panel watermark cannot heal a hole
-    # that sits entirely BELOW it. Walk the watermark back a week at a time.
-    still_rejected = []
-    for back in (1, 7, 14, 21):
-        w = eff - timedelta(days=back)
-        v = wt.validate_snapshot("CTSH", "Cognizant", chunk_start, chunk_end, gapped, w)
-        if w >= date(2026, 7, 14):
-            still_rejected.append(v["valid"] is False)
-    check("7. no lowering of the effective watermark rescues an interior gap below it",
-          all(still_rejected) and len(still_rejected) > 0, still_rejected)
+    # End-to-end through process_ticker: provenance fields are run-level.
+    rows_out = []
+    for tk in ("AAPL", "MSFT"):
+        cap = []
+        restore = _install_stubs(cap)
+        try:
+            r, _ = panel.process_ticker(None, tk, datetime(2026, 8, 5, 2, 0, tzinfo=timezone.utc),
+                                        wiki_remaining_budget_s=100.0, watermark_info=_agg(),
+                                        effective_info=_eff_info(eff))
+        finally:
+            restore()
+        rows_out.append(r)
+    check("15. both rows carry the identical effective panel watermark",
+          {r["wiki_effective_panel_watermark_date"] for r in rows_out} == {eff.isoformat()},
+          {r["wiki_effective_panel_watermark_date"] for r in rows_out})
+    check("15. both rows carry the aggregate watermark as provenance",
+          {r["wiki_aggregate_watermark_date"] for r in rows_out} == {AGG.isoformat()})
+    check("15. both rows record the redesigned method",
+          {r["wiki_effective_watermark_method"] for r in rows_out}
+          == {wt.EFFECTIVE_WATERMARK_METHOD})
+    check("15. aggregate-vs-panel lag recorded identically",
+          {r["wiki_aggregate_vs_panel_lag_days"] for r in rows_out} == {1})
 
 
-# === 8/6b/10b. process_ticker-level behaviour ===
+# === 16. Ticker order does not change the result ===
+def test_16_order_invariance():
+    latest = {ARTICLES[t]: AGG - timedelta(days=(i % 3)) for i, t in enumerate(UNIVERSE)}
+    orders = [list(UNIVERSE), list(reversed(UNIVERSE)),
+              [UNIVERSE[i] for i in (7, 0, 23, 4, 15, 8, 1, 19, 3, 11, 22, 2,
+                                     5, 20, 9, 13, 6, 17, 10, 21, 12, 16, 14, 18)]]
+    out = [wt.resolve_effective_panel_watermark(o, ARTICLES, _agg(), fetch_fn=_fetch(latest),
+                                                 limiter=_limiter()[0]) for o in orders]
+    check("16. identical effective watermark across orders",
+          len({r["effective_panel_watermark_date"] for r in out}) == 1,
+          [r["effective_panel_watermark_date"] for r in out])
+    check("16. identical binding set", len({tuple(r["binding_tickers"]) for r in out}) == 1)
+    check("16. identical per-ticker measurements",
+          len({tuple(sorted(r["per_ticker_latest"].items())) for r in out}) == 1)
+    check("16. identical sliced row sets",
+          len({tuple(sorted((t, len(v)) for t, v in r["anchor_month_rows"].items()))
+               for r in out}) == 1)
+
+
+# === 17. Pageview magnitudes do not affect watermark selection ===
+def test_17_magnitude_invariance():
+    latest = {ARTICLES[t]: AGG - timedelta(days=(i % 2)) for i, t in enumerate(UNIVERSE)}
+    out = []
+    for views in ({a: 1 for a in ARTICLES.values()},
+                  {a: 10 ** 9 for a in ARTICLES.values()},
+                  {a: (i * 977) % 100003 for i, a in enumerate(ARTICLES.values())},
+                  {a: 0 for a in ARTICLES.values()}):
+        out.append(wt.resolve_effective_panel_watermark(
+            UNIVERSE, ARTICLES, _agg(), fetch_fn=_fetch(latest, views=views),
+            limiter=_limiter()[0]))
+    check("17. effective watermark identical across wildly different magnitudes",
+          len({r["effective_panel_watermark_date"] for r in out}) == 1,
+          [r["effective_panel_watermark_date"] for r in out])
+    check("17. binding set identical too", len({tuple(r["binding_tickers"]) for r in out}) == 1)
+    check("17. an all-zero-views panel measures the same dates",
+          out[3]["effective_panel_watermark_date"] == out[0]["effective_panel_watermark_date"])
+
+    bad = [{"date": (AGG - timedelta(days=1)).strftime("%Y%m%d"), "pageviews": 5},
+           {"date": AGG.strftime("%Y%m%d"), "pageviews": "not-a-number"}]
+    v = wt.validate_anchor_month_response("T", "A", AGG - timedelta(days=1), AGG, bad)
+    check("17. a structurally invalid pageviews value rejects the response "
+          "(shape check, not magnitude)",
+          v["usable"] is False and v["category"] == "malformed", v)
+
+
+# === 18. Operational cache untouched ===
+def test_18_operational_cache_untouched(before_hash, before_size):
+    after_hash = _sha256(_OPERATIONAL_CACHE)
+    after_size = _OPERATIONAL_CACHE.stat().st_size if _OPERATIONAL_CACHE.exists() else None
+    check("18. operational Phase2_Wikipedia_Cache.csv SHA-256 unchanged",
+          after_hash == before_hash, f"{before_hash} -> {after_hash}")
+    check("18. operational cache byte size unchanged", after_size == before_size,
+          f"{before_size} -> {after_size}")
+    check("18. wt.CACHE_PATH restored to the operational path",
+          wt.CACHE_PATH == _ORIGINAL_CACHE_PATH, wt.CACHE_PATH)
+
+
+# --- panel stubs -------------------------------------------------------------
 class _FakeTicker:
     def __init__(self, ticker, session=None):
         self.ticker = ticker
@@ -318,332 +667,85 @@ class _FakeTicker:
         return pd.DataFrame()
 
 
-def _install_stubs(capture: list, daily_rows=None):
-    originals = {
-        "fetch_days_to_next_earnings": panel.fetch_days_to_next_earnings,
-        "get_nearest_post_earnings_expiry": panel.get_nearest_post_earnings_expiry,
-        "get_option_snapshot": panel.get_option_snapshot,
-        "fetch_ticker_series_scoped_backoff": panel.fetch_ticker_series_scoped_backoff,
-        "yf_Ticker": panel.yf.Ticker,
-        "wiki_load_cache": panel.wiki_transport.load_cache,
-        "wiki_get_daily": panel.wiki_transport.get_ticker_wikipedia_daily,
+def _install_stubs(capture):
+    orig = {
+        "e": panel.fetch_days_to_next_earnings, "x": panel.get_nearest_post_earnings_expiry,
+        "o": panel.get_option_snapshot, "g": panel.fetch_ticker_series_scoped_backoff,
+        "y": panel.yf.Ticker, "l": panel.wiki_transport.load_cache,
+        "d": panel.wiki_transport.get_ticker_wikipedia_daily,
     }
-    panel.fetch_days_to_next_earnings = lambda ticker: 30
+    panel.fetch_days_to_next_earnings = lambda t: 30
     panel.get_nearest_post_earnings_expiry = lambda tk, d: None
-    panel.get_option_snapshot = lambda tk, expiry, price: {}
-    panel.fetch_ticker_series_scoped_backoff = lambda pt, ticker: (
-        pd.DataFrame(),
-        {"status": "attempts_exhausted", "attempts": 0, "rate_limit_events": 0, "budget_exhausted": False})
+    panel.get_option_snapshot = lambda tk, e, p: {}
+    panel.fetch_ticker_series_scoped_backoff = lambda pt, t: (
+        pd.DataFrame(), {"status": "attempts_exhausted", "attempts": 0,
+                         "rate_limit_events": 0, "budget_exhausted": False})
     panel.yf.Ticker = _FakeTicker
     panel.wiki_transport.load_cache = lambda: pd.DataFrame(columns=panel.wiki_transport.CACHE_COLUMNS)
 
-    def _fake_get_daily(ticker, article, start, end, watermark, cache_df=None,
-                        remaining_budget_s=None, extra_daily_rows=None):
-        capture.append({"ticker": ticker, "start": start, "end": end, "watermark": watermark})
-        return {"chunk_results": [], "failed_chunks": [], "daily_rows": list(daily_rows or [])}
+    def fake(ticker, article, start, end, watermark, cache_df=None, remaining_budget_s=None,
+             prefetched_chunk_rows=None):
+        capture.append({"ticker": ticker, "start": start, "end": end, "watermark": watermark,
+                        "prefetched_keys": sorted((prefetched_chunk_rows or {}).keys())})
+        return {"chunk_results": [], "failed_chunks": [], "daily_rows": []}
 
-    panel.wiki_transport.get_ticker_wikipedia_daily = _fake_get_daily
+    panel.wiki_transport.get_ticker_wikipedia_daily = fake
 
     def restore():
-        panel.fetch_days_to_next_earnings = originals["fetch_days_to_next_earnings"]
-        panel.get_nearest_post_earnings_expiry = originals["get_nearest_post_earnings_expiry"]
-        panel.get_option_snapshot = originals["get_option_snapshot"]
-        panel.fetch_ticker_series_scoped_backoff = originals["fetch_ticker_series_scoped_backoff"]
-        panel.yf.Ticker = originals["yf_Ticker"]
-        panel.wiki_transport.load_cache = originals["wiki_load_cache"]
-        panel.wiki_transport.get_ticker_wikipedia_daily = originals["wiki_get_daily"]
+        panel.fetch_days_to_next_earnings = orig["e"]
+        panel.get_nearest_post_earnings_expiry = orig["x"]
+        panel.get_option_snapshot = orig["o"]
+        panel.fetch_ticker_series_scoped_backoff = orig["g"]
+        panel.yf.Ticker = orig["y"]
+        panel.wiki_transport.load_cache = orig["l"]
+        panel.wiki_transport.get_ticker_wikipedia_daily = orig["d"]
 
     return restore
 
 
-def _eff_info(effective: date, aggregate: date, tickers=(TICKER,), status="ok") -> dict:
-    return {"status": status,
-            "effective_panel_watermark_date": effective if status == "ok" else None,
-            "method": wt.EFFECTIVE_WATERMARK_METHOD,
-            "aggregate_watermark_date": aggregate,
-            "aggregate_vs_panel_lag_days": ((aggregate - effective).days
-                                             if status == "ok" and aggregate else None),
+def _eff_info(effective, aggregate=AGG, tickers=("AAPL", "MSFT")):
+    return {"status": "ok", "effective_panel_watermark_date": effective,
+            "method": wt.EFFECTIVE_WATERMARK_METHOD, "aggregate_watermark_date": aggregate,
+            "aggregate_vs_panel_lag_days": (aggregate - effective).days,
             "per_ticker_latest": {t: effective for t in tickers},
-            "measurements": [], "unmeasured": [],
-            "measured_count": len(tickers) if status == "ok" else 0,
+            "stage1_results": [], "unmeasured": [], "measured_count": len(tickers),
             "expected_count": len(tickers), "binding_tickers": sorted(tickers),
+            "anchor_month_rows": {}, "anchor_month_start": MONTH_START,
+            "anchor_month_requested_end": aggregate, "request_count": len(tickers),
+            "pacing_waits": [], "second_anchor_month_request_issued": False,
             "resolved_at_utc": "2026-08-05T02:00:00+00:00"}
 
 
-def test_8_pull_start_anchored_to_effective_panel_watermark():
-    eff = D - timedelta(days=1)
-    run_ts = datetime(2026, 8, 5, 2, 14, 0, tzinfo=timezone.utc)
-    capture = []
-    restore = _install_stubs(capture)
-    try:
-        panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                              watermark_info=_agg(D),
-                              effective_info=_eff_info(eff, D))
-    finally:
-        restore()
-
-    check("8. the wiki leg ran", len(capture) == 1, capture)
-    if capture:
-        expected = eff - timedelta(days=panel.PULL_LOOKBACK_DAYS)
-        check("8. pull_start == EFFECTIVE panel watermark - PULL_LOOKBACK_DAYS",
-              capture[0]["start"] == expected, f"got {capture[0]['start']}, expected {expected}")
-        check("8. pull_start is NOT anchored on the aggregate watermark",
-              capture[0]["start"] != D - timedelta(days=panel.PULL_LOOKBACK_DAYS), capture[0]["start"])
-        check("8. pull_start is NOT anchored on wall-clock today",
-              capture[0]["start"] != run_ts.date() - timedelta(days=panel.PULL_LOOKBACK_DAYS),
-              capture[0]["start"])
-        check("8. the transport is given the EFFECTIVE watermark as its completeness bar",
-              capture[0]["watermark"] == eff, capture[0]["watermark"])
-
-    # And the row's provenance reflects the same single date.
-    capture2 = []
-    restore = _install_stubs(capture2)
-    try:
-        row, _ = panel.process_ticker(None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-                                       watermark_info=_agg(D),
-                                       effective_info=_eff_info(eff, D))
-    finally:
-        restore()
-    check("8. row records the effective panel watermark",
-          row["wiki_effective_panel_watermark_date"] == eff.isoformat(),
-          row["wiki_effective_panel_watermark_date"])
-    check("8. row still records the aggregate watermark as provenance",
-          row["wiki_aggregate_watermark_date"] == D.isoformat(), row["wiki_aggregate_watermark_date"])
-    check("8. row records the method", row["wiki_effective_watermark_method"] == wt.EFFECTIVE_WATERMARK_METHOD,
-          row["wiki_effective_watermark_method"])
-    check("8. row records aggregate-vs-panel lag of 1 day",
-          row["wiki_aggregate_vs_panel_lag_days"] == 1, row["wiki_aggregate_vs_panel_lag_days"])
-    check("8. row records this ticker's own measured latest date",
-          row["wiki_article_latest_available_date"] == eff.isoformat(),
-          row["wiki_article_latest_available_date"])
-
-
-# === 9. Result invariant to ticker-processing order ===
-def test_9_result_invariant_to_ticker_order():
-    latest = {ARTICLES[t]: D - timedelta(days=(i % 3)) for i, t in enumerate(UNIVERSE)}
-    orders = [list(UNIVERSE), list(reversed(UNIVERSE)),
-              [UNIVERSE[i] for i in (7, 0, 23, 4, 15, 8, 1, 19, 3, 11, 22, 2,
-                                      5, 20, 9, 13, 6, 17, 10, 21, 12, 16, 14, 18)]]
-    results = []
-    for order in orders:
-        fetch_fn = _mock_article_fetch(latest)
-        res = wt.resolve_effective_panel_watermark(order, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-        results.append(res)
-    dates = {r["effective_panel_watermark_date"] for r in results}
-    check("9. all three processing orders produce the IDENTICAL effective watermark",
-          len(dates) == 1, dates)
-    check("9. and the identical binding-ticker set",
-          len({tuple(r["binding_tickers"]) for r in results}) == 1,
-          [r["binding_tickers"] for r in results])
-    check("9. and the identical per-ticker measurement map",
-          len({tuple(sorted(r["per_ticker_latest"].items())) for r in results}) == 1)
-
-
-# === 10. No zero-fill, no incomplete-coverage acceptance ===
-def test_10_no_zero_fill_no_incomplete_acceptance():
-    eff = D - timedelta(days=1)
-    chunk_start, chunk_end = date(2026, 8, 1), date(2026, 8, 5)
-    # Exactly the 2026-08-05 shape: HTTP 200, but one day short of the bar.
-    short = [{"date": (chunk_start + timedelta(days=i)).strftime("%Y%m%d"), "pageviews": 7}
-             for i in range((eff - chunk_start).days)]      # missing `eff` itself
-    v = wt.validate_snapshot("T", "Article_T", chunk_start, chunk_end, short, eff)
-    check("10. an HTTP-200 response one day short of the watermark is REJECTED",
-          v["valid"] is False and v["category"] == "incomplete_coverage", v)
-
-    # The missing date must not be invented with a zero.
-    zero_filled = short + [{"date": eff.strftime("%Y%m%d"), "pageviews": 0}]
-    v_zero = wt.validate_snapshot("T", "Article_T", chunk_start, chunk_end, zero_filled, eff)
-    check("10. a zero-filled row would satisfy coverage -- proving the fill must never happen upstream",
-          v_zero["valid"] is True, v_zero)
-    series = wt.assemble_daily_series(short)
-    check("10. assemble_daily_series does NOT zero-fill the missing date",
-          len(series) == len(short) and eff.strftime("%Y%m%d") not in
-          set(series["date"].dt.strftime("%Y%m%d")), len(series))
-
-    # And the availability probe never invents a date either: its answer is
-    # the newest date actually observed, never the requested end.
-    fetch_fn = _mock_article_fetch({"Article_T": eff})
-    m = wt.measure_article_latest_available_date("T", "Article_T", ANCHOR, fetch_fn=fetch_fn)
-    check("10. probe reports the newest OBSERVED date, not the requested end date",
-          m["latest_available_date"] == eff and m["latest_available_date"] != ANCHOR, m)
-
-
-# === 11. Operational cache untouched by these tests ===
-def test_11_operational_cache_untouched(before_hash, before_size):
-    after_hash = _sha256(_OPERATIONAL_CACHE)
-    after_size = _OPERATIONAL_CACHE.stat().st_size if _OPERATIONAL_CACHE.exists() else None
-    check("11. operational Phase2_Wikipedia_Cache.csv SHA-256 unchanged by this test file",
-          after_hash == before_hash, f"{before_hash} -> {after_hash}")
-    check("11. operational cache byte size unchanged",
-          after_size == before_size, f"{before_size} -> {after_size}")
-    check("11. wt.CACHE_PATH was restored to the operational path",
-          wt.CACHE_PATH == _ORIGINAL_CACHE_PATH, wt.CACHE_PATH)
-
-
-# === 12. Gate fails closed when the effective watermark is unresolved ===
-def test_12_gate_fails_closed_without_effective_watermark():
-    tickers = ["AAA", "BBB", "CCC"]
-    eff = D - timedelta(days=1)
-    rows = [{"ticker": t, "all_six_fields_clean": True, "earnings_status": "ok",
-             "retrieval_timestamp_utc": "2026-08-05T00:00:00+00:00",
-             "wiki_effective_panel_watermark_date": eff.isoformat(),
-             "wiki_zscore_anchor_date": eff.isoformat()} for t in tickers]
-
-    check("12. perfectly clean rows + valid aggregate watermark but effective status missing -> fails",
-          panel.is_run_complete(rows, "COMPLETE", tickers, watermark_status="ok") is False)
-    for bad in ("failed_closed", "not_attempted_aggregate_watermark_failed", None):
-        check(f"12. effective_watermark_status={bad!r} -> gate fails",
-              panel.is_run_complete(rows, "COMPLETE", tickers, watermark_status="ok",
-                                     effective_watermark_status=bad,
-                                     effective_watermark_date=eff) is False)
-    check("12. effective status ok but date None -> gate fails",
-          panel.is_run_complete(rows, "COMPLETE", tickers, watermark_status="ok",
-                                 effective_watermark_status="ok",
-                                 effective_watermark_date=None) is False)
-    check("12. a failed AGGREGATE watermark still fails even with a valid effective one",
-          panel.is_run_complete(rows, "COMPLETE", tickers, watermark_status="failed_closed",
-                                 effective_watermark_status="ok",
-                                 effective_watermark_date=eff) is False)
-    check("12. both valid -> gate passes (no weakening of any other criterion)",
-          panel.is_run_complete(rows, "COMPLETE", tickers, watermark_status="ok",
-                                 effective_watermark_status="ok",
-                                 effective_watermark_date=eff) is True)
-
-
-# === 13. An unresolved effective watermark stops the wiki leg entirely ===
-def test_13_unresolved_effective_watermark_skips_wiki_leg():
-    run_ts = datetime(2026, 8, 5, 2, 14, 0, tzinfo=timezone.utc)
-    capture = []
-    restore = _install_stubs(capture)
-    try:
-        row, pending = panel.process_ticker(
-            None, TICKER, run_ts, wiki_remaining_budget_s=100.0,
-            watermark_info=_agg(D),
-            effective_info=_eff_info(None, D, status="failed_closed"))
-    finally:
-        restore()
-    check("13. no Wikipedia request was made at all", len(capture) == 0, capture)
-    check("13. wiki_status is incomplete_effective_watermark_unavailable",
-          row["wiki_status"] == "incomplete_effective_watermark_unavailable", row["wiki_status"])
-    check("13. wiki_zscore stays None (never computed)", row["wiki_zscore"] is None, row["wiki_zscore"])
-    check("13. the aggregate watermark was NOT substituted as the anchor",
-          row.get("wiki_zscore_anchor_date") is None, row.get("wiki_zscore_anchor_date"))
-    check("13. all_six_fields_clean is False", row["all_six_fields_clean"] is False)
-
-
-# === 14. The probe uses ONE production-shaped request and never falls back ===
-def test_14_probe_shape_and_no_fallback():
-    fetch_fn = _mock_article_fetch({"Article_T": D})
-    m = wt.measure_article_latest_available_date("T", "Article_T", ANCHOR, fetch_fn=fetch_fn)
-    check("14. exactly ONE request was issued", len(fetch_fn.calls) == 1, fetch_fn.calls)
-    call = fetch_fn.calls[0]
-    check("14. it is a RANGE request, not a single-day one", call["start"] < call["end"],
-          (call["start"], call["end"]))
-    check("14. the range ends at the anchor date", call["end"] == ANCHOR, call["end"])
-    check("14. the range starts PER_ARTICLE_PROBE_WINDOW_DAYS earlier",
-          call["start"] == ANCHOR - timedelta(days=wt.PER_ARTICLE_PROBE_WINDOW_DAYS), call["start"])
-    check("14. measurement succeeded", m["status"] == "ok" and m["latest_available_date"] == D, m)
-
-    # On failure it must NOT retry, widen, or reshape.
-    failing = _mock_article_fetch({}, failures={"Article_T": {"status": "ok", "http_status": 404}})
-    m2 = wt.measure_article_latest_available_date("T", "Article_T", ANCHOR, fetch_fn=failing)
-    check("14. a 404 produces exactly ONE request -- no retry, no widening, no reshaping",
-          len(failing.calls) == 1, failing.calls)
-    check("14. a 404 is unmeasured, not silently downgraded to an older date",
-          m2["status"] == "unmeasured" and m2["latest_available_date"] is None, m2)
-    check("14. the failure reason is recorded", "404" in m2["reason"], m2["reason"])
-
-
-# === 15. Aggregate is provenance only and never raises the panel watermark ===
-def test_15_aggregate_never_raises_panel_watermark():
-    # Every article is a day behind the aggregate.
-    latest = {ARTICLES[t]: D - timedelta(days=1) for t in UNIVERSE}
-    fetch_fn = _mock_article_fetch(latest)
-    res = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn)
-    check("15. the aggregate's newer date does NOT raise the effective watermark",
-          res["effective_panel_watermark_date"] == D - timedelta(days=1),
-          res["effective_panel_watermark_date"])
-    check("15. the aggregate is still recorded for source-health",
-          res["aggregate_watermark_date"] == D, res["aggregate_watermark_date"])
-    check("15. the divergence is quantified", res["aggregate_vs_panel_lag_days"] == 1,
-          res["aggregate_vs_panel_lag_days"])
-
-    # Articles AHEAD of the aggregate: recorded as a negative lag, not clamped.
-    ahead = {ARTICLES[t]: D + timedelta(days=1) for t in UNIVERSE}
-    res2 = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR + timedelta(days=2),
-                                                 _agg(D), fetch_fn=_mock_article_fetch(ahead))
-    check("15. an article ahead of the aggregate yields a negative lag, recorded not clamped",
-          res2["aggregate_vs_panel_lag_days"] == -1, res2["aggregate_vs_panel_lag_days"])
-
-    # With no aggregate available at all the lag is simply unknown.
-    res3 = wt.resolve_effective_panel_watermark(UNIVERSE, ARTICLES, ANCHOR, _agg(None, status="failed_closed"),
-                                                 fetch_fn=_mock_article_fetch(latest))
-    check("15. no aggregate -> lag is None, effective watermark still measured independently",
-          res3["aggregate_vs_panel_lag_days"] is None
-          and res3["effective_panel_watermark_date"] == D - timedelta(days=1), res3)
-
-
-# === 16. NON-CIRCULARITY: measurement is invariant to pageview magnitude ===
-def test_16_measurement_is_invariant_to_pageview_magnitude():
-    latest = {ARTICLES[t]: D - timedelta(days=(i % 2)) for i, t in enumerate(UNIVERSE)}
-    results = []
-    for views in ({a: 1 for a in ARTICLES.values()},
-                  {a: 10 ** 9 for a in ARTICLES.values()},
-                  {a: (i * 977) % 100003 for i, a in enumerate(ARTICLES.values())},
-                  {a: 0 for a in ARTICLES.values()}):
-        fetch_fn = _mock_article_fetch(latest, views_by_article=views)
-        results.append(wt.resolve_effective_panel_watermark(
-            UNIVERSE, ARTICLES, ANCHOR, _agg(D), fetch_fn=fetch_fn))
-    check("16. effective watermark is identical across wildly different pageview magnitudes",
-          len({r["effective_panel_watermark_date"] for r in results}) == 1,
-          [r["effective_panel_watermark_date"] for r in results])
-    check("16. binding-ticker set is identical too",
-          len({tuple(r["binding_tickers"]) for r in results}) == 1,
-          [r["binding_tickers"] for r in results])
-    check("16. even an all-zero-views panel measures the same dates (counts are never a threshold)",
-          results[3]["effective_panel_watermark_date"] == results[0]["effective_panel_watermark_date"],
-          (results[3]["effective_panel_watermark_date"], results[0]["effective_panel_watermark_date"]))
-
-    # A structurally INVALID pageviews value is skipped -- that is a shape
-    # check, not a magnitude check.
-    def _bad_fetch(article, start, end, timeout_s=None):
-        return {"status": "ok", "http_status": 200, "url": "http://mock", "network_elapsed_s": 0.0,
-                "items": [{"date": (D - timedelta(days=1)).strftime("%Y%m%d"), "pageviews": 5},
-                          {"date": D.strftime("%Y%m%d"), "pageviews": "not-a-number"}]}
-    m = wt.measure_article_latest_available_date("T", "Article_T", ANCHOR, fetch_fn=_bad_fetch)
-    check("16. a malformed pageviews value cannot set the watermark",
-          m["latest_available_date"] == D - timedelta(days=1), m)
-
-
 if __name__ == "__main__":
-    _before_hash = _sha256(_OPERATIONAL_CACHE)
-    _before_size = _OPERATIONAL_CACHE.stat().st_size if _OPERATIONAL_CACHE.exists() else None
+    _bh = _sha256(_OPERATIONAL_CACHE)
+    _bs = _OPERATIONAL_CACHE.stat().st_size if _OPERATIONAL_CACHE.exists() else None
     _tmp = _use_temp_cache()
     try:
-        test_1_all_articles_equal_aggregate()
-        test_2_five_at_D_nineteen_at_D_minus_1()
-        test_3_one_ticker_lagging_two_days()
-        test_4_missing_article_watermark_fails_closed()
-        test_5_mixed_per_row_anchors_rejected()
-        test_6_post_watermark_observations_excluded()
-        test_7_internal_historical_gap_still_rejected()
-        test_8_pull_start_anchored_to_effective_panel_watermark()
-        test_9_result_invariant_to_ticker_order()
-        test_10_no_zero_fill_no_incomplete_acceptance()
-        test_12_gate_fails_closed_without_effective_watermark()
-        test_13_unresolved_effective_watermark_skips_wiki_leg()
-        test_14_probe_shape_and_no_fallback()
-        test_15_aggregate_never_raises_panel_watermark()
-        test_16_measurement_is_invariant_to_pageview_magnitude()
+        test_1_no_separate_probe()
+        test_2_request_end_is_aggregate_watermark()
+        test_3_rollover_prior_month()
+        test_4_adbe_style_response_trails_aggregate()
+        test_5_mixed_endings_common_minimum()
+        test_6_responses_reused_no_second_request()
+        test_7_shape_dependence_cannot_split_measurement_from_retrieval()
+        test_8_single_shared_limiter()
+        test_9_retry_after_honored()
+        test_10_exhausted_429_fails_closed()
+        test_11_404_fails_closed()
+        test_12_trailing_allowed_then_removed()
+        test_13_internal_gaps_still_fail()
+        test_14_slicing_is_pure_filtering()
+        test_15_uniform_watermark_across_rows()
+        test_16_order_invariance()
+        test_17_magnitude_invariance()
     finally:
         _restore_cache_path(_tmp)
-    test_11_operational_cache_untouched(_before_hash, _before_size)
+    test_18_operational_cache_untouched(_bh, _bs)
 
     print()
     if FAILURES:
         print(f"{len(FAILURES)} FAILURE(S): {FAILURES}")
         sys.exit(1)
     else:
-        print("ALL EFFECTIVE-PANEL-WATERMARK TESTS PASSED (spec items 1-11 + fail-closed, "
-              "probe-shape, aggregate-provenance and non-circularity coverage)")
+        print("ALL TWO-STAGE EFFECTIVE-PANEL-WATERMARK TESTS PASSED (required items 1-18)")
         sys.exit(0)

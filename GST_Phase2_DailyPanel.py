@@ -752,8 +752,11 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
     # which is this ticker's own measured value and is recorded purely for
     # auditability -- it never anchors anything. ---
     effective_watermark_date = effective_info.get("effective_panel_watermark_date")
+    aggregate_watermark_date = watermark_info.get("watermark_date")
     row["wiki_aggregate_watermark_date"] = (
         watermark_info["watermark_date"].isoformat() if watermark_info.get("watermark_date") else None)
+    # 2026-08-05: sourced from the ticker's own anchor-month response -- the
+    # very response whose rows are reused below -- not from a separate probe.
     _article_latest = (effective_info.get("per_ticker_latest") or {}).get(ticker)
     row["wiki_article_latest_available_date"] = _article_latest.isoformat() if _article_latest else None
     row["wiki_effective_panel_watermark_date"] = (
@@ -791,29 +794,47 @@ def process_ticker(pt: TrendReq, ticker: str, run_ts: datetime,
         # same date for every row -- never ticker-specific.
         watermark_date = effective_watermark_date
         anchor_date = run_ts.date()
-        # 2026-08-02 correction: pull_start is derived from watermark_date,
-        # not wall-clock anchor_date. The observation window's actual
-        # right edge is the measured watermark (data beyond it is never
-        # observable), so anchoring the LEFT edge on wall-clock time
+        # 2026-08-02 correction: pull_start is derived from the binding
+        # watermark, not wall-clock anchor_date. The observation window's
+        # actual right edge is the measured watermark (data beyond it is
+        # never observable), so anchoring the LEFT edge on wall-clock time
         # instead shortens the effective lookback by exactly the
-        # watermark's lag whenever it lags anchor_date -- the same class
-        # of wall-clock-vs-watermark bug already fixed for the z-score
-        # anchor itself. The request horizon/end-date passed to the
-        # transport (anchor_date below) is deliberately left unchanged --
-        # get_ticker_wikipedia_daily()/required_data_end() already
-        # truncate any chunk beyond the watermark, so widening the
-        # generated-chunk horizon to wall-clock time is harmless and
-        # out of scope for this fix.
+        # watermark's lag -- the same class of wall-clock-vs-watermark bug
+        # already fixed for the z-score anchor itself.
+        #
+        # 2026-08-05: the request HORIZON is now the aggregate watermark,
+        # not wall-clock anchor_date. An earlier version of this comment
+        # argued the horizon could safely stay on wall-clock time because
+        # required_data_end() truncates each chunk's request anyway. That
+        # reasoning was correct as far as it went -- the HTTP request was
+        # already truncated -- but it left the generated chunk's nominal
+        # end past the watermark, which (a) made the chunk key assert a
+        # coverage boundary the response never reaches, and (b) is the
+        # wrong shape to match Stage-1's anchor-month request against.
+        # Setting the horizon to the aggregate watermark makes the final
+        # generated chunk EXACTLY anchor_month_start..aggregate_watermark,
+        # which is precisely what Stage 1 already fetched and validated.
         pull_start = watermark_date - timedelta(days=PULL_LOOKBACK_DAYS)
+        request_horizon = aggregate_watermark_date or watermark_date
         row["wiki_required_data_end"] = watermark_date.isoformat()
         try:
             cache_df = wiki_transport.load_cache()
         except wiki_transport.CacheCorruptionError as e:
             log(f"  [{ticker}] Wikipedia cache corruption detected, treating as empty cache this run: {e}")
             cache_df = pd.DataFrame(columns=wiki_transport.CACHE_COLUMNS)
+        # Stage-2 REUSE: the anchor-month rows Stage 1 already retrieved and
+        # validated, sliced to the effective watermark, handed over IN MEMORY
+        # so no second anchor-month request is issued and nothing
+        # trailing-short is ever cached.
+        prefetched = {}
+        _anchor_rows = (effective_info.get("anchor_month_rows") or {}).get(ticker)
+        if _anchor_rows is not None and effective_info.get("anchor_month_start"):
+            prefetched[(effective_info["anchor_month_start"],
+                        effective_info["anchor_month_requested_end"])] = _anchor_rows
         wiki_result = wiki_transport.get_ticker_wikipedia_daily(
-            ticker, article, pull_start, anchor_date, watermark_date, cache_df=cache_df,
+            ticker, article, pull_start, request_horizon, watermark_date, cache_df=cache_df,
             remaining_budget_s=wiki_remaining_budget_s,
+            prefetched_chunk_rows=prefetched,
         )
         for cr in wiki_result["chunk_results"]:
             log(f"    [{ticker}] wiki chunk {cr['chunk_start']}..{cr['chunk_end']} "
@@ -895,7 +916,8 @@ def _wiki_source_provenance(chunk_results: list[dict]) -> dict:
         identical underlying provenance always serializes identically."""
     ok_chunks = [cr for cr in chunk_results
                  if cr.get("status") == "ok"
-                 and cr.get("source") in ("cache", "fetch", "cache_union_reconstruction", "subchunk_salvage")]
+                 and cr.get("source") in ("cache", "fetch", "cache_union_reconstruction",
+                                          "subchunk_salvage", "anchor_month_stage1")]
     sources_used = sorted({cr["source"] for cr in ok_chunks})
 
     if not sources_used:
@@ -908,6 +930,8 @@ def _wiki_source_provenance(chunk_results: list[dict]) -> dict:
         mode = "cache_union_only"
     elif sources_used == ["subchunk_salvage"]:
         mode = "subchunk_salvage_only"
+    elif sources_used == ["anchor_month_stage1"]:
+        mode = "anchor_month_stage1_only"
     else:
         mode = "mixed"
 
@@ -1071,6 +1095,37 @@ def write_completion_marker(rows: list[dict], elapsed_s: float, status: str,
                 t: (d.isoformat() if d else None)
                 for t, d in sorted((effective_info.get("per_ticker_latest") or {}).items())
             },
+            # 2026-08-05 additive: Stage-1 request boundaries, what each
+            # response actually observed, and proof of Stage-2 reuse.
+            "anchor_month_request": {
+                "requested_start": (effective_info["anchor_month_start"].isoformat()
+                                    if effective_info.get("anchor_month_start") else None),
+                "requested_end": (effective_info["anchor_month_requested_end"].isoformat()
+                                  if effective_info.get("anchor_month_requested_end") else None),
+                "request_count": effective_info.get("request_count"),
+                "total_pacing_wait_s": round(
+                    sum(w["waited_s"] for w in effective_info.get("pacing_waits", [])), 3),
+                "min_request_interval_s": wiki_transport.AVAILABILITY_MIN_REQUEST_INTERVAL_S,
+            },
+            "anchor_month_observed": {
+                r["ticker"]: {
+                    "status": r["status"],
+                    "observed_count": r.get("observed_count"),
+                    "latest_available_date": (r["latest_available_date"].isoformat()
+                                              if r.get("latest_available_date") else None),
+                    "http_status": r.get("http_status"), "attempts": r.get("attempts"),
+                    "reason": r.get("reason"),
+                }
+                for r in sorted(effective_info.get("stage1_results", []),
+                                key=lambda x: x["ticker"])
+            },
+            "anchor_month_response_reuse": {
+                "tickers_reused": sorted(effective_info.get("anchor_month_rows", {})),
+                "reused_in_memory_only": True,
+                "written_to_cache": False,
+                "second_anchor_month_request_issued":
+                    effective_info.get("second_anchor_month_request_issued", False),
+            },
         }
     with open(COMPLETION_MARKER_PATH, "w", encoding="utf-8") as f:
         json.dump(marker, f, indent=2)
@@ -1216,20 +1271,36 @@ def main():
     # an internal historical gap (e.g. CTSH 2026-07-08..14) still produces
     # PARTIAL -- lowering a shared trailing edge is not forgiving a hole. ---
     if watermark_info["status"] == "ok":
-        log("Measuring per-article availability for all "
-            f"{len(TICKERS)} locked tickers (one same-shape range probe each)...")
+        _anchor_ms = wiki_transport.anchor_month_start(watermark_info["watermark_date"])
+        log(f"STAGE 1 -- anchor-month availability retrieval for all {len(TICKERS)} locked tickers: "
+            f"one request each, {_anchor_ms}..{watermark_info['watermark_date']} "
+            f"(never past the aggregate watermark), globally paced at "
+            f"{wiki_transport.AVAILABILITY_MIN_REQUEST_INTERVAL_S:.1f}s minimum interval "
+            f"through one shared limiter.")
         effective_info = wiki_transport.resolve_effective_panel_watermark(
-            TICKERS, TICKER_TO_WIKI_ARTICLE, anchor_date=run_ts.date(),
-            aggregate_watermark_info=watermark_info)
+            TICKERS, TICKER_TO_WIKI_ARTICLE, aggregate_watermark_info=watermark_info)
+        for r in effective_info.get("stage1_results", []):
+            log(f"    [{r['ticker']}] anchor-month {r['requested_start']}..{r['requested_end']} "
+                f"status={r['status']} http={r.get('http_status')} "
+                f"retry_after={r.get('retry_after')} attempts={r.get('attempts')} "
+                f"n={r.get('observed_count')} latest={r.get('latest_available_date')} "
+                f"{r.get('reason') or ''}")
+        log(f"  Stage 1 issued {effective_info.get('request_count')} request(s); "
+            f"total pacing wait "
+            f"{sum(w['waited_s'] for w in effective_info.get('pacing_waits', [])):.1f}s")
     else:
         effective_info = {
             "status": "not_attempted_aggregate_watermark_failed",
             "effective_panel_watermark_date": None,
             "method": wiki_transport.EFFECTIVE_WATERMARK_METHOD,
             "aggregate_watermark_date": None, "aggregate_vs_panel_lag_days": None,
-            "per_ticker_latest": {}, "measurements": [], "unmeasured": [],
+            "per_ticker_latest": {}, "stage1_results": [], "unmeasured": [],
             "measured_count": 0, "expected_count": len(TICKERS),
-            "binding_tickers": [], "resolved_at_utc": datetime.now(timezone.utc).isoformat(),
+            "binding_tickers": [], "anchor_month_rows": {},
+            "anchor_month_start": None, "anchor_month_requested_end": None,
+            "request_count": 0, "pacing_waits": [],
+            "second_anchor_month_request_issued": False,
+            "resolved_at_utc": datetime.now(timezone.utc).isoformat(),
         }
 
     if effective_info["status"] == "ok":
@@ -1240,6 +1311,9 @@ def main():
             f"aggregate_vs_panel_lag_days={effective_info['aggregate_vs_panel_lag_days']}, "
             f"measured={effective_info['measured_count']}/{effective_info['expected_count']})")
         log(f"  binding ticker(s) at the minimum: {', '.join(effective_info['binding_tickers'])}")
+        log(f"  STAGE 2 -- anchor-month responses reused in memory for "
+            f"{len(effective_info.get('anchor_month_rows', {}))} ticker(s); "
+            f"no second anchor-month request, nothing trailing-short cached.")
         _ahead = sorted(t for t, d in effective_info["per_ticker_latest"].items() if d > eff_date)
         if _ahead:
             log(f"  {len(_ahead)} ticker(s) had newer data available and are deliberately "
