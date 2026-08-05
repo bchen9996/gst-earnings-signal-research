@@ -9,6 +9,7 @@
 # Run directly: python test_phase2_dailypanel_gate.py
 
 from __future__ import annotations
+from datetime import date
 import sys
 import os
 import json
@@ -32,6 +33,27 @@ def check(name: str, condition: bool, detail: str = "") -> None:
 TICKERS = ["AAA", "BBB", "CCC"]
 
 
+# 2026-08-05: the gate additionally requires a resolved EFFECTIVE PANEL
+# WATERMARK and one shared z-score anchor across every row (see
+# is_run_complete()'s docstring). These pre-existing tests each probe ONE
+# other dimension of the gate, so they get a valid effective watermark by
+# default via _gate() below and clean rows carry the matching provenance --
+# the new dimension's own positive/negative cases live in
+# test_phase2_wiki_effective_panel_watermark.py (tests 4, 5, 12, 13).
+EFFECTIVE_WATERMARK = date(2026, 7, 31)
+
+
+def _gate(rows, exit_status, expected_tickers, watermark_status=None,
+          effective_watermark_status="ok", effective_watermark_date=EFFECTIVE_WATERMARK):
+    """is_run_complete() with the 2026-08-05 effective-watermark arguments
+    defaulted to a valid resolution, so each test below still isolates the
+    single dimension it was written to probe."""
+    return panel.is_run_complete(rows, exit_status, expected_tickers,
+                                  watermark_status=watermark_status,
+                                  effective_watermark_status=effective_watermark_status,
+                                  effective_watermark_date=effective_watermark_date)
+
+
 def _clean_row(ticker: str) -> dict:
     return {
         "ticker": ticker,
@@ -39,6 +61,8 @@ def _clean_row(ticker: str) -> dict:
         "earnings_status": "ok",
         "days_to_nearest_earnings": 42,
         "retrieval_timestamp_utc": "2026-07-31T00:00:00+00:00",
+        "wiki_effective_panel_watermark_date": EFFECTIVE_WATERMARK.isoformat(),
+        "wiki_zscore_anchor_date": EFFECTIVE_WATERMARK.isoformat(),
     }
 
 
@@ -52,63 +76,63 @@ def _dirty_row(ticker: str, **overrides) -> dict:
 def test_14_final_completeness_gate():
     all_clean = [_clean_row(t) for t in TICKERS]
     check("14a. 3/3 unique tickers, all clean, COMPLETE status, valid watermark -> gate passes",
-          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="ok") is True)
+          _gate(all_clean, "COMPLETE", TICKERS, watermark_status="ok") is True)
 
     missing = [_clean_row(t) for t in TICKERS[:-1]]
     check("14b. fewer rows than expected tickers -> gate fails",
-          panel.is_run_complete(missing, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(missing, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     duplicate = [_clean_row("AAA"), _clean_row("AAA"), _clean_row("CCC")]
     check("14c. duplicate ticker (not 3 unique) -> gate fails, does not silently satisfy count",
-          panel.is_run_complete(duplicate, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(duplicate, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     one_incomplete = [_clean_row("AAA"), _clean_row("BBB"), _dirty_row("CCC", all_six_fields_clean=False)]
     check("14d. one row missing a required field -> gate fails",
-          panel.is_run_complete(one_incomplete, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(one_incomplete, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     bad_ts = [_clean_row("AAA"), _clean_row("BBB"), _dirty_row("CCC", retrieval_timestamp_utc="not-a-timestamp")]
     check("14e. unparseable retrieval timestamp -> gate fails",
-          panel.is_run_complete(bad_ts, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(bad_ts, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     missing_ts = [_clean_row("AAA"), _clean_row("BBB"), _dirty_row("CCC", retrieval_timestamp_utc=None)]
     check("14f. missing retrieval timestamp -> gate fails",
-          panel.is_run_complete(missing_ts, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(missing_ts, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     wrong_universe = [_clean_row("AAA"), _clean_row("BBB"), _clean_row("ZZZ")]
     check("14g. rows cover a different ticker set entirely -> gate fails",
-          panel.is_run_complete(wrong_universe, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(wrong_universe, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     check("14h. gate never raises on a malformed row (empty dict)",
-          panel.is_run_complete([{}], "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate([{}], "COMPLETE", TICKERS, watermark_status="ok") is False)
 
 
 # === 15. PARTIAL output never named COMPLETE ===
 def test_15_partial_never_named_complete():
     all_clean = [_clean_row(t) for t in TICKERS]
     check("15a. all rows clean but exit_status already PARTIAL (e.g. total-budget stop) -> gate still fails",
-          panel.is_run_complete(all_clean, "PARTIAL", TICKERS, watermark_status="ok") is False)
+          _gate(all_clean, "PARTIAL", TICKERS, watermark_status="ok") is False)
 
     pending_second_pass = [_clean_row("AAA"), _clean_row("BBB"),
                             _dirty_row("CCC", all_six_fields_clean=False)]
     check("15b. a ticker left in pending_second_pass/incomplete state -> COMPLETE status alone is not enough",
-          panel.is_run_complete(pending_second_pass, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(pending_second_pass, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     check("15c. empty rows with COMPLETE status (pathological) -> gate fails, not vacuously true",
-          panel.is_run_complete([], "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate([], "COMPLETE", TICKERS, watermark_status="ok") is False)
 
 
 # === 2026-08-01 watermark additions: tests 15/16 from the watermark spec ===
 def test_watermark_15_completion_marker_cannot_say_complete_without_valid_watermark():
     all_clean = [_clean_row(t) for t in TICKERS]
     check("watermark-15: all rows perfectly clean, COMPLETE status, but NO watermark_status given "
-          "(None) -> gate still fails", panel.is_run_complete(all_clean, "COMPLETE", TICKERS) is False)
+          "(None) -> gate still fails", _gate(all_clean, "COMPLETE", TICKERS) is False)
     check("watermark-15: watermark_status='failed_closed' -> gate fails even with perfectly clean rows",
-          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="failed_closed") is False)
+          _gate(all_clean, "COMPLETE", TICKERS, watermark_status="failed_closed") is False)
     check("watermark-15: watermark_status='no_data_within_max_lag' -> gate fails even with "
           "perfectly clean rows",
-          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="no_data_within_max_lag") is False)
+          _gate(all_clean, "COMPLETE", TICKERS, watermark_status="no_data_within_max_lag") is False)
     check("watermark-15: watermark_status='ok' with otherwise-clean rows -> gate passes",
-          panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status="ok") is True)
+          _gate(all_clean, "COMPLETE", TICKERS, watermark_status="ok") is True)
 
 
 def test_watermark_16_lag_greater_than_max_cannot_produce_complete():
@@ -122,7 +146,7 @@ def test_watermark_16_lag_greater_than_max_cannot_produce_complete():
     for bad_status in ("no_data_within_max_lag", "failed_closed"):
         check(f"watermark-16: watermark_status={bad_status!r} (the only way an out-of-budget lag "
               f"surfaces) cannot produce COMPLETE",
-              panel.is_run_complete(all_clean, "COMPLETE", TICKERS, watermark_status=bad_status) is False)
+              _gate(all_clean, "COMPLETE", TICKERS, watermark_status=bad_status) is False)
 
 
 # === 2026-08-01 completion-gate correction: six-locked-fields vs
@@ -134,7 +158,7 @@ def test_earnings_status_separation():
     #     remain eligible for COMPLETE.
     ok_no_date = [_dirty_row(t, days_to_nearest_earnings=None) for t in TICKERS]
     check("earnings-a. six fields clean + earnings_status='ok' + date=None -> eligible for COMPLETE",
-          panel.is_run_complete(ok_no_date, "COMPLETE", TICKERS, watermark_status="ok") is True)
+          _gate(ok_no_date, "COMPLETE", TICKERS, watermark_status="ok") is True)
 
     # (b) six fields complete but earnings_status="error" -- an actual lookup
     #     failure must block COMPLETE even though the six research fields
@@ -142,14 +166,14 @@ def test_earnings_status_separation():
     earnings_error = [_clean_row(t) for t in TICKERS[:-1]] + \
         [_dirty_row(TICKERS[-1], earnings_status="error")]
     check("earnings-b. six fields clean but one row earnings_status='error' -> PARTIAL",
-          panel.is_run_complete(earnings_error, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(earnings_error, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     # (c) six fields complete but earnings_status="timeout" -- same as (b),
     #     a different fail-closed lookup outcome.
     earnings_timeout = [_clean_row(t) for t in TICKERS[:-1]] + \
         [_dirty_row(TICKERS[-1], earnings_status="timeout")]
     check("earnings-c. six fields clean but one row earnings_status='timeout' -> PARTIAL",
-          panel.is_run_complete(earnings_timeout, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(earnings_timeout, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
     # (d) one row missing a core (six-field) value, earnings otherwise ok --
     #     isolates that the six-field check still independently blocks
@@ -157,7 +181,7 @@ def test_earnings_status_separation():
     missing_core = [_clean_row(t) for t in TICKERS[:-1]] + \
         [_dirty_row(TICKERS[-1], all_six_fields_clean=False)]
     check("earnings-d. one row missing a core six-field value (earnings ok) -> PARTIAL",
-          panel.is_run_complete(missing_core, "COMPLETE", TICKERS, watermark_status="ok") is False)
+          _gate(missing_core, "COMPLETE", TICKERS, watermark_status="ok") is False)
 
 
 def test_completion_marker_counts_distinguish_null_earnings_from_failure():

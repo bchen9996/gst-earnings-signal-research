@@ -1,0 +1,40 @@
+{
+  "status": "PARTIAL",
+  "row_count": 24,
+  "unique_ticker_count": 24,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 5,
+  "earnings_lookup_ok_count": 24,
+  "days_to_nearest_earnings_nonnull_count": 22,
+  "field_completeness_pct": {
+    "gst_zscore": 100.0,
+    "wiki_zscore": 20.83,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 0,
+    "wiki": 19
+  },
+  "elapsed_s": 1090.6,
+  "elapsed_min": 18.18,
+  "active_ticker_when_stopped": null,
+  "active_leg_when_stopped": null,
+  "checkpoint_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-08-05_run3_CHECKPOINT_PARTIAL.csv",
+  "final_path": null,
+  "generated_at_utc": "2026-08-05T02:32:49.709758+00:00",
+  "wiki_data_watermark": {
+    "status": "ok",
+    "watermark_date": "2026-08-04",
+    "lag_days": 1,
+    "retrieved_at_utc": "2026-08-05T02:14:38.607859+00:00",
+    "source_url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026080400/2026080400",
+    "http_status": 200
+  }
+}

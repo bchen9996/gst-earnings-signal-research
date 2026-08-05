@@ -135,6 +135,7 @@ import multiprocessing
 import os
 import random
 import tempfile
+import threading
 import time
 import urllib.error
 import urllib.parse
@@ -221,6 +222,74 @@ MAX_ACCEPTABLE_WIKI_LAG_DAYS = 3
 # retry-forever behavior.
 WATERMARK_404_CONFIRM_WAIT_S = 2.0
 WATERMARK_MAX_RETRY_AFTER_WAIT_S = 30.0
+
+# --- PER-ARTICLE AVAILABILITY MEASUREMENT (2026-08-05, REDESIGNED same day) --
+# The aggregate endpoint answers "has en.wikipedia.org published day D
+# site-wide?". It does NOT answer "has THIS article's daily row for day D been
+# published?" -- two different publication pipelines. The 2026-08-05 PARTIAL
+# proved the gap: the aggregate reported 2026-08-04 while only 5 of the 24
+# locked articles contained that date.
+#
+# The FIRST attempt at closing that gap (commit 9990c39) measured availability
+# with a separate fixed-14-day per-article probe. A read-only live diagnostic
+# proved that design release-blocking on two counts before it ever ran a panel
+# (Live Signal Engine/Phase2 Failure Evidence/
+# 2026-08-05_EffectiveWatermark_Probe_Design_Failure/):
+#
+#   1. 24 unpaced requests reach Wikimedia's rate limiter at request 11
+#      (14x HTTP 429, Retry-After counting down 39->20s) -> measured=9/24 ->
+#      failed closed -> EVERY run PARTIAL, strictly worse than before.
+#   2. Availability is REQUEST-SHAPE-DEPENDENT. The same date is present in one
+#      range's response and absent from another's, for the same article,
+#      seconds apart (ADBE and GOOGL both return 2026-08-04 for 07-22..08-04
+#      but NOT for 08-01..08-04) -- consistent with URL-keyed CDN response
+#      caching, each range URL being a separate cache entry with its own age.
+#
+# Consequence: "the latest date article X has published" is NOT a property of
+# the article. It is a property of (article, requested range). A probe using
+# one request shape can never certify what a differently-shaped retrieval
+# request will return -- no amount of pacing fixes that.
+#
+# The separate probe is therefore DELETED, not tuned. Availability is now
+# measured from the SAME RESPONSE production will actually use: a single
+# anchor-month calendar-chunk request per ticker, whose observations are then
+# sliced to the common effective watermark and reused in memory. See
+# retrieve_anchor_month_availability() and resolve_effective_panel_watermark().
+
+EFFECTIVE_WATERMARK_METHOD = "min_anchor_month_observed_latest_same_response"
+
+# Global pacing for the Stage-1 anchor-month sweep. Evidence from the
+# 2026-08-05 diagnostic: 10 requests at ~1.44s spacing (~0.7 req/s) triggered
+# 429 at request 11; 38 consecutive requests at ~3.5s spacing produced zero
+# 429s. 3.5s is the smallest interval this project has direct evidence for.
+AVAILABILITY_MIN_REQUEST_INTERVAL_S = 3.5
+# One bounded re-attempt per ticker on 429, after honoring a capped
+# Retry-After. A second 429 fails the ticker -- and therefore the panel --
+# closed. Never walks the watermark backward to dodge a rate limit.
+AVAILABILITY_MAX_429_RETRIES = 1
+AVAILABILITY_MAX_RETRY_AFTER_WAIT_S = 60.0
+
+# --- BOUNDED IDENTICAL-REQUEST RETRY ON 404 (2026-08-05) -------------------
+# The 22/24 availability gate (Live Signal Engine/Phase2 Failure Evidence/
+# 2026-08-05_AnchorMonth_AvailabilityGate_22of24/) left GPN and TTWO failing
+# on a single HTTP 404 against the exact anchor-month request. That is
+# transient CDN transport behaviour, not unavailable data and not an identity
+# problem: both articles are locked and previously identity-validated, and the
+# set of 404-ing articles changes between runs -- ADBE and GOOGL 404'd earlier
+# the same day and returned 200 in that gate, while CTSH/INTC/SYK (the three
+# previously "unresolved" intervals) all returned clean 200s.
+#
+# The response is a bounded retry of the IDENTICAL request -- same article
+# title, same date boundaries, same endpoint/access/agent/granularity. Nothing
+# about the request varies between attempts; retrying a different shape is
+# precisely the mistake the deleted 14-day probe made. A 404 that survives all
+# three attempts is still a hard fail-closed result.
+ANCHOR_MONTH_MAX_ATTEMPTS = 3                    # initial + 2 retries
+ANCHOR_MONTH_404_BACKOFF_S = [20.0, 40.0]        # before attempt 2, before attempt 3
+ANCHOR_MONTH_404_JITTER_S = 5.0                  # bounded 0-5s, desynchronizes retries
+# A client/authorization verdict is not transient -- re-asking cannot change
+# it, so these are never retried.
+ANCHOR_MONTH_NEVER_RETRY_STATUSES = (400, 401, 403)
 
 
 class CacheCorruptionError(Exception):
@@ -409,6 +478,517 @@ def resolve_wiki_data_watermark(anchor_date: date, fetch_fn=None, now_utc: datet
     return {"status": "no_data_within_max_lag", "watermark_date": None, "lag_days": None,
             "retrieved_at_utc": now_utc.isoformat(), "source_url": None, "http_status": None,
             "probe_log": probe_log}
+
+
+class SharedRequestLimiter:
+    """The SINGLE pacing gate for the Stage-1 anchor-month sweep.
+
+    Why one shared object rather than a sleep inside the loop: the 2026-08-05
+    diagnostic showed the failure mode is a GLOBAL request rate against
+    Wikimedia, not a per-ticker one. Any code path that can issue an
+    anchor-month request -- the sweep itself and its bounded 429 re-attempt --
+    must pass through this same instance, so their combined rate is bounded,
+    not each independently.
+
+    Subprocess note: fetch_chunk_isolated() spawns one worker process per
+    request and that worker issues EXACTLY ONE HTTP request. The limiter is
+    therefore held in the parent and acquired BEFORE the spawn, which bounds
+    every request that can reach the network. A worker cannot issue an
+    unpaced second request because it never issues a second request at all.
+
+    Thread-safe (Lock) so this property survives if the sweep is ever moved
+    off a single thread.
+    """
+
+    def __init__(self, min_interval_s: float = AVAILABILITY_MIN_REQUEST_INTERVAL_S,
+                 sleep_fn=None, clock_fn=None):
+        self.min_interval_s = min_interval_s
+        self._sleep = sleep_fn or time.sleep
+        self._clock = clock_fn or time.monotonic
+        self._lock = threading.Lock()
+        self._next_allowed_at = None
+        self._started_at = None
+        self.request_count = 0
+        self.waits: list[dict] = []
+
+    def elapsed_since_start(self) -> float:
+        """Seconds since this limiter's first acquire(). Used to bound retry
+        waits against the run's total-run safety budget."""
+        if self._started_at is None:
+            return 0.0
+        return self._clock() - self._started_at
+
+    def acquire(self, reason: str = "") -> float:
+        """Blocks until the next request is allowed. Returns seconds waited."""
+        with self._lock:
+            now = self._clock()
+            if self._started_at is None:
+                self._started_at = now
+            waited = 0.0
+            if self._next_allowed_at is not None and now < self._next_allowed_at:
+                waited = self._next_allowed_at - now
+                self._sleep(waited)
+                now = self._clock()
+            self.request_count += 1
+            self._next_allowed_at = now + self.min_interval_s
+            self.waits.append({"request_number": self.request_count,
+                               "waited_s": round(waited, 3), "reason": reason})
+            return waited
+
+    def note_retry_after(self, retry_after_s) -> float:
+        """Honors a server-supplied Retry-After by pushing the shared gate out,
+        capped at AVAILABILITY_MAX_RETRY_AFTER_WAIT_S. Applies to EVERY
+        subsequent caller, not just the one that was throttled -- a 429 is a
+        statement about the whole client, not one request."""
+        try:
+            wait_s = min(float(retry_after_s), AVAILABILITY_MAX_RETRY_AFTER_WAIT_S)
+        except (TypeError, ValueError):
+            wait_s = AVAILABILITY_MAX_RETRY_AFTER_WAIT_S
+        wait_s = max(0.0, wait_s)
+        with self._lock:
+            candidate = self._clock() + wait_s
+            if self._next_allowed_at is None or candidate > self._next_allowed_at:
+                self._next_allowed_at = candidate
+        return wait_s
+
+
+def anchor_month_start(watermark: date) -> date:
+    """First day of the calendar month containing the aggregate watermark.
+    This is the anchor month -- the month whose publication frontier is what
+    trailing availability is actually about."""
+    return watermark.replace(day=1)
+
+
+def validate_anchor_month_response(ticker: str, article: str, month_start: date,
+                                    requested_end: date, items: list[dict]) -> dict:
+    """Structural usability gate for a Stage-1 anchor-month response.
+
+    DELIBERATELY NOT validate_snapshot(). validate_snapshot() requires exact
+    coverage THROUGH a known watermark; that is the wrong question here,
+    because a trailing shortfall is precisely the thing being measured. What
+    this function requires instead:
+
+      - at least one observation;
+      - every pageviews value structurally valid (non-negative integer) --
+        the same check validate_snapshot() applies, and the ONLY predicate
+        applied to a count anywhere in availability measurement;
+      - no date outside [month_start, requested_end] -- a response containing
+        a date we did not ask for is not trustworthy;
+      - no duplicate dates, and no conflicting values for a repeated date;
+      - the sequence BEGINS at month_start -- a response that starts late is
+        missing interior history, not merely trailing;
+      - the sequence is CONTIGUOUS daily through its own maximum observed
+        date -- no interior holes.
+
+    A response may legitimately stop short of requested_end. That trailing
+    shortfall is the measurement, not an error (see the module note on
+    request-shape-dependent availability). An INTERIOR hole is always an
+    error and can never be forgiven by lowering the panel watermark, because
+    lowering a trailing edge cannot reach inside the sequence.
+
+    Returns {"usable": bool, "latest_available_date": date|None,
+    "observed_count": int, "reason": str, "category": str}."""
+    base = {"usable": False, "latest_available_date": None, "observed_count": 0}
+
+    if not items:
+        return {**base, "category": "empty", "reason": "no observations in response"}
+
+    seen: dict[date, object] = {}
+    for item in items:
+        if not isinstance(item, dict):
+            return {**base, "category": "malformed", "reason": f"non-dict item: {item!r}"}
+        raw_views = item.get("pageviews")
+        if not _is_valid_nonnegative_integer_pageviews(raw_views):
+            return {**base, "category": "malformed",
+                    "reason": f"invalid pageviews value {raw_views!r} for date {item.get('date')!r}"}
+        try:
+            d = datetime.strptime(str(item.get("date")), "%Y%m%d").date()
+        except (TypeError, ValueError):
+            return {**base, "category": "malformed",
+                    "reason": f"unparseable date {item.get('date')!r}"}
+        if d < month_start or d > requested_end:
+            return {**base, "category": "out_of_range",
+                    "reason": f"date {d.isoformat()} outside requested "
+                              f"{month_start.isoformat()}..{requested_end.isoformat()}"}
+        if d in seen:
+            if seen[d] != raw_views:
+                return {**base, "category": "conflicting_duplicate",
+                        "reason": f"date {d.isoformat()} repeated with conflicting values "
+                                  f"({seen[d]!r} vs {raw_views!r})"}
+            return {**base, "category": "duplicate",
+                    "reason": f"date {d.isoformat()} appears more than once"}
+        seen[d] = raw_views
+
+    observed = sorted(seen)
+    if observed[0] != month_start:
+        return {**base, "observed_count": len(observed), "category": "does_not_start_at_month_start",
+                "reason": f"first observation {observed[0].isoformat()} != anchor month start "
+                          f"{month_start.isoformat()} -- interior history missing, not trailing lag"}
+
+    expected_n = (observed[-1] - observed[0]).days + 1
+    if len(observed) != expected_n:
+        present = set(observed)
+        missing = [(observed[0] + timedelta(days=i)).isoformat()
+                   for i in range(expected_n)
+                   if (observed[0] + timedelta(days=i)) not in present]
+        return {**base, "observed_count": len(observed), "category": "internal_gap",
+                "reason": f"internal missing date(s) {missing[:5]}"
+                          f"{'...' if len(missing) > 5 else ''} within "
+                          f"{observed[0].isoformat()}..{observed[-1].isoformat()}"}
+
+    return {"usable": True, "latest_available_date": observed[-1],
+            "observed_count": len(observed), "reason": "", "category": "ok"}
+
+
+def retrieve_anchor_month_availability(tickers: list[str], ticker_to_article: dict,
+                                        aggregate_watermark: date, fetch_fn=None,
+                                        limiter: "SharedRequestLimiter | None" = None,
+                                        timeout_s: float = CHUNK_TIMEOUT_S,
+                                        max_429_retries: int = AVAILABILITY_MAX_429_RETRIES,
+                                        anchor_month_max_attempts: int = ANCHOR_MONTH_MAX_ATTEMPTS,
+                                        jitter_fn=None,
+                                        remaining_budget_s: float | None = None) -> dict:
+    """STAGE 1. For every locked ticker, issue exactly ONE anchor-month
+    calendar-chunk request:
+
+        anchor_month_start(aggregate_watermark) .. aggregate_watermark
+
+    Never through wall-clock today, never past the aggregate watermark. This
+    is the same request shape whose observations production then uses -- that
+    identity is the whole point of the redesign, so the response that measures
+    availability IS the response that supplies the data.
+
+    All requests pass through one shared limiter (see SharedRequestLimiter) --
+    retries included, so a burst of retries cannot exceed the global rate.
+    On HTTP 429 the server's Retry-After is honored (capped) via that same
+    shared gate and the request is re-attempted at most max_429_retries times;
+    a still-throttled ticker fails closed rather than being skipped or
+    downgraded.
+
+    BOUNDED IDENTICAL-REQUEST RETRY ON 404 (2026-08-05): a 404 from a locked,
+    previously identity-validated article is treated as transient CDN
+    transport behaviour and the IDENTICAL request is re-attempted, up to
+    ANCHOR_MONTH_MAX_ATTEMPTS total, waiting ANCHOR_MONTH_404_BACKOFF_S plus
+    bounded jitter (or a longer Retry-After if the server asks for one, still
+    capped) through the shared gate. The FIRST structurally valid HTTP-200
+    wins -- no further attempt is ever made to obtain a "fresher" watermark.
+    A 404 surviving all attempts is a hard fail-closed result. Only a 404
+    OPENS a retry sequence; an invalid 200 may CONTINUE an already-open one,
+    so a first-attempt malformed response keeps its prior fail-closed
+    behaviour. 400/401/403 are never retried. Retries stop early if the next
+    wait would push past remaining_budget_s.
+
+    jitter_fn: injectable (low, high) -> float, for deterministic tests only.
+    Production uses random.uniform.
+
+    FAILS CLOSED per ticker on: missing article mapping, non-ok transport,
+    non-200 HTTP, 404, exhausted 429, empty/malformed payload, or any
+    structural problem from validate_anchor_month_response(). The caller must
+    treat any failure as "the panel has no honest shared bar this run" -- the
+    aggregate watermark is never substituted, no other request shape is
+    tried, and no cached magnitude data is consulted.
+
+    Returns {"month_start", "requested_end", "results": [...],
+    "responses": {ticker: [rows]}, "usable_count", "expected_count",
+    "failures": [...], "request_count", "pacing_waits": [...]}.
+    `responses` holds the raw validated rows IN MEMORY for Stage-2 reuse --
+    nothing here is written to the cache (see resolve_effective_panel_watermark
+    for why caching a trailing-short response would be a lie)."""
+    fetch_fn = fetch_fn or fetch_chunk_isolated
+    limiter = limiter or SharedRequestLimiter()
+    jitter_fn = jitter_fn or random.uniform
+    month_start = anchor_month_start(aggregate_watermark)
+    requested_end = aggregate_watermark
+
+    results, responses, failures = [], {}, []
+    for ticker in sorted(tickers):
+        article = ticker_to_article.get(ticker)
+        rec = {"ticker": ticker, "article": article,
+               "requested_start": month_start, "requested_end": requested_end,
+               "status": "unusable", "latest_available_date": None, "reason": "",
+               "http_status": None, "retry_after": None, "observed_count": 0,
+               "attempts": 0, "network_elapsed_s": None,
+               "anchor_month_attempt_count": 0, "anchor_month_attempt_statuses": [],
+               "anchor_month_retry_wait_seconds": [], "anchor_month_final_http_status": None,
+               "anchor_month_recovered_after_transient_404": False}
+
+        if not article:
+            rec["reason"] = "no_article_mapping"
+            results.append(rec)
+            failures.append({"ticker": ticker, "reason": rec["reason"], "http_status": None})
+            continue
+
+        # --- BOUNDED IDENTICAL-REQUEST ATTEMPT LOOP (2026-08-05) ---------
+        # Every attempt reuses the SAME article title and the SAME
+        # month_start/requested_end boundaries, so the URL, endpoint,
+        # access type, agent type and granularity are byte-identical across
+        # attempts by construction -- there is no code path here that could
+        # vary them. Retrying a DIFFERENT shape is exactly the mistake the
+        # deleted 14-day probe made.
+        opened_by_404 = False       # only a 404 opens a retry sequence
+        retries_429_used = 0
+        result = None
+        validation = None
+        budget_stop = False
+
+        for attempt in range(1, anchor_month_max_attempts + 1):
+            limiter.acquire(reason=f"{ticker}:attempt{attempt}")
+            rec["attempts"] = attempt
+            rec["anchor_month_attempt_count"] = attempt
+            result = fetch_fn(article, month_start, requested_end, timeout_s)
+            http = result.get("http_status")
+            rec["http_status"] = http
+            rec["retry_after"] = result.get("retry_after")
+            rec["network_elapsed_s"] = result.get("network_elapsed_s")
+            rec["anchor_month_final_http_status"] = http
+
+            validation = None
+            if result.get("status") == "ok" and http == 200:
+                validation = validate_anchor_month_response(
+                    ticker, article, month_start, requested_end, result.get("items") or [])
+                outcome = "200_ok" if validation["usable"] else f"200_invalid:{validation['category']}"
+            elif http is not None:
+                outcome = str(http)
+            else:
+                outcome = f"transport_{result.get('status')}"
+            rec["anchor_month_attempt_statuses"].append(outcome)
+
+            if validation is not None and validation["usable"]:
+                break   # FIRST structurally valid 200 wins -- never probe for a "fresher" one
+
+            if attempt >= anchor_month_max_attempts:
+                break
+
+            # HTTP 429 keeps its PRE-EXISTING bounded handling, unchanged by
+            # the 404 work: honor a capped Retry-After through the shared
+            # gate, re-attempt at most max_429_retries times, then fail
+            # closed. It does not consume the 404 backoff schedule.
+            if http == 429:
+                if retries_429_used < max_429_retries:
+                    retries_429_used += 1
+                    applied = limiter.note_retry_after(result.get("retry_after"))
+                    rec["anchor_month_retry_wait_seconds"].append(round(applied, 3))
+                    continue
+                break
+
+            # Which failures may be re-attempted?
+            #   404 -- the transient CDN condition this mechanism exists for.
+            #          Only a 404 OPENS a retry sequence.
+            #   an invalid 200 -- only CONTINUES an already-open sequence, so
+            #          a first-attempt malformed response keeps its existing
+            #          fail-closed behavior unchanged.
+            #   400/401/403 -- never (a client/authorization verdict is not
+            #          transient; re-asking cannot change it).
+            #   429 and 5xx/timeout/malformed-transport -- existing bounded
+            #          handling below and above respectively; unchanged here.
+            if http == 404:
+                opened_by_404 = True
+            elif not (opened_by_404 and validation is not None and not validation["usable"]):
+                break
+            if http in ANCHOR_MONTH_NEVER_RETRY_STATUSES:
+                break
+
+            scheduled = ANCHOR_MONTH_404_BACKOFF_S[min(attempt - 1,
+                                                        len(ANCHOR_MONTH_404_BACKOFF_S) - 1)]
+            wait_s = scheduled + jitter_fn(0.0, ANCHOR_MONTH_404_JITTER_S)
+            # Honor a server-supplied Retry-After when it asks for LONGER,
+            # still bounded by the module cap.
+            try:
+                if result.get("retry_after") is not None:
+                    wait_s = max(wait_s, float(result["retry_after"]))
+            except (TypeError, ValueError):
+                pass
+            wait_s = min(wait_s, AVAILABILITY_MAX_RETRY_AFTER_WAIT_S)
+
+            # Never let a retry push the run past its total-run safety budget.
+            if remaining_budget_s is not None:
+                spent = limiter.elapsed_since_start()
+                if spent + wait_s > remaining_budget_s:
+                    budget_stop = True
+                    rec["anchor_month_attempt_statuses"].append("budget_exhausted_no_further_attempt")
+                    break
+
+            rec["anchor_month_retry_wait_seconds"].append(round(wait_s, 3))
+            limiter.note_retry_after(wait_s)
+
+        # --- classify the final attempt ---------------------------------
+        if validation is not None and validation["usable"]:
+            rec.update({"status": "ok",
+                        "latest_available_date": validation["latest_available_date"],
+                        "observed_count": validation["observed_count"], "reason": "",
+                        "anchor_month_recovered_after_transient_404": opened_by_404})
+            results.append(rec)
+            responses[ticker] = list(result.get("items") or [])
+            continue
+
+        if budget_stop:
+            rec["reason"] = (f"total_run_budget_exhausted_after_{rec['attempts']}_attempt(s): "
+                             f"last status {rec['anchor_month_attempt_statuses'][-2]
+                                             if len(rec['anchor_month_attempt_statuses']) > 1
+                                             else rec['anchor_month_attempt_statuses'][-1]}")
+        elif result.get("status") != "ok":
+            rec["reason"] = (f"transport_{result.get('status')}"
+                             f"{':' + str(result.get('http_status')) if result.get('http_status') else ''}"
+                             f" after {rec['attempts']} attempt(s)")
+        elif result.get("http_status") != 200:
+            rec["reason"] = (f"http_status_not_200:{result.get('http_status')} "
+                             f"after {rec['attempts']} attempt(s)")
+        else:
+            rec["reason"] = (f"{validation['category']}: {validation['reason']} "
+                             f"after {rec['attempts']} attempt(s)")
+            rec["observed_count"] = validation["observed_count"]
+
+        results.append(rec)
+        failures.append({"ticker": ticker, "reason": rec["reason"],
+                         "http_status": rec["http_status"]})
+    return {"month_start": month_start, "requested_end": requested_end,
+            "results": results, "responses": responses,
+            "usable_count": len(responses), "expected_count": len(tickers),
+            "failures": failures, "request_count": limiter.request_count,
+            "pacing_waits": limiter.waits}
+
+
+def slice_rows_to_watermark(rows: list[dict], watermark: date) -> list[dict]:
+    """Drops observations dated after `watermark`. Pure filtering: it never
+    adds, zero-fills, interpolates, or reorders a value, so a sliced response
+    contains only rows the source actually returned."""
+    out = []
+    for r in rows:
+        try:
+            d = datetime.strptime(str(r.get("date")), "%Y%m%d").date()
+        except (TypeError, ValueError):
+            continue
+        if d <= watermark:
+            out.append(r)
+    return out
+
+
+def resolve_effective_panel_watermark(tickers: list[str], ticker_to_article: dict,
+                                       aggregate_watermark_info: dict | None = None,
+                                       fetch_fn=None, limiter=None,
+                                       timeout_s: float = CHUNK_TIMEOUT_S,
+                                       now_utc: datetime | None = None,
+                                       stage1: dict | None = None,
+                                       jitter_fn=None,
+                                       remaining_budget_s: float | None = None) -> dict:
+    """STAGE 2. Computes the single panel-wide effective watermark from the
+    Stage-1 anchor-month responses, then slices and REUSES those same
+    responses -- no second anchor-month request is ever issued.
+
+        effective_panel_watermark = min(anchor-month latest observed date)
+                                    over ALL tickers in the locked universe
+
+    Taking the minimum is what makes one shared date safe: it is, by
+    construction, a date every article demonstrably returned IN THE VERY
+    RESPONSE production will use. That last clause is what the deleted
+    14-day probe could not provide (see the module note) -- measurement and
+    retrieval are now the same observation, so they cannot disagree.
+
+    Every ticker in a run then uses this identical date for pull_start,
+    expected coverage, z-score anchoring and provenance. Per-ticker watermarks
+    are never used: different anchor dates inside one panel would make the
+    cross-section incomparable.
+
+    SCOPE, unchanged from the first attempt: this removes only TRAILING
+    unpublished dates. Each sliced response must still have EXACT daily
+    coverage from anchor_month_start through the effective watermark, and
+    every chunk before the anchor month keeps its existing exact-coverage,
+    cache-integrity, cache-union and bounded-subchunk rules untouched. An
+    interior historical gap sits below the effective watermark, is untouched
+    by lowering it, and still produces PARTIAL.
+
+    The aggregate watermark is retained as a source-health / provenance
+    observation and as the Stage-1 request bound (an UPPER bound only). It is
+    never treated as proof of per-article publication and never raises the
+    effective watermark.
+
+    FAILS CLOSED if any ticker's anchor-month response is unusable, or if any
+    sliced response lacks exact coverage through the effective watermark. A
+    minimum over a subset is not a panel watermark.
+
+    stage1: an already-executed retrieve_anchor_month_availability() result,
+    for callers that want to inspect Stage 1 separately. Omitted in normal
+    use -- this function runs Stage 1 itself.
+
+    Returns the Stage-1 provenance plus {"status", "effective_panel_watermark_date",
+    "method", "aggregate_watermark_date", "aggregate_vs_panel_lag_days",
+    "per_ticker_latest", "binding_tickers", "anchor_month_rows", ...}.
+    anchor_month_rows holds the SLICED, exactly-validated rows per ticker, kept
+    IN MEMORY for reuse by get_ticker_wikipedia_daily(). They are deliberately
+    NOT written to the cache: a response that stops short of the aggregate
+    watermark, stored under a chunk key ending at that watermark, would assert
+    a completeness it does not have."""
+    now_utc = now_utc or datetime.now(timezone.utc)
+    aggregate_watermark_info = aggregate_watermark_info or {}
+    aggregate_date = aggregate_watermark_info.get("watermark_date")
+
+    base = {"method": EFFECTIVE_WATERMARK_METHOD, "aggregate_watermark_date": aggregate_date,
+            "resolved_at_utc": now_utc.isoformat(), "expected_count": len(tickers),
+            "effective_panel_watermark_date": None, "aggregate_vs_panel_lag_days": None,
+            "per_ticker_latest": {}, "binding_tickers": [], "anchor_month_rows": {},
+            "anchor_month_start": None, "anchor_month_requested_end": None,
+            "stage1_results": [], "measured_count": 0, "unmeasured": [],
+            "request_count": 0, "pacing_waits": [], "second_anchor_month_request_issued": False}
+
+    if aggregate_date is None:
+        return {**base, "status": "failed_closed",
+                "failure_reason": "no aggregate watermark -- Stage-1 request bound is undefined"}
+
+    if stage1 is None:
+        stage1 = retrieve_anchor_month_availability(
+            tickers, ticker_to_article, aggregate_date, fetch_fn=fetch_fn,
+            limiter=limiter, timeout_s=timeout_s, jitter_fn=jitter_fn,
+            remaining_budget_s=remaining_budget_s)
+
+    base.update({"anchor_month_start": stage1["month_start"],
+                 "anchor_month_requested_end": stage1["requested_end"],
+                 "stage1_results": stage1["results"],
+                 "measured_count": stage1["usable_count"],
+                 "unmeasured": stage1["failures"],
+                 "request_count": stage1["request_count"],
+                 "pacing_waits": stage1["pacing_waits"]})
+
+    if stage1["failures"] or stage1["usable_count"] != len(tickers):
+        return {**base, "status": "failed_closed",
+                "failure_reason": (f"{len(stage1['failures'])} of {len(tickers)} ticker(s) produced no "
+                                    f"usable anchor-month response -- a minimum over a subset is not a "
+                                    f"panel watermark")}
+
+    per_ticker_latest = {r["ticker"]: r["latest_available_date"]
+                         for r in stage1["results"] if r["status"] == "ok"}
+    effective = min(per_ticker_latest.values())
+
+    # Reuse: slice each ALREADY-RETRIEVED response. No new request.
+    sliced, coverage_failures = {}, []
+    month_start = stage1["month_start"]
+    for ticker, rows in stage1["responses"].items():
+        kept = slice_rows_to_watermark(rows, effective)
+        check = validate_anchor_month_response(ticker, ticker_to_article.get(ticker),
+                                                month_start, effective, kept)
+        if not check["usable"] or check["latest_available_date"] != effective:
+            coverage_failures.append({
+                "ticker": ticker,
+                "reason": (check["reason"] or
+                           f"sliced response ends {check['latest_available_date']}, "
+                           f"expected exactly {effective.isoformat()}"),
+                "category": check["category"]})
+            continue
+        sliced[ticker] = kept
+
+    if coverage_failures:
+        return {**base, "status": "failed_closed", "per_ticker_latest": per_ticker_latest,
+                "unmeasured": base["unmeasured"] + coverage_failures,
+                "failure_reason": (f"{len(coverage_failures)} ticker(s) lack exact coverage from "
+                                    f"{month_start.isoformat()} through the effective watermark "
+                                    f"{effective.isoformat()}")}
+
+    return {**base, "status": "ok",
+            "effective_panel_watermark_date": effective,
+            "aggregate_vs_panel_lag_days": (aggregate_date - effective).days,
+            "per_ticker_latest": per_ticker_latest,
+            "binding_tickers": sorted(t for t, d in per_ticker_latest.items() if d == effective),
+            "anchor_month_rows": sliced}
+
 
 
 def compute_chunk_hash(daily_rows: list[dict]) -> str:
@@ -1006,7 +1586,8 @@ def fetch_chunk_isolated(article: str, start: date, end: date, timeout_s: float 
 
 def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date, watermark: date,
                                 cache_df: pd.DataFrame, chunk_timeout_s: float = CHUNK_TIMEOUT_S,
-                                fetch_fn=None, remaining_budget_s: float | None = None) -> dict:
+                                fetch_fn=None, remaining_budget_s: float | None = None,
+                                prefetched_chunk_rows: dict | None = None) -> dict:
     """First pass only -- no inline retry. For each calendar-month chunk,
     the completeness bar is `required_data_end(chunk_end, watermark)` --
     the SAME frozen, run-level watermark passed to every other consumer,
@@ -1034,6 +1615,17 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
     success/404/timeout/malformed responses without a real network call or
     a real subprocess spawn per case -- see
     test_phase2_wikipedia_transport.py. Production code never passes this.
+
+    prefetched_chunk_rows (2026-08-05): {(chunk_start, chunk_end): rows}
+    already retrieved this run and already validated, supplied IN MEMORY --
+    currently the Stage-1 anchor-month response (see
+    retrieve_anchor_month_availability()). A matching chunk is satisfied from
+    these rows with NO second network request and NO cache write: the rows are
+    sliced to the effective panel watermark and so stop short of their chunk's
+    nominal end, which is exactly what must never be persisted under a key
+    implying coverage through that end. They are still put through
+    validate_snapshot() below like any other source -- reuse is not a trust
+    shortcut.
 
     remaining_budget_s: optional wall-clock budget for THIS ticker's first
     pass. When given, each chunk's fetch timeout is capped to whatever
@@ -1090,6 +1682,30 @@ def get_ticker_wikipedia_daily(ticker: str, article: str, start: date, end: date
             effective_chunk_timeout = min(chunk_timeout_s, budget_left)
         else:
             effective_chunk_timeout = chunk_timeout_s
+
+        prefetched = (prefetched_chunk_rows or {}).get((chunk_start, chunk_end))
+        if prefetched is not None:
+            reuse_validation = validate_snapshot(ticker, article, chunk_start, chunk_end,
+                                                  prefetched, watermark)
+            if reuse_validation["valid"]:
+                daily_rows.extend(prefetched)
+                chunk_results.append({
+                    "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                    "source": "anchor_month_stage1", "status": "ok",
+                    "network_elapsed_s": 0.0, "sleep_s": 0.0,
+                })
+                continue
+            failed_chunks.append({
+                "ticker": ticker, "article": article, "chunk_start": chunk_start,
+                "chunk_end": chunk_end, "last_status": f"prefetched_invalid:{reuse_validation['category']}",
+                "retry_after": None, "last_http_status": None,
+            })
+            chunk_results.append({
+                "chunk_start": chunk_start.isoformat(), "chunk_end": chunk_end.isoformat(),
+                "source": "anchor_month_stage1", "status": f"invalid:{reuse_validation['category']}",
+                "network_elapsed_s": 0.0, "sleep_s": 0.0,
+            })
+            continue
 
         hit = validated_cache_hit(cache_df, ticker, article, chunk_start, chunk_end, watermark)
         if hit["hit"]:

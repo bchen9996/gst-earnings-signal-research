@@ -1,0 +1,64 @@
+raw_log_line
+[AAPL] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.23s sleep=0.00s
+[ABBV] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.34s sleep=0.00s
+[ADBE] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.29s sleep=0.00s
+[AMZN] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.36s sleep=0.00s
+[BKR] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.32s sleep=0.00s
+[BRK-B] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.25s sleep=0.00s
+[CTSH] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error http_status=404 retry_after=None network=0.39s sleep=0.00s
+[CTSH] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.24s sleep=0.00s
+[DELL] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.37s sleep=0.00s
+[GME] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.25s sleep=0.00s
+[GOOGL] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.27s sleep=0.00s
+[INTC] wiki chunk 2026-08-01..2026-08-05 source=fetch status=http_error http_status=404 retry_after=None network=0.35s sleep=0.00s
+[LDOS] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.24s sleep=0.00s
+[MSFT] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.85s sleep=0.00s
+[NCLH] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=1.06s sleep=0.00s
+[NKE] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=1.85s sleep=0.00s
+[QCOM] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.21s sleep=0.00s
+[SYK] wiki chunk 2026-08-01..2026-08-05 source=fetch status=http_error http_status=404 retry_after=None network=0.42s sleep=0.00s
+[TTWO] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=0.98s sleep=0.00s
+[UAL] wiki chunk 2026-08-01..2026-08-05 source=fetch status=incomplete_coverage http_status=200 retry_after=None network=1.38s sleep=0.00s
+[CTSH] second-pass chunk 2026-07-01..2026-07-31 status=http_error http_status=404 retry_after=None network=0.50s sleep=3.97s
+[INTC] second-pass chunk 2026-08-01..2026-08-05 status=http_error http_status=404 retry_after=None network=0.20s sleep=2.12s
+[SYK] second-pass chunk 2026-08-01..2026-08-05 status=http_error http_status=404 retry_after=None network=0.42s sleep=4.49s
+[AAPL] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[ABBV] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[ADBE] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[AMZN] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[BKR] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[BRK-B] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[CTSH] chunk 2026-07-01..2026-07-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+[CTSH] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[DELL] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[GME] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[GOOGL] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[INTC] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:http_error
+[LDOS] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[MSFT] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[NCLH] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[NKE] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[QCOM] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[SYK] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:http_error
+[TTWO] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[UAL] chunk 2026-08-01..2026-08-05 STILL FAILED after second pass: second_pass_also_failed:validation:incomplete_coverage
+[AAPL] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[ABBV] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[ADBE] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[AMZN] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[BKR] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[BRK-B] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[CTSH] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[DELL] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[GME] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[GOOGL] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[INTC] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[LDOS] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[MSFT] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[NCLH] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[NKE] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[QCOM] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[SYK] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[TTWO] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+[UAL] fallback NOT used (no_cached_snapshot_for_this_chunk) -- remains incomplete
+"[CTSH] subchunk recovery for 2026-07-01..2026-07-31: recovered=False reason=""incomplete_union: missing 7 of 31 date(s) (first few: ['20260708', '20260709', '20260710', '20260711', '20260712'])"" requests_used=5 wall_clock_s=25.8 budget_exhausted=False"

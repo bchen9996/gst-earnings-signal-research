@@ -1,0 +1,25 @@
+ticker,requested_start,requested_end,status,attempt_count,attempt_statuses,retry_wait_seconds,recovered_after_transient_404,final_http_status,observed_count,latest_available_date,reason
+AAPL,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+ABBV,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+ADBE,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+AMZN,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+BKR,2026-08-01,2026-08-04,unusable,3,404|404|404,21.098|43.136,False,404,0,,transport_http_error:404 after 3 attempt(s)
+BRK-B,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+CTSH,2026-08-01,2026-08-04,unusable,3,404|404|404,22.888|43.49,False,404,0,,transport_http_error:404 after 3 attempt(s)
+DELL,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+DVN,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+GME,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+GOOGL,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+GPN,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+INTC,2026-08-01,2026-08-04,unusable,3,404|404|404,21.308|42.115,False,404,0,,transport_http_error:404 after 3 attempt(s)
+LDOS,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+MSFT,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+NCLH,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+NKE,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+QCOM,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+SBUX,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+STZ,2026-08-01,2026-08-04,unusable,3,404|404|404,23.352|41.762,False,404,0,,transport_http_error:404 after 3 attempt(s)
+SYK,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+TSLA,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+TTWO,2026-08-01,2026-08-04,ok,1,200_ok,,False,200,4,2026-08-04,
+UAL,2026-08-01,2026-08-04,unusable,3,404|404|404,21.728|40.051,False,404,0,,transport_http_error:404 after 3 attempt(s)
