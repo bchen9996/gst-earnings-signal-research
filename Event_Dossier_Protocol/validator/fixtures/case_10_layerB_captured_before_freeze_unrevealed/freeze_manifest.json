@@ -5,31 +5,31 @@
   "layer_a_artifact_hashes": [
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claim_sources.csv",
-      "sha256": "2641e67d66e474432a28ff6ed9d3ee2d80d481f0f653adbd6bb9c041dc0c8bde"
+      "sha256": "f134a6bbf6afa3600f209e8fa5e3c69c6b32bbfc64339075349551486d9edaf4"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claims.csv",
-      "sha256": "df341ab90aa21a9fe165aea2f8c3107fc241a1fbcb49ea20d2e6ab1fef65779d"
+      "sha256": "86f0635bcb0e27ce0e156bad90c0a7fae4015486b00507df7dcb07f10a120e3a"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label.csv",
-      "sha256": "6e9b5542c24bfab50b33663a4f337c190f3ed3804ae05b04f8828313e09dc551"
+      "sha256": "4bb022e15668212cbce4553b74c8fde4b6edb20cb4b96dab8a5f68c0f74c5568"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_capex_effects.csv",
-      "sha256": "c9794959c9e3e51ee14df676ff93b87bc4c4a69a96adce8276e1647e2f8e2919"
+      "sha256": "f1efd479c71da855c8127b27fe0b330e9554c9f802483e8d715d5ba3647ab99d"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_cross_company_implications.csv",
-      "sha256": "9ad898fd0d3b3001f208fbf84d1404a2c445ad5c05b39614766c8e910aab58d1"
+      "sha256": "5bcf5ed8c6a44280046113c7bbe646c7d723e8b621f6fe12e150c61ff6073ef9"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/events.csv",
-      "sha256": "0044b86c81d99833a1c369ec0031772484c0f342588f3057208c9e314e012294"
+      "sha256": "3cf6c28a75054db13caafb981590a6bb5506166f1fcb3feda0eca006936e32fa"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/management_qna.csv",
-      "sha256": "274dc2215585b51948ff4f553a56b0b22554d21ace24c5a21371423eb0b5f8df"
+      "sha256": "79f989d7c3ae39669bcf720912a76822e4a2cc264042480000ec03b8e91a085a"
     }
   ],
   "freeze_timestamp_utc": "2026-08-02T10:00:00+00:00",

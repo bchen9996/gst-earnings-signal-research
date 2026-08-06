@@ -1,0 +1,14 @@
+Sentinel so Git preserves this directory in a fresh checkout.
+
+case_49_empty_directory must exist and contain NO dossier or schema artifacts:
+it is the fixture that proves an empty directory fails the required_tables gate
+in every validation mode. Git cannot track an empty directory, so without this
+file the directory vanishes on clone and the fixture silently disappears --
+which is what broke test_all_fixture_dirs_exist and
+test_fixture_count_matches_directory on Linux CI.
+
+This file is not a dossier table, not a schema, and not a freeze manifest. The
+validator never sees it: its only directory scan is glob("freeze_manifest*.json"),
+and the required_tables gate looks for named tables (events.csv, claims.csv, ...).
+So case 49 keeps its exact expected verdict -- FAIL on required_tables in draft,
+proposed and freeze modes. Do not add any other file here.
