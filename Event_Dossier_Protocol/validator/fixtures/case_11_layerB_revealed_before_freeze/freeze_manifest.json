@@ -1,0 +1,45 @@
+{
+  "event_id": "EVT-AAPL-FY26Q3-ERN",
+  "label_id": "EVT-AAPL-FY26Q3-ERN-LBL-01",
+  "protocol_version": "0.1",
+  "layer_a_artifact_hashes": [
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claim_sources.csv",
+      "sha256": "4267e0f533fccec32ef56e97720de141ad5dcdfe311bb1ff8a41fa81b0b0087f"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claims.csv",
+      "sha256": "ca2c660ec77937c5ac5a01e22b3e4c2c25a210ca5899f62610a955d4005ce554"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label.csv",
+      "sha256": "f813e38ecfe2da539e122523bdeee6dde382f01ef94c47d9be268228e296f708"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_capex_effects.csv",
+      "sha256": "f1efd479c71da855c8127b27fe0b330e9554c9f802483e8d715d5ba3647ab99d"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_cross_company_implications.csv",
+      "sha256": "5bcf5ed8c6a44280046113c7bbe646c7d723e8b621f6fe12e150c61ff6073ef9"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/events.csv",
+      "sha256": "3cf6c28a75054db13caafb981590a6bb5506166f1fcb3feda0eca006936e32fa"
+    },
+    {
+      "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/management_qna.csv",
+      "sha256": "79f989d7c3ae39669bcf720912a76822e4a2cc264042480000ec03b8e91a085a"
+    }
+  ],
+  "freeze_timestamp_utc": "2026-08-02T10:00:00+00:00",
+  "frozen_by": "jane.reviewer",
+  "reviewer_capture_exposure_log": [],
+  "reveal_events": [
+    {
+      "layer": "B_market_response",
+      "revealed_at_utc": "2026-08-02T09:00:00+00:00",
+      "revealed_by": "jane.reviewer"
+    }
+  ]
+}
