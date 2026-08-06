@@ -1,0 +1,38 @@
+# Cross-platform fixture packaging for the Event Dossier Protocol.
+#
+# WHY THIS EXISTS
+#
+# The freeze_manifest gate hashes artifact bytes and compares the result to the
+# sha256 recorded in freeze_manifest*.json. Git stores every textual artifact in
+# this directory as LF (all 454 tracked blobs were verified pure LF), but Git for
+# Windows ships core.autocrlf=true in its system config, so a Windows checkout
+# materialises those same blobs as CRLF. A manifest whose hashes were computed
+# from the Windows *working tree* therefore records CRLF-derived digests that no
+# LF checkout -- Linux CI, macOS, or any clone with core.autocrlf=false -- can
+# reproduce. That is exactly what happened: the manifests committed before
+# 2026-08-06 were accidentally calculated from Windows CRLF working-tree bytes,
+# which is why the validator suite passed locally on Windows and failed on every
+# GitHub Actions run.
+#
+# Pinning eol=lf makes the working-tree bytes byte-identical to the committed
+# blob bytes on every platform, so a hash computed anywhere is the hash CI
+# verifies. Git's committed blob bytes are the canonical form.
+#
+# SCOPE
+#
+# Deliberately narrow: this file applies only to Event_Dossier_Protocol/ and
+# leaves the rest of the repository's line-ending behaviour untouched. It
+# changes no global or system Git configuration.
+
+*.csv  text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.py   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.txt  text eol=lf
+
+# Extensionless textual files under this directory, so nothing here is left to
+# the system-wide core.autocrlf=true default.
+.gitattributes text eol=lf
+.gitkeep       text eol=lf
