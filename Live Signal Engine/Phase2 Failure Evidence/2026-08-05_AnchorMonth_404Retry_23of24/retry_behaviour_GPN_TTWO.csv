@@ -1,0 +1,6 @@
+ticker,article,requested_start,requested_end,attempt_number,attempt_status,wait_before_this_attempt_s,outcome
+GPN,Global Payments,2026-08-01,2026-08-04,1,404,,failed
+GPN,Global Payments,2026-08-01,2026-08-04,2,200_ok,24.822,recovered
+TTWO,Take-Two Interactive,2026-08-01,2026-08-04,1,404,,failed
+TTWO,Take-Two Interactive,2026-08-01,2026-08-04,2,404,24.576,failed
+TTWO,Take-Two Interactive,2026-08-01,2026-08-04,3,404,43.758,failed

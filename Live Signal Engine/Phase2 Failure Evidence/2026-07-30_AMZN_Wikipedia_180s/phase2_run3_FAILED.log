@@ -1,0 +1,98 @@
+*** GST PHASE 2 -- DAILY INFORMATION ARRIVAL PANEL (MANUAL TEST RUN 3) ***
+Run timestamp (UTC): 2026-07-30T18:35:11.800681+00:00
+Universe: 24 tickers
+Budgets: GST=480s/ticker  Wiki=180s/ticker  yfinance-call=45s  per-ticker=900s  total-run=2700s
+
+  [AAPL] START earnings
+  [AAPL] DONE  earnings  status=ok elapsed=1.10s value=0
+  [AAPL] START price_history
+  [AAPL] DONE  price_history  status=ok elapsed=0.24s rows=125
+  [AAPL] START realized_vol
+  [AAPL] DONE  realized_vol  status=ok elapsed=0.00s value=0.2827699374951829
+  [AAPL] START iv
+  [AAPL] DONE  iv  status=ok elapsed=0.47s iv=0.581852
+  [AAPL] iv semantic validation: contract_status=quoted iv_suspicious=False status=VALID_QUOTED expiry_after_earnings=True
+  [AAPL] START gst
+  [AAPL] DONE  gst  status=ok elapsed=0.58s retries=1 rate_limit_events=0 z=1.667
+  [AAPL] START wiki
+  [AAPL] DONE  wiki  status=ok elapsed=0.42s z=-6.1699
+[1/24] AAPL: 2.82s  CLEAN  gst_z=1.667 wiki_z=-6.1699 iv=0.581852 rv=0.2827699374951829 price=333.56988525390625 vol=34368306 days_to_earnings=0
+  [ABBV] START earnings
+  [ABBV] DONE  earnings  status=ok elapsed=0.67s value=1
+  [ABBV] START price_history
+  [ABBV] DONE  price_history  status=ok elapsed=0.09s rows=125
+  [ABBV] START realized_vol
+  [ABBV] DONE  realized_vol  status=ok elapsed=0.00s value=0.2784838549898489
+  [ABBV] START iv
+  [ABBV] DONE  iv  status=ok elapsed=0.28s iv=0.594731
+  [ABBV] iv semantic validation: contract_status=quoted iv_suspicious=False status=VALID_QUOTED expiry_after_earnings=False
+  [ABBV] START gst
+    [ABBV] attempt 1 failed: The request failed: Google returned a response with code 429 -- sleeping 21.2s (budget remaining after: 458s)
+    [ABBV] attempt 2 failed: The request failed: Google returned a response with code 429 -- sleeping 43.3s (budget remaining after: 414s)
+  [ABBV] DONE  gst  status=ok elapsed=66.66s retries=3 rate_limit_events=2 z=0.226
+  [ABBV] START wiki
+  [ABBV] DONE  wiki  status=ok elapsed=0.42s z=-5.7645
+[2/24] ABBV: 68.12s  CLEAN  gst_z=0.226 wiki_z=-5.7645 iv=0.594731 rv=0.2784838549898489 price=258.9750061035156 vol=3110334 days_to_earnings=1
+  [ADBE] START earnings
+  [ADBE] DONE  earnings  status=ok elapsed=0.83s value=42
+  [ADBE] START price_history
+  [ADBE] DONE  price_history  status=ok elapsed=0.20s rows=125
+  [ADBE] START realized_vol
+  [ADBE] DONE  realized_vol  status=ok elapsed=0.00s value=0.509193777467013
+  [ADBE] START iv
+  [ADBE] DONE  iv  status=ok elapsed=0.35s iv=0.46021
+  [ADBE] iv semantic validation: contract_status=quoted iv_suspicious=False status=VALID_QUOTED expiry_after_earnings=False
+  [ADBE] START gst
+  [ADBE] DONE  gst  status=ok elapsed=0.83s retries=1 rate_limit_events=0 z=0.663
+  [ADBE] START wiki
+  [ADBE] DONE  wiki  status=ok elapsed=0.20s z=-5.3606
+[3/24] ADBE: 2.42s  CLEAN  gst_z=0.663 wiki_z=-5.3606 iv=0.46021 rv=0.509193777467013 price=248.77000427246094 vol=4577700 days_to_earnings=42
+  [AMZN] START earnings
+  [AMZN] DONE  earnings  status=ok elapsed=2.04s value=0
+  [AMZN] START price_history
+  [AMZN] DONE  price_history  status=ok elapsed=0.17s rows=125
+  [AMZN] START realized_vol
+  [AMZN] DONE  realized_vol  status=ok elapsed=0.00s value=0.2935988265160873
+  [AMZN] START iv
+  [AMZN] DONE  iv  status=ok elapsed=0.39s iv=1.208866
+  [AMZN] iv semantic validation: contract_status=quoted iv_suspicious=False status=VALID_QUOTED expiry_after_earnings=True
+  [AMZN] START gst
+  [AMZN] DONE  gst  status=ok elapsed=0.82s retries=1 rate_limit_events=0 z=0.274
+  [AMZN] START wiki
+    2025-10-03..2026-07-30 failed -- bisecting at 2026-03-02
+    2025-10-03..2026-03-02 failed -- bisecting at 2025-12-17
+  [AMZN] DONE  wiki  status=timeout elapsed=180.00s -- call was NOT terminated, may still be running -- failing closed
+
+*** FAIL CLOSED: leg 'wiki' timed out for ticker 'AMZN'. The underlying call was NOT terminated and may still be running in the background against shared state. Not starting anything else. ***
+
+Completion marker written: Live Signal Engine\GST_Phase2_DailyPanel_TestRun_2026-07-30_run3_COMPLETION_MARKER.json
+{
+  "status": "PARTIAL",
+  "row_count": 3,
+  "unique_ticker_count": 3,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 3,
+  "field_completeness_pct": {
+    "gst_zscore": 100.0,
+    "wiki_zscore": 100.0,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 0,
+    "wiki": 0
+  },
+  "elapsed_s": 263.9,
+  "elapsed_min": 4.4,
+  "active_ticker_when_stopped": "AMZN",
+  "active_leg_when_stopped": "wiki",
+  "checkpoint_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-07-30_run3_CHECKPOINT_PARTIAL.csv",
+  "final_path": null,
+  "generated_at_utc": "2026-07-30T18:39:36.016932+00:00"
+}

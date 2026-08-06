@@ -1,0 +1,16 @@
+metric,value
+cache_sha256_before,2cc29ddeb3f8dcc7c3f1075a3a5813ff90a292341e734cf9de2255d0801ad93d
+cache_sha256_after,2cc29ddeb3f8dcc7c3f1075a3a5813ff90a292341e734cf9de2255d0801ad93d
+byte_identical,TRUE
+mtime_unchanged,TRUE
+rows_before,8238
+rows_after,8238
+chunks_before,329
+chunks_after,329
+rows_added,0
+rows_removed,0
+inplace_changes,0
+cache_mutations_total,0
+verify_cache_integrity_problems,0
+mutations_requiring_http200_mapping,0
+mapping_note,"zero mutations occurred, so the mapping requirement is vacuously satisfied"

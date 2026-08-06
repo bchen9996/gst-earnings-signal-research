@@ -1,0 +1,25 @@
+timestamp_utc,trial_label,ticker,article,start,end,days,http_status,elapsed_s,bytes,retry_after,items,notes
+2026-07-30T(diagnostic1),AMZN full 300d attempt 1,AMZN,Amazon (company),20251003,20260730,300,404,0.24,,none,,first failing request observed
+2026-07-30T(diagnostic1),AMZN left half 150d,AMZN,Amazon (company),20251003,20260302,150,404,0.16,,none,,
+2026-07-30T(diagnostic1),AMZN left-left 75d,AMZN,Amazon (company),20251003,20251217,75,200,0.13,11642,none,76,
+2026-07-30T(diagnostic1),AMZN right-left 75d,AMZN,Amazon (company),20251218,20260302,75,404,0.32,,none,,
+2026-07-30T(diagnostic1),AMZN right half 150d,AMZN,Amazon (company),20260303,20260730,150,200,0.41,22809,none,149,
+2026-07-30T(diagnostic1),AAPL control full 300d,AAPL,Apple Inc.,20251003,20260730,300,200,0.31,44116,none,300,identical window to AMZN's 404
+2026-07-30T(diagnostic1),AAPL control left half,AAPL,Apple Inc.,20251003,20260302,150,200,0.30,22208,none,151,identical window to AMZN's 404
+2026-07-30T(diagnostic1),AAPL control left-left,AAPL,Apple Inc.,20251003,20251217,75,200,0.17,11183,none,76,
+2026-07-30T(diagnostic1),AAPL control right-left,AAPL,Apple Inc.,20251218,20260302,75,200,0.32,11036,none,75,identical window to AMZN's 404
+2026-07-30T(diagnostic1),AAPL control right half,AAPL,Apple Inc.,20260303,20260730,150,200,0.42,21919,none,149,
+2026-07-30T(diagnostic1),AMZN re-probe minutes later,AMZN,Amazon (company),20251003,20260730,300,200,0.29,45916,none,300,identical URL to the first failing request; now succeeds
+2026-07-31T05:08:14.533Z,AMZN full-range trial 1/3,AMZN,Amazon (company),20251003,20260730,300,200,0.36,46070,none,301,
+2026-07-31T05:08:17.891Z,AMZN full-range trial 2/3,AMZN,Amazon (company),20251003,20260730,300,200,0.28,46070,none,301,
+2026-07-31T05:08:21.176Z,AMZN full-range trial 3/3,AMZN,Amazon (company),20251003,20260730,300,200,0.21,46070,none,301,
+2026-07-31T05:08:24.384Z,AAPL control trial 1/3,AAPL,Apple Inc.,20251003,20260730,300,200,0.40,44263,none,301,
+2026-07-31T05:08:27.782Z,AAPL control trial 2/3,AAPL,Apple Inc.,20251003,20260730,300,200,0.20,44263,none,301,
+2026-07-31T05:08:30.984Z,AAPL control trial 3/3,AAPL,Apple Inc.,20251003,20260730,300,200,0.32,44263,none,301,
+2026-07-31T05:08:34.309Z,AMZN full 300d,AMZN,Amazon (company),20251003,20260730,300,200,0.38,46070,none,301,
+2026-07-31T05:08:36.694Z,AMZN first half 150d,AMZN,Amazon (company),20251003,20260302,150,404,0.18,,none,,SAME range failed in both real production attempts AND this diagnostic - 3/3 failures
+2026-07-31T05:08:38.880Z,AMZN second half 150d,AMZN,Amazon (company),20260303,20260730,150,200,0.38,22963,none,150,
+2026-07-31T05:08:41.260Z,AMZN Q1 quarter 75d,AMZN,Amazon (company),20251003,20251217,75,200,0.17,11642,none,76,
+2026-07-31T05:08:43.435Z,AMZN Q2 quarter 75d,AMZN,Amazon (company),20251218,20260302,75,200,0.18,11487,none,75,
+2026-07-31T05:08:45.617Z,AMZN Q2a sub-split 32d,AMZN,Amazon (company),20251218,20260118,32,200,0.15,4907,none,32,
+2026-07-31T05:08:47.767Z,AMZN Q2b sub-split 43d,AMZN,Amazon (company),20260119,20260302,43,404,0.15,,none,,sub-range of the Q2 quarter that just succeeded whole seconds earlier

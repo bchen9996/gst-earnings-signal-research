@@ -1,0 +1,6 @@
+label,url,timestamp_utc,http_status,returned_timestamps,views,elapsed_s,retry_after,error
+July 30 individually (aggregate),https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026073000/2026073000,2026-08-01T03:54:11.130572+00:00,200,2026073000,209166202,0.347,,
+July 31 individually (aggregate),https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026073100/2026073100,2026-08-01T03:54:11.477149+00:00,404,,,0.391,,http_error
+"July 29-31 range (aggregate), sanity check",https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026072900/2026073100,2026-08-01T03:54:11.868918+00:00,200,2026072900;2026073000,212552950;209166202,0.283,,
+July 31 individually (aggregate) -- re-probe 2s later,https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026073100/2026073100,2026-08-01T03:54:14.152337+00:00,404,,,0.281,,http_error
+"July 28 individually (aggregate), control",https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026072800/2026072800,2026-08-01T03:54:14.433761+00:00,200,2026072800,214945324,0.335,,

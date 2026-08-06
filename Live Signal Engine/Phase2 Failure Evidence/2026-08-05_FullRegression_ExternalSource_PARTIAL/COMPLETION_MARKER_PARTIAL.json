@@ -1,0 +1,478 @@
+{
+  "status": "PARTIAL",
+  "row_count": 24,
+  "unique_ticker_count": 24,
+  "expected_ticker_count": 24,
+  "all_six_fields_clean_count": 0,
+  "earnings_lookup_ok_count": 24,
+  "days_to_nearest_earnings_nonnull_count": 23,
+  "field_completeness_pct": {
+    "gst_zscore": 87.5,
+    "wiki_zscore": 0.0,
+    "implied_volatility": 100.0,
+    "realized_vol": 100.0,
+    "price": 100.0,
+    "volume": 100.0
+  },
+  "failed_source_counts": {
+    "earnings": 0,
+    "price_history": 0,
+    "realized_vol": 0,
+    "iv": 0,
+    "gst": 3,
+    "wiki": 24
+  },
+  "elapsed_s": 1991.0,
+  "elapsed_min": 33.18,
+  "active_ticker_when_stopped": null,
+  "active_leg_when_stopped": null,
+  "checkpoint_path": "Live Signal Engine\\GST_Phase2_DailyPanel_TestRun_2026-08-05_run3_CHECKPOINT_PARTIAL.csv",
+  "final_path": null,
+  "generated_at_utc": "2026-08-05T17:06:52.247317+00:00",
+  "wiki_data_watermark": {
+    "status": "ok",
+    "watermark_date": "2026-08-04",
+    "lag_days": 1,
+    "retrieved_at_utc": "2026-08-05T16:26:22.979964+00:00",
+    "source_url": "https://wikimedia.org/api/rest_v1/metrics/pageviews/aggregate/en.wikipedia.org/all-access/user/daily/2026080400/2026080400",
+    "http_status": 200
+  },
+  "wiki_effective_panel_watermark": {
+    "status": "failed_closed",
+    "effective_panel_watermark_date": null,
+    "method": "min_anchor_month_observed_latest_same_response",
+    "aggregate_vs_panel_lag_days": null,
+    "measured_count": 19,
+    "expected_count": 24,
+    "binding_tickers": [],
+    "unmeasured": [
+      {
+        "ticker": "BKR",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "CTSH",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "INTC",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "STZ",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      },
+      {
+        "ticker": "UAL",
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "http_status": 404
+      }
+    ],
+    "resolved_at_utc": "2026-08-05T16:26:23.226425+00:00",
+    "per_ticker_latest_available_date": {},
+    "anchor_month_request": {
+      "requested_start": "2026-08-01",
+      "requested_end": "2026-08-04",
+      "request_count": 34,
+      "total_pacing_wait_s": 364.653,
+      "min_request_interval_s": 3.5
+    },
+    "anchor_month_observed": {
+      "AAPL": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "ABBV": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "ADBE": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "AMZN": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "BKR": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          21.098,
+          43.136
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "BRK-B": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "CTSH": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          22.888,
+          43.49
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "DELL": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "DVN": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "GME": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "GOOGL": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "GPN": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "INTC": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          21.308,
+          42.115
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "LDOS": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "MSFT": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "NCLH": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "NKE": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "QCOM": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "SBUX": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "STZ": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          23.352,
+          41.762
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      },
+      "SYK": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "TSLA": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "TTWO": {
+        "status": "ok",
+        "observed_count": 4,
+        "latest_available_date": "2026-08-04",
+        "http_status": 200,
+        "attempts": 1,
+        "reason": "",
+        "anchor_month_attempt_count": 1,
+        "anchor_month_attempt_statuses": [
+          "200_ok"
+        ],
+        "anchor_month_retry_wait_seconds": [],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 200
+      },
+      "UAL": {
+        "status": "unusable",
+        "observed_count": 0,
+        "latest_available_date": null,
+        "http_status": 404,
+        "attempts": 3,
+        "reason": "transport_http_error:404 after 3 attempt(s)",
+        "anchor_month_attempt_count": 3,
+        "anchor_month_attempt_statuses": [
+          "404",
+          "404",
+          "404"
+        ],
+        "anchor_month_retry_wait_seconds": [
+          21.728,
+          40.051
+        ],
+        "anchor_month_recovered_after_transient_404": false,
+        "anchor_month_final_http_status": 404
+      }
+    },
+    "anchor_month_response_reuse": {
+      "tickers_reused": [],
+      "reused_in_memory_only": true,
+      "written_to_cache": false,
+      "second_anchor_month_request_issued": false
+    }
+  }
+}

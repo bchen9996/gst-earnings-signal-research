@@ -1,0 +1,26 @@
+ticker,chunk_start,chunk_end,rows_written,log_line_status,log_line_http_status,log_line_raw,verified_http_200
+AAPL,2026-08-01,2026-08-03,1,ok,200,[AAPL] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.21s sleep=0.00s,TRUE
+ABBV,2026-08-01,2026-08-03,1,ok,200,[ABBV] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.27s sleep=0.00s,TRUE
+ADBE,2026-08-01,2026-08-03,1,ok,200,[ADBE] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.23s sleep=0.00s,TRUE
+AMZN,2026-08-01,2026-08-03,1,ok,200,[AMZN] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.24s sleep=0.00s,TRUE
+BKR,2026-08-01,2026-08-03,1,ok,200,[BKR] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.34s sleep=0.00s,TRUE
+BRK-B,2026-08-01,2026-08-03,1,ok,200,[BRK-B] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.22s sleep=0.00s,TRUE
+CTSH,2026-08-01,2026-08-03,1,ok,200,[CTSH] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.31s sleep=0.00s,TRUE
+DELL,2026-08-01,2026-08-03,1,ok,200,[DELL] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.23s sleep=0.00s,TRUE
+DVN,2026-08-01,2026-08-03,1,ok,200,[DVN] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.21s sleep=0.00s,TRUE
+GME,2026-08-01,2026-08-03,1,ok,200,[GME] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.30s sleep=0.00s,TRUE
+GOOGL,2026-08-01,2026-08-03,1,ok,200,[GOOGL] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.29s sleep=0.00s,TRUE
+GPN,2026-08-01,2026-08-03,1,ok,200,[GPN] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.22s sleep=0.00s,TRUE
+INTC,2026-08-01,2026-08-03,1,ok,200,[INTC] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=1.01s sleep=0.00s,TRUE
+LDOS,2026-08-01,2026-08-03,1,ok,200,[LDOS] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.64s sleep=0.00s,TRUE
+MSFT,2026-08-01,2026-08-03,1,ok,200,[MSFT] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.25s sleep=0.00s,TRUE
+NCLH,2026-08-01,2026-08-03,1,ok,200,[NCLH] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.33s sleep=0.00s,TRUE
+NKE,2026-08-01,2026-08-03,1,ok,200,[NKE] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.31s sleep=0.00s,TRUE
+QCOM,2026-08-01,2026-08-03,1,ok,200,[QCOM] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.33s sleep=0.00s,TRUE
+SBUX,2026-08-01,2026-08-03,1,ok,200,[SBUX] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.32s sleep=0.00s,TRUE
+STZ,2026-08-01,2026-08-03,1,ok,200,[STZ] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.27s sleep=0.00s,TRUE
+SYK,2026-08-01,2026-08-03,1,ok,200,[SYK] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.30s sleep=0.00s,TRUE
+TSLA,2026-07-01,2026-07-31,31,ok,200,[TSLA] wiki chunk 2026-07-01..2026-07-31 source=fetch status=ok http_status=200 retry_after=None network=0.27s sleep=0.00s,TRUE
+TSLA,2026-08-01,2026-08-03,1,ok,200,[TSLA] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.22s sleep=0.00s,TRUE
+TTWO,2026-08-01,2026-08-03,1,ok,200,[TTWO] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.43s sleep=0.00s,TRUE
+UAL,2026-08-01,2026-08-03,1,ok,200,[UAL] wiki chunk 2026-08-01..2026-08-03 source=fetch status=ok http_status=200 retry_after=None network=0.40s sleep=0.00s,TRUE
