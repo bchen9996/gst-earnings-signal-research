@@ -41,6 +41,9 @@ def test_workflow_exists_and_is_wired_up():
     check("1e. it pins a specific Python version", 'python-version: "3.12"' in text)
     check("1f. it installs the repository's pinned requirements",
           "pip install -r requirements.txt" in text)
+    check("1i. it also installs the validator's own pinned requirements, which "
+          "test_market_response_layer_b_emission.py and the validator step both need",
+          "pip install -r Event_Dossier_Protocol/validator/requirements.txt" in text)
     check("1g. it never grants write permissions",
           "contents: write" not in text and "packages: write" not in text)
 
