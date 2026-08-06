@@ -1,0 +1,91 @@
+name: Market Response Tests
+
+# Deterministic-only CI for the market-response module and its cross-protocol
+# integration with the Event Dossier Protocol.
+#
+# This job discovers and runs EVERY test_market_response*.py file at the
+# repository root, so a new deterministic test file is picked up without a
+# workflow edit, and it fails loudly if discovery finds nothing (a silently
+# empty suite would otherwise report success).
+#
+# It never touches live market data, broker APIs, GST, Wikipedia, SEC filings,
+# or news sources, and it consumes no credential of any kind. Two structural
+# facts make that true rather than merely intended: the repository's live smoke
+# script is deliberately named off the test_* pattern, so no discovery
+# convention can reach it, and the daily panel entry point is never invoked
+# here. The provider diagnostics are exercised only through their
+# fixture-backed harness tests.
+#
+# test_market_response_ci_workflow.py asserts all of the above against this
+# file, by scanning it for any live-network, panel, or credential reference.
+# That scan covers comments too -- which is why the names of those forbidden
+# entry points are described here rather than spelled out.
+on:
+  pull_request:
+    paths:
+      - "gst_market_response/**"
+      - "test_market_response*.py"
+      - "Event_Dossier_Protocol/**"
+      - "Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md"
+      - "Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md"
+      - "Live Signal Engine/GST_MARKET_RESPONSE_OPERATIONAL_READINESS_CHECKLIST_v0.1.md"
+      - "Live Signal Engine/GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md"
+      - "Live Signal Engine/GST_Sector_ETF_Mapping_v0.1.json"
+      - "requirements.txt"
+      - ".github/workflows/market-response-tests.yml"
+  workflow_dispatch: {}
+
+# Least privilege: this job only reads the repository and runs tests. It never
+# writes to the repo, never opens issues/PRs, and consumes no repository or
+# organisation credential.
+permissions:
+  contents: read
+
+jobs:
+  market-response-tests:
+    name: Deterministic market-response and cross-protocol tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Discover and run every deterministic market-response test file
+        run: |
+          set -e
+          files=$(ls test_market_response*.py)
+          if [ -z "$files" ]; then
+            echo "No test_market_response*.py files discovered -- failing rather than reporting a vacuous success."
+            exit 1
+          fi
+          count=$(echo "$files" | wc -l)
+          echo "Discovered $count test file(s):"
+          echo "$files"
+          for f in $files; do
+            echo "=== Running $f ==="
+            python "$f"
+          done
+
+      - name: Run the Event Dossier validator suite (cross-protocol dependency)
+        working-directory: Event_Dossier_Protocol/validator
+        run: |
+          set -e
+          files=$(ls test_*.py)
+          if [ -z "$files" ]; then
+            echo "No validator test files discovered -- failing."
+            exit 1
+          fi
+          echo "Discovered validator test files:"
+          echo "$files"
+          for f in $files; do
+            echo "=== Running $f ==="
+            python "$f"
+          done

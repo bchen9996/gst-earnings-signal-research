@@ -128,8 +128,54 @@ can be called production-ready — see the blockers below.
       docstring instructed — by corrected-boundary assertions in the new file). **Full 21-file suite: 737 → 823
       checks, all passing, zero regressions**, verified in *both* clearance states.
 
+## Done — fifth pass (2026-08-06, this update): cross-protocol integration hardening
+
+Merging main (carrying the Event Dossier Protocol from PR #2) into this branch put Phase 2, the Event Dossier
+Protocol and Market Response in one tree for the first time. Six integration defects surfaced and were fixed.
+**No prospective event was selected or registered, no dossier was created, no panel was run, no live
+market-data request or broker order was made, and no trading strategy was tested.**
+
+- [x] **Session-vocabulary boundary** (`protocol_boundary.py`) — this module's `BMO`/`INTRADAY`/`AMC` and the
+      protocol's `before_open`/`during_session`/`after_close` are both left unchanged; one pure, total translation
+      function converts between them at the boundary. Exact, case-sensitive matching; `SessionVocabularyError` on
+      unknown/blank/malformed/wrong-typed input; **never infers a session from a timestamp**. A test proves the
+      shipped validator accepts the translated value and rejects the untranslated one.
+- [x] **Phase 2 `complete_recent_cache_fallback` handled correctly** (`phase2_adapter.py`) — previously collapsed to
+      `error`, mislabelling a Phase-2-complete observation as a failure. Now an explicit allowlist maps it to its own
+      success category `ok_recent_cache_fallback` (never folded into plain `ok`, so cache-served data is never
+      presented as fresh), with the exact original Phase 2 string preserved in new `source_status_*_raw` fields.
+      Unknown non-blank statuses fail closed to `error` while retaining their raw value. Phase 2's own status values,
+      completeness rules, source selection and panel output are untouched.
+- [x] **Canonical drift guards** (`test_market_response_canonical_drift.py`) — the locked 24-ticker universe and the
+      event-ID pattern are compared against their *executable* canonical definitions (`locked_universe_v0.1.json`
+      and the validator module itself, loaded and executed rather than text-parsed). Any divergence, including
+      ordering, now fails a test. Tickers and event-ID syntax unchanged. The stale comments claiming the protocol
+      was unreachable from this branch are corrected.
+- [x] **Layer B emission boundary** (`layer_b_addendum.py`) — the protocol's `market_response_addendum.csv` schema
+      had no producer; it now has one. Column order read from the protocol's schema file. Only `COMPLETE`
+      market-response records are eligible; PARTIAL/ABSTAIN and non-terminal states are refused; Layer A event and
+      label must exist and agree; timestamps must be timezone-aware; `price_reaction_window` is required whenever
+      `price_reaction_pct` is set. **Missing values stay empty and are never zero-filled**; a real measured `0.0` is
+      preserved as `0.0`. Append-only and atomic — an existing `addendum_id` raises rather than being overwritten,
+      an amendment leaves the original row byte-identical, and no Layer A table or freeze manifest is ever written.
+      Emission is verified by running the real, unmodified validator over the combined fixture in all three modes.
+      Per the protocol's corrected capture-vs-reveal rule (README 2026-08-02) and fixture
+      `case_10_layerB_captured_before_freeze_unrevealed`, **capture is deliberately not gated on freeze** — reveal
+      is, and reveal lives in the freeze manifest this emitter never touches.
+- [x] **Real CI for this lane** (`.github/workflows/market-response-tests.yml`) — until now PR #3 had **no CI at
+      all**, because the only workflow was path-filtered to `Event_Dossier_Protocol/**`. The new workflow discovers
+      every `test_market_response*.py` (failing if discovery finds none), also runs the Event Dossier validator
+      suite, uses least privilege and pinned Python/requirements, and never invokes the live smoke script, a
+      provider diagnostic, the panel, or anything needing a credential or network.
+
+Suite totals after this pass: Phase 2 **12 files / 617 assertions**; Market Response **15 files / 601 assertions**;
+Event Dossier validator **27 e2e assertions + 21 unit tests**. All re-run with outbound sockets blocked.
+
 ## NOT done — remaining blockers before the first real event can be registered
 
+0. **A Layer A dossier for the chosen event must exist before Layer B can be emitted for it.** The emitter refuses
+   an addendum whose Layer A event/label is absent or disagrees. Emission has only ever been exercised against
+   synthetic fixtures; it has never run against a real dossier, by design.
 1. **One complete prospective earnings event is still required.** This is now the primary blocker. Nothing about a
    benchmark-ticker diagnostic on a historical session substitutes for capturing one real event end to end.
 2. **Clearance rests on one session and two benchmark tickers.** Neither ticker is in the locked 24-ticker

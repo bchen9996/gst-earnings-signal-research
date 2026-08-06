@@ -1,10 +1,18 @@
 # Constants mirrored verbatim from existing, unchanged sources -- see
 # SPEC_v0.1_DRAFT.md "Reused components" table. These are copied rather than
-# imported because their canonical sources (GST_Phase2_DailyPanel.py at repo
-# root; the Event Dossier Protocol on the sibling phase2-event-dossiers
-# worktree/branch) are either a large module with unrelated top-level side
-# effects, or literally unreachable at runtime from a different git worktree.
-# A copy carries a provenance comment; it is never silently redefined.
+# imported because GST_Phase2_DailyPanel.py is a large module with unrelated
+# top-level side effects. A copy carries a provenance comment; it is never
+# silently redefined.
+#
+# Provenance correction (2026-08-06): this header previously also justified
+# the copy by saying the Event Dossier Protocol was "on the sibling
+# phase2-event-dossiers worktree/branch ... literally unreachable at runtime
+# from a different git worktree". That is no longer true -- PR #2 merged the
+# protocol into main, and main is merged into this branch, so the canonical
+# Event_Dossier_Protocol/locked_universe_v0.1.json sits in this same tree.
+# The copy below is now guarded rather than merely asserted:
+# test_market_response_canonical_drift.py compares it element-by-element
+# against that canonical JSON and fails on any divergence.
 from __future__ import annotations
 
 # Mirrored verbatim from GST_Phase2_DailyPanel.py:229-233 (branch

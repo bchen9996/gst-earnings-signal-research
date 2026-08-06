@@ -1,12 +1,25 @@
 # Event identity: event_id format, BMO/AMC/INTRADAY fail-closed
 # determination, and the D1 trading-session day-count rule.
 #
-# event_id format is mirrored (not imported -- the Event Dossier Protocol
-# lives on a different worktree/branch, phase2-event-dossiers, and is not
-# reachable at runtime from here) from
-# Event_Dossier_Protocol/validator/validate_event_dossier.py's EVENT_ID_RE,
-# so records emitted here join cleanly to that protocol's events.csv on
-# event_id without a parallel ID scheme.
+# event_id format is mirrored from
+# Event_Dossier_Protocol/validator/validate_event_dossier.py's EVENT_ID_RE, so
+# records emitted here join cleanly to that protocol's events.csv on event_id
+# without a parallel ID scheme.
+#
+# Provenance correction (2026-08-06): an earlier version of this comment said
+# the protocol "lives on a different worktree/branch, phase2-event-dossiers,
+# and is not reachable at runtime from here". That ceased to be true when
+# PR #2 merged the protocol into main and main was merged into this branch --
+# the protocol now sits in this same tree under Event_Dossier_Protocol/. The
+# copy is retained (the validator is a path-loaded script in a non-package
+# directory, so a plain module-scope import is not available), but it is no
+# longer unverifiable: test_market_response_canonical_drift.py loads the
+# validator executably and fails if this pattern and the protocol's ever
+# diverge.
+#
+# The session vocabulary below (BMO/AMC/INTRADAY) is this package's own and is
+# deliberately NOT the protocol's. Conversion happens at exactly one place --
+# gst_market_response.protocol_boundary.to_protocol_release_session().
 from __future__ import annotations
 
 import re

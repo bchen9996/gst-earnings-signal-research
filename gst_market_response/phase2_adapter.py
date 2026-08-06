@@ -18,16 +18,91 @@ from typing import Optional
 
 from .completeness import is_valid_pre_event_observation
 
-# Phase 2 panel's per-leg status vocabulary is "ok" or a free-text error
-# string (see GST_Phase2_DailyPanel.py COLUMN_ORDER) -- NOT this module's
-# ok/partial/missing/error enum. This is the one, explicit, documented
-# normalization point between the two vocabularies.
-def _normalize_leg_status(raw_status: Optional[str]) -> str:
-    if raw_status is None or raw_status == "":
-        return "missing"
-    if raw_status == "ok":
-        return "ok"
-    return "error"
+# --- Phase 2 source-status normalisation -----------------------------------
+#
+# Phase 2's per-leg status vocabulary is NOT binary. It distinguishes a fresh
+# successful retrieval ("ok") from one whose fresh request failed but which
+# was honestly served from the recent last-known-good cache
+# ("complete_recent_cache_fallback"). Phase 2 itself treats the latter as a
+# COMPLETE outcome -- validate_amzn_wiki_only.py maps both "ok" and
+# "complete_recent_cache_fallback" to exit_status COMPLETE, and
+# test_phase2_wikipedia_recent_cache_fallback.py proves the fallback-served
+# z-score exactly equals the original successful response's.
+#
+# An earlier version of this adapter collapsed everything that was not
+# literally "ok" to "error", which mislabelled a Phase-2-complete observation
+# as a failure. Corrected here with an explicit mapping. The fallback keeps
+# its OWN normalised category rather than being folded into "ok", so no
+# downstream consumer can mistake cache-served data for ordinary fresh data,
+# and the exact original Phase 2 string is preserved alongside it on the
+# result object (source_status_*_raw).
+#
+# This module never changes Phase 2's own status values, completeness rules,
+# source-selection logic, or panel output -- it only interprets what Phase 2
+# already wrote.
+
+NORMALIZED_OK = "ok"
+NORMALIZED_OK_RECENT_CACHE_FALLBACK = "ok_recent_cache_fallback"
+NORMALIZED_MISSING = "missing"
+NORMALIZED_ERROR = "error"
+
+NORMALIZED_STATUSES = (
+    NORMALIZED_OK,
+    NORMALIZED_OK_RECENT_CACHE_FALLBACK,
+    NORMALIZED_MISSING,
+    NORMALIZED_ERROR,
+)
+
+# Categories meaning "Phase 2 produced a usable observation". Both are
+# successes; they are NOT interchangeable when describing provenance.
+NORMALIZED_SUCCESS_STATUSES = frozenset({NORMALIZED_OK, NORMALIZED_OK_RECENT_CACHE_FALLBACK})
+
+# Explicit allowlist of recognised Phase 2 statuses denoting completeness.
+# Anything non-blank and unlisted fails closed to NORMALIZED_ERROR while its
+# raw value is retained -- a new Phase 2 status must be classified
+# deliberately here, never silently promoted to success.
+PHASE2_COMPLETE_STATUS_MAP: dict[str, str] = {
+    "ok": NORMALIZED_OK,
+    "complete_recent_cache_fallback": NORMALIZED_OK_RECENT_CACHE_FALLBACK,
+}
+
+
+def normalize_leg_status(raw_status: Optional[str]) -> str:
+    """Map a raw Phase 2 leg status onto one of NORMALIZED_STATUSES.
+
+    Blank/None -> missing. A recognised complete status -> its own success
+    category. Every other non-blank value (timeout, error,
+    incomplete_after_second_pass, incomplete_effective_watermark_unavailable,
+    incomplete_watermark_unavailable, or any status never seen before) ->
+    error, fail-closed.
+    """
+    if raw_status is None:
+        return NORMALIZED_MISSING
+    raw = str(raw_status).strip()
+    if raw == "":
+        return NORMALIZED_MISSING
+    return PHASE2_COMPLETE_STATUS_MAP.get(raw, NORMALIZED_ERROR)
+
+
+def is_successful_leg_status(normalized_status: str) -> bool:
+    """True for both fresh-ok and fallback-ok. Use this rather than comparing
+    against the literal "ok", so the fallback case is never dropped."""
+    return normalized_status in NORMALIZED_SUCCESS_STATUSES
+
+
+def was_served_from_recent_cache_fallback(normalized_status: str) -> bool:
+    return normalized_status == NORMALIZED_OK_RECENT_CACHE_FALLBACK
+
+
+def preserve_raw_status(raw_status: Optional[str]) -> str:
+    """The exact original Phase 2 string, kept verbatim beside the normalised
+    category. Blank/None becomes "" so the field is always a string."""
+    return "" if raw_status is None else str(raw_status)
+
+
+# Backwards-compatible private alias so nothing importing the old private
+# name breaks. New code should call normalize_leg_status().
+_normalize_leg_status = normalize_leg_status
 
 
 def sha256_of_file(path: Path) -> str:
@@ -78,6 +153,14 @@ class Phase2AdapterResult:
     source_status_gst: str
     source_status_wiki: str
     source_status_price: str
+    # The exact original Phase 2 status strings, preserved verbatim beside the
+    # normalised categories above. A consumer that needs to know a leg was
+    # served from the recent last-known-good cache rather than freshly
+    # retrieved reads these (or is_recent_cache_fallback_* below) -- the
+    # normalised category alone deliberately never claims fresh provenance.
+    source_status_gst_raw: str
+    source_status_wiki_raw: str
+    source_status_price_raw: str
     retrieved_at_utc_gst: Optional[str]
     retrieved_at_utc_wiki: Optional[str]
     retrieved_at_utc_price: Optional[str]
@@ -88,6 +171,26 @@ class Phase2AdapterResult:
     research_commit_sha: str
     methodology_version: str
     eligible_for_pre_event_captured: bool
+
+    @property
+    def is_recent_cache_fallback_gst(self) -> bool:
+        return was_served_from_recent_cache_fallback(self.source_status_gst)
+
+    @property
+    def is_recent_cache_fallback_wiki(self) -> bool:
+        return was_served_from_recent_cache_fallback(self.source_status_wiki)
+
+    @property
+    def is_recent_cache_fallback_price(self) -> bool:
+        return was_served_from_recent_cache_fallback(self.source_status_price)
+
+    @property
+    def any_leg_served_from_recent_cache_fallback(self) -> bool:
+        return any((
+            self.is_recent_cache_fallback_gst,
+            self.is_recent_cache_fallback_wiki,
+            self.is_recent_cache_fallback_price,
+        ))
 
     def to_pre_event_fields(self) -> dict:
         """The subset/shape consumed by gst_market_response.completeness /
@@ -104,6 +207,9 @@ class Phase2AdapterResult:
             "source_status_gst": self.source_status_gst,
             "source_status_wiki": self.source_status_wiki,
             "source_status_price": self.source_status_price,
+            "source_status_gst_raw": self.source_status_gst_raw,
+            "source_status_wiki_raw": self.source_status_wiki_raw,
+            "source_status_price_raw": self.source_status_price_raw,
             "retrieved_at_utc_gst": self.retrieved_at_utc_gst,
             "retrieved_at_utc_wiki": self.retrieved_at_utc_wiki,
             "retrieved_at_utc_price": self.retrieved_at_utc_price,
@@ -182,9 +288,13 @@ def import_pre_event_fields_for_ticker(
     retrieval_ts = row.get("retrieval_timestamp_utc") or None
     price = _parse_optional_float(row.get("price"))
 
-    source_status_gst = _normalize_leg_status(row.get("gst_status"))
-    source_status_wiki = _normalize_leg_status(row.get("wiki_status"))
-    source_status_price = _normalize_leg_status(row.get("price_history_status"))
+    raw_status_gst = row.get("gst_status")
+    raw_status_wiki = row.get("wiki_status")
+    raw_status_price = row.get("price_history_status")
+
+    source_status_gst = normalize_leg_status(raw_status_gst)
+    source_status_wiki = normalize_leg_status(raw_status_wiki)
+    source_status_price = normalize_leg_status(raw_status_price)
 
     pre_event_fields = {
         "gst_zscore": _parse_optional_float(row.get("gst_zscore")),
@@ -208,6 +318,9 @@ def import_pre_event_fields_for_ticker(
         source_status_gst=source_status_gst,
         source_status_wiki=source_status_wiki,
         source_status_price=source_status_price,
+        source_status_gst_raw=preserve_raw_status(raw_status_gst),
+        source_status_wiki_raw=preserve_raw_status(raw_status_wiki),
+        source_status_price_raw=preserve_raw_status(raw_status_price),
         retrieved_at_utc_gst=retrieval_ts,
         retrieved_at_utc_wiki=retrieval_ts,
         retrieved_at_utc_price=retrieval_ts,
