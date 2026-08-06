@@ -53,7 +53,8 @@ module's output.
 | `realized_volatility` | float | yes | Trailing realized vol, same convention as the six-field contract's `realized_vol`. |
 | `days_to_earnings` | int | yes | Signed. |
 | `pre_event_snapshot_asof_utc` | datetime | yes | Required for the "valid pre-event observation" tier. |
-| `source_status_gst` / `_wiki` / `_price` | enum | no | `ok` \| `partial` \| `missing` \| `error`. |
+| `source_status_gst` / `_wiki` / `_price` | enum | no | `ok` \| `partial` \| `missing` \| `error`, plus `ok_recent_cache_fallback` when the value came from the Phase 2 adapter (added 2026-08-06 — see "Corrected Phase 2 status normalization"). |
+| `source_status_gst_raw` / `_wiki_raw` / `_price_raw` | string | no | Added 2026-08-06. The exact original Phase 2 status string, preserved beside the normalized category. |
 | `retrieved_at_utc_gst` / `_wiki` / `_price` | datetime | yes | |
 
 ## Option benchmark fields (`gst_market_response.option_chain_adapter.OptionBenchmark`)
@@ -186,7 +187,8 @@ latest panel run." Field mapping from the Phase 2 panel's own columns:
 | `volume` | `volume` | |
 | `days_to_nearest_earnings` | `days_to_earnings` | |
 | `retrieval_timestamp_utc` | `pre_event_snapshot_asof_utc`, and mirrored into `retrieved_at_utc_gst`/`_wiki`/`_price` | The panel records one retrieval timestamp per ticker row, not per leg -- this adapter mirrors that single timestamp into all three per-leg fields rather than fabricating distinct ones (disclosed here, not silently done). |
-| `gst_status`/`wiki_status`/`price_history_status` | `source_status_gst`/`_wiki`/`_price` | Normalized via `_normalize_leg_status()`: panel's `"ok"` → `ok`; empty/missing → `missing`; anything else (a free-text error string) → `error`. The panel has no native "partial" per-leg status. |
+| `gst_status`/`wiki_status`/`price_history_status` | `source_status_gst`/`_wiki`/`_price` | Normalized via `normalize_leg_status()` — see the corrected mapping table below. The panel has no native "partial" per-leg status. |
+| (same three panel columns) | `source_status_gst_raw`/`_wiki_raw`/`_price_raw` | **Added 2026-08-06.** The exact original Phase 2 string, preserved verbatim beside the normalized category. Blank/absent becomes `""`. |
 | `implied_volatility` | **never imported anywhere** | See SPEC section 5 -- this field is deliberately excluded; `option_chain_adapter.py` is the only legitimate source for any implied-move-shaped field. |
 
 Every call also verifies (`_cross_verify_marker_against_csv`) that the marker's own `row_count`,
@@ -195,6 +197,90 @@ Every call also verifies (`_cross_verify_marker_against_csv`) that the marker's 
 `PARTIAL`) is preserved exactly as the marker states it. `eligible_for_pre_event_captured` is computed via the same
 `completeness.is_valid_pre_event_observation()` gate used everywhere else -- a ticker whose panel data fails that
 gate is explicitly flagged ineligible, never silently passed through.
+
+### Corrected Phase 2 status normalization (integration-hardening addendum, 2026-08-06)
+
+Phase 2's per-leg status vocabulary is not binary, and treating it as binary was a defect. Until this pass the
+adapter collapsed everything that was not literally `"ok"` to `error`, which mislabelled
+`complete_recent_cache_fallback` — a Phase-2-**complete** outcome carrying a real z-score — as a failure. Phase 2's
+own tooling maps both `ok` and `complete_recent_cache_fallback` to `COMPLETE`
+(`validate_amzn_wiki_only.py`), and `test_phase2_wikipedia_recent_cache_fallback.py` proves the fallback-served
+z-score exactly equals the original successful response's.
+
+| Raw Phase 2 status | Normalized category | Success? |
+|---|---|---|
+| `ok` | `ok` | yes — fresh retrieval |
+| `complete_recent_cache_fallback` | `ok_recent_cache_fallback` | yes — **served from the recent last-known-good cache, not fresh** |
+| `""` / absent | `missing` | no |
+| `incomplete_after_second_pass` | `error` | no |
+| `incomplete_effective_watermark_unavailable` | `error` | no |
+| `incomplete_watermark_unavailable` | `error` | no |
+| any other non-blank value (incl. timeout, or a status added to Phase 2 later) | `error` (fail-closed) | no |
+
+The fallback deliberately keeps its **own** category rather than being folded into `ok`, so nothing downstream can
+mistake cache-served data for ordinary fresh data. `is_successful_leg_status()` treats both as success;
+`was_served_from_recent_cache_fallback()` and the `Phase2AdapterResult.is_recent_cache_fallback_*` /
+`any_leg_served_from_recent_cache_fallback` properties distinguish them. Recognized complete statuses come from an
+explicit allowlist (`PHASE2_COMPLETE_STATUS_MAP`), so a status invented in a future Phase 2 change fails closed to
+`error` rather than being silently promoted to success — and its raw text is still preserved.
+
+This module interprets Phase 2's statuses; it never changes them, nor Phase 2's completeness rules,
+source-selection logic, or panel output.
+
+## Protocol boundary: session vocabulary (integration-hardening addendum, 2026-08-06)
+
+This module and the Event Dossier Protocol both have a field named `release_market_session`, with **different**
+value domains. Neither is renamed or widened; conversion happens at exactly one place,
+`gst_market_response.protocol_boundary.to_protocol_release_session()`.
+
+| Market Response | Event Dossier Protocol |
+|---|---|
+| `BMO` | `before_open` |
+| `INTRADAY` | `during_session` |
+| `AMC` | `after_close` |
+
+Matching is exact and case-sensitive. `None`, `""`, whitespace-only, wrong-typed, wrong-cased, protocol-side, and
+unrecognized values all raise `SessionVocabularyError` — there is no default and no passthrough. **The boundary
+never infers a session from a timestamp**: deriving `after_close` from a 20:05 UTC release would manufacture a
+protocol field from a clock reading, which is exactly what the human-verified registry exists to prevent.
+
+## Layer B market-response addendum emission (integration-hardening addendum, 2026-08-06)
+
+`gst_market_response.layer_b_addendum` converts an eligible completed market-response record into a row of the
+protocol's `B_Market_Response_Addendum/schemas/market_response_addendum.csv`. Column order is read from that schema
+file at runtime and never hardcoded here.
+
+| Addendum column | Source | Notes |
+|---|---|---|
+| `addendum_id` | generated | `{event_id}-ADD-{seq:02d}`, one past the highest already present for that event. |
+| `event_id` | market-response record | Must have a Layer A `events.csv` row. |
+| `linked_label_id` | market-response record | Must have an `event_labels.csv` row whose `event_id` agrees. |
+| `captured_at_utc` | market-response record | Must be timezone-aware; may precede, equal, or follow the linked label's freeze. |
+| `captured_by` | market-response record | Required, non-blank. |
+| `price_reaction_pct` | measured reaction | Optional. If set, `price_reaction_window` becomes required. |
+| `price_reaction_window` | measured reaction | Must be in the protocol's `REACTION_WINDOWS` enum. |
+| `volume_reaction`, `iv_reaction`, `options_reaction_notes`, `post_event_media_sentiment_notes` | measured reaction | Optional free text. |
+| `post_event_analyst_target_change_claim_ids` | claims | Semicolon-delimited FKs to `layer = B_market_response` claims. |
+| `notes` | generated provenance | Carries `mr_record_seq`, `mr_amends_seq`, `mr_state`, and the translated session (`AMC->after_close`). This is the only column carrying market-response identity, and `notes` is a documented free-text field. |
+
+**Eligibility (all fail closed).** Only a `COMPLETE` market-response state qualifies — `PARTIAL`,
+`ABSTAIN_DATA_QUALITY` and every non-terminal state are refused. The Layer A event and label must exist and agree.
+Timestamps must be timezone-aware. A `price_reaction_pct` without a valid window is refused.
+
+**Missing values are never zero-filled.** An absent measurement is written as an empty cell; a genuine measured
+`0.0` is written as `0.0`. The two are never conflated.
+
+**Append-only and atomic.** An existing `addendum_id` raises `AddendumAlreadyExistsError` rather than being
+overwritten; the header is written once via an atomic temp-file rename and every row after is a strict binary
+append; an amendment is a **new row** that leaves the original's bytes verbatim. The emitter never opens a Layer A
+table or a freeze manifest for writing, and no market-response value is ever copied into Layer A.
+
+**Capture is not gated on freeze.** The protocol's corrected capture-vs-reveal rule
+(`B_Market_Response_Addendum/README.md`, 2026-08-02) states capture "may happen automatically and
+contemporaneously with Layer A", that "capture and storage do not constitute reveal", and that a row "may be
+created regardless of the linked label's status"; fixture `case_10_layerB_captured_before_freeze_unrevealed`
+encodes this as an expected PASS. This emitter therefore does not require `human_frozen`. Reveal *is* gated, and is
+recorded in the linked label's freeze manifest (`reveal_events[]`) — a file this emitter never writes.
 
 ## Sector-ETF mapping review gate (operational-readiness addendum, 2026-08-04)
 
