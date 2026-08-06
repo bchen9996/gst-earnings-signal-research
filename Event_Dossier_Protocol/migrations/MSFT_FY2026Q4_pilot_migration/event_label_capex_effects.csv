@@ -1,0 +1,3 @@
+capex_effect_id,label_id,capex_accounting_presentation_effect,evidence_claim_id,notes
+EVT-MSFT-FY26Q4-ERN-LBL-01-CAPEX-01,EVT-MSFT-FY26Q4-ERN-LBL-01,lease_reclassification,EVT-MSFT-FY26Q4-ERN-CLM-0015,Shift from finance leases to operating leases pushes reported CY2026 capex to approximately $175B on a reported basis.
+EVT-MSFT-FY26Q4-ERN-LBL-01-CAPEX-02,EVT-MSFT-FY26Q4-ERN-LBL-01,useful_life_change,EVT-MSFT-FY26Q4-ERN-CLM-0016,"Useful-life accounting change for data centers/office buildings (15->25 years, effective FY2027) reduces reported depreciation expense."
