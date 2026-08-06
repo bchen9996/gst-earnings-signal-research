@@ -5,31 +5,31 @@
   "layer_a_artifact_hashes": [
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claim_sources.csv",
-      "sha256": "498717192f25fcda549adc5edcc2b0578c4252ded3ab6b7e37b31f893dbae271"
+      "sha256": "4267e0f533fccec32ef56e97720de141ad5dcdfe311bb1ff8a41fa81b0b0087f"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/claims.csv",
-      "sha256": "da2bca237dc161e5c090d4ae637416adba33bdc665f1361ce5dec9a6a7de5d8e"
+      "sha256": "ca2c660ec77937c5ac5a01e22b3e4c2c25a210ca5899f62610a955d4005ce554"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label.csv",
-      "sha256": "4822218fe938e5183168bbb2f32438d99e356d64b68a3e2efdb67af2cda007cd"
+      "sha256": "f813e38ecfe2da539e122523bdeee6dde382f01ef94c47d9be268228e296f708"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_capex_effects.csv",
-      "sha256": "c9794959c9e3e51ee14df676ff93b87bc4c4a69a96adce8276e1647e2f8e2919"
+      "sha256": "f1efd479c71da855c8127b27fe0b330e9554c9f802483e8d715d5ba3647ab99d"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/event_label_cross_company_implications.csv",
-      "sha256": "9ad898fd0d3b3001f208fbf84d1404a2c445ad5c05b39614766c8e910aab58d1"
+      "sha256": "5bcf5ed8c6a44280046113c7bbe646c7d723e8b621f6fe12e150c61ff6073ef9"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/events.csv",
-      "sha256": "0044b86c81d99833a1c369ec0031772484c0f342588f3057208c9e314e012294"
+      "sha256": "3cf6c28a75054db13caafb981590a6bb5506166f1fcb3feda0eca006936e32fa"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/management_qna.csv",
-      "sha256": "274dc2215585b51948ff4f553a56b0b22554d21ace24c5a21371423eb0b5f8df"
+      "sha256": "79f989d7c3ae39669bcf720912a76822e4a2cc264042480000ec03b8e91a085a"
     },
     {
       "artifact_path": "frozen/EVT-AAPL-FY26Q3-ERN/EVT-AAPL-FY26Q3-ERN-LBL-01/events.csv",
