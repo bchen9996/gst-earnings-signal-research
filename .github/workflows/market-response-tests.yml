@@ -73,7 +73,19 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        # Two pinned requirement files, each installed from where it is
+        # already declared -- neither is duplicated into the other.
+        #   requirements.txt                              -> gst_market_response/
+        #   Event_Dossier_Protocol/validator/requirements.txt -> jsonschema, needed
+        #     both by the validator suite in the step below AND by
+        #     test_market_response_layer_b_emission.py, which runs the real
+        #     validator over its emitted addendum. Without it the validator
+        #     correctly fails closed ("the 'jsonschema' package ... is not
+        #     installed -- freeze-manifest structural validation cannot run").
+        run: |
+          set -e
+          pip install -r requirements.txt
+          pip install -r Event_Dossier_Protocol/validator/requirements.txt
 
       - name: Discover and run every deterministic market-response test file
         run: |

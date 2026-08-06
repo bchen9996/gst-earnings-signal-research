@@ -1,5 +1,5 @@
 # Adapter around the existing option-chain functions in
-# GST_MultiTicker_Forward_Log.py (repo root), plus this module's own
+# GST_Option_Chain_Core.py (repo root), plus this module's own
 # earnings-specific option-benchmark capture logic (SPEC section 5).
 #
 # Deliberately reuses get_nearest_post_earnings_expiry() and
@@ -8,6 +8,16 @@
 # those two calls -- mid computation, executable-cost separation, the
 # reject-on-bad-quote rules -- is new, since the reused functions don't
 # provide it.
+#
+# Import source corrected 2026-08-06: these two helpers used to be imported
+# from GST_MultiTicker_Forward_Log, a live execution entry point that loads
+# pytrends and the live GST signal engine at module scope. That made merely
+# importing this adapter require the entire legacy GST dependency tree, and it
+# broke the first real CI run of PR #3 with
+# `ModuleNotFoundError: No module named 'pytrends'`. The helpers now live in
+# the dependency-light GST_Option_Chain_Core; the functions themselves are
+# unchanged, and the legacy logger re-exports them so its own callers are
+# unaffected.
 from __future__ import annotations
 
 import sys
@@ -20,7 +30,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from GST_MultiTicker_Forward_Log import (  # noqa: E402  (path setup must precede this import)
+from GST_Option_Chain_Core import (  # noqa: E402  (path setup must precede this import)
     get_nearest_post_earnings_expiry as _select_nearest_expiry_after,
     get_option_snapshot as _capture_atm_snapshot,
 )

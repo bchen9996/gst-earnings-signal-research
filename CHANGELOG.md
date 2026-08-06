@@ -1,6 +1,30 @@
 # Changelog
 
 
+## 2026-08-06 — Isolate the option helpers from the legacy GST runtime dependencies
+
+**Why.** The first GitHub Actions run that PR #3 ever produced (run `31126964980`, `event=push`, ubuntu-latest, Python 3.12.13) discovered all 15 `test_market_response*.py` files and then failed importing `test_market_response_decomposition.py`:
+
+```
+gst_market_response.option_chain_adapter
+  -> GST_MultiTicker_Forward_Log        (line 46)
+    -> pytrends.request
+ModuleNotFoundError: No module named 'pytrends'
+```
+
+An import-time dependency leak, not a logic defect. `option_chain_adapter.py` needs exactly two helpers — `get_nearest_post_earnings_expiry` and `get_option_snapshot` — but imported them from `GST_MultiTicker_Forward_Log.py`, a *live execution entry point* that at module scope loads pytrends, the live GST signal engine, `requests` and `urllib3`, disables warnings and reconfigures `sys.stdout`. Merely importing the adapter therefore dragged in the whole legacy GST runtime. `requirements.txt` covers `gst_market_response/` only and deliberately excludes that stack, so **no `pytrends` dependency was added**: installing Google Trends into a module that never queries Google Trends would have hidden the leak rather than fixed it.
+
+**What changed.** The two helpers were moved **verbatim** into a new dependency-light `GST_Option_Chain_Core.py`, which imports only `datetime`, `pandas` and `yfinance` (the last only for the `yf.Ticker` annotation) and performs no network call at import. `GST_MultiTicker_Forward_Log.py` now imports and re-exports them and defines no duplicate, so every existing `GST_MultiTicker_Forward_Log.get_nearest_post_earnings_expiry(...)` / `.get_option_snapshot(...)` call site keeps working unchanged; the forward logger was not otherwise refactored or executed. `gst_market_response/option_chain_adapter.py` now imports from the core directly.
+
+**No option methodology changed.** The moved functions were verified textually identical to the originals before the originals were removed. Nearest expiry is still the earliest strictly after `earnings_date`; the ATM strike is still `min(abs(strike - spot))` via `idxmin()`; the same fail-quiet behaviour (a raising `.options` → `None`, a raising `.option_chain()` → `{"option_chain_error": ...}`); the same bid/ask/bid-size/ask-size/open-interest/volume/implied-volatility extraction with the same `pd.notna()` guards and casts. No new fallback, pricing rule, expiry rule or quote transformation. `MAX_COMPATIBLE_QUOTE_SKEW_SECONDS` and every `ContractSelectionStatus` value are unchanged.
+
+**A second instance of the same leak, found in a clean environment.** Reproducing in a fresh virtualenv outside the repo with only `requirements.txt` installed exposed `test_market_response_layer_b_emission.py` failing 7 assertions: it runs the real Event Dossier validator, which fails closed when `jsonschema` is absent ("the 'jsonschema' package … is not installed — freeze-manifest structural validation cannot run"). `jsonschema` is already pinned in `Event_Dossier_Protocol/validator/requirements.txt`, so the workflow's install step now installs that file too, from where it is already declared — it was **not** duplicated into `requirements.txt`, and the validator's fail-closed gate was **not** weakened.
+
+**New coverage.** `test_market_response_dependency_boundary.py` (42 assertions) proves, using subprocess isolation so the verdict cannot be contaminated by already-imported modules, that the adapter imports while `pytrends`, `GST_Live_Signal_Engine` and `GST_MultiTicker_Forward_Log` are all forbidden by a `sys.meta_path` blocker; that none of them lands in `sys.modules`; that expiry selection and ATM snapshot behave identically against synthetic ticker/chain doubles (including exact-tie strikes, missing fields staying `None` rather than `0`, empty legs, and the error dict); that the legacy logger re-exports rather than duplicates; that the core's imports are AST-verified dependency-light and network-free; and that `requirements.txt` stays sufficient and `pytrends`-free.
+
+**Verification.** Clean venv, `requirements.txt` + the validator's pinned file, `pytrends` confirmed absent: the previously failing `test_market_response_decomposition.py` passes (83 assertions), the workflow's discovery loop runs 16/16 files (655 assertions), and the validator's exact CI command exits 0. With outbound sockets blocked (Yahoo, Google Trends and Alpaca all positively confirmed unreachable): Market Response 16/16 files / 655 assertions, Phase 2 12/12 files / 617 assertions, Event Dossier validator 27 end-to-end assertions + 21 unit tests. No panel run, no live provider call, no event registration, no dossier or Layer B output, no operational-cache or artifact write.
+
+
 ## 2026-08-06 — Market Response: cross-protocol integration hardening (PR #3)
 
 **Why.** Merging main (which now carries the Event Dossier Protocol, PR #2) into `phase2-market-response` put all three modules in one tree for the first time and surfaced six integration defects. None of them required a methodology change; all were boundary problems. **No prospective event was selected or registered, no dossier was created, no panel was run, no live market-data request or broker order was made, and no trading strategy was tested or evaluated for profitability.**

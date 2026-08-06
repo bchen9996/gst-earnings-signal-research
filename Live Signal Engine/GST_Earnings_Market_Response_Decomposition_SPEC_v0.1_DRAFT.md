@@ -114,7 +114,7 @@ Both are labeled `_v0.1` in the field dictionary and schema comments specificall
 
 ### 5.1 Expiration selection
 
-Reuses `get_nearest_post_earnings_expiry(tk, anchor_date)` from `GST_MultiTicker_Forward_Log.py:86` **called with the verified `earnings_date`, not today's date** — the function is already generically parameterized ("nearest expiry strictly after X"); only the anchor argument changes. Expirations on or before the earnings date are rejected outright (see Testing §17).
+Reuses `get_nearest_post_earnings_expiry(tk, anchor_date)` from `GST_Option_Chain_Core.py` **called with the verified `earnings_date`, not today's date** — the function is already generically parameterized ("nearest expiry strictly after X"); only the anchor argument changes. Expirations on or before the earnings date are rejected outright (see Testing §17). *(Import source corrected 2026-08-06: previously imported from `GST_MultiTicker_Forward_Log.py:86`. The helper was moved verbatim into the dependency-light `GST_Option_Chain_Core.py` because the forward logger is a live execution entry point that loads pytrends and the live GST engine at module scope. The function itself is unchanged, and the logger re-exports it, so its own callers are unaffected.)*
 
 ### 5.2 Quote capture, at a single locked quote timestamp
 
@@ -259,8 +259,8 @@ A missing **optional** field (`open_interest_call`, `volume_call`, `open_interes
 | Capability | Reused from | Caveat |
 |---|---|---|
 | Earnings-date lookup | `fetch_next_earnings_date()` (`GST_MultiTicker_Forward_Log.py:145`) / `fetch_earnings_dates()` (`GST_Build_Foundation_AllTickers.py:61`) | Both are forward-looking only; this module's "as-of" filtering for point-in-time correctness is new code, not reused |
-| Option-expiration selection | `get_nearest_post_earnings_expiry(tk, anchor_date)` (`GST_MultiTicker_Forward_Log.py:86`) | Reused with `earnings_date` as the anchor instead of today; `pick_expiration()` in `GST_Live_Straddle_Logger.py` is explicitly **not** reused (different, DTE-floor-based semantics) |
-| Option-chain ATM quote | `get_option_snapshot()` (`GST_MultiTicker_Forward_Log.py:97`) | ATM-only, not full chain; no mid-price field — `call_mid`/`put_mid`/straddle fields are new computation in this module, without the `lastPrice`-fallback behavior of `mid_price()` in `GST_Live_Straddle_Logger.py` |
+| Option-expiration selection | `get_nearest_post_earnings_expiry(tk, anchor_date)` (`GST_Option_Chain_Core.py`, moved verbatim from `GST_MultiTicker_Forward_Log.py:86` on 2026-08-06 and re-exported there) | Reused with `earnings_date` as the anchor instead of today; `pick_expiration()` in `GST_Live_Straddle_Logger.py` is explicitly **not** reused (different, DTE-floor-based semantics) |
+| Option-chain ATM quote | `get_option_snapshot()` (`GST_Option_Chain_Core.py`, moved verbatim from `GST_MultiTicker_Forward_Log.py:97` on 2026-08-06 and re-exported there) | ATM-only, not full chain; no mid-price field — `call_mid`/`put_mid`/straddle fields are new computation in this module, without the `lastPrice`-fallback behavior of `mid_price()` in `GST_Live_Straddle_Logger.py` |
 | Daily price history | `tk.history()` pattern (`GST_Phase2_DailyPanel.py`) | Daily-bar pattern only; intraday 5-minute bars are new — nothing in the repo currently pulls intraday bars |
 | GST z-score | `compute_latest_zscore()` / `compute_zscore_at_anchor()` | **Unchanged**, formula and constants reused exactly |
 | 24-ticker universe | `GST_Phase2_DailyPanel.py:229-233` | **Unchanged** |
