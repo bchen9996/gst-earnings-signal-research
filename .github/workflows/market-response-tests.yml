@@ -21,6 +21,23 @@ name: Market Response Tests
 # That scan covers comments too -- which is why the names of those forbidden
 # entry points are described here rather than spelled out.
 on:
+  # BOOTSTRAP TRIGGER (2026-08-06). Temporary, and scoped to this one branch.
+  #
+  # GitHub created zero workflow runs and zero check suites from the
+  # pull_request trigger below, even though the file is present and identical
+  # at the PR head, the branch tip, and refs/pull/3/merge, the path filters
+  # match 45 of the PR's 51 changed files, Actions is enabled with all actions
+  # allowed, and nothing is queued awaiting approval. A close/reopen of the PR
+  # -- a documented pull_request activity type -- produced nothing either.
+  #
+  # This workflow is not yet registered on the default branch, which is also
+  # why workflow_dispatch cannot be used to start it manually. A
+  # branch-specific push trigger is the one remaining supported way to get a
+  # first run recorded for this branch. Remove it once this workflow has
+  # landed on main and the pull_request trigger is confirmed working.
+  push:
+    branches:
+      - phase2-market-response
   pull_request:
     paths:
       - "gst_market_response/**"
