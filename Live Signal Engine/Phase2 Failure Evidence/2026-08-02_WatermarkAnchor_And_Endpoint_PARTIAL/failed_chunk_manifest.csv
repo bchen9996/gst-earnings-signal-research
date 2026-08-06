@@ -1,0 +1,15 @@
+ticker,chunk_start,chunk_end,still_failed_reason
+ADBE,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+AMZN,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+BKR,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+CTSH,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+CTSH,2026-07-01,2026-07-31,second_pass_also_failed:http_error
+CTSH,2026-08-01,2026-08-02,second_pass_also_failed:http_error
+GME,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+GME,2026-01-01,2026-01-31,second_pass_also_failed:http_error
+GME,2026-08-01,2026-08-02,second_pass_also_failed:http_error
+LDOS,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+NCLH,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+NCLH,2026-08-01,2026-08-02,second_pass_also_failed:http_error
+TSLA,2025-10-06,2025-10-31,second_pass_also_failed:http_error
+TSLA,2026-07-01,2026-07-31,second_pass_also_failed:http_error

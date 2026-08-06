@@ -1,0 +1,17 @@
+ticker,wiki_status,chunk_failures,wiki_note,nearest_pulled_week,anchor_used,gap_days,tolerance_days
+AAPL,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+ABBV,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+BRK-B,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+DELL,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+DVN,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+GOOGL,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+GPN,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+INTC,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+MSFT,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+NKE,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+QCOM,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+SBUX,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+STZ,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+SYK,ok,0,nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+TTWO,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6
+UAL,ok,0 (recovered via second pass),nearest pulled week 2026-07-26 is 7d from anchor -- no aligned week,2026-07-26,2026-08-02,7,6

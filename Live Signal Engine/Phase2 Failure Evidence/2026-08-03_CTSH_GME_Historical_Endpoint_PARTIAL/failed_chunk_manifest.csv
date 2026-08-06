@@ -1,0 +1,7 @@
+raw_log_line
+[CTSH] wiki chunk 2026-07-01..2026-07-31 source=fetch status=http_error http_status=404 retry_after=None network=0.27s sleep=0.00s
+[GME] wiki chunk 2026-01-01..2026-01-31 source=fetch status=http_error http_status=404 retry_after=None network=0.30s sleep=0.00s
+[CTSH] second-pass chunk 2026-07-01..2026-07-31 status=http_error http_status=404 retry_after=None network=0.35s sleep=3.12s
+[GME] second-pass chunk 2026-01-01..2026-01-31 status=http_error http_status=404 retry_after=None network=0.40s sleep=3.38s
+[CTSH] chunk 2026-07-01..2026-07-31 STILL FAILED after second pass: second_pass_also_failed:http_error
+[GME] chunk 2026-01-01..2026-01-31 STILL FAILED after second pass: second_pass_also_failed:http_error

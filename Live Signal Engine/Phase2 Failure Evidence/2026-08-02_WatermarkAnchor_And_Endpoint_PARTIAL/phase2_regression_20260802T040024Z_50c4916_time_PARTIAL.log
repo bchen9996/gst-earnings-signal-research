@@ -1,0 +1,7 @@
+start_iso=2026-08-02T04:00:24+00:00
+end_iso=2026-08-02T04:13:50+00:00
+start_epoch=1785643224
+end_epoch=1785644030
+elapsed_s=806
+exit_code=1
+log=phase2_regression_20260802T040024Z_50c4916.log
