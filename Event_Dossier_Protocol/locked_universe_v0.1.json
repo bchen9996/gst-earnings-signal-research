@@ -1,0 +1,15 @@
+{
+  "protocol_version": "0.1",
+  "date_locked": "2026-08-02",
+  "source_file": "GST_Phase2_DailyPanel.py",
+  "source_symbol": "TICKERS",
+  "source_commit": "46aec15854a75ada2bd0078dce4d018e4b032c90",
+  "source_commit_note": "Read directly from the phase2-event-dossiers worktree's own checkout (origin/main) on 2026-08-02. This is the exact, unmodified TICKERS list -- no market-cap threshold was invented; the universe is copied verbatim from the existing locked Phase 2 panel definition.",
+  "tickers": [
+    "AAPL", "ABBV", "ADBE", "AMZN", "BKR", "BRK-B", "CTSH", "DELL", "DVN", "GME",
+    "GOOGL", "GPN", "INTC", "LDOS", "MSFT", "NCLH", "NKE", "QCOM", "SBUX", "STZ",
+    "SYK", "TSLA", "TTWO", "UAL"
+  ],
+  "ticker_count": 24,
+  "expansion_policy": "Any expansion of this universe requires a new protocol version, established and locked BEFORE observing outcomes for the added tickers. An expansion may not be back-dated to cover events already captured under v0.1."
+}

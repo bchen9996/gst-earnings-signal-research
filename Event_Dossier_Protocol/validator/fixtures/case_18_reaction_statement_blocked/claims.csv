@@ -1,0 +1,2 @@
+claim_id,event_id,dossier_section,claim_text,value_type,claim_category,metric_name,numeric_value,unit,gaap_basis,currency_basis,fiscal_period_basis,comparison_period,consensus_provider,consensus_asof_date,novelty_eval_basis,verification_status,layer,created_at_utc
+EVT-AAPL-FY26Q3-ERN-CLM-0001,EVT-AAPL-FY26Q3-ERN,eps,Microsoft shares rose 8% in after-hours trading.,numeric,analyst_interpretation,eps,4.74,USD_per_share,non-GAAP,reported,FY26Q3,YoY,,,not_evaluated,verified,A_blinded_core,2026-08-02T00:00:00+00:00

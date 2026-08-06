@@ -1,0 +1,3 @@
+event_id,event_disposition,recorded_at_utc,reason
+EVT-AAPL-FY26Q3-ERN,development_pilot,2026-08-01T00:00:00+00:00,blinding breach found
+EVT-AAPL-FY26Q3-ERN,confirmatory,2026-08-02T00:00:00+00:00,attempted revert

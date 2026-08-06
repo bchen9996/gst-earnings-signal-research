@@ -1,0 +1,2 @@
+qna_id,event_id,analyst_name,analyst_firm,question_text,question_topic,response_text,classification,classification_basis,classified_by,classified_at_utc
+EVT-AAPL-FY26Q3-ERN-QNA-01,EVT-AAPL-FY26Q3-ERN,Jane Analyst,Example Bank,Can you size the margin impact of rising hardware prices?,margin,We have flexibility in our depreciation schedule.,partially_answered,Management engaged with the topic but withheld the specific figure.,ai_proposed,2026-08-02T00:00:00+00:00
