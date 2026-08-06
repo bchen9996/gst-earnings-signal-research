@@ -36,12 +36,52 @@ def test_workflow_exists_and_is_wired_up():
     text = WORKFLOW.read_text(encoding="utf-8")
     check("1b. it triggers on pull_request", "pull_request:" in text)
     check("1c. it supports workflow_dispatch", "workflow_dispatch:" in text)
+    check("1h. it carries the branch-specific push bootstrap trigger", "push:" in text)
     check("1d. it declares least-privilege contents: read", "contents: read" in text)
     check("1e. it pins a specific Python version", 'python-version: "3.12"' in text)
     check("1f. it installs the repository's pinned requirements",
           "pip install -r requirements.txt" in text)
     check("1g. it never grants write permissions",
           "contents: write" not in text and "packages: write" not in text)
+
+
+def test_all_three_triggers_are_present_and_correctly_scoped():
+    """pull_request + workflow_dispatch + the branch-scoped push bootstrap.
+
+    The push trigger exists only because GitHub scheduled nothing from the
+    pull_request trigger (see the workflow's own header comment). It must stay
+    pinned to this one branch -- an unscoped push trigger would run this suite
+    on every branch in the repository.
+    """
+    text = WORKFLOW.read_text(encoding="utf-8")
+    lines = [l.rstrip() for l in text.splitlines()]
+
+    check("8a. all three triggers declared", all(
+        t in text for t in ("push:", "pull_request:", "workflow_dispatch:")))
+
+    # The push trigger must be branch-scoped, and to exactly this branch.
+    try:
+        i = lines.index("  push:")
+    except ValueError:
+        i = -1
+    check("8b. push: is a top-level trigger key (two-space indent)", i >= 0)
+    if i >= 0:
+        block = lines[i + 1:i + 4]
+        check("8c. push declares a branches: filter", any(l.strip() == "branches:" for l in block))
+        check("8d. push is pinned to phase2-market-response only",
+              any(l.strip() == "- phase2-market-response" for l in block))
+        # No second branch smuggled in before the next trigger key.
+        nxt = next((j for j in range(i + 1, len(lines))
+                    if lines[j].startswith("  ") and lines[j].strip().endswith(":")
+                    and not lines[j].startswith("    ")), len(lines))
+        branch_entries = [l.strip() for l in lines[i + 1:nxt] if l.strip().startswith("- ")]
+        check(f"8e. exactly one push branch is listed (found {branch_entries})",
+              branch_entries == ["- phase2-market-response"])
+
+    check("8f. push is NOT wildcarded to all branches",
+          "'**'" not in text and '"**"' not in text and "branches: ['*']" not in text)
+    check("8g. the bootstrap is documented as temporary in the workflow itself",
+          "BOOTSTRAP TRIGGER" in text and "Remove it once" in text)
 
 
 def test_path_filters_cover_every_relevant_surface():
@@ -131,6 +171,7 @@ def test_dossier_workflow_is_left_untouched():
 
 if __name__ == "__main__":
     test_workflow_exists_and_is_wired_up()
+    test_all_three_triggers_are_present_and_correctly_scoped()
     test_path_filters_cover_every_relevant_surface()
     test_discovery_is_dynamic_and_complete()
     test_workflow_contains_no_live_network_command()
