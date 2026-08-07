@@ -1,0 +1,192 @@
+{
+  "schema_version": "0.2",
+  "mapping_version": "0.3",
+  "effective_date": "2026-08-04",
+  "description": "Locked ticker-to-sector-benchmark mapping for the 24-ticker Phase 2 universe. See SPEC section 7.1. THE RULE: each ticker is assigned the broad SPDR Select Sector ETF that corresponds to its GICS sector, and that ETF is used purely as a sector-return benchmark. The assignment does NOT assert, require, or imply that the company is a current constituent/holding of that ETF -- a company can be correctly benchmarked against its GICS sector's ETF while not being in the fund at all (see GME). Constituent status is recorded separately, as an independent observation, and is never the basis for the benchmark. This is a BENCHMARK-DESIGN CHOICE for computing a relative-return control -- it is not an assertion that any of these ETFs are the 'correct' peer group in an alpha-generating sense, and 'stock minus benchmark_etf' is never called an abnormal return or alpha anywhere in this codebase (see derivations.relative_return docstring). A later remap requires a new mapping_version, never an in-place edit.",
+  "spy_benchmark": "SPY",
+  "review_status": "APPROVED",
+  "reviewed_by": "claude-opus-5 (sourced desk review via live web search/fetch against GICS-classification and fund-holdings sources -- not a domain-expert manual sign-off; treat as a documented, source-backed automated review)",
+  "reviewed_at_utc": "2026-08-04T00:00:00+00:00",
+  "field_semantics": {
+    "gics_sector": "The company's GICS sector. This, and only this, determines benchmark_etf.",
+    "benchmark_etf": "The broad SPDR Select Sector ETF used as this ticker's sector-return benchmark.",
+    "benchmark_basis": "Why that ETF was chosen. Always 'gics_sector' in this mapping: the ETF is the sector benchmark for the company's GICS sector. Never 'etf_membership'.",
+    "constituent_status": "An INDEPENDENT observation of whether the company is currently a disclosed holding of benchmark_etf. One of 'confirmed_constituent', 'confirmed_nonconstituent', 'not_verified'. This field never affects benchmark_etf and a 'confirmed_nonconstituent' value is NOT a defect.",
+    "constituent_status_source": "Evidence behind constituent_status.",
+    "classification_source": "Evidence behind gics_sector.",
+    "retrieval_date": "Date both sources above were retrieved (ISO-8601)."
+  },
+  "review_notes": "All 24 tickers were reviewed under the stated rule: confirm the GICS sector, then assign that sector's SPDR Select Sector ETF as the benchmark. Constituent status was recorded separately for each ticker and was never used to justify a benchmark assignment. CORRECTION HISTORY: (a) mapping_version 0.2 summarised this mapping as a count of tickers verified to be holdings of their assigned ETF, and flagged GME as an unresolved ambiguity for failing that check. That framing was wrong in kind, not just in wording -- it treated fund membership as the thing being verified, when the mapping only ever needed the GICS sector. Version 0.3 separates the two concepts into distinct fields and removes the membership-count summary entirely; no count of that kind appears anywhere in this file, by design and under test. (b) GPN's v0.1 assignment of XLK was corrected to XLF in v0.2 and remains XLF: its GICS sector is Financials following the 2023 GICS structure update that moved the 'Transaction & Payment Processing Services' sub-industry out of Information Technology. (c) GME remains XLY. Its GICS sector (Consumer Discretionary) is authoritatively confirmed by S&P Dow Jones Indices -- the GICS co-owner -- in its own index-announcement press release, and corroborated by GME's current S&P MidCap 400 listing. GME is a CONFIRMED NONCONSTITUENT of XLY, and this is expected rather than anomalous: XLY tracks the Consumer Discretionary Select Sector Index, whose eligible universe is the S&P 500, and GME is an S&P MidCap 400 member, not an S&P 500 member. GME is therefore correctly benchmarked against XLY under the stated rule and is NOT represented anywhere in this mapping as an XLY holding. SOURCE-QUALITY CAVEAT: for the 22 tickers whose GICS sector was established via confirmed Select-Sector-ETF membership, the membership evidence is a third-party aggregator's holdings page (companiesmarketcap.com), not the issuer's own published holdings file. The inference itself is sound -- S&P DJI constructs the Select Sector Indices by partitioning S&P 500 members across the eleven sector indices by GICS sector, so confirmed membership in a given Select Sector ETF entails that GICS sector -- but the underlying membership observation is one source-quality tier below an issuer-published holdings file. This is disclosed rather than papered over.",
+  "mapping": {
+    "AAPL": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 13.87% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "ABBV": {
+      "gics_sector": "Health Care", "benchmark_etf": "XLV", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-health-care-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Health Care Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Health Care.",
+      "retrieval_date": "2026-08-04"
+    },
+    "ADBE": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 0.69% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "AMZN": {
+      "gics_sector": "Consumer Discretionary", "benchmark_etf": "XLY", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 25.60% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Consumer Discretionary Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Consumer Discretionary.",
+      "retrieval_date": "2026-08-04"
+    },
+    "BKR": {
+      "gics_sector": "Energy", "benchmark_etf": "XLE", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-energy-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Energy Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Energy.",
+      "retrieval_date": "2026-08-04"
+    },
+    "BRK-B": {
+      "gics_sector": "Financials", "benchmark_etf": "XLF", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-financial-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed as 'BRK.B' at 11.66% weight -- the dot-notation provider symbol, matching gst_market_response.alpaca_provider's canonical BRK-B -> BRK.B translation)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Financial Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Financials.",
+      "retrieval_date": "2026-08-04"
+    },
+    "CTSH": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 0.18% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "DELL": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 0.81% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "DVN": {
+      "gics_sector": "Energy", "benchmark_etf": "XLE", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-energy-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Energy Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Energy.",
+      "retrieval_date": "2026-08-04"
+    },
+    "GME": {
+      "gics_sector": "Consumer Discretionary", "benchmark_etf": "XLY", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_nonconstituent",
+      "constituent_status_source": "NOT an XLY holding, and this is structural rather than anomalous: XLY tracks the Consumer Discretionary Select Sector Index, whose eligible universe is 'a universe of companies defined by the Standard & Poor's 500 Composite Stock Index' (SSGA/Select Sector SPDRs fund documentation, https://www.ssga.com/mainfund/xly). GameStop is an S&P MidCap 400 member (https://en.wikipedia.org/wiki/List_of_S%26P_400_companies, listing GME under GICS sector Consumer Discretionary), not an S&P 500 member, so it is ineligible for XLY by index construction. Absence from XLY's disclosed holdings list was also directly observed at https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/.",
+      "classification_source": "AUTHORITATIVE, direct: S&P Dow Jones Indices -- co-owner of GICS -- states GameStop's GICS Sector as 'Consumer Discretionary' in its own index-announcement press release (https://www.prnewswire.com/news-releases/gxo-logistics-victorias-secret--gamestop-set-to-join-sp-midcap-400-strategic-education-world-fuel-services--lakeland-financial-to-join-sp-smallcap-600-301342642.html; also published at https://www.spglobal.com/spdji/en/documents/indexnews/announcements/20210727-1426761/1426761_4xpo6lb4wri64spin2.pdf). Corroborated by GME's current S&P MidCap 400 constituent row (GICS sector Consumer Discretionary, sub-industry Computer & Electronics Retail) and by GICS sub-industry Specialty Retail / Computer & Electronics Retail across independent data providers.",
+      "retrieval_date": "2026-08-04",
+      "notes": "This is the mapping's worked example of the rule: benchmark_basis is gics_sector, so a confirmed_nonconstituent status does not weaken, qualify, or block the XLY assignment. GME is nowhere represented as an XLY holding. Enforced by test_market_response_sector_mapping_gate.py."
+    },
+    "GOOGL": {
+      "gics_sector": "Communication Services", "benchmark_etf": "XLC", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "Web search of XLC disclosed top holdings (Alphabet Inc. Class A and Class C both listed among top holdings), retrieved 2026-08-04.",
+      "classification_source": "GICS sector entailed by confirmed membership of the Communication Services Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Communication Services.",
+      "retrieval_date": "2026-08-04"
+    },
+    "GPN": {
+      "gics_sector": "Financials", "benchmark_etf": "XLF", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-financial-select-sector-spdr-fund/holdings/ (present, 0.24% weight) and https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (absent from all 77 XLK holdings), both retrieved 2026-08-04.",
+      "classification_source": "GICS sector Financials following the 2023 GICS structure update, which moved the 'Transaction & Payment Processing Services' sub-industry from Information Technology to Financials. Corroborated by confirmed membership of the Financial Select Sector Index.",
+      "retrieval_date": "2026-08-04",
+      "notes": "Corrected from XLK to XLF in mapping_version 0.2 and unchanged in 0.3. The correction was driven by the GICS sector change, not by fund membership; membership merely corroborates it."
+    },
+    "INTC": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 2.98% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "LDOS": {
+      "gics_sector": "Industrials", "benchmark_etf": "XLI", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-industrial-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Industrial Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Industrials.",
+      "retrieval_date": "2026-08-04"
+    },
+    "MSFT": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 9.49% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "NCLH": {
+      "gics_sector": "Consumer Discretionary", "benchmark_etf": "XLY", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 0.21% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Consumer Discretionary Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Consumer Discretionary.",
+      "retrieval_date": "2026-08-04"
+    },
+    "NKE": {
+      "gics_sector": "Consumer Discretionary", "benchmark_etf": "XLY", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 1.26% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Consumer Discretionary Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Consumer Discretionary.",
+      "retrieval_date": "2026-08-04"
+    },
+    "QCOM": {
+      "gics_sector": "Information Technology", "benchmark_etf": "XLK", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-technology-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 1.11% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Technology Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Information Technology.",
+      "retrieval_date": "2026-08-04"
+    },
+    "SBUX": {
+      "gics_sector": "Consumer Discretionary", "benchmark_etf": "XLY", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 3.02% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Consumer Discretionary Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Consumer Discretionary.",
+      "retrieval_date": "2026-08-04"
+    },
+    "STZ": {
+      "gics_sector": "Consumer Staples", "benchmark_etf": "XLP", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-consumer-staples-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed as 'Constellation Brands Inc A' at 1.16% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Consumer Staples Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Consumer Staples.",
+      "retrieval_date": "2026-08-04"
+    },
+    "SYK": {
+      "gics_sector": "Health Care", "benchmark_etf": "XLV", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-health-care-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Health Care Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Health Care.",
+      "retrieval_date": "2026-08-04"
+    },
+    "TSLA": {
+      "gics_sector": "Consumer Discretionary", "benchmark_etf": "XLY", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-consumer-discretionary-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page; listed at 14.69% weight)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Consumer Discretionary Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Consumer Discretionary.",
+      "retrieval_date": "2026-08-04"
+    },
+    "TTWO": {
+      "gics_sector": "Communication Services", "benchmark_etf": "XLC", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "Web search of XLC disclosed top holdings (Take-Two Interactive Software listed at 5.24% weight), retrieved 2026-08-04.",
+      "classification_source": "GICS sector entailed by confirmed membership of the Communication Services Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Communication Services.",
+      "retrieval_date": "2026-08-04"
+    },
+    "UAL": {
+      "gics_sector": "Industrials", "benchmark_etf": "XLI", "benchmark_basis": "gics_sector",
+      "constituent_status": "confirmed_constituent",
+      "constituent_status_source": "https://companiesmarketcap.com/the-industrial-select-sector-spdr-fund/holdings/ (third-party aggregator holdings page)",
+      "classification_source": "GICS sector entailed by confirmed membership of the Industrial Select Sector Index, which S&P DJI populates from S&P 500 members classified GICS Industrials.",
+      "retrieval_date": "2026-08-04"
+    }
+  }
+}
