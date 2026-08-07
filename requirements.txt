@@ -1,0 +1,25 @@
+# Dependencies for gst_market_response/ (the Earnings Market-Response
+# Decomposition module -- see Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md).
+#
+# This file covers gst_market_response/ ONLY. No repo-wide requirements
+# file existed before this addition, and the rest of this research
+# repository's dependencies (pytrends, the wider GST_*.py scripts, etc.)
+# are deliberately out of scope for this file -- pinning them is a
+# separate, unrelated task.
+#
+# exchange_calendars: authoritative XNYS trading-session/holiday/early-close
+# calendar, replacing the hand-maintained partial holiday list in
+# event_registry.is_trading_day_v0_1 (superseded, kept only for
+# auditability -- see gst_market_response/exchange_calendar.py).
+exchange_calendars==4.13.2
+
+# requests: used directly (no SDK) by gst_market_response/alpaca_provider.py
+# to call Alpaca's documented REST market-data endpoint.
+requests>=2.31.0
+
+# yfinance: the DEVELOPMENT-ONLY intraday provider (providers.py). Not
+# eligible for a real event's COMPLETE status -- see
+# GST_MARKET_RESPONSE_PROVIDER_LIMITATIONS_v0.1.md.
+yfinance>=0.2.40
+
+pandas>=2.0.0
