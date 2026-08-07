@@ -1,0 +1,185 @@
+{
+  "plan_schema_version": "0.1",
+  "planner_version": "0.1",
+  "planning_commit": "87f5d7708d4fa6340517606eb4c1b4a62509cc8e",
+  "methodology_version": "market_response_v0.1",
+  "registry_schema_version": "0.1",
+  "exchange_calendar": "XNYS_exchange_calendars_v4.13.2",
+  "generated_at_utc": "2026-08-07T00:00:00+00:00",
+  "event": {
+    "event_id": "EVT-DELL-FY27Q2-ERN",
+    "ticker": "DELL",
+    "company_name": "Dell Technologies Inc.",
+    "fiscal_period": "FY27Q2",
+    "earnings_date": "2026-09-03",
+    "event_datetime_utc": "2026-09-03T20:30:00+00:00",
+    "event_datetime_local_et": "2026-09-03T16:30:00-04:00",
+    "release_market_session": "AMC",
+    "expected_response_session_from_registry": "2026-09-04"
+  },
+  "registry_provenance": {
+    "source_registration_row_id": "EVT-DELL-FY27Q2-ERN-REG-001",
+    "registry_path": "Live Signal Engine/Market_Response_Event_Registry/registry.jsonl",
+    "verification_status": "verified",
+    "verified_by": "Harshith Akurati",
+    "verified_at_utc": "2026-08-07T06:14:40.276602+00:00",
+    "source_url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+    "source_title": "Upcoming Events | Dell Technologies",
+    "source_type": "company_ir_events_calendar",
+    "source_retrieved_at_utc": "2026-08-07T06:10:27+00:00"
+  },
+  "sessions": {
+    "pre_event_anchor": {
+      "label": "pre_event_anchor",
+      "session_date": "2026-09-02",
+      "is_early_close": false,
+      "open_utc": "2026-09-02T13:30:00+00:00",
+      "close_utc": "2026-09-02T20:00:00+00:00",
+      "open_local_et": "2026-09-02T09:30:00-04:00",
+      "close_local_et": "2026-09-02T16:00:00-04:00",
+      "earliest_provider_retrieval_utc": "2026-09-02T20:10:00+00:00",
+      "earliest_provider_retrieval_local_et": "2026-09-02T16:10:00-04:00"
+    },
+    "D1": {
+      "label": "D1",
+      "session_date": "2026-09-04",
+      "is_early_close": false,
+      "open_utc": "2026-09-04T13:30:00+00:00",
+      "close_utc": "2026-09-04T20:00:00+00:00",
+      "open_local_et": "2026-09-04T09:30:00-04:00",
+      "close_local_et": "2026-09-04T16:00:00-04:00",
+      "earliest_provider_retrieval_utc": "2026-09-04T20:10:00+00:00",
+      "earliest_provider_retrieval_local_et": "2026-09-04T16:10:00-04:00"
+    },
+    "D2": {
+      "label": "D2",
+      "session_date": "2026-09-08",
+      "is_early_close": false,
+      "open_utc": "2026-09-08T13:30:00+00:00",
+      "close_utc": "2026-09-08T20:00:00+00:00",
+      "open_local_et": "2026-09-08T09:30:00-04:00",
+      "close_local_et": "2026-09-08T16:00:00-04:00",
+      "earliest_provider_retrieval_utc": "2026-09-08T20:10:00+00:00",
+      "earliest_provider_retrieval_local_et": "2026-09-08T16:10:00-04:00"
+    },
+    "D3": {
+      "label": "D3",
+      "session_date": "2026-09-09",
+      "is_early_close": false,
+      "open_utc": "2026-09-09T13:30:00+00:00",
+      "close_utc": "2026-09-09T20:00:00+00:00",
+      "open_local_et": "2026-09-09T09:30:00-04:00",
+      "close_local_et": "2026-09-09T16:00:00-04:00",
+      "earliest_provider_retrieval_utc": "2026-09-09T20:10:00+00:00",
+      "earliest_provider_retrieval_local_et": "2026-09-09T16:10:00-04:00"
+    }
+  },
+  "non_sessions_between_d1_and_d3": [
+    {
+      "date": "2026-09-05",
+      "weekday": "Saturday",
+      "xnys_open": false
+    },
+    {
+      "date": "2026-09-06",
+      "weekday": "Sunday",
+      "xnys_open": false
+    },
+    {
+      "date": "2026-09-07",
+      "weekday": "Monday",
+      "xnys_open": false
+    }
+  ],
+  "required_inputs": {
+    "pre_event_snapshot": [
+      "Phase 2 daily panel CSV for the anchor session (explicit path)",
+      "paired Phase 2 completion marker JSON (explicit path)",
+      "option benchmark: expiration, underlying_price, quote_timestamp_utc (+ straddle_mid OR long_executable_implied_move_cost)"
+    ],
+    "D1": [
+      "intraday 5-minute bars for D1",
+      "benchmark ETF bars for D1",
+      "anchor previous_close"
+    ],
+    "D2_D3": [
+      "daily closes for D1, D2, D3",
+      "benchmark ETF closes for the same sessions"
+    ]
+  },
+  "required_completeness_gates": {
+    "pre_event": "completeness.is_valid_pre_event_observation",
+    "option_benchmark": "completeness.is_valid_option_benchmark",
+    "d1": "completeness.is_valid_d1_decomposition",
+    "d3": "completeness.is_valid_d3_completion"
+  },
+  "prohibited_actions": [
+    "planner must never call a market-data or attention provider",
+    "planner must never transition event state or write to the EventStore",
+    "planner must never modify the registry",
+    "planner must never infer a date from price, volume or attention data",
+    "no Layer B emission before the linked Layer A label is frozen AND revealed per protocol"
+  ],
+  "unresolved_blockers": [
+    {
+      "id": "BLK-OPT-1",
+      "severity": "hard",
+      "area": "option benchmark",
+      "finding": "No operationally verified option-quote source exists. Alpaca contains zero option support (no option/chain/expiry/strike references in alpaca_provider.py), so the only option-chain route is yfinance via GST_Option_Chain_Core. option_chain_adapter.py has no provider-eligibility concept at all -- it never consults is_eligible_for_real_event, which is a bars-provider notion. The option path therefore has no clearance decision of its own.",
+      "evidence": [
+        "gst_market_response/alpaca_provider.py (no option endpoint)",
+        "gst_market_response/option_chain_adapter.py (no eligibility gate)",
+        "GST_Option_Chain_Core.get_option_snapshot (yfinance chain only)"
+      ],
+      "decision_required_from_human": "Choose and operationally validate an option-quote source with per-quote timestamps, or decide the first event proceeds without an option benchmark and accept the resulting completeness tier."
+    },
+    {
+      "id": "BLK-OPT-2",
+      "severity": "hard",
+      "area": "option quote provenance",
+      "finding": "build_option_benchmark() requires the CALLER to supply quote_timestamp_utc and underlying_price. A yfinance option chain carries no per-quote timestamp, so that value would be asserted by the caller rather than observed from the venue. The adapter's own skew and crossed-quote gates (MAX_COMPATIBLE_QUOTE_SKEW_SECONDS=120, REJECTED_BID_GT_ASK, REJECTED_INCOMPATIBLE_TIMESTAMPS) can only be as trustworthy as that asserted input.",
+      "evidence": [
+        "gst_market_response/option_chain_adapter.py:build_option_benchmark"
+      ],
+      "decision_required_from_human": "Establish an observed, venue-sourced quote timestamp before any real option capture."
+    },
+    {
+      "id": "BLK-ORCH-1",
+      "severity": "hard",
+      "area": "orchestration",
+      "finding": "No end-to-end pre-event capture command exists. build_option_benchmark() is referenced only by test_market_response_decomposition.py; nothing in production calls it. pipeline.capture_pre_event_and_option_benchmark() accepts two already-built dicts and fetches nothing. gst_market_response/cli.py exposes only a gate check plus completion-marker write (--store-root/--event-id/--tier). Nothing wires Phase 2 panel -> phase2_adapter -> option benchmark -> EventStore.",
+      "evidence": [
+        "gst_market_response/pipeline.py:capture_pre_event_and_option_benchmark",
+        "gst_market_response/cli.py",
+        "grep: build_option_benchmark called only from tests"
+      ],
+      "decision_required_from_human": "Authorize an orchestration design only after BLK-OPT-1/2 are resolved."
+    },
+    {
+      "id": "BLK-STALE-1",
+      "severity": "material",
+      "area": "stale-input protection",
+      "finding": "import_pre_event_fields_for_ticker() takes only (csv_path, marker_path, ticker, research_commit_sha, methodology_version). It hashes both inputs and cross-verifies the marker's counts against the CSV, but it has no expected-session parameter, so it cannot reject a panel from the wrong date. A stale but internally consistent panel would pass every existing check.",
+      "evidence": [
+        "gst_market_response/phase2_adapter.py:import_pre_event_fields_for_ticker"
+      ],
+      "decision_required_from_human": "Decide whether the anchor-session binding is enforced in code or by operator checklist before the first real capture."
+    },
+    {
+      "id": "BLK-PANEL-1",
+      "severity": "material",
+      "area": "Phase 2 panel availability",
+      "finding": "A pre-event snapshot needs a COMPLETE Phase 2 panel for the anchor session. The most recent recorded live attempts were PARTIAL, and the Phase 2 lane's own remaining blocker (intermittent per-article Wikipedia 404s) is unresolved. Panel availability on 2026-09-02 is therefore not guaranteed.",
+      "evidence": [
+        "Live Signal Engine/Phase2 Failure Evidence/*",
+        "CHANGELOG.md Phase 2 entries"
+      ],
+      "decision_required_from_human": "Confirm the panel-run plan for the anchor session."
+    }
+  ],
+  "integrity": {
+    "algorithm": "sha256",
+    "canonicalization": "json.dumps(sort_keys=True, separators=(',',':'), ensure_ascii=False), 'integrity' key excluded",
+    "plan_content_sha256": "e3ebd83b969dcbc389b326dd5bcd613bd86f981498b4c7c14f6b6a4d38c600d8"
+  }
+}
