@@ -171,6 +171,18 @@ market-data request or broker order was made, and no trading strategy was tested
 Suite totals after this pass: Phase 2 **12 files / 617 assertions**; Market Response **15 files / 601 assertions**;
 Event Dossier validator **27 e2e assertions + 21 unit tests**. All re-run with outbound sockets blocked.
 
+## Done — sixth pass (2026-08-07): DELL FY27 Q2 registered, offline operational plan built
+
+**The first prospective event is registered.** `EVT-DELL-FY27Q2-ERN` (Dell Technologies Inc., FY27 Q2) is preregistered on `main` via PR #4 and remains in state **`REGISTERED` only**. **No pre-event snapshot has been taken**, and no market, attention, option, consensus, or earnings-result data has been inspected — for selection or since. This pass tests no strategy and produces no research result.
+
+- [x] **Deterministic operations planner** (`operations_plan.py` + plan-only `operations_cli.py`) — derives the schedule from the merged XNYS calendar and the verified registry row; reimplements no trading-day arithmetic. Fail-closed on absent, duplicated, unverified, amended-into-unusable, wrong-calendar, missing/naive-timestamp, non-locked-universe and malformed-id events, and on an AMC/BMO claim that disagrees with the session close/open.
+- [x] **DELL schedule derived** — anchor **2026-09-02**, release **2026-09-03T20:30:00Z (AMC)**, **D1 2026-09-04**, **D2 2026-09-08**, **D3 2026-09-09**; 2026-09-07 (Labor Day) plus the weekend recorded as non-sessions. Each session carries UTC + ET open/close and the earliest freshness-gate-permitted retrieval instant.
+- [x] **Structurally offline** — no provider imported or constructed, no socket, no credential, no event-state transition, no registry write. Proven by AST checks and subprocess isolation with providers import-blocked and `socket.connect` patched to raise.
+- [x] **Versioned plan + runbook** in `Live Signal Engine/Event_Operations/EVT-DELL-FY27Q2-ERN/`, with a deterministic `plan_content_sha256`; the CLI refuses to overwrite an existing plan.
+- [x] **89 new deterministic assertions** (`test_market_response_operations_plan.py`).
+
+**Not done in this pass, deliberately:** no live capture runner was built. The capture-gap audit found **no end-to-end pre-event capture command exists**, with three hard blockers (BLK-OPT-1/2, BLK-ORCH-1) and two material ones (BLK-STALE-1, BLK-PANEL-1) carried inside the plan. See the blocker list below.
+
 ## NOT done — remaining blockers before the first real event can be registered
 
 0. **A Layer A dossier for the chosen event must exist before Layer B can be emitted for it.** The emitter refuses
