@@ -171,6 +171,44 @@ market-data request or broker order was made, and no trading strategy was tested
 Suite totals after this pass: Phase 2 **12 files / 617 assertions**; Market Response **15 files / 601 assertions**;
 Event Dossier validator **27 e2e assertions + 21 unit tests**. All re-run with outbound sockets blocked.
 
+## Done — ninth pass (2026-08-08): second corrective audit of the v0.2 contract
+
+- [x] **True atomic write-once** — `atomic_write_json_no_overwrite()` was `exists()` → `os.replace()`, a TOCTOU race that destroyed any artifact created in between. Now: write+fsync a temp file, then an exclusive `os.link()` create (`O_CREAT|O_EXCL` fallback), fsync the directory, clean up on every path. An existence check followed by `os.replace()` is prohibited.
+- [x] **Dangling `PRE_EVENT_PENDING` is recoverable** — a crash between the two appends previously left the event permanently stuck. `PRE_EVENT_PENDING` now persists a canonical capture fingerprint; a rerun resumes **only** on an exact match, appends no duplicate pending, never deletes or rewrites the pending record, and never skips the strict gate. Mismatch, missing/non-recomputing fingerprint, or multiple pending records all fail closed.
+- [x] **Correct per-leg statuses** — `panel_implied_volatility` → `iv_status`, `realized_volatility` → `realized_vol_status`; only `previous_close` and `volume` share `price_history_status`. A failed IV leg no longer passes the six-field gate because price history happened to be OK. Unknown statuses fail closed; normalised **and** raw values are persisted as provenance.
+- [x] **`PARTIAL` is stage-specific** — every v0.2 `PARTIAL` carries `failure_stage` (`pre_event` / `d1` / `d3`). Pre-event selectors prefer `PRE_EVENT_CAPTURED` and accept only a pre-event `PARTIAL`; a D1/D3 failure can never erase or replace pre-event eligibility. Legacy records derive their stage from the chronology, never a default.
+- [x] **Option inputs bound to validation** — the complete disposition artifact is canonicalised and hashed at validation; execution re-derives it and refuses on any change to status, reason or benchmark value, with zero writes.
+- [x] **Blank and cross-row date validation** — blanks are no longer discarded before validating. Every row must carry a nonblank `price_asof_date` and `run_date`, each must resolve to exactly one value, `run_date >= price_asof_date` is asserted rather than skipped, and the anchor must equal `price_asof_date`.
+- [x] **Legacy-gate bypass removed** — the capture entry point is split into `_v0_1` (legacy) and `_v0_2` (strict six-field). No unversioned public capture function exists; the old name raises with version guidance.
+- [x] **Differential harness** — `test_market_response_second_pass_differential.py` restores each `ed4df74` defect in isolation and proves the corresponding regression depends on the fix.
+- [x] **206 assertions** in the pre-event capture suite (13 required second-pass regressions plus crash injection at four points), and **26** in the differential harness.
+
+## Done — eighth pass (2026-08-08): v0.2 contract formalised and hardened
+
+- [x] **Formal v0.2 documents** — `SPEC_v0.2_DRAFT.md` and `FIELD_DICTIONARY_v0.2.md`; v0.1 preserved byte-for-byte.
+- [x] **Strict six-field core gate** (`evaluate_strict_core_v0_2`) — all six panel fields present AND each backed by a successful source status; a legitimate `0.0` passes, missingness is never inferred from zero. The v0.1 gate is untouched.
+- [x] **`panel_implied_volatility`** persisted as six-field provenance under a namespaced key; SPEC §5's prohibition on using panel IV as an implied-move baseline is **unchanged**.
+- [x] **Full provenance persisted and marker tie-out** — 15 fields on the record, echoed field-for-field in every stage marker.
+- [x] **TOCTOU closed** — execution re-hashes both panel files and re-runs anchor/status/strict-core checks before the first write; any drift fails with zero writes.
+- [x] **Immutable stage markers** — write-once `PRE_EVENT_CAPTURE` / `D1_CAPTURE` / `FINAL_COMPLETION`; no path may unlink or overwrite to progress; deterministic crash recovery that regenerates only a *missing* marker and fails closed on a mismatched one.
+- [x] **`check_required_gate` corrected** — reads the record for the tier being checked, not the latest record.
+- [x] **`VALID_VERIFIED` refused by the CLI** — no hand-written JSON can assert OPRA verification.
+- [x] **Authoritative session date** — the anchor binds to `price_asof_date`, never `run_date` or a truncated UTC timestamp; ambiguity fails closed.
+- [x] **Stage vocabulary corrected** — the state machine implements D1 and D3; the D3 tier carries the D2 close-to-close measurement; the D2 *session* is owned by `operations_plan.py`. No D2 state was invented.
+- [x] **122 assertions** in the pre-event capture suite.
+
+## Done — seventh pass (2026-08-08): protocol v0.2 amendment + pre-event capture orchestrator
+
+**Authorized methodology amendment, made before any prospective observation exists.** `EVT-DELL-FY27Q2-ERN` remains **`REGISTERED`**; no pre-event snapshot, market-response observation, dossier, or Layer B record exists, and no DELL attention/price/volume/volatility/options/earnings/consensus/analyst data was inspected. The human-verified timing registry was **not** amended — no timing fact changed.
+
+- [x] **Protocol v0.2 — lifecycle/eligibility separation.** v0.1 required both the core gate *and* the option gate for `PRE_EVENT_CAPTURED`, so an unavailable **optional** option benchmark forced `PARTIAL` (terminal) and made D1/D2/D3 uncollectable. Lifecycle state now records collection; analytical eligibility is per-module (`core_pre_event_eligible`, `option_benchmark_eligible`, `joint_full_eligible`, `pre_event_completeness_tier`, `option_benchmark_status`, `option_benchmark_unavailable_reason`). **No existing threshold, required-field list, quote-age limit or skew limit was changed.**
+- [x] **Explicit option disposition** — `VALID_VERIFIED` / `UNAVAILABLE_NO_VERIFIED_SOURCE` / `LOOKUP_FAILED` / `NOT_ATTEMPTED`. Unavailability is never inferred from `{}` or nulls; unknown/blank fails closed; indicative can be neither relabelled as unavailable nor promoted to OPRA; a supplied-but-invalid artifact is rejected with zero writes; legacy v0.1 records raise an explicit migration error rather than being reinterpreted.
+- [x] **A core-only event is never full-data complete.** It may reach lifecycle `COMPLETE`, but the completion marker carries the `core_only_no_option_benchmark` tier and `is_full_data_complete: false`, and it is mechanically excluded from options-implied-move and joint hypotheses.
+- [x] **Pre-event capture orchestrator** (`pre_event_capture.py` + `pre_event_capture_cli.py`) — connects existing components only; never contacts a provider; read-only by default; `--execute` required; no force/override/skip/allow-stale flag exists; validation completes before the first byte; collisions and repeat runs fail closed with zero additional bytes.
+- [x] **84 new deterministic assertions**; `test_market_response_decomposition.py` now 87.
+
+**Deliberately still not done:** no real capture has occurred, and the options benchmark remains unavailable (Alpaca entitlement INCONCLUSIVE). The amendment makes that situation survivable; it does not resolve it.
+
 ## Done — sixth pass (2026-08-07): DELL FY27 Q2 registered, offline operational plan built
 
 **The first prospective event is registered.** `EVT-DELL-FY27Q2-ERN` (Dell Technologies Inc., FY27 Q2) is preregistered on `main` via PR #4 and remains in state **`REGISTERED` only**. **No pre-event snapshot has been taken**, and no market, attention, option, consensus, or earnings-result data has been inspected — for selection or since. This pass tests no strategy and produces no research result.
