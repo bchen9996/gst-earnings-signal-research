@@ -42,7 +42,7 @@ Every date below was derived from the XNYS calendar by the planner, not typed in
 
 **Do not** capture anything in this stage.
 
-## 1b. Exact commands (protocol v0.2, orchestrator v0.1)
+## 1b. Exact commands (protocol v0.2 — see SPEC v0.2 / field dictionary v0.2)
 
 **Execution before the anchor session is forbidden.** Do not run `--execute` before 2026-09-02's close. The orchestrator enforces the anchor mechanically and refuses a future-dated panel, but the operational rule stands on its own.
 
@@ -74,7 +74,7 @@ python -m gst_market_response.pre_event_capture_cli \
 
 **Execution — only after validation exits 0.** The same command plus `--execute`.
 
-If a verified OPRA benchmark does become available, replace the two `--option-*` flags with `--option-benchmark-json <path>`; that artifact must declare `option_benchmark_status: VALID_VERIFIED` and `option_feed: opra`, and pass the existing benchmark gate.
+**Do not attempt to supply a verified options artifact.** The CLI **refuses** `VALID_VERIFIED` outright: it cannot authenticate provider identity, endpoint, response hash, contracts, strike, expiration, per-leg quote timestamps, quote age, skew, or a recomputed benchmark, so a hand-written JSON asserting `option_feed: opra` would be indistinguishable from a fabricated one. Do not hand-write such a file — it will be rejected with exit 2. Enabling this route requires a separately cleared provider artifact and a documented threat model, neither of which exists yet.
 
 **Exit codes:** `0` validation passed / capture succeeded · `1` validation failed (stale, future, wrong anchor, hash or identity mismatch, missing core field, bad option artifact, collision, state error) · `2` usage error.
 
@@ -83,13 +83,15 @@ If a verified OPRA benchmark does become available, replace the two `--option-*`
 | File | |
 |---|---|
 | `EVT-DELL-FY27Q2-ERN.jsonl` | append-only event log |
-| `EVT-DELL-FY27Q2-ERN_COMPLETION_MARKER.json` | atomic marker carrying the tier and `is_full_data_complete` |
+| `EVT-DELL-FY27Q2-ERN_PRE_EVENT_CAPTURE_MARKER.json` | **immutable** stage marker: tier, `is_full_data_complete`, full provenance |
 
-**Required hashes.** Record the panel CSV and marker SHA-256 printed in the validation report; the adapter re-hashes both and cross-verifies the marker's own counts against the CSV. The registry blob must remain `71681aa48b9b483d582b887e82c229ba791548ae00a42ef9cf86be34776f4974`.
+Later stages write their own immutable markers (`..._D1_CAPTURE_MARKER.json`, then `..._FINAL_COMPLETION_MARKER.json` at a terminal state only). **Never delete or overwrite a marker to progress** — `atomic_write_json_no_overwrite()` will refuse, and that refusal is the intended behaviour.
 
-**Collision stop conditions — all fail closed with zero new bytes.** An existing `PRE_EVENT_PENDING`/`PRE_EVENT_CAPTURED` state, or an existing completion marker, aborts the run. Repeated execution is idempotent by refusal. **Never** delete an event log or marker to "retry" — a correction is an append-only amendment.
+**Required hashes.** Record the panel CSV and marker SHA-256 printed in the validation report; execution re-verifies both and aborts on any change; the adapter re-hashes both and cross-verifies the marker's own counts against the CSV. The registry blob must remain `71681aa48b9b483d582b887e82c229ba791548ae00a42ef9cf86be34776f4974`.
 
-**Unavailable-options behaviour.** With `--option-status UNAVAILABLE_NO_VERIFIED_SOURCE` the capture proceeds: core eligible, option module **ineligible**, joint **ineligible**, tier `core_only_no_option_benchmark`, every option value **null — never zero**. D1/D2/D3 remain collectible and the event may reach lifecycle `COMPLETE`, but the marker reports `is_full_data_complete: false` and the event is mechanically excluded from options-implied-move and joint hypotheses. Indicative quotes are not an acceptable substitute and cannot be relabelled as either unavailable or OPRA-valid.
+**Collision stop conditions — all fail closed with zero new bytes.** An existing `PRE_EVENT_PENDING`/`PRE_EVENT_CAPTURED` state, or an existing immutable stage marker, aborts the run. Execution also **re-hashes both panel files** immediately before writing and refuses if either changed since validation (TOCTOU). Repeated execution is idempotent by refusal. **Never** delete an event log or marker to "retry" — a correction is an append-only amendment.
+
+**Unavailable-options behaviour.** With `--option-status UNAVAILABLE_NO_VERIFIED_SOURCE` the capture proceeds: core eligible, option module **ineligible**, joint **ineligible**, tier `core_only_no_option_benchmark`, every option value **null — never zero**. The D1 and D3 market-response stages remain collectible (the D3 tier carries the D2 close-to-close measurement; there is no separate D2 *state* — the D2 *session* is scheduled by `operations_plan.py`) and the event may reach lifecycle `COMPLETE`, but the marker reports `is_full_data_complete: false` and the event is mechanically excluded from options-implied-move and joint hypotheses. Indicative quotes are not an acceptable substitute and cannot be relabelled as either unavailable or OPRA-valid.
 
 **Rollback / recovery.** There is no rollback of an append-only store. If a capture is wrong: stop, delete nothing, and record an append-only amendment. Re-running against a corrected panel is a new decision, not a flag — there is no `--force`, `--overwrite`, `--skip-validation`, `--allow-stale` or `--ignore`.
 

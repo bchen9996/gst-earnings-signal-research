@@ -92,6 +92,96 @@ PROTOCOL_VERSION = "0.2"
 PROTOCOL_AMENDED_AT_UTC = "2026-08-08"
 PROTOCOL_AMENDMENT_ID = "AMD-001-lifecycle-eligibility-separation"
 
+# The ONLY methodology identifier the v0.2 capture path accepts. Blank,
+# arbitrary, stale and v0.1 values are rejected by the CLI and the orchestrator.
+METHODOLOGY_VERSION_V0_2 = "market_response_v0.2"
+
+# --- STRICT v0.2 CORE GATE --------------------------------------------------
+#
+# The legacy gate (is_valid_pre_event_observation) required only
+# previous_close + pre_event_snapshot_asof_utc, with gst_zscore satisfiable by
+# an honest missing/error status. It is PRESERVED UNCHANGED because existing
+# tests and the v0.1 contract depend on it.
+#
+# v0.2 adds a STRICTER gate used by the new pre-event capture path: all six
+# Phase 2 panel fields must be present with a successful source status.
+#
+# NOTE ON implied_volatility -- read this before changing it.
+# SPEC v0.1 section 5 and the field dictionary state that the panel's generic
+# `implied_volatility` must NEVER be used as an earnings-implied-move baseline;
+# option_chain_adapter is the only legitimate source for an implied-move-shaped
+# field. That prohibition is UNCHANGED. v0.2 persists the panel's IV strictly as
+# SIX-FIELD COMPLETENESS PROVENANCE, under the deliberately namespaced key
+# `panel_implied_volatility`, and it is never exposed as `implied_volatility`,
+# never fed to the option benchmark, and never usable as an implied-move value.
+# Persisting a field as evidence and using it as a benchmark are different acts;
+# only the second is prohibited.
+
+STRICT_CORE_SIX_FIELDS = (
+    "gst_zscore",
+    "wiki_zscore",
+    "panel_implied_volatility",
+    "realized_volatility",
+    "previous_close",          # the protocol's canonical price field
+    "volume",
+)
+
+# Source statuses that count as a successful observation. Mirrors
+# phase2_adapter's normalised success categories; a fallback-served value is a
+# success but is not "fresh" -- that distinction lives in the raw status.
+STRICT_CORE_SUCCESS_STATUSES = ("ok", "ok_recent_cache_fallback")
+
+# Per-field source-status key, where the panel provides one. Fields with no
+# dedicated status inherit the price leg's status.
+STRICT_CORE_STATUS_KEY = {
+    "gst_zscore": "source_status_gst",
+    "wiki_zscore": "source_status_wiki",
+    "panel_implied_volatility": "source_status_price",
+    "realized_volatility": "source_status_price",
+    "previous_close": "source_status_price",
+    "volume": "source_status_price",
+}
+
+STRICT_CORE_REQUIRED_PROVENANCE = ("pre_event_snapshot_asof_utc",)
+
+
+@dataclass(frozen=True)
+class StrictCoreResult:
+    passed: bool
+    missing_fields: tuple[str, ...]
+    bad_status_fields: tuple[str, ...]
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"strict_core_passed": self.passed,
+                "strict_core_missing_fields": list(self.missing_fields),
+                "strict_core_bad_status_fields": list(self.bad_status_fields)}
+
+
+def evaluate_strict_core_v0_2(fields: dict[str, Any]) -> StrictCoreResult:
+    """All six panel fields present AND each backed by a successful source
+    status. A legitimate numeric 0.0 with a successful status PASSES; missingness
+    is never inferred from a zero value."""
+    missing = [k for k in STRICT_CORE_SIX_FIELDS if fields.get(k) is None]
+    missing += [k for k in STRICT_CORE_REQUIRED_PROVENANCE if _missing_prov(fields, k)]
+    bad = []
+    for f in STRICT_CORE_SIX_FIELDS:
+        if fields.get(f) is None:
+            continue  # already counted as missing
+        status = fields.get(STRICT_CORE_STATUS_KEY[f])
+        if status not in STRICT_CORE_SUCCESS_STATUSES:
+            bad.append(f)
+    return StrictCoreResult(passed=not missing and not bad,
+                            missing_fields=tuple(missing), bad_status_fields=tuple(bad))
+
+
+def _missing_prov(fields: dict[str, Any], key: str) -> bool:
+    v = fields.get(key)
+    return v is None or (isinstance(v, str) and v.strip() == "")
+
+
+def is_valid_strict_core_v0_2(fields: dict[str, Any]) -> bool:
+    return evaluate_strict_core_v0_2(fields).passed
+
 
 class OptionBenchmarkDisposition:
     """Explicit, operator-declared disposition of the option benchmark.

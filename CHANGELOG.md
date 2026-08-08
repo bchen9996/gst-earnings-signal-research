@@ -1,6 +1,34 @@
 # Changelog
 
 
+## 2026-08-08 — v0.2 contract formalised and hardened (corrective pass on PR #6)
+
+The v0.2 amendment landed as code before it existed as a document. This pass writes the formal contract and closes seven defects found by auditing it. **`EVT-DELL-FY27Q2-ERN` remains `REGISTERED`**; no pre-event snapshot, market-response observation, dossier, Layer B record, event log or stage marker exists; no provider was contacted and no DELL market/attention/options/earnings data was inspected. The registry row is untouched.
+
+**Formal contract.** New `GST_Earnings_Market_Response_Decomposition_SPEC_v0.2_DRAFT.md` and `GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.2.md`; the v0.1 documents are preserved **byte-for-byte**. The methodology identifier `market_response_v0.2` is now enforced — blank, arbitrary, stale and v0.1 values are rejected by both the CLI and the orchestrator, and the accepted value is persisted into the event record and every stage marker.
+
+**The core is now actually six-field.** v0.2 adds `evaluate_strict_core_v0_2()` (the v0.1 gate is untouched and still serves the legacy path). It requires all six panel fields — `gst_zscore`, `wiki_zscore`, `panel_implied_volatility`, `realized_volatility`, `previous_close`, `volume` — each backed by a successful source status (`ok` or `ok_recent_cache_fallback`), plus `pre_event_snapshot_asof_utc`. A null fails; a non-success status fails; **a legitimate `0.0` with a successful status passes**, so missingness is never inferred from a zero.
+
+*On `panel_implied_volatility`:* SPEC v0.1 §5 forbids using the panel's generic IV as an earnings-implied-move baseline, and **that prohibition is unchanged**. The value is persisted under a deliberately namespaced key purely as six-field completeness provenance — never exposed as `implied_volatility`, never fed to the option benchmark, never usable as an implied-move value. Persisting a field as evidence and using it as a benchmark are different acts; only the second was ever prohibited.
+
+**Full provenance, with marker tie-out.** Fifteen fields are persisted on the pre-event record and echoed field-for-field in every stage marker: panel CSV/marker paths and SHA-256s, panel status, row / unique-ticker / all-six-clean counts, ticker, `run_date`, `price_asof_date`, `pre_event_snapshot_asof_utc`, research commit SHA, methodology version, adapter schema version.
+
+**TOCTOU closed.** Validation approved files that stayed mutable on disk, and execution re-read them without proving they were unchanged. Execution now re-hashes both panel files, requires exact equality with the approved report, and re-runs the anchor, panel-status, marker/CSV and strict-core checks before the first byte. Any drift in either file, the methodology, the commit SHA or the ticker fails with zero writes.
+
+**Immutable stage markers.** v0.1 had a single completion marker that had to be *replaced* to progress — the chronology test literally unlinked it. v0.2 writes one write-once marker per durable stage (`PRE_EVENT_CAPTURE`, `D1_CAPTURE`, `FINAL_COMPLETION`, the last only at a terminal state) via a new `atomic_write_json_no_overwrite()` that raises rather than replacing. Crash recovery is deterministic: a *missing* marker is regenerated from the event record without appending any state, a *tying-out* marker is returned untouched, and a *mismatched* marker fails closed and is never overwritten.
+
+**`check_required_gate()` corrected.** It evaluated `state_records[-1]`, so once D1/D3 were captured a `pre_event` or `option_benchmark` check silently graded D1/D3 fields. It now selects the record belonging to the tier being checked.
+
+**The unsafe options route is closed.** The CLI accepted a hand-written JSON that merely asserted `option_feed="opra"`. Nothing in this tool can authenticate provider identity, endpoint, response hash, contracts, strike, expiration, per-leg quote timestamps, quote age, skew, or a recomputed benchmark, so that route let an operator manufacture a "verified" benchmark by typing a file. `VALID_VERIFIED` is now **refused outright** through the CLI; explicit unavailable dispositions are unaffected, so core-only capture still works. The runbook no longer instructs anyone to produce such a file.
+
+**Authoritative session date — a real correctness bug.** The orchestrator derived the panel's session from `retrieval_timestamp_utc[:10]`. The panel writes two authoritative columns and they genuinely differ: a real run has `run_date=2026-07-30` with `price_asof_date=2026-07-29`, because the panel executes in the small hours UTC (04:40Z = 00:40 ET) **after** the session it summarises. Truncating the UTC timestamp yields `run_date`, so the anchor was being bound to the wrong day. The anchor now binds to **`price_asof_date`**; `run_date >= price_asof_date` is asserted; and a missing column, blank value, or disagreement across rows fails closed rather than being guessed.
+
+**Stage vocabulary corrected.** The market-response state machine implements **D1 and D3**, not D2: `MAINLINE_ORDER` has no D2 state, and the D3 tier's own fields (`close_T1_to_close_T2`, `close_T1_to_close_T3`) already carry the D2 close-to-close measurement. The D2 *session* is owned by `operations_plan.py`, which schedules it as a calendar session. Prose claiming the state machine captures "D1/D2/D3" is corrected. **No D2 state was invented to match prose.**
+
+**Tests.** `test_market_response_pre_event_capture.py` grows to **122 assertions**, including regressions that cannot pass against `9b006a4`: the strict six-field gate and each individual missing field, legitimate-zero vs zero-with-bad-status, provenance persistence and marker tie-out, panel and marker mutation between validation and execution, methodology enforcement, marker immutability, crash recovery including the mismatched-marker refusal, the OPRA-claiming JSON rejection, the corrected gate record selection, and the session-ambiguity cases (including the run-date-after-session case that must *pass*).
+
+
+
 ## 2026-08-08 — PROTOCOL AMENDMENT v0.2: separate collection lifecycle from analytical eligibility
 
 **Authorized methodology amendment**, made **before** any prospective DELL research observation, pre-event snapshot, market-response observation, dossier, or Layer B record exists. It was prompted by deterministic contract tracing, not by looking at data: no DELL attention, price, volume, volatility, options, earnings outcome, consensus, or analyst figure was inspected at any point. `EVT-DELL-FY27Q2-ERN` remains **`REGISTERED`**. The human-verified timing registry is **not** amended — no timing fact changed. Nothing is backdated; the prior v0.1 behaviour and its rationale are preserved in this trail rather than rewritten.

@@ -76,8 +76,24 @@ def check_required_gate(store: EventStore, event_id: str, tier: str) -> int:
     state_records = [r for r in records if r["record_type"] == "STATE"]
     if not state_records:
         return EXIT_INCONCLUSIVE
-    latest_fields = state_records[-1]["fields"]
-    if not latest_fields:
+
+    # PROTOCOL v0.2 correction: read the fields belonging to the tier being
+    # checked, not simply the LATEST record. v0.1 always used state_records[-1],
+    # so once D1/D3 had been captured a "pre_event"/"option_benchmark" check
+    # silently evaluated D1/D3 fields and reported a meaningless result.
+    _STAGE_FOR_TIER = {
+        "pre_event": ("PRE_EVENT_CAPTURED", "PARTIAL"),
+        "option_benchmark": ("PRE_EVENT_CAPTURED", "PARTIAL"),
+        "d1": ("D1_COMPLETE", "PARTIAL"),
+        "d3": ("COMPLETE", "PARTIAL"),
+    }
+    wanted = _STAGE_FOR_TIER.get(tier)
+    if wanted is None:
+        source = state_records[-1]
+    else:
+        source = next((r for r in reversed(state_records)
+                       if r["state"] in wanted and r.get("fields")), None)
+    if source is None or not source.get("fields"):
         return EXIT_INCONCLUSIVE
-    result = evaluate_gate(tier, latest_fields)
+    result = evaluate_gate(tier, source["fields"])
     return EXIT_OK if result.passed else EXIT_GATE_FAILED
