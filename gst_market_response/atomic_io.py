@@ -35,6 +35,28 @@ def atomic_write_json(path: Path, obj: Any) -> None:
     atomic_write_text(path, json.dumps(obj, indent=2, sort_keys=True, default=str))
 
 
+class ImmutableArtifactExistsError(FileExistsError):
+    """An immutable artifact already exists at this path.
+
+    PROTOCOL v0.2 marker lifecycle: progress is never made by overwriting or
+    unlinking evidence. Stage markers are written once and never replaced.
+    """
+
+
+def atomic_write_json_no_overwrite(path: Path, obj: Any) -> None:
+    """Atomic write that REFUSES to replace an existing file.
+
+    Immutable stage markers use this so that no production path -- and no test
+    -- can advance by clobbering prior evidence.
+    """
+    path = Path(path)
+    if path.exists():
+        raise ImmutableArtifactExistsError(
+            f"refusing to overwrite immutable artifact {path}; evidence is append-only"
+        )
+    atomic_write_json(path, obj)
+
+
 def append_bytes_never_truncate(path: Path, data: bytes) -> None:
     """Appends to a file, creating it if necessary. Explicitly opens in 'ab'
     mode only -- never 'w' or 'r+' truncating modes -- so any bytes already

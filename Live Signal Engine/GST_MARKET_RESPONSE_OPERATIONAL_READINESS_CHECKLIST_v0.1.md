@@ -171,6 +171,20 @@ market-data request or broker order was made, and no trading strategy was tested
 Suite totals after this pass: Phase 2 **12 files / 617 assertions**; Market Response **15 files / 601 assertions**;
 Event Dossier validator **27 e2e assertions + 21 unit tests**. All re-run with outbound sockets blocked.
 
+## Done — eighth pass (2026-08-08): v0.2 contract formalised and hardened
+
+- [x] **Formal v0.2 documents** — `SPEC_v0.2_DRAFT.md` and `FIELD_DICTIONARY_v0.2.md`; v0.1 preserved byte-for-byte.
+- [x] **Strict six-field core gate** (`evaluate_strict_core_v0_2`) — all six panel fields present AND each backed by a successful source status; a legitimate `0.0` passes, missingness is never inferred from zero. The v0.1 gate is untouched.
+- [x] **`panel_implied_volatility`** persisted as six-field provenance under a namespaced key; SPEC §5's prohibition on using panel IV as an implied-move baseline is **unchanged**.
+- [x] **Full provenance persisted and marker tie-out** — 15 fields on the record, echoed field-for-field in every stage marker.
+- [x] **TOCTOU closed** — execution re-hashes both panel files and re-runs anchor/status/strict-core checks before the first write; any drift fails with zero writes.
+- [x] **Immutable stage markers** — write-once `PRE_EVENT_CAPTURE` / `D1_CAPTURE` / `FINAL_COMPLETION`; no path may unlink or overwrite to progress; deterministic crash recovery that regenerates only a *missing* marker and fails closed on a mismatched one.
+- [x] **`check_required_gate` corrected** — reads the record for the tier being checked, not the latest record.
+- [x] **`VALID_VERIFIED` refused by the CLI** — no hand-written JSON can assert OPRA verification.
+- [x] **Authoritative session date** — the anchor binds to `price_asof_date`, never `run_date` or a truncated UTC timestamp; ambiguity fails closed.
+- [x] **Stage vocabulary corrected** — the state machine implements D1 and D3; the D3 tier carries the D2 close-to-close measurement; the D2 *session* is owned by `operations_plan.py`. No D2 state was invented.
+- [x] **122 assertions** in the pre-event capture suite.
+
 ## Done — seventh pass (2026-08-08): protocol v0.2 amendment + pre-event capture orchestrator
 
 **Authorized methodology amendment, made before any prospective observation exists.** `EVT-DELL-FY27Q2-ERN` remains **`REGISTERED`**; no pre-event snapshot, market-response observation, dossier, or Layer B record exists, and no DELL attention/price/volume/volatility/options/earnings/consensus/analyst data was inspected. The human-verified timing registry was **not** amended — no timing fact changed.

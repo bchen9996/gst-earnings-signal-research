@@ -62,6 +62,28 @@ def _parser() -> argparse.ArgumentParser:
     return p
 
 
+# PHASE 6 DECISION -- the safe option was taken deliberately.
+#
+# This CLI cannot authenticate an option benchmark. A hand-written JSON could
+# simply assert option_feed="opra" and every downstream check would trust it:
+# nothing here verifies provider identity, endpoint, response hash, contract
+# symbols, strike, expiration, per-leg quote timestamps, quote age, skew, or a
+# recomputed benchmark. Accepting asserted caller values would let an operator
+# manufacture a "verified" OPRA benchmark by typing a file -- which is exactly
+# the fabrication the protocol exists to prevent.
+#
+# Until a separately cleared provider artifact exists, VALID_VERIFIED is
+# refused through this route. Explicit unavailable dispositions remain fully
+# supported, so a core-only capture is unaffected.
+_VALID_VERIFIED_VIA_CLI_BLOCKED = (
+    "VALID_VERIFIED cannot be asserted through this CLI: there is no cleared provider "
+    "artifact, and this tool cannot authenticate provider identity, endpoint, response "
+    "hash, contracts, strike, expiration, per-leg quote timestamps, quote age, skew, or "
+    "a recomputed benchmark. Supply an explicit unavailable disposition "
+    "(UNAVAILABLE_NO_VERIFIED_SOURCE / LOOKUP_FAILED / NOT_ATTEMPTED) instead."
+)
+
+
 def _resolve_option_fields(args) -> dict:
     if args.option_benchmark_json is not None:
         if args.option_status is not None:
@@ -69,7 +91,13 @@ def _resolve_option_fields(args) -> dict:
         data = json.loads(Path(args.option_benchmark_json).read_text(encoding="utf-8"))
         if not isinstance(data, dict):
             raise SystemExit(EXIT_USAGE)
+        if data.get("option_benchmark_status") == OptionBenchmarkDisposition.VALID_VERIFIED:
+            print(f"ERROR: {_VALID_VERIFIED_VIA_CLI_BLOCKED}", file=sys.stderr)
+            raise SystemExit(EXIT_USAGE)
         return data
+    if args.option_status == OptionBenchmarkDisposition.VALID_VERIFIED:
+        print(f"ERROR: {_VALID_VERIFIED_VIA_CLI_BLOCKED}", file=sys.stderr)
+        raise SystemExit(EXIT_USAGE)
     if args.option_status is None:
         print("ERROR: supply either --option-benchmark-json or an explicit --option-status; "
               "option unavailability is never inferred from omission", file=sys.stderr)
