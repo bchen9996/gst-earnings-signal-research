@@ -42,6 +42,57 @@ Every date below was derived from the XNYS calendar by the planner, not typed in
 
 **Do not** capture anything in this stage.
 
+## 1b. Exact commands (protocol v0.2, orchestrator v0.1)
+
+**Execution before the anchor session is forbidden.** Do not run `--execute` before 2026-09-02's close. The orchestrator enforces the anchor mechanically and refuses a future-dated panel, but the operational rule stands on its own.
+
+**Preflight (any time)** — confirms the plan still derives the same schedule:
+
+```bash
+python -m gst_market_response.operations_cli plan \
+  --registry "Live Signal Engine/Market_Response_Event_Registry/registry.jsonl" \
+  --event-id EVT-DELL-FY27Q2-ERN --company-name "Dell Technologies Inc." \
+  --planning-commit <HEAD_SHA> --methodology-version market_response_v0.2
+```
+
+**Validation (read-only, the default — run this first, always).** Writes nothing:
+
+```bash
+python -m gst_market_response.pre_event_capture_cli \
+  --event-id EVT-DELL-FY27Q2-ERN \
+  --expected-anchor-session 2026-09-02 \
+  --panel-csv  "<PATH>/GST_Phase2_DailyPanel_<RUN>.csv" \
+  --panel-marker "<PATH>/GST_Phase2_DailyPanel_<RUN>_COMPLETION_MARKER.json" \
+  --store-root "Live Signal Engine/Event_Operations/EVT-DELL-FY27Q2-ERN/event_store" \
+  --research-commit-sha <HEAD_SHA> \
+  --methodology-version market_response_v0.2 \
+  --registry "Live Signal Engine/Market_Response_Event_Registry/registry.jsonl" \
+  --company-name "Dell Technologies Inc." \
+  --option-status UNAVAILABLE_NO_VERIFIED_SOURCE \
+  --option-reason "Alpaca options entitlement INCONCLUSIVE; no OPRA-verified source"
+```
+
+**Execution — only after validation exits 0.** The same command plus `--execute`.
+
+If a verified OPRA benchmark does become available, replace the two `--option-*` flags with `--option-benchmark-json <path>`; that artifact must declare `option_benchmark_status: VALID_VERIFIED` and `option_feed: opra`, and pass the existing benchmark gate.
+
+**Exit codes:** `0` validation passed / capture succeeded · `1` validation failed (stale, future, wrong anchor, hash or identity mismatch, missing core field, bad option artifact, collision, state error) · `2` usage error.
+
+**Expected files after execution**, under `--store-root`:
+
+| File | |
+|---|---|
+| `EVT-DELL-FY27Q2-ERN.jsonl` | append-only event log |
+| `EVT-DELL-FY27Q2-ERN_COMPLETION_MARKER.json` | atomic marker carrying the tier and `is_full_data_complete` |
+
+**Required hashes.** Record the panel CSV and marker SHA-256 printed in the validation report; the adapter re-hashes both and cross-verifies the marker's own counts against the CSV. The registry blob must remain `71681aa48b9b483d582b887e82c229ba791548ae00a42ef9cf86be34776f4974`.
+
+**Collision stop conditions — all fail closed with zero new bytes.** An existing `PRE_EVENT_PENDING`/`PRE_EVENT_CAPTURED` state, or an existing completion marker, aborts the run. Repeated execution is idempotent by refusal. **Never** delete an event log or marker to "retry" — a correction is an append-only amendment.
+
+**Unavailable-options behaviour.** With `--option-status UNAVAILABLE_NO_VERIFIED_SOURCE` the capture proceeds: core eligible, option module **ineligible**, joint **ineligible**, tier `core_only_no_option_benchmark`, every option value **null — never zero**. D1/D2/D3 remain collectible and the event may reach lifecycle `COMPLETE`, but the marker reports `is_full_data_complete: false` and the event is mechanically excluded from options-implied-move and joint hypotheses. Indicative quotes are not an acceptable substitute and cannot be relabelled as either unavailable or OPRA-valid.
+
+**Rollback / recovery.** There is no rollback of an append-only store. If a capture is wrong: stop, delete nothing, and record an append-only amendment. Re-running against a corrected panel is a new decision, not a flag — there is no `--force`, `--overwrite`, `--skip-validation`, `--allow-stale` or `--ignore`.
+
 ## 2. The locked 2026-09-02 snapshot anchor
 
 **This is the outcome-blind boundary.** Everything captured here must be observable *before* the release. Nothing captured after 2026-09-03T20:30:00Z may enter the pre-event record.

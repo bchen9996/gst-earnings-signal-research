@@ -381,8 +381,14 @@ def test_12_partial_never_becomes_complete():
         store = EventStore(root)
         eid = "EVT-MSFT-FY26Q4-ERN"
         pipeline.register_event(store, eid, {"ticker": "MSFT"})
+        # PROTOCOL v0.2: this ASSERTION is unchanged -- an invalid core still yields
+        # PARTIAL-terminal. Only the INPUT changed: `{}` no longer implies "options
+        # unavailable", because unavailability is never inferred from an empty dict.
+        # The caller must now state a disposition explicitly.
         state = pipeline.capture_pre_event_and_option_benchmark(
-            store, eid, {"previous_close": None, "pre_event_snapshot_asof_utc": None}, {}
+            store, eid, {"previous_close": None, "pre_event_snapshot_asof_utc": None},
+            {"option_benchmark_status": "NOT_ATTEMPTED",
+             "option_benchmark_unavailable_reason": "core snapshot invalid; option capture not attempted"},
         )
         check("12c. Incomplete pre-event data resolves to PARTIAL, not CAPTURED", state == "PARTIAL")
         try:
@@ -630,6 +636,11 @@ def test_end_to_end_synthetic_event():
             tk=tk, earnings_date=earnings_date, underlying_price=450.0, quote_timestamp_utc=datetime.now(UTC),
         )
         option_fields = {k: v for k, v in benchmark.__dict__.items()}
+        # PROTOCOL v0.2: a genuinely verified benchmark must now declare its
+        # disposition and provider feed. The ASSERTION is unchanged -- a valid
+        # core plus a valid OPRA benchmark still reaches PRE_EVENT_CAPTURED.
+        option_fields["option_benchmark_status"] = "VALID_VERIFIED"
+        option_fields["option_feed"] = "opra"
         check("E2E-2. Synthetic option benchmark resolves OK", benchmark.contract_selection_status == "ok")
 
         state = pipeline.capture_pre_event_and_option_benchmark(store, eid, pre_event_fields, option_fields)
@@ -710,10 +721,11 @@ def test_failure_fixture_missing_opening_bar():
         benchmark = build_option_benchmark(
             tk=tk, earnings_date=earnings_date, underlying_price=250.0, quote_timestamp_utc=datetime.now(UTC),
         )
+        # PROTOCOL v0.2: disposition + feed now declared explicitly. Assertion unchanged.
         pre_state = pipeline.capture_pre_event_and_option_benchmark(
             store, eid,
             {"previous_close": 250.0, "pre_event_snapshot_asof_utc": "2026-08-03T20:00:00+00:00", "gst_zscore": 1.0},
-            benchmark.__dict__,
+            {**benchmark.__dict__, "option_benchmark_status": "VALID_VERIFIED", "option_feed": "opra"},
         )
         check("FF-2b. Pre-event stage captured cleanly so the D1 failure below is isolated to the missing bar", pre_state == "PRE_EVENT_CAPTURED")
 
@@ -743,12 +755,58 @@ def test_failure_fixture_invalid_option_expiration():
         check("FF-3a. No post-event expiration available -> MISSING status, not a fabricated benchmark", benchmark.contract_selection_status == "missing")
 
         pipeline.register_event(store, eid, {"ticker": "AAPL"})
+        good_core = {"previous_close": 228.0,
+                     "pre_event_snapshot_asof_utc": "2026-10-29T20:00:00+00:00", "gst_zscore": 1.0}
+
+        # ---- EXPECTATION CHANGED BY PROTOCOL v0.2 -- explained, not silently updated ----
+        #
+        # v0.1 asserted: rejected benchmark + valid core -> PARTIAL.
+        # That coupling is exactly the defect this amendment corrects: a valid core
+        # observation was driven into a TERMINAL state by a missing OPTIONAL module,
+        # making D1/D2/D3 uncollectable. The event was destroyed by the absence of
+        # the benchmark rather than by any defect in the core.
+        #
+        # v0.2 splits the outcome in two, and neither branch treats an absent
+        # benchmark as valid:
+        #
+        #   (a) handing over the REJECTED benchmark dict as-is now fails closed. It
+        #       still carries a populated underlying_price while claiming no usable
+        #       benchmark, and it declares no disposition -- exactly the
+        #       "supplied but invalid artifact" case, which must be rejected with
+        #       zero writes rather than silently downgraded to ordinary unavailability.
+        #
+        #   (b) declaring the honest outcome (LOOKUP_FAILED, all benchmark values
+        #       null, reason recorded) captures the core and marks the option module
+        #       ineligible -- lifecycle proceeds, analytical eligibility does not.
+        raised = False
+        try:
+            pipeline.capture_pre_event_and_option_benchmark(store, eid, good_core, benchmark.__dict__)
+        except completeness.OptionDispositionError:
+            raised = True
+        check("FF-3b. A rejected benchmark handed over as-is fails closed (supplied-but-invalid), "
+              "instead of silently becoming 'unavailable'", raised)
+        check("FF-3b2. That refusal wrote nothing -- the event is still at REGISTERED",
+              store.current_state(eid) == "REGISTERED")
+
         state = pipeline.capture_pre_event_and_option_benchmark(
-            store, eid,
-            {"previous_close": 228.0, "pre_event_snapshot_asof_utc": "2026-10-29T20:00:00+00:00", "gst_zscore": 1.0},
-            benchmark.__dict__,
+            store, eid, good_core,
+            {"option_benchmark_status": "LOOKUP_FAILED",
+             "option_benchmark_unavailable_reason": "no expiration strictly after the event date",
+             "expiration": None, "underlying_price": None, "quote_timestamp_utc": None,
+             "straddle_mid": None, "long_executable_implied_move_cost": None},
         )
-        check("FF-3b. Invalid option expiration causes PRE_EVENT_CAPTURED to fail -> PARTIAL", state == "PARTIAL")
+        check("FF-3c. Declared LOOKUP_FAILED with null values -> core captured, lifecycle continues",
+              state == "PRE_EVENT_CAPTURED")
+        elig = completeness.read_module_eligibility(
+            [r for r in store.read_all(eid) if r["state"] == "PRE_EVENT_CAPTURED"][0]["fields"])
+        check("FF-3d. ...but the option module is INELIGIBLE and the tier is core-only",
+              elig.option_benchmark_eligible is False
+              and elig.joint_full_eligible is False
+              and elig.pre_event_completeness_tier == "core_only_no_option_benchmark")
+        check("FF-3e. ...and every option value stayed null, never zero",
+              all(r["fields"].get(k) is None
+                  for r in store.read_all(eid) if r["state"] == "PRE_EVENT_CAPTURED"
+                  for k in ("expiration", "underlying_price", "quote_timestamp_utc", "straddle_mid")))
     finally:
         shutil.rmtree(root, ignore_errors=True)
 

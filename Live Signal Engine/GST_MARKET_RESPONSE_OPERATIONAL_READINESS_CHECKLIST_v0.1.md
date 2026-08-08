@@ -171,6 +171,18 @@ market-data request or broker order was made, and no trading strategy was tested
 Suite totals after this pass: Phase 2 **12 files / 617 assertions**; Market Response **15 files / 601 assertions**;
 Event Dossier validator **27 e2e assertions + 21 unit tests**. All re-run with outbound sockets blocked.
 
+## Done — seventh pass (2026-08-08): protocol v0.2 amendment + pre-event capture orchestrator
+
+**Authorized methodology amendment, made before any prospective observation exists.** `EVT-DELL-FY27Q2-ERN` remains **`REGISTERED`**; no pre-event snapshot, market-response observation, dossier, or Layer B record exists, and no DELL attention/price/volume/volatility/options/earnings/consensus/analyst data was inspected. The human-verified timing registry was **not** amended — no timing fact changed.
+
+- [x] **Protocol v0.2 — lifecycle/eligibility separation.** v0.1 required both the core gate *and* the option gate for `PRE_EVENT_CAPTURED`, so an unavailable **optional** option benchmark forced `PARTIAL` (terminal) and made D1/D2/D3 uncollectable. Lifecycle state now records collection; analytical eligibility is per-module (`core_pre_event_eligible`, `option_benchmark_eligible`, `joint_full_eligible`, `pre_event_completeness_tier`, `option_benchmark_status`, `option_benchmark_unavailable_reason`). **No existing threshold, required-field list, quote-age limit or skew limit was changed.**
+- [x] **Explicit option disposition** — `VALID_VERIFIED` / `UNAVAILABLE_NO_VERIFIED_SOURCE` / `LOOKUP_FAILED` / `NOT_ATTEMPTED`. Unavailability is never inferred from `{}` or nulls; unknown/blank fails closed; indicative can be neither relabelled as unavailable nor promoted to OPRA; a supplied-but-invalid artifact is rejected with zero writes; legacy v0.1 records raise an explicit migration error rather than being reinterpreted.
+- [x] **A core-only event is never full-data complete.** It may reach lifecycle `COMPLETE`, but the completion marker carries the `core_only_no_option_benchmark` tier and `is_full_data_complete: false`, and it is mechanically excluded from options-implied-move and joint hypotheses.
+- [x] **Pre-event capture orchestrator** (`pre_event_capture.py` + `pre_event_capture_cli.py`) — connects existing components only; never contacts a provider; read-only by default; `--execute` required; no force/override/skip/allow-stale flag exists; validation completes before the first byte; collisions and repeat runs fail closed with zero additional bytes.
+- [x] **84 new deterministic assertions**; `test_market_response_decomposition.py` now 87.
+
+**Deliberately still not done:** no real capture has occurred, and the options benchmark remains unavailable (Alpaca entitlement INCONCLUSIVE). The amendment makes that situation survivable; it does not resolve it.
+
 ## Done — sixth pass (2026-08-07): DELL FY27 Q2 registered, offline operational plan built
 
 **The first prospective event is registered.** `EVT-DELL-FY27Q2-ERN` (Dell Technologies Inc., FY27 Q2) is preregistered on `main` via PR #4 and remains in state **`REGISTERED` only**. **No pre-event snapshot has been taken**, and no market, attention, option, consensus, or earnings-result data has been inspected — for selection or since. This pass tests no strategy and produces no research result.
