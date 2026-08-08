@@ -29,19 +29,32 @@ from .completeness import (
     is_full_data_complete,
     read_module_eligibility,
 )
-from .event_record import TERMINAL_STATES, EventStore
+from .event_record import (
+    FAILURE_STAGE_D1,
+    FAILURE_STAGE_PRE_EVENT,
+    TERMINAL_STATES,
+    EventStore,
+    partial_failure_stage,
+    select_stage_record,
+)
 
 STAGE_PRE_EVENT = "PRE_EVENT_CAPTURE"
 STAGE_D1 = "D1_CAPTURE"
 STAGE_FINAL = "FINAL_COMPLETION"
 STAGES = (STAGE_PRE_EVENT, STAGE_D1, STAGE_FINAL)
 
-# The stage each marker attests to, and the lifecycle state that must already be
-# recorded before it may be written.
-_STAGE_REQUIRED_STATE = {
-    STAGE_PRE_EVENT: ("PRE_EVENT_CAPTURED", "PARTIAL"),
-    STAGE_D1: ("D1_COMPLETE", "PARTIAL"),
+# The stage each marker attests to, and the success state that must already be
+# recorded before it may be written. A PARTIAL is acceptable ONLY when it
+# belongs to this same stage -- see _stage_state_is_allowed(). A D1 PARTIAL can
+# no longer satisfy the requirement for a PRE_EVENT_CAPTURE marker.
+_STAGE_SUCCESS_STATE = {
+    STAGE_PRE_EVENT: ("PRE_EVENT_CAPTURED",),
+    STAGE_D1: ("D1_COMPLETE",),
     STAGE_FINAL: tuple(sorted(TERMINAL_STATES)),
+}
+_STAGE_PARTIAL_STAGE = {
+    STAGE_PRE_EVENT: FAILURE_STAGE_PRE_EVENT,
+    STAGE_D1: FAILURE_STAGE_D1,
 }
 
 # Provenance echoed into every marker so it ties out to the event record
@@ -52,6 +65,11 @@ PROVENANCE_KEYS = (
     "panel_unique_ticker_count", "panel_all_six_fields_clean_count",
     "run_date", "price_asof_date", "pre_event_snapshot_asof_utc",
     "research_commit_sha", "methodology_version", "adapter_schema_version",
+    # Per-leg statuses for the two legs that previously inherited the price
+    # leg's status. Persisted so the marker records WHICH leg backed each of
+    # the six fields, not merely that some status was successful.
+    "source_status_iv", "source_status_iv_raw",
+    "source_status_realized_vol", "source_status_realized_vol_raw",
 )
 
 
@@ -69,12 +87,28 @@ def _pre_event_record(store: EventStore, event_id: str) -> Optional[dict]:
     """The pre-event stage record -- NOT simply the latest record.
 
     v0.1's gate read the last state record, so after D1/D3 it evaluated the
-    wrong fields entirely. Eligibility and provenance always come from the
-    pre-event stage.
+    wrong fields entirely. The first v0.2 correction searched backwards for
+    PRE_EVENT_CAPTURED *or* PARTIAL, which was still wrong: PARTIAL is reachable
+    from D1 and D3 too, so a D1 failure appearing later in the log won the
+    reverse search and replaced the pre-event eligibility with D1 interval
+    fields. select_stage_record() prefers the stage's own success state and
+    accepts only a PARTIAL belonging to THIS stage.
     """
     states = [r for r in store.read_all(event_id) if r["record_type"] == "STATE"]
-    return next((r for r in reversed(states)
-                 if r["state"] in ("PRE_EVENT_CAPTURED", "PARTIAL") and r.get("fields")), None)
+    return select_stage_record(states, FAILURE_STAGE_PRE_EVENT)
+
+
+def _stage_state_is_allowed(stage: str, states: list[dict]) -> bool:
+    """May a `stage` marker be written given the event's current chronology?"""
+    final_state = states[-1]["state"]
+    if final_state in _STAGE_SUCCESS_STATE[stage]:
+        return True
+    if final_state != "PARTIAL":
+        return False
+    wanted = _STAGE_PARTIAL_STAGE.get(stage)
+    if wanted is None:  # STAGE_FINAL: PARTIAL is terminal and always qualifies
+        return "PARTIAL" in _STAGE_SUCCESS_STATE[stage]
+    return partial_failure_stage(states, len(states) - 1) == wanted
 
 
 def build_stage_marker(store: EventStore, event_id: str, stage: str) -> dict:
@@ -86,10 +120,13 @@ def build_stage_marker(store: EventStore, event_id: str, stage: str) -> dict:
         raise StageMarkerError(f"no state records for {event_id}; refusing to write a marker")
     final_state = states[-1]["state"]
 
-    allowed = _STAGE_REQUIRED_STATE[stage]
-    if final_state not in allowed:
+    if not _stage_state_is_allowed(stage, states):
+        allowed = _STAGE_SUCCESS_STATE[stage]
+        partial_stage = _STAGE_PARTIAL_STAGE.get(stage)
         raise StageMarkerError(
-            f"stage {stage} marker requires the event to be in {allowed}, but it is {final_state!r}"
+            f"stage {stage} marker requires the event to be in {allowed}"
+            + (f" (or PARTIAL with failure_stage={partial_stage!r})" if partial_stage else "")
+            + f", but it is {final_state!r}"
         )
     if stage == STAGE_FINAL and final_state not in TERMINAL_STATES:
         raise StageMarkerError(

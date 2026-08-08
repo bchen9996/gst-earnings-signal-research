@@ -42,18 +42,29 @@ Unknown/blank fails closed. Unavailability is **never inferred** from `{}` or nu
 
 `evaluate_strict_core_v0_2()` — required by the pre-event capture orchestrator. The v0.1 gate is unchanged and still used by the legacy path.
 
-| Strict-core field | Status consulted | Notes |
-|---|---|---|
-| `gst_zscore` | `source_status_gst` | |
-| `wiki_zscore` | `source_status_wiki` | |
-| `panel_implied_volatility` | `source_status_price` | See §3.1 — **not** an implied-move value. |
-| `realized_volatility` | `source_status_price` | |
-| `previous_close` | `source_status_price` | The protocol's canonical price field. |
-| `volume` | `source_status_price` | |
+| Strict-core field | Panel column | Status consulted | Notes |
+|---|---|---|---|
+| `gst_zscore` | `gst_status` | `source_status_gst` | |
+| `wiki_zscore` | `wiki_status` | `source_status_wiki` | |
+| `panel_implied_volatility` | `iv_status` | `source_status_iv` | See §3.1 — **not** an implied-move value. |
+| `realized_volatility` | `realized_vol_status` | `source_status_realized_vol` | |
+| `previous_close` | `price_history_status` | `source_status_price` | The protocol's canonical price field. |
+| `volume` | `price_history_status` | `source_status_price` | Same leg as `previous_close`. |
 
 Successful statuses: `ok`, `ok_recent_cache_fallback`. Also required: `pre_event_snapshot_asof_utc`.
 
-Null fails · non-success status fails · **a legitimate `0.0` with a successful status passes**. Missingness is never inferred from zero.
+Null fails · non-success status fails · unknown or absent status fails closed · **a legitimate `0.0` with a successful status passes**. Missingness is never inferred from zero.
+
+### 3.0 Per-leg statuses (new fields)
+
+| Field | Type | Notes |
+|---|---|---|
+| `source_status_iv` | enum | Normalised `iv_status`. Default `missing` — fail-closed, never a success. |
+| `source_status_iv_raw` | string | The exact Phase 2 `iv_status` string. |
+| `source_status_realized_vol` | enum | Normalised `realized_vol_status`. Default `missing`. |
+| `source_status_realized_vol_raw` | string | The exact Phase 2 `realized_vol_status` string. |
+
+The Phase 2 panel emits five independent per-leg statuses. IV and realized volatility previously inherited `source_status_price`, so a failed option-chain or realized-vol lookup passed the six-field gate whenever price history happened to be OK. Each field is now backed by the leg that produced it. Normalisation is unchanged: `ok` → `ok`, `complete_recent_cache_fallback` → `ok_recent_cache_fallback`, blank → `missing`, anything else → `error`.
 
 ### 3.1 `panel_implied_volatility` (new, deliberately namespaced)
 
@@ -72,9 +83,44 @@ The v0.1 dictionary states `implied_volatility` is "never imported anywhere" bec
 
 These legitimately differ (real run: `run_date=2026-07-30`, `price_asof_date=2026-07-29`). The anchor is **never** derived from `run_date` or from a truncated `retrieval_timestamp_utc`. Missing column, blank value, or disagreement across rows → fail closed.
 
+## 4.1 Date-audit fields (new)
+
+Recorded on the `ValidationReport` as `panel_date_audit`, so a report shows the state of **every** row rather than only the resolved value.
+
+| Field | Type | Notes |
+|---|---|---|
+| `row_count` | int | Rows in the panel. |
+| `blank_price_asof_rows` | int | Must be `0`. A blank is never discarded. |
+| `blank_run_date_rows` | int | Must be `0`. |
+| `distinct_price_asof` | list | Must have exactly one entry. |
+| `distinct_run_date` | list | Must have exactly one entry. |
+| `problems` | list | Empty when the audit passes. |
+
+Named checks: `panel_price_asof_date_nonblank_in_every_row` · `panel_price_asof_date_single_value_across_rows` · `panel_run_date_nonblank_in_every_row` · `panel_run_date_single_value_across_rows` · `run_date_not_before_session` · `panel_is_anchor_session`.
+
+## 4.2 Capture fingerprint (new)
+
+| Field | Type | Notes |
+|---|---|---|
+| `capture_fingerprint` | object | Persisted on the `PRE_EVENT_PENDING` record; echoed on the report. |
+| `capture_fingerprint.capture_fingerprint_version` | string | `1`. Covered by the self-digest, so versions can never cross-match. |
+| `capture_fingerprint.option_fields_digest` | string | SHA-256 of the canonicalised complete option artifact. |
+| `capture_fingerprint.capture_fingerprint_sha256` | string | Self-digest over exactly the covered fields. |
+| `option_fields_digest` | string | Same digest, stored on the `ValidationReport` for the execution-time binding. |
+
+Covered fields: `capture_fingerprint_version` · `event_id` · `ticker` · `anchor_session` · `panel_csv_sha256` · `panel_marker_sha256` · `research_commit_sha` · `methodology_version` · `option_fields_digest`. Canonicalisation is sorted-key, separator-normalised JSON, so key ordering never changes a digest. See SPEC v0.2 §3 and §6.2.
+
+## 4.3 `failure_stage` (new, on every v0.2 `PARTIAL`)
+
+| Field | Type | Notes |
+|---|---|---|
+| `failure_stage` | enum | `pre_event` \| `d1` \| `d3`. Which stage produced this `PARTIAL`. |
+
+Legacy `PARTIAL` records carry no such field; their stage is derived from the preceding pending state, never defaulted. An unrecognised value resolves to no stage. See SPEC v0.2 §8.1.
+
 ## 5. Persisted provenance (echoed in every stage marker)
 
-`ticker` · `source_csv_path` · `source_csv_sha256` · `source_marker_path` · `source_marker_sha256` · `panel_status` · `panel_row_count` · `panel_unique_ticker_count` · `panel_all_six_fields_clean_count` · `run_date` · `price_asof_date` · `pre_event_snapshot_asof_utc` · `research_commit_sha` · `methodology_version` · `adapter_schema_version`.
+`ticker` · `source_csv_path` · `source_csv_sha256` · `source_marker_path` · `source_marker_sha256` · `panel_status` · `panel_row_count` · `panel_unique_ticker_count` · `panel_all_six_fields_clean_count` · `run_date` · `price_asof_date` · `pre_event_snapshot_asof_utc` · `research_commit_sha` · `methodology_version` · `adapter_schema_version` · `source_status_iv` · `source_status_iv_raw` · `source_status_realized_vol` · `source_status_realized_vol_raw`.
 
 The stage marker's `provenance` block must tie out field-for-field to the pre-event event record.
 
@@ -95,7 +141,9 @@ The stage marker's `provenance` block must tie out field-for-field to the pre-ev
 | `is_full_data_complete` | lifecycle `COMPLETE` **and** `core_and_option_benchmark` |
 | `provenance` | the §5 block |
 
-Write-once. `atomic_write_json_no_overwrite()` raises `ImmutableArtifactExistsError` rather than replacing an existing marker.
+Write-once. `atomic_write_json_no_overwrite()` raises `ImmutableArtifactExistsError` rather than replacing an existing marker, via an exclusive `os.link()` create (falling back to `O_CREAT|O_EXCL`) — **never** an existence check followed by `os.replace()`. See SPEC v0.2 §4.
+
+A `PRE_EVENT_CAPTURE` marker requires `PRE_EVENT_CAPTURED`, or a `PARTIAL` whose `failure_stage` is `pre_event`; a `D1_CAPTURE` marker requires `D1_COMPLETE` or a `d1` `PARTIAL`. A D1 failure can no longer satisfy a pre-event marker.
 
 ## 7. Stage vocabulary correction
 

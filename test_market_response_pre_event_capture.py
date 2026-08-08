@@ -47,7 +47,7 @@ from gst_market_response.event_registry import HumanVerifiedEventRegistry
 from gst_market_response.pipeline import (
     capture_d1,
     capture_d3,
-    capture_pre_event_and_option_benchmark,
+    capture_pre_event_and_option_benchmark_v0_1,
 )
 from gst_market_response.pre_event_capture import (
     PreEventCaptureError,
@@ -109,7 +109,7 @@ def _nulls(status, reason):
 def test_1_core_valid_options_valid():
     with tempfile.TemporaryDirectory() as t:
         s = EventStore(Path(t)); s.append_state(EVENT, "REGISTERED", {})
-        st = capture_pre_event_and_option_benchmark(s, EVENT, CORE, OPT_VALID)
+        st = capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE, OPT_VALID)
         e = read_module_eligibility([r for r in s.read_all(EVENT) if r["state"] == "PRE_EVENT_CAPTURED"][0]["fields"])
         check("1. core valid + options valid -> PRE_EVENT_CAPTURED", st == "PRE_EVENT_CAPTURED")
         check("1b. all three eligibility flags true",
@@ -120,7 +120,7 @@ def test_1_core_valid_options_valid():
 def test_2_core_valid_options_unavailable():
     with tempfile.TemporaryDirectory() as t:
         s = EventStore(Path(t)); s.append_state(EVENT, "REGISTERED", {})
-        st = capture_pre_event_and_option_benchmark(s, EVENT, CORE, OPT_NONE)
+        st = capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE, OPT_NONE)
         e = read_module_eligibility([r for r in s.read_all(EVENT) if r["state"] == "PRE_EVENT_CAPTURED"][0]["fields"])
         check("2. core valid + explicit no verified source -> PRE_EVENT_CAPTURED", st == "PRE_EVENT_CAPTURED")
         check("2b. core eligible, option ineligible, joint ineligible",
@@ -132,7 +132,7 @@ def test_2_core_valid_options_unavailable():
 def test_3_4_5_6_core_only_lifecycle_and_hypotheses():
     with tempfile.TemporaryDirectory() as t:
         root = Path(t); s = EventStore(root); s.append_state(EVENT, "REGISTERED", {})
-        capture_pre_event_and_option_benchmark(s, EVENT, CORE, OPT_NONE)
+        capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE, OPT_NONE)
         d1 = capture_d1(s, EVENT, {"overnight_gap": 0.01, "open_to_30m": 0.01,
                                    "thirty_min_to_close": 0.01, "open_to_close": 0.02})
         d3 = capture_d3(s, EVENT, {"close_T1_to_close_T2": 0.01, "close_T1_to_close_T3": 0.02})
@@ -159,7 +159,7 @@ def test_7_8_core_invalid_is_partial_terminal():
                        ("8. core invalid + options unavailable", OPT_NONE)]:
         with tempfile.TemporaryDirectory() as t:
             s = EventStore(Path(t)); s.append_state(EVENT, "REGISTERED", {})
-            st = capture_pre_event_and_option_benchmark(s, EVENT, CORE_BAD, opt)
+            st = capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE_BAD, opt)
             check(f"{label} -> PARTIAL-terminal", st == "PARTIAL")
             from gst_market_response.event_record import InvalidStateTransitionError
             try:
@@ -234,8 +234,14 @@ def test_17_18_unchanged_and_legacy():
 
 # ======================= B. orchestrator (synthetic) ========================
 
+# The real Phase 2 panel emits FIVE independent per-leg statuses. The fixture
+# now carries all five (verified against the real
+# GST_Phase2_DailyPanel_TestRun_2026-07-30_run3.csv header), because backing
+# implied volatility and realized volatility with price_history_status was the
+# defect FIX 3 corrects -- a fixture omitting those columns cannot exercise it.
 _PANEL_COLS = ["run_date", "price_asof_date", "ticker", "gst_status", "wiki_status",
-               "price_history_status", "gst_zscore", "wiki_zscore", "realized_vol", "price",
+               "price_history_status", "iv_status", "realized_vol_status",
+               "gst_zscore", "wiki_zscore", "realized_vol", "price",
                "volume", "days_to_nearest_earnings", "retrieval_timestamp_utc",
                "all_six_fields_clean", "implied_volatility"]
 METH = "market_response_v0.2"
@@ -245,27 +251,49 @@ def synth_panel(tmp: Path, run_date: str = ANCHOR, ticker: str = "DELL", rows: i
                 zero_missing: bool = False, marker_status: str = "COMPLETE",
                 break_marker: bool = False, price_asof: str | None = None,
                 iv: str = "0.31", drop_asof_col: bool = False,
-                asof_ambiguous: bool = False, name: str = "SYNTHETIC_panel.csv") -> tuple[Path, Path]:
+                asof_ambiguous: bool = False, name: str = "SYNTHETIC_panel.csv",
+                iv_status: str = "ok", realized_vol_status: str = "ok",
+                other_tickers: tuple[str, ...] = (),
+                blank_asof_rows: tuple[int, ...] = (),
+                blank_run_rows: tuple[int, ...] = (),
+                run_date_by_row: dict[int, str] | None = None,
+                drop_run_date_col: bool = False) -> tuple[Path, Path]:
     """SYNTHETIC panel fixture -- NOT RESEARCH DATA.
 
     `run_date` is when the panel RAN; `price_asof` is the SESSION its price data
     is as-of. They legitimately differ (a real panel runs after UTC midnight
     following the session), which is why the anchor binds to price_asof.
+
+    `other_tickers` adds rows for DIFFERENT tickers, so a multi-row date defect
+    can be exercised without tripping the adapter's duplicate-ticker refusal
+    first. `blank_asof_rows` / `blank_run_rows` / `run_date_by_row` inject
+    per-row date defects by index across the whole panel.
     """
     asof = price_asof if price_asof is not None else run_date
     csv_path, marker_path = tmp / name, tmp / (name.replace(".csv", "_marker.json"))
     recs = []
-    for i in range(rows):
+    row_tickers = [ticker] * rows + list(other_tickers)
+    for i, row_ticker in enumerate(row_tickers):
         recs.append({"run_date": run_date,
                      "price_asof_date": (f"{asof}" if not asof_ambiguous or i == 0 else "2026-08-28"),
-                     "ticker": ticker, "gst_status": "ok",
+                     "ticker": row_ticker, "gst_status": "ok",
                      "wiki_status": "ok" if not zero_missing else "incomplete_watermark_unavailable",
-                     "price_history_status": "ok", "gst_zscore": "1.2",
+                     "price_history_status": "ok",
+                     "iv_status": iv_status, "realized_vol_status": realized_vol_status,
+                     "gst_zscore": "1.2",
                      "wiki_zscore": "0" if zero_missing else "2.5", "realized_vol": "0.21",
                      "price": "101.5", "volume": "1000000", "days_to_nearest_earnings": "1",
                      "retrieval_timestamp_utc": f"{run_date}T04:40:00+00:00",
                      "all_six_fields_clean": "True", "implied_volatility": iv})
-    cols = [c for c in _PANEL_COLS if not (drop_asof_col and c == "price_asof_date")]
+    for i in blank_asof_rows:
+        recs[i]["price_asof_date"] = ""
+    for i in blank_run_rows:
+        recs[i]["run_date"] = ""
+    for i, value in (run_date_by_row or {}).items():
+        recs[i]["run_date"] = value
+    cols = [c for c in _PANEL_COLS
+            if not (drop_asof_col and c == "price_asof_date")
+            and not (drop_run_date_col and c == "run_date")]
     with open(csv_path, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
         w.writeheader()
@@ -535,7 +563,8 @@ def test_28_synthetic_dell_chronology():
 STRICT_FULL = {"gst_zscore": 1.2, "wiki_zscore": 2.5, "panel_implied_volatility": 0.31,
                "realized_volatility": 0.21, "previous_close": 101.5, "volume": 1000000,
                "pre_event_snapshot_asof_utc": "2026-09-02T20:00:00+00:00",
-               "source_status_gst": "ok", "source_status_wiki": "ok", "source_status_price": "ok"}
+               "source_status_gst": "ok", "source_status_wiki": "ok", "source_status_price": "ok",
+               "source_status_iv": "ok", "source_status_realized_vol": "ok"}
 
 
 def test_h1_h4_strict_six_field_gate():
@@ -677,7 +706,7 @@ def test_h16_gate_reads_pre_event_record():
     with tempfile.TemporaryDirectory() as t:
         store = Path(t); s = EventStore(store)
         s.append_state(EVENT, "REGISTERED", {})
-        capture_pre_event_and_option_benchmark(s, EVENT, CORE, OPT_NONE)
+        capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE, OPT_NONE)
         capture_d1(s, EVENT, {"overnight_gap": 0.01, "open_to_30m": 0.01,
                               "thirty_min_to_close": 0.01, "open_to_close": 0.02})
         capture_d3(s, EVENT, {"close_T1_to_close_T2": 0.01, "close_T1_to_close_T3": 0.02})
@@ -721,6 +750,490 @@ def test_h18_real_artifacts_untouched():
           not list(HERE.rglob("EVT-*.jsonl")) and not list(HERE.rglob("EVT-*_MARKER.json")))
 
 
+# ============ D. SECOND-PASS AUDIT REGRESSIONS (fail against ed4df74) ========
+#
+# Each test below targets one defect found in the second corrective audit, and
+# each fails against ed4df74 for that specific defect. Everything is synthetic
+# and network-free; no operational artifact is a writable target.
+
+from gst_market_response.capture_fingerprint import CAPTURE_FINGERPRINT_KEY
+
+
+def _seed_pending(store: Path, fingerprint) -> EventStore:
+    """A store crashed BETWEEN the PRE_EVENT_PENDING append and the next one."""
+    store.mkdir(parents=True, exist_ok=True)
+    s = EventStore(store)
+    s.append_state(EVENT, "REGISTERED", {"ticker": "DELL"})
+    s.append_state(EVENT, "PRE_EVENT_PENDING", {CAPTURE_FINGERPRINT_KEY: fingerprint})
+    return s
+
+
+def _states(store: Path):
+    return [r["state"] for r in EventStore(store).read_all(EVENT) if r["record_type"] == "STATE"]
+
+
+def test_r1_atomic_no_overwrite_race():
+    """R1. A competitor created AFTER any existence check must never be
+    overwritten, and its bytes must survive byte-for-byte.
+
+    Against ed4df74 the sequence was exists() -> atomic_write_bytes() ->
+    os.replace(). The injection below creates the competing artifact during the
+    temp-file fsync, i.e. after the check and before the replace -- exactly the
+    window os.replace() destroyed. os.link() cannot: it never replaces.
+    """
+    import gst_market_response.atomic_io as aio
+    from gst_market_response.atomic_io import (ImmutableArtifactExistsError,
+                                               atomic_write_json_no_overwrite)
+    competitor = b'{"written_by": "the other process"}'
+
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); target = tmp / "EVT-X_PRE_EVENT_CAPTURE_MARKER.json"
+        real_fsync, fired = aio.os.fsync, []
+
+        def racing_fsync(fd):
+            if not fired:                      # exactly once, on the temp file
+                fired.append(True)
+                target.write_bytes(competitor)  # <- the race
+            return real_fsync(fd)
+
+        aio.os.fsync = racing_fsync
+        try:
+            raised = False
+            try:
+                atomic_write_json_no_overwrite(target, {"written_by": "us"})
+            except ImmutableArtifactExistsError:
+                raised = True
+        finally:
+            aio.os.fsync = real_fsync
+        check("R1. a competitor created after the check is not overwritten (raises)", raised)
+        check("R1b. the competing artifact's bytes are unchanged",
+              target.read_bytes() == competitor)
+        check("R1c. the race actually fired (the test is not vacuous)", bool(fired))
+        check("R1d. no temporary file is left behind",
+              not [p for p in tmp.iterdir() if p.name.endswith(".tmp")])
+
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); target = tmp / "m.json"
+        target.write_bytes(competitor)
+        expect_raises("R1e. a pre-existing artifact raises rather than being replaced",
+                      ImmutableArtifactExistsError, atomic_write_json_no_overwrite,
+                      target, {"written_by": "us"})
+        check("R1f. ...and its bytes are unchanged", target.read_bytes() == competitor)
+        check("R1g. no temporary file is left behind after a refusal",
+              not [p for p in tmp.iterdir() if p.name.endswith(".tmp")])
+        # Structural: the implementation must not be exists()-then-replace.
+        import ast
+        src = (HERE / "gst_market_response" / "atomic_io.py").read_text(encoding="utf-8")
+        fn = next(n for n in ast.walk(ast.parse(src))
+                  if isinstance(n, ast.FunctionDef) and n.name == "_exclusive_create_bytes")
+        called = {n.func.attr for n in ast.walk(fn)
+                  if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)}
+        check("R1h. the write-once primitive uses an exclusive create, never os.replace",
+              "link" in called and "replace" not in called)
+
+
+def test_r2_r3_r4_dangling_pending_resume():
+    # --- R2: exact-fingerprint resume ------------------------------------
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+        seed = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        _seed_pending(store, seed.capture_fingerprint)
+        rep = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        check("R2. a dangling PRE_EVENT_PENDING with an identical fingerprint is resumable",
+              rep.ok() and rep.resume_from_pending is True)
+        res = execute_pre_event_capture(report=rep, store_root=store, panel_csv=c, panel_marker=m,
+                                        ticker="DELL", research_commit_sha="deadbeef",
+                                        methodology_version=METH, option_benchmark_fields=OPT_NONE)
+        chain = _states(store)
+        check("R2b. the resume completes the capture", res["state"] == "PRE_EVENT_CAPTURED")
+        # R4: no duplicate pending, no duplicate captured
+        check("R4. exactly one PRE_EVENT_PENDING record exists after the resume",
+              chain.count("PRE_EVENT_PENDING") == 1)
+        check("R4b. exactly one PRE_EVENT_CAPTURED record exists",
+              chain.count("PRE_EVENT_CAPTURED") == 1)
+        check("R4c. the pending record was never deleted or rewritten",
+              chain[:2] == ["REGISTERED", "PRE_EVENT_PENDING"])
+        expect_raises("R4d. a further execution is still refused",
+                      PreEventCaptureError, execute_pre_event_capture, report=rep,
+                      store_root=store, panel_csv=c, panel_marker=m, ticker="DELL",
+                      research_commit_sha="deadbeef", methodology_version=METH,
+                      option_benchmark_fields=OPT_NONE)
+
+    # --- R3: changed inputs fail closed ----------------------------------
+    for label, kw in (("a different option disposition", {"opt": _nulls(D.LOOKUP_FAILED, "other")}),
+                      ("a different panel file", {"other_panel": True})):
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+            seed = _validate(tmp, csv_p=c, marker_p=m, store=store)
+            _seed_pending(store, seed.capture_fingerprint)
+            if kw.pop("other_panel", False):
+                c, m = synth_panel(tmp, iv="0.44", name="SYNTHETIC_panel_b.csv")
+            rep = _validate(tmp, csv_p=c, marker_p=m, store=store, **kw)
+            check(f"R3. resuming with {label} fails closed",
+                  not rep.ok() and rep.resume_from_pending is False
+                  and any(x["check"] == "dangling_pending_absent_or_resumable" and not x["passed"]
+                          for x in rep.checks))
+            before = (store / f"{EVENT}.jsonl").read_bytes()
+            expect_raises(f"R3b. executing with {label} raises",
+                          PreEventCaptureError, execute_pre_event_capture, report=rep,
+                          store_root=store, panel_csv=c, panel_marker=m, ticker="DELL",
+                          research_commit_sha="deadbeef", methodology_version=METH,
+                          option_benchmark_fields=kw.get("opt", OPT_NONE))
+            check(f"R3c. ...and adds zero bytes ({label})",
+                  (store / f"{EVENT}.jsonl").read_bytes() == before)
+
+    # --- malformed / ambiguous pending records fail closed ----------------
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+        seed = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        store.mkdir(parents=True, exist_ok=True)
+        s = EventStore(store); s.append_state(EVENT, "REGISTERED", {"ticker": "DELL"})
+        s.append_state(EVENT, "PRE_EVENT_PENDING", {})       # the ed4df74 shape: no fingerprint
+        rep = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        check("R3d. a pending record with NO fingerprint is not resumable",
+              not rep.ok() and rep.resume_from_pending is False)
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+        seed = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        tampered = dict(seed.capture_fingerprint); tampered["ticker"] = "MSFT"
+        _seed_pending(store, tampered)                        # self-digest no longer recomputes
+        rep = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        check("R3e. a pending fingerprint that does not recompute fails closed",
+              not rep.ok() and rep.resume_from_pending is False)
+
+
+def test_r2b_crash_injection_at_every_stage():
+    """Crash after REGISTERED, after PRE_EVENT_PENDING, after PRE_EVENT_CAPTURED
+    and before marker creation."""
+    from gst_market_response.stage_markers import (STAGE_PRE_EVENT, marker_path,
+                                                   recover_missing_marker)
+    # (a) crash after REGISTERED only
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+        store.mkdir(parents=True, exist_ok=True)
+        EventStore(store).append_state(EVENT, "REGISTERED", {"ticker": "DELL"})
+        rep = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        res = execute_pre_event_capture(report=rep, store_root=store, panel_csv=c, panel_marker=m,
+                                        ticker="DELL", research_commit_sha="deadbeef",
+                                        methodology_version=METH, option_benchmark_fields=OPT_NONE)
+        check("R2c. crash after REGISTERED -> the capture proceeds normally",
+              res["state"] == "PRE_EVENT_CAPTURED"
+              and _states(store) == ["REGISTERED", "PRE_EVENT_PENDING", "PRE_EVENT_CAPTURED"])
+
+    # (b) crash after PRE_EVENT_PENDING is covered by R2 above.
+    # (c)/(d) crash after PRE_EVENT_CAPTURED, before the marker was written.
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+        rep = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        execute_pre_event_capture(report=rep, store_root=store, panel_csv=c, panel_marker=m,
+                                  ticker="DELL", research_commit_sha="deadbeef",
+                                  methodology_version=METH, option_benchmark_fields=OPT_NONE)
+        marker_path(store, EVENT, STAGE_PRE_EVENT).unlink()
+        before = (store / f"{EVENT}.jsonl").read_bytes()
+        rec = recover_missing_marker(store, EVENT, STAGE_PRE_EVENT, EventStore(store))
+        check("R2d. crash before the marker -> recovery regenerates it",
+              rec["lifecycle_state"] == "PRE_EVENT_CAPTURED")
+        check("R2e. recovery appended no state record",
+              (store / f"{EVENT}.jsonl").read_bytes() == before)
+        rep2 = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        check("R2f. re-running the capture after a completed stage is still refused",
+              not rep2.ok() and rep2.resume_from_pending is False)
+
+
+def test_r5_r6_per_leg_statuses_enforced():
+    from gst_market_response.completeness import (STRICT_CORE_STATUS_KEY,
+                                                  evaluate_strict_core_v0_2)
+    check("R5. panel_implied_volatility is backed by the IV leg, not the price leg",
+          STRICT_CORE_STATUS_KEY["panel_implied_volatility"] == "source_status_iv")
+    check("R6. realized_volatility is backed by the realized-vol leg",
+          STRICT_CORE_STATUS_KEY["realized_volatility"] == "source_status_realized_vol")
+    # A NON-NULL value whose own leg failed, while price history is OK.
+    iv_bad = dict(STRICT_FULL, source_status_iv="error")
+    r = evaluate_strict_core_v0_2(iv_bad)
+    check("R5b. a non-null IV with a FAILED iv_status fails even when price history is ok",
+          not r.passed and "panel_implied_volatility" in r.bad_status_fields
+          and iv_bad["panel_implied_volatility"] is not None
+          and iv_bad["source_status_price"] == "ok")
+    rv_bad = dict(STRICT_FULL, source_status_realized_vol="error")
+    r = evaluate_strict_core_v0_2(rv_bad)
+    check("R6b. a non-null realized vol with a FAILED realized_vol_status fails likewise",
+          not r.passed and "realized_volatility" in r.bad_status_fields
+          and rv_bad["source_status_price"] == "ok")
+    check("R5c. an unknown IV status fails closed",
+          not evaluate_strict_core_v0_2(dict(STRICT_FULL, source_status_iv="brand_new")).passed)
+    check("R5d. an absent IV status key fails closed",
+          not evaluate_strict_core_v0_2(
+              {k: v for k, v in STRICT_FULL.items() if k != "source_status_iv"}).passed)
+    # End to end through the orchestrator, on a panel whose iv_status failed.
+    for label, kw, field_name in (
+            ("R5e. iv_status", {"iv_status": "timeout"}, "panel_implied_volatility"),
+            ("R6c. realized_vol_status", {"realized_vol_status": "timeout"}, "realized_volatility")):
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t); c, m = synth_panel(tmp, **kw)
+            rep = _validate(tmp, csv_p=c, marker_p=m)
+            check(f"{label} failure is rejected by the orchestrator (price history still ok)",
+                  not rep.ok()
+                  and any(x["check"] == "strict_core_v0_2_all_six_statuses_successful"
+                          and not x["passed"] and field_name in x["detail"] for x in rep.checks))
+    # The adapter reads the real column names.
+    from gst_market_response.phase2_adapter import import_pre_event_fields_for_ticker
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, iv_status="complete_recent_cache_fallback")
+        a = import_pre_event_fields_for_ticker(csv_path=c, marker_path=m, ticker="DELL",
+                                               research_commit_sha="x", methodology_version=METH)
+        check("R5f. the adapter reads iv_status from its own column and normalises it",
+              a.source_status_iv == "ok_recent_cache_fallback"
+              and a.source_status_iv_raw == "complete_recent_cache_fallback")
+        check("R5g. a fallback-served IV is still a success for the strict gate",
+              evaluate_strict_core_v0_2(a.to_strict_core_fields()).passed)
+
+
+def test_r7_r8_partial_is_stage_specific():
+    from gst_market_response.completion_marker import (EXIT_INCONCLUSIVE, EXIT_OK,
+                                                       check_required_gate, write_completion_marker)
+    from gst_market_response.event_record import FAILURE_STAGE_KEY
+    from gst_market_response.stage_markers import STAGE_D1, build_stage_marker
+
+    def _pre_event_ok(store_root, s):
+        m = write_completion_marker(store_root, EVENT, s)
+        return m
+
+    # --- R7: a D1 PARTIAL must not replace pre-event eligibility ----------
+    with tempfile.TemporaryDirectory() as t:
+        root = Path(t); s = EventStore(root); s.append_state(EVENT, "REGISTERED", {})
+        capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE, OPT_NONE)
+        d1 = capture_d1(s, EVENT, {"overnight_gap": 0.01})       # incomplete -> PARTIAL
+        check("R7. an incomplete D1 is PARTIAL", d1 == "PARTIAL")
+        last = [r for r in s.read_all(EVENT) if r["record_type"] == "STATE"][-1]
+        check("R7b. the D1 PARTIAL declares its own failure stage",
+              last["fields"].get(FAILURE_STAGE_KEY) == "d1")
+        m = _pre_event_ok(root, s)
+        check("R7c. the completion marker still reports the PRE-EVENT eligibility",
+              m["module_eligibility"] is not None
+              and m["module_eligibility"]["pre_event_completeness_tier"] == PRE_EVENT_TIER_CORE_ONLY)
+        check("R7d. the pre_event gate still resolves against the pre-event record",
+              check_required_gate(s, EVENT, "pre_event") == EXIT_OK)
+        check("R7e. the d1 gate resolves against the D1 PARTIAL and fails it",
+              check_required_gate(s, EVENT, "d1") != EXIT_INCONCLUSIVE)
+        expect_raises("R7f. a D1 PARTIAL cannot satisfy a PRE_EVENT_CAPTURE marker",
+                      Exception, build_stage_marker, s, EVENT, "PRE_EVENT_CAPTURE")
+        mk = build_stage_marker(s, EVENT, STAGE_D1)
+        check("R7g. the D1 marker still carries the pre-event eligibility block",
+              mk["module_eligibility"]["pre_event_completeness_tier"] == PRE_EVENT_TIER_CORE_ONLY)
+
+    # --- R8: a D3 PARTIAL must not replace pre-event eligibility ----------
+    with tempfile.TemporaryDirectory() as t:
+        root = Path(t); s = EventStore(root); s.append_state(EVENT, "REGISTERED", {})
+        capture_pre_event_and_option_benchmark_v0_1(s, EVENT, CORE, OPT_NONE)
+        capture_d1(s, EVENT, {"overnight_gap": 0.01, "open_to_30m": 0.01,
+                              "thirty_min_to_close": 0.01, "open_to_close": 0.02})
+        d3 = capture_d3(s, EVENT, {"close_T1_to_close_T2": 0.01})   # incomplete -> PARTIAL
+        check("R8. an incomplete D3 is PARTIAL", d3 == "PARTIAL")
+        last = [r for r in s.read_all(EVENT) if r["record_type"] == "STATE"][-1]
+        check("R8b. the D3 PARTIAL declares failure_stage=d3",
+              last["fields"].get(FAILURE_STAGE_KEY) == "d3")
+        m = _pre_event_ok(root, s)
+        check("R8c. the completion marker still reports the PRE-EVENT eligibility",
+              m["module_eligibility"] is not None
+              and m["module_eligibility"]["pre_event_completeness_tier"] == PRE_EVENT_TIER_CORE_ONLY)
+        check("R8d. it is still not full-data complete", m["is_full_data_complete"] is False)
+        check("R8e. the pre_event gate is unaffected by the D3 failure",
+              check_required_gate(s, EVENT, "pre_event") == EXIT_OK)
+        check("R8f. the d1 gate still resolves against D1_COMPLETE",
+              check_required_gate(s, EVENT, "d1") == EXIT_OK)
+
+
+def test_r9_option_artifact_bound_to_validation():
+    mutations = [
+        ("a different disposition", _nulls(D.LOOKUP_FAILED, "no OPRA-entitled source available")),
+        ("a different reason", _nulls(D.UNAVAILABLE_NO_VERIFIED_SOURCE, "changed my mind")),
+        ("a claimed OPRA artifact", dict(OPT_VALID)),
+    ]
+    for label, mutated in mutations:
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+            rep = _validate(tmp, csv_p=c, marker_p=m, store=store, opt=OPT_NONE)
+            check(f"R9 setup. validation approved UNAVAILABLE_NO_VERIFIED_SOURCE ({label})",
+                  rep.ok() and rep.option_benchmark_status == D.UNAVAILABLE_NO_VERIFIED_SOURCE)
+            expect_raises(f"R9. executing with {label} is refused",
+                          PreEventCaptureError, execute_pre_event_capture, report=rep,
+                          store_root=store, panel_csv=c, panel_marker=m, ticker="DELL",
+                          research_commit_sha="deadbeef", methodology_version=METH,
+                          option_benchmark_fields=mutated)
+            check(f"R9b. ...with zero writes ({label})", not store.exists())
+    # The digest covers the WHOLE artifact, and dict ordering does not change it.
+    from gst_market_response.capture_fingerprint import option_fields_digest
+    reordered = {k: OPT_NONE[k] for k in reversed(list(OPT_NONE))}
+    check("R9c. the option digest is order-independent",
+          option_fields_digest(OPT_NONE) == option_fields_digest(reordered))
+    check("R9d. the option digest changes when any single value changes",
+          option_fields_digest(OPT_NONE)
+          != option_fields_digest({**OPT_NONE, "option_benchmark_unavailable_reason": "x"}))
+
+
+def test_r10_r11_blank_and_cross_row_dates():
+    # R10: one blank price_asof_date among otherwise matching rows.
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, other_tickers=("MSFT",), blank_asof_rows=(1,))
+        rep = _validate(tmp, csv_p=c, marker_p=m)
+        check("R10. one blank price_asof_date among matching rows fails "
+              "(blanks are never discarded before validation)",
+              not rep.ok()
+              and any(x["check"] == "panel_price_asof_date_nonblank_in_every_row"
+                      and not x["passed"] for x in rep.checks))
+    # R11: one blank run_date among otherwise matching rows.
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, other_tickers=("MSFT",), blank_run_rows=(1,))
+        rep = _validate(tmp, csv_p=c, marker_p=m)
+        check("R11. one blank run_date among matching rows fails",
+              not rep.ok()
+              and any(x["check"] == "panel_run_date_nonblank_in_every_row"
+                      and not x["passed"] for x in rep.checks))
+    # multiple run dates across rows
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, other_tickers=("MSFT",),
+                                          run_date_by_row={1: "2026-09-04"})
+        rep = _validate(tmp, csv_p=c, marker_p=m)
+        check("R11b. rows disagreeing on run_date fail closed",
+              not rep.ok()
+              and any(x["check"] == "panel_run_date_single_value_across_rows"
+                      and not x["passed"] for x in rep.checks))
+    # a panel with no run_date column at all
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, drop_run_date_col=True)
+        rep = _validate(tmp, csv_p=c, marker_p=m)
+        check("R11c. a panel with no run_date column fails closed",
+              not rep.ok()
+              and any(x["check"] == "panel_run_date_nonblank_in_every_row"
+                      and not x["passed"] for x in rep.checks))
+    # run_date BEFORE the session it summarises
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, run_date="2026-09-01", price_asof=ANCHOR)
+        rep = _validate(tmp, csv_p=c, marker_p=m)
+        check("R11d. run_date preceding price_asof_date fails closed",
+              not rep.ok()
+              and any(x["check"] == "run_date_not_before_session" and not x["passed"]
+                      for x in rep.checks))
+    # the good case still passes, and the audit is persisted on the report
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp, run_date="2026-09-03", price_asof=ANCHOR,
+                                          other_tickers=("MSFT",))
+        rep = _validate(tmp, csv_p=c, marker_p=m)
+        check("R10b. a multi-row panel with consistent nonblank dates still passes",
+              rep.ok() and rep.panel_date_audit["ok"] is True
+              and rep.panel_date_audit["blank_price_asof_rows"] == 0)
+
+
+def test_r12_v0_2_pipeline_cannot_bypass_strict_gate():
+    import ast
+    from gst_market_response import pipeline as pl
+    from gst_market_response.event_record import FAILURE_STAGE_KEY
+
+    # Structural: the v0.2 capture must reach the STRICT gate, not the v0.1 one.
+    src = (HERE / "gst_market_response" / "pipeline.py").read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    fn = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+              and n.name == "capture_pre_event_and_option_benchmark_v0_2")
+    called = {n.func.id for n in ast.walk(fn)
+              if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
+    check("R12. the v0.2 capture calls evaluate_pre_event_modules_v0_2",
+          "evaluate_pre_event_modules_v0_2" in called)
+    check("R12b. it never calls the v0.1 module evaluator or the v0.1 core gate",
+          "evaluate_pre_event_modules" not in called
+          and "is_valid_pre_event_observation" not in called)
+    v2src = (HERE / "gst_market_response" / "completeness.py").read_text(encoding="utf-8")
+    v2fn = next(n for n in ast.walk(ast.parse(v2src)) if isinstance(n, ast.FunctionDef)
+                and n.name == "evaluate_pre_event_modules_v0_2")
+    v2called = {n.func.id for n in ast.walk(v2fn)
+                if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
+    check("R12c. evaluate_pre_event_modules_v0_2 judges the core with the strict gate",
+          "evaluate_strict_core_v0_2" in v2called
+          and "is_valid_pre_event_observation" not in v2called)
+
+    # No unversioned public capture function exists at all.
+    check("R12d. no unversioned capture function is exported",
+          "capture_pre_event_and_option_benchmark" not in dir(pl))
+    try:
+        getattr(pl, "capture_pre_event_and_option_benchmark")
+        raised = False
+    except AttributeError as exc:
+        raised = "v0_2" in str(exc)
+    check("R12e. the unversioned name raises with explicit version guidance", raised)
+
+    # Behavioural: fields that PASS the v0.1 gate but FAIL the strict six-field
+    # gate must not be recorded as an eligible capture.
+    weak = {"previous_close": 101.5, "pre_event_snapshot_asof_utc": "2026-09-02T20:00:00+00:00",
+            "gst_zscore": 1.2, "source_status_gst": "ok"}
+    from gst_market_response.completeness import is_valid_pre_event_observation
+    check("R12f. the weak fixture DOES pass the legacy v0.1 gate (the test is not vacuous)",
+          is_valid_pre_event_observation(weak))
+    with tempfile.TemporaryDirectory() as t:
+        s = EventStore(Path(t)); s.append_state(EVENT, "REGISTERED", {})
+        st = pl.capture_pre_event_and_option_benchmark_v0_2(s, EVENT, weak, OPT_NONE)
+        rec = [r for r in s.read_all(EVENT) if r["record_type"] == "STATE"][-1]
+        check("R12g. the v0.2 pipeline records it as PARTIAL, not PRE_EVENT_CAPTURED",
+              st == "PARTIAL")
+        check("R12h. ...with core_pre_event_eligible False and a pre_event failure stage",
+              rec["fields"]["core_pre_event_eligible"] is False
+              and rec["fields"][FAILURE_STAGE_KEY] == "pre_event")
+    with tempfile.TemporaryDirectory() as t:
+        s = EventStore(Path(t)); s.append_state(EVENT, "REGISTERED", {})
+        st = pl.capture_pre_event_and_option_benchmark_v0_2(s, EVENT, STRICT_FULL, OPT_NONE)
+        check("R12i. a genuine six-field observation still captures", st == "PRE_EVENT_CAPTURED")
+
+
+def test_r13_full_chronology_without_unlink_or_overwrite():
+    """R13. A complete synthetic chronology, with every artifact byte recorded
+    before and after, proving nothing was unlinked or overwritten."""
+    from gst_market_response.stage_markers import (STAGE_D1, STAGE_FINAL, STAGE_PRE_EVENT,
+                                                   marker_path, write_stage_marker)
+    with tempfile.TemporaryDirectory() as t:
+        tmp = Path(t); c, m = synth_panel(tmp); store = tmp / "store"
+        rep = _validate(tmp, csv_p=c, marker_p=m, store=store)
+        execute_pre_event_capture(report=rep, store_root=store, panel_csv=c, panel_marker=m,
+                                  ticker="DELL", research_commit_sha="deadbeef",
+                                  methodology_version=METH, option_benchmark_fields=OPT_NONE)
+        s = EventStore(store)
+        pre_bytes = marker_path(store, EVENT, STAGE_PRE_EVENT).read_bytes()
+        log_len_after_pre = len((store / f"{EVENT}.jsonl").read_bytes())
+
+        capture_d1(s, EVENT, {"overnight_gap": 0.01, "open_to_30m": 0.01,
+                              "thirty_min_to_close": 0.01, "open_to_close": 0.02})
+        write_stage_marker(store, EVENT, STAGE_D1, s)
+        d1_bytes = marker_path(store, EVENT, STAGE_D1).read_bytes()
+        capture_d3(s, EVENT, {"close_T1_to_close_T2": 0.01, "close_T1_to_close_T3": 0.02})
+        final = write_stage_marker(store, EVENT, STAGE_FINAL, s)
+
+        chain = _states(store)
+        check("R13. the full chronology reaches lifecycle COMPLETE",
+              chain == ["REGISTERED", "PRE_EVENT_PENDING", "PRE_EVENT_CAPTURED",
+                        "D1_PENDING", "D1_COMPLETE", "D3_PENDING", "COMPLETE"])
+        check("R13b. the pre-event marker's bytes are untouched by later stages",
+              marker_path(store, EVENT, STAGE_PRE_EVENT).read_bytes() == pre_bytes)
+        check("R13c. the D1 marker's bytes are untouched by the final stage",
+              marker_path(store, EVENT, STAGE_D1).read_bytes() == d1_bytes)
+        check("R13d. all three stage markers coexist; none replaced another",
+              all(marker_path(store, EVENT, st).exists()
+                  for st in (STAGE_PRE_EVENT, STAGE_D1, STAGE_FINAL)))
+        check("R13e. the event log only ever grew",
+              len((store / f"{EVENT}.jsonl").read_bytes()) > log_len_after_pre)
+        check("R13f. the final marker preserves the core-only tier and refuses full-data completeness",
+              final["module_eligibility"]["pre_event_completeness_tier"] == PRE_EVENT_TIER_CORE_ONLY
+              and final["is_full_data_complete"] is False)
+        check("R13g. the real DELL event was never touched (temp store only)",
+              not (HERE / f"{EVENT}.jsonl").exists())
+
+
+def test_r14_real_artifacts_untouched_after_second_pass():
+    reg = HERE / "Live Signal Engine" / "Market_Response_Event_Registry" / "registry.jsonl"
+    rows = HumanVerifiedEventRegistry(reg.parent).read_all()
+    check("R14. the real DELL registry still holds exactly one verified REGISTRATION row",
+          len(rows) == 1 and rows[0]["verification_status"] == "verified"
+          and rows[0]["row_type"] == "REGISTRATION")
+    check("R14b. no real event log or stage marker exists anywhere in the repo",
+          not list(HERE.rglob("EVT-*.jsonl")) and not list(HERE.rglob("EVT-*_MARKER.json")))
+
+
 if __name__ == "__main__":
     test_1_core_valid_options_valid()
     test_2_core_valid_options_unavailable()
@@ -745,6 +1258,16 @@ if __name__ == "__main__":
     test_h16_gate_reads_pre_event_record()
     test_h17_session_ambiguity_fails_closed()
     test_h18_real_artifacts_untouched()
+    test_r1_atomic_no_overwrite_race()
+    test_r2_r3_r4_dangling_pending_resume()
+    test_r2b_crash_injection_at_every_stage()
+    test_r5_r6_per_leg_statuses_enforced()
+    test_r7_r8_partial_is_stage_specific()
+    test_r9_option_artifact_bound_to_validation()
+    test_r10_r11_blank_and_cross_row_dates()
+    test_r12_v0_2_pipeline_cannot_bypass_strict_gate()
+    test_r13_full_chronology_without_unlink_or_overwrite()
+    test_r14_real_artifacts_untouched_after_second_pass()
 
     print()
     if FAILURES:

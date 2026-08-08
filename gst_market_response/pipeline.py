@@ -13,12 +13,19 @@ from typing import Any, Optional
 from .completeness import (
     evaluate_gate,
     evaluate_pre_event_modules,
+    evaluate_pre_event_modules_v0_2,
     is_valid_d1_decomposition,
     is_valid_d3_completion,
     is_valid_option_benchmark,
     is_valid_pre_event_observation,
 )
-from .event_record import EventStore
+from .event_record import (
+    FAILURE_STAGE_D1,
+    FAILURE_STAGE_D3,
+    FAILURE_STAGE_KEY,
+    FAILURE_STAGE_PRE_EVENT,
+    EventStore,
+)
 
 
 def register_event(store: EventStore, event_id: str, identity_fields: dict[str, Any]) -> str:
@@ -31,13 +38,19 @@ def abstain(store: EventStore, event_id: str, reason: str) -> str:
     return "ABSTAIN_DATA_QUALITY"
 
 
-def capture_pre_event_and_option_benchmark(
+def capture_pre_event_and_option_benchmark_v0_1(
     store: EventStore,
     event_id: str,
     pre_event_fields: dict[str, Any],
     option_benchmark_fields: dict[str, Any],
 ) -> str:
-    """PRE_EVENT_PENDING -> PRE_EVENT_CAPTURED when the pre-event CORE gate
+    """LEGACY v0.1 capture. Judges the core with is_valid_pre_event_observation().
+
+    Kept, explicitly version-named, for v0.1 callers and the v0.1 regression
+    suite. It is NOT the v0.2 path and must never be reached from the v0.2
+    orchestrator -- see capture_pre_event_and_option_benchmark_v0_2().
+
+    PRE_EVENT_PENDING -> PRE_EVENT_CAPTURED when the pre-event CORE gate
     passes; otherwise PARTIAL.
 
     PROTOCOL v0.2 (2026-08-08) -- lifecycle/eligibility separation. Under v0.1
@@ -67,8 +80,71 @@ def capture_pre_event_and_option_benchmark(
     if eligibility.core_pre_event_eligible:
         store.append_state(event_id, "PRE_EVENT_CAPTURED", combined)
         return "PRE_EVENT_CAPTURED"
-    store.append_state(event_id, "PARTIAL", combined)
+    store.append_state(event_id, "PARTIAL",
+                       {**combined, FAILURE_STAGE_KEY: FAILURE_STAGE_PRE_EVENT})
     return "PARTIAL"
+
+
+def capture_pre_event_and_option_benchmark_v0_2(
+    store: EventStore,
+    event_id: str,
+    strict_core_fields: dict[str, Any],
+    option_benchmark_fields: dict[str, Any],
+    *,
+    pending_fields: dict[str, Any] | None = None,
+    resume_from_existing_pending: bool = False,
+) -> str:
+    """PROTOCOL v0.2 capture. The core is judged by the STRICT six-field gate.
+
+    This is the ONLY capture entry point the v0.2 orchestrator may use. It
+    cannot fall through to the v0.1 gate: eligibility comes from
+    evaluate_pre_event_modules_v0_2(), which calls evaluate_strict_core_v0_2().
+
+    `pending_fields` is the canonical capture fingerprint persisted ON the
+    PRE_EVENT_PENDING record so that a crash between the two appends is
+    resumable, and only by an input-identical rerun.
+
+    `resume_from_existing_pending` continues a dangling PRE_EVENT_PENDING that
+    the caller has already proved fingerprint-identical. It appends NO second
+    pending record and never rewrites or deletes the first one.
+
+    Neither the option gate nor the disposition contract changes here: an
+    absent benchmark stays null, the option module stays ineligible, and the
+    event is classified core-only and can never be full-data complete.
+    """
+    # --- validate everything first; no bytes are written until this returns ---
+    eligibility = evaluate_pre_event_modules_v0_2(strict_core_fields, option_benchmark_fields)
+
+    combined = {**strict_core_fields, **option_benchmark_fields, **eligibility.as_dict()}
+
+    if not resume_from_existing_pending:
+        store.append_state(event_id, "PRE_EVENT_PENDING", dict(pending_fields or {}))
+    if eligibility.core_pre_event_eligible:
+        store.append_state(event_id, "PRE_EVENT_CAPTURED", combined)
+        return "PRE_EVENT_CAPTURED"
+    store.append_state(event_id, "PARTIAL",
+                       {**combined, FAILURE_STAGE_KEY: FAILURE_STAGE_PRE_EVENT})
+    return "PARTIAL"
+
+
+# There is deliberately NO unversioned public capture function. An unversioned
+# name is how the v0.2 orchestrator silently reached the v0.1 core gate in the
+# first place, so the old name now raises with instructions rather than
+# resolving to either behaviour.
+_REMOVED_UNVERSIONED = (
+    "pipeline.capture_pre_event_and_option_benchmark has been split by protocol "
+    "version and no unversioned capture function exists. Call "
+    "capture_pre_event_and_option_benchmark_v0_2() (strict six-field core gate) "
+    "or, for the legacy v0.1 contract only, "
+    "capture_pre_event_and_option_benchmark_v0_1(). An unversioned name is how "
+    "the v0.2 path previously bypassed the strict gate."
+)
+
+
+def __getattr__(name: str):  # module-level, PEP 562
+    if name == "capture_pre_event_and_option_benchmark":
+        raise AttributeError(_REMOVED_UNVERSIONED)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def capture_d1(store: EventStore, event_id: str, d1_fields: dict[str, Any]) -> str:
@@ -76,7 +152,9 @@ def capture_d1(store: EventStore, event_id: str, d1_fields: dict[str, Any]) -> s
     if is_valid_d1_decomposition(d1_fields):
         store.append_state(event_id, "D1_COMPLETE", d1_fields)
         return "D1_COMPLETE"
-    store.append_state(event_id, "PARTIAL", d1_fields)
+    # PROTOCOL v0.2: a PARTIAL says WHICH stage failed, so a D1 failure can
+    # never be mistaken for the pre-event eligibility record.
+    store.append_state(event_id, "PARTIAL", {**d1_fields, FAILURE_STAGE_KEY: FAILURE_STAGE_D1})
     return "PARTIAL"
 
 
@@ -85,5 +163,5 @@ def capture_d3(store: EventStore, event_id: str, d3_fields: dict[str, Any]) -> s
     if is_valid_d3_completion(d3_fields):
         store.append_state(event_id, "COMPLETE", d3_fields)
         return "COMPLETE"
-    store.append_state(event_id, "PARTIAL", d3_fields)
+    store.append_state(event_id, "PARTIAL", {**d3_fields, FAILURE_STAGE_KEY: FAILURE_STAGE_D3})
     return "PARTIAL"
