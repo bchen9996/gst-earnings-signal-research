@@ -385,7 +385,7 @@ def test_12_partial_never_becomes_complete():
         # PARTIAL-terminal. Only the INPUT changed: `{}` no longer implies "options
         # unavailable", because unavailability is never inferred from an empty dict.
         # The caller must now state a disposition explicitly.
-        state = pipeline.capture_pre_event_and_option_benchmark(
+        state = pipeline.capture_pre_event_and_option_benchmark_v0_1(
             store, eid, {"previous_close": None, "pre_event_snapshot_asof_utc": None},
             {"option_benchmark_status": "NOT_ATTEMPTED",
              "option_benchmark_unavailable_reason": "core snapshot invalid; option capture not attempted"},
@@ -643,8 +643,8 @@ def test_end_to_end_synthetic_event():
         option_fields["option_feed"] = "opra"
         check("E2E-2. Synthetic option benchmark resolves OK", benchmark.contract_selection_status == "ok")
 
-        state = pipeline.capture_pre_event_and_option_benchmark(store, eid, pre_event_fields, option_fields)
-        check("E2E-3. capture_pre_event_and_option_benchmark -> PRE_EVENT_CAPTURED", state == "PRE_EVENT_CAPTURED")
+        state = pipeline.capture_pre_event_and_option_benchmark_v0_1(store, eid, pre_event_fields, option_fields)
+        check("E2E-3. capture_pre_event_and_option_benchmark_v0_1 -> PRE_EVENT_CAPTURED", state == "PRE_EVENT_CAPTURED")
 
         d1_session_date = date(2026, 7, 30)
         stock_bars = full_session_bars("MSFT", d1_session_date)
@@ -722,7 +722,7 @@ def test_failure_fixture_missing_opening_bar():
             tk=tk, earnings_date=earnings_date, underlying_price=250.0, quote_timestamp_utc=datetime.now(UTC),
         )
         # PROTOCOL v0.2: disposition + feed now declared explicitly. Assertion unchanged.
-        pre_state = pipeline.capture_pre_event_and_option_benchmark(
+        pre_state = pipeline.capture_pre_event_and_option_benchmark_v0_1(
             store, eid,
             {"previous_close": 250.0, "pre_event_snapshot_asof_utc": "2026-08-03T20:00:00+00:00", "gst_zscore": 1.0},
             {**benchmark.__dict__, "option_benchmark_status": "VALID_VERIFIED", "option_feed": "opra"},
@@ -780,7 +780,7 @@ def test_failure_fixture_invalid_option_expiration():
         #       ineligible -- lifecycle proceeds, analytical eligibility does not.
         raised = False
         try:
-            pipeline.capture_pre_event_and_option_benchmark(store, eid, good_core, benchmark.__dict__)
+            pipeline.capture_pre_event_and_option_benchmark_v0_1(store, eid, good_core, benchmark.__dict__)
         except completeness.OptionDispositionError:
             raised = True
         check("FF-3b. A rejected benchmark handed over as-is fails closed (supplied-but-invalid), "
@@ -788,7 +788,7 @@ def test_failure_fixture_invalid_option_expiration():
         check("FF-3b2. That refusal wrote nothing -- the event is still at REGISTERED",
               store.current_state(eid) == "REGISTERED")
 
-        state = pipeline.capture_pre_event_and_option_benchmark(
+        state = pipeline.capture_pre_event_and_option_benchmark_v0_1(
             store, eid, good_core,
             {"option_benchmark_status": "LOOKUP_FAILED",
              "option_benchmark_unavailable_reason": "no expiration strictly after the event date",

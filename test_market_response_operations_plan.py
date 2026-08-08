@@ -503,7 +503,8 @@ def test_planner_declares_no_state_transition_api():
     # below are the real guarantee: with no HTTP library imported at all, no
     # `.get()` in this module can be a network call.
     for banned in ("append_state", "append_amendment", "register_verified_event", "amend_event",
-                   "capture_pre_event_and_option_benchmark", "capture_d1", "capture_d3",
+                   "capture_pre_event_and_option_benchmark", "capture_pre_event_and_option_benchmark_v0_1",
+                   "capture_pre_event_and_option_benchmark_v0_2", "capture_d1", "capture_d3",
                    "write_completion_marker", "urlopen", "request", "Session"):
         check(f"16a. planner never CALLS {banned} (AST)", banned not in called)
     imported = _imported_modules(p)

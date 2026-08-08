@@ -131,13 +131,24 @@ STRICT_CORE_SIX_FIELDS = (
 # success but is not "fresh" -- that distinction lives in the raw status.
 STRICT_CORE_SUCCESS_STATUSES = ("ok", "ok_recent_cache_fallback")
 
-# Per-field source-status key, where the panel provides one. Fields with no
-# dedicated status inherit the price leg's status.
+# Per-field source-status key. EVERY field is backed by the panel leg that
+# actually produced it.
+#
+# CORRECTION (second audit pass): implied volatility and realized volatility
+# previously inherited `source_status_price`. The Phase 2 panel does not work
+# that way -- it emits five independent per-leg statuses (gst_status,
+# wiki_status, iv_status, realized_vol_status, price_history_status), and the
+# option-chain leg that produces implied_volatility fails independently of the
+# price-history leg that produces price/volume. Backing IV with the price
+# status meant a failed iv_status passed the six-field gate whenever price
+# history happened to be OK, which is exactly the "treat missing data as
+# present" failure the gate exists to prevent. previous_close and volume DO
+# both come from the price-history leg, so they legitimately share it.
 STRICT_CORE_STATUS_KEY = {
     "gst_zscore": "source_status_gst",
     "wiki_zscore": "source_status_wiki",
-    "panel_implied_volatility": "source_status_price",
-    "realized_volatility": "source_status_price",
+    "panel_implied_volatility": "source_status_iv",
+    "realized_volatility": "source_status_realized_vol",
     "previous_close": "source_status_price",
     "volume": "source_status_price",
 }
@@ -356,6 +367,50 @@ def evaluate_pre_event_modules(
     """
     disposition = validate_option_disposition(option_benchmark_fields)
     core_ok = is_valid_pre_event_observation(pre_event_fields)
+    option_ok = (
+        disposition in OptionBenchmarkDisposition.ANALYTICALLY_ELIGIBLE
+        and is_valid_option_benchmark(option_benchmark_fields)
+    )
+    if not core_ok:
+        tier = PRE_EVENT_TIER_CORE_INVALID
+    elif option_ok:
+        tier = PRE_EVENT_TIER_CORE_AND_OPTION
+    else:
+        tier = PRE_EVENT_TIER_CORE_ONLY
+    return ModuleEligibility(
+        core_pre_event_eligible=core_ok,
+        option_benchmark_eligible=option_ok,
+        joint_full_eligible=core_ok and option_ok,
+        pre_event_completeness_tier=tier,
+        option_benchmark_status=disposition,
+        option_benchmark_unavailable_reason=option_benchmark_fields.get(
+            "option_benchmark_unavailable_reason"
+        ),
+    )
+
+
+def evaluate_pre_event_modules_v0_2(
+    strict_core_fields: dict[str, Any],
+    option_benchmark_fields: dict[str, Any],
+) -> ModuleEligibility:
+    """v0.2 module eligibility: the CORE module is judged by the STRICT
+    six-field gate, not by the v0.1 gate.
+
+    CORRECTION (second audit pass): the v0.2 capture path called
+    evaluate_pre_event_modules(), whose core test is
+    is_valid_pre_event_observation() -- previous_close + a timestamp, with
+    gst_zscore satisfiable by an honest missing/error status. So an observation
+    missing wiki_zscore, IV, realized volatility or volume entirely could still
+    be recorded as PRE_EVENT_CAPTURED with core_pre_event_eligible=True. The
+    orchestrator ran the strict gate as a separate report check, but the field
+    persisted on the record came from the weaker one, and any caller reaching
+    the pipeline directly bypassed the strict gate altogether.
+
+    The option module is evaluated by the unchanged v0.1 option gate and the
+    same explicit-disposition contract; no option threshold moves here.
+    """
+    disposition = validate_option_disposition(option_benchmark_fields)
+    core_ok = evaluate_strict_core_v0_2(strict_core_fields).passed
     option_ok = (
         disposition in OptionBenchmarkDisposition.ANALYTICALLY_ELIGIBLE
         and is_valid_option_benchmark(option_benchmark_fields)

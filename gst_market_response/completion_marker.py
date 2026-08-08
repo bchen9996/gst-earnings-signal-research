@@ -14,7 +14,13 @@ from .completeness import (
     is_full_data_complete,
     read_module_eligibility,
 )
-from .event_record import EventStore
+from .event_record import (
+    FAILURE_STAGE_D1,
+    FAILURE_STAGE_D3,
+    FAILURE_STAGE_PRE_EVENT,
+    EventStore,
+    select_stage_record,
+)
 
 # Exit codes -- mirrors this project's existing PASS/INCONCLUSIVE/FAIL
 # 3-state convention (see phase2_live_smoke_wiki_equivalence.py) rather than
@@ -43,12 +49,14 @@ def write_completion_marker(root: Path, event_id: str, store: EventStore) -> dic
     # (v0.1) record carries none of these fields; that is reported explicitly
     # rather than defaulted, so a pre-amendment event is never silently
     # presented as core-only or as fully complete.
+    #
+    # SECOND-PASS CORRECTION: this searched backwards for PRE_EVENT_CAPTURED or
+    # PARTIAL. PARTIAL is reachable from D1 and D3 as well, so a later D1/D3
+    # failure won the reverse search and the marker reported D1 interval fields
+    # as the pre-event eligibility record. select_stage_record() prefers
+    # PRE_EVENT_CAPTURED and accepts only a pre-event PARTIAL.
     marker["protocol_version"] = PROTOCOL_VERSION
-    eligibility_source = next(
-        (r for r in reversed(state_records)
-         if r["state"] in ("PRE_EVENT_CAPTURED", "PARTIAL") and r.get("fields")),
-        None,
-    )
+    eligibility_source = select_stage_record(state_records, FAILURE_STAGE_PRE_EVENT)
     if eligibility_source is None:
         marker["module_eligibility"] = None
         marker["module_eligibility_note"] = "no pre-event stage recorded for this event"
@@ -81,18 +89,22 @@ def check_required_gate(store: EventStore, event_id: str, tier: str) -> int:
     # checked, not simply the LATEST record. v0.1 always used state_records[-1],
     # so once D1/D3 had been captured a "pre_event"/"option_benchmark" check
     # silently evaluated D1/D3 fields and reported a meaningless result.
+    #
+    # SECOND-PASS CORRECTION: the first fix still matched a bare "PARTIAL",
+    # which any of the three stages can produce, so a D1 failure could satisfy a
+    # "pre_event" lookup. select_stage_record() prefers the stage's own success
+    # state and accepts only a PARTIAL carrying that stage's discriminator.
     _STAGE_FOR_TIER = {
-        "pre_event": ("PRE_EVENT_CAPTURED", "PARTIAL"),
-        "option_benchmark": ("PRE_EVENT_CAPTURED", "PARTIAL"),
-        "d1": ("D1_COMPLETE", "PARTIAL"),
-        "d3": ("COMPLETE", "PARTIAL"),
+        "pre_event": FAILURE_STAGE_PRE_EVENT,
+        "option_benchmark": FAILURE_STAGE_PRE_EVENT,
+        "d1": FAILURE_STAGE_D1,
+        "d3": FAILURE_STAGE_D3,
     }
     wanted = _STAGE_FOR_TIER.get(tier)
     if wanted is None:
         source = state_records[-1]
     else:
-        source = next((r for r in reversed(state_records)
-                       if r["state"] in wanted and r.get("fields")), None)
+        source = select_stage_record(state_records, wanted)
     if source is None or not source.get("fields"):
         return EXIT_INCONCLUSIVE
     result = evaluate_gate(tier, source["fields"])
