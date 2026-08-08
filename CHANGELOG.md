@@ -1,6 +1,35 @@
 # Changelog
 
 
+## 2026-08-08 — PROTOCOL AMENDMENT v0.2: separate collection lifecycle from analytical eligibility
+
+**Authorized methodology amendment**, made **before** any prospective DELL research observation, pre-event snapshot, market-response observation, dossier, or Layer B record exists. It was prompted by deterministic contract tracing, not by looking at data: no DELL attention, price, volume, volatility, options, earnings outcome, consensus, or analyst figure was inspected at any point. `EVT-DELL-FY27Q2-ERN` remains **`REGISTERED`**. The human-verified timing registry is **not** amended — no timing fact changed. Nothing is backdated; the prior v0.1 behaviour and its rationale are preserved in this trail rather than rewritten.
+
+**The defect (v0.1).** One state variable carried two different concepts: *which scheduled stages were captured* and *which evidence modules are analytically valid*. `PRE_EVENT_CAPTURED` required **both** the pre-event core gate **and** the option-benchmark gate. An unavailable **optional** option benchmark therefore drove the event to `PARTIAL` — a **terminal** state — after which `capture_d1()` raised `InvalidStateTransitionError`. A valid six-field attention/market core was destroyed by the absence of an optional module, and D1/D2/D3 became uncollectable. That is avoidable event attrition, and with the Alpaca options entitlement INCONCLUSIVE it would have hit the very first prospective event.
+
+**The correction.** Lifecycle state records collection; analytical eligibility is carried alongside it, per module. This does **not** declare options unnecessary and never treats an absent benchmark as present:
+
+| Case | Lifecycle | core | option | joint | tier |
+|---|---|---|---|---|---|
+| core fails | `PARTIAL` (terminal, unchanged) | false | false | false | `core_invalid` |
+| core + valid OPRA benchmark | `PRE_EVENT_CAPTURED` | true | true | true | `core_and_option_benchmark` |
+| core + explicitly unavailable | `PRE_EVENT_CAPTURED` | true | **false** | **false** | `core_only_no_option_benchmark` |
+
+A core-only event may reach lifecycle `COMPLETE` and **is still not full-data complete**: `is_full_data_complete()` requires both lifecycle completion *and* the core+option tier, and the completion marker surfaces the tier plus `is_full_data_complete: false`. Hypothesis families are gated mechanically — core-attention needs `core_pre_event_eligible`, options-implied-move needs `option_benchmark_eligible`, joint needs `joint_full_eligible`. Lifecycle state is deliberately not an argument to that function, so `COMPLETE` can never by itself authorize an options-linked claim.
+
+**Missingness is explicit, never inferred.** An empty dict or null fields no longer imply "unavailable". The caller must declare `option_benchmark_status` ∈ `VALID_VERIFIED` / `UNAVAILABLE_NO_VERIFIED_SOURCE` / `LOOKUP_FAILED` / `NOT_ATTEMPTED`. `VALID_VERIFIED` requires provider identity (`option_feed`, OPRA only) and must pass the **existing** option gate; the other three require **null** benchmark values and a nonblank reason. A supplied-but-invalid artifact — malformed, crossed, indicative, timestamp-less, or contradicting its own disposition — is rejected with zero writes rather than silently downgraded to ordinary unavailability. Indicative quotes cannot be relabelled as either unavailable or OPRA-valid. Unknown or blank dispositions fail closed. Legacy v0.1 records raise `LegacyRecordError` rather than being silently reinterpreted.
+
+**No threshold was weakened.** `is_valid_pre_event_observation()` and `is_valid_option_benchmark()` are called unchanged. The locked universe, six-field contract, GST/Wikipedia methodology, z-score formulas, earnings rules, D1/D2/D3 interval formulas, retry logic, quote-age and skew limits, event timing, the DELL registry row, historical results, and dossier blinding rules are untouched.
+
+**Changed prior expectation, explained rather than quietly updated.** `test_market_response_decomposition.py` FF-3b asserted that a rejected benchmark plus a valid core yields `PARTIAL`. That assertion encoded the defect. It is replaced by two: handing over the rejected benchmark dict as-is now fails closed (it still carries a populated `underlying_price` while declaring no usable benchmark, and states no disposition), and declaring the honest `LOOKUP_FAILED` with null values captures the core while marking the option module ineligible. Three other call sites kept their assertions and only gained the now-required explicit disposition.
+
+**Pre-event capture orchestrator.** New `pre_event_capture.py` + `pre_event_capture_cli.py` connect existing components — `operations_plan` (registry + XNYS anchor), `phase2_adapter` (panel CSV/marker + hashes), `completeness` (per-module eligibility), `pipeline` (transitions), `completion_marker` (atomic marker). They implement no calendar arithmetic, panel parsing, gate logic, or state rules of their own, and **never contact a provider**. Default is read-only validation; writes require `--execute`. There is deliberately no `--force`, `--overwrite`, `--skip-validation`, `--allow-stale` or `--ignore`. Validation completes entirely before the first byte; collisions and repeated execution fail closed with zero additional bytes.
+
+**Scope notes.** The options benchmark is **separate from the Phase 2 six-field contract**. An unavailable benchmark never becomes zero; it may lower the event's completeness tier; it does not authorize indicative substitution. The attention signal and the equity market-response decomposition remain collectible for a core-only event. No strategy, return forecast, or trading recommendation is produced.
+
+**Tests.** New `test_market_response_pre_event_capture.py` — **84 assertions** covering all 28 required scenarios. `test_market_response_decomposition.py` is now 87 assertions.
+
+
 ## 2026-08-07 — DELL FY27 Q2: offline capture plan and operational schedule
 
 **Status of the event.** `EVT-DELL-FY27Q2-ERN` is **registered and preregistered on `main`** (PR #4, merge `87f5d770`) and remains in state **`REGISTERED` only**. **No pre-event snapshot has been taken.** No market, attention, option, consensus, or earnings-result data was inspected in this pass, and none was inspected to select the event. **This pass does not test a strategy and produces no research result.**

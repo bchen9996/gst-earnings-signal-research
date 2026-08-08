@@ -7,7 +7,13 @@ from pathlib import Path
 from typing import Any
 
 from .atomic_io import atomic_write_json
-from .completeness import evaluate_gate
+from .completeness import (
+    PROTOCOL_VERSION,
+    LegacyRecordError,
+    evaluate_gate,
+    is_full_data_complete,
+    read_module_eligibility,
+)
 from .event_record import EventStore
 
 # Exit codes -- mirrors this project's existing PASS/INCONCLUSIVE/FAIL
@@ -30,6 +36,34 @@ def write_completion_marker(root: Path, event_id: str, store: EventStore) -> dic
         "amendment_count": len([r for r in records if r["record_type"] == "AMENDMENT"]),
         "written_at_utc": datetime.now(timezone.utc).isoformat(),
     }
+
+    # PROTOCOL v0.2: the marker must never let a reader mistake lifecycle
+    # completion for full-data completeness. Surface the per-module eligibility
+    # recorded at the pre-event stage alongside the lifecycle state. A legacy
+    # (v0.1) record carries none of these fields; that is reported explicitly
+    # rather than defaulted, so a pre-amendment event is never silently
+    # presented as core-only or as fully complete.
+    marker["protocol_version"] = PROTOCOL_VERSION
+    eligibility_source = next(
+        (r for r in reversed(state_records)
+         if r["state"] in ("PRE_EVENT_CAPTURED", "PARTIAL") and r.get("fields")),
+        None,
+    )
+    if eligibility_source is None:
+        marker["module_eligibility"] = None
+        marker["module_eligibility_note"] = "no pre-event stage recorded for this event"
+        marker["is_full_data_complete"] = False
+    else:
+        try:
+            elig = read_module_eligibility(eligibility_source["fields"])
+        except LegacyRecordError as exc:
+            marker["module_eligibility"] = None
+            marker["module_eligibility_note"] = f"legacy pre-amendment record: {exc}"
+            marker["is_full_data_complete"] = False
+        else:
+            marker["module_eligibility"] = elig.as_dict()
+            marker["is_full_data_complete"] = is_full_data_complete(final_state, elig)
+
     atomic_write_json(root / f"{event_id}_COMPLETION_MARKER.json", marker)
     return marker
 

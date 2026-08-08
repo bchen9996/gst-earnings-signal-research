@@ -12,6 +12,7 @@ from typing import Any, Optional
 
 from .completeness import (
     evaluate_gate,
+    evaluate_pre_event_modules,
     is_valid_d1_decomposition,
     is_valid_d3_completion,
     is_valid_option_benchmark,
@@ -36,12 +37,34 @@ def capture_pre_event_and_option_benchmark(
     pre_event_fields: dict[str, Any],
     option_benchmark_fields: dict[str, Any],
 ) -> str:
-    """PRE_EVENT_PENDING -> PRE_EVENT_CAPTURED if both the pre-event snapshot
-    and the option benchmark clear their tier gates; otherwise PARTIAL. Never
-    silently promotes a partially-resolved snapshot to CAPTURED."""
+    """PRE_EVENT_PENDING -> PRE_EVENT_CAPTURED when the pre-event CORE gate
+    passes; otherwise PARTIAL.
+
+    PROTOCOL v0.2 (2026-08-08) -- lifecycle/eligibility separation. Under v0.1
+    this required BOTH the core gate and the option gate, so an unavailable
+    optional option benchmark drove a perfectly valid core observation to
+    PARTIAL, which is terminal, and destroyed D1/D2/D3 collection. The state
+    now records the COLLECTION LIFECYCLE; analytical eligibility is carried
+    alongside it, per module.
+
+    This does not make an absent benchmark valid. Option values stay null, the
+    option module is marked ineligible, the event is classified
+    `core_only_no_option_benchmark`, and it can never be called full-data
+    complete. Neither existing gate is modified or bypassed.
+
+    Fails closed BEFORE any write (raises OptionDispositionError, nothing
+    appended) when the option disposition is unknown/blank, or when a supplied
+    artifact contradicts its declared disposition -- a malformed, crossed,
+    stale, indicative or timestamp-less artifact is never quietly downgraded to
+    ordinary unavailability.
+    """
+    # --- validate everything first; no bytes are written until this returns ---
+    eligibility = evaluate_pre_event_modules(pre_event_fields, option_benchmark_fields)
+
+    combined = {**pre_event_fields, **option_benchmark_fields, **eligibility.as_dict()}
+
     store.append_state(event_id, "PRE_EVENT_PENDING", {})
-    combined = {**pre_event_fields, **option_benchmark_fields}
-    if is_valid_pre_event_observation(pre_event_fields) and is_valid_option_benchmark(option_benchmark_fields):
+    if eligibility.core_pre_event_eligible:
         store.append_state(event_id, "PRE_EVENT_CAPTURED", combined)
         return "PRE_EVENT_CAPTURED"
     store.append_state(event_id, "PARTIAL", combined)
