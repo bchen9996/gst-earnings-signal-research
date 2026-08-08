@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import ast
 import csv
 import datetime
 import hashlib
@@ -437,27 +438,172 @@ def test_execute_writes_and_collisions():
         check("23b. ...leaving no artifact at all", not store.exists())
 
 
+# Child program for test_25. Kept as a module constant so the test can assert
+# structurally on the blocker's own implementation.
+#
+# WHY find_spec AND NOT find_module (2026-08-08 correction):
+# the previous version installed a meta-path finder exposing only the legacy
+# `find_module` hook. That hook is not consulted by the modern import system --
+# it was deprecated in 3.4 and REMOVED in 3.12 -- so on this project's Python
+# the blocker was a silent no-op: `requests`, `yfinance` and `pytrends` all
+# imported straight through it. The surrounding LEAKED assertion still held
+# honestly (the orchestrator genuinely imports no provider), so the test never
+# went red, but its blocker was proving nothing. `find_spec` is the hook the
+# import system actually calls, on 3.12 and on 3.14 alike.
+#
+# The blocker raises a DISTINCTIVE ImportError subclass carrying a unique
+# token, so a pass cannot be produced by the package simply being absent from
+# the environment: absence yields a plain ModuleNotFoundError, which the test
+# rejects.
+_BLOCKER_TOKEN = "PROVIDER-IMPORT-BLOCKED-BY-TEST-HARNESS"
+
+_BLOCKER_CHILD_SRC = """
+import importlib, sys
+
+TOKEN = {token!r}
+BANNED_TOP = ('yfinance', 'pytrends', 'requests', 'urllib3')
+BANNED_FULL = ('urllib.request',)
+ATTEMPTS = []
+
+
+class ProviderImportBlocked(ImportError):
+    '''Distinctive: proves THIS blocker rejected the import, not absence.'''
+
+
+class ProviderBlocker:
+    # find_spec only. find_module is the legacy hook, ignored by the modern
+    # import system and removed in 3.12 -- defining it here would recreate the
+    # exact no-op this test was corrected for.
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split('.')[0] in BANNED_TOP or fullname in BANNED_FULL:
+            ATTEMPTS.append(fullname)
+            raise ProviderImportBlocked(TOKEN + ': ' + fullname)
+        return None
+
+
+import socket
+
+def boom(*a, **k):
+    raise AssertionError('network during capture')
+
+saved_meta = list(sys.meta_path)
+saved_connect = socket.socket.connect
+saved_connect_ex = socket.socket.connect_ex
+saved_create = socket.create_connection
+saved_getaddrinfo = socket.getaddrinfo
+saved_modules = set(sys.modules)
+
+try:
+    sys.meta_path.insert(0, ProviderBlocker())
+    socket.socket.connect = boom
+    socket.socket.connect_ex = boom
+    socket.create_connection = boom
+    socket.getaddrinfo = boom
+
+    # -- positively verify the socket blocker (loopback discard port; the
+    #    patch raises before any syscall, so nothing is dialled) ------------
+    try:
+        socket.create_connection(('127.0.0.1', 9), timeout=1)
+        print('SOCKET_BLOCKED=False')
+    except AssertionError:
+        print('SOCKET_BLOCKED=True')
+
+    # -- explicitly attempt every banned provider import -------------------
+    results = {{}}
+    for name in ('requests', 'yfinance', 'pytrends'):
+        try:
+            importlib.import_module(name)
+            results[name] = 'IMPORTED'
+        except ProviderImportBlocked as e:
+            results[name] = 'BLOCKED' if TOKEN in str(e) else 'WRONG_ERROR'
+        except ImportError:
+            # A plain ImportError/ModuleNotFoundError means the package was
+            # merely absent -- the blocker proved nothing. That is a failure.
+            results[name] = 'PLAIN_IMPORTERROR'
+    print('BLOCK_RESULTS=' + repr(results))
+    print('OBSERVED=' + repr(sorted(set(ATTEMPTS))))
+    print('NOT_IN_SYS_MODULES=' + repr(
+        all(n not in sys.modules for n in ('requests', 'yfinance', 'pytrends'))))
+
+    # -- the v0.2 orchestrator and CLI must IMPORT and RUN under both -------
+    import gst_market_response.pre_event_capture as pec
+    import gst_market_response.pre_event_capture_cli as cli
+    from gst_market_response.completeness import evaluate_strict_core_v0_2
+    from gst_market_response.capture_fingerprint import compute_capture_fingerprint
+    fp = compute_capture_fingerprint(
+        event_id='X', ticker='AAPL', anchor_session='2026-09-02',
+        panel_csv_sha256='0' * 64, panel_marker_sha256='1' * 64,
+        research_commit_sha='deadbeef', methodology_version='market_response_v0.2',
+        option_fields={{'option_benchmark_status': 'NOT_ATTEMPTED'}})
+    ran = (evaluate_strict_core_v0_2({{}}).passed is False
+           and '--execute' in {{o for a in cli._parser()._actions for o in a.option_strings}}
+           and bool(pec.ORCHESTRATOR_VERSION)
+           and len(fp['capture_fingerprint_sha256']) == 64)
+    print('V02_RUNS=' + repr(bool(ran)))
+
+    leaked = [m for m in ('yfinance', 'requests', 'pytrends',
+                          'gst_market_response.alpaca_provider') if m in sys.modules]
+    print('LEAKED=' + repr(leaked))
+    print('OK')
+finally:
+    # Restore everything, even on failure.
+    sys.meta_path[:] = saved_meta
+    socket.socket.connect = saved_connect
+    socket.socket.connect_ex = saved_connect_ex
+    socket.create_connection = saved_create
+    socket.getaddrinfo = saved_getaddrinfo
+    for _m in [m for m in sys.modules if m not in saved_modules]:
+        del sys.modules[_m]
+    print('RESTORED=' + repr(
+        sys.meta_path == saved_meta
+        and socket.socket.connect is saved_connect
+        and socket.socket.connect_ex is saved_connect_ex
+        and socket.create_connection is saved_create
+        and socket.getaddrinfo is saved_getaddrinfo
+        and set(sys.modules) == saved_modules))
+""".format(token=_BLOCKER_TOKEN)
+
+
 def test_25_no_network_and_no_provider():
-    proc = subprocess.run([sys.executable, "-c", textwrap.dedent("""
-        import sys
-        BANNED = ('yfinance','pytrends','requests','urllib3','urllib.request')
-        class B:
-            def find_module(self, name, path=None):
-                if name.split('.')[0] in BANNED: raise ImportError('BLOCKED '+name)
-                return None
-        sys.meta_path.insert(0, B())
-        import socket
-        def boom(*a, **k): raise AssertionError('network during capture')
-        socket.socket.connect = boom; socket.create_connection = boom
-        import gst_market_response.pre_event_capture as pec
-        import gst_market_response.pre_event_capture_cli as cli
-        leaked = [m for m in ('yfinance','requests','pytrends',
-                              'gst_market_response.alpaca_provider') if m in sys.modules]
-        print('LEAKED='+repr(leaked)); print('OK')
-    """)], cwd=str(HERE), capture_output=True, text=True)
+    proc = subprocess.run([sys.executable, "-c", _BLOCKER_CHILD_SRC],
+                          cwd=str(HERE), capture_output=True, text=True)
+    out = proc.stdout
     check("25. orchestrator+CLI import with every provider blocked and sockets poisoned",
-          proc.returncode == 0 and "OK" in proc.stdout)
-    check("25b. no provider or network client reaches sys.modules", "LEAKED=[]" in proc.stdout)
+          proc.returncode == 0 and "OK" in out)
+    check("25b. no provider or network client reaches sys.modules", "LEAKED=[]" in out)
+
+    # --- the blocker must actually intercept, on 3.12 and 3.14 alike -------
+    check("25d. the socket blocker is positively verified inside the child",
+          "SOCKET_BLOCKED=True" in out)
+    check("25e. every banned provider import was rejected BY THE BLOCKER "
+          "(a plain ModuleNotFoundError from an absent package does not count)",
+          "BLOCK_RESULTS={'requests': 'BLOCKED', 'yfinance': 'BLOCKED', "
+          "'pytrends': 'BLOCKED'}" in out)
+    check("25f. the blocker recorded all three attempts",
+          "OBSERVED=['pytrends', 'requests', 'yfinance']" in out)
+    check("25g. none of the three entered sys.modules", "NOT_IN_SYS_MODULES=True" in out)
+    check("25h. the v0.2 orchestrator, CLI and fingerprint RUN under both blockers",
+          "V02_RUNS=True" in out)
+    check("25i. sys.meta_path, socket patches and sys.modules are restored",
+          "RESTORED=True" in out)
+
+    # Structural, not substring: the explanatory comments above deliberately
+    # name find_module in order to say it must not be used, so a text search
+    # would match the explanation rather than a real definition.
+    child = ast.parse(_BLOCKER_CHILD_SRC)
+    hooks = {n.name for n in ast.walk(child) if isinstance(n, ast.FunctionDef)}
+    check("25j. the blocker defines find_spec and never the legacy find_module",
+          "find_spec" in hooks and "find_module" not in hooks)
+    blocker_cls = next((n for n in ast.walk(child) if isinstance(n, ast.ClassDef)
+                        and n.name == "ProviderBlocker"), None)
+    check("25k. ProviderBlocker exposes find_spec as its only import hook",
+          blocker_cls is not None
+          and {m.name for m in blocker_cls.body if isinstance(m, ast.FunctionDef)} == {"find_spec"})
+    exc = next((n for n in ast.walk(child) if isinstance(n, ast.ClassDef)
+                and n.name == "ProviderImportBlocked"), None)
+    check("25l. the distinctive error subclasses ImportError",
+          exc is not None and any(getattr(b, "id", None) == "ImportError" for b in exc.bases))
+
     src = (HERE / "gst_market_response" / "pre_event_capture.py").read_text(encoding="utf-8")
     for banned in ("import requests", "import yfinance", "urlopen", "APCA", "ALPACA_"):
         check(f"25c. orchestrator source never references {banned}", banned not in src)
