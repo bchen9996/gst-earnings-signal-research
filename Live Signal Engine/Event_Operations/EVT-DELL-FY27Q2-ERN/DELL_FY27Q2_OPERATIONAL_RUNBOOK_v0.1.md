@@ -42,6 +42,61 @@ Every date below was derived from the XNYS calendar by the planner, not typed in
 
 **Do not** capture anything in this stage.
 
+## 1b. Exact commands (protocol v0.2 — see SPEC v0.2 / field dictionary v0.2)
+
+**Execution before the anchor session is forbidden.** Do not run `--execute` before 2026-09-02's close. The orchestrator enforces the anchor mechanically and refuses a future-dated panel, but the operational rule stands on its own.
+
+**Preflight (any time)** — confirms the plan still derives the same schedule:
+
+```bash
+python -m gst_market_response.operations_cli plan \
+  --registry "Live Signal Engine/Market_Response_Event_Registry/registry.jsonl" \
+  --event-id EVT-DELL-FY27Q2-ERN --company-name "Dell Technologies Inc." \
+  --planning-commit <HEAD_SHA> --methodology-version market_response_v0.2
+```
+
+**Validation (read-only, the default — run this first, always).** Writes nothing:
+
+```bash
+python -m gst_market_response.pre_event_capture_cli \
+  --event-id EVT-DELL-FY27Q2-ERN \
+  --expected-anchor-session 2026-09-02 \
+  --panel-csv  "<PATH>/GST_Phase2_DailyPanel_<RUN>.csv" \
+  --panel-marker "<PATH>/GST_Phase2_DailyPanel_<RUN>_COMPLETION_MARKER.json" \
+  --store-root "Live Signal Engine/Event_Operations/EVT-DELL-FY27Q2-ERN/event_store" \
+  --research-commit-sha <HEAD_SHA> \
+  --methodology-version market_response_v0.2 \
+  --registry "Live Signal Engine/Market_Response_Event_Registry/registry.jsonl" \
+  --company-name "Dell Technologies Inc." \
+  --option-status UNAVAILABLE_NO_VERIFIED_SOURCE \
+  --option-reason "Alpaca options entitlement INCONCLUSIVE; no OPRA-verified source"
+```
+
+**Execution — only after validation exits 0.** The same command plus `--execute`.
+
+**Do not attempt to supply a verified options artifact.** The CLI **refuses** `VALID_VERIFIED` outright: it cannot authenticate provider identity, endpoint, response hash, contracts, strike, expiration, per-leg quote timestamps, quote age, skew, or a recomputed benchmark, so a hand-written JSON asserting `option_feed: opra` would be indistinguishable from a fabricated one. Do not hand-write such a file — it will be rejected with exit 2. Enabling this route requires a separately cleared provider artifact and a documented threat model, neither of which exists yet.
+
+**Exit codes:** `0` validation passed / capture succeeded · `1` validation failed (stale, future, wrong anchor, hash or identity mismatch, missing core field, bad option artifact, collision, state error) · `2` usage error.
+
+**Expected files after execution**, under `--store-root`:
+
+| File | |
+|---|---|
+| `EVT-DELL-FY27Q2-ERN.jsonl` | append-only event log |
+| `EVT-DELL-FY27Q2-ERN_PRE_EVENT_CAPTURE_MARKER.json` | **immutable** stage marker: tier, `is_full_data_complete`, full provenance |
+
+Later stages write their own immutable markers (`..._D1_CAPTURE_MARKER.json`, then `..._FINAL_COMPLETION_MARKER.json` at a terminal state only). **Never delete or overwrite a marker to progress** — `atomic_write_json_no_overwrite()` will refuse, and that refusal is the intended behaviour.
+
+**Required hashes.** Record the panel CSV and marker SHA-256 printed in the validation report; execution re-verifies both and aborts on any change; the adapter re-hashes both and cross-verifies the marker's own counts against the CSV. The registry blob must remain `71681aa48b9b483d582b887e82c229ba791548ae00a42ef9cf86be34776f4974`.
+
+**Collision stop conditions — all fail closed with zero new bytes.** A **completed** pre-event stage (`PRE_EVENT_CAPTURED`, or a `PARTIAL` whose `failure_stage` is `pre_event`), or an existing immutable stage marker, aborts the run. Execution also **re-hashes both panel files**, re-derives the **option-disposition digest**, and re-runs the full date audit and strict six-field gate immediately before writing; any drift in the panel files, the option artifact, the methodology, the commit SHA or the ticker refuses with zero writes (TOCTOU). Repeated execution is idempotent by refusal. **Never** delete an event log or marker to "retry" — a correction is an append-only amendment.
+
+**A dangling `PRE_EVENT_PENDING` is resumable — and only that.** If the process dies between the `PRE_EVENT_PENDING` append and the outcome state, nothing was captured, and refusing the rerun would leave the event permanently stuck. `PRE_EVENT_PENDING` therefore carries a canonical **capture fingerprint** (event id, ticker, anchor, both panel hashes, commit SHA, methodology, option-artifact digest, plus a self-digest). On a rerun the orchestrator revalidates every input from scratch and resumes **only** on an exact fingerprint match, appending the outcome state with **no second pending record**. Any mismatch, a missing or non-recomputing fingerprint, or more than one pending record fails closed. The pending record is never deleted or rewritten, and resume never skips the strict core gate.
+
+**Unavailable-options behaviour.** With `--option-status UNAVAILABLE_NO_VERIFIED_SOURCE` the capture proceeds: core eligible, option module **ineligible**, joint **ineligible**, tier `core_only_no_option_benchmark`, every option value **null — never zero**. The D1 and D3 market-response stages remain collectible (the D3 tier carries the D2 close-to-close measurement; there is no separate D2 *state* — the D2 *session* is scheduled by `operations_plan.py`) and the event may reach lifecycle `COMPLETE`, but the marker reports `is_full_data_complete: false` and the event is mechanically excluded from options-implied-move and joint hypotheses. Indicative quotes are not an acceptable substitute and cannot be relabelled as either unavailable or OPRA-valid.
+
+**Rollback / recovery.** There is no rollback of an append-only store. If a capture is wrong: stop, delete nothing, and record an append-only amendment. Re-running against a corrected panel is a new decision, not a flag — there is no `--force`, `--overwrite`, `--skip-validation`, `--allow-stale` or `--ignore`.
+
 ## 2. The locked 2026-09-02 snapshot anchor
 
 **This is the outcome-blind boundary.** Everything captured here must be observable *before* the release. Nothing captured after 2026-09-03T20:30:00Z may enter the pre-event record.
@@ -51,7 +106,9 @@ Every date below was derived from the XNYS calendar by the planner, not typed in
 - [ ] Confirm the adapter's marker↔CSV cross-verification passed and both input hashes are recorded.
 - [ ] **Manually confirm the panel's data date is 2026-09-02** — the adapter has no expected-session parameter and cannot do this for you (**BLK-STALE-1**).
 - [ ] Capture the option benchmark, if unblocked, with a genuine venue quote timestamp.
-- [ ] Submit both to `pipeline.capture_pre_event_and_option_benchmark()`. It writes `PRE_EVENT_PENDING`, then `PRE_EVENT_CAPTURED` **only if both tier gates pass**, otherwise `PARTIAL`. It never silently promotes.
+- [ ] Confirm all five per-leg panel statuses are successful for DELL — `gst_status`, `wiki_status`, `iv_status`, `realized_vol_status`, `price_history_status`. Implied volatility and realized volatility are backed by **their own** legs; a failed `iv_status` fails the six-field gate even when price history is `ok`.
+- [ ] Confirm every panel row carries a **nonblank** `price_asof_date` **and** `run_date`, that each resolves to exactly one value, and that `run_date >= price_asof_date`. Blanks are never discarded.
+- [ ] Submit both to `pipeline.capture_pre_event_and_option_benchmark_v0_2()` — the version-named v0.2 entry point, which judges the core with `evaluate_strict_core_v0_2()`. It writes `PRE_EVENT_PENDING` (carrying the capture fingerprint), then `PRE_EVENT_CAPTURED` **only if the strict six-field core gate passes**, otherwise `PARTIAL` with `failure_stage="pre_event"`. There is no unversioned capture function, and it never silently promotes.
 
 ## 3. The 2026-09-03 earnings release
 

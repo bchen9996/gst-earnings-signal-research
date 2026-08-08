@@ -23,6 +23,79 @@ ALL_STATES = set(MAINLINE_ORDER) | TERMINAL_STATES
 
 SOURCE_STATUSES = ("ok", "partial", "missing", "error")
 
+# --- PROTOCOL v0.2: PARTIAL is stage-specific -------------------------------
+#
+# PARTIAL can be reached from the pre-event, D1 or D3 stage, and it carries the
+# fields of whichever stage failed. Selectors that searched backwards for "the
+# last PARTIAL with fields" therefore mistook a D1 or D3 failure for the
+# PRE-EVENT eligibility record: a D1 PARTIAL would silently replace a perfectly
+# good pre-event capture's eligibility, and a "pre_event" gate check would grade
+# D1 interval fields.
+#
+# Every v0.2 PARTIAL record persists an explicit `failure_stage`. For a legacy
+# record that predates this field, the stage is DERIVED mechanically from the
+# chronology -- the pending state immediately preceding the PARTIAL -- rather
+# than guessed or defaulted. An unrecognised declared value resolves to no
+# stage at all, so it can never be attributed to the wrong one.
+
+FAILURE_STAGE_KEY = "failure_stage"
+FAILURE_STAGE_PRE_EVENT = "pre_event"
+FAILURE_STAGE_D1 = "d1"
+FAILURE_STAGE_D3 = "d3"
+FAILURE_STAGES = (FAILURE_STAGE_PRE_EVENT, FAILURE_STAGE_D1, FAILURE_STAGE_D3)
+
+# The pending state that opens each stage, and the success state that closes it.
+_PENDING_STATE_STAGE = {
+    "PRE_EVENT_PENDING": FAILURE_STAGE_PRE_EVENT,
+    "D1_PENDING": FAILURE_STAGE_D1,
+    "D3_PENDING": FAILURE_STAGE_D3,
+}
+STAGE_SUCCESS_STATE = {
+    FAILURE_STAGE_PRE_EVENT: "PRE_EVENT_CAPTURED",
+    FAILURE_STAGE_D1: "D1_COMPLETE",
+    FAILURE_STAGE_D3: "COMPLETE",
+}
+
+
+def partial_failure_stage(state_records: list[dict], index: int) -> Optional[str]:
+    """Which stage does the PARTIAL record at `index` belong to?
+
+    An explicit `failure_stage` wins. An unrecognised explicit value returns
+    None (fail closed -- never reattributed). Absent it, the stage is derived
+    from the most recent preceding pending state. Returns None if neither
+    resolves.
+    """
+    record = state_records[index]
+    if record.get("state") != "PARTIAL":
+        return None
+    declared = (record.get("fields") or {}).get(FAILURE_STAGE_KEY)
+    if declared is not None:
+        return declared if declared in FAILURE_STAGES else None
+    for previous in reversed(state_records[:index]):
+        stage = _PENDING_STATE_STAGE.get(previous.get("state"))
+        if stage is not None:
+            return stage
+    return None
+
+
+def select_stage_record(state_records: list[dict], stage: str) -> Optional[dict]:
+    """The record carrying `stage`'s fields.
+
+    The stage's own success state is preferred; only if none exists may a
+    PARTIAL be used, and only one belonging to THAT stage. A D1/D3 failure can
+    therefore never erase or replace pre-event eligibility.
+    """
+    if stage not in FAILURE_STAGES:
+        raise ValueError(f"unknown stage {stage!r}; must be one of {FAILURE_STAGES}")
+    success = STAGE_SUCCESS_STATE[stage]
+    for record in reversed(state_records):
+        if record.get("state") == success and record.get("fields"):
+            return record
+    for i in range(len(state_records) - 1, -1, -1):
+        if state_records[i].get("fields") and partial_failure_stage(state_records, i) == stage:
+            return state_records[i]
+    return None
+
 
 class InvalidStateTransitionError(ValueError):
     pass

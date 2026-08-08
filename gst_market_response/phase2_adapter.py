@@ -172,6 +172,61 @@ class Phase2AdapterResult:
     methodology_version: str
     eligible_for_pre_event_captured: bool
 
+    # --- v0.2 strict six-field core + authoritative dates + panel provenance ---
+    # panel_implied_volatility is the panel's generic IV, persisted ONLY as
+    # six-field completeness provenance. SPEC section 5's prohibition is
+    # unchanged: it is never exposed as `implied_volatility`, never fed to the
+    # option benchmark, and never usable as an earnings-implied-move value.
+    panel_implied_volatility: Optional[float] = None
+    run_date: Optional[str] = None
+    price_asof_date: Optional[str] = None
+    panel_row_count: Optional[int] = None
+    panel_unique_ticker_count: Optional[int] = None
+    panel_all_six_fields_clean_count: Optional[int] = None
+    adapter_schema_version: str = "0.2"
+
+    # --- per-leg statuses for the IV and realized-volatility legs -------------
+    # The Phase 2 panel emits FIVE independent per-leg statuses: gst_status,
+    # wiki_status, iv_status, realized_vol_status and price_history_status. The
+    # first version of the v0.2 strict gate backed implied volatility and
+    # realized volatility with `source_status_price`, which is a different leg
+    # that fails for different reasons -- so a failed option-chain lookup passed
+    # the six-field gate whenever price history happened to be OK. These two
+    # legs now carry their own normalised and raw statuses.
+    #
+    # The defaults are the FAIL-CLOSED value: a result constructed without them
+    # reports "missing", which the strict gate rejects. They are never defaulted
+    # to a success.
+    source_status_iv: str = NORMALIZED_MISSING
+    source_status_iv_raw: str = ""
+    source_status_realized_vol: str = NORMALIZED_MISSING
+    source_status_realized_vol_raw: str = ""
+
+    def to_strict_core_fields(self) -> dict:
+        """to_pre_event_fields() PLUS the panel's IV, for the strict v0.2
+        six-field gate only.
+
+        panel_implied_volatility is deliberately NOT in to_pre_event_fields():
+        that dict is guarded against any implied-move-shaped key so no
+        downstream consumer can mistake a generic panel IV for an earnings
+        implied move (SPEC v0.1 section 5). The guard is intentionally broad and
+        is NOT weakened here. The value still needs to be checked and persisted
+        for six-field completeness, so it travels through this separate,
+        explicitly-named channel instead -- and it is never emitted as
+        `implied_volatility` nor fed to the option benchmark.
+        """
+        fields = self.to_pre_event_fields()
+        fields["panel_implied_volatility"] = self.panel_implied_volatility
+        return fields
+
+    @property
+    def is_recent_cache_fallback_iv(self) -> bool:
+        return was_served_from_recent_cache_fallback(self.source_status_iv)
+
+    @property
+    def is_recent_cache_fallback_realized_vol(self) -> bool:
+        return was_served_from_recent_cache_fallback(self.source_status_realized_vol)
+
     @property
     def is_recent_cache_fallback_gst(self) -> bool:
         return was_served_from_recent_cache_fallback(self.source_status_gst)
@@ -194,7 +249,7 @@ class Phase2AdapterResult:
 
     def to_pre_event_fields(self) -> dict:
         """The subset/shape consumed by gst_market_response.completeness /
-        pipeline.capture_pre_event_and_option_benchmark -- deliberately
+        pipeline.capture_pre_event_and_option_benchmark_v0_1 -- deliberately
         excludes panel-only provenance fields that aren't part of the
         pre-event snapshot schema itself."""
         return {
@@ -207,9 +262,28 @@ class Phase2AdapterResult:
             "source_status_gst": self.source_status_gst,
             "source_status_wiki": self.source_status_wiki,
             "source_status_price": self.source_status_price,
+            "source_status_iv": self.source_status_iv,
+            "source_status_realized_vol": self.source_status_realized_vol,
             "source_status_gst_raw": self.source_status_gst_raw,
             "source_status_wiki_raw": self.source_status_wiki_raw,
             "source_status_price_raw": self.source_status_price_raw,
+            "source_status_iv_raw": self.source_status_iv_raw,
+            "source_status_realized_vol_raw": self.source_status_realized_vol_raw,
+            "volume": self.volume,
+            "run_date": self.run_date,
+            "price_asof_date": self.price_asof_date,
+            "panel_status": self.panel_status,
+            "panel_row_count": self.panel_row_count,
+            "panel_unique_ticker_count": self.panel_unique_ticker_count,
+            "panel_all_six_fields_clean_count": self.panel_all_six_fields_clean_count,
+            "source_csv_path": self.source_csv_path,
+            "source_csv_sha256": self.source_csv_sha256,
+            "source_marker_path": self.source_marker_path,
+            "source_marker_sha256": self.source_marker_sha256,
+            "research_commit_sha": self.research_commit_sha,
+            "methodology_version": self.methodology_version,
+            "adapter_schema_version": self.adapter_schema_version,
+            "ticker": self.ticker,
             "retrieved_at_utc_gst": self.retrieved_at_utc_gst,
             "retrieved_at_utc_wiki": self.retrieved_at_utc_wiki,
             "retrieved_at_utc_price": self.retrieved_at_utc_price,
@@ -291,10 +365,16 @@ def import_pre_event_fields_for_ticker(
     raw_status_gst = row.get("gst_status")
     raw_status_wiki = row.get("wiki_status")
     raw_status_price = row.get("price_history_status")
+    # Independent legs, read from their own columns -- never inherited from the
+    # price leg. An absent column normalises to "missing", which fails closed.
+    raw_status_iv = row.get("iv_status")
+    raw_status_realized_vol = row.get("realized_vol_status")
 
     source_status_gst = normalize_leg_status(raw_status_gst)
     source_status_wiki = normalize_leg_status(raw_status_wiki)
     source_status_price = normalize_leg_status(raw_status_price)
+    source_status_iv = normalize_leg_status(raw_status_iv)
+    source_status_realized_vol = normalize_leg_status(raw_status_realized_vol)
 
     pre_event_fields = {
         "gst_zscore": _parse_optional_float(row.get("gst_zscore")),
@@ -321,6 +401,16 @@ def import_pre_event_fields_for_ticker(
         source_status_gst_raw=preserve_raw_status(raw_status_gst),
         source_status_wiki_raw=preserve_raw_status(raw_status_wiki),
         source_status_price_raw=preserve_raw_status(raw_status_price),
+        source_status_iv=source_status_iv,
+        source_status_iv_raw=preserve_raw_status(raw_status_iv),
+        source_status_realized_vol=source_status_realized_vol,
+        source_status_realized_vol_raw=preserve_raw_status(raw_status_realized_vol),
+        panel_implied_volatility=_parse_optional_float(row.get("implied_volatility")),
+        run_date=(row.get("run_date") or None),
+        price_asof_date=(row.get("price_asof_date") or None),
+        panel_row_count=marker.get("row_count"),
+        panel_unique_ticker_count=marker.get("unique_ticker_count"),
+        panel_all_six_fields_clean_count=marker.get("all_six_fields_clean_count"),
         retrieved_at_utc_gst=retrieval_ts,
         retrieved_at_utc_wiki=retrieval_ts,
         retrieved_at_utc_price=retrieval_ts,
