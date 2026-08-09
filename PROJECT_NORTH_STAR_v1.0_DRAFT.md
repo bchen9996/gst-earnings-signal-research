@@ -26,7 +26,9 @@ Three sub-questions the architecture is built to separate:
 
 GST supplies a candidate **abnormal-attention regime** — a claim about *information arrival*, not about any security's price. Market data then reveals *where and when* a response occurs. An instrument is a **measurement or expression choice made after** the response is characterised.
 
-This ordering is not stylistic. The project already learned it the expensive way: the original straddle economics were driven by a synthetic option-pricing markup, and recalibrating against real quoted costs reversed the result. The attention→price-move relationship was unaffected by that reversal, because it was never an options finding. Instrument-first framing would have destroyed a live question along with a dead expression.
+This ordering is not stylistic. The project already learned it the expensive way: the original straddle economics were driven by a synthetic option-pricing markup, and recalibrating against real quoted costs reversed the result.
+
+**The options-cost recalibration reversed the strategy economics; it does not establish or invalidate the separate attention-response hypothesis.** Those are two different claims about two different things, and the recalibration speaks only to the first. Instrument-first framing would have collapsed them into one and discarded an open question along with a dead expression. The attention-response hypothesis remains **open and untested prospectively** — that is what this project is built to test.
 
 **Consequence:** an unavailable options benchmark lowers an event's completeness tier. It never removes an otherwise valid event from the core attention-versus-market-response cohort.
 
@@ -35,7 +37,7 @@ This ordering is not stylistic. The project already learned it the expensive way
 ### What exists
 
 - A retrospective reconstruction over a canonical n=152 event population.
-- A validated-on-reconstruction relationship between GST z-score and earnings-adjacent realized price moves, independent of any options-pricing model.
+- **A retrospective association was observed within that reconstruction** between GST z-score and earnings-adjacent realized price moves, independent of any options-pricing model. **That reconstruction has a failed point-in-time validity check and is not prospective confirmation.** The prospective study is designed to test the hypothesis it suggests.
 - Production infrastructure: attention panel, cohort screening, registry, pre-event capture, dossier protocol, D1/D3 decomposition with canonical `abs_*` magnitudes, hypothesis registry, fail-closed display gates.
 - One registered prospective event: `EVT-DELL-FY27Q2-ERN`.
 
@@ -113,21 +115,43 @@ Recorded so the research question stays visible, **not** as a plan of record. **
 
 ## 9. Prohibition
 
-**None of §8 may be called arbitrage, an edge, a working strategy, or profitable — before or after any result — until it has passed a separately locked holdout test written before that holdout data was seen.**
+**None of §8 may be called arbitrage, an edge, a working strategy, or profitable — before or after any result — until it has passed a test under a separate dated protocol, written before the data that test uses was examined** (see §10.4: an extension cohort is not automatically such a test).
 
 A confirmatory HYP-01 result would establish an association between attention and response magnitude. It would **not** establish tradability, direction, execution feasibility, capacity, or profitability. Those are distinct claims requiring distinct evidence.
 
-## 10. Development cycle versus holdout cycle
+## 10. Development material, the confirmatory cohort, and the freeze
 
-| | Development cycle | Holdout cycle |
-|---|---|---|
-| Purpose | build and debug measurement | test a locked claim |
-| Data | synthetic fixtures, preserved historical artifacts, reconstruction | prospective events collected after the lock |
-| Iteration | free | **none** — one run, after freeze |
-| May inform methodology? | yes | **no** |
-| Governs | the code | the conclusion |
+Three things are often collapsed into two. They are distinct, and the distinction is what makes the study preregistered rather than merely careful.
 
-The boundary is the **freeze**: 60 eligible event IDs and the analysis-code commit are recorded *before* any result is computed. Everything before the freeze is development. Events becoming eligible afterwards form a separately labelled **extension cohort** — they never enlarge the frozen set. **No optional stopping, no repeated testing, no model change after the freeze.**
+### 10.1 Development material
+
+Synthetic fixtures · explicitly labelled historical and reconstructed artifacts · **no prospective outcomes, ever**.
+
+This is what the code was built and debugged against. Iteration is free here, and it may inform methodology. It is *not* a holdout, was never treated as one, and no result computed on it is confirmatory.
+
+### 10.2 The confirmatory evaluation cohort
+
+The **first 60 eligible prospective events**.
+
+These are **not development data at any point in their life.** Event 1 is governed by the pre-data HYP-01 lock exactly as event 60 is; the lock was written before any candidate was screened. Their outcomes remain **gated and unexamined** until the complete 60-event set *and* the analysis environment are frozen. An event does not become confirmatory at the freeze — it was confirmatory from the moment it was enrolled.
+
+### 10.3 The event-60 freeze
+
+The freeze records: the exact 60 event IDs · the analysis-code commit · the software environment · reproducibility metadata. Then all gates are verified, then the primary model runs **once**.
+
+What the freeze does **not** do:
+
+- It does **not** retroactively convert development material into holdout data. Nothing crosses that line, in either direction.
+- It does **not** authorize changing the statistical rule. The rule must already be fixed — see the [gap audit](PREREGISTRATION_GAP_AUDIT_v1.0.md), items C6, C7, E3 and E8, all of which fall due **before the first prospective observation**, not at the freeze.
+- It does **not** permit optional stopping, repeated testing, or a model change.
+
+The freeze fixes *which events* and *which software*. It never fixes *which statistics* — that has to be settled earlier or the preregistration claim fails.
+
+### 10.4 The extension cohort
+
+Events becoming eligible after the frozen 60 are **separately labelled**. They never enlarge the frozen set and never re-open the primary analysis.
+
+An extension cohort is **not automatically a formal holdout test.** It becomes one only if a **new dated protocol says so, written before those events' outcomes are examined.** Absent that document, extension events are additional observations with no confirmatory standing.
 
 ## 11. Four interfaces, deliberately separate
 
@@ -157,6 +181,6 @@ The project succeeds if it produces a **trustworthy answer**, not a positive one
 
 > **No attractive outcome may silently redefine the hypothesis, the outcome, the model, the sample, or the success criterion.**
 
-Concretely: the predictor, outcome field, model formula, alpha, covariance structure, event ordering and sample size are locked *before* data exists. Unresolved analysis decisions are marked `PENDING_SEPARATE_ANALYSIS_LOCK` and resolved in a dated lock written before the freeze — never inferred from what the data turned out to look like. Any change is a new dated version that preserves the old one byte-for-byte and states plainly what changed and why.
+Concretely: the predictor, outcome field, model formula, alpha, event ordering and sample size are locked *before* data exists. Unresolved analysis decisions are marked `PENDING_SEPARATE_ANALYSIS_LOCK` and resolved in a dated lock — never inferred from what the data turned out to look like. The **statistical decision rule** (estimator variant, finite-sample correction, multiplicity treatment) must be resolved **before the first prospective observation**, not merely before the freeze; see the [gap audit](PREREGISTRATION_GAP_AUDIT_v1.0.md). Any change is a new dated version that preserves the old one byte-for-byte and states plainly what changed and why.
 
 If a result is attractive and a rule is inconvenient, **the rule wins.**

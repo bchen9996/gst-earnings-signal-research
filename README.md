@@ -18,13 +18,20 @@ Built by Tyler He and Harshith Akurati (high-school researchers, St. Louis MO) w
 | **Options benchmarking** | **Unavailable / unverified.** No cleared, timestamped, executable options source. |
 | **Can the project still proceed?** | **Yes** — via core-only market-response measurement. Missing options data lowers an event's completeness tier; it never removes an otherwise valid event from the core cohort. |
 
-The next authorized screening sweep is **Monday 2026-08-10, 09:00 America/Chicago**, fixed by [cohort protocol v1.1](Live%20Signal%20Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.1_DRAFT.md) *before* the first candidate page was ever opened.
+### Two different deadlines
+
+| Deadline | Date | What it governs |
+|---|---|---|
+| **Next screening sweep** | **Monday 2026-08-10, 09:00 America/Chicago** | The next authorized candidate-screening pass, fixed by [cohort protocol v1.1](Live%20Signal%20Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.1_DRAFT.md) *before* the first candidate page was ever opened. |
+| **Statistical-rule deadline** | **Before the first prospective pre-event capture** — the DELL anchor falls in the 2026-09-01 → 2027-05-31 window | The primary estimator, inference procedure, multiplicity treatment, development boundary and search-construct validity must all be settled for a defensible preregistration. See the [gap audit](PREREGISTRATION_GAP_AUDIT_v1.0.md). |
+
+Monday's sweep analyzes no outcome. It also does not remove the need to settle those choices before the September capture — if anything, enrolling a candidate brings that deadline closer.
 
 ## The scientific question
 
 > **How does abnormal public attention propagate into prices, volume, volatility, and related securities around large-cap earnings?**
 
-Google Search Trends (GST) supplies a candidate *abnormal-attention regime*. Subsequent market data reveals *where and when* the response occurs. Any instrument or strategy would be **downstream** of validated evidence — not the identity of the project. Options were one attempted benchmark and expression, never the project itself.
+Google Search Trends (GST) supplies a candidate *abnormal-attention regime*. Subsequent market data reveals *where and when* the response occurs. Any instrument or strategy would be **downstream** of evidence that survives the prospective test — not the identity of the project. Options were one attempted benchmark and expression, never the project itself.
 
 ## Four things that are not the same thing
 
@@ -136,9 +143,12 @@ Most of what this project has learned came from things that broke. All of it is 
 | Version | Win rate | Median P&L | Sharpe | Max DD |
 |---|---|---|---|---|
 | Original (synthetic markup 1.2398) | 76.3% | **+145.5%** | 2.222 | −3.6% |
-| Recalibrated (n=76 real quotes, markup 3.4098) | 43.4% | **−10.7%** | +0.273 | −46.37% |
+| Recalibrated v1 (n=37 real quotes, markup 3.6516) | 39.5% | −16.6% | −0.298 | −85.73% |
+| Recalibrated v2 (n=76 real quotes, markup 3.4098) | 43.4% | **−10.7%** | +0.273 | −46.37% |
 
-The `+145.5%` figure is **invalidated** and appears here only so it is never cited without its reversal. The estimate stabilized between recalibrations rather than swinging, so this is not small-sample noise. ([status §3](Live%20Signal%20Engine/STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md))
+The `+145.5%` figure is **invalidated** and appears here only so it is never cited without its reversal. Both recalibrations land in the same region, and [status §3](Live%20Signal%20Engine/STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md) reads that stability as evidence against small-sample noise — that is the status document's inference, and no formal test in this repository rules sampling noise out. The three rows are shown so a reader can judge it directly.
+
+**This recalibration reversed the strategy economics. It does not establish or invalidate the separate attention-response hypothesis** — those are different claims, and the prospective study is designed to test the second one.
 
 **The point-in-time check failed.** Every historical z-score was reconstructed by querying Trends *today* for a window ending years earlier. Reproducible, but not provably what a live observer saw. No waiver was found; the check is treated as **failed**. ([status §1a](Live%20Signal%20Engine/STRATEGY_SPEC_v1.0_CURRENT_STATUS_2026-07-19.md))
 

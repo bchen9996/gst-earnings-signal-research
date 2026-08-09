@@ -6,6 +6,13 @@
 
 **Anti-duplication rule.** Several stages are already partly built. Each stage below states what **exists** so no one rebuilds it.
 
+**Two deadlines, not one.** These are distinct and are routinely confused:
+
+| Deadline | Date | Governs |
+|---|---|---|
+| Next screening sweep | **Monday 2026-08-10, 09:00 America/Chicago** | Stage 1 only. Analyzes no outcome, and discharges no decision below. |
+| Statistical-rule deadline | **Before the first prospective HYP-01 pre-event capture** | Stages 3, 4, 6 and 14 — the estimator, inference procedure, multiplicity treatment, development boundary and construct validity. **Not** the event-60 freeze. |
+
 ---
 
 ## Stage 1 — Prospective cohort acquisition
@@ -43,12 +50,13 @@
 | **Objective** | Place the locked hypothesis on an external, timestamped, immutable registry. |
 | **Current status** | **Internal only.** HYP-01 is locked in-repository with a git history; nothing is externally registered. |
 | **Existing evidence** | Hypothesis registry v1.0, HYP-01 analysis lock v1.0, display gates, eligibility & freeze rules. |
-| **Missing dependency** | An external registry account (OSF or equivalent) — **not obtained**. Plus every unresolved item in the gap audit. |
-| **Next authorized action** | Resolve the gap-audit items that require human decisions. **Do not register a preregistration containing invented values.** |
+| **Missing dependency** | An external registry account (OSF or equivalent) — **not obtained**. Plus the gap audit's **11 scientific decisions**, of which **C6, C7, E3 and E8 must be settled before this stage can honestly proceed**. |
+| **Next authorized action** | Resolve those gap-audit decisions. **Do not register a preregistration containing invented values, and do not file one while the primary estimator and inference procedure are still open.** |
 | **Deliverable** | An external preregistration mirroring the internal lock exactly. |
-| **Acceptance** | External record is timestamped before the first eligible observation and matches the internal lock field-for-field. |
+| **Acceptance** | External record is timestamped **before the first eligible prospective observation** and matches the internal lock field-for-field, with no element left as "to be decided later". |
 | **Methodology-change risk** | **High** — the act of writing an external preregistration tempts resolution of open items by guessing. |
 | **Human approval** | **Required**, and a methodologist should review before submission. |
+| **Deadline** | Before the first prospective HYP-01 pre-event capture. **Not** the event-60 freeze. |
 
 ## Stage 4 — Search-construct validity audit
 
@@ -63,6 +71,7 @@
 | **Acceptance** | Every ticker's query term is justified and its ambiguity risk stated. |
 | **Methodology-change risk** | **High** — changing a query term changes the signal. Any change must be a dated methodology version, never a silent edit. |
 | **Human approval** | **Required** for any query-term change. |
+| **Deadline** | This stage is gap-audit **F5**: **before the first prospective HYP-01 observation.** A query term cannot be revised once observations are being collected against it. |
 
 ## Stage 5 — Institutional options / market-data access
 
@@ -86,11 +95,12 @@
 | **Current status** | **Not started.** |
 | **Existing evidence** | HYP-01 lock (OLS, ticker-clustered, finite-sample corrected, two-sided α = 0.05, n ≥ 60); counting rules; multiplicity noted as unresolved. |
 | **Missing dependency** | A reviewer — **none engaged**. Faculty supervision exists but is not an external review. |
-| **Next authorized action** | Prepare a review packet from existing artifacts. |
+| **Next authorized action** | Prepare a review packet from existing artifacts, centred on gap-audit **C6, C7 and E3**. |
 | **Deliverable** | A written review with findings. |
 | **Acceptance** | Findings are recorded and either adopted in a dated version or explicitly declined with reasons. |
-| **Methodology-change risk** | **High** — review may recommend a different estimator or error structure. Adopting one **after** a freeze is prohibited; before, it needs a dated version. |
+| **Methodology-change risk** | **High** — review may recommend a different estimator or error structure. Adopting one must happen **before the first prospective observation**; adopting one after the freeze is prohibited outright, and adopting one after observations begin would forfeit the preregistration claim. |
 | **Human approval** | **Required**. |
+| **Deadline** | This stage gates C6 and C7, so it must complete **before the first prospective HYP-01 observation**. |
 
 ## Stage 7 — External options / execution review
 
@@ -190,19 +200,22 @@
 | **Methodology-change risk** | **High** — a tournament is a strategy claim in disguise if not walled off. |
 | **Human approval** | **Required**. |
 
-## Stage 14 — Development / locked-holdout separation
+## Stage 14 — Development material / confirmatory-cohort boundary
+
+*This is gap-audit item **E8**. Vocabulary follows [North Star §10](PROJECT_NORTH_STAR_v1.0_DRAFT.md).*
 
 | | |
 |---|---|
-| **Objective** | Guarantee that the data used to build the system is never the data used to test it. |
+| **Objective** | Guarantee that the material used to build the system is never the material used to test the locked claim. |
 | **Current status** | **Partially exists.** The freeze procedure, extension-cohort rule, no-optional-stopping rule and no-model-change-after-freeze rule are all locked. |
 | **Existing evidence** | HYP-01 eligibility & freeze rules; counting rules CNT-1…CNT-10; display gates. |
-| **Missing dependency** | An explicit statement of which *retrospective* artifacts may inform development without contaminating the prospective holdout — currently implicit. |
+| **Missing dependency** | An explicit dated statement of which *retrospective* artifacts may inform development without contaminating the **confirmatory evaluation cohort** — currently implicit. |
 | **Next authorized action** | Write that boundary down as a dated document. |
-| **Deliverable** | A development/holdout boundary statement. |
-| **Acceptance** | Every artifact is labelled development or holdout; no holdout artifact informs a methodology choice. |
-| **Methodology-change risk** | **Medium** — writing it down may reveal that a past choice was informed by data now inside the holdout. If so, say so. |
+| **Deliverable** | A development-material / confirmatory-cohort boundary statement. |
+| **Acceptance** | Every artifact is labelled **development material** or **confirmatory cohort**; no confirmatory-cohort outcome informs a methodology choice; the first 60 prospective events are never labelled development material; an extension cohort is not labelled a formal holdout test absent a new dated protocol. |
+| **Methodology-change risk** | **Medium** — writing it down may reveal that a past choice was informed by data now inside the confirmatory cohort. If so, say so. |
 | **Human approval** | **Required** if any contamination is found. |
+| **Deadline** | **Before external preregistration and before the first prospective HYP-01 observation** — not at the event-60 freeze. |
 
 ---
 
