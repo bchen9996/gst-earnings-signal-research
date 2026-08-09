@@ -1,0 +1,19 @@
+{
+  "queue": "HUMAN_REVIEW_REQUIRED",
+  "sweep_round": 1,
+  "built_at_utc": "2026-08-09T05:35:44+00:00",
+  "enrollable_candidates_awaiting_human_verification": [],
+  "note": "EMPTY. No ticker produced an explicitly dated UPCOMING regular earnings event from a permitted official source in round 1, so there is nothing for a human to verify toward enrollment. No automated finding is represented as human-verified.",
+  "operational_items_for_a_human": [
+    {
+      "item": "DELL official-source recheck could not be performed",
+      "detail": "investors.delltechnologies.com timed out on both the IR events URL and the issuer domain root during this sweep. The existing registration EVT-DELL-FY27Q2-ERN-REG-001 was NOT altered, amended or re-verified, and no contradiction was observed because no source was readable.",
+      "action": "A human may re-read the official Dell IR page to confirm the registered timing still holds. Not blocking; DELL stays on the weekly cadence."
+    },
+    {
+      "item": "Several issuer IR calendars render event lists client-side",
+      "detail": "Ten pages returned HTTP 200 with no explicitly dated upcoming earnings event in the served HTML. That is a retrieval limitation of this method, not issuer evidence of absence.",
+      "action": "Round 2 (Monday 09:00 America/Chicago) should use a renderer or a human read for those issuers."
+    }
+  ]
+}
