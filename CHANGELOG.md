@@ -1,6 +1,23 @@
 # Changelog
 
 
+## 2026-08-09 — Truthful public front door: README rebuild, North Star, institutionalization blueprint, preregistration gap audit
+
+Documentation and governance only. **No methodology, threshold, formula, protocol, registry, gate, specification or evidence artifact was changed.** No screening, data collection, analysis or strategy testing was performed, and no research process was run.
+
+**Root `README.md` rebuilt.** The previous front page described a 2025 study of 15 retail-heavy tickers, weekly GST spikes ≥ 85 over 2014–2019, and an intention to tune trading rules. That framing is obsolete and is now labelled as history rather than presented as current methodology. The new README leads with a status box stating plainly that a retrospective reconstruction exists **with an unresolved point-in-time limitation**, that the prospective cohort is underway with **1 registered event and 0 outcomes analyzed**, that **no profitable strategy has been demonstrated**, and that options benchmarking is **unavailable and unverified** while the project can still proceed on core-only measurement. It reproduces HYP-01 from its lock rather than paraphrasing it, generates the 24-ticker list from `LOCKED_24_TICKER_UNIVERSE`, and carries an explicit "What this project does not claim" section.
+
+**Failures are on the front page, not buried.** The straddle economics appear as a two-row table showing the original `+145.5%` median beside the recalibrated `−10.7%`, so the invalidated figure can never be cited without its reversal. The failed point-in-time check, the quarantined n=148 look-ahead reconstruction, the two dead out-of-sample hypotheses, the preserved Phase 2 transport failures, the blinding-compromised MSFT pilot, and round one's own canonical-disposition over-claim are all linked from the README.
+
+**Added `PROJECT_NORTH_STAR_v1.0_DRAFT.md`** — the umbrella identity (attention measurement, with any instrument strictly downstream), the central question, the five-layer separation and the forward-only wall between layers, the market-response localization framework expressed only in fields the system already defines, seven **unvalidated** candidate equity applications with an explicit prohibition on calling any of them arbitrage or an edge, the development-versus-holdout cycle, the four deliberately separate interfaces, and success criteria that a null result satisfies.
+
+**Added `INSTITUTIONALIZATION_BLUEPRINT_v1.0_DRAFT.md`** — a fourteen-stage plan giving each stage its objective, current status, existing evidence, missing dependency, next authorized action, deliverable, acceptance criterion, methodology-change risk and required human approval. It marks what already exists so nothing is rebuilt, and it represents OSF, Zenodo, WRDS, OptionMetrics, Cboe, Google Trends API access, reviewers, partners and external datasets as **proposed future dependencies, none obtained**.
+
+**Added `PREREGISTRATION_GAP_AUDIT_v1.0.md`** — a per-element audit across sample definition, provenance, hypothesis and outcome, data handling, multiplicity and stopping. Twenty-eight elements are locked and reproducible from the repository. Eleven require a human or external methodological decision, of which three — the cluster-covariance estimator variant, the finite-sample correction at roughly 24 clusters, and the multiple-testing treatment currently marked `PENDING_SEPARATE_ANALYSIS_LOCK` — could each change whether HYP-01 is reported as significant. **No missing value was invented to complete a table**; each gap names the decision, its severity, whether resolving it changes methodology, and its deadline relative to the freeze.
+
+All three new documents are drafts and change nothing that is locked. The DELL registry, every protocol and specification, the hypothesis registry, the HYP-01 lock, the round-1 evidence and every production module are byte-identical.
+
+
 ## 2026-08-09 — Round-1 evidence audit and correction overlay (additive)
 
 Offline audit of the round-1 reconnaissance evidence. No retrieval, no candidate lookup, and **no round 2** — protocol v1.1 fixes the next sweep at Monday 09:00 America/Chicago, and this audit is deliberately not an unscheduled re-screen.
