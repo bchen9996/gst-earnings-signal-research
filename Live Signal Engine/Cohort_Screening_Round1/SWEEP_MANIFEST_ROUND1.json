@@ -1,0 +1,1315 @@
+{
+  "artifact": "GST Prospective Cohort — Round 1 Official-Source Reconnaissance Sweep",
+  "sweep_round": 1,
+  "protocol_version": "1.1",
+  "cadence_commit": "153c62392131e86c7538c1c71b85d631039d8cc6",
+  "swept_at_utc": "2026-08-09T05:30:39+00:00",
+  "manifest_built_at_utc": "2026-08-09T05:35:43+00:00",
+  "operator": {
+    "performed_by": "automated reconnaissance (Claude Code agent)",
+    "authorized_by": "Harshith Akurati",
+    "human_page_observation": "NONE — no human personally viewed any page in this sweep"
+  },
+  "scope": {
+    "universe_source": "gst_market_response.constants.LOCKED_24_TICKER_UNIVERSE",
+    "universe_size": 24,
+    "tickers": [
+      "AAPL",
+      "ABBV",
+      "ADBE",
+      "AMZN",
+      "BKR",
+      "BRK-B",
+      "CTSH",
+      "DELL",
+      "DVN",
+      "GME",
+      "GOOGL",
+      "GPN",
+      "INTC",
+      "LDOS",
+      "MSFT",
+      "NCLH",
+      "NKE",
+      "QCOM",
+      "SBUX",
+      "STZ",
+      "SYK",
+      "TSLA",
+      "TTWO",
+      "UAL"
+    ]
+  },
+  "permitted_sources_only": [
+    "official company investor-relations pages (issuer domains)",
+    "issuer-filed SEC EDGAR submissions index (data.sec.gov)",
+    "SEC-published ticker-to-CIK map (sec.gov)"
+  ],
+  "prohibited_sources_not_used": [
+    "YCharts",
+    "earnings-calendar aggregators",
+    "Nasdaq/Yahoo/MarketWatch/Seeking Alpha",
+    "broker calendars",
+    "historical reporting cadence",
+    "analyst estimates",
+    "Google Trends",
+    "Wikipedia",
+    "search-engine snippets as evidence"
+  ],
+  "prohibited_data_not_inspected": [
+    "attention",
+    "price",
+    "returns",
+    "volume",
+    "volatility",
+    "options",
+    "earnings surprise",
+    "news tone",
+    "previous outcomes",
+    "strategy"
+  ],
+  "anchor_derivation": {
+    "function": "gst_market_response.operations_plan.build_operations_plan",
+    "field": "sessions.pre_event_anchor.session_date",
+    "calendar": "gst_market_response.exchange_calendar (XNYS)",
+    "used_this_round": false,
+    "reason": "No candidate produced an official date, so no anchor was derivable. No anchor was computed by any other means."
+  },
+  "canonical_screening_rows_written": 0,
+  "registry_rows_written": 0,
+  "why_no_canonical_rows": "The screening-log schema requires a fiscal_period label, and the ticker+fiscal_period pair is its duplicate key. No official source in this sweep supplied a fiscal-period label for any pending candidate, so a canonical row could only be written by inventing one. The protocol forbids that, and weakening the schema to fit an observation is exactly what it forbids. Every item therefore stays in this manifest.",
+  "rows": [
+    {
+      "ticker": "AAPL",
+      "company": "Apple Inc.",
+      "sec_cik": "0000320193",
+      "checked_sources": [
+        {
+          "url": "https://investor.apple.com/investor-relations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:17+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:20+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:17+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "ABBV",
+      "company": "AbbVie Inc.",
+      "sec_cik": "0001551152",
+      "checked_sources": [
+        {
+          "url": "https://investors.abbvie.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:45+00:00",
+          "note": "TimeoutError: The read operation timed out"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001551152.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:46+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.abbvie.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:04+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:20+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "ADBE",
+      "company": "ADOBE INC.",
+      "sec_cik": "0000796343",
+      "checked_sources": [
+        {
+          "url": "https://www.adobe.com/investor-relations.html",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:47+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000796343.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:48+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:47+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "AMZN",
+      "company": "AMAZON COM INC",
+      "sec_cik": "0001018724",
+      "checked_sources": [
+        {
+          "url": "https://ir.aboutamazon.com/events/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:49+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001018724.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:50+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:49+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "BKR",
+      "company": "Baker Hughes Co",
+      "sec_cik": "0001701605",
+      "checked_sources": [
+        {
+          "url": "https://investors.bakerhughes.com/events-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:52+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001701605.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:53+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:50+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "BRK-B",
+      "company": "BERKSHIRE HATHAWAY INC",
+      "sec_cik": "0001067983",
+      "checked_sources": [
+        {
+          "url": "https://www.berkshirehathaway.com/news/news.html",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:28:54+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001067983.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:57+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.berkshirehathaway.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:05+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:53+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "CTSH",
+      "company": "COGNIZANT TECHNOLOGY SOLUTIONS CORP",
+      "sec_cik": "0001058290",
+      "checked_sources": [
+        {
+          "url": "https://news.cognizant.com/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:59+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001058290.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:59+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:28:58+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "DELL",
+      "company": "Dell Technologies Inc.",
+      "sec_cik": "0001571996",
+      "checked_sources": [
+        {
+          "url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:25+00:00",
+          "note": "TimeoutError: The read operation timed out"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001571996.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:26+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investors.delltechnologies.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:32:06+00:00",
+          "note": "TimeoutError: The read operation timed out"
+        }
+      ],
+      "sources_retrieved": 1,
+      "sources_failed": 2,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:00+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "ALREADY_ENROLLED_PRE_PROTOCOL",
+      "human_verification_required": false,
+      "notes": [
+        "Already registered before the cohort protocol existed; NOT a newly discovered candidate and NOT a duplicate.",
+        "Recheck attempted for official date/time consistency only. The issuer IR page and the issuer domain root both timed out on this sweep, so the source could not be re-read.",
+        "Access limitation recorded. The registration was NOT altered, NOT amended and NOT re-verified. No contradiction was observed, because no source was readable.",
+        "Stays on the weekly cadence for date/time amendment detection only (protocol v1.1)."
+      ],
+      "existing_event_id": "EVT-DELL-FY27Q2-ERN",
+      "existing_registration_row_id": "EVT-DELL-FY27Q2-ERN-REG-001"
+    },
+    {
+      "ticker": "DVN",
+      "company": "DEVON ENERGY CORP/DE",
+      "sec_cik": "0001090012",
+      "checked_sources": [
+        {
+          "url": "https://investors.devonenergy.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:27+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001090012.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:28+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.devonenergy.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:28+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.devonenergy.com/sustainability/environment/spill-prevention",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:30+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 3,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:26+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "GME",
+      "company": "GameStop Corp.",
+      "sec_cik": "0001326380",
+      "checked_sources": [
+        {
+          "url": "https://investor.gamestop.com/news-events/ir-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:29+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001326380.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:30+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investor.gamestop.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:31+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:28+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "GOOGL",
+      "company": "Alphabet Inc.",
+      "sec_cik": "0001652044",
+      "checked_sources": [
+        {
+          "url": "https://abc.xyz/investor/events/",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:29:31+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001652044.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:31+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:30+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "GPN",
+      "company": "GLOBAL PAYMENTS INC",
+      "sec_cik": "0001123360",
+      "checked_sources": [
+        {
+          "url": "https://investors.globalpayments.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:29:33+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001123360.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:33+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:32+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": [
+        "Past Events Aug 5, 2026 8:00 am EDT Global Payments Second Quarter 2026 Earnings Jun 10, 2026 1:05 pm EDT Mizuho Technology Conference May 20, 2026 11:20 am EDT J.P."
+      ],
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Dated earnings text was observed but describes a PAST event (past-events listing / latest results). A past date is never promoted into an upcoming candidate.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "INTC",
+      "company": "INTEL CORP",
+      "sec_cik": "0000050863",
+      "checked_sources": [
+        {
+          "url": "https://www.intc.com/news-events/events-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:34+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000050863.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:35+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.intc.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:32+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.intc.com/news-events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:33+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.intc.com/news-events/press-releases",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:34+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.intc.com/news-events/ir-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:34+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 5,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:34+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": true,
+      "dated_earnings_text_observed_but_past_event": [
+        "Morgan Global Technology, Media and Communications Conference May 13, 2026 • 9:00 AM PDT 2026 Annual Stockholders' Meeting Apr 23, 2026 • 2:00 PM PDT Q1 2026 Intel Corporation Earnings Conference Call Mar 4, 2026 • 8:30 ",
+        "Past Events Jul 23, 2026 • 2:00 PM PDT Q2 2026 Intel Corporation Earnings Conference Call Jun 2, 2026 • 3:20 PM PDT BofA Global Technology Conference Jun 1, 2026 • 10:30 PM PDT Computex Keynote May 19, 2026 • 9:55 AM PDT"
+      ],
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "The issuer's own events page explicitly states there are no upcoming events scheduled at this time. That is issuer evidence of ABSENCE, not a retrieval gap.",
+        "Dated earnings text was observed but describes a PAST event (past-events listing / latest results). A past date is never promoted into an upcoming candidate.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "LDOS",
+      "company": "Leidos Holdings, Inc.",
+      "sec_cik": "0001336920",
+      "checked_sources": [
+        {
+          "url": "https://investors.leidos.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:55+00:00",
+          "note": "ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001336920.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:55+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.leidos.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:35+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investors.leidos.com/news-events/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:32:58+00:00",
+          "note": "TimeoutError: The read operation timed out"
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 2,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:35+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "company": "MICROSOFT CORP",
+      "sec_cik": "0000789019",
+      "checked_sources": [
+        {
+          "url": "https://www.microsoft.com/en-us/investor/events/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:29:56+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:57+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:56+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "NCLH",
+      "company": "Norwegian Cruise Line Holdings Ltd.",
+      "sec_cik": "0001513761",
+      "checked_sources": [
+        {
+          "url": "https://www.nclhltd.com/investors/news-and-events/event-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:58+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001513761.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:59+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.nclhltd.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:32:58+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.nclhltd.com/investors/news-events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:00+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.nclhltd.com/news-media/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:01+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://www.nclhltd.com/investors/news-events/press-releases",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:02+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 5,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:57+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": true,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "The issuer's own events page explicitly states there are no upcoming events scheduled at this time. That is issuer evidence of ABSENCE, not a retrieval gap.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "NKE",
+      "company": "NIKE, Inc.",
+      "sec_cik": "0000320187",
+      "checked_sources": [
+        {
+          "url": "https://investors.nike.com/events-and-presentations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:00+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000320187.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:01+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investors.nike.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:02+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:03+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx?toggle=news",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:04+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investors.nike.com/investors/news-events-and-reports/?toggle=earnings",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:04+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 5,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:29:59+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "QCOM",
+      "company": "QUALCOMM INC/DE",
+      "sec_cik": "0000804328",
+      "checked_sources": [
+        {
+          "url": "https://investor.qualcomm.com/news-events/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:30:03+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000804328.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:03+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:01+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "SBUX",
+      "company": "STARBUCKS CORP",
+      "sec_cik": "0000829224",
+      "checked_sources": [
+        {
+          "url": "https://investor.starbucks.com/events-and-presentations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:05+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000829224.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:05+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investor.starbucks.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:05+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://investor.starbucks.com/events-presentations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:07+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 3,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:04+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "STZ",
+      "company": "CONSTELLATION BRANDS, INC.",
+      "sec_cik": "0000016918",
+      "checked_sources": [
+        {
+          "url": "https://ir.cbrands.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:06+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000016918.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:07+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.cbrands.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:07+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.cbrands.com/news-events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:08+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.cbrands.com/news-events/press-releases",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:09+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.cbrands.com/news-events/ir-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:10+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 5,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:06+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": true,
+      "dated_earnings_text_observed_but_past_event": [
+        "(EDT) Webcast Annual Report Proxy Statement Latest Financial Results Q1 2027 Quarter Ended May 31, 2026 Earnings Release HTML Earnings Webcast Audio Earnings Release & Financial Tables PDF 10-Q HTML XBRL Zip CEO/CFO Comm"
+      ],
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "The issuer's own events page explicitly states there are no upcoming events scheduled at this time. That is issuer evidence of ABSENCE, not a retrieval gap.",
+        "Dated earnings text was observed but describes a PAST event (past-events listing / latest results). A past date is never promoted into an upcoming candidate.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "SYK",
+      "company": "STRYKER CORP",
+      "sec_cik": "0000310764",
+      "checked_sources": [
+        {
+          "url": "https://investors.stryker.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:30:08+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000310764.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:09+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 0,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:07+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "TSLA",
+      "company": "Tesla, Inc.",
+      "sec_cik": "0001318605",
+      "checked_sources": [
+        {
+          "url": "https://ir.tesla.com/#quarterly-disclosure",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "403",
+          "retrieved_at_utc": "2026-08-09T05:30:09+00:00",
+          "note": "HTTPError: Forbidden"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001318605.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:10+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.tesla.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "HTTP_ERROR",
+          "http_status": "403",
+          "retrieved_at_utc": "2026-08-09T05:33:10+00:00",
+          "note": "HTTPError: Forbidden"
+        }
+      ],
+      "sources_retrieved": 1,
+      "sources_failed": 2,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:09+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "TTWO",
+      "company": "TAKE TWO INTERACTIVE SOFTWARE INC",
+      "sec_cik": "0000946581",
+      "checked_sources": [
+        {
+          "url": "https://ir.take2games.com/news-events/ir-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:11+00:00",
+          "note": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000946581.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:12+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.take2games.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:33:11+00:00",
+          "note": ""
+        }
+      ],
+      "sources_retrieved": 2,
+      "sources_failed": 1,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:11+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": [
+        "Earnings Conference Call WebCast Presentation Q1 2027 Earnings Presentation Investor Presentation - August 2026 Q1 2027 Earnings Release Q1 2027 Prepared Remarks May 27, 2026 at 2:15 PM UTC TD Cowen 54th Annual Technolog",
+        "Quarterly Earnings and Events VIEW ALL → August 7, 2026 at 12:00 PM UTC Q1 2027 Take-Two Interactive Software, Inc."
+      ],
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Dated earnings text was observed but describes a PAST event (past-events listing / latest results). A past date is never promoted into an upcoming candidate.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    },
+    {
+      "ticker": "UAL",
+      "company": "United Airlines Holdings, Inc.",
+      "sec_cik": "0000100517",
+      "checked_sources": [
+        {
+          "url": "https://ir.united.com/news-and-events/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:37+00:00",
+          "note": "TimeoutError: The read operation timed out"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000100517.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:38+00:00",
+          "note": ""
+        },
+        {
+          "url": "https://ir.united.com/",
+          "source_type": "company_official_site_root",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:33:12+00:00",
+          "note": "TimeoutError: The read operation timed out"
+        }
+      ],
+      "sources_retrieved": 1,
+      "sources_failed": 2,
+      "retrieval_timestamp_utc": "2026-08-09T05:30:12+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "issuer_explicitly_states_no_upcoming_events": false,
+      "dated_earnings_text_observed_but_past_event": null,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "human_verification_required": true,
+      "notes": [
+        "Official page(s) retrieved but the served HTML contained no explicitly dated upcoming earnings event; these calendars render their event lists client-side. Absence of evidence here is NOT evidence the issuer published nothing.",
+        "Remains on the weekly cadence (protocol v1.1) until an official date appears or the lead-time rule can no longer be met."
+      ]
+    }
+  ]
+}

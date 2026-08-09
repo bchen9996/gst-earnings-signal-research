@@ -1,6 +1,57 @@
 # Changelog
 
 
+## 2026-08-09 — Round-1 evidence audit and correction overlay (additive)
+
+Offline audit of the round-1 reconnaissance evidence. No retrieval, no candidate lookup, and **no round 2** — protocol v1.1 fixes the next sweep at Monday 09:00 America/Chicago, and this audit is deliberately not an unscheduled re-screen.
+
+**Originals preserved, mistakes included.** `sweep_raw_round1.json`, `sweep_raw_round1_pass2.json`, `SWEEP_MANIFEST_ROUND1.json` and `HUMAN_REVIEW_REQUIRED_ROUND1.json` are hash-locked and byte-identical; neither prior commit was amended, squashed or rewritten. The overlay is authoritative for *interpreting* round 1 and never pretends the original bytes were different.
+
+**Correction A — no unsupported canonical disposition.** Round 1 wrote `PENDING_OFFICIAL_DATE_UNAVAILABLE` for 23 tickers. That is a *canonical protocol disposition*, and using it presupposes a candidate identity — ticker **and** fiscal period — so the screening-log schema can be satisfied. No fiscal period was established for any ticker, so the effective `proposed_disposition` for every non-DELL ticker is **`null`** with the status **`NO_ENROLLMENT_DECISION_REACHED`** — explicitly *not* one of the twelve protocol dispositions. Every such ticker remains eligible for the next scheduled sweep. No fiscal period was fabricated to make the schema fit.
+
+**Correction B — source-type audit.** All 77 checked URLs were re-classified: 21 `PERMITTED_SOURCE_OF_RECORD`, 26 `RECONNAISSANCE_ONLY`, 18 `ACCESS_FAILED`, 11 `NAVIGATION_ONLY`, 1 `INVALID_OR_UNRELATED`. The known DVN error (`/sustainability/environment/spill-prevention`, recorded as an IR events calendar) is corrected to `INVALID_OR_UNRELATED` and cannot support any conclusion. Its **root cause** is recorded: pass 2's link filter tested `event` as a substring and **"pr-event-ion"** matched. The whole evidence set was searched rather than only DVN, yielding 18 misclassification corrections — company homepages and IR landing roots as `NAVIGATION_ONLY`, press-release and news indexes as `RECONNAISSANCE_ONLY`.
+
+**Correction C — the SEC submissions index.** All 24 `data.sec.gov/submissions/CIK….json` reads are `RECONNAISSANCE_ONLY`, **not** `sec_filing_8k_earnings_date`. The index is filing metadata; a specific 8-K qualifies only once opened and found to state the future date and timing explicitly. An accession number, filing date or `Item 2.02` label establishes nothing, and no prior filing metadata may influence enrollment. **No filing content was opened in round 1.** The `recent_8k` metadata stays in the raw artifact but is marked unused and prohibited from the effective decision.
+
+**Correction D — the renderer set, recomputed not assumed.** The original queue said "ten calendars" without naming them; the real figure is **9 tickers / 11 URLs**, and three categories the original conflated are now separated: **8** access-failure tickers, **4** issuer-stated-absence tickers, and **2** where round 1 never located an events calendar at all (a discovery gap, neither failure nor absence). All 23 non-DELL tickers are bucketed exactly once.
+
+**Corrected conclusion.** 0 enrollable candidates, 0 canonical dispositions, 0 registry rows, 0 human verifications, 1 unchanged enrolled event (DELL). Round 1 is **reconnaissance evidence**, not a completed canonical screening decision for 23 unnamed fiscal periods. Retrieval failure is never described as issuer-confirmed absence.
+
+Added: `ROUND1_EVIDENCE_AUDIT.md`, `ROUND1_CORRECTION_OVERLAY_v1.json`, `ROUND2_RENDERER_RUNBOOK.md` (offline; scheduled, not executed), `build_correction_overlay.py`, and `test_market_response_round1_correction_overlay.py` (**85 assertions**). Two pre-existing assertions that compare against `git show HEAD:` now report NOT APPLICABLE in a detached `git archive` export instead of failing there; the declared-hash lock and the field-by-field v1.0 comparison run everywhere and remain load-bearing.
+
+
+## 2026-08-09 — Round-1 official-source reconnaissance sweep (no candidate enrolled)
+
+First sweep under the v1.1 cadence, run **after** the cadence commit `153c6239` was pushed. Official investor-relations and issuer-filed SEC sources only. **No attention, market, options, outcome or strategy data was inspected**, and no aggregator, broker calendar, analyst estimate or search snippet was used as evidence.
+
+**Result: zero enrollable candidates.** All 24 locked-universe tickers were swept exactly once. No ticker produced an explicitly dated **upcoming** regular earnings event from a permitted official source, so **no canonical screening row and no registry row were written**, and the human-review queue holds no enrollable candidate.
+
+Two apparent hits were checked and rejected on inspection rather than accepted: GPN's page carried a dated earnings line under **"Past Events"** and states verbatim *"There are no upcoming events scheduled at this time"*; TTWO's and INTC's dated lines are likewise past events. A past date is never promoted into an upcoming candidate. Four issuers (GPN, INTC, NCLH, STZ) state on their own pages that no upcoming events are scheduled — issuer evidence of absence, recorded as such and distinguished from a retrieval gap.
+
+**Retrieval honesty.** 10 IR pages returned HTTP 200 but render their event lists client-side, so the served HTML carried no dated event; that is a limitation of this retrieval method, **not** issuer evidence of absence, and it is labelled that way. A second pass recovered the pages whose first-pass URL 404'd by following the **issuer's own** navigation links from its root domain — a 404 on a URL I constructed is evidence my URL was wrong, not that the issuer publishes nothing. Sources that could not be read (ABBV, DELL, LDOS, TSLA, UAL) are recorded as access failures; **no third-party source was substituted**.
+
+**DELL was neither duplicated nor altered.** It is identified as the existing pre-protocol enrolled event (`EVT-DELL-FY27Q2-ERN` / `-REG-001`), not a newly discovered candidate. Its official source timed out on both attempts, so the date/time recheck could not be performed. The registration was **not** altered, amended or re-verified, and no contradiction was observed because no source was readable. The access limitation is recorded and DELL stays on the weekly cadence for amendment detection only.
+
+**No canonical rows, deliberately.** The screening-log schema requires a `fiscal_period` label and keys duplicates on ticker+fiscal_period. No official source supplied one for any pending candidate, so a canonical row could only be written by inventing a label. The protocol forbids that and forbids weakening a schema to fit an observation, so every item stays in the sweep manifest instead.
+
+Evidence: `Live Signal Engine/Cohort_Screening_Round1/` — `SWEEP_MANIFEST_ROUND1.json` (all 24, once each), `HUMAN_REVIEW_REQUIRED_ROUND1.json`, the two raw retrieval passes, the SEC ticker→CIK map, and the three retrieval scripts. Validated by `test_market_response_cohort_sweep_round1.py` (**58 assertions**): exactly the locked 24 with no duplicates, every evidence URL an issuer or SEC host, no third-party citation, no prohibited research field, no automated finding represented as human-verified, DELL not registered twice, no anchor or lead count computed outside the production planner and XNYS calendar, and no GST/panel/options/market-response module imported by any sweep script.
+
+
+## 2026-08-09 — Cohort protocol v1.1: the screening cadence, fixed before the first sweep
+
+Additive protocol version. **The only methodological addition is the screening cadence.** v1.0 is preserved **byte-for-byte** and is never rewritten; v1.1 supersedes it **prospectively only**, and nothing decided under v1.0 is re-decided.
+
+**Why.** v1.0 said pending candidates are "re-screened on a fixed cadence" and then never defined it. That is a real gap, not a wording nit: an undefined cadence is an opening for discretion, and a sweep run whenever it feels useful is a sweep whose *timing* can be shaped by what one expects to find. Defining it after the first sweep would be defining it with knowledge of what the sweep returned — so it is fixed here, and this commit is pushed **before the first candidate investor-relations page is inspected**.
+
+**The cadence.** Initial sweep immediately after this commit is pushed, over the full locked 24-ticker universe. Recurring sweep **every Monday at 09:00 America/Chicago**. If a scheduled sweep cannot run because of a documented technical failure it runs on the **next available calendar day**, with the delay and its cause recorded — never silently skipped, never back-dated.
+
+**Who stays on it.** Every pending candidate until it is enrolled or receives a terminal disposition; every already-enrolled event until its pre-event anchor begins, **solely** to detect official date/time amendments — a recheck may never revisit enrollment itself. Re-screening uses exactly the v1.0 permitted inputs and blinding prohibitions; being a re-screen relaxes neither. **No unscheduled re-screen** may be triggered by attention, price, volatility, news, options, earnings results or perceived interestingness. **Reaching 60 events does not stop enrollment.** Changing the cadence requires a new dated version written before the sweep it would affect.
+
+**Unchanged:** locked universe, collection window, target, five-session lead rule, INC-1…INC-10, permitted source types, every disposition code and class, prohibited exclusion reasons, amendment rules, blinding prohibitions, v0.2 tier relationship, analysis separation and display gate. Exactly one disposition text changed — `PENDING_OFFICIAL_DATE_UNAVAILABLE` now points at the defined cadence instead of a dangling reference; what it *means* is unchanged.
+
+Deliverables: `GST_PROSPECTIVE_COHORT_PROTOCOL_v1.1_DRAFT.md`, its canonical `..._v1.1.json` (generated from the v1.0 JSON so every carried-forward rule is provably identical), and `test_market_response_cohort_protocol_v1_1.py` (**68 assertions**, including a byte-for-byte check that both v1.0 files are unchanged and a diff proving exactly one disposition text moved).
+
+
 ## 2026-08-09 — Canonical absolute-response persistence
 
 Implementation of an **existing specification**, not a new formula or analytical decision. SPEC v0.1 has always required an `abs_*` counterpart for each signed response interval — "`abs()` of the corresponding signed return, stored alongside it (never replacing it)" — and the merged HYP-01 lock named `abs_overnight_gap` as its primary outcome while recording, truthfully, that no capture path emitted it. This closes exactly that gap.
