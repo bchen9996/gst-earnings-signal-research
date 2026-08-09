@@ -1,0 +1,288 @@
+{
+  "registry": "GST Prospective Hypothesis Registry",
+  "registry_version": "1.0",
+  "status": "DRAFT",
+  "authored_at_utc": "2026-08-09",
+  "authored_before_any_candidate_screening_or_observation": true,
+  "companion_markdown": "Live Signal Engine/GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0_DRAFT.md",
+  "display_gates_document": "Live Signal Engine/GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md",
+  "field_crosswalk": "Live Signal Engine/GST_PROSPECTIVE_HYPOTHESIS_FIELD_CROSSWALK_v1.0.md",
+  "cohort_protocol": "Live Signal Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.0_DRAFT.md",
+  "critical_distinction": {
+    "statement": "gst_market_response.completeness.HYPOTHESIS_CLASSES are DATA-ELIGIBILITY CLASSES, not named research hypotheses. A class says which evidence modules an event carries. A hypothesis is a named, dated research question with its own threshold, classification and display gate. They are registered separately here and mapped explicitly.",
+    "eligibility_classes": [
+      "core_attention_vs_equity_response",
+      "options_implied_move",
+      "joint_attention_plus_options"
+    ],
+    "eligibility_classes_source": "gst_market_response.completeness.HYPOTHESIS_CLASSES",
+    "named_hypotheses": [
+      "HYP-01",
+      "HYP-02",
+      "HYP-03"
+    ],
+    "a_class_is_never_a_hypothesis": true
+  },
+  "statuses": {
+    "ACTIVE_COLLECTING": "Every required measurement already has a production field AND a production capture path. Collection may proceed; results stay gated by the threshold.",
+    "PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED": "The question is registered and dated, but at least one required measurement has no production field, no production capture path, or no production join. The hypothesis accrues NO eligible events until that is built under a separate authorised task. Missing implementation is never counted as eligibility."
+  },
+  "hypotheses": [
+    {
+      "hypothesis_id": "HYP-01",
+      "title": "Pre-earnings attention and market repricing",
+      "question": "Does abnormal pre-earnings public attention precede greater absolute market response around the earnings release?",
+      "classification": "primary_confirmatory_observational",
+      "is_primary_confirmatory": true,
+      "minimum_eligible_events": 60,
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "options_benchmark_required": false,
+      "status": "ACTIVE_COLLECTING",
+      "status_basis": "Every required field is an existing v0.2 pre-event field or an existing market-response interval field, and both have production capture paths (pre_event_capture orchestrator; pipeline.capture_d1 / capture_d3).",
+      "required_pre_event_fields": [
+        "gst_zscore",
+        "wiki_zscore",
+        "panel_implied_volatility",
+        "realized_volatility",
+        "previous_close",
+        "volume",
+        "pre_event_snapshot_asof_utc"
+      ],
+      "required_pre_event_gate": "gst_market_response.completeness.evaluate_strict_core_v0_2",
+      "required_response_fields": {
+        "d1": [
+          "overnight_gap",
+          "open_to_30m",
+          "thirty_min_to_close",
+          "open_to_close"
+        ],
+        "d3": [
+          "close_T1_to_close_T2",
+          "close_T1_to_close_T3"
+        ]
+      },
+      "required_response_gates": [
+        "gst_market_response.completeness.is_valid_d1_decomposition",
+        "gst_market_response.completeness.is_valid_d3_completion"
+      ],
+      "new_formula_introduced": false,
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "exposure definition -- which attention field, and continuous versus threshold form",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "primary outcome -- which existing D1/D3 interval field is THE primary absolute-response measure",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "covariate set and any benchmark adjustment",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "ticker-cluster estimator",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        }
+      ],
+      "display_rule": "No result, direction, effect estimate, plot, p-value or confidence interval may be displayed before 60 eligible events."
+    },
+    {
+      "hypothesis_id": "HYP-02",
+      "title": "Cross-source attention divergence and earnings surprise",
+      "question": "Does divergence between Google-search attention and Wikipedia attention before earnings associate with the magnitude of subsequently disclosed earnings surprise?",
+      "classification": "preregistered_secondary",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 60,
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "options_benchmark_required": false,
+      "status": "PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED",
+      "status_basis": "The strict core pre-event observation is implemented, but the earnings-surprise measurement is not reachable. eps_surprise_pct and revenue_surprise_pct exist ONLY as Event Dossier Layer A schema columns with validator enforcement; no production code writes them (the only writers in the tree are test fixtures), and no production join maps a market-response event_id to a dossier surprise value. Production field AND capture path is therefore not satisfied.",
+      "required_pre_event_fields": [
+        "gst_zscore",
+        "wiki_zscore",
+        "panel_implied_volatility",
+        "realized_volatility",
+        "previous_close",
+        "volume",
+        "pre_event_snapshot_asof_utc"
+      ],
+      "required_external_measurement": {
+        "measurement": "blinded Event Dossier earnings-surprise measurement",
+        "schema_fields": [
+          "event_labels.eps_surprise_pct",
+          "event_labels.revenue_surprise_pct"
+        ],
+        "schema_location": "Event_Dossier_Protocol/A_Blinded_Event_Core/schemas/event_labels.csv",
+        "availability": "event_dossier_schema_only_no_capture_path",
+        "blinding_requirement": "The surprise value is Layer A evidence and must be frozen under the Event Dossier Protocol's capture-versus-reveal discipline before any join."
+      },
+      "forbidden_substitutions": [
+        "analyst reaction",
+        "price movement",
+        "news tone",
+        "any other proxy for disclosed earnings surprise"
+      ],
+      "forbidden_substitution_rule": "If the disclosed-surprise measurement is unavailable for an event, that event simply does not count toward HYP-02. A proxy is never silently substituted, and a missing surprise is never zero-filled.",
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "divergence measure between GST and Wikipedia z-scores -- no authoritative specification defines one",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "which surprise field is primary (EPS or revenue), and its sign handling",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "ticker-cluster estimator",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        }
+      ],
+      "display_rule": "No result may be displayed before 60 eligible events. The hypothesis accrues no eligible events at all while its status is PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED."
+    },
+    {
+      "hypothesis_id": "HYP-03",
+      "title": "Post-earnings attention decay and continued repricing",
+      "question": "Among events with valid post-release measurements, is attention-decay half-life associated with continued market repricing after the initial response?",
+      "classification": "preregistered_exploratory",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 40,
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "options_benchmark_required": false,
+      "status": "PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED",
+      "status_basis": "No production attention-decay measurement exists. The market-response state machine captures pre-event, D1 and D3 -- all market observations; there is no post-event ATTENTION capture stage, and no module computes a decay curve or half-life. derivations.gst_slope_v0_1 is a PRE-event trailing slope over the 12-observation window ending at the pre-event snapshot; it is explicitly not a post-event decay half-life and is not repurposed as one.",
+      "required_pre_event_fields": [
+        "gst_zscore",
+        "wiki_zscore",
+        "panel_implied_volatility",
+        "realized_volatility",
+        "previous_close",
+        "volume",
+        "pre_event_snapshot_asof_utc"
+      ],
+      "required_response_fields": {
+        "d1": [
+          "overnight_gap",
+          "open_to_30m",
+          "thirty_min_to_close",
+          "open_to_close"
+        ],
+        "d3": [
+          "close_T1_to_close_T2",
+          "close_T1_to_close_T3"
+        ]
+      },
+      "required_missing_measurement": {
+        "measurement": "post-event attention-decay half-life",
+        "availability": "not_implemented",
+        "nearest_existing_but_different": "gst_market_response.derivations.gst_slope_v0_1",
+        "why_not_a_substitute": "gst_slope_v0_1 measures the trailing PRE-event GST level slope, not the post-release decay of attention. Using it would answer a different question.",
+        "build_authorisation": "NOT AUTHORISED in this task"
+      },
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "definition of attention-decay half-life -- source series, window, estimator, and handling of non-decaying series",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "definition of 'continued repricing after the initial response' in terms of existing D1/D3 fields",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "ticker-cluster estimator",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        }
+      ],
+      "display_rule": "No result may be displayed before 40 eligible events. The hypothesis accrues no eligible events at all while its status is PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED."
+    }
+  ],
+  "options_related_classes": {
+    "classes": [
+      "options_implied_move",
+      "joint_attention_plus_options"
+    ],
+    "registered_hypothesis": null,
+    "result_display_status": "DENY_NO_REGISTERED_HYPOTHESIS",
+    "rule": "The data-eligibility classes continue to exist and events may continue to be classified into them. No named hypothesis is registered against either class, so no result derived from them may be displayed. Registering one is a separate, dated decision.",
+    "options_never_block_the_registered_hypotheses": "An unavailable options benchmark may lower an event to 'core_only_no_option_benchmark'. It never prevents HYP-01, HYP-02 or HYP-03 enrollment when that event's own required core fields are otherwise valid."
+  },
+  "counting_rules": [
+    {
+      "id": "CNT-1",
+      "rule": "One unique event_id counts at most once for a given hypothesis."
+    },
+    {
+      "id": "CNT-2",
+      "rule": "Duplicate ticker/fiscal-quarter events never count twice; the cohort protocol bars a second registration for the same pair."
+    },
+    {
+      "id": "CNT-3",
+      "rule": "An event counts only if every required gate and measurement for that hypothesis passes."
+    },
+    {
+      "id": "CNT-4",
+      "rule": "Missing values remain missing. No zero-fill, no imputation, no carry-forward, no proxy."
+    },
+    {
+      "id": "CNT-5",
+      "rule": "Events are never removed because their results are null or unfavourable."
+    },
+    {
+      "id": "CNT-6",
+      "rule": "Repeated observations from the same ticker are distinct events and must be identified for clustered analysis. They are never described as statistically independent companies."
+    },
+    {
+      "id": "CNT-7",
+      "rule": "Reaching the threshold FREEZES the eligible event-ID set and the analysis-code commit before any result is calculated."
+    },
+    {
+      "id": "CNT-8",
+      "rule": "No optional stopping. The threshold is not re-checked for significance, and collection is not stopped early or extended because of what results look like."
+    },
+    {
+      "id": "CNT-9",
+      "rule": "Events collected after the frozen analysis form an EXTENSION COHORT, reported separately, unless a new dated protocol version specifies otherwise."
+    },
+    {
+      "id": "CNT-10",
+      "rule": "EVT-DELL-FY27Q2-ERN counts only if it passes the same gates as every other event. No exemption, no priority, no special case."
+    }
+  ],
+  "statistical_governance": {
+    "primary_confirmatory_hypothesis": "HYP-01",
+    "secondary_hypotheses": [
+      "HYP-02"
+    ],
+    "exploratory_hypotheses": [
+      "HYP-03"
+    ],
+    "inference_sidedness": "two_sided",
+    "primary_alpha": 0.05,
+    "report_effect_sizes": true,
+    "confidence_interval": 0.95,
+    "ticker_cluster_aware_inference_required": true,
+    "promotion_rule": "HYP-02 and HYP-03 may never be promoted to confirmatory on the basis of observed results. Promotion requires a new dated registry version written before the results that would motivate it are seen.",
+    "model_freeze_rule": "No model may be changed after the eligible event set is frozen.",
+    "unresolved_terms_rule": "Any exact model term or outcome mapping not already established in an existing authoritative specification is marked PENDING_SEPARATE_ANALYSIS_LOCK and is never guessed.",
+    "power_statement": "No power calculation was performed, and none may be performed using observed project results. The numeric thresholds are GOVERNANCE ELIGIBILITY FLOORS -- the minimum evidence required before a result may be looked at -- not claims of guaranteed statistical power, and not estimates of detectable effect size.",
+    "multiplicity_note": "Three hypotheses are registered. HYP-01 alone is confirmatory; HYP-02 and HYP-03 results are reported as secondary and exploratory respectively and carry no confirmatory claim. Any multiplicity adjustment across families is itself PENDING_SEPARATE_ANALYSIS_LOCK."
+  },
+  "external_dashboard_note": {
+    "artifact": "gst-attention-radar (separate repository, DEMO fixtures only)",
+    "observed_demo_thresholds": {
+      "H1-attention-precedes-repricing": 60,
+      "H2-wikipedia-vs-search-divergence": 60,
+      "H3-attention-decay-half-life": 40
+    },
+    "coincidence": "The dashboard's DEMO fixture happens to carry 60/60/40 minimum_observations, matching the thresholds registered here.",
+    "authority": "The demo fixture is NOT the source of authority. This registry is. The fixture is unedited by this task, ships DEMO/development-pilot data only, has no live pipeline, and its observation counts are fixture values, not real observations. If the two ever disagree, this registry governs and the fixture is wrong.",
+    "edited_by_this_task": false
+  },
+  "eligible_event_counts": {
+    "HYP-01": 0,
+    "HYP-02": 0,
+    "HYP-03": 0,
+    "note": "Zero for every hypothesis. No candidate has been screened, no prospective event has been observed, and no result exists. These counters are structural placeholders."
+  },
+  "results": null,
+  "results_note": "Deliberately null. No result, direction, effect estimate, plot, p-value or confidence interval exists for any hypothesis, and none may be produced before that hypothesis's threshold is reached and its event set and analysis commit are frozen."
+}

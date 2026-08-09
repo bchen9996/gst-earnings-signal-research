@@ -1,6 +1,21 @@
 # Changelog
 
 
+## 2026-08-09 — Prospective hypothesis registry and numeric result-display gates v1.0 (draft)
+
+Registry definition only, written after the cohort rules merged and **before any candidate screening or prospective observation**. No result, direction, effect estimate, plot, p-value or confidence interval exists for any hypothesis. `EVT-DELL-FY27Q2-ERN` remains `REGISTERED` and its registry blob is untouched.
+
+**Eligibility classes are not hypotheses.** `completeness.HYPOTHESIS_CLASSES` state which evidence modules an event carries; they are not named research questions. The registry defines named hypotheses separately and maps each onto the class and measurements it requires. Satisfying a class never licenses a result.
+
+**Three hypotheses registered.** **HYP-01** (pre-earnings attention and market repricing, n ≥ 60, sole primary confirmatory) is `ACTIVE_COLLECTING`: every required field is an existing v0.2 pre-event field or existing D1/D3 interval field, and each has a production capture path. No new return formula is introduced. **HYP-02** (cross-source attention divergence and earnings surprise, n ≥ 60, secondary) and **HYP-03** (post-earnings attention decay and continued repricing, n ≥ 40, exploratory) are `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED`, determined mechanically and verified against the tree: `eps_surprise_pct`/`revenue_surprise_pct` exist only as Event Dossier Layer A schema columns, no production code writes them and no production join maps a market-response `event_id` to a dossier surprise value; and no post-event attention capture stage or decay/half-life measurement exists anywhere. `gst_slope_v0_1` is a pre-event trailing slope and is deliberately **not** repurposed. Neither missing measurement is built here, and missing implementation never counts as eligibility.
+
+**Options.** No options hypothesis is registered; `options_implied_move` and `joint_attention_plus_options` remain valid data classes with display status `DENY_NO_REGISTERED_HYPOTHESIS`. Options unavailability never blocks HYP-01/02/03 enrollment when an event's own core fields are valid.
+
+**Counting and governance.** Ten counting rules: one event counts once, no duplicate ticker-quarter double-count, all gates must pass, missing stays missing (no zero-fill or imputation), no removal for null or unfavourable results, ticker-repeat events flagged for clustered analysis and never called independent companies, threshold freezes the event-ID set **and** the analysis commit before results, no optional stopping, later events form an extension cohort, and DELL gets no exemption. Two-sided inference, α = 0.05, effect sizes with 95% CIs, ticker-cluster-aware inference required, no promotion to confirmatory on observed results, no model change after freeze. **Ten analysis decisions are marked `PENDING_SEPARATE_ANALYSIS_LOCK`** rather than guessed — including HYP-01's exposure definition and primary outcome field. **60/60/40 are governance eligibility floors, not power calculations**; no power calculation was performed and none may use observed project results.
+
+**Deliverables.** `GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0_DRAFT.md`, its canonical `..._v1.0.json` (generated from production constants so it cannot drift), `GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md` (all three gates CLOSED; fail-closed default table; freeze procedure), `GST_PROSPECTIVE_HYPOTHESIS_FIELD_CROSSWALK_v1.0.md` (implemented vs dossier-only vs not-implemented, class vs hypothesis, and every unresolved decision), and `test_market_response_hypothesis_registry.py` (**132 assertions**). The separate `gst-attention-radar` DEMO fixture happens to carry the same 60/60/40 `minimum_observations`; that is recorded as a coincidence, the fixture is explicitly not the source of authority, and it was not edited.
+
+
 ## 2026-08-08 — Prospective multi-event cohort protocol v1.0 (draft)
 
 Protocol definition only. **No candidate investor-relations calendar was inspected, no panel was run, no provider was contacted, and no DELL observation was made.** The rules are published *before* we learn which events qualify — rules written after seeing the candidates are not rules, they are choices. `EVT-DELL-FY27Q2-ERN` remains `REGISTERED` and its registry blob is untouched.
