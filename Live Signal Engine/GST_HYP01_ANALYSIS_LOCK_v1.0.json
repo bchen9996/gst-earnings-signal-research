@@ -102,9 +102,16 @@
       "Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md"
     ],
     "new_formula_created": false,
-    "persistence_status": "SPECIFIED_NOT_YET_EMITTED",
-    "persistence_note": "abs_overnight_gap is an authoritative SPEC v0.1 field and its formula is fixed, but the D1 capture path does not yet emit it: completeness.D1_REQUIRED_FIELDS lists only the four signed intervals, and no module writes an abs_* key. Emitting it is a separate build task, NOT performed here. This lock does not invent the field and does not substitute another return formula; it names the specified one and records that its persistence must exist before event 60 can be frozen.",
-    "blocking_for_freeze": true
+    "persistence_status": "IMPLEMENTED_AND_EMITTED",
+    "persistence_note": "abs_overnight_gap is an authoritative SPEC v0.1 field, and as of the canonical absolute-response persistence commit the D1 capture path EMITS it: pipeline.capture_d1() derives it via response_magnitude.apply_absolute_fields() using derivations.abs_or_none(), stores it alongside the unchanged signed value on the durable D1 state record, and echoes it into the D1 and FINAL stage markers. D1_REQUIRED_FIELDS is unchanged -- the field is a canonical derived output, not a new completeness requirement. The analytical definition in this lock did not change; only its implementation status did. Historical records written before that commit carry no abs_* fields and are transparently ineligible for analyses requiring them; nothing was backfilled.",
+    "blocking_for_freeze": false,
+    "emitted_by": "gst_market_response.pipeline.capture_d1 -> gst_market_response.response_magnitude.apply_absolute_fields -> gst_market_response.derivations.abs_or_none",
+    "emitted_into": [
+      "durable D1 state record (D1_COMPLETE, or PARTIAL with failure_stage=d1)",
+      "immutable D1_CAPTURE stage marker (response_magnitude block)",
+      "immutable FINAL_COMPLETION stage marker (response_magnitude block)",
+      "legacy {event_id}_COMPLETION_MARKER.json (response_magnitude block)"
+    ]
   },
   "primary_model": {
     "formula": "abs_overnight_gap ~ gst_zscore",
@@ -175,12 +182,12 @@
       {
         "analysis": "abs_open_to_30m as outcome",
         "status": "registered_secondary",
-        "persistence_status": "SPECIFIED_NOT_YET_EMITTED"
+        "persistence_status": "IMPLEMENTED_AND_EMITTED"
       },
       {
         "analysis": "abs_open_to_close as outcome",
         "status": "registered_secondary",
-        "persistence_status": "SPECIFIED_NOT_YET_EMITTED"
+        "persistence_status": "IMPLEMENTED_AND_EMITTED"
       },
       {
         "analysis": "full_session_range as outcome",

@@ -1,6 +1,27 @@
 # Changelog
 
 
+## 2026-08-09 — Canonical absolute-response persistence
+
+Implementation of an **existing specification**, not a new formula or analytical decision. SPEC v0.1 has always required an `abs_*` counterpart for each signed response interval — "`abs()` of the corresponding signed return, stored alongside it (never replacing it)" — and the merged HYP-01 lock named `abs_overnight_gap` as its primary outcome while recording, truthfully, that no capture path emitted it. This closes exactly that gap.
+
+**Six mappings, now emitted.** D1: `abs_overnight_gap`, `abs_open_to_30m`, `abs_thirty_min_to_close`, `abs_open_to_close`. D3: `abs_close_T1_to_close_T2`, `abs_close_T1_to_close_T3`. Derived by `pipeline.capture_d1()` / `capture_d3()` through the new `response_magnitude.apply_absolute_fields()`, which applies the existing `derivations.abs_or_none()` — the single definition of `abs()` in the package. No signed-return formula is recomputed anywhere.
+
+**Stored alongside, never replacing.** Signed values remain present and unchanged. A signed `0.0` yields `0.0`; a missing signed value yields `None`, never zero; an absent signed key produces no `abs_*` key at all. No imputation, winsorization, clipping, rounding or outlier removal.
+
+**Not a new lifecycle requirement.** `D1_REQUIRED_FIELDS` and `D3_REQUIRED_FIELDS` are unchanged — the absolute fields are canonical derived **outputs**. A record is neither made complete nor made incomplete by their presence, and the gates see exactly the fields they always did. Lifecycle transitions, completeness thresholds, the strict v0.2 core gate, option dispositions, cohort rules, HYP-01's sample size and model, and HYP-02/HYP-03 are all untouched.
+
+**Callers do not choose these values.** The pipeline derives them. A caller-supplied `abs_*` value is accepted only when it exactly equals the canonical value; any disagreement — including a `None` against a real value, or a non-numeric — raises the dedicated `AbsoluteFieldConflictError` **before the first event-log or marker byte**, not even `D1_PENDING`. Verified by asserting the log is byte-identical after the refusal.
+
+**Where they land.** The durable D1/D3 state record, plus a `response_magnitude` block in the immutable `D1_CAPTURE` and `FINAL_COMPLETION` stage markers and in the legacy `{event_id}_COMPLETION_MARKER.json`. Marker values are read back from the stored record rather than recomputed, so a marker attests to what was actually written, and marker tie-out now covers the block so recovery detects drift in it.
+
+**No backfill.** Records written before this commit carry no `abs_*` fields and were not rewritten. They remain transparently ineligible for analyses requiring them — the honest state, not a defect. A marker built over such a record yields an empty `response_magnitude` block rather than a block of nulls.
+
+**HYP-01 lock — implementation status only.** `abs_overnight_gap` moves from `SPECIFIED_NOT_YET_EMITTED` to `IMPLEMENTED_AND_EMITTED` and is no longer blocking for freeze; the emitting path and its sinks are named. The **analytical definition did not change**: same predictor (`gst_zscore`, continuous, unthresholded), same outcome, same model, α = 0.05 two-sided, ticker-clustered with finite-sample correction, same ordering, n = 60, still no results and no frozen event IDs. The lock's test now verifies the emitted claim by driving the real production path instead of asserting it.
+
+**Tests.** New `test_market_response_absolute_persistence.py` (**93 assertions**) covers all six mappings; positive, negative, zero and `None` behaviour; signed values unchanged; absolutes never negative; D1_COMPLETE and COMPLETE persistence; marker equality; conflicting-caller refusal with zero writes; agreeing-caller no-op; missing values keeping existing PARTIAL behaviour; no zero-fill; the required-field tuples unchanged; and historical records neither rewritten nor backfilled. The HYP-01 lock suite grows to **145**. No analysis runner was added and no model, coefficient, p-value, interval, descriptive result or plot was computed.
+
+
 ## 2026-08-09 — HYP-01 primary analysis lock v1.0 (draft)
 
 Preregistration and tests only. **No model was implemented and none was run**; no historical or prospective outcome was analysed, no candidate was screened, no observation was collected. `EVT-DELL-FY27Q2-ERN` remains `REGISTERED` and its registry blob is untouched.

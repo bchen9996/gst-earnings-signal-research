@@ -58,11 +58,17 @@ Both keys are fixed before any event exists and neither depends on an observed v
 
 **No new return formula is created.** Both are already authoritative: the signed interval is defined in SPEC v0.1 and implemented as `derivations.overnight_gap`; the `abs_*` counterpart is defined in SPEC v0.1 ("`abs()` of the corresponding signed return, stored alongside it, never replacing it") and in field dictionary v0.1, with `derivations.abs_or_none` as the implemented helper.
 
-### 4.1 Persistence gap — stated plainly
+### 4.1 Persistence status — implemented and emitted
 
-**`abs_overnight_gap` is specified but not yet emitted.** `completeness.D1_REQUIRED_FIELDS` lists only the four *signed* intervals, and no module currently writes an `abs_*` key into a D1 record. The formula is fixed and authoritative; what does not yet exist is the capture path that persists it.
+**`abs_overnight_gap` is now persisted by the production capture path.** When this lock was first written the field was specified but not yet emitted, and that gap was recorded as blocking for freeze. It has since been closed by the canonical absolute-response persistence commit:
 
-Emitting it is a **separate build task, not performed here**. This lock names the specified field rather than inventing one or substituting a different return, and records the gap as **blocking for freeze**: event 60 cannot be frozen until `abs_overnight_gap` is actually persisted with valid provenance.
+`pipeline.capture_d1()` → `response_magnitude.apply_absolute_fields()` → `derivations.abs_or_none()`
+
+The value is stored **alongside** the unchanged signed value on the durable D1 state record, and echoed into the `D1_CAPTURE` and `FINAL_COMPLETION` stage markers and the legacy completion marker. `D1_REQUIRED_FIELDS` is unchanged — the field is a canonical derived **output**, not a new completeness requirement.
+
+**Only the implementation status changed. The analytical definition in §4 did not**: the outcome is still `abs(overnight_gap)` over the same signed formula, and no new formula was created.
+
+Historical records written before that commit carry no `abs_*` fields. They were **not backfilled** and are transparently ineligible for analyses requiring the field — which is the honest state, not a defect.
 
 ## 5. Primary model — locked
 
@@ -108,8 +114,8 @@ Registered as **non-confirmatory**. None receives an independent confirmatory cl
 | Analysis | Label | Note |
 |---|---|---|
 | `wiki_zscore` replacing GST | secondary | |
-| `abs_open_to_30m` as outcome | secondary | specified, not yet emitted |
-| `abs_open_to_close` as outcome | secondary | specified, not yet emitted |
+| `abs_open_to_30m` as outcome | secondary | implemented and emitted |
+| `abs_open_to_close` as outcome | secondary | implemented and emitted |
 | `full_session_range` as outcome | secondary | `derivations.full_session_range` implemented |
 | sector-relative response fields | secondary | `derivations.relative_return` implemented; SPEC v0.1 lists these as **optional** for the D1/D3 gates and no capture path emits them yet |
 | rank-based GST sensitivity | exploratory | rank transform definition still `PENDING_SEPARATE_ANALYSIS_LOCK` |
@@ -147,4 +153,3 @@ HYP-02 and HYP-03 keep their thresholds (60, 40), their `PREREGISTERED_MEASUREME
 | exact statistics package, version and cluster-covariance option string | `TO_BE_FROZEN_AT_EVENT_60` |
 | sector fixed-effect encoding for the adjusted model | `PENDING_SEPARATE_ANALYSIS_LOCK` |
 | rank transform definition for the rank-based sensitivity | `PENDING_SEPARATE_ANALYSIS_LOCK` |
-| **`abs_overnight_gap` persistence into the D1 record** | **blocking for freeze — separate build task** |
