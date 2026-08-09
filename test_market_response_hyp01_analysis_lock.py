@@ -75,6 +75,37 @@ def check(label: str, cond: bool) -> None:
         FAILURES.append(label)
 
 
+def _abs_overnight_gap_is_really_emitted() -> bool:
+    """Drive the REAL production path once, on synthetic fields, and confirm
+    abs_overnight_gap lands on the durable D1 record and in the D1 marker.
+
+    A persistence check, not an analysis: no model, no coefficient, no result --
+    only that the specified field is genuinely written by production code.
+    """
+    import tempfile
+
+    from gst_market_response.event_record import EventStore
+    from gst_market_response.pipeline import capture_d1
+    from gst_market_response.stage_markers import STAGE_D1, build_stage_marker
+
+    eid = "EVT-SYNTH-FY27Q1-ERN"
+    signed = {"overnight_gap": -0.02, "open_to_30m": 0.01,
+              "thirty_min_to_close": 0.0, "open_to_close": -0.005}
+    with tempfile.TemporaryDirectory() as t:
+        root = Path(t)
+        store = EventStore(root)
+        store.append_state(eid, "REGISTERED", {})
+        store.append_state(eid, "PRE_EVENT_PENDING", {})
+        store.append_state(eid, "PRE_EVENT_CAPTURED", {"previous_close": 1.0})
+        if capture_d1(store, eid, dict(signed)) != "D1_COMPLETE":
+            return False
+        rec = [r for r in store.read_all(eid) if r["state"] == "D1_COMPLETE"][0]["fields"]
+        marker = build_stage_marker(store, eid, STAGE_D1)
+        return (rec.get("abs_overnight_gap") == 0.02
+                and rec["overnight_gap"] == -0.02
+                and marker["response_magnitude"].get("abs_overnight_gap") == 0.02)
+
+
 # ===================== 1. predictor ========================================
 
 def test_1_predictor():
@@ -107,22 +138,29 @@ def test_2_primary_outcome():
           o["signed_field_implemented_by"].endswith("derivations.overnight_gap"))
     check("2f. the abs helper is production-implemented",
           o["absolute_helper_implemented_by"].endswith("derivations.abs_or_none"))
-    # honesty: the lock must record that the field is not yet emitted, and that
-    # claim must be TRUE of the tree as it stands.
-    check("2g. the lock records the persistence gap",
-          o["persistence_status"] == "SPECIFIED_NOT_YET_EMITTED")
-    check("2h. the gap is declared blocking for freeze", o["blocking_for_freeze"] is True)
-    check("2i. abs_overnight_gap is genuinely NOT in D1_REQUIRED_FIELDS (claim verified)",
+    # honesty: the lock now records the field as EMITTED, and that claim is
+    # verified against the REAL production path, not merely asserted.
+    check("2g. the lock records the field as implemented and emitted",
+          o["persistence_status"] == "IMPLEMENTED_AND_EMITTED")
+    check("2h. it is no longer blocking for freeze", o["blocking_for_freeze"] is False)
+    check("2i. abs_overnight_gap is still NOT a completeness requirement",
           "abs_overnight_gap" not in C.D1_REQUIRED_FIELDS)
-    pkg = "\n".join(p.read_text(encoding="utf-8") for p in (HERE / "gst_market_response").glob("*.py"))
-    check("2j. no module emits an abs_* response key (claim verified)",
-          not re.search(r"abs_overnight_gap|abs_open_to_|abs_close_to", pkg))
+    check("2j. the real production path emits it (verified end to end)",
+          _abs_overnight_gap_is_really_emitted())
+    pkg = "\n".join(q.read_text(encoding="utf-8")
+                    for q in (HERE / "gst_market_response").glob("*.py"))
     check("2k. abs_or_none does exist in production (claim verified)",
           "def abs_or_none" in pkg)
     check("2l. the specification authority is cited",
           any("SPEC_v0.1" in s for s in o["specification_authority"]))
-    check("2m. the Markdown states the gap plainly",
-          "specified but not yet emitted" in MD.lower())
+    check("2m. the Markdown states the implemented status plainly",
+          "implemented and emitted" in MD.lower())
+    check("2n. the emitting path is named and real",
+          "capture_d1" in o["emitted_by"] and "abs_or_none" in o["emitted_by"])
+    check("2o. the durable record and both stage markers are named as sinks",
+          any("D1 state record" in x for x in o["emitted_into"])
+          and any("D1_CAPTURE" in x for x in o["emitted_into"])
+          and any("FINAL_COMPLETION" in x for x in o["emitted_into"]))
 
 
 # ===================== 3. release sessions =================================

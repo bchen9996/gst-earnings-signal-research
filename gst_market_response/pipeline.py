@@ -26,6 +26,11 @@ from .event_record import (
     FAILURE_STAGE_PRE_EVENT,
     EventStore,
 )
+from .response_magnitude import (
+    D1_ABS_FIELD_MAP,
+    D3_ABS_FIELD_MAP,
+    apply_absolute_fields,
+)
 
 
 def register_event(store: EventStore, event_id: str, identity_fields: dict[str, Any]) -> str:
@@ -148,20 +153,40 @@ def __getattr__(name: str):  # module-level, PEP 562
 
 
 def capture_d1(store: EventStore, event_id: str, d1_fields: dict[str, Any]) -> str:
+    """Persist the D1 decomposition, with its canonical abs_* counterparts.
+
+    The absolute fields are derived here (SPEC v0.1: "abs() of the
+    corresponding signed return, stored alongside it, never replacing it"), not
+    chosen by the caller. Derivation and conflict validation happen BEFORE the
+    first append, so a caller whose supplied abs_* value disagrees with abs() of
+    its signed counterpart raises AbsoluteFieldConflictError with zero bytes
+    written -- not even D1_PENDING.
+
+    D1_REQUIRED_FIELDS is unchanged: the abs_* fields are stored outputs, never
+    a new completeness requirement, so the gate below still sees exactly the
+    four signed intervals it always did.
+    """
+    fields = apply_absolute_fields(d1_fields, D1_ABS_FIELD_MAP)
     store.append_state(event_id, "D1_PENDING", {})
-    if is_valid_d1_decomposition(d1_fields):
-        store.append_state(event_id, "D1_COMPLETE", d1_fields)
+    if is_valid_d1_decomposition(fields):
+        store.append_state(event_id, "D1_COMPLETE", fields)
         return "D1_COMPLETE"
     # PROTOCOL v0.2: a PARTIAL says WHICH stage failed, so a D1 failure can
     # never be mistaken for the pre-event eligibility record.
-    store.append_state(event_id, "PARTIAL", {**d1_fields, FAILURE_STAGE_KEY: FAILURE_STAGE_D1})
+    store.append_state(event_id, "PARTIAL", {**fields, FAILURE_STAGE_KEY: FAILURE_STAGE_D1})
     return "PARTIAL"
 
 
 def capture_d3(store: EventStore, event_id: str, d3_fields: dict[str, Any]) -> str:
+    """Persist the D3 completion, with its canonical abs_* counterparts.
+
+    Same contract as capture_d1(): derived, not caller-chosen; validated before
+    the first byte; D3_REQUIRED_FIELDS unchanged.
+    """
+    fields = apply_absolute_fields(d3_fields, D3_ABS_FIELD_MAP)
     store.append_state(event_id, "D3_PENDING", {})
-    if is_valid_d3_completion(d3_fields):
-        store.append_state(event_id, "COMPLETE", d3_fields)
+    if is_valid_d3_completion(fields):
+        store.append_state(event_id, "COMPLETE", fields)
         return "COMPLETE"
-    store.append_state(event_id, "PARTIAL", {**d3_fields, FAILURE_STAGE_KEY: FAILURE_STAGE_D3})
+    store.append_state(event_id, "PARTIAL", {**fields, FAILURE_STAGE_KEY: FAILURE_STAGE_D3})
     return "PARTIAL"

@@ -31,11 +31,17 @@ from .completeness import (
 )
 from .event_record import (
     FAILURE_STAGE_D1,
+    FAILURE_STAGE_D3,
     FAILURE_STAGE_PRE_EVENT,
     TERMINAL_STATES,
     EventStore,
     partial_failure_stage,
     select_stage_record,
+)
+from .response_magnitude import (
+    D1_ABS_FIELD_MAP,
+    D3_ABS_FIELD_MAP,
+    response_magnitude_block,
 )
 
 STAGE_PRE_EVENT = "PRE_EVENT_CAPTURE"
@@ -98,6 +104,23 @@ def _pre_event_record(store: EventStore, event_id: str) -> Optional[dict]:
     return select_stage_record(states, FAILURE_STAGE_PRE_EVENT)
 
 
+def _response_magnitude(states: list[dict]) -> dict[str, Any]:
+    """The canonical abs_* values as PERSISTED on the D1 and D3 stage records.
+
+    Read back from the stored record, never recomputed here, so a marker
+    attests to what was actually written. A stage that has not been captured
+    contributes nothing rather than a block of nulls -- absence stays absence.
+    Historical records written before this field existed simply yield {}.
+    """
+    block: dict[str, Any] = {}
+    for stage_key, field_map in ((FAILURE_STAGE_D1, D1_ABS_FIELD_MAP),
+                                 (FAILURE_STAGE_D3, D3_ABS_FIELD_MAP)):
+        record = select_stage_record(states, stage_key)
+        if record and record.get("fields"):
+            block.update(response_magnitude_block(record["fields"], field_map))
+    return block
+
+
 def _stage_state_is_allowed(stage: str, states: list[dict]) -> bool:
     """May a `stage` marker be written given the event's current chronology?"""
     final_state = states[-1]["state"]
@@ -145,6 +168,11 @@ def build_stage_marker(store: EventStore, event_id: str, stage: str) -> dict:
         "written_at_utc": datetime.now(timezone.utc).isoformat(),
     }
 
+    # Canonical absolute response magnitudes, echoed from whichever durable
+    # stage record carries them. Read back from the STORED record rather than
+    # recomputed, so the marker attests to what was actually persisted.
+    marker["response_magnitude"] = _response_magnitude(states)
+
     if pre is None:
         marker["module_eligibility"] = None
         marker["module_eligibility_note"] = "no pre-event stage recorded"
@@ -186,7 +214,8 @@ def verify_marker_ties_out(root: Path, event_id: str, stage: str, store: EventSt
     expected = build_stage_marker(store, event_id, stage)
     diffs = []
     for key in ("event_id", "stage", "lifecycle_state", "state_chronology",
-                "is_full_data_complete", "module_eligibility", "provenance"):
+                "is_full_data_complete", "module_eligibility", "provenance",
+                "response_magnitude"):
         if on_disk.get(key) != expected.get(key):
             diffs.append(key)
     return (not diffs), diffs

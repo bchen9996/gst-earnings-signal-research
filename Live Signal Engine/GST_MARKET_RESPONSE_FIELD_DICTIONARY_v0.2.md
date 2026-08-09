@@ -118,6 +118,31 @@ Covered fields: `capture_fingerprint_version` · `event_id` · `ticker` · `anch
 
 Legacy `PARTIAL` records carry no such field; their stage is derived from the preceding pending state, never defaulted. An unrecognised value resolves to no stage. See SPEC v0.2 §8.1.
 
+## 4.4 Absolute response fields — now emitted (new)
+
+SPEC v0.1 has always required an `abs_*` counterpart for each signed response interval: "`abs()` of the corresponding signed return, stored alongside it (never replacing it)". Until the canonical absolute-response persistence commit, **no capture path emitted them**. They are now derived and stored by production.
+
+| Signed field | Absolute counterpart | Stage |
+|---|---|---|
+| `overnight_gap` | `abs_overnight_gap` | D1 |
+| `open_to_30m` | `abs_open_to_30m` | D1 |
+| `thirty_min_to_close` | `abs_thirty_min_to_close` | D1 |
+| `open_to_close` | `abs_open_to_close` | D1 |
+| `close_T1_to_close_T2` | `abs_close_T1_to_close_T2` | D3 |
+| `close_T1_to_close_T3` | `abs_close_T1_to_close_T3` | D3 |
+
+Derived by `pipeline.capture_d1()` / `capture_d3()` through `response_magnitude.apply_absolute_fields()`, which applies `derivations.abs_or_none()` — the single definition of `abs()` in the package. No signed-return formula is recomputed anywhere.
+
+**Stored alongside, never replacing.** The signed values remain present and unchanged. A signed `0.0` yields `0.0`; a missing signed value yields `null`, never `0.0`. No imputation, winsorization, clipping, rounding or outlier removal.
+
+**Not a completeness requirement.** `D1_REQUIRED_FIELDS` and `D3_REQUIRED_FIELDS` are unchanged. These are canonical derived **outputs**: a record is neither made complete nor made incomplete by their presence.
+
+**Callers do not choose them.** The pipeline derives them. A caller-supplied `abs_*` value is accepted only when it exactly equals the canonical value; otherwise `response_magnitude.AbsoluteFieldConflictError` is raised **before the first event-log or marker byte is written** — not even the `D1_PENDING`/`D3_PENDING` record.
+
+**Where they land.** The durable D1/D3 state record, plus a `response_magnitude` block in the `D1_CAPTURE` and `FINAL_COMPLETION` stage markers and in the legacy `{event_id}_COMPLETION_MARKER.json`. Marker tie-out covers the block, so recovery detects drift in it.
+
+**No backfill.** Records written before this commit carry no `abs_*` fields and were not rewritten. They are transparently ineligible for analyses requiring them.
+
 ## 5. Persisted provenance (echoed in every stage marker)
 
 `ticker` · `source_csv_path` · `source_csv_sha256` · `source_marker_path` · `source_marker_sha256` · `panel_status` · `panel_row_count` · `panel_unique_ticker_count` · `panel_all_six_fields_clean_count` · `run_date` · `price_asof_date` · `pre_event_snapshot_asof_utc` · `research_commit_sha` · `methodology_version` · `adapter_schema_version` · `source_status_iv` · `source_status_iv_raw` · `source_status_realized_vol` · `source_status_realized_vol_raw`.
