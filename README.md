@@ -174,15 +174,52 @@ The `+145.5%` figure is **invalidated** and appears here only so it is never cit
 
 **Governance blueprints** — [North Star](PROJECT_NORTH_STAR_v1.0_DRAFT.md) · [institutionalization blueprint](INSTITUTIONALIZATION_BLUEPRINT_v1.0_DRAFT.md) · [preregistration gap audit](PREREGISTRATION_GAP_AUDIT_v1.0.md)
 
-## Roadmap — all of this is future work
+## Roadmap — future work, in order
 
-None of the following has been started, validated, or claimed:
+**No result exists, and none of the analysis below has been started, validated, or claimed.** The sequence matters as much as the content: each stage is gated on the one before it.
 
-- **Now → 2027-05-31.** Run the weekly cadence, register eligible events, capture blind pre-event observations, collect D1/D3 responses. Target ≥ 60 registered events.
-- **Blocked on a dependency.** HYP-02 needs an earnings-surprise capture path (the dossier schema has the fields; nothing populates them). HYP-03 needs a post-event attention-decay measurement that does not exist.
-- **Requires external access.** Options benchmarking requires a cleared, timestamped, executable quote source. Not obtained.
-- **Requires human decisions.** Several preregistration elements remain unresolved and must not be guessed — see the [gap audit](PREREGISTRATION_GAP_AUDIT_v1.0.md).
-- **Only after evidence.** External preregistration, replication, a public radar, and any instrument or strategy work. See the [blueprint](INSTITUTIONALIZATION_BLUEPRINT_v1.0_DRAFT.md).
+### 1 · Before the first prospective pre-event capture
+
+Everything here must be settled *before* any prospective observation is captured — never afterwards, and never using prospective outcome data.
+
+- Resolve gap-audit **C6** (ticker-cluster covariance estimator), **C7** (finite-sample correction and inference procedure), **E3** (multiplicity treatment), **E8** (development / confirmatory-cohort boundary) and **F5** (search-construct validity), and decide **A9** (whether a pre-data design-sensitivity or power analysis is performed, on externally justified or clearly hypothetical effect sizes only).
+- Create the required **dated HYP-01 lock amendment** — the lock currently schedules the cluster-covariance option string at the event-60 freeze, which must be split from the statistical rule itself. A human authors it; it is not written by this documentation.
+- Obtain **methodological review** where available.
+- **Submit the external preregistration**, if the project intends to call the study externally preregistered.
+
+### 2 · During prospective collection
+
+- Run **only** the fixed screening cadence — no unscheduled sweeps.
+- Register eligible events.
+- Capture pre-event and response observations under the locked rules.
+- Keep prospective outcomes **gated**: no estimate, direction, plot, interim p-value or confidence interval.
+
+**Registered and eligible are not the same thing, and the target is the second one.** HYP-01 requires the first **60 HYP-01-eligible events** — enrolled under the cohort protocol, eligible for the core class, strict v0.2 core passed, D1 passed, `gst_zscore` present with successful GST provenance, `abs_overnight_gap` non-null, and a `BMO` or `AMC` release. A registered event that fails any of those is **not** eligible.
+
+So the project may need **more than 60 registered events** to reach 60 eligible ones. How many more is unknown and is not projected here — it depends on how often capture and data-quality gates fail in practice, which no prospective evidence yet exists to estimate.
+
+**No registered event is ever deleted for being ineligible.** An event that misses HYP-01 eligibility stays in the registry with its disposition recorded; it simply does not count toward the 60. Removing it would be exactly the selection the append-only registry exists to prevent.
+
+### 3 · At the 60th eligible event
+
+- Freeze the exact event IDs.
+- Freeze the analysis code and environment.
+- Verify all gates.
+- Run the locked primary analysis **once**.
+
+### 4 · After evidence
+
+- Independent replication.
+- Public reporting.
+- A dashboard or radar built on authorized results.
+- Any **separately preregistered** strategy or product work.
+
+### Independently blocked
+
+- **HYP-02** needs an earnings-surprise capture path (the dossier schema has the fields; nothing populates them), plus its own undefined divergence measure and surprise field. **HYP-03** needs a post-event attention-decay measurement that does not exist.
+- **Options benchmarking** requires a cleared, timestamped, executable quote source. Not obtained.
+
+See the [gap audit](PREREGISTRATION_GAP_AUDIT_v1.0.md) for every unresolved decision and its deadline, and the [blueprint](INSTITUTIONALIZATION_BLUEPRINT_v1.0_DRAFT.md) for the staged dependencies.
 
 ## History
 
