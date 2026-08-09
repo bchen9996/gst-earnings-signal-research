@@ -1,0 +1,98 @@
+{
+ "AAPL": [
+  "0000320193",
+  "Apple Inc."
+ ],
+ "ABBV": [
+  "0001551152",
+  "AbbVie Inc."
+ ],
+ "ADBE": [
+  "0000796343",
+  "ADOBE INC."
+ ],
+ "AMZN": [
+  "0001018724",
+  "AMAZON COM INC"
+ ],
+ "BKR": [
+  "0001701605",
+  "Baker Hughes Co"
+ ],
+ "BRK-B": [
+  "0001067983",
+  "BERKSHIRE HATHAWAY INC"
+ ],
+ "CTSH": [
+  "0001058290",
+  "COGNIZANT TECHNOLOGY SOLUTIONS CORP"
+ ],
+ "DELL": [
+  "0001571996",
+  "Dell Technologies Inc."
+ ],
+ "DVN": [
+  "0001090012",
+  "DEVON ENERGY CORP/DE"
+ ],
+ "GME": [
+  "0001326380",
+  "GameStop Corp."
+ ],
+ "GOOGL": [
+  "0001652044",
+  "Alphabet Inc."
+ ],
+ "GPN": [
+  "0001123360",
+  "GLOBAL PAYMENTS INC"
+ ],
+ "INTC": [
+  "0000050863",
+  "INTEL CORP"
+ ],
+ "LDOS": [
+  "0001336920",
+  "Leidos Holdings, Inc."
+ ],
+ "MSFT": [
+  "0000789019",
+  "MICROSOFT CORP"
+ ],
+ "NCLH": [
+  "0001513761",
+  "Norwegian Cruise Line Holdings Ltd."
+ ],
+ "NKE": [
+  "0000320187",
+  "NIKE, Inc."
+ ],
+ "QCOM": [
+  "0000804328",
+  "QUALCOMM INC/DE"
+ ],
+ "SBUX": [
+  "0000829224",
+  "STARBUCKS CORP"
+ ],
+ "STZ": [
+  "0000016918",
+  "CONSTELLATION BRANDS, INC."
+ ],
+ "SYK": [
+  "0000310764",
+  "STRYKER CORP"
+ ],
+ "TSLA": [
+  "0001318605",
+  "Tesla, Inc."
+ ],
+ "TTWO": [
+  "0000946581",
+  "TAKE TWO INTERACTIVE SOFTWARE INC"
+ ],
+ "UAL": [
+  "0000100517",
+  "United Airlines Holdings, Inc."
+ ]
+}

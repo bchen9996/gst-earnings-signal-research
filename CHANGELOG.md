@@ -1,6 +1,23 @@
 # Changelog
 
 
+## 2026-08-09 — Round-1 official-source reconnaissance sweep (no candidate enrolled)
+
+First sweep under the v1.1 cadence, run **after** the cadence commit `153c6239` was pushed. Official investor-relations and issuer-filed SEC sources only. **No attention, market, options, outcome or strategy data was inspected**, and no aggregator, broker calendar, analyst estimate or search snippet was used as evidence.
+
+**Result: zero enrollable candidates.** All 24 locked-universe tickers were swept exactly once. No ticker produced an explicitly dated **upcoming** regular earnings event from a permitted official source, so **no canonical screening row and no registry row were written**, and the human-review queue holds no enrollable candidate.
+
+Two apparent hits were checked and rejected on inspection rather than accepted: GPN's page carried a dated earnings line under **"Past Events"** and states verbatim *"There are no upcoming events scheduled at this time"*; TTWO's and INTC's dated lines are likewise past events. A past date is never promoted into an upcoming candidate. Four issuers (GPN, INTC, NCLH, STZ) state on their own pages that no upcoming events are scheduled — issuer evidence of absence, recorded as such and distinguished from a retrieval gap.
+
+**Retrieval honesty.** 10 IR pages returned HTTP 200 but render their event lists client-side, so the served HTML carried no dated event; that is a limitation of this retrieval method, **not** issuer evidence of absence, and it is labelled that way. A second pass recovered the pages whose first-pass URL 404'd by following the **issuer's own** navigation links from its root domain — a 404 on a URL I constructed is evidence my URL was wrong, not that the issuer publishes nothing. Sources that could not be read (ABBV, DELL, LDOS, TSLA, UAL) are recorded as access failures; **no third-party source was substituted**.
+
+**DELL was neither duplicated nor altered.** It is identified as the existing pre-protocol enrolled event (`EVT-DELL-FY27Q2-ERN` / `-REG-001`), not a newly discovered candidate. Its official source timed out on both attempts, so the date/time recheck could not be performed. The registration was **not** altered, amended or re-verified, and no contradiction was observed because no source was readable. The access limitation is recorded and DELL stays on the weekly cadence for amendment detection only.
+
+**No canonical rows, deliberately.** The screening-log schema requires a `fiscal_period` label and keys duplicates on ticker+fiscal_period. No official source supplied one for any pending candidate, so a canonical row could only be written by inventing a label. The protocol forbids that and forbids weakening a schema to fit an observation, so every item stays in the sweep manifest instead.
+
+Evidence: `Live Signal Engine/Cohort_Screening_Round1/` — `SWEEP_MANIFEST_ROUND1.json` (all 24, once each), `HUMAN_REVIEW_REQUIRED_ROUND1.json`, the two raw retrieval passes, the SEC ticker→CIK map, and the three retrieval scripts. Validated by `test_market_response_cohort_sweep_round1.py` (**58 assertions**): exactly the locked 24 with no duplicates, every evidence URL an issuer or SEC host, no third-party citation, no prohibited research field, no automated finding represented as human-verified, DELL not registered twice, no anchor or lead count computed outside the production planner and XNYS calendar, and no GST/panel/options/market-response module imported by any sweep script.
+
+
 ## 2026-08-09 — Cohort protocol v1.1: the screening cadence, fixed before the first sweep
 
 Additive protocol version. **The only methodological addition is the screening cadence.** v1.0 is preserved **byte-for-byte** and is never rewritten; v1.1 supersedes it **prospectively only**, and nothing decided under v1.0 is re-decided.

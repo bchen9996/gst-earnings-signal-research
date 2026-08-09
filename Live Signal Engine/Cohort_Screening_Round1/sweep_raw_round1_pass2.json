@@ -1,0 +1,415 @@
+{
+  "swept_at_utc": "2026-08-09T05:33:35+00:00",
+  "rows": {
+    "ABBV": {
+      "ticker": "ABBV",
+      "issuer_root": "https://www.abbvie.com/",
+      "attempts": [
+        {
+          "url": "https://www.abbvie.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:04+00:00",
+      "issuer_linked_event_pages": []
+    },
+    "BRK-B": {
+      "ticker": "BRK-B",
+      "issuer_root": "https://www.berkshirehathaway.com/",
+      "attempts": [
+        {
+          "url": "https://www.berkshirehathaway.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:05+00:00",
+      "issuer_linked_event_pages": []
+    },
+    "DELL": {
+      "ticker": "DELL",
+      "issuer_root": "https://investors.delltechnologies.com/",
+      "attempts": [
+        {
+          "url": "https://investors.delltechnologies.com/",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "source_type": "company_official_site_root",
+          "error": "TimeoutError: The read operation timed out"
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:06+00:00",
+      "issuer_linked_event_pages": []
+    },
+    "DVN": {
+      "ticker": "DVN",
+      "issuer_root": "https://www.devonenergy.com/",
+      "attempts": [
+        {
+          "url": "https://www.devonenergy.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://www.devonenergy.com/sustainability/environment/spill-prevention",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:32:30+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 33451
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:28+00:00",
+      "issuer_linked_event_pages": [
+        "https://www.devonenergy.com/sustainability/environment/spill-prevention"
+      ]
+    },
+    "GME": {
+      "ticker": "GME",
+      "issuer_root": "https://investor.gamestop.com/",
+      "attempts": [
+        {
+          "url": "https://investor.gamestop.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:31+00:00",
+      "issuer_linked_event_pages": []
+    },
+    "INTC": {
+      "ticker": "INTC",
+      "issuer_root": "https://www.intc.com/",
+      "attempts": [
+        {
+          "url": "https://www.intc.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://www.intc.com/news-events",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:32:33+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 30748
+        },
+        {
+          "url": "https://www.intc.com/news-events/press-releases",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:32:34+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 46907
+        },
+        {
+          "url": "https://www.intc.com/news-events/ir-calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:32:34+00:00",
+          "date_plus_earnings_sentences": [
+            "Past Events Jul 23, 2026 • 2:00 PM PDT Q2 2026 Intel Corporation Earnings Conference Call Jun 2, 2026 • 3:20 PM PDT BofA Global Technology Conference Jun 1, 2026 • 10:30 PM PDT Computex Keynote May 19, 2026 • 9:55 AM PDT J.P.",
+            "Morgan Global Technology, Media and Communications Conference May 13, 2026 • 9:00 AM PDT 2026 Annual Stockholders' Meeting Apr 23, 2026 • 2:00 PM PDT Q1 2026 Intel Corporation Earnings Conference Call Mar 4, 2026 • 8:30 AM PDT Morgan Stanley Technology, Media & Telecom Conference View All Past Events Email Alerts Tear Sheet Contacts RSS News Feed Market Data copyright &copy; 2026 QuoteMedia ."
+          ],
+          "issuer_states_no_upcoming_events": true,
+          "bytes": 31276
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:32+00:00",
+      "issuer_linked_event_pages": [
+        "https://www.intc.com/news-events",
+        "https://www.intc.com/news-events/press-releases",
+        "https://www.intc.com/news-events/ir-calendar"
+      ]
+    },
+    "LDOS": {
+      "ticker": "LDOS",
+      "issuer_root": "https://www.leidos.com/",
+      "attempts": [
+        {
+          "url": "https://www.leidos.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://investors.leidos.com/news-events/events",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:32:58+00:00",
+          "error": "TimeoutError: The read operation timed out"
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:35+00:00",
+      "issuer_linked_event_pages": [
+        "https://investors.leidos.com/news-events/events"
+      ]
+    },
+    "NCLH": {
+      "ticker": "NCLH",
+      "issuer_root": "https://www.nclhltd.com/",
+      "attempts": [
+        {
+          "url": "https://www.nclhltd.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://www.nclhltd.com/investors/news-events",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:00+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 54003
+        },
+        {
+          "url": "https://www.nclhltd.com/news-media/events",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:01+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": true,
+          "bytes": 22461
+        },
+        {
+          "url": "https://www.nclhltd.com/investors/news-events/press-releases",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:02+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 50216
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:32:58+00:00",
+      "issuer_linked_event_pages": [
+        "https://www.nclhltd.com/investors/news-events",
+        "https://www.nclhltd.com/news-media/events",
+        "https://www.nclhltd.com/investors/news-events/press-releases"
+      ]
+    },
+    "NKE": {
+      "ticker": "NKE",
+      "issuer_root": "https://investors.nike.com/",
+      "attempts": [
+        {
+          "url": "https://investors.nike.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:03+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 52199
+        },
+        {
+          "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx?toggle=news",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:04+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 52199
+        },
+        {
+          "url": "https://investors.nike.com/investors/news-events-and-reports/?toggle=earnings",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:04+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 52173
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:33:02+00:00",
+      "issuer_linked_event_pages": [
+        "https://investors.nike.com/investors/news-events-and-reports/default.aspx",
+        "https://investors.nike.com/investors/news-events-and-reports/default.aspx?toggle=news",
+        "https://investors.nike.com/investors/news-events-and-reports/?toggle=earnings"
+      ]
+    },
+    "SBUX": {
+      "ticker": "SBUX",
+      "issuer_root": "https://investor.starbucks.com/",
+      "attempts": [
+        {
+          "url": "https://investor.starbucks.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://investor.starbucks.com/events-presentations/default.aspx",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:07+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 116732
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:33:05+00:00",
+      "issuer_linked_event_pages": [
+        "https://investor.starbucks.com/events-presentations/default.aspx"
+      ]
+    },
+    "STZ": {
+      "ticker": "STZ",
+      "issuer_root": "https://ir.cbrands.com/",
+      "attempts": [
+        {
+          "url": "https://ir.cbrands.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [
+            "(EDT) Webcast Annual Report Proxy Statement Latest Financial Results Q1 2027 Quarter Ended May 31, 2026 Earnings Release HTML Earnings Webcast Audio Earnings Release & Financial Tables PDF 10-Q HTML XBRL Zip CEO/CFO Commentary PDF Latest Annual Filing For Fiscal Year Ending Feb 28, 2026 View 10-K Email Alerts Sign up today and receive company updates straight to your inbox."
+          ],
+          "issuer_states_no_upcoming_events": false
+        },
+        {
+          "url": "https://ir.cbrands.com/news-events",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:08+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 99246
+        },
+        {
+          "url": "https://ir.cbrands.com/news-events/press-releases",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:09+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": false,
+          "bytes": 116317
+        },
+        {
+          "url": "https://ir.cbrands.com/news-events/ir-calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_ir_events_calendar",
+          "retrieved_at_utc": "2026-08-09T05:33:10+00:00",
+          "date_plus_earnings_sentences": [],
+          "issuer_states_no_upcoming_events": true,
+          "bytes": 98547
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:33:07+00:00",
+      "issuer_linked_event_pages": [
+        "https://ir.cbrands.com/news-events",
+        "https://ir.cbrands.com/news-events/press-releases",
+        "https://ir.cbrands.com/news-events/ir-calendar"
+      ]
+    },
+    "TSLA": {
+      "ticker": "TSLA",
+      "issuer_root": "https://ir.tesla.com/",
+      "attempts": [
+        {
+          "url": "https://ir.tesla.com/",
+          "access_result": "HTTP_ERROR",
+          "http_status": "403",
+          "source_type": "company_official_site_root",
+          "error": "HTTPError: Forbidden"
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:33:10+00:00",
+      "issuer_linked_event_pages": []
+    },
+    "TTWO": {
+      "ticker": "TTWO",
+      "issuer_root": "https://ir.take2games.com/",
+      "attempts": [
+        {
+          "url": "https://ir.take2games.com/",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "source_type": "company_official_site_root",
+          "error": null,
+          "date_plus_earnings_sentences": [
+            "Quarterly Earnings and Events VIEW ALL → August 7, 2026 at 12:00 PM UTC Q1 2027 Take-Two Interactive Software, Inc.",
+            "Earnings Conference Call WebCast Presentation Q1 2027 Earnings Presentation Investor Presentation - August 2026 Q1 2027 Earnings Release Q1 2027 Prepared Remarks May 27, 2026 at 2:15 PM UTC TD Cowen 54th Annual Technology, Media & Telecom Conference WebCast Presentation Press Releases VIEW ALL → August 7, 2026 Take-Two Interactive Software, Inc."
+          ],
+          "issuer_states_no_upcoming_events": false
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:33:11+00:00",
+      "issuer_linked_event_pages": []
+    },
+    "UAL": {
+      "ticker": "UAL",
+      "issuer_root": "https://ir.united.com/",
+      "attempts": [
+        {
+          "url": "https://ir.united.com/",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "source_type": "company_official_site_root",
+          "error": "TimeoutError: The read operation timed out"
+        }
+      ],
+      "retrieved_at_utc": "2026-08-09T05:33:12+00:00",
+      "issuer_linked_event_pages": []
+    }
+  }
+}
