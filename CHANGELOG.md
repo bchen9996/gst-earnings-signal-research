@@ -1,6 +1,19 @@
 # Changelog
 
 
+## 2026-08-08 — Prospective multi-event cohort protocol v1.0 (draft)
+
+Protocol definition only. **No candidate investor-relations calendar was inspected, no panel was run, no provider was contacted, and no DELL observation was made.** The rules are published *before* we learn which events qualify — rules written after seeing the candidates are not rules, they are choices. `EVT-DELL-FY27Q2-ERN` remains `REGISTERED` and its registry blob is untouched.
+
+**What it fixes.** Which earnings events enter the GST Market Attention Observatory: the production locked 24-ticker universe (read from `constants.LOCKED_24_TICKER_UNIVERSE`, never retyped), a collection window of 2026-09-01 … 2027-05-31 applied to the **mechanically derived pre-event anchor**, a floor of at least 60 independently registered events, and a minimum registration lead of 5 XNYS trading sessions. Ten inclusion rules, twelve dispositions covering every pending / excluded / amended / compromised outcome, an explicit permitted/prohibited enrollment-input split, and an explicit list of reasons an event may **never** be excluded — low or high attention, missing options data, an unfavourable or null market response, post-registration source failure, or an expectation about how interesting the result will be.
+
+**What it does not do.** It defines no interval formula, threshold, quote-age or skew limit, completeness tier or gate: those live in the v0.2 SPEC, the v0.2 field dictionary and `gst_market_response.completeness`, referenced and unchanged. It reimplements no session arithmetic — anchors come from `operations_plan.build_operations_plan` and sessions from the production XNYS calendar. It is observational measurement infrastructure and **does not test, optimise, select for, or claim a profitable trading strategy**; future strategy research is a named out-of-scope stage.
+
+**Display gate fails closed.** The existing governance rule (`GST_Phase2_InformationArrivalPanel_SPEC_DRAFT.md` §3) requires a pre-set minimum sample size per hypothesis, in its own dated pre-registration. No numeric threshold is currently registered for the market-response families, and this protocol deliberately does **not** invent one — setting that number inside the document that also defines the cohort is exactly the coupling the governance rule exists to prevent. Until a family has a registered threshold, the gate denies display for it; absence of a number is never read as absence of a gate.
+
+**Deliverables.** `GST_PROSPECTIVE_COHORT_PROTOCOL_v1.0_DRAFT.md`, its canonical `GST_PROSPECTIVE_COHORT_PROTOCOL_v1.0.json` (generated from production constants so it cannot drift), `GST_PROSPECTIVE_COHORT_SCREENING_LOG_SCHEMA_v1.0.md` (schema only — zero rows, and no column in which an attention, price, options or outcome value could be recorded), and `test_market_response_cohort_protocol.py` (**128 assertions**). The tests prove the JSON and Markdown agree, the universe equals production element-for-element, the window/lead/target are fixed, enrollment never depends on outcome-bearing data, options unavailability never excludes a core-eligible event, duplicate ticker-quarter enrollment is barred, amendments are append-only, every v0.2 threshold and interval list is unchanged, no trading-strategy claim is introduced (checked structurally, since the document's own non-goals name those terms), no network or provider access is possible during validation, and the DELL registry is byte-identical.
+
+
 ## 2026-08-08 — test: make the provider import blocker Python 3.14 compatible
 
 Test infrastructure only. No production module, schema, gate, workflow, registry row, methodology document or historical artifact changed. `EVT-DELL-FY27Q2-ERN` remains `REGISTERED`; no panel was run, no provider contacted, no DELL data inspected.
