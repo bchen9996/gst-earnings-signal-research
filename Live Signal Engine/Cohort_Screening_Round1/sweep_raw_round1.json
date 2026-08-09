@@ -1,0 +1,1268 @@
+{
+  "swept_at_utc": "2026-08-09T05:30:39+00:00",
+  "universe_size": 24,
+  "rows": [
+    {
+      "ticker": "AAPL",
+      "company": "Apple Inc.",
+      "cik": "0000320193",
+      "checked_urls": [
+        {
+          "url": "https://investor.apple.com/investor-relations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:17+00:00",
+          "bytes": 187715,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:20+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-30",
+              "accession": "0000320193-26-000018",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000018/aapl-20260730.htm"
+            },
+            {
+              "filing_date": "2026-04-30",
+              "accession": "0000320193-26-000011",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019326000011/aapl-20260430.htm"
+            },
+            {
+              "filing_date": "2026-04-20",
+              "accession": "0001140361-26-015711",
+              "items": "5.02",
+              "url": "https://www.sec.gov/Archives/edgar/data/320193/000114036126015711/ef20071035_8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:17+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "ABBV",
+      "company": "AbbVie Inc.",
+      "cik": "0001551152",
+      "checked_urls": [
+        {
+          "url": "https://investors.abbvie.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:28:45+00:00",
+          "error": "TimeoutError: The read operation timed out"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001551152.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:46+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-08-05",
+              "accession": "0001104659-26-091269",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1551152/000110465926091269/tm2621452d4_8k.htm"
+            },
+            {
+              "filing_date": "2026-07-31",
+              "accession": "0001551152-26-000023",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1551152/000155115226000023/abbv-20260731.htm"
+            },
+            {
+              "filing_date": "2026-07-06",
+              "accession": "0001551152-26-000021",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1551152/000155115226000021/abbv-20260706.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:20+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "ADBE",
+      "company": "ADOBE INC.",
+      "cik": "0000796343",
+      "checked_urls": [
+        {
+          "url": "https://www.adobe.com/investor-relations.html",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:47+00:00",
+          "bytes": 30262,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000796343.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:48+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-17",
+              "accession": "0000796343-26-000120",
+              "items": "5.02",
+              "url": "https://www.sec.gov/Archives/edgar/data/796343/000079634326000120/adbe-20260714.htm"
+            },
+            {
+              "filing_date": "2026-06-11",
+              "accession": "0000796343-26-000109",
+              "items": "2.02,5.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/796343/000079634326000109/adbe-20260608.htm"
+            },
+            {
+              "filing_date": "2026-04-21",
+              "accession": "0000796343-26-000101",
+              "items": "5.02,5.07,8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/796343/000079634326000101/adbe-20260415.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:47+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "AMZN",
+      "company": "AMAZON COM INC",
+      "cik": "0001018724",
+      "checked_urls": [
+        {
+          "url": "https://ir.aboutamazon.com/events/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:49+00:00",
+          "bytes": 42641,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001018724.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:50+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-30",
+              "accession": "0001018724-26-000024",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1018724/000101872426000024/amzn-20260730.htm"
+            },
+            {
+              "filing_date": "2026-07-09",
+              "accession": "0001104659-26-082293",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926082293/tm2619352d4_8k.htm"
+            },
+            {
+              "filing_date": "2026-06-12",
+              "accession": "0001104659-26-073562",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1018724/000110465926073562/tm2613616d5_8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:49+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "BKR",
+      "company": "Baker Hughes Co",
+      "cik": "0001701605",
+      "checked_urls": [
+        {
+          "url": "https://investors.bakerhughes.com/events-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:52+00:00",
+          "bytes": 75159,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001701605.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:53+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-27",
+              "accession": "0001701605-26-000021",
+              "items": "2.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1701605/000170160526000021/bkr-20260726.htm"
+            },
+            {
+              "filing_date": "2026-07-16",
+              "accession": "0001193125-26-305477",
+              "items": "1.01,1.02,2.01,2.03,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1701605/000119312526305477/d105425d8k.htm"
+            },
+            {
+              "filing_date": "2026-06-22",
+              "accession": "0001193125-26-276600",
+              "items": "8.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1701605/000119312526276600/d854885d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:50+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "BRK-B",
+      "company": "BERKSHIRE HATHAWAY INC",
+      "cik": "0001067983",
+      "checked_urls": [
+        {
+          "url": "https://www.berkshirehathaway.com/news/news.html",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:28:54+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001067983.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:57+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-05-07",
+              "accession": "0001193125-26-212148",
+              "items": "2.02,5.02,5.03,5.07,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526212148/d74313d8k.htm"
+            },
+            {
+              "filing_date": "2026-04-16",
+              "accession": "0001193125-26-159326",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526159326/d903301d8k.htm"
+            },
+            {
+              "filing_date": "2026-03-05",
+              "accession": "0001193125-26-092557",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1067983/000119312526092557/d82599d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:53+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "CTSH",
+      "company": "COGNIZANT TECHNOLOGY SOLUTIONS CORP",
+      "cik": "0001058290",
+      "checked_urls": [
+        {
+          "url": "https://news.cognizant.com/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:28:59+00:00",
+          "bytes": 125983,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001058290.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:28:59+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-29",
+              "accession": "0001058290-26-000030",
+              "items": "2.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1058290/000105829026000030/ctsh-20260729.htm"
+            },
+            {
+              "filing_date": "2026-07-10",
+              "accession": "0001058290-26-000025",
+              "items": "7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1058290/000105829026000025/ctsh-20260630.htm"
+            },
+            {
+              "filing_date": "2026-06-03",
+              "accession": "0001058290-26-000022",
+              "items": "5.07",
+              "url": "https://www.sec.gov/Archives/edgar/data/1058290/000105829026000022/ctsh-20260602.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:28:58+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "DELL",
+      "company": "Dell Technologies Inc.",
+      "cik": "0001571996",
+      "checked_urls": [
+        {
+          "url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:25+00:00",
+          "error": "TimeoutError: The read operation timed out"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001571996.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:26+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-06",
+              "accession": "0001193125-26-296224",
+              "items": "3.03,5.03,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1571996/000119312526296224/d32716d8k.htm"
+            },
+            {
+              "filing_date": "2026-07-01",
+              "accession": "0001571996-26-000036",
+              "items": "3.03,5.07,8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1571996/000157199626000036/dell-20260625.htm"
+            },
+            {
+              "filing_date": "2026-06-17",
+              "accession": "0001571996-26-000032",
+              "items": "3.02",
+              "url": "https://www.sec.gov/Archives/edgar/data/1571996/000157199626000032/dell-20260611.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:00+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "DVN",
+      "company": "DEVON ENERGY CORP/DE",
+      "cik": "0001090012",
+      "checked_urls": [
+        {
+          "url": "https://investors.devonenergy.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:27+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001090012.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:28+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-08-04",
+              "accession": "0001193125-26-332824",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1090012/000119312526332824/d359332d8k.htm"
+            },
+            {
+              "filing_date": "2026-06-30",
+              "accession": "0001193125-26-290829",
+              "items": "5.07",
+              "url": "https://www.sec.gov/Archives/edgar/data/1090012/000119312526290829/d214249d8k.htm"
+            },
+            {
+              "filing_date": "2026-06-25",
+              "accession": "0001193125-26-282884",
+              "items": "1.01,2.03,8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1090012/000119312526282884/d162931d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:26+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "GME",
+      "company": "GameStop Corp.",
+      "cik": "0001326380",
+      "checked_urls": [
+        {
+          "url": "https://investor.gamestop.com/news-events/ir-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:29+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001326380.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:30+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-08-03",
+              "accession": "0001326380-26-000042",
+              "items": "1.01,3.02,8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1326380/000132638026000042/gme-20260802.htm"
+            },
+            {
+              "filing_date": "2026-07-08",
+              "accession": "0001326380-26-000038",
+              "items": "5.03,5.07,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1326380/000132638026000038/gme-20260707.htm"
+            },
+            {
+              "filing_date": "2026-06-26",
+              "accession": "0001326380-26-000035",
+              "items": "7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1326380/000132638026000035/form8-kxguidance.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:28+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "GOOGL",
+      "company": "Alphabet Inc.",
+      "cik": "0001652044",
+      "checked_urls": [
+        {
+          "url": "https://abc.xyz/investor/events/",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:29:31+00:00",
+          "bytes": 79635,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001652044.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:31+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-22",
+              "accession": "0001652044-26-000066",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000066/goog-20260722.htm"
+            },
+            {
+              "filing_date": "2026-06-11",
+              "accession": "0001193125-26-267578",
+              "items": "5.02,5.07,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1652044/000119312526267578/d57679d8k.htm"
+            },
+            {
+              "filing_date": "2026-06-05",
+              "accession": "0001193125-26-259830",
+              "items": "1.01,3.03,5.03,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1652044/000119312526259830/d36818d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:30+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "GPN",
+      "company": "GLOBAL PAYMENTS INC",
+      "cik": "0001123360",
+      "checked_urls": [
+        {
+          "url": "https://investors.globalpayments.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:29:33+00:00",
+          "bytes": 32615,
+          "explicit_date_plus_earnings_sentences": [
+            "Past Events Aug 5, 2026 8:00 am EDT Global Payments Second Quarter 2026 Earnings Jun 10, 2026 1:05 pm EDT Mizuho Technology Conference May 20, 2026 11:20 am EDT J.P."
+          ]
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001123360.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:33+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-08-05",
+              "accession": "0001123360-26-000082",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1123360/000112336026000082/gpn-20260805.htm"
+            },
+            {
+              "filing_date": "2026-05-07",
+              "accession": "0001104659-26-056781",
+              "items": "8.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1123360/000110465926056781/tm2613880d1_8k.htm"
+            },
+            {
+              "filing_date": "2026-05-06",
+              "accession": "0001123360-26-000070",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1123360/000112336026000070/gpn-20260506.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:32+00:00",
+      "explicit_upcoming_earnings_event_found": true,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": "Past Events Aug 5, 2026 8:00 am EDT Global Payments Second Quarter 2026 Earnings Jun 10, 2026 1:05 pm EDT Mizuho Technology Conference May 20, 2026 11:20 am EDT J.P.",
+      "permitted_source_type": "company_ir_events_calendar",
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": [
+        "explicit time text present"
+      ]
+    },
+    {
+      "ticker": "INTC",
+      "company": "INTEL CORP",
+      "cik": "0000050863",
+      "checked_urls": [
+        {
+          "url": "https://www.intc.com/news-events/events-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:34+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000050863.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:35+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-23",
+              "accession": "0000050863-26-000155",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000155/intc-20260723.htm"
+            },
+            {
+              "filing_date": "2026-05-15",
+              "accession": "0000050863-26-000118",
+              "items": "5.07",
+              "url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000118/intc-20260513.htm"
+            },
+            {
+              "filing_date": "2026-04-30",
+              "accession": "0001193125-26-197845",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/50863/000119312526197845/d143782d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:34+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "LDOS",
+      "company": "Leidos Holdings, Inc.",
+      "cik": "0001336920",
+      "checked_urls": [
+        {
+          "url": "https://investors.leidos.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:29:55+00:00",
+          "error": "ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001336920.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:55+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-08-04",
+              "accession": "0001336920-26-000243",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1336920/000133692026000243/ldos-20260804.htm"
+            },
+            {
+              "filing_date": "2026-05-06",
+              "accession": "0001336920-26-000177",
+              "items": "5.02,5.07,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1336920/000133692026000177/ldos-20260501.htm"
+            },
+            {
+              "filing_date": "2026-05-05",
+              "accession": "0001336920-26-000167",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1336920/000133692026000167/ldos-20260505.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:35+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "MSFT",
+      "company": "MICROSOFT CORP",
+      "cik": "0000789019",
+      "checked_urls": [
+        {
+          "url": "https://www.microsoft.com/en-us/investor/events/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:29:56+00:00",
+          "bytes": 277536,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:57+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-29",
+              "accession": "0001193125-26-323632",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323632/msft-20260729.htm"
+            },
+            {
+              "filing_date": "2026-06-05",
+              "accession": "0001193125-26-258667",
+              "items": "5.02",
+              "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526258667/d26760d8k.htm"
+            },
+            {
+              "filing_date": "2026-05-14",
+              "accession": "0001193125-26-224155",
+              "items": "5.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526224155/d125909d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:56+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "NCLH",
+      "company": "Norwegian Cruise Line Holdings Ltd.",
+      "cik": "0001513761",
+      "checked_urls": [
+        {
+          "url": "https://www.nclhltd.com/investors/news-and-events/event-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:29:58+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001513761.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:29:59+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-30",
+              "accession": "0001171843-26-005050",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1513761/000117184326005050/f8k_073026.htm"
+            },
+            {
+              "filing_date": "2026-06-16",
+              "accession": "0001104659-26-074589",
+              "items": "5.02,5.07,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1513761/000110465926074589/tm2617973d1_8k.htm"
+            },
+            {
+              "filing_date": "2026-05-29",
+              "accession": "0001104659-26-068271",
+              "items": "8.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1513761/000110465926068271/tm2615923d1_8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:57+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "NKE",
+      "company": "NIKE, Inc.",
+      "cik": "0000320187",
+      "checked_urls": [
+        {
+          "url": "https://investors.nike.com/events-and-presentations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:00+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000320187.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:01+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-06-30",
+              "accession": "0000320187-26-000076",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000076/nke-20260630.htm"
+            },
+            {
+              "filing_date": "2026-06-23",
+              "accession": "0000320187-26-000070",
+              "items": "2.02,5.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000070/nke-20260616.htm"
+            },
+            {
+              "filing_date": "2026-06-18",
+              "accession": "0000320187-26-000068",
+              "items": "5.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/320187/000032018726000068/nke-20260615.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:29:59+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "QCOM",
+      "company": "QUALCOMM INC/DE",
+      "cik": "0000804328",
+      "checked_urls": [
+        {
+          "url": "https://investor.qualcomm.com/news-events/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:30:03+00:00",
+          "bytes": 8842,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000804328.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:03+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-31",
+              "accession": "0001104659-26-089234",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/804328/000110465926089234/tm2621612d2_8k.htm"
+            },
+            {
+              "filing_date": "2026-07-29",
+              "accession": "0000804328-26-000085",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/804328/000080432826000085/qcom-20260729.htm"
+            },
+            {
+              "filing_date": "2026-06-24",
+              "accession": "0001104659-26-077071",
+              "items": "3.02",
+              "url": "https://www.sec.gov/Archives/edgar/data/804328/000110465926077071/tm2618522d1_8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:01+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "SBUX",
+      "company": "STARBUCKS CORP",
+      "cik": "0000829224",
+      "checked_urls": [
+        {
+          "url": "https://investor.starbucks.com/events-and-presentations/default.aspx",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:05+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000829224.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:05+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-29",
+              "accession": "0000829224-26-000129",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/829224/000082922426000129/sbux-20260729.htm"
+            },
+            {
+              "filing_date": "2026-06-12",
+              "accession": "0000829224-26-000106",
+              "items": "5.02",
+              "url": "https://www.sec.gov/Archives/edgar/data/829224/000082922426000106/sbux-20260611.htm"
+            },
+            {
+              "filing_date": "2026-05-20",
+              "accession": "0000829224-26-000094",
+              "items": "8.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/829224/000082922426000094/sbux-20260520.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:04+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "STZ",
+      "company": "CONSTELLATION BRANDS, INC.",
+      "cik": "0000016918",
+      "checked_urls": [
+        {
+          "url": "https://ir.cbrands.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:06+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000016918.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:07+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-24",
+              "accession": "0000016918-26-000032",
+              "items": "5.02,5.07,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/16918/000001691826000032/stz-20260722.htm"
+            },
+            {
+              "filing_date": "2026-06-30",
+              "accession": "0000016918-26-000028",
+              "items": "2.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/16918/000001691826000028/stz-20260630.htm"
+            },
+            {
+              "filing_date": "2026-05-21",
+              "accession": "0000016918-26-000016",
+              "items": "5.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/16918/000001691826000016/stz-20260520.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:06+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "SYK",
+      "company": "STRYKER CORP",
+      "cik": "0000310764",
+      "checked_urls": [
+        {
+          "url": "https://investors.stryker.com/events-and-presentations",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "RETRIEVED",
+          "http_status": "200",
+          "retrieved_at_utc": "2026-08-09T05:30:08+00:00",
+          "bytes": 68678,
+          "explicit_date_plus_earnings_sentences": []
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000310764.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:09+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-30",
+              "accession": "0000310764-26-000048",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/310764/000031076426000048/syk-20260730.htm"
+            },
+            {
+              "filing_date": "2026-06-26",
+              "accession": "0000310764-26-000041",
+              "items": "8.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/310764/000031076426000041/syk-20260626.htm"
+            },
+            {
+              "filing_date": "2026-05-20",
+              "accession": "0001193125-26-232643",
+              "items": "5.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/310764/000119312526232643/d51680d8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:07+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "TSLA",
+      "company": "Tesla, Inc.",
+      "cik": "0001318605",
+      "checked_urls": [
+        {
+          "url": "https://ir.tesla.com/#quarterly-disclosure",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "403",
+          "retrieved_at_utc": "2026-08-09T05:30:09+00:00",
+          "error": "HTTPError: Forbidden"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0001318605.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:10+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-22",
+              "accession": "0001628280-26-049213",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026049213/tsla-20260722.htm"
+            },
+            {
+              "filing_date": "2026-07-02",
+              "accession": "0001628280-26-046717",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026046717/tsla-20260702.htm"
+            },
+            {
+              "filing_date": "2026-04-22",
+              "accession": "0001628280-26-026551",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/1318605/000162828026026551/tsla-20260422.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:09+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "TTWO",
+      "company": "TAKE TWO INTERACTIVE SOFTWARE INC",
+      "cik": "0000946581",
+      "checked_urls": [
+        {
+          "url": "https://ir.take2games.com/news-events/ir-calendar",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "HTTP_ERROR",
+          "http_status": "404",
+          "retrieved_at_utc": "2026-08-09T05:30:11+00:00",
+          "error": "HTTPError: Not Found"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000946581.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:12+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-08-07",
+              "accession": "0001628280-26-054580",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/946581/000162828026054580/ttwo-20260807.htm"
+            },
+            {
+              "filing_date": "2026-05-21",
+              "accession": "0001628280-26-037260",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/946581/000162828026037260/ttwo-20260521.htm"
+            },
+            {
+              "filing_date": "2026-02-03",
+              "accession": "0001628280-26-005010",
+              "items": "2.02,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/946581/000162828026005010/ttwo-20260203.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:11+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    },
+    {
+      "ticker": "UAL",
+      "company": "United Airlines Holdings, Inc.",
+      "cik": "0000100517",
+      "checked_urls": [
+        {
+          "url": "https://ir.united.com/news-and-events/events",
+          "source_type": "company_ir_events_calendar",
+          "access_result": "ACCESS_FAILED",
+          "http_status": "",
+          "retrieved_at_utc": "2026-08-09T05:30:37+00:00",
+          "error": "TimeoutError: The read operation timed out"
+        },
+        {
+          "url": "https://data.sec.gov/submissions/CIK0000100517.json",
+          "source_type": "sec_issuer_filed_submissions_index",
+          "access_result": "RETRIEVED",
+          "retrieved_at_utc": "2026-08-09T05:30:38+00:00",
+          "recent_8k": [
+            {
+              "filing_date": "2026-07-15",
+              "accession": "0000100517-26-000135",
+              "items": "2.02,7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/100517/000010051726000135/ual-20260715.htm"
+            },
+            {
+              "filing_date": "2026-05-22",
+              "accession": "0001104659-26-065739",
+              "items": "5.07",
+              "url": "https://www.sec.gov/Archives/edgar/data/100517/000110465926065739/tm2615419d1_8k.htm"
+            },
+            {
+              "filing_date": "2026-04-27",
+              "accession": "0001104659-26-048992",
+              "items": "7.01,9.01",
+              "url": "https://www.sec.gov/Archives/edgar/data/100517/000110465926048992/tm2612792d1_8k.htm"
+            }
+          ]
+        }
+      ],
+      "retrieval_timestamp_utc": "2026-08-09T05:30:12+00:00",
+      "explicit_upcoming_earnings_event_found": false,
+      "official_fiscal_period_label": null,
+      "official_date_time_text": null,
+      "permitted_source_type": null,
+      "proposed_release_session": null,
+      "proposed_derived_anchor": null,
+      "proposed_lead_sessions": null,
+      "proposed_disposition": null,
+      "human_verification_required": true,
+      "notes": []
+    }
+  ]
+}
