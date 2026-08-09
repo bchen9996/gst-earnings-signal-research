@@ -1,0 +1,355 @@
+{
+  "protocol": "GST Prospective Multi-Event Cohort Protocol",
+  "protocol_version": "1.0",
+  "status": "DRAFT",
+  "authored_at_utc": "2026-08-08",
+  "authored_before_any_candidate_screening": true,
+  "companion_markdown": "Live Signal Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.0_DRAFT.md",
+  "screening_log_schema": "Live Signal Engine/GST_PROSPECTIVE_COHORT_SCREENING_LOG_SCHEMA_v1.0.md",
+  "purpose": "Fix, before any candidate earnings date is inspected, which events enter the GST Market Attention Observatory cohort. This document is observational measurement infrastructure. It does not test, optimize, select for, or claim any profitable trading strategy.",
+  "locked_universe": {
+    "source_module": "gst_market_response.constants",
+    "source_symbol": "LOCKED_24_TICKER_UNIVERSE",
+    "authority": "The production constant is the sole authority. This list is generated from it at authoring time and is verified against it mechanically by test_market_response_cohort_protocol.py; it is never retyped or edited by hand.",
+    "size": 24,
+    "tickers": [
+      "AAPL",
+      "ABBV",
+      "ADBE",
+      "AMZN",
+      "BKR",
+      "BRK-B",
+      "CTSH",
+      "DELL",
+      "DVN",
+      "GME",
+      "GOOGL",
+      "GPN",
+      "INTC",
+      "LDOS",
+      "MSFT",
+      "NCLH",
+      "NKE",
+      "QCOM",
+      "SBUX",
+      "STZ",
+      "SYK",
+      "TSLA",
+      "TTWO",
+      "UAL"
+    ]
+  },
+  "collection_window": {
+    "begins": "2026-09-01",
+    "ends": "2027-05-31",
+    "boundary_semantics": "Inclusive on both ends. The window is applied to the event's MECHANICALLY DERIVED pre-event anchor session, not to the earnings date and not to the registration date.",
+    "immutable": true,
+    "change_rule": "The window may not be widened, narrowed, or shifted once any pre-event observation for any cohort event exists. A change before that point is a new protocol version with its own dated entry; it is never an in-place edit."
+  },
+  "target": {
+    "min_registered_events": 60,
+    "basis": "independently registered eligible events across the locked universe",
+    "is_a_floor_not_a_stopping_rule": true,
+    "note": "The target describes intended coverage. Enrollment is exhaustive over eligible events, so reaching 60 neither stops enrollment nor licenses early analysis."
+  },
+  "minimum_registration_lead": {
+    "sessions": 5,
+    "calendar": "XNYS",
+    "calendar_source": "gst_market_response.exchange_calendar",
+    "semantics": "The registration must be written at least 5 XNYS trading sessions before the event's derived pre-event anchor session. Session arithmetic is performed by the production calendar; this protocol reimplements none of it."
+  },
+  "derived_anchor": {
+    "source_function": "gst_market_response.operations_plan.build_operations_plan",
+    "field": "sessions.pre_event_anchor.session_date",
+    "authority": "The anchor is derived mechanically from the human-verified registry row and the XNYS calendar. This protocol never computes, overrides or rounds an anchor."
+  },
+  "permitted_official_source_types": {
+    "values": [
+      "company_ir_events_calendar",
+      "company_ir_press_release",
+      "company_earnings_advisory_pr",
+      "sec_filing_8k_earnings_date"
+    ],
+    "requirements": [
+      "Published by the issuer or filed by the issuer with the SEC.",
+      "Directly fetched or directly observed by a named human; a search-engine snippet, aggregator, third-party calendar, broker estimate or historical cadence is never a source of record.",
+      "Explicitly states a calendar date.",
+      "States release timing explicitly enough for the production registry to classify it without inference.",
+      "The exact observed text, URL, retrieval timestamp and verifier identity are recorded in the registry row."
+    ],
+    "relationship_to_production": "Additive and stricter. Production enforces that a non-empty event_time_source exists and that the release session is an explicit member of VALID_RELEASE_SESSIONS; this allowlist further restricts which source types the cohort will accept. It never weakens a production check.",
+    "valid_release_sessions": [
+      "BMO",
+      "AMC",
+      "INTRADAY"
+    ],
+    "valid_release_sessions_source": "gst_market_response.identity.VALID_RELEASE_SESSIONS"
+  },
+  "inclusion_rules": [
+    {
+      "id": "INC-1",
+      "rule": "The ticker is a member of the locked 24-ticker universe.",
+      "mechanised_by": "gst_market_response.constants.is_locked_universe_member"
+    },
+    {
+      "id": "INC-2",
+      "rule": "The event is a regular quarterly or annual earnings release."
+    },
+    {
+      "id": "INC-3",
+      "rule": "The release date comes from an official company investor-relations source on the permitted list."
+    },
+    {
+      "id": "INC-4",
+      "rule": "That source explicitly establishes a calendar date."
+    },
+    {
+      "id": "INC-5",
+      "rule": "Release timing is explicit enough for the production registry to classify the session without inference.",
+      "mechanised_by": "gst_market_response.identity.determine_release_market_session"
+    },
+    {
+      "id": "INC-6",
+      "rule": "The mechanically derived pre-event anchor falls inside the collection window."
+    },
+    {
+      "id": "INC-7",
+      "rule": "The event can be registered at least 5 XNYS trading sessions before its pre-event anchor."
+    },
+    {
+      "id": "INC-8",
+      "rule": "No pre-event snapshot has already been collected for the event."
+    },
+    {
+      "id": "INC-9",
+      "rule": "No GST, Wikipedia, price, volume, volatility, options, analyst-reaction, surprise or news-outcome data was inspected in deciding enrollment."
+    },
+    {
+      "id": "INC-10",
+      "rule": "No previously registered event exists for the same ticker and fiscal quarter."
+    }
+  ],
+  "enrollment_inputs": {
+    "permitted": [
+      "ticker identity",
+      "fiscal period label",
+      "official calendar date",
+      "official release timing label",
+      "official source URL, title, type and retrieval time",
+      "the XNYS trading calendar",
+      "the existing registry contents"
+    ],
+    "prohibited": [
+      "gst_zscore",
+      "wiki_zscore",
+      "price",
+      "previous_close",
+      "volume",
+      "realized_volatility",
+      "implied_volatility",
+      "panel_implied_volatility",
+      "option chain or benchmark data",
+      "analyst reaction",
+      "earnings surprise",
+      "consensus estimates",
+      "news or media coverage",
+      "any market-response interval",
+      "any prior event's outcome"
+    ],
+    "rule": "Enrollment is a function of the permitted inputs alone. Inspecting any prohibited input before an enrollment decision voids that decision: the event is recorded COMPROMISED_ENROLLMENT_BLINDING and excluded from the confirmatory cohort. It is never silently re-enrolled."
+  },
+  "dispositions": [
+    {
+      "code": "ENROLLED",
+      "terminal": false,
+      "class": "included",
+      "meaning": "Every inclusion rule is satisfied and the registry row is written."
+    },
+    {
+      "code": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "terminal": false,
+      "class": "pending",
+      "meaning": "No official source yet establishes a calendar date. Re-screened on a fixed cadence until the lead-time rule can no longer be met."
+    },
+    {
+      "code": "PENDING_RELEASE_TIMING_AMBIGUOUS",
+      "terminal": false,
+      "class": "pending",
+      "meaning": "An official date exists but the timing is not explicit enough for the production registry to classify the session without inference."
+    },
+    {
+      "code": "PENDING_SOURCE_REMOVED_OR_CONTRADICTED",
+      "terminal": false,
+      "class": "pending",
+      "meaning": "A previously observed official source was withdrawn or is contradicted by another official source. Enrollment waits; a registered event is never deleted on this basis."
+    },
+    {
+      "code": "EXCLUDED_INSUFFICIENT_LEAD_TIME",
+      "terminal": true,
+      "class": "excluded",
+      "meaning": "Fewer than 5 XNYS sessions remain between the earliest possible registration and the derived anchor."
+    },
+    {
+      "code": "EXCLUDED_DUPLICATE_TICKER_FISCAL_QUARTER",
+      "terminal": true,
+      "class": "excluded",
+      "meaning": "A registered event already exists for this ticker and fiscal quarter."
+    },
+    {
+      "code": "EXCLUDED_OUTSIDE_COLLECTION_WINDOW",
+      "terminal": true,
+      "class": "excluded",
+      "meaning": "The derived anchor falls outside 2026-09-01..2027-05-31."
+    },
+    {
+      "code": "EXCLUDED_NOT_A_NORMAL_EARNINGS_RELEASE",
+      "terminal": true,
+      "class": "excluded",
+      "meaning": "Cancellation, merger, delisting, or the release is no longer a normal quarterly/annual earnings event."
+    },
+    {
+      "code": "EXCLUDED_DISCOVERED_AFTER_ANCHOR",
+      "terminal": true,
+      "class": "excluded",
+      "meaning": "The event was discovered only after its anchor session began. It can no longer be enrolled blind and is recorded, not quietly dropped."
+    },
+    {
+      "code": "AMENDED_TIMING_CHANGED_BEFORE_ANCHOR",
+      "terminal": false,
+      "class": "amended",
+      "meaning": "The issuer changed the official date or time before the anchor. Recorded as an append-only AMENDMENT row; the anchor is re-derived and the lead-time and window rules are re-applied to the corrected event."
+    },
+    {
+      "code": "COMPROMISED_TIMING_CHANGED_AFTER_ANCHOR",
+      "terminal": true,
+      "class": "compromised",
+      "meaning": "The issuer changed the official date or time after the anchor session began. The correction is recorded as an append-only AMENDMENT, the event is marked compromised and excluded from the confirmatory cohort, and every byte already collected is preserved."
+    },
+    {
+      "code": "COMPROMISED_ENROLLMENT_BLINDING",
+      "terminal": true,
+      "class": "compromised",
+      "meaning": "A prohibited input was inspected before the enrollment decision."
+    }
+  ],
+  "prohibited_exclusion_reasons": [
+    "low attention",
+    "high attention",
+    "an interesting or uninteresting attention signal",
+    "missing or unavailable options data",
+    "an unfavourable market response",
+    "a null market response",
+    "a source failure occurring after valid registration",
+    "an expectation that the event will or will not produce an interesting result",
+    "any post-hoc judgement informed by collected data"
+  ],
+  "amendment_rules": {
+    "mechanism": "gst_market_response.event_registry.HumanVerifiedEventRegistry.amend_event",
+    "append_only": true,
+    "row_types": [
+      "REGISTRATION",
+      "AMENDMENT"
+    ],
+    "rules": [
+      "A correction is a new AMENDMENT row referencing the original by row_id.",
+      "The original registration's bytes are never overwritten, edited or deleted.",
+      "The effective view folds amendments over the base row in order; the base row's own bytes remain as first written.",
+      "An amendment may correct a date, time, session label or source. It may never change the ticker, the fiscal quarter, or the fact that the event was enrolled.",
+      "No amendment may be motivated by collected attention or market-response data."
+    ],
+    "verification_statuses": [
+      "verified",
+      "pending",
+      "rejected"
+    ],
+    "verification_statuses_source": "gst_market_response.event_registry.VERIFICATION_STATUSES"
+  },
+  "blinding_prohibitions": {
+    "before_enrollment": "No GST, Wikipedia, price, volume, volatility, options, analyst-reaction, surprise or news-outcome data may be inspected before the enrollment decision is recorded.",
+    "after_enrollment": "Collected data may never retroactively alter enrollment, the cohort window, the target, or an event's inclusion.",
+    "layer_separation": "Layer A / Layer B capture-versus-reveal discipline is defined by the Event Dossier Protocol and is not restated or relaxed here.",
+    "event_dossier_protocol": "Event_Dossier_Protocol/EVENT_DOSSIER_PROTOCOL_v0.1_DRAFT.md"
+  },
+  "relationship_to_v0_2_completeness": {
+    "spec": "Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.2_DRAFT.md",
+    "field_dictionary": "Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.2.md",
+    "tiers": [
+      "core_invalid",
+      "core_only_no_option_benchmark",
+      "core_and_option_benchmark"
+    ],
+    "tiers_source": "gst_market_response.completeness.PRE_EVENT_TIERS",
+    "full_data_complete_tier": "core_and_option_benchmark",
+    "hypothesis_families": [
+      "core_attention_vs_equity_response",
+      "options_implied_move",
+      "joint_attention_plus_options"
+    ],
+    "hypothesis_families_source": "gst_market_response.completeness.HYPOTHESIS_CLASSES",
+    "option_dispositions": [
+      "VALID_VERIFIED",
+      "UNAVAILABLE_NO_VERIFIED_SOURCE",
+      "LOOKUP_FAILED",
+      "NOT_ATTEMPTED"
+    ],
+    "rules": [
+      "An absent verified options benchmark may lower an event to 'core_only_no_option_benchmark'. It never removes an otherwise valid event from the core attention-versus-market-response cohort.",
+      "A core-only event remains eligible for 'core_attention_vs_equity_response' and ineligible for 'options_implied_move' and 'joint_attention_plus_options'.",
+      "This protocol defines no interval formula, threshold, quote-age limit, skew limit or completeness gate. All of those live in the v0.2 documents and in gst_market_response.completeness, unchanged."
+    ]
+  },
+  "analysis_separation": {
+    "stages": [
+      {
+        "stage": "1_cohort_enrollment",
+        "decides": "which events enter the study",
+        "may_read": "official IR sources, the XNYS calendar, the existing registry",
+        "may_not_read": "any attention, market, options or outcome data"
+      },
+      {
+        "stage": "2_pre_event_measurement",
+        "decides": "the blind pre-event observation",
+        "governed_by": "SPEC v0.2 sections 2 and 7; the strict six-field core gate"
+      },
+      {
+        "stage": "3_post_event_response_measurement",
+        "decides": "D1 and D3 intervals",
+        "governed_by": "SPEC v0.1 interval definitions, unchanged"
+      },
+      {
+        "stage": "4_hypothesis_eligibility",
+        "decides": "which families an event may inform",
+        "governed_by": "gst_market_response.completeness.is_eligible_for_hypothesis"
+      },
+      {
+        "stage": "5_future_strategy_research",
+        "status": "OUT OF SCOPE",
+        "note": "No stage of this protocol produces, evaluates or implies a trading rule."
+      }
+    ],
+    "one_way_rule": "Information flows forward only. A later stage never feeds back into an earlier one."
+  },
+  "display_gate": {
+    "rule": "No hypothesis result may be displayed, summarised, plotted or informally described before that hypothesis's own registered sample-size threshold is reached.",
+    "governance_source": "Live Signal Engine/GST_Phase2_InformationArrivalPanel_SPEC_DRAFT.md",
+    "governance_text": "No hypothesis gets tested until a pre-set minimum sample size is hit, decided now, not adjusted later; each hypothesis gets its own dated pre-registration file.",
+    "status_for_market_response_families": "NOT_YET_REGISTERED",
+    "default": "DENY",
+    "note": "No numeric per-hypothesis sample-size threshold is currently registered for the market-response families. This protocol deliberately does NOT invent one -- setting that number is a separate, dated pre-registration decision. Until such a threshold is registered for a family, the gate denies display for that family. Absence of a registered number is never read as absence of a gate."
+  },
+  "existing_provenance": {
+    "already_registered_event": "EVT-DELL-FY27Q2-ERN",
+    "registration_row_id": "EVT-DELL-FY27Q2-ERN-REG-001",
+    "why_eligible": "Registered before any pre-event observation existed and satisfies the same rules. It receives no special treatment, no exemption and no priority.",
+    "registry_path": "Live Signal Engine/Market_Response_Event_Registry/registry.jsonl",
+    "registry_sha256_lf": "71681aa48b9b483d582b887e82c229ba791548ae00a42ef9cf86be34776f4974"
+  },
+  "screening_rows": [],
+  "screening_rows_note": "Deliberately empty. This protocol is published BEFORE any candidate investor-relations calendar is inspected, so that the rules cannot be shaped by what the candidates turn out to be.",
+  "non_goals": [
+    "This protocol does not test, optimise, select for, or claim a profitable trading strategy.",
+    "It produces no return forecast, no signal ranking and no buy or sell recommendation.",
+    "It does not redefine any v0.2 threshold, interval formula, completeness tier or gate.",
+    "It does not authorise any collection before an event's own anchor."
+  ]
+}
