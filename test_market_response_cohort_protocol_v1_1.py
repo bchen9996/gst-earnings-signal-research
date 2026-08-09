@@ -176,8 +176,18 @@ def test_4_additive_only():
 
 
 def test_5_v1_0_preserved_on_disk():
-    # v1.0 must be byte-identical to what is committed on origin/main
+    # v1.0 must be byte-identical to what is committed at HEAD. This needs a git
+    # work tree; a clean `git archive` export deliberately has none, so there it
+    # is reported NOT APPLICABLE rather than failed. The field-by-field
+    # carried-forward comparison in test_4 runs everywhere and is what actually
+    # proves v1.1 is additive.
     import subprocess
+    in_git = subprocess.run(["git", "rev-parse", "--is-inside-work-tree"], cwd=str(HERE),
+                            capture_output=True).stdout.strip() == b"true"
+    if not in_git:
+        print("NOTE: 5. git HEAD comparison NOT APPLICABLE (no git work tree; "
+              "test_4's field-by-field v1.0 comparison still enforced)")
+        return
     for path in (V10_J, V10_M):
         rel = path.relative_to(HERE).as_posix()
         head = subprocess.run(["git", "show", f"HEAD:{rel}"], cwd=str(HERE),
