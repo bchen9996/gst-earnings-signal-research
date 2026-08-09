@@ -1,0 +1,285 @@
+{
+  "artifact": "GST HYP-01 Primary Analysis Lock",
+  "lock_version": "1.0",
+  "status": "DRAFT",
+  "authored_at_utc": "2026-08-09",
+  "authored_before_any_candidate_screening_or_observation": true,
+  "hypothesis_id": "HYP-01",
+  "hypothesis_registry": "Live Signal Engine/GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0_DRAFT.md",
+  "cohort_protocol": "Live Signal Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.0_DRAFT.md",
+  "companion_markdown": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0_DRAFT.md",
+  "eligibility_and_freeze_rules": "Live Signal Engine/GST_HYP01_ELIGIBILITY_AND_FREEZE_RULES_v1.0.md",
+  "study_question": "Does higher abnormal pre-earnings Google-search attention associate with a greater absolute overnight earnings response?",
+  "sample": {
+    "inclusion_conditions": [
+      {
+        "id": "S-1",
+        "rule": "enrolled under the prospective cohort protocol v1.0"
+      },
+      {
+        "id": "S-2",
+        "rule": "eligible for core_attention_vs_equity_response",
+        "mechanised_by": "gst_market_response.completeness.is_eligible_for_hypothesis"
+      },
+      {
+        "id": "S-3",
+        "rule": "strict v0.2 core passed",
+        "mechanised_by": "gst_market_response.completeness.evaluate_strict_core_v0_2"
+      },
+      {
+        "id": "S-4",
+        "rule": "D1 capture passed",
+        "mechanised_by": "gst_market_response.completeness.is_valid_d1_decomposition"
+      },
+      {
+        "id": "S-5",
+        "rule": "gst_zscore is non-null with a successful GST source status",
+        "status_key": "source_status_gst",
+        "successful_statuses": [
+          "ok",
+          "ok_recent_cache_fallback"
+        ]
+      },
+      {
+        "id": "S-6",
+        "rule": "abs_overnight_gap is non-null with valid market-data provenance"
+      },
+      {
+        "id": "S-7",
+        "rule": "release session is BMO or AMC"
+      },
+      {
+        "id": "S-8",
+        "rule": "the event is among the first 60 eligible events in the deterministic order defined below"
+      }
+    ],
+    "eligible_release_sessions": [
+      "BMO",
+      "AMC"
+    ],
+    "ineligible_release_sessions": [
+      "INTRADAY"
+    ],
+    "valid_release_sessions_source": "gst_market_response.identity.VALID_RELEASE_SESSIONS",
+    "all_release_sessions": [
+      "BMO",
+      "AMC",
+      "INTRADAY"
+    ],
+    "intraday_rationale": "INTRADAY releases remain enrolled in the overall cohort. They are ineligible for THIS primary analysis only, because the overnight-gap outcome is not temporally aligned with a release that occurs during the session it would be measured across. This is a MEASUREMENT INCOMPATIBILITY fixed before any data exists -- not a post-hoc exclusion, and not a judgement about those events.",
+    "ordering": {
+      "primary_key": "mechanically derived response-session date (ascending)",
+      "response_session_source": "gst_market_response.exchange_calendar.compute_expected_next_full_trading_session_xnys",
+      "tie_breaker": "event_id (ascending, byte-wise)",
+      "deterministic": true,
+      "note": "Both keys are fixed before any event exists. Neither depends on any observed value, so the identity of the first 60 cannot be influenced by results."
+    },
+    "target_n": 60
+  },
+  "predictor": {
+    "primary": "gst_zscore",
+    "form": "continuous",
+    "thresholded": false,
+    "measured_at": "the pre-event anchor session",
+    "rules": [
+      "continuous -- entered on its natural scale",
+      "unthresholded -- no high/low attention binning",
+      "no data-driven cutoff",
+      "no winsorization",
+      "no outcome-informed transformation"
+    ],
+    "wikipedia_is_co_primary": false,
+    "wikipedia_rule": "wiki_zscore is NOT a co-primary predictor. Any Wikipedia analysis is secondary and cannot change the HYP-01 confirmatory conclusion."
+  },
+  "primary_outcome": {
+    "field": "abs_overnight_gap",
+    "definition": "abs(overnight_gap)",
+    "signed_definition": "overnight_gap = next_session_open / previous_close - 1",
+    "signed_field_implemented_by": "gst_market_response.derivations.overnight_gap",
+    "absolute_helper_implemented_by": "gst_market_response.derivations.abs_or_none",
+    "specification_authority": [
+      "Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md (abs_* row: abs() of the corresponding signed return, stored alongside it, never replacing it)",
+      "Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md"
+    ],
+    "new_formula_created": false,
+    "persistence_status": "SPECIFIED_NOT_YET_EMITTED",
+    "persistence_note": "abs_overnight_gap is an authoritative SPEC v0.1 field and its formula is fixed, but the D1 capture path does not yet emit it: completeness.D1_REQUIRED_FIELDS lists only the four signed intervals, and no module writes an abs_* key. Emitting it is a separate build task, NOT performed here. This lock does not invent the field and does not substitute another return formula; it names the specified one and records that its persistence must exist before event 60 can be frozen.",
+    "blocking_for_freeze": true
+  },
+  "primary_model": {
+    "formula": "abs_overnight_gap ~ gst_zscore",
+    "estimator": "ordinary_least_squares",
+    "coefficient_of_interest": "gst_zscore",
+    "null_hypothesis": "beta_gst = 0",
+    "sidedness": "two_sided",
+    "alpha": 0.05,
+    "covariance": {
+      "type": "cluster_robust",
+      "cluster_variable": "ticker",
+      "finite_sample_correction": true
+    },
+    "effect_interpretation": "change in absolute overnight return per one-unit increase in GST z-score",
+    "required_reported_quantities": [
+      "coefficient",
+      "95% confidence interval",
+      "p-value",
+      "eligible-event count",
+      "unique-ticker count"
+    ],
+    "covariates": [],
+    "data_driven_covariates": false,
+    "covariate_rule": "The primary model contains exactly one right-hand-side term. No covariate may be added, removed or selected on the basis of observed data.",
+    "implemented_in_this_task": false,
+    "run_in_this_task": false
+  },
+  "environment_freeze": {
+    "must_be_frozen_before_results_run": true,
+    "fields": {
+      "language_version": "TO_BE_FROZEN_AT_EVENT_60",
+      "statistics_package": "TO_BE_FROZEN_AT_EVENT_60",
+      "statistics_package_version": "TO_BE_FROZEN_AT_EVENT_60",
+      "cluster_covariance_option_string": "TO_BE_FROZEN_AT_EVENT_60",
+      "finite_sample_correction_option": "TO_BE_FROZEN_AT_EVENT_60",
+      "random_seed_if_any": "TO_BE_FROZEN_AT_EVENT_60",
+      "analysis_code_commit_sha": "TO_BE_FROZEN_AT_EVENT_60"
+    },
+    "note": "The exact software, package, version and cluster-covariance options are frozen in this artifact BEFORE any result runs. They are deliberately unset now because no analysis code exists yet; leaving them unset is what forces the freeze step to record them rather than letting the environment drift silently."
+  },
+  "adjusted_sensitivity_model": {
+    "formula": "abs_overnight_gap ~ gst_zscore + realized_volatility + release_session_BMO + sector fixed effects",
+    "role": "secondary_sensitivity_only",
+    "is_co_primary": false,
+    "can_overturn_primary": false,
+    "can_rescue_primary": false,
+    "rule": "This model is a sensitivity check. It cannot overturn a primary null result and cannot rescue one. It carries no independent confirmatory claim.",
+    "realized_volatility_field": "realized_volatility",
+    "realized_volatility_source": "existing pre-event field; strict-core member",
+    "release_session_source": "gst_market_response.identity.determine_release_market_session",
+    "sector_mapping_source": "gst_market_response.sector_mapping",
+    "panel_iv_prohibition": "panel_implied_volatility must NOT be used as an implied-move benchmark or as a substitute for one. SPEC v0.1 section 5's prohibition is unchanged.",
+    "covariance": {
+      "type": "cluster_robust",
+      "cluster_variable": "ticker",
+      "finite_sample_correction": true
+    }
+  },
+  "secondary_analyses": {
+    "label": "secondary_or_exploratory",
+    "independent_confirmatory_claim": false,
+    "may_redefine_primary_outcome": false,
+    "registered": [
+      {
+        "analysis": "wiki_zscore replacing gst_zscore",
+        "status": "registered_secondary"
+      },
+      {
+        "analysis": "abs_open_to_30m as outcome",
+        "status": "registered_secondary",
+        "persistence_status": "SPECIFIED_NOT_YET_EMITTED"
+      },
+      {
+        "analysis": "abs_open_to_close as outcome",
+        "status": "registered_secondary",
+        "persistence_status": "SPECIFIED_NOT_YET_EMITTED"
+      },
+      {
+        "analysis": "full_session_range as outcome",
+        "status": "registered_secondary",
+        "implemented_by": "gst_market_response.derivations.full_session_range"
+      },
+      {
+        "analysis": "sector-relative versions of the response fields",
+        "status": "registered_secondary",
+        "implemented_by": "gst_market_response.derivations.relative_return",
+        "persistence_status": "SPECIFIED_OPTIONAL_NOT_YET_EMITTED",
+        "note": "SPEC v0.1 lists sector/SPY-relative fields as OPTIONAL for the D1/D3 gates; the helper exists but no capture path emits them yet."
+      },
+      {
+        "analysis": "rank-based GST sensitivity",
+        "status": "registered_exploratory"
+      }
+    ]
+  },
+  "missingness_and_exclusions": {
+    "imputation": "prohibited",
+    "zero_fill": "prohibited",
+    "winsorization": "prohibited",
+    "outlier_deletion": "prohibited",
+    "prohibited_removal_bases": [
+      "effect direction",
+      "effect magnitude",
+      "earnings surprise",
+      "news",
+      "options availability",
+      "an value appearing to be an outlier"
+    ],
+    "provider_or_schema_failure": "remains a DOCUMENTED MISSING OBSERVATION -- never imputed, never silently dropped",
+    "failed_event_retained_in_audit": "An event that fails HYP-01 eligibility remains in the enrollment audit trail even though it is ineligible for this analysis.",
+    "one_event_counts_once": true,
+    "duplicate_ticker_fiscal_quarter_counts_once": true,
+    "dell_exemption": false,
+    "dell_rule": "EVT-DELL-FY27Q2-ERN is subject to every rule here identically. No exemption, no priority, no special case."
+  },
+  "freeze_and_display": {
+    "before_threshold_display_allowed": [
+      "eligible-event count",
+      "status"
+    ],
+    "before_threshold_display_prohibited": [
+      "effect estimate",
+      "direction",
+      "plot",
+      "interim p-value",
+      "confidence interval",
+      "informal description"
+    ],
+    "threshold": 60,
+    "freeze_sequence": [
+      "1. freeze the exact 60 event IDs",
+      "2. freeze the analysis-code commit and environment",
+      "3. verify all gates",
+      "4. run the primary model ONCE"
+    ],
+    "run_count": 1,
+    "optional_stopping": "prohibited",
+    "repeated_testing": "prohibited",
+    "later_events": "extension_cohort_separately_labeled",
+    "extension_cohort_rule": "Events that become eligible after the freeze enter a separately labelled extension cohort. They never enlarge the frozen set and never re-open the primary analysis.",
+    "model_change_after_freeze": "prohibited"
+  },
+  "unchanged_by_this_lock": {
+    "hyp_02": [
+      "threshold",
+      "status",
+      "missing-measurement classification",
+      "unresolved analysis choices"
+    ],
+    "hyp_03": [
+      "threshold",
+      "status",
+      "missing-measurement classification",
+      "unresolved analysis choices"
+    ],
+    "cohort_protocol": "unchanged",
+    "v0_2_thresholds_and_interval_formulas": "unchanged",
+    "statement": "This lock specifies HYP-01's primary analysis only. It changes no other hypothesis, no completeness gate, no interval formula and no cohort rule."
+  },
+  "remaining_pending_decisions": [
+    {
+      "decision": "exact statistics package and version, and its cluster-covariance option string",
+      "state": "TO_BE_FROZEN_AT_EVENT_60"
+    },
+    {
+      "decision": "sector fixed-effect encoding for the adjusted sensitivity model",
+      "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+    },
+    {
+      "decision": "rank transform definition for the rank-based GST sensitivity",
+      "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+    }
+  ],
+  "results": null,
+  "results_note": "Deliberately null. No model was implemented and none was run. No coefficient, interval, p-value, direction, plot or informal description exists for HYP-01.",
+  "eligible_events_now": 0,
+  "frozen_event_ids": []
+}
