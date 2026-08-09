@@ -171,6 +171,17 @@ market-data request or broker order was made, and no trading strategy was tested
 Suite totals after this pass: Phase 2 **12 files / 617 assertions**; Market Response **15 files / 601 assertions**;
 Event Dossier validator **27 e2e assertions + 21 unit tests**. All re-run with outbound sockets blocked.
 
+## Done — tenth pass (2026-08-09): canonical absolute-response persistence
+
+- [x] **The six SPEC v0.1 `abs_*` fields are now emitted.** `abs_overnight_gap`, `abs_open_to_30m`, `abs_thirty_min_to_close`, `abs_open_to_close` on D1; `abs_close_T1_to_close_T2`, `abs_close_T1_to_close_T3` on D3. Derived by `response_magnitude.apply_absolute_fields()` via the existing `derivations.abs_or_none()`; no signed-return formula is recomputed.
+- [x] **Stored alongside, never replacing** — signed values unchanged; `0.0` → `0.0`; missing → `null`, never zero; no imputation, winsorization, clipping, rounding or outlier removal.
+- [x] **Not a completeness requirement** — `D1_REQUIRED_FIELDS` and `D3_REQUIRED_FIELDS` unchanged; the fields are canonical derived outputs.
+- [x] **Caller cannot choose them** — a disagreeing caller-supplied value raises `AbsoluteFieldConflictError` before the first byte, including before `D1_PENDING`.
+- [x] **Persisted into the durable record and the markers** — D1/D3 state record plus a `response_magnitude` block in the `D1_CAPTURE` and `FINAL_COMPLETION` stage markers and the legacy completion marker; marker tie-out covers it.
+- [x] **No backfill** — historical records are untouched and transparently ineligible for analyses requiring the fields.
+- [x] **HYP-01 lock implementation status updated only** — `abs_overnight_gap` moves from `SPECIFIED_NOT_YET_EMITTED` to `IMPLEMENTED_AND_EMITTED` and is no longer blocking for freeze. The analytical definition, predictor, model, alpha, clustering, ordering and n=60 are unchanged.
+- [x] **93 assertions** in `test_market_response_absolute_persistence.py`; the HYP-01 lock suite grows to 145 and now verifies the emitted claim against the real production path.
+
 ## Done — ninth pass (2026-08-08): second corrective audit of the v0.2 contract
 
 - [x] **True atomic write-once** — `atomic_write_json_no_overwrite()` was `exists()` → `os.replace()`, a TOCTOU race that destroyed any artifact created in between. Now: write+fsync a temp file, then an exclusive `os.link()` create (`O_CREAT|O_EXCL` fallback), fsync the directory, clean up on every path. An existence check followed by `os.replace()` is prohibited.

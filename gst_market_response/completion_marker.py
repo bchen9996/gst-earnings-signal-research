@@ -21,6 +21,11 @@ from .event_record import (
     EventStore,
     select_stage_record,
 )
+from .response_magnitude import (
+    D1_ABS_FIELD_MAP,
+    D3_ABS_FIELD_MAP,
+    response_magnitude_block,
+)
 
 # Exit codes -- mirrors this project's existing PASS/INCONCLUSIVE/FAIL
 # 3-state convention (see phase2_live_smoke_wiki_equivalence.py) rather than
@@ -56,6 +61,16 @@ def write_completion_marker(root: Path, event_id: str, store: EventStore) -> dic
     # as the pre-event eligibility record. select_stage_record() prefers
     # PRE_EVENT_CAPTURED and accepts only a pre-event PARTIAL.
     marker["protocol_version"] = PROTOCOL_VERSION
+    # Canonical absolute response magnitudes, echoed from the durable D1/D3
+    # records exactly as persisted (SPEC v0.1 abs_* fields). Never recomputed
+    # here; a stage that was not captured contributes nothing.
+    response_magnitude: dict[str, Any] = {}
+    for _stage_key, _field_map in ((FAILURE_STAGE_D1, D1_ABS_FIELD_MAP),
+                                   (FAILURE_STAGE_D3, D3_ABS_FIELD_MAP)):
+        _rec = select_stage_record(state_records, _stage_key)
+        if _rec and _rec.get("fields"):
+            response_magnitude.update(response_magnitude_block(_rec["fields"], _field_map))
+    marker["response_magnitude"] = response_magnitude
     eligibility_source = select_stage_record(state_records, FAILURE_STAGE_PRE_EVENT)
     if eligibility_source is None:
         marker["module_eligibility"] = None
