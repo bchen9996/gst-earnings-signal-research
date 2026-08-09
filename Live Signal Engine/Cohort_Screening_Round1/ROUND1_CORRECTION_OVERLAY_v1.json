@@ -1,0 +1,2003 @@
+{
+  "artifact": "GST Prospective Cohort — Round 1 Correction Overlay",
+  "overlay_version": "1",
+  "sweep_round": 1,
+  "authored_at_utc": "2026-08-09T05:59:15+00:00",
+  "pr_head_audited": "12400f8c9394de5741bb37269dbf6e392b9245ad",
+  "cadence_commit": "153c62392131e86c7538c1c71b85d631039d8cc6",
+  "authority": "This overlay is AUTHORITATIVE for interpreting round 1. It never asserts that the original bytes were different: the originals are preserved verbatim and hash-locked below, mistakes included. Where the two disagree, the original records what was done and this overlay records what that evidence may legitimately support.",
+  "original_artifacts_sha256_lf": {
+    "SWEEP_MANIFEST_ROUND1.json": "d44e5c539804adc170041d66d140b6c5d2568e9ce95f34a4b379df819b9a4499",
+    "sweep_raw_round1.json": "63bdb83d1385b4ef848fe8f309d4da1f9b97ee4f1b2b05a476fcc066f4c5fe17",
+    "sweep_raw_round1_pass2.json": "13b8997883491776458b40f3c9b64b9065fb2dc318eb42affc0f3d04db353875",
+    "HUMAN_REVIEW_REQUIRED_ROUND1.json": "da85fe04442f2bded639bfede41df311cef01f6a644c61451b99e277be12d599",
+    "sec_cik_map_round1.json": "f8eebf71ab858aa017b9b0d5debcb5a1eab4eaa94521154f3bfe960258a58b33"
+  },
+  "originals_rewritten": false,
+  "noncanonical_status_label": {
+    "label": "NO_ENROLLMENT_DECISION_REACHED",
+    "is_one_of_the_twelve_protocol_dispositions": false,
+    "statement": "NO_ENROLLMENT_DECISION_REACHED is a RECONNAISSANCE label, not a protocol disposition. It is deliberately outside the twelve codes defined by cohort protocol v1.0/v1.1 so it can never be mistaken for a screening decision."
+  },
+  "canonical_pending_rule": "PENDING_OFFICIAL_DATE_UNAVAILABLE may be used canonically only when an actual candidate identity exists -- ticker AND fiscal period -- so the screening-log schema can be satisfied without inventing a label. Round 1 established no such identity for any ticker.",
+  "sec_submissions_index_rule": {
+    "endpoint": "https://data.sec.gov/submissions/CIK{cik}.json",
+    "effective_role": "RECONNAISSANCE_ONLY",
+    "is_sec_filing_8k_earnings_date": false,
+    "rules": [
+      "The submissions index is an official SEC endpoint but is only filing METADATA.",
+      "A specific issuer-filed 8-K becomes a permitted source only after the exact filing is opened and is found to state the future earnings date and timing explicitly.",
+      "An accession number, a filing date, or an Item 2.02 label establishes NO upcoming candidate.",
+      "No previous filing metadata may influence enrollment.",
+      "NO FILING CONTENT WAS OPENED IN ROUND 1."
+    ],
+    "recent_8k_metadata": {
+      "retained_in_raw_artifact": true,
+      "used_in_effective_decision": false,
+      "prohibited_from_use": true,
+      "future_guidance": "Future sweeps should not store recent-8-K lists when no candidate filing is opened."
+    }
+  },
+  "source_role_vocabulary": [
+    "PERMITTED_SOURCE_OF_RECORD",
+    "NAVIGATION_ONLY",
+    "RECONNAISSANCE_ONLY",
+    "INVALID_OR_UNRELATED",
+    "ACCESS_FAILED"
+  ],
+  "roles_that_may_support_a_disposition": [
+    "PERMITTED_SOURCE_OF_RECORD"
+  ],
+  "url_classifications": [
+    {
+      "ticker": "AAPL",
+      "url": "https://investor.apple.com/investor-relations/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "issuer page whose role as an events calendar is not established",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "AAPL",
+      "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "ABBV",
+      "url": "https://investors.abbvie.com/events-and-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "ABBV",
+      "url": "https://data.sec.gov/submissions/CIK0001551152.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "ABBV",
+      "url": "https://www.abbvie.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "ADBE",
+      "url": "https://www.adobe.com/investor-relations.html",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "issuer page whose role as an events calendar is not established",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "ADBE",
+      "url": "https://data.sec.gov/submissions/CIK0000796343.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "AMZN",
+      "url": "https://ir.aboutamazon.com/events/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "AMZN",
+      "url": "https://data.sec.gov/submissions/CIK0001018724.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "BKR",
+      "url": "https://investors.bakerhughes.com/events-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "BKR",
+      "url": "https://data.sec.gov/submissions/CIK0001701605.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "BRK-B",
+      "url": "https://www.berkshirehathaway.com/news/news.html",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "BRK-B",
+      "url": "https://data.sec.gov/submissions/CIK0001067983.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "BRK-B",
+      "url": "https://www.berkshirehathaway.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "CTSH",
+      "url": "https://news.cognizant.com/events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "CTSH",
+      "url": "https://data.sec.gov/submissions/CIK0001058290.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DELL",
+      "url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DELL",
+      "url": "https://data.sec.gov/submissions/CIK0001571996.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DELL",
+      "url": "https://investors.delltechnologies.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DVN",
+      "url": "https://investors.devonenergy.com/events-and-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DVN",
+      "url": "https://data.sec.gov/submissions/CIK0001090012.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DVN",
+      "url": "https://www.devonenergy.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "DVN",
+      "url": "https://www.devonenergy.com/sustainability/environment/spill-prevention",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "INVALID_OR_UNRELATED",
+      "may_support_a_disposition": false,
+      "reason": "this page is not an investor-relations events calendar or earnings advisory; it is unrelated issuer content and cannot support any enrollment or 'no upcoming event' conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "GME",
+      "url": "https://investor.gamestop.com/news-events/ir-calendar",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "GME",
+      "url": "https://data.sec.gov/submissions/CIK0001326380.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "GME",
+      "url": "https://investor.gamestop.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "GOOGL",
+      "url": "https://abc.xyz/investor/events/",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "GOOGL",
+      "url": "https://data.sec.gov/submissions/CIK0001652044.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "GPN",
+      "url": "https://investors.globalpayments.com/events-and-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": true,
+      "dated_earnings_text_here": true
+    },
+    {
+      "ticker": "GPN",
+      "url": "https://data.sec.gov/submissions/CIK0001123360.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "INTC",
+      "url": "https://www.intc.com/news-events/events-calendar",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "INTC",
+      "url": "https://data.sec.gov/submissions/CIK0000050863.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "INTC",
+      "url": "https://www.intc.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "INTC",
+      "url": "https://www.intc.com/news-events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "INTC",
+      "url": "https://www.intc.com/news-events/press-releases",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "INTC",
+      "url": "https://www.intc.com/news-events/ir-calendar",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": true,
+      "dated_earnings_text_here": true
+    },
+    {
+      "ticker": "LDOS",
+      "url": "https://investors.leidos.com/events-and-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "LDOS",
+      "url": "https://data.sec.gov/submissions/CIK0001336920.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "LDOS",
+      "url": "https://www.leidos.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "LDOS",
+      "url": "https://investors.leidos.com/news-events/events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "MSFT",
+      "url": "https://www.microsoft.com/en-us/investor/events/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "MSFT",
+      "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NCLH",
+      "url": "https://www.nclhltd.com/investors/news-and-events/event-calendar",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NCLH",
+      "url": "https://data.sec.gov/submissions/CIK0001513761.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NCLH",
+      "url": "https://www.nclhltd.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NCLH",
+      "url": "https://www.nclhltd.com/investors/news-events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NCLH",
+      "url": "https://www.nclhltd.com/news-media/events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": true,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NCLH",
+      "url": "https://www.nclhltd.com/investors/news-events/press-releases",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NKE",
+      "url": "https://investors.nike.com/events-and-presentations/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NKE",
+      "url": "https://data.sec.gov/submissions/CIK0000320187.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NKE",
+      "url": "https://investors.nike.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NKE",
+      "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NKE",
+      "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx?toggle=news",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "NKE",
+      "url": "https://investors.nike.com/investors/news-events-and-reports/?toggle=earnings",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "QCOM",
+      "url": "https://investor.qualcomm.com/news-events/events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "QCOM",
+      "url": "https://data.sec.gov/submissions/CIK0000804328.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "SBUX",
+      "url": "https://investor.starbucks.com/events-and-presentations/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "SBUX",
+      "url": "https://data.sec.gov/submissions/CIK0000829224.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "SBUX",
+      "url": "https://investor.starbucks.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "SBUX",
+      "url": "https://investor.starbucks.com/events-presentations/default.aspx",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "STZ",
+      "url": "https://ir.cbrands.com/events-and-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "STZ",
+      "url": "https://data.sec.gov/submissions/CIK0000016918.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "STZ",
+      "url": "https://ir.cbrands.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": true
+    },
+    {
+      "ticker": "STZ",
+      "url": "https://ir.cbrands.com/news-events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "STZ",
+      "url": "https://ir.cbrands.com/news-events/press-releases",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "STZ",
+      "url": "https://ir.cbrands.com/news-events/ir-calendar",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": true,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "SYK",
+      "url": "https://investors.stryker.com/events-and-presentations",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "PERMITTED_SOURCE_OF_RECORD",
+      "may_support_a_disposition": true,
+      "reason": "an issuer investor-relations events calendar page",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "SYK",
+      "url": "https://data.sec.gov/submissions/CIK0000310764.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "TSLA",
+      "url": "https://ir.tesla.com/#quarterly-disclosure",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "TSLA",
+      "url": "https://data.sec.gov/submissions/CIK0001318605.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "TSLA",
+      "url": "https://ir.tesla.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "TTWO",
+      "url": "https://ir.take2games.com/news-events/ir-calendar",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "HTTP_ERROR",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "TTWO",
+      "url": "https://data.sec.gov/submissions/CIK0000946581.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "TTWO",
+      "url": "https://ir.take2games.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "NAVIGATION_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "a company homepage / IR landing root. Useful to find the real calendar, but not itself a permitted source of record",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": true
+    },
+    {
+      "ticker": "UAL",
+      "url": "https://ir.united.com/news-and-events/events",
+      "original_source_type": "company_ir_events_calendar",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "UAL",
+      "url": "https://data.sec.gov/submissions/CIK0000100517.json",
+      "original_source_type": "sec_issuer_filed_submissions_index",
+      "original_access_result": "RETRIEVED",
+      "effective_role": "RECONNAISSANCE_ONLY",
+      "may_support_a_disposition": false,
+      "reason": "the SEC submissions INDEX is an official SEC endpoint but is only a list of filing metadata; it is not a filing that states a future earnings date",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    },
+    {
+      "ticker": "UAL",
+      "url": "https://ir.united.com/",
+      "original_source_type": "company_official_site_root",
+      "original_access_result": "ACCESS_FAILED",
+      "effective_role": "ACCESS_FAILED",
+      "may_support_a_disposition": false,
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion",
+      "issuer_stated_no_upcoming_events_here": false,
+      "dated_earnings_text_here": false
+    }
+  ],
+  "corrections": [
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "AAPL",
+      "url": "https://investor.apple.com/investor-relations/default.aspx",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "RECONNAISSANCE_ONLY",
+        "permitted_source_of_record": false
+      },
+      "reason": "issuer page whose role as an events calendar is not established"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "ABBV",
+      "url": "https://investors.abbvie.com/events-and-presentations",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "ADBE",
+      "url": "https://www.adobe.com/investor-relations.html",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "RECONNAISSANCE_ONLY",
+        "permitted_source_of_record": false
+      },
+      "reason": "issuer page whose role as an events calendar is not established"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "BRK-B",
+      "url": "https://www.berkshirehathaway.com/news/news.html",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "DELL",
+      "url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "DVN",
+      "url": "https://investors.devonenergy.com/events-and-presentations",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "DVN",
+      "url": "https://www.devonenergy.com/sustainability/environment/spill-prevention",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "INVALID_OR_UNRELATED",
+        "permitted_source_of_record": false
+      },
+      "reason": "this page is not an investor-relations events calendar or earnings advisory; it is unrelated issuer content and cannot support any enrollment or 'no upcoming event' conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "GME",
+      "url": "https://investor.gamestop.com/news-events/ir-calendar",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "INTC",
+      "url": "https://www.intc.com/news-events/events-calendar",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "LDOS",
+      "url": "https://investors.leidos.com/events-and-presentations",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "LDOS",
+      "url": "https://investors.leidos.com/news-events/events",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "NCLH",
+      "url": "https://www.nclhltd.com/investors/news-and-events/event-calendar",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "NKE",
+      "url": "https://investors.nike.com/events-and-presentations/default.aspx",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "SBUX",
+      "url": "https://investor.starbucks.com/events-and-presentations/default.aspx",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "STZ",
+      "url": "https://ir.cbrands.com/events-and-presentations",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "TSLA",
+      "url": "https://ir.tesla.com/#quarterly-disclosure",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "TTWO",
+      "url": "https://ir.take2games.com/news-events/ir-calendar",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (HTTP_ERROR); it supports no conclusion"
+    },
+    {
+      "kind": "SOURCE_TYPE_MISCLASSIFICATION",
+      "ticker": "UAL",
+      "url": "https://ir.united.com/news-and-events/events",
+      "original_value": {
+        "source_type": "company_ir_events_calendar"
+      },
+      "effective_value": {
+        "effective_role": "ACCESS_FAILED",
+        "permitted_source_of_record": false
+      },
+      "reason": "the page could not be read (ACCESS_FAILED); it supports no conclusion"
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "AAPL",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "ABBV",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "ADBE",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "AMZN",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "BKR",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "BRK-B",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "CTSH",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "DELL",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "ALREADY_ENROLLED_PRE_PROTOCOL"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "EXISTING_ENROLLED_EVENT_UNCHANGED"
+      },
+      "reason": "Already enrolled before the protocol existed. Its official source could not be read on this sweep, so no recheck was performed and nothing was altered, amended or re-verified."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "DVN",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "GME",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "GOOGL",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "GPN",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "INTC",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "LDOS",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "MSFT",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "NCLH",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "NKE",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "QCOM",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "SBUX",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "STZ",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "SYK",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "TSLA",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "TTWO",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    },
+    {
+      "kind": "UNSUPPORTED_CANONICAL_DISPOSITION",
+      "ticker": "UAL",
+      "url": null,
+      "original_value": {
+        "proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE"
+      },
+      "effective_value": {
+        "proposed_disposition": null,
+        "status": "NO_ENROLLMENT_DECISION_REACHED"
+      },
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden."
+    }
+  ],
+  "effective_ticker_outcomes": [
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "AAPL",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "ABBV",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "ADBE",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "AMZN",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "BKR",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "BRK-B",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "CTSH",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "EXISTING_ENROLLED_EVENT_UNCHANGED",
+      "is_canonical_protocol_disposition": false,
+      "existing_event_id": "EVT-DELL-FY27Q2-ERN",
+      "existing_registration_row_id": "EVT-DELL-FY27Q2-ERN-REG-001",
+      "reason": "Already enrolled before the protocol existed. Its official source could not be read on this sweep, so no recheck was performed and nothing was altered, amended or re-verified.",
+      "ticker": "DELL",
+      "original_proposed_disposition": "ALREADY_ENROLLED_PRE_PROTOCOL",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 2
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "DVN",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "GME",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "GOOGL",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "GPN",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": true,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "INTC",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 3,
+      "issuer_stated_absence_on_a_permitted_page": true,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "LDOS",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 2
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "MSFT",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "NCLH",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 3,
+      "issuer_stated_absence_on_a_permitted_page": true,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "NKE",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 3,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "QCOM",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "SBUX",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "STZ",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 3,
+      "issuer_stated_absence_on_a_permitted_page": true,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "SYK",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 1,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 0
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "TSLA",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 2
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "TTWO",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 1
+    },
+    {
+      "effective_proposed_disposition": null,
+      "effective_status": "NO_ENROLLMENT_DECISION_REACHED",
+      "is_canonical_protocol_disposition": false,
+      "reason": "No official fiscal-period identity and no explicitly dated upcoming earnings event were established, so no protocol disposition can be reached. A canonical PENDING_OFFICIAL_DATE_UNAVAILABLE row would require a candidate identity (ticker + fiscal period) that no source supplied; inventing one to satisfy the schema is forbidden.",
+      "remains_eligible_for_next_scheduled_sweep": true,
+      "ticker": "UAL",
+      "original_proposed_disposition": "PENDING_OFFICIAL_DATE_UNAVAILABLE",
+      "permitted_sources_of_record_read": 0,
+      "issuer_stated_absence_on_a_permitted_page": false,
+      "access_failures": 2
+    }
+  ],
+  "round2_sets": {
+    "client_rendered_official_calendars": [
+      {
+        "ticker": "AMZN",
+        "url": "https://ir.aboutamazon.com/events/default.aspx",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "BKR",
+        "url": "https://investors.bakerhughes.com/events-presentations",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "CTSH",
+        "url": "https://news.cognizant.com/events",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "GOOGL",
+        "url": "https://abc.xyz/investor/events/",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "MSFT",
+        "url": "https://www.microsoft.com/en-us/investor/events/default.aspx",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "NKE",
+        "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "NKE",
+        "url": "https://investors.nike.com/investors/news-events-and-reports/default.aspx?toggle=news",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "NKE",
+        "url": "https://investors.nike.com/investors/news-events-and-reports/?toggle=earnings",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "QCOM",
+        "url": "https://investor.qualcomm.com/news-events/events",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "SBUX",
+        "url": "https://investor.starbucks.com/events-presentations/default.aspx",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      },
+      {
+        "ticker": "SYK",
+        "url": "https://investors.stryker.com/events-and-presentations",
+        "prior_http_result": "RETRIEVED (HTTP 200)",
+        "why_static_html_insufficient": "the served HTML contained no dated upcoming event; this calendar renders its event list client-side",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true,
+        "was_inaccessible": false
+      }
+    ],
+    "client_rendered_ticker_count": 9,
+    "access_failures": [
+      {
+        "ticker": "ABBV",
+        "urls": [
+          "https://investors.abbvie.com/events-and-presentations"
+        ],
+        "results": [
+          "ACCESS_FAILED"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "BRK-B",
+        "urls": [
+          "https://www.berkshirehathaway.com/news/news.html"
+        ],
+        "results": [
+          "HTTP_ERROR"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "DVN",
+        "urls": [
+          "https://investors.devonenergy.com/events-and-presentations"
+        ],
+        "results": [
+          "HTTP_ERROR"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "GME",
+        "urls": [
+          "https://investor.gamestop.com/news-events/ir-calendar"
+        ],
+        "results": [
+          "HTTP_ERROR"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "LDOS",
+        "urls": [
+          "https://investors.leidos.com/events-and-presentations",
+          "https://investors.leidos.com/news-events/events"
+        ],
+        "results": [
+          "ACCESS_FAILED"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "TSLA",
+        "urls": [
+          "https://ir.tesla.com/#quarterly-disclosure",
+          "https://ir.tesla.com/"
+        ],
+        "results": [
+          "HTTP_ERROR"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "TTWO",
+        "urls": [
+          "https://ir.take2games.com/news-events/ir-calendar"
+        ],
+        "results": [
+          "HTTP_ERROR"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      },
+      {
+        "ticker": "UAL",
+        "urls": [
+          "https://ir.united.com/news-and-events/events",
+          "https://ir.united.com/"
+        ],
+        "results": [
+          "ACCESS_FAILED"
+        ],
+        "note": "no permitted source of record could be read; this is an access failure, NOT issuer-confirmed absence"
+      }
+    ],
+    "access_failure_ticker_count": 8,
+    "issuer_stated_no_upcoming_event": [
+      {
+        "ticker": "GPN",
+        "url": "https://investors.globalpayments.com/events-and-presentations",
+        "basis": "the issuer's own events page states no upcoming events"
+      },
+      {
+        "ticker": "INTC",
+        "url": "https://www.intc.com/news-events/ir-calendar",
+        "basis": "the issuer's own events page states no upcoming events"
+      },
+      {
+        "ticker": "NCLH",
+        "url": "https://www.nclhltd.com/news-media/events",
+        "basis": "the issuer's own events page states no upcoming events"
+      },
+      {
+        "ticker": "STZ",
+        "url": "https://ir.cbrands.com/news-events/ir-calendar",
+        "basis": "the issuer's own events page states no upcoming events"
+      }
+    ],
+    "issuer_stated_absence_ticker_count": 4,
+    "no_events_calendar_located": [
+      {
+        "ticker": "AAPL",
+        "urls_read": [
+          "https://investor.apple.com/investor-relations/default.aspx",
+          "https://data.sec.gov/submissions/CIK0000320193.json"
+        ],
+        "note": "pages were retrieved successfully but none of them is an issuer events calendar; round 1 never located the right URL. This is a discovery gap, NOT an access failure and NOT issuer-confirmed absence",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true
+      },
+      {
+        "ticker": "ADBE",
+        "urls_read": [
+          "https://www.adobe.com/investor-relations.html",
+          "https://data.sec.gov/submissions/CIK0000796343.json"
+        ],
+        "note": "pages were retrieved successfully but none of them is an issuer events calendar; round 1 never located the right URL. This is a discovery gap, NOT an access failure and NOT issuer-confirmed absence",
+        "browser_rendering_required": true,
+        "human_observation_acceptable_alternative": true
+      }
+    ],
+    "no_events_calendar_located_ticker_count": 2,
+    "invalid_or_unrelated_pages": [
+      {
+        "ticker": "DVN",
+        "url": "https://www.devonenergy.com/sustainability/environment/spill-prevention",
+        "reason": "this page is not an investor-relations events calendar or earnings advisory; it is unrelated issuer content and cannot support any enrollment or 'no upcoming event' conclusion"
+      }
+    ],
+    "dell_source_recheck": {
+      "ticker": "DELL",
+      "urls": [
+        "https://investors.delltechnologies.com/news-events/upcoming-events",
+        "https://investors.delltechnologies.com/"
+      ],
+      "status": "both timed out in round 1; recheck not performed",
+      "action": "re-read the official page for date/time consistency only; the registration is not to be altered"
+    }
+  },
+  "round1_conclusion": {
+    "enrollable_candidates_established": 0,
+    "canonical_candidate_dispositions_written": 0,
+    "registry_rows_written": 0,
+    "human_verifications_completed": 0,
+    "existing_enrolled_events_unchanged": [
+      "EVT-DELL-FY27Q2-ERN"
+    ],
+    "classification": "Round 1 is RECONNAISSANCE EVIDENCE. It is not a completed canonical screening decision for 23 unnamed fiscal periods.",
+    "retrieval_failure_is_not_absence": "An unreadable or client-rendered page is a retrieval limitation. It is never described as issuer-confirmed absence. Only the pages that explicitly state no upcoming events are recorded as issuer-stated absence.",
+    "unresolved_tickers_continue": "to the scheduled Monday 09:00 America/Chicago renderer / human sweep under protocol v1.1"
+  }
+}
