@@ -1,6 +1,31 @@
 # Changelog
 
 
+## 2026-08-09 — HYP-01 statistical-method review packet and PROPOSED v1.1 amendment (nothing approved, nothing activated)
+
+**`GST_HYP01_ANALYSIS_LOCK_v1.0` remains the authoritative lock.** This entry adds a **proposal** and a **request for review**. It approves nothing, activates nothing, and changes no methodology. The proposed v1.1 files carry the status `PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL` and are explicitly barred from being described as active, registered, approved, frozen or authoritative.
+
+**No statistical choice has been approved.** The gap audit merged earlier today identified C6 (cluster-robust covariance estimator), C7 (finite-sample inference), E3 (multiplicity) and C9 (sector fixed-effect encoding) as unresolved scientific decisions due **before the first prospective observation**. This work prepares them for a qualified reviewer; it does not decide them. Claude authored the packet and may not supply any approval it requests.
+
+**Why the decisions matter here.** The locked design is n = 60 eligible events over a universe of at most 24 tickers, unbalanced by construction. Cluster-robust inference is asymptotic in the number of clusters, and its small-sample bias runs *downward* — inflating apparent significance, the worst direction for a confirmatory test. Published Monte Carlo evidence (Cameron & Miller 2015, Table 2) reports Imbens–Kolesár effective degrees of freedom averaging 9.4 at twenty nominal clusters. A synthetic exercise on data of this project's shape — fixed seed, no real ticker, no project value, run outside the repository and deleted afterwards — put the effective degrees of freedom at roughly 11 balanced and 7 unbalanced at 24 clusters, not 23.
+
+**Provisional recommendation, labelled `PROPOSED_NOT_APPROVED`.** CV2 (bias-reduced linearization) clustered on ticker; Satterthwaite/Bell–McCaffrey degrees of freedom computed from the realized design; alpha 0.05 two-sided unchanged; the realized degrees of freedom, effective cluster count and a CV1 reference standard error all reported alongside the coefficient; wild cluster bootstrap as a labelled sensitivity analysis that may never rescue or overturn the primary result; no multiplicity adjustment for the single primary confirmatory test; sum coding for the secondary model's sector fixed effects. **The estimand is unchanged in every option considered** — this concerns how uncertainty is quantified, never what is estimated.
+
+**Two places the packet argues against its own starting position.** CV3 with t(G−1) is recorded as a genuine competitor rather than an also-ran: Cameron & Miller's published rejection rates are comparable and its degrees-of-freedom rule is simpler and more reproducible, so the signoff form asks the reviewer directly whether to prefer it. And the wild cluster bootstrap did *not* dominate CV2 + Satterthwaite at small cluster counts in that same table, which is the evidential reason it is proposed as sensitivity rather than primary.
+
+**One number was deliberately not written.** If eligible events concentrate in a few tickers, the effective degrees of freedom could fall very low. Whether there is a floor below which no confirmatory conclusion should be drawn — and what the consequence should be — is left as `PLACEHOLDER_PENDING_METHODOLOGIST`. Inventing a threshold would be exactly the failure the gap audit exists to prevent: a value that looks locked because it appears in a file, chosen by an author with no standing to choose it.
+
+**A structural inversion in v1.0 is identified and proposed for correction.** v1.0 defers the cluster-covariance *option string* to the event-60 freeze while leaving the estimator unspecified — which means the statistical rule would be chosen implicitly by whoever types the option string. The proposal separates the rule (fixed before the first observation) from the record (transcribed at the freeze). A rule is chosen by a human on scientific grounds; a record is transcribed from the environment.
+
+**A practical obstacle is recorded rather than glossed.** CV2 with Satterthwaite degrees of freedom is **not available in statsmodels 0.14.6**, this project's regression library — verified by reading the installed package's own docstring. Adopting it requires either an R/clubSandwich dependency or a Python implementation validated against a published reference, and that work must complete before the first observation, not at the freeze.
+
+**No outcome was inspected and none exists.** `results: null`, `frozen_event_ids: []`, eligible-event counts 0/0/0, DELL still the sole registered event at `REGISTERED`. No screening was run, no provider called, no panel executed, no event transitioned. The synthetic demonstration used pseudo-random values only and no project observation entered it. No power analysis was performed.
+
+**A separate approved amendment is required before the first pre-event capture.** Activation needs a named methodologist's decisions on C6, C7 and E3, a decision or explicit declination on the minimum-cluster rule, Harshith Akurati's approval, and a further dated commit — all before the first HYP-01-eligible prospective pre-event capture, and none of it at the event-60 freeze. Until then v1.0 governs.
+
+Added: `GST_HYP01_STATISTICAL_METHOD_REVIEW_PACKET_v1.0_DRAFT.md`, `GST_HYP01_ANALYSIS_LOCK_v1.1_PROPOSED.json`, `GST_HYP01_ANALYSIS_LOCK_v1.1_PROPOSED_DRAFT.md`, `GST_HYP01_STATISTICAL_METHOD_SIGNOFF_v1.0_TEMPLATE.md` (every field `PENDING`; no reviewer named, no approval recorded), and `GST_HYP01_METHOD_REVIEW_REQUEST_v1.0_DRAFT.md` (no recipient named, not sent). The v1.0 lock, hypothesis registry, cohort protocol, eligibility and freeze rules, display gates, event registry, specifications, field dictionaries, gap audit, North Star, README, source code, tests and workflows are all unchanged and byte-identical.
+
+
 ## 2026-08-09 — Truthful public front door: README rebuild, North Star, institutionalization blueprint, preregistration gap audit
 
 Documentation and governance only. **No methodology, threshold, formula, protocol, registry, gate, specification or evidence artifact was changed.** No screening, data collection, analysis or strategy testing was performed, and no research process was run.
