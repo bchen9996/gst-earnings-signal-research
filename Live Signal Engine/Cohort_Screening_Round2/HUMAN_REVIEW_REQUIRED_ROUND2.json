@@ -32,10 +32,11 @@
    ]
   },
   {
-   "reason": "the URL fixed in advance by the correction overlay now returns the issuer's 404 page; section 1.1 carries no navigate-from-root permission, so the next cycle's scope should be re-derived for this ticker",
+   "reason": "The URL fixed in advance by the correction overlay failed under the current protocol (the issuer returned its own 404 page). Section 1.1 carries no navigate-from-issuer-root permission -- that belongs to sections 1.2 and 1.3 -- so root navigation was UNAUTHORIZED for this set and no substitute URL was sought. This is NOT a finding that CTSH has no event.",
    "tickers": [
     "CTSH"
-   ]
+   ],
+   "future_action": "PROSPECTIVE SCOPE CORRECTION: re-derive this ticker's source URL before the next scheduled cycle. The URL was not changed and not re-run during this audit."
   },
   {
    "reason": "cycle-specific COMPROMISED_ENROLLMENT_BLINDING; returns to the ordinary cadence next cycle",
@@ -44,5 +45,6 @@
     "TTWO"
    ]
   }
- ]
+ ],
+ "corrective_audit_note": "Offline corrective audit 2026-08-10: no candidate was added, removed or reclassified. The queue remains empty. Prohibited market data was incidentally received for DVN and TTWO; it was not used in an enrollment decision, no numeric value was transcribed into canonical evidence, and both were excluded for this cycle as COMPROMISED_ENROLLMENT_BLINDING."
 }
