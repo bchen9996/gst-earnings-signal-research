@@ -1,0 +1,48 @@
+{
+ "artifact": "GST Prospective Cohort -- Round 2 Human Review Queue",
+ "sweep_round": 2,
+ "executed_at_utc": "2026-08-10T22:12:42Z",
+ "candidates_requiring_named_human_verification": [],
+ "count": 0,
+ "note": "Round 2 established no candidate with an explicit date and explicit timing from a permitted official source, so no item enters the human-review queue. No registry row and no canonical ENROLLED screening row may be written without a named human verifying the official source; the agent's retrieval is never human verification.",
+ "items_needing_human_action_next_cycle": [
+  {
+   "reason": "issuer pages served bot-verification interstitials that automated rendering cannot pass; the correction overlay records direct human observation as an acceptable alternative",
+   "tickers": [
+    "AAPL",
+    "AMZN",
+    "BKR",
+    "GME",
+    "GOOGL",
+    "NKE",
+    "QCOM",
+    "SBUX",
+    "SYK"
+   ]
+  },
+  {
+   "reason": "edge 'Access Denied' or transport error on every recorded URL",
+   "tickers": [
+    "ABBV",
+    "ADBE",
+    "DELL",
+    "LDOS",
+    "TSLA",
+    "UAL"
+   ]
+  },
+  {
+   "reason": "the URL fixed in advance by the correction overlay now returns the issuer's 404 page; section 1.1 carries no navigate-from-root permission, so the next cycle's scope should be re-derived for this ticker",
+   "tickers": [
+    "CTSH"
+   ]
+  },
+  {
+   "reason": "cycle-specific COMPROMISED_ENROLLMENT_BLINDING; returns to the ordinary cadence next cycle",
+   "tickers": [
+    "DVN",
+    "TTWO"
+   ]
+  }
+ ]
+}

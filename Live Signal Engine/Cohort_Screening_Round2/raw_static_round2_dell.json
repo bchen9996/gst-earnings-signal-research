@@ -1,0 +1,35 @@
+{
+ "pass": "round2_static",
+ "started_at_utc": "2026-08-10T22:21:58.379634+00:00",
+ "records": [
+  {
+   "url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+   "host": "investors.delltechnologies.com",
+   "requested_at_utc": "2026-08-10T22:21:58.379722+00:00",
+   "outcome": "ACCESS_FAILED",
+   "http_status": null,
+   "error_type": "ReadTimeout",
+   "error": "HTTPSConnectionPool(host='investors.delltechnologies.com', port=443): Read timed out. (read timeout=45)",
+   "elapsed_s": 45.77,
+   "completed_at_utc": "2026-08-10T22:22:44.145935+00:00",
+   "set": "dell_recheck",
+   "ticker": "DELL",
+   "attempt_index": 1
+  },
+  {
+   "url": "https://investors.delltechnologies.com/",
+   "host": "investors.delltechnologies.com",
+   "requested_at_utc": "2026-08-10T22:22:45.646522+00:00",
+   "outcome": "ACCESS_FAILED",
+   "http_status": null,
+   "error_type": "ReadTimeout",
+   "error": "HTTPSConnectionPool(host='investors.delltechnologies.com', port=443): Read timed out. (read timeout=45)",
+   "elapsed_s": 45.16,
+   "completed_at_utc": "2026-08-10T22:23:30.808613+00:00",
+   "set": "dell_recheck",
+   "ticker": "DELL",
+   "attempt_index": 2
+  }
+ ],
+ "finished_at_utc": "2026-08-10T22:23:33.310144+00:00"
+}
