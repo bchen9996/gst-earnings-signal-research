@@ -1,6 +1,38 @@
 # Changelog
 
 
+## 2026-08-10 — Round-2 prospective-cohort sweep: 24 tickers, zero enrollable candidates
+
+Executed **Monday 2026-08-10 17:12:42 America/Chicago**, after the 09:00 cadence gate. Scope was fixed in advance by the round-1 correction overlay; round 2 visited those URLs and nothing else. The isolation rule governing every classification below was committed **first**, in `801a325`, so it predates the classifications it governs.
+
+**Result: 0 enrollable candidates, 0 human-review candidates, 0 canonical dispositions, 0 registry rows, 0 human verifications.** DELL remains the sole registered event, unaltered.
+
+| Outcome | Count | Tickers |
+|---|---|---|
+| `ACCESS_FAILED` | **16** | AAPL, ABBV, ADBE, AMZN, BKR, CTSH, DELL, GME, GOOGL, LDOS, NKE, QCOM, SBUX, SYK, TSLA, UAL |
+| `ISSUER_STATED_ABSENCE_CONFIRMED` | **4** | GPN, INTC, NCLH, STZ |
+| `COMPROMISED_ENROLLMENT_BLINDING` (this cycle) | **2** | DVN, TTWO |
+| `NO_ENROLLMENT_DECISION_REACHED` | **2** | BRK-B, MSFT |
+
+**The dominant finding is that automated retrieval can no longer read most of these issuers.** Nine tickers served bot-verification interstitials that headless rendering cannot pass; six returned edge "Access Denied" or transport errors on every recorded URL. **Blocking was never weakened to get past any of them**, and no third-party source was substituted. The correction overlay already records direct observation by a named human as an acceptable alternative for the client-rendered set — that is now the path forward for nine tickers, and it needs a person, not an agent.
+
+**Two pages did render and were read, both after passing the pre-extraction prohibition scan.** MSFT is the clean demonstration of the new rule working: the issuer's **own same-site stock-ticker component was blocked before its response was received**, the DOM and accessibility text came back free of prohibited values, and the page was only then inspected — it displayed no upcoming-events listing, which is recorded as no decision reached rather than as absence. BRK-B rendered the issuer's official home page, which carries reports, news releases, SEC filings and annual-meeting information but **no events calendar and no dated upcoming earnings event**; that too is a discovery outcome, not issuer-stated absence.
+
+**Four issuers still state absence in their own words.** GPN, INTC, NCLH and STZ each display, under an "Upcoming Events" heading, the verbatim sentence *"There are no upcoming events scheduled at this time."* Every dated entry on those pages sits under "Past Events" and none was promoted to a candidate — the round-1 error that the evidence audit corrected.
+
+**One scope defect surfaced.** The URL fixed in advance for CTSH now returns the issuer's own 404 page; it no longer serves an events calendar. Section 1.1 carries no navigate-from-issuer-root permission — that is granted only to sections 1.2 and 1.3 — so no substitute URL was sought and CTSH is recorded as an access failure. The next cycle's scope should be re-derived for this ticker.
+
+**DELL: the recheck could not be performed.** Both recorded URLs failed under ordinary retrieval and the render attempt returned "Access Denied". Because no official source was readable, **no contradiction was observed**, and the registration was not altered, amended or re-verified. It stays on the cadence for amendment detection only.
+
+**Blocking.** Deny-by-default interception was installed **before navigation** on every rendered page. Market-data paths were denied on any host, first- or third-party; analytics and financial-data vendors were denied by host; all remaining cross-site requests were denied. Bot-verification infrastructure was permitted as a resource necessary to render the issuer's own page — it is not a quote, chart, market-data, analytics or financial-data provider, and permitting it changed no outcome, since the challenges still did not pass. Blocked requests are logged as registrable domain and normalized path only; **no query string and no response body was logged**.
+
+**Quarantine.** Six retrieved bodies are held outside version control and will not be re-inspected: four containing populated prohibited values (three DVN, one TTWO) and two Berkshire Hathaway bodies whose brotli encoding this environment could not decode, and which therefore could not be *verified* clean. Their SHA-256, byte length, source URL and reason are recorded in the manifest. **No observed price, percentage change or volume appears in any artifact, log, commit message or report.**
+
+Artifacts: `Live Signal Engine/Cohort_Screening_Round2/` — `SWEEP_MANIFEST_ROUND2.json` (24 rows, each ticker exactly once, each with its governing rule), `HUMAN_REVIEW_REQUIRED_ROUND2.json` (empty queue, plus what needs a human next cycle), the static and rendered retrieval logs, 14 verified-clean static bodies, and rendered DOM text, accessibility text and screenshots for every page that passed the scan. Round-1 artifacts and the correction overlay are untouched — round 2 adds, it never rewrites.
+
+**No attention, price, volume, volatility, options, analyst, consensus, sentiment or outcome data was retrieved or inspected. No model, plot, backtest or strategy test was run. No event state changed and no registration occurred.**
+
+
 ## 2026-08-10 — Round-2 runbook clarification: what "isolated" means (additive; no methodology changed)
 
 **This entry records a methodological decision only. It is committed deliberately *before* any remaining round-two enrollment classification, so the rule predates the classifications it governs.** No screening decision, registry row, event state or statistical rule changes here.
