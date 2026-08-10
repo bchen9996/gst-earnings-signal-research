@@ -43,10 +43,44 @@
    "rendered DOM text",
    "accessibility tree text"
   ],
-  "screenshot_verification": "by construction -- the screenshot renders the DOM that passed the scan; canvas element count was captured per page and was zero everywhere a screenshot was retained",
-  "pages_scanned": 18,
-  "pages_failing_scan": 0,
-  "manual_inspection_before_scan": false
+  "denominator_meaning": "The scan counts RENDERER NAVIGATIONS that reached the automated pre-extraction gate. It does NOT mean all 24 tickers passed, does NOT cover static evidence, does NOT cover access-failed pages that never produced a readable listing, and does NOT include DVN or TTWO, whose exposures occurred in ORDINARY retrieval and never reached this gate.",
+  "locked_tickers": 24,
+  "renderer_navigations_with_committed_log_records": 18,
+  "rendered_artifact_sets_committed": 20,
+  "renderer_navigations_reaching_the_scan": 20,
+  "renderer_navigations_passing_the_scan": 20,
+  "renderer_navigations_failing_the_scan": 0,
+  "renderer_navigations_blocked_before_extraction": 0,
+  "static_evidence_compromises": 2,
+  "static_evidence_compromise_tickers": [
+   "DVN",
+   "TTWO"
+  ],
+  "access_failures": 16,
+  "no_decision_cases": 2,
+  "issuer_stated_absence": 4,
+  "manual_inspection_before_scan": false,
+  "screenshot_verification": "By construction: the screenshot renders the DOM that passed the scan. Canvas element count was captured per navigation and was zero for every navigation whose log survives. This is NOT pixel-level OCR verification.",
+  "provenance_gap": {
+   "affected_navigations": [
+    "s1_1__CTSH__2",
+    "s1_1__MSFT__4"
+   ],
+   "what_happened": "Their retrieval-log file was overwritten when the runner switched to per-batch log filenames mid-sweep. The rendered DOM, accessibility text and screenshot for both are committed; their retrieval-log records are not.",
+   "recoverable_offline_from_committed_artifacts": [
+    "prohibition-scan outcome (re-derived: both PASS, zero rule hits on DOM and accessibility text)",
+    "artifact SHA-256 and sizes"
+   ],
+   "not_recoverable": [
+    "request/completion timestamps",
+    "blocked-domain list",
+    "allowed-host list",
+    "canvas element count",
+    "per-request blocking decisions"
+   ],
+   "consequence": "The claim that MSFT's same-site stock-ticker component was blocked before its response was received is NOT provable from committed evidence and is withdrawn. What committed evidence does prove is that MSFT's committed DOM and accessibility text contain no populated prohibited value.",
+   "classifications_affected": "none -- CTSH and MSFT dispositions rest on their committed DOM text"
+  }
  },
  "outcome_distribution": {
   "ACCESS_FAILED": 16,
@@ -76,7 +110,11 @@
   "is_event_state_transition": false,
   "claims_existing_registered_event_compromised": false,
   "returns_to_cadence_next_cycle": true,
-  "prohibited_values_recorded_anywhere": false
+  "prohibited_values_recorded_anywhere": false,
+  "prohibited_values_incidentally_received": true,
+  "dvn_exposure_mode": "visual_exposure_to_operator",
+  "ttwo_exposure_mode": "mechanical_detection_without_presenting_values",
+  "used_in_any_enrollment_decision": false
  },
  "quarantine": [
   {
@@ -259,9 +297,10 @@
    "candidate_identity_established": false,
    "enrollable": false,
    "human_review_candidate": false,
-   "evidence_summary": "Rendered. The URL fixed in advance by the correction overlay now returns the issuer's 404 page; it no longer serves an events calendar. Section 1.1 carries no navigate-from-issuer-root permission, so no substitute URL was sought.",
+   "evidence_summary": "Rendered. The URL fixed in advance by the correction overlay returned the issuer's own 404 page under the current protocol, so no events listing could be read from it. Section 1.1 carries no navigate-from-issuer-root permission -- that is granted only to sections 1.2 and 1.3 -- so root navigation was UNAUTHORIZED for this set and no substitute URL was sought. This records only that the fixed URL failed; it is NOT a finding that CTSH has no event. NOTE: this navigation's retrieval-log record was lost to a mid-sweep log-filename change.",
    "governing_rule": "runbook 1 (round 2 visits the listed URLs and nothing else); 5",
-   "prohibited_market_data_observed": false
+   "prohibited_market_data_observed": false,
+   "future_action": "PROSPECTIVE SCOPE CORRECTION: re-derive this ticker's round-3 URL before the next scheduled cycle. Not changed and not re-run now."
   },
   {
    "ticker": "DELL",
@@ -401,7 +440,7 @@
    "candidate_identity_established": false,
    "enrollable": false,
    "human_review_candidate": false,
-   "evidence_summary": "Rendered successfully. The issuer's own same-site stock-ticker component was blocked before its response was received, and the prohibition scan passed on DOM and accessibility text. No upcoming-events listing and no dated upcoming earnings event was displayed. Absence of a listing is NOT recorded as issuer-stated absence.",
+   "evidence_summary": "Rendered successfully and the prohibition scan passed: the committed DOM and accessibility text contain no populated prohibited value (re-verified offline from committed artifacts). No upcoming-events listing and no dated upcoming earnings event was displayed. Absence of a listing is NOT recorded as issuer-stated absence. NOTE: this navigation's retrieval-log record was lost to a mid-sweep log-filename change, so its blocked-request list is not in committed evidence; any claim about which specific requests were blocked is withdrawn.",
    "governing_rule": "runbook 4.1 (pre-response blocking; pre-extraction scan); 5 (no candidate identity, so no canonical disposition)",
    "prohibited_market_data_observed": false
   },
@@ -563,5 +602,51 @@
    "governing_rule": "runbook 1.2; 5",
    "prohibited_market_data_observed": false
   }
- ]
+ ],
+ "prohibited_data_statement": {
+  "precise_statement": "Prohibited market data was incidentally received for DVN and TTWO. It was not used in an enrollment decision, no numeric value was transcribed into canonical evidence, and both tickers were excluded for this cycle as COMPROMISED_ENROLLMENT_BLINDING.",
+  "DVN": "Values were VISUALLY EXPOSED to the operator: the issuer events calendar rendered a quote widget in the same page as the event listing during ordinary retrieval, which has no suppression mechanism. No value was transcribed anywhere.",
+  "TTWO": "Populated prohibited content was MECHANICALLY DETECTED in the saved response body by a scanner that reports rule names only. Its values were never presented to the reviewer and were never transcribed anywhere.",
+  "superseded_wording": "Any statement that no price or volume data was 'retrieved or inspected' is INACCURATE and is superseded by the precise statement above.",
+  "no_numeric_value_reproduced_in_any_artifact": true
+ },
+ "result_language_rule": {
+  "correct": "zero enrollable candidates",
+  "prohibited_paraphrases": [
+   "no eligible events exist",
+   "no candidate exists",
+   "no upcoming earnings events",
+   "the universe has no events"
+  ],
+  "statement": "The 16 ACCESS_FAILED cases are UNRESOLVED SOURCE ACCESS, not negative eligibility findings. Nothing in round 2 establishes that any ticker lacks an upcoming earnings event; most issuer sources simply could not be read.",
+  "dell_rule": "DELL's failed recheck is NOT confirmation of its registered date. No official source was readable, so no contradiction and no confirmation was observed."
+ },
+ "screening_rows_explanation": {
+  "screening_rows_state": "[] (empty), unchanged",
+  "required_by_protocol": true,
+  "accidental_omission": false,
+  "governing_authorities": [
+   "ROUND1_CORRECTION_OVERLAY_v1.json :: canonical_pending_rule -- 'PENDING_OFFICIAL_DATE_UNAVAILABLE may be used canonically only when an actual candidate identity exists -- ticker AND fiscal period -- so the screening-log schema can be satisfied without inventing a label.'",
+   "ROUND2_RENDERER_RUNBOOK.md section 5 -- 'Otherwise the item stays in the round-2 manifest with the reconnaissance status NO_ENROLLMENT_DECISION_REACHED.'",
+   "ROUND1_CORRECTION_OVERLAY_v1.json :: noncanonical_status_label -- 'NO_ENROLLMENT_DECISION_REACHED is a RECONNAISSANCE label, not a protocol disposition. It is deliberately outside the twelve codes defined by cohort protocol v1.0/v1.1 so it can never be mistaken for a screening decision.'"
+  ],
+  "why": "Round 2 established no fiscal period for any ticker, so no candidate identity exists. Without ticker AND fiscal period the canonical screening-log schema cannot be satisfied without inventing a label, which the protocol forbids. The 24 classifications therefore belong in this reconnaissance manifest, not in screening_rows. Appending them to screening_rows would manufacture 24 canonical dispositions the evidence does not support.",
+  "no_backfill_performed": true
+ },
+ "corrective_audit": {
+  "performed_at_utc": "2026-08-10T23:30:00Z",
+  "mode": "offline_only",
+  "new_live_requests": 0,
+  "browser_started": false,
+  "quarantined_bodies_reopened": false,
+  "raw_evidence_rewritten": false,
+  "classifications_changed": 0,
+  "defects_corrected": [
+   "A: 'no price or volume data was retrieved or inspected' was inaccurate and is superseded",
+   "B: scan denominator was unlabelled and the reported page count (20) did not match committed log records (18); two rendered artifact sets lack retrieval provenance",
+   "B: an unprovable claim about MSFT's blocked requests is withdrawn",
+   "C: the .gitignore quarantine patterns served no repository-local purpose and were removed",
+   "G: CTSH wording strengthened so it cannot read as a no-event finding, plus a prospective scope correction recorded"
+  ]
+ }
 }

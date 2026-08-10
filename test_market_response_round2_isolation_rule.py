@@ -46,8 +46,8 @@ REGISTRY = ROOT / "Live Signal Engine" / "Market_Response_Event_Registry" / "reg
 FAILURES: list[str] = []
 
 
-def check(label: str, ok: bool) -> None:
-    print(("PASS: " if ok else "FAIL: ") + label)
+def check(label: str, ok: bool, detail: str = "") -> None:
+    print(("PASS: " if ok else "FAIL: ") + label + ("" if ok or not detail else f"   {detail}"))
     if not ok:
         FAILURES.append(label)
 
@@ -195,6 +195,97 @@ def test_7_registry_untouched() -> None:
     check("7d. no TTWO row was added", not any('"TTWO"' in l for l in rows))
 
 
+def test_8_scan_denominators_are_explicit() -> None:
+    M = json.loads((R2DIR / "SWEEP_MANIFEST_ROUND2.json").read_text(encoding="utf-8"))
+    s = M["pre_extraction_scan"]
+    for k, v in (("locked_tickers", 24), ("renderer_navigations_reaching_the_scan", 20),
+                 ("renderer_navigations_passing_the_scan", 20),
+                 ("renderer_navigations_failing_the_scan", 0),
+                 ("renderer_navigations_blocked_before_extraction", 0),
+                 ("renderer_navigations_with_committed_log_records", 18),
+                 ("static_evidence_compromises", 2), ("access_failures", 16),
+                 ("no_decision_cases", 2), ("issuer_stated_absence", 4)):
+        check(f"8a. denominator {k} == {v}", s.get(k) == v, f"got {s.get(k)}")
+    d = s.get("denominator_meaning", "")
+    check("8b. denominator explicitly disclaims 'all 24 passed'", "does NOT mean all 24 tickers passed" in d)
+    check("8c. denominator explicitly excludes static evidence", "does NOT cover static evidence" in d)
+    check("8d. denominator explicitly excludes DVN/TTWO", "does NOT include DVN or TTWO" in d)
+    # committed log records must actually number what the manifest claims
+    n = sum(len(json.loads(p.read_text(encoding="utf-8"))["records"])
+            for p in R2DIR.glob("raw_render_round2__*.json"))
+    check(f"8e. committed render-log records match the declared 18 (actual {n})",
+          n == s["renderer_navigations_with_committed_log_records"])
+
+
+def test_9_provenance_gap_declared() -> None:
+    M = json.loads((R2DIR / "SWEEP_MANIFEST_ROUND2.json").read_text(encoding="utf-8"))
+    g = M["pre_extraction_scan"].get("provenance_gap", {})
+    check("9a. provenance gap is declared", bool(g))
+    check("9b. names both affected navigations",
+          set(g.get("affected_navigations", [])) == {"s1_1__CTSH__2", "s1_1__MSFT__4"})
+    check("9c. names what is not recoverable", len(g.get("not_recoverable", [])) >= 3)
+    check("9d. withdraws the unprovable MSFT blocked-request claim",
+          "withdrawn" in g.get("consequence", "").lower())
+    # every committed rendered artifact set must still exist as a trio
+    doms = {f.name[:-8] for f in (R2DIR / "rendered").glob("*.dom.txt")}
+    axs = {f.name[:-7] for f in (R2DIR / "rendered").glob("*.ax.txt")}
+    pngs = {f.stem for f in (R2DIR / "screenshots").glob("*.png")}
+    check(f"9e. rendered artifact sets are complete trios ({len(doms)})", doms == axs == pngs)
+
+
+def test_10_result_language_guard() -> None:
+    M = json.loads((R2DIR / "SWEEP_MANIFEST_ROUND2.json").read_text(encoding="utf-8"))
+    g = M.get("result_language_rule", {})
+    check("10a. language rule present", g.get("correct") == "zero enrollable candidates")
+    check("10b. forbids 'no eligible events exist'", "no eligible events exist" in g.get("prohibited_paraphrases", []))
+    check("10c. forbids 'no candidate exists'", "no candidate exists" in g.get("prohibited_paraphrases", []))
+    check("10d. access failures declared unresolved, not negative findings",
+          "not negative eligibility" in g.get("statement", "").lower()
+          or "not negative eligibility findings" in g.get("statement", ""))
+    check("10e. DELL failed recheck is not confirmation", "not confirmation" in g.get("dell_rule", "").lower())
+    # the prohibited paraphrases must not appear in the round-2 manifest prose
+    blob = json.dumps(M).lower()
+    for bad in ("no eligible events exist", "no candidate exists"):
+        idx = blob.find(bad)
+        ok = idx == -1 or "prohibited_paraphrases" in blob[max(0, idx - 400):idx]
+        check(f"10f. manifest does not assert '{bad}'", ok)
+
+
+def test_11_precise_prohibited_data_statement() -> None:
+    M = json.loads((R2DIR / "SWEEP_MANIFEST_ROUND2.json").read_text(encoding="utf-8"))
+    s = M.get("prohibited_data_statement", {})
+    check("11a. precise statement present", "incidentally received for DVN and TTWO" in s.get("precise_statement", ""))
+    check("11b. states not used in an enrollment decision",
+          "not used in an enrollment decision" in s.get("precise_statement", ""))
+    check("11c. DVN described as visually exposed", "VISUALLY EXPOSED" in s.get("DVN", ""))
+    check("11d. TTWO described as mechanically detected without presenting values",
+          "MECHANICALLY DETECTED" in s.get("TTWO", "") and "never presented" in s.get("TTWO", ""))
+    check("11e. inaccurate wording marked superseded", "INACCURATE" in s.get("superseded_wording", ""))
+    ch = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    check("11f. CHANGELOG no longer asserts nothing was retrieved or inspected",
+          "outcome data was retrieved or inspected" not in ch)
+
+
+def test_12_screening_rows_explained() -> None:
+    M = json.loads((R2DIR / "SWEEP_MANIFEST_ROUND2.json").read_text(encoding="utf-8"))
+    e = M.get("screening_rows_explanation", {})
+    check("12a. explanation present and says protocol-required",
+          e.get("required_by_protocol") is True and e.get("accidental_omission") is False)
+    check("12b. cites at least three governing authorities", len(e.get("governing_authorities", [])) >= 3)
+    check("12c. no backfill performed", e.get("no_backfill_performed") is True)
+    prot = json.loads(PROTOCOL.read_text(encoding="utf-8-sig"))
+    check("12d. screening_rows still empty", prot["screening_rows"] == [])
+
+
+def test_13_gitignore_narrow() -> None:
+    gi = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    for bad in ("*.html", "*.json", "*.csv", "*.png", "*.log", "evidence/", "Cohort_Screening",
+                "registry", "observations", "dossier", "marker"):
+        check(f"13a. .gitignore does not hide '{bad}'", bad not in gi)
+    check("13b. quarantine patterns removed (quarantine is outside the repository)",
+          "QUARANTINE_NONCANONICAL" not in gi and "quarantine_noncanonical" not in gi)
+
+
 if __name__ == "__main__":
     test_1_clarification_present()
     test_2_isolation_definition()
@@ -203,6 +294,12 @@ if __name__ == "__main__":
     test_5_no_prohibited_values_in_committed_round2_artifacts()
     test_6_untouched_governance()
     test_7_registry_untouched()
+    test_8_scan_denominators_are_explicit()
+    test_9_provenance_gap_declared()
+    test_10_result_language_guard()
+    test_11_precise_prohibited_data_statement()
+    test_12_screening_rows_explained()
+    test_13_gitignore_narrow()
 
     print()
     if FAILURES:
