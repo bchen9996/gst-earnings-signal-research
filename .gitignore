@@ -7,3 +7,12 @@ __pycache__/
 
 # Local Claude Code session config (permission allowlist etc.), not project content.
 .claude/
+
+# Blinding quarantine. Retrieved bodies containing populated prohibited market
+# data (price, percentage change, volume and the like), or whose bytes could not
+# be decoded and therefore could not be verified free of it, are held OUTSIDE
+# version control and are never re-inspected. Only their SHA-256, retrieval
+# timestamp, source URL and reason are recorded, in the round-2 audit trail.
+# See ROUND2_RENDERER_RUNBOOK.md section 4.1.
+*QUARANTINE_NONCANONICAL*/
+quarantine_noncanonical/

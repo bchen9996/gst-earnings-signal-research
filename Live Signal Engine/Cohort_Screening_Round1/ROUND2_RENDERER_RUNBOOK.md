@@ -73,6 +73,28 @@ No attention, price, return, volume, volatility, options, earnings surprise, ana
 
 **Stop immediately** if a page displays prohibited attention, price, surprise, options or outcome data in a way that cannot be isolated from the event listing. Record the stop and the reason; do not work around it.
 
+### 4.1 Clarification — what "isolated" means (added 2026-08-10, additive)
+
+*This subsection was added after the round-two sweep halted on a genuine conflict between §2 and §4: §4 requires a stop when prohibited data is not isolable, while §2's only remedy — suppressing market-data widgets — is a renderer capability, and §2 routes every set other than §1.1 through ordinary retrieval, which has no suppression mechanism at all. The decisions below were made by Harshith Akurati. They resolve the precedence and add nothing else. **No universe, cadence, eligibility window, source hierarchy, source-authority rule, enrollment criterion, outcome firewall or statistical rule is changed.***
+
+**Precedence.** §4 governs **actual exposure**. §2 supplies the **preventive mechanism**. Where both apply, §4 decides the outcome and §2 decides the method.
+
+**Definition — isolated.** Prohibited data counts as isolated **only if its network requests were blocked before their responses were received and before any value populated the rendered page**. Isolation is a property of what never arrived, not of what was subsequently avoided.
+
+**Insufficient.** Ignoring, cropping, masking, excluding from extraction, or omitting an already-rendered or already-retrieved widget **does not restore blinding**. A value that reached the evidence surface has already been observed for protocol purposes.
+
+**Pre-render request blocking is permitted for every issuer page**, regardless of whether the ticker was originally assigned ordinary retrieval (§1.2, §1.3, §1.4, §1.5) or renderer retrieval (§1.1). Blocking must be installed **before** navigation begins. This is a retrieval-method permission only; it expands no source set and reaches no host the runbook did not already authorise.
+
+**Consequence.** If a prohibited value populates the **DOM, accessibility tree, screenshot, extracted text, console output, or saved evidence**, stop that ticker and classify it **`COMPROMISED_ENROLLMENT_BLINDING` for this screening cycle**.
+
+That disposition is **cycle-specific**. It is *not* a permanent exclusion, *not* a registry amendment, *not* an event-state transition, and *not* a claim that any existing registered event is compromised. The ticker returns to the ordinary cadence next cycle.
+
+**Recording rule.** For a compromised ticker, record **only**: that prohibited market data was displayed, the exposure timestamp, the affected source URL, and the resulting disposition. **The observed price, percentage change, volume or any other prohibited value is never recorded anywhere** — not in an artifact, a log, a commit message, or a report. Evidence bodies containing prohibited values are quarantined outside version control and are never re-inspected.
+
+**Blocking may not be weakened to obtain a listing.** If blocking prevents the event listing from rendering, the source is classified under the existing access-failure or unresolved rule.
+
+**Pre-extraction gate.** Before any event information is extracted from a rendered page, an automated scan must verify that the rendered DOM, accessibility text and saved screenshot contain no populated quote, price, percentage-change, volume, chart-value, options, surprise, analyst or outcome field. **No page may be inspected manually until that scan passes.** If the scan fails, the values are not viewed: the ticker stops and takes the cycle-specific compromised disposition.
+
 ## 5. Outcomes
 
 - An **inaccessible** page remains a documented **access failure**. It is never described as issuer-confirmed absence, and no third-party source is substituted.
