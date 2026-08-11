@@ -1,6 +1,29 @@
 # Changelog
 
 
+## 2026-08-11 — Round-2 screenshot OCR audit: all 20 images machine-read, none carries market data
+
+Offline only. **No live request, no browser, no screenshot manually viewed, no quarantined body reopened.** No ticker classification changed.
+
+**Why this was needed.** The round-2 screenshots had never been read. Their cleanliness was asserted *structurally* — the DOM had passed the prohibition scan, so the image rendering that DOM was presumed clean. For CTSH and MSFT that inference was especially weak, because their retrieval-log records were lost and could not corroborate it. An unread image is not evidence of anything.
+
+**Method.** Every committed screenshot was mechanically OCR'd with **Windows.Media.Ocr** (the Windows built-in engine, recognizer **en-US**) — already installed, nothing downloaded. The tallest image, MSFT at 1367×10790, exceeds the engine's 10000-pixel limit and was processed as **3 vertically overlapping tiles** so no text could fall in a seam. Token counts come from the engine's own `OcrLine`/`OcrWord` results; where the engine status is missing the image is `OCR_UNVERIFIABLE`, with **no fallback word split**. Recognized text was written to a temp file, scanned in memory, and deleted — it was never printed, returned or persisted, and **no matched numeric value was recorded anywhere**.
+
+**A harness bug was fixed before any result was trusted.** `$result.Lines.Count` on a WinRT collection triggers PowerShell member enumeration and yields `Object[]` rather than an integer, which aborted the status line. WinRT collections are now materialised into real arrays before counting. A second, separate defect in the earlier probing — relative paths passed to `GetFileFromPathAsync`, which requires absolute ones — had briefly made the engine look unreliable; it was not.
+
+**Result: 20 screenshots, 0 prohibited, 0 unverifiable.** 19 plain `OCR_CLEAN`, and 1 `OCR_CLEAN_WITH_ADVISORY_STRUCTURE_MATCH`. Three complete runs produced **identical** hashes, OCR status, token counts, value-rule hits, structural-rule hits and dispositions.
+
+**The adjudication rule, authorized by Harshith Akurati.** A standalone navigation or heading phrase such as a stock-information link is **not itself prohibited market data**. A structural match becomes prohibited only when the same bounded region (±220 characters) also carries a corroborator: a recognized market value or metric, an explicit market-data attribution naming a financial-data provider, or a machine-detected populated quote-field structure — checked in the OCR output **and** in the committed DOM and accessibility artifacts. A structure-only phrase is retained as `OCR_CLEAN_WITH_ADVISORY_STRUCTURE_MATCH`, which counts as clean for the merge gate while **preserving the original rule name**. Nothing is erased or concealed.
+
+**BRK-B carries the single advisory.** Its screenshot matched `quote_widget_word` — Berkshire's official home page carries a stock-information navigation link. **Zero value, zero attribution and zero populated-quote-field corroborators fired**, in the OCR output and in the committed DOM and accessibility text, across all three runs, and the structural match is explicitly recorded as uncorroborated. **BRK-B's round-two screening classification (`NO_ENROLLMENT_DECISION_REACHED`) is unchanged, and its screenshot was neither removed nor rewritten.**
+
+**CTSH and MSFT are both plain `OCR_CLEAN`** — 241 and 1394 engine-recognized tokens respectively. This settles their *screenshot content*. It settles nothing else: **OCR does not recover their missing retrieval provenance**, and their timestamps, blocked-domain lists, allowed-host lists and canvas counts remain permanently unavailable.
+
+**Stated limitation.** OCR reduces but does not eliminate image-recognition error. A negative OCR result is evidence of absence only to the accuracy of the recognizer; low-contrast, clipped, canvas-rendered or non-Latin glyphs may be missed.
+
+Added `SCREENSHOT_OCR_AUDIT_ROUND2.json` — sanitized, carrying only filename, SHA-256, dimensions, engine and language, processing method, tile count, engine-sourced token and line counts, the rule names in each category, the per-rule corroboration flags and the disposition. Added `test_market_response_round2_screenshot_ocr_audit.py` (**77 assertions**), which exercises the adjudication rule against four synthetic fixtures — structure-only passing with an advisory, and structure-plus-price, structure-plus-volume and structure-plus-attribution each failing — verifies all 20 screenshots appear exactly once with hashes tying out to the images on disk, re-derives every disposition from the recorded rule names, confirms CTSH, MSFT and BRK-B specifically, and asserts that no OCR text, monetary value or percentage is persisted anywhere in the artifact.
+
+
 ## 2026-08-10 — Offline corrective audit of the round-2 sweep (five defects; no classification changed)
 
 Offline only. **No new live request, no browser, no reopened quarantine body, no rewritten raw evidence.** No classification changed, because no committed evidence proved one wrong. Five defects in the round-2 *documentation and manifest* are corrected.
