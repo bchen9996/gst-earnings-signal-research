@@ -1,0 +1,232 @@
+{
+ "pass": "round2_render",
+ "started_at_utc": "2026-08-10T22:56:51.271436+00:00",
+ "blocking": "deny_by_default_pre_navigation",
+ "records": [
+  {
+   "url": "https://investor.apple.com/investor-relations/default.aspx",
+   "requested_at_utc": "2026-08-10T22:56:51.271460+00:00",
+   "completed_at_utc": "2026-08-10T22:57:09.988650+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "apple.com",
+    "cloudflare.com"
+   ],
+   "dom_chars": 266,
+   "ax_chars": 747,
+   "canvas_elements": 0,
+   "screenshot_bytes": 32566,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "6894321bf9615341b79ac6d608ba623a005bc76c03d4d56e7de9b4700429c9cb",
+   "ax_sha256": "0a44cec94225dc9f3946239dd8fa18c9958f00981be6ae6b12263cb15c5726e5",
+   "screenshot_sha256": "841294168587455f8a90997628b83ad2ee4398a345100cfd462b46af3dceaef7",
+   "ticker": "AAPL",
+   "set": "s1_3",
+   "tag": "s1_3__AAPL__11"
+  },
+  {
+   "url": "https://www.adobe.com/investor-relations.html",
+   "requested_at_utc": "2026-08-10T22:57:10.993748+00:00",
+   "completed_at_utc": "2026-08-10T22:57:29.693091+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "adobe.com"
+   ],
+   "dom_chars": 195,
+   "ax_chars": 441,
+   "canvas_elements": 0,
+   "screenshot_bytes": 25040,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "fe38face2e29c27e9c8b799b64247ea890408b8506a24335d3cd2722533931e5",
+   "ax_sha256": "b8aa38165c86e332f645103dd90cabae1dcae2f012ee8915ab224b5855d33c68",
+   "screenshot_sha256": "df00dbed5cce701d3972985c5c2ab860bee632587e93669b1256310c4acd55b9",
+   "ticker": "ADBE",
+   "set": "s1_3",
+   "tag": "s1_3__ADBE__12"
+  },
+  {
+   "url": "https://investors.abbvie.com/events-and-presentations",
+   "requested_at_utc": "2026-08-10T22:57:30.699837+00:00",
+   "completed_at_utc": "2026-08-10T22:57:49.168920+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "abbvie.com"
+   ],
+   "dom_chars": 226,
+   "ax_chars": 479,
+   "canvas_elements": 0,
+   "screenshot_bytes": 22874,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "4f4dfbce8965ed83e9d96ca1a2af15c204cf6a933284e89a465a86a0e4776c53",
+   "ax_sha256": "b8d549eec2aee815b6ca7cbe3c0d2fc0ea1bab90de236cb487e82a8a571b906c",
+   "screenshot_sha256": "fd117b8b3680d5941c3e511194ca5bc34d360562632a9bd7808fc124d98d5138",
+   "ticker": "ABBV",
+   "set": "s1_2_fallback",
+   "tag": "s1_2_fallback__ABBV__13"
+  },
+  {
+   "url": "https://www.berkshirehathaway.com/",
+   "requested_at_utc": "2026-08-10T22:57:50.175746+00:00",
+   "completed_at_utc": "2026-08-10T22:58:08.918670+00:00",
+   "blocked_count": 1,
+   "blocked": [
+    {
+     "domain": "googletagmanager.com",
+     "path": "/gtag/js",
+     "reason": "analytics_or_financial_vendor"
+    }
+   ],
+   "allowed_first_party_hosts": [
+    "berkshirehathaway.com"
+   ],
+   "dom_chars": 1271,
+   "ax_chars": 4116,
+   "canvas_elements": 0,
+   "screenshot_bytes": 69339,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "409183ddf87ccdf6b0bdc8db0ded49b363961318b7f5bce34d3c8630c1bad8e6",
+   "ax_sha256": "809a4287d0da4e242a1acee85afdd611028901baea6c0bb94759a70776587b14",
+   "screenshot_sha256": "9f0a25f7e0412e6ee6dd65cb2980751320cef5fdbe8ec732f30196a244a9d2bd",
+   "ticker": "BRK-B",
+   "set": "s1_2_fallback",
+   "tag": "s1_2_fallback__BRK_B__14"
+  },
+  {
+   "url": "https://investor.gamestop.com/news-events/ir-calendar",
+   "requested_at_utc": "2026-08-10T22:58:09.931702+00:00",
+   "completed_at_utc": "2026-08-10T22:58:28.448779+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "cloudflare.com",
+    "gamestop.com"
+   ],
+   "dom_chars": 269,
+   "ax_chars": 759,
+   "canvas_elements": 0,
+   "screenshot_bytes": 33793,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "e575a172844bd250ab3edd5d23e06571a25a8b1fb1e45ac6b5ad73482a0046b7",
+   "ax_sha256": "2752158190a334da4187ed01ae906bc8ac5f858de64a206c9a096e29d85464d2",
+   "screenshot_sha256": "8520b2dbca6ba48281ab1e92344cc69d8d161857e02ea80945cd91026607e627",
+   "ticker": "GME",
+   "set": "s1_2_fallback",
+   "tag": "s1_2_fallback__GME__15"
+  },
+  {
+   "url": "https://investors.leidos.com/events-and-presentations",
+   "requested_at_utc": "2026-08-10T22:58:29.454876+00:00",
+   "completed_at_utc": "2026-08-10T22:58:47.976754+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "leidos.com"
+   ],
+   "dom_chars": 226,
+   "ax_chars": 479,
+   "canvas_elements": 0,
+   "screenshot_bytes": 22981,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "143c832d2ec1fdb9c96bd9465db7283f2440f9b0527d7bfb29f0318d2ffd190e",
+   "ax_sha256": "bb6dd34b2c5399dfe6f70334f0c7a9769451dcdfe51607049dbcfb9b86c5613f",
+   "screenshot_sha256": "43edb682e638b674700c2ef0168b58bb260fe9aa9a6be93d9de8a80cb970170e",
+   "ticker": "LDOS",
+   "set": "s1_2_fallback",
+   "tag": "s1_2_fallback__LDOS__16"
+  },
+  {
+   "url": "https://ir.tesla.com/",
+   "requested_at_utc": "2026-08-10T22:58:48.983077+00:00",
+   "completed_at_utc": "2026-08-10T22:59:07.511723+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "tesla.com"
+   ],
+   "dom_chars": 192,
+   "ax_chars": 411,
+   "canvas_elements": 0,
+   "screenshot_bytes": 22261,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "b7479d07d75378cd742b7b8fecbeb1470d7699b06a2e6dab988a93b19d0ba994",
+   "ax_sha256": "fe322cb40fbe3319c9a2aab0918dd87dbbf5095d79956b70d205e1002e162737",
+   "screenshot_sha256": "a16718b20130aa57a907c9a0cca91a5ccb87942a5876d27f8ee82cb9d77aba4d",
+   "ticker": "TSLA",
+   "set": "s1_2_fallback",
+   "tag": "s1_2_fallback__TSLA__17"
+  },
+  {
+   "url": "https://ir.united.com/news-and-events/events",
+   "requested_at_utc": "2026-08-10T22:59:08.519076+00:00",
+   "completed_at_utc": "2026-08-10T22:59:27.011590+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "united.com"
+   ],
+   "dom_chars": 217,
+   "ax_chars": 461,
+   "canvas_elements": 0,
+   "screenshot_bytes": 23000,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "828f743afb5afab86fef70f7b06ade776404f831af48d44464fbaec458105c13",
+   "ax_sha256": "d66dd1b2dc42d1678715659b896b8bf6da03333f8d80493b11300c6c5a6ec621",
+   "screenshot_sha256": "9523b445ce2fbee8e2c479b7f92a706b0ea68865827136428543ef39a64b49b8",
+   "ticker": "UAL",
+   "set": "s1_2_fallback",
+   "tag": "s1_2_fallback__UAL__18"
+  },
+  {
+   "url": "https://investors.delltechnologies.com/news-events/upcoming-events",
+   "requested_at_utc": "2026-08-10T22:59:28.019498+00:00",
+   "completed_at_utc": "2026-08-10T22:59:47.134560+00:00",
+   "blocked_count": 0,
+   "blocked": [],
+   "allowed_first_party_hosts": [
+    "delltechnologies.com"
+   ],
+   "dom_chars": 239,
+   "ax_chars": 505,
+   "canvas_elements": 0,
+   "screenshot_bytes": 23486,
+   "scan_dom_rules": [],
+   "scan_ax_rules": [],
+   "scan_passed": true,
+   "screenshot_verified_by": "dom_and_ax_clean_and_no_canvas",
+   "dom_sha256": "d206e25756cb0d5208176caee1096c12e49607cd27960d0368895a3159455bb4",
+   "ax_sha256": "40f40ecd3e3b9fba1ed1f706cd086e7202a2c40d9fa179488309a1ee2b022b7e",
+   "screenshot_sha256": "2e6f9d7bc30c8fc9411ae072d9096444817b676984e3a1d84247c7c35ce662be",
+   "ticker": "DELL",
+   "set": "s1_5",
+   "tag": "s1_5__DELL__19"
+  }
+ ],
+ "finished_at_utc": "2026-08-10T22:59:48.144155+00:00"
+}
