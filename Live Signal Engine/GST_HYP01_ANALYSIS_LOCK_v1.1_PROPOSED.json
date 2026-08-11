@@ -1,0 +1,332 @@
+{
+  "artifact": "GST_HYP01_ANALYSIS_LOCK_v1.1_PROPOSED",
+  "lock_version": "1.1-PROPOSED",
+  "status": "PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL",
+  "authoritative": false,
+  "authoritative_lock_is": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0.json",
+  "authoritative_lock_version": "1.0",
+  "standing_note": "This file is a PROPOSAL. It is not active, not registered, not approved, not frozen and not authoritative. v1.0 remains the sole authoritative HYP-01 analysis lock. Nothing in this file governs any analysis unless and until a qualified methodologist and Harshith Akurati record approval on GST_HYP01_STATISTICAL_METHOD_SIGNOFF_v1.0_TEMPLATE.md and a separate dated commit activates it.",
+  "authored_at_utc": "2026-08-10T03:00:00Z",
+  "authored_by": "Claude (Anthropic), at the direction of Harshith Akurati. The author is NOT a methodologist and does not approve this proposal.",
+  "authored_before_any_prospective_observation": true,
+  "outcomes_inspected_in_preparing_this": "NONE. Zero prospective observations exist.",
+
+  "review_packet": "Live Signal Engine/GST_HYP01_STATISTICAL_METHOD_REVIEW_PACKET_v1.0_DRAFT.md",
+  "signoff_form": "Live Signal Engine/GST_HYP01_STATISTICAL_METHOD_SIGNOFF_v1.0_TEMPLATE.md",
+  "review_request": "Live Signal Engine/GST_HYP01_METHOD_REVIEW_REQUEST_v1.0_DRAFT.md",
+  "gap_audit": "PREREGISTRATION_GAP_AUDIT_v1.0.md",
+  "north_star": "PROJECT_NORTH_STAR_v1.0_DRAFT.md",
+
+  "approval_requirements": {
+    "required_before_this_file_has_any_standing": [
+      "A named, qualified methodologist records a decision on C6, C7 and E3 on the signoff form.",
+      "The methodologist sets or explicitly declines the minimum-cluster / effective-degrees-of-freedom rule (NEW-1).",
+      "Harshith Akurati records approval on the signoff form.",
+      "A separate dated commit activates the approved version and states plainly what changed from v1.0 and why."
+    ],
+    "claude_may_not_approve": true,
+    "self_approval_prohibited": "The author of this proposal may not supply any approval it requires.",
+    "deadline": "All of the above must complete BEFORE the first HYP-01-eligible prospective pre-event capture. Not at the event-60 freeze."
+  },
+
+  "unchanged_from_v1_0": {
+    "statement": "Every scientific element of v1.0 not listed under proposed_changes is carried forward VERBATIM and is not reopened by this proposal.",
+    "study_question": "Does higher abnormal pre-earnings Google-search attention associate with a greater absolute overnight earnings response?",
+    "predictor": {
+      "primary": "gst_zscore",
+      "form": "continuous",
+      "thresholded": false,
+      "measured_at": "the pre-event anchor session",
+      "rules": [
+        "continuous -- entered on its natural scale",
+        "unthresholded -- no high/low attention binning",
+        "no data-driven cutoff",
+        "no winsorization",
+        "no outcome-informed transformation"
+      ],
+      "wikipedia_is_co_primary": false
+    },
+    "primary_outcome": {
+      "field": "abs_overnight_gap",
+      "definition": "abs(overnight_gap)",
+      "signed_definition": "overnight_gap = next_session_open / previous_close - 1"
+    },
+    "primary_model_formula": "abs_overnight_gap ~ gst_zscore",
+    "estimator": "ordinary_least_squares",
+    "estimand": "UNCHANGED -- the OLS coefficient on gst_zscore. No proposed change alters the quantity being estimated.",
+    "coefficient_of_interest": "gst_zscore",
+    "null_hypothesis": "beta_gst = 0",
+    "sidedness": "two_sided",
+    "alpha": 0.05,
+    "covariates": [],
+    "data_driven_covariates": false,
+    "cluster_variable": "ticker",
+    "sample_inclusion_conditions": "S-1 through S-8, verbatim from v1.0",
+    "sample_ordering": "mechanically derived response-session date ascending; tie-breaker event_id ascending",
+    "target_n": 60,
+    "eligible_release_sessions": ["BMO", "AMC"],
+    "ineligible_release_sessions": ["INTRADAY"],
+    "required_reported_quantities": [
+      "coefficient",
+      "95% confidence interval",
+      "p-value",
+      "eligible-event count",
+      "unique-ticker count"
+    ],
+    "missingness_and_exclusions": "verbatim from v1.0 -- no imputation, no zero-fill, no winsorization, no outlier deletion",
+    "interim_analysis": "none permitted",
+    "optional_stopping": "prohibited",
+    "repeated_testing": "prohibited",
+    "model_change_after_freeze": "prohibited",
+    "run_count": 1,
+    "display_gates": "unchanged",
+    "cohort_protocol": "unchanged",
+    "v0_2_thresholds_and_interval_formulas": "unchanged",
+    "hyp_02_and_hyp_03": "unchanged in threshold, status, missing-measurement classification and unresolved analysis choices"
+  },
+
+  "proposed_changes": [
+    {
+      "id": "C6",
+      "field": "primary_model.covariance.estimator_variant",
+      "v1_0_state": "UNSPECIFIED -- covariance.type was 'cluster_robust' with cluster_variable 'ticker', but no variant was named",
+      "proposed_value": "CV2",
+      "proposed_description": "Bias-reduced linearization (Bell & McCaffrey 2002). Cluster-robust sandwich in which the residual block u_g is replaced by A_g u_g, with A_g = (I - H_gg)^(-1/2) and H_gg = X_g (X'X)^(-1) X_g'.",
+      "rationale_source": "Bell & McCaffrey (2002); Cameron & Miller (2015) Table 2; Pustejovsky & Tipton (2018)",
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED",
+      "alternative_the_reviewer_may_prefer": "CV3 (cluster jackknife) with t(G-1). Published performance is comparable and the degrees-of-freedom rule is simpler and more reproducible. See review packet Q2."
+    },
+    {
+      "id": "C7",
+      "field": "primary_model.covariance.finite_sample_correction",
+      "v1_0_state": "finite_sample_correction: true -- a boolean with no procedure attached",
+      "proposed_value": {
+        "reference_distribution": "t",
+        "degrees_of_freedom_rule": "satterthwaite_bell_mccaffrey",
+        "computed_from": "the realized design matrix, under the working model Omega = I",
+        "definition": "nu = (sum_i lambda_i)^2 / (sum_i lambda_i^2), where lambda_i are the eigenvalues of G'G and the g-th column of G is (I - H)_[.,g] A_g X_g (X'X)^(-1) c, with c = (0,1)'",
+        "alpha_unchanged": 0.05,
+        "sidedness_unchanged": "two_sided"
+      },
+      "rationale_source": "Bell & McCaffrey (2002); Imbens & Kolesar (2016); Cameron & Miller (2015)",
+      "note": "nu depends on the realized design and cannot be computed in advance. Only the RULE is fixable in advance.",
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED"
+    },
+    {
+      "id": "C7-reporting",
+      "field": "primary_model.required_reported_quantities",
+      "v1_0_state": "coefficient, 95% CI, p-value, eligible-event count, unique-ticker count",
+      "proposed_addition": [
+        "realized Satterthwaite degrees of freedom (nu)",
+        "realized effective number of clusters (G*, Carter-Schnepel-Steigerwald)",
+        "the CV1 standard error, reported as a comparability reference and NOT as the inferential rule"
+      ],
+      "rationale": "A very small nu is itself a finding about evidential strength and must not be hidden. Reporting CV1 alongside makes the small-cluster correction visible rather than buried.",
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED"
+    },
+    {
+      "id": "E3",
+      "field": "multiplicity_treatment",
+      "v1_0_state": "PENDING_SEPARATE_ANALYSIS_LOCK (registry statistical_governance.multiplicity_note)",
+      "proposed_value": {
+        "primary_confirmatory_tests": 1,
+        "adjustment_for_primary": "none",
+        "justification": "Exactly one primary confirmatory hypothesis, one predictor, one outcome, one test, all fixed before any data exists.",
+        "secondary_and_exploratory": "HYP-02 and HYP-03, and all registered secondary/exploratory analyses, are reported with a predeclared non-confirmatory treatment. They carry no confirmatory claim, cannot change the HYP-01 conclusion, and are not pooled with it into a single tested family.",
+        "promotion_rule_unchanged": "Promotion to confirmatory may never be based on observed results."
+      },
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED",
+      "reviewer_question": "If an adjustment IS required, which, and over what family? See review packet Q6."
+    },
+    {
+      "id": "C9",
+      "field": "adjusted_sensitivity_model.sector_fixed_effect_encoding",
+      "v1_0_state": "PENDING_SEPARATE_ANALYSIS_LOCK",
+      "applies_to": "the SECONDARY adjusted sensitivity model only -- which cannot overturn or rescue the primary result",
+      "proposed_value": {
+        "encoding": "sum_effects_coding",
+        "sector_source": "Live Signal Engine/GST_Sector_ETF_Mapping_v0.1.json (unchanged by this proposal)",
+        "rationale": "No reference sector is scientifically privileged among the locked 24 tickers. Sum coding makes the intercept the unweighted grand mean and each sector term a deviation from it.",
+        "effect_on_beta_gst": "NONE -- treatment and sum coding span the same column space; the gst_zscore estimate and standard error are identical under either.",
+        "sparse_sector_rule": "PLACEHOLDER_PENDING_METHODOLOGIST -- a predeclared rule for sectors contributing too few eligible events must be fixed before the first observation. No rule is invented here."
+      },
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED"
+    },
+    {
+      "id": "D-sensitivity",
+      "field": "sensitivity_analyses.wild_cluster_bootstrap",
+      "v1_0_state": "not addressed",
+      "proposed_value": {
+        "role": "LABELLED_SENSITIVITY_ANALYSIS_ONLY",
+        "variant": "PLACEHOLDER_PENDING_METHODOLOGIST -- Rademacher 2-point or Webb 6-point",
+        "restricted_or_unrestricted": "PLACEHOLDER_PENDING_METHODOLOGIST -- WCR (restricted, null imposed) is the literature default",
+        "replications": "PLACEHOLDER_PENDING_METHODOLOGIST",
+        "seed_policy": "A fixed seed must be recorded at the event-60 freeze; a stochastic procedure without a recorded seed is not reproducible.",
+        "may_overturn_primary": false,
+        "may_rescue_primary": false,
+        "must_be_reported": "always, whatever it shows",
+        "rationale": "MacKinnon, Nielsen & Webb (2022) recommend WCR bootstrap routinely as corroboration. Cameron & Miller (2015) Table 2 shows it did not dominate CV2 + Satterthwaite at small G. Allowing a second procedure to overturn the first would be method-shopping."
+      },
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED"
+    },
+    {
+      "id": "NEW-2",
+      "field": "separation_of_statistical_rule_from_software_record",
+      "v1_0_state": "v1.0 placed cluster_covariance_option_string and finite_sample_correction_option in environment_freeze as TO_BE_FROZEN_AT_EVENT_60, bundled with package and version. This means the estimator choice would be made implicitly by whoever typed the option string at event 60.",
+      "proposed_value": {
+        "fixed_before_first_prospective_observation": [
+          "covariance estimator family (C6)",
+          "degrees-of-freedom rule (C7)",
+          "alpha and sidedness (already locked in v1.0)",
+          "multiplicity treatment (E3)",
+          "minimum-cluster / effective-df policy (NEW-1)",
+          "wild-bootstrap role, variant, replications and weight distribution (D-sensitivity)",
+          "sector coding for the secondary model (C9)"
+        ],
+        "recorded_at_event_60_freeze": [
+          "language_version",
+          "statistics_package",
+          "statistics_package_version",
+          "the literal option string implementing the already-fixed estimator",
+          "random_seed_if_any",
+          "analysis_code_commit_sha",
+          "the exact 60 event IDs"
+        ],
+        "principle": "A rule is chosen by a human on scientific grounds. A record is transcribed from the environment. Recording a value is not deciding one."
+      },
+      "estimand_changed": false,
+      "status": "PROPOSED_NOT_APPROVED"
+    }
+  ],
+
+  "unresolved_questions_for_methodologist": [
+    {
+      "id": "NEW-1",
+      "question": "Is there a minimum effective degrees of freedom, or minimum effective number of clusters G*, below which this design should not support a confirmatory conclusion?",
+      "proposed_threshold": "PLACEHOLDER_PENDING_METHODOLOGIST",
+      "explicitly_not_proposed": "This proposal deliberately invents NO threshold. Supplying a number here would be exactly the failure the preregistration gap audit exists to prevent: a value that looks locked because it appears in a file, chosen by an author with no standing to choose it.",
+      "consequence_options_if_threshold_breached": [
+        "abstain from a confirmatory conclusion",
+        "report as inconclusive with the interval published",
+        "proceed with a predeclared caveat"
+      ],
+      "consequence_selected": "PLACEHOLDER_PENDING_METHODOLOGIST",
+      "hard_constraint": "Whatever the rule, it must be fixed before the first prospective observation and must NEVER be evaluated after seeing the coefficient.",
+      "status": "UNRESOLVED"
+    },
+    {
+      "id": "C6-alt",
+      "question": "Should CV3 with t(G-1) be preferred over CV2 with Satterthwaite, on grounds of comparable published performance and a simpler, more reproducible degrees-of-freedom rule?",
+      "status": "UNRESOLVED"
+    },
+    {
+      "id": "A9",
+      "question": "Should a pre-data design-sensitivity or power analysis be performed, and on what externally justified effect sizes?",
+      "constraints": [
+        "must occur before any prospective outcome exists",
+        "must use externally justified or clearly hypothetical effect sizes",
+        "must NEVER use observed project results, including the retrospective reconstruction",
+        "must NOT silently revise the locked n = 60"
+      ],
+      "performed_in_preparing_this_proposal": false,
+      "status": "UNRESOLVED"
+    },
+    {
+      "id": "per-ticker-cap",
+      "question": "Does the expected 60-events-over-at-most-24-tickers structure warrant a per-ticker cap on eligible events?",
+      "warning": "Any such cap changes the SAMPLE DEFINITION, which is a currently locked element, and would require a separate amendment beyond this one.",
+      "status": "UNRESOLVED"
+    },
+    {
+      "id": "sparse-sector-rule",
+      "question": "What is the predeclared rule for sectors contributing too few eligible events in the secondary adjusted model?",
+      "status": "UNRESOLVED"
+    },
+    {
+      "id": "implementation-path",
+      "question": "CV2 with Satterthwaite degrees of freedom is NOT available in statsmodels 0.14.6, the regression library in this project's environment. Should the project add an R/clubSandwich dependency, or implement and validate CV2 in Python against a published reference?",
+      "note": "Either path is work that must complete BEFORE the first prospective observation, not at the freeze.",
+      "status": "UNRESOLVED"
+    }
+  ],
+
+  "confirmatory_cohort_boundary": {
+    "source": "PROJECT_NORTH_STAR_v1.0_DRAFT.md section 10, as merged on main",
+    "development_material": {
+      "consists_of": [
+        "synthetic fixtures",
+        "explicitly labelled historical and reconstructed artifacts"
+      ],
+      "prospective_outcomes": "NONE, ever",
+      "may_inform_methodology": true,
+      "is_a_holdout": false
+    },
+    "confirmatory_evaluation_cohort": {
+      "consists_of": "the first 60 eligible prospective events",
+      "governed_from": "event 1, by the pre-data HYP-01 lock",
+      "is_development_data_at_any_point": false,
+      "outcomes": "gated and unexamined until the complete 60-event set and the analysis environment are frozen"
+    },
+    "event_60_freeze": {
+      "fixes": [
+        "the exact 60 event IDs",
+        "the analysis-code commit",
+        "the software environment",
+        "reproducibility metadata"
+      ],
+      "does_not_retroactively_convert_development_material_into_holdout_data": true,
+      "does_not_authorize_changing_the_statistical_rule": true,
+      "does_not_permit_optional_stopping_or_repeated_testing": true
+    },
+    "extension_cohort": {
+      "consists_of": "events becoming eligible after the frozen 60",
+      "separately_labelled": true,
+      "enlarges_frozen_set": false,
+      "reopens_primary_analysis": false,
+      "is_automatically_a_formal_holdout_test": false,
+      "becomes_a_formal_holdout_only_if": "a new dated protocol says so, written before those events' outcomes are examined"
+    }
+  },
+
+  "environment_freeze": {
+    "must_be_frozen_before_results_run": true,
+    "note": "These are RECORDS, not decisions. The rule they express must already be fixed by C6, C7, E3, C9, NEW-1 and D-sensitivity before the first prospective observation.",
+    "fields": {
+      "language_version": "TO_BE_RECORDED_AT_EVENT_60",
+      "statistics_package": "TO_BE_RECORDED_AT_EVENT_60",
+      "statistics_package_version": "TO_BE_RECORDED_AT_EVENT_60",
+      "covariance_estimator_option_string": "TO_BE_RECORDED_AT_EVENT_60",
+      "degrees_of_freedom_option_string": "TO_BE_RECORDED_AT_EVENT_60",
+      "wild_bootstrap_seed_if_used": "TO_BE_RECORDED_AT_EVENT_60",
+      "random_seed_if_any": "TO_BE_RECORDED_AT_EVENT_60",
+      "analysis_code_commit_sha": "TO_BE_RECORDED_AT_EVENT_60"
+    }
+  },
+
+  "registry_pointer_unchanged": {
+    "statement": "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0 is NOT updated to point at this file and continues to reference v1.0.",
+    "modified_by_this_proposal": false
+  },
+
+  "results": null,
+  "results_note": "No result exists. No prospective observation exists. This proposal was written before any candidate produced an eligible event, and no outcome was inspected in preparing it.",
+  "eligible_events_now": 0,
+  "frozen_event_ids": [],
+
+  "prohibited_descriptions_of_this_file": [
+    "active",
+    "registered",
+    "approved",
+    "frozen",
+    "authoritative",
+    "adopted",
+    "in force",
+    "the current lock"
+  ]
+}
