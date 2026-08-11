@@ -1,0 +1,10 @@
+{
+ "ticker": "DVN",
+ "url": "https://investors.devonenergy.com/investors/events-presentations/default.aspx",
+ "final_url": "https://investors.devonenergy.com/investors/events-presentations/default.aspx",
+ "http_status": 200,
+ "bytes": 57766,
+ "sha256_body": "3185af507e9826b11b2d756cdae1063006d8a2cae45574635f4f1db7a3b9ac20",
+ "retrieved_at_utc": "2026-08-10T22:24:17.209032+00:00",
+ "navigation_origin": "issuer's own root https://investors.devonenergy.com/ link text 'More Events' / 'Events & Presentations'"
+}
