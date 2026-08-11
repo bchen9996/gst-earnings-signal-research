@@ -1,0 +1,694 @@
+{
+ "artifact": "GST Prospective Cohort -- Round 2 Sweep Manifest",
+ "sweep_round": 2,
+ "status": "COMPLETE_ZERO_ENROLLABLE_CANDIDATES",
+ "scheduled_gate": "Monday 2026-08-10 09:00 America/Chicago",
+ "executed_at_local": "2026-08-10T17:12:42-05:00",
+ "executed_at_utc": "2026-08-10T22:12:42Z",
+ "gate_satisfied": true,
+ "scope_fixed_in_advance_by": "Live Signal Engine/Cohort_Screening_Round1/ROUND1_CORRECTION_OVERLAY_v1.json",
+ "governed_by": [
+  "Live Signal Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.1.json",
+  "Live Signal Engine/Cohort_Screening_Round1/ROUND2_RENDERER_RUNBOOK.md (including section 4.1)",
+  "Live Signal Engine/Cohort_Screening_Round1/ROUND1_EVIDENCE_AUDIT.md"
+ ],
+ "isolation_rule_commit": "801a325e767218d76d7a212658673d2f4a9f0ecd",
+ "isolation_rule_predates_all_classifications_here": true,
+ "universe_size": 24,
+ "tickers_covered_exactly_once": true,
+ "browser_rendering_used": true,
+ "blocking": {
+  "mode": "deny_by_default_installed_before_navigation",
+  "market_data_paths_denied_on_any_host": true,
+  "analytics_and_financial_vendors_denied": true,
+  "cross_site_denied_by_default": true,
+  "infrastructure_permitted": [
+   "bot-verification / challenge platform hosts, which are not quote, chart, market-data, analytics or financial-data providers and without which the issuer's own page will not render"
+  ],
+  "blocking_never_weakened_to_obtain_a_listing": true,
+  "query_strings_and_response_bodies_logged": false,
+  "blocked_domains_and_normalized_paths": [
+   {
+    "domain": "googletagmanager.com",
+    "reason": "analytics_or_financial_vendor",
+    "normalized_paths": [
+     "/gtag/js"
+    ],
+    "distinct_paths": 1
+   }
+  ]
+ },
+ "pre_extraction_scan": {
+  "applied_to": [
+   "rendered DOM text",
+   "accessibility tree text"
+  ],
+  "denominator_meaning": "The scan counts RENDERER NAVIGATIONS that reached the automated pre-extraction gate. It does NOT mean all 24 tickers passed, does NOT cover static evidence, does NOT cover access-failed pages that never produced a readable listing, and does NOT include DVN or TTWO, whose exposures occurred in ORDINARY retrieval and never reached this gate.",
+  "locked_tickers": 24,
+  "renderer_navigations_with_committed_log_records": 18,
+  "rendered_artifact_sets_committed": 20,
+  "renderer_navigations_reaching_the_scan": 20,
+  "renderer_navigations_passing_the_scan": 20,
+  "renderer_navigations_failing_the_scan": 0,
+  "renderer_navigations_blocked_before_extraction": 0,
+  "static_evidence_compromises": 2,
+  "static_evidence_compromise_tickers": [
+   "DVN",
+   "TTWO"
+  ],
+  "access_failures": 16,
+  "no_decision_cases": 2,
+  "issuer_stated_absence": 4,
+  "manual_inspection_before_scan": false,
+  "screenshot_verification": "OCR-VERIFIED. Every committed screenshot was mechanically OCR'd with Windows.Media.Ocr (Windows built-in) (recognizer en-US) and scanned for prohibited market-data structures. screenshots=20 plain_clean=19 clean_with_advisory_structure_match=1 prohibited=0 unverifiable=0. Three identical runs. OCR reduces but does not eliminate image-recognition error.",
+  "provenance_gap": {
+   "affected_navigations": [
+    "s1_1__CTSH__2",
+    "s1_1__MSFT__4"
+   ],
+   "what_happened": "Their retrieval-log file was overwritten when the runner switched to per-batch log filenames mid-sweep. The rendered DOM, accessibility text and screenshot for both are committed; their retrieval-log records are not.",
+   "recoverable_offline_from_committed_artifacts": [
+    "prohibition-scan outcome (re-derived: both PASS, zero rule hits on DOM and accessibility text)",
+    "artifact SHA-256 and sizes"
+   ],
+   "not_recoverable": [
+    "request/completion timestamps",
+    "blocked-domain list",
+    "allowed-host list",
+    "canvas element count",
+    "per-request blocking decisions"
+   ],
+   "consequence": "The claim that MSFT's same-site stock-ticker component was blocked before its response was received is NOT provable from committed evidence and is withdrawn. What committed evidence does prove is that MSFT's committed DOM and accessibility text contain no populated prohibited value.",
+   "classifications_affected": "none -- CTSH and MSFT dispositions rest on their committed DOM text",
+   "ocr_followup": "The screenshots for both affected navigations were OCR-verified clean. OCR establishes screenshot-content status only; the missing timestamps, blocked-domain lists, allowed-host lists and canvas counts remain permanently unavailable."
+  },
+  "screenshot_verification_supersedes": "This replaces the earlier structural-inference claim, which asserted screenshot cleanliness from the fact that the DOM had passed rather than from any examination of the images themselves."
+ },
+ "outcome_distribution": {
+  "ACCESS_FAILED": 16,
+  "NO_ENROLLMENT_DECISION_REACHED": 2,
+  "COMPROMISED_ENROLLMENT_BLINDING": 2,
+  "ISSUER_STATED_ABSENCE_CONFIRMED": 4
+ },
+ "results": {
+  "enrollable_candidates": 0,
+  "human_review_candidates": 0,
+  "canonical_protocol_dispositions_written": 0,
+  "registry_rows_written": 0,
+  "human_verifications_completed": 0,
+  "existing_enrolled_events_unchanged": true,
+  "dell_recheck_performed": false,
+  "dell_contradiction_observed": false,
+  "dell_registration_altered": false
+ },
+ "compromised_this_cycle": {
+  "tickers": [
+   "DVN",
+   "TTWO"
+  ],
+  "scope": "cycle-specific screening disposition only",
+  "is_permanent_exclusion": false,
+  "is_registry_amendment": false,
+  "is_event_state_transition": false,
+  "claims_existing_registered_event_compromised": false,
+  "returns_to_cadence_next_cycle": true,
+  "prohibited_values_recorded_anywhere": false,
+  "prohibited_values_incidentally_received": true,
+  "dvn_exposure_mode": "visual_exposure_to_operator",
+  "ttwo_exposure_mode": "mechanical_detection_without_presenting_values",
+  "used_in_any_enrollment_decision": false
+ },
+ "quarantine": [
+  {
+   "filename": "access_failure_retry__BRK_B__2.html",
+   "sha256": "867cb60c22c3a487025c3a07b17128e3e821dbe18c16096fad62f8e3601d871d",
+   "bytes": 1740,
+   "source_url": "https://www.berkshirehathaway.com/",
+   "reason": "body could not be decoded (brotli), therefore could not be verified free of prohibited data",
+   "location": "C:/Users/hakur/Downloads/gst-round2-quarantine-NONCANONICAL/bodies (OUTSIDE version control)",
+   "contents_reproduced_anywhere": false,
+   "re_inspected": false
+  },
+  {
+   "filename": "access_failure_retry__BRK_B__2_redecoded.html",
+   "sha256": "867cb60c22c3a487025c3a07b17128e3e821dbe18c16096fad62f8e3601d871d",
+   "bytes": 1740,
+   "source_url": "https://www.berkshirehathaway.com/",
+   "reason": "body could not be decoded (brotli), therefore could not be verified free of prohibited data",
+   "location": "C:/Users/hakur/Downloads/gst-round2-quarantine-NONCANONICAL/bodies (OUTSIDE version control)",
+   "contents_reproduced_anywhere": false,
+   "re_inspected": false
+  },
+  {
+   "filename": "access_failure_retry__DVN__1.html",
+   "sha256": "63df951a9c4ff319f1b3ec3040653e9edb9dba696e0e97fde47e9fda0c7bd36a",
+   "bytes": 30206,
+   "source_url": "https://investors.devonenergy.com/events-and-presentations",
+   "reason": "populated prohibited market data present in body",
+   "location": "C:/Users/hakur/Downloads/gst-round2-quarantine-NONCANONICAL/bodies (OUTSIDE version control)",
+   "contents_reproduced_anywhere": false,
+   "re_inspected": false
+  },
+  {
+   "filename": "access_failure_retry__DVN__2.html",
+   "sha256": "0543ffbd2ae78a25a709515c5d00887737d70a3456f98655739774de07acd391",
+   "bytes": 69181,
+   "source_url": "https://investors.devonenergy.com/",
+   "reason": "populated prohibited market data present in body",
+   "location": "C:/Users/hakur/Downloads/gst-round2-quarantine-NONCANONICAL/bodies (OUTSIDE version control)",
+   "contents_reproduced_anywhere": false,
+   "re_inspected": false
+  },
+  {
+   "filename": "access_failure_retry__DVN__located_calendar.html",
+   "sha256": "3185af507e9826b11b2d756cdae1063006d8a2cae45574635f4f1db7a3b9ac20",
+   "bytes": 57766,
+   "source_url": "https://investors.devonenergy.com/investors/events-presentations/default.aspx",
+   "reason": "populated prohibited market data present in body",
+   "location": "C:/Users/hakur/Downloads/gst-round2-quarantine-NONCANONICAL/bodies (OUTSIDE version control)",
+   "contents_reproduced_anywhere": false,
+   "re_inspected": false
+  },
+  {
+   "filename": "access_failure_retry__TTWO__2.html",
+   "sha256": "135e80b1f8db388c6561037ac8aa0c1cb6a5098a36ef92f2ed4a2365a90740c8",
+   "bytes": 344487,
+   "source_url": "https://ir.take2games.com/",
+   "reason": "populated prohibited market data present in body",
+   "location": "C:/Users/hakur/Downloads/gst-round2-quarantine-NONCANONICAL/bodies (OUTSIDE version control)",
+   "contents_reproduced_anywhere": false,
+   "re_inspected": false
+  }
+ ],
+ "prohibited_data_in_this_artifact": false,
+ "rows": [
+  {
+   "ticker": "AAPL",
+   "runbook_set": "1.3_discovery_gap",
+   "urls_requested": [
+    "https://investor.apple.com/investor-relations/default.aspx"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Render attempt returned a bot-verification interstitial, so the issuer's navigation could not be read and the events calendar remains unlocated. Still a discovery gap, not an access-free absence.",
+   "governing_rule": "runbook 1.3; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "ABBV",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://investors.abbvie.com/events-and-presentations",
+    "https://investors.abbvie.com/"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Ordinary retrieval failed on both the recorded URL and the issuer root; render attempt returned an edge 'Access Denied'. No permitted source of record could be read.",
+   "governing_rule": "runbook 1.2; 5 (access failure is never issuer-confirmed absence; no third-party substitute)",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "ADBE",
+   "runbook_set": "1.3_discovery_gap",
+   "urls_requested": [
+    "https://www.adobe.com/investor-relations.html"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Render attempt terminated with a protocol-level transport error; the issuer's navigation could not be read and the events calendar remains unlocated.",
+   "governing_rule": "runbook 1.3; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "AMZN",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://ir.aboutamazon.com/events/default.aspx"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. Issuer page served a bot-verification interstitial; the event listing never rendered. Blocking was not weakened to get past it.",
+   "governing_rule": "runbook 5 (inaccessible page remains a documented access failure); 4.1 (blocking may not be weakened to obtain a listing)",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "BKR",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://investors.bakerhughes.com/events-presentations"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. Bot-verification interstitial; event listing never rendered.",
+   "governing_rule": "runbook 5; 4.1",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "BRK-B",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://www.berkshirehathaway.com/news/news.html",
+    "https://www.berkshirehathaway.com/"
+   ],
+   "outcome": "NO_ENROLLMENT_DECISION_REACHED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Ordinary retrieval returned a brotli-encoded body this environment could not decode, so it could not be verified free of prohibited data and was quarantined unread. Rendering then succeeded and the prohibition scan passed. The issuer's official home page carries reports, news releases, SEC filings and annual-meeting information but NO events calendar and NO dated upcoming earnings event. This is a discovery outcome, not issuer-stated absence.",
+   "governing_rule": "runbook 1.2; 4.1 (unverifiable body quarantined); 5 (no candidate identity, so no canonical disposition)",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "CTSH",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://news.cognizant.com/events"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. The URL fixed in advance by the correction overlay returned the issuer's own 404 page under the current protocol, so no events listing could be read from it. Section 1.1 carries no navigate-from-issuer-root permission -- that is granted only to sections 1.2 and 1.3 -- so root navigation was UNAUTHORIZED for this set and no substitute URL was sought. This records only that the fixed URL failed; it is NOT a finding that CTSH has no event. NOTE: this navigation's retrieval-log record was lost to a mid-sweep log-filename change.",
+   "governing_rule": "runbook 1 (round 2 visits the listed URLs and nothing else); 5",
+   "prohibited_market_data_observed": false,
+   "future_action": "PROSPECTIVE SCOPE CORRECTION: re-derive this ticker's round-3 URL before the next scheduled cycle. Not changed and not re-run now."
+  },
+  {
+   "ticker": "DELL",
+   "runbook_set": "1.5_registered_event_recheck",
+   "urls_requested": [
+    "https://investors.delltechnologies.com/news-events/upcoming-events",
+    "https://investors.delltechnologies.com/"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Ordinary retrieval failed on both recorded URLs and the render attempt returned an edge 'Access Denied'. The date/time recheck therefore COULD NOT BE PERFORMED. No official source was readable, so NO CONTRADICTION was observed. The registration was not altered, amended or re-verified.",
+   "governing_rule": "runbook 1.5 (date and time consistency only; stop before writing anything if a source contradicts the registered timing -- no source was readable, so nothing was written)",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "DVN",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://investors.devonenergy.com/events-and-presentations",
+    "https://investors.devonenergy.com/",
+    "https://investors.devonenergy.com/investors/events-presentations/default.aspx"
+   ],
+   "outcome": "COMPROMISED_ENROLLMENT_BLINDING",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "The issuer events calendar, located from the issuer's own navigation, displayed prohibited market data on the same page as the event listing. Retrieval was ordinary, which has no suppression mechanism, so the values reached saved evidence. No value is reproduced anywhere. Bodies quarantined outside version control and not re-inspected.",
+   "governing_rule": "runbook 4.1 (exposure in saved evidence; cycle-specific disposition); cohort protocol enrollment_inputs (price and volume are prohibited inputs)",
+   "prohibited_market_data_observed": true
+  },
+  {
+   "ticker": "GME",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://investor.gamestop.com/news-events/ir-calendar",
+    "https://investor.gamestop.com/"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Recorded URL returned 404; the issuer root retrieved but served no events-calendar navigation in its HTML. Render attempt returned a bot-verification interstitial.",
+   "governing_rule": "runbook 1.2 (classify by page role, not URL spelling); 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "GOOGL",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://abc.xyz/investor/events/"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. Bot-verification interstitial; event listing never rendered.",
+   "governing_rule": "runbook 5; 4.1",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "GPN",
+   "runbook_set": "1.4_confirm_only",
+   "urls_requested": [
+    "https://investors.globalpayments.com/events-and-presentations"
+   ],
+   "outcome": "ISSUER_STATED_ABSENCE_CONFIRMED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Re-read the same page. Under an 'Upcoming Events' heading the issuer states verbatim: 'There are no upcoming events scheduled at this time.' Every dated entry on the page sits under 'Past Events' and none was promoted.",
+   "governing_rule": "runbook 1.4; 5 (issuer-stated absence is a distinct outcome from access failure)",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "INTC",
+   "runbook_set": "1.4_confirm_only",
+   "urls_requested": [
+    "https://www.intc.com/news-events/ir-calendar"
+   ],
+   "outcome": "ISSUER_STATED_ABSENCE_CONFIRMED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Re-read the same page. Issuer states verbatim: 'There are no upcoming events scheduled at this time.' Dated entries appear only under 'Past Events'.",
+   "governing_rule": "runbook 1.4; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "LDOS",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://investors.leidos.com/events-and-presentations",
+    "https://investors.leidos.com/news-events/events",
+    "https://investors.leidos.com/"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Ordinary retrieval failed on all three recorded URLs; render attempt returned an edge 'Access Denied'.",
+   "governing_rule": "runbook 1.2; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "MSFT",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://www.microsoft.com/en-us/investor/events/default.aspx"
+   ],
+   "outcome": "NO_ENROLLMENT_DECISION_REACHED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered successfully and the prohibition scan passed: the committed DOM and accessibility text contain no populated prohibited value (re-verified offline from committed artifacts). No upcoming-events listing and no dated upcoming earnings event was displayed. Absence of a listing is NOT recorded as issuer-stated absence. NOTE: this navigation's retrieval-log record was lost to a mid-sweep log-filename change, so its blocked-request list is not in committed evidence; any claim about which specific requests were blocked is withdrawn.",
+   "governing_rule": "runbook 4.1 (pre-response blocking; pre-extraction scan); 5 (no candidate identity, so no canonical disposition)",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "NCLH",
+   "runbook_set": "1.4_confirm_only",
+   "urls_requested": [
+    "https://www.nclhltd.com/news-media/events"
+   ],
+   "outcome": "ISSUER_STATED_ABSENCE_CONFIRMED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Re-read the same page. Issuer states verbatim: 'There are no upcoming events scheduled at this time.' Dated entries appear only under 'Past Events'.",
+   "governing_rule": "runbook 1.4; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "NKE",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://investors.nike.com/investors/news-events-and-reports/default.aspx",
+    "https://investors.nike.com/investors/news-events-and-reports/default.aspx?toggle=news",
+    "https://investors.nike.com/investors/news-events-and-reports/?toggle=earnings"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered, all three overlay-listed URLs. Bot-verification interstitial on each; event listing never rendered.",
+   "governing_rule": "runbook 5; 4.1",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "QCOM",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://investor.qualcomm.com/news-events/events"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. Bot-verification interstitial; event listing never rendered.",
+   "governing_rule": "runbook 5; 4.1",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "SBUX",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://investor.starbucks.com/events-presentations/default.aspx"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. Bot-verification interstitial; event listing never rendered.",
+   "governing_rule": "runbook 5; 4.1",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "STZ",
+   "runbook_set": "1.4_confirm_only",
+   "urls_requested": [
+    "https://ir.cbrands.com/news-events/ir-calendar"
+   ],
+   "outcome": "ISSUER_STATED_ABSENCE_CONFIRMED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Re-read the same page. Issuer states verbatim: 'There are no upcoming events scheduled at this time.' Dated entries appear only under 'Past Events'.",
+   "governing_rule": "runbook 1.4; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "SYK",
+   "runbook_set": "1.1_browser_render",
+   "urls_requested": [
+    "https://investors.stryker.com/events-and-presentations"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Rendered. Bot-verification interstitial; event listing never rendered.",
+   "governing_rule": "runbook 5; 4.1",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "TSLA",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://ir.tesla.com/",
+    "https://ir.tesla.com/#quarterly-disclosure"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Ordinary retrieval returned HTTP 403 on both recorded URLs; render attempt returned an edge 'Access Denied'.",
+   "governing_rule": "runbook 1.2; 5",
+   "prohibited_market_data_observed": false
+  },
+  {
+   "ticker": "TTWO",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://ir.take2games.com/news-events/ir-calendar",
+    "https://ir.take2games.com/"
+   ],
+   "outcome": "COMPROMISED_ENROLLMENT_BLINDING",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Recorded URL returned 404. The issuer root retrieved, and a mechanical scan found a populated quote in the saved body. Detected by rule name only; no value was displayed to a reader and none is recorded. Body quarantined outside version control and not re-inspected.",
+   "governing_rule": "runbook 4.1 (exposure in saved evidence counts; cycle-specific disposition)",
+   "prohibited_market_data_observed": true
+  },
+  {
+   "ticker": "UAL",
+   "runbook_set": "1.2_access_failure_retry",
+   "urls_requested": [
+    "https://ir.united.com/news-and-events/events",
+    "https://ir.united.com/"
+   ],
+   "outcome": "ACCESS_FAILED",
+   "is_canonical_protocol_disposition": false,
+   "proposed_disposition": null,
+   "fiscal_period_established": false,
+   "candidate_identity_established": false,
+   "enrollable": false,
+   "human_review_candidate": false,
+   "evidence_summary": "Ordinary retrieval failed on both recorded URLs; render attempt returned an edge 'Access Denied'.",
+   "governing_rule": "runbook 1.2; 5",
+   "prohibited_market_data_observed": false
+  }
+ ],
+ "prohibited_data_statement": {
+  "precise_statement": "Prohibited market data was incidentally received for DVN and TTWO. It was not used in an enrollment decision, no numeric value was transcribed into canonical evidence, and both tickers were excluded for this cycle as COMPROMISED_ENROLLMENT_BLINDING.",
+  "DVN": "Values were VISUALLY EXPOSED to the operator: the issuer events calendar rendered a quote widget in the same page as the event listing during ordinary retrieval, which has no suppression mechanism. No value was transcribed anywhere.",
+  "TTWO": "Populated prohibited content was MECHANICALLY DETECTED in the saved response body by a scanner that reports rule names only. Its values were never presented to the reviewer and were never transcribed anywhere.",
+  "superseded_wording": "Any statement that no price or volume data was 'retrieved or inspected' is INACCURATE and is superseded by the precise statement above.",
+  "no_numeric_value_reproduced_in_any_artifact": true
+ },
+ "result_language_rule": {
+  "correct": "zero enrollable candidates",
+  "prohibited_paraphrases": [
+   "no eligible events exist",
+   "no candidate exists",
+   "no upcoming earnings events",
+   "the universe has no events"
+  ],
+  "statement": "The 16 ACCESS_FAILED cases are UNRESOLVED SOURCE ACCESS, not negative eligibility findings. Nothing in round 2 establishes that any ticker lacks an upcoming earnings event; most issuer sources simply could not be read.",
+  "dell_rule": "DELL's failed recheck is NOT confirmation of its registered date. No official source was readable, so no contradiction and no confirmation was observed."
+ },
+ "screening_rows_explanation": {
+  "screening_rows_state": "[] (empty), unchanged",
+  "required_by_protocol": true,
+  "accidental_omission": false,
+  "governing_authorities": [
+   "ROUND1_CORRECTION_OVERLAY_v1.json :: canonical_pending_rule -- 'PENDING_OFFICIAL_DATE_UNAVAILABLE may be used canonically only when an actual candidate identity exists -- ticker AND fiscal period -- so the screening-log schema can be satisfied without inventing a label.'",
+   "ROUND2_RENDERER_RUNBOOK.md section 5 -- 'Otherwise the item stays in the round-2 manifest with the reconnaissance status NO_ENROLLMENT_DECISION_REACHED.'",
+   "ROUND1_CORRECTION_OVERLAY_v1.json :: noncanonical_status_label -- 'NO_ENROLLMENT_DECISION_REACHED is a RECONNAISSANCE label, not a protocol disposition. It is deliberately outside the twelve codes defined by cohort protocol v1.0/v1.1 so it can never be mistaken for a screening decision.'"
+  ],
+  "why": "Round 2 established no fiscal period for any ticker, so no candidate identity exists. Without ticker AND fiscal period the canonical screening-log schema cannot be satisfied without inventing a label, which the protocol forbids. The 24 classifications therefore belong in this reconnaissance manifest, not in screening_rows. Appending them to screening_rows would manufacture 24 canonical dispositions the evidence does not support.",
+  "no_backfill_performed": true
+ },
+ "corrective_audit": {
+  "performed_at_utc": "2026-08-10T23:30:00Z",
+  "mode": "offline_only",
+  "new_live_requests": 0,
+  "browser_started": false,
+  "quarantined_bodies_reopened": false,
+  "raw_evidence_rewritten": false,
+  "classifications_changed": 0,
+  "defects_corrected": [
+   "A: 'no price or volume data was retrieved or inspected' was inaccurate and is superseded",
+   "B: scan denominator was unlabelled and the reported page count (20) did not match committed log records (18); two rendered artifact sets lack retrieval provenance",
+   "B: an unprovable claim about MSFT's blocked requests is withdrawn",
+   "C: the .gitignore quarantine patterns served no repository-local purpose and were removed",
+   "G: CTSH wording strengthened so it cannot read as a no-event finding, plus a prospective scope correction recorded"
+  ]
+ },
+ "screenshot_ocr_audit": {
+  "artifact": "Live Signal Engine/Cohort_Screening_Round2/SCREENSHOT_OCR_AUDIT_ROUND2.json",
+  "ocr_engine": "Windows.Media.Ocr (Windows built-in)",
+  "ocr_engine_language": "en-US",
+  "token_count_source": "OCR engine OcrLine/OcrWord results; no fallback word split",
+  "runs_performed": 3,
+  "runs_identical": true,
+  "screenshot_count": 20,
+  "plain_ocr_clean": 19,
+  "ocr_clean_with_advisory_structure_match": 1,
+  "prohibited": 0,
+  "unverifiable": 0,
+  "advisory_screenshots": [
+   "s1_2_fallback__BRK_B__14.png"
+  ],
+  "adjudication_rule": {
+   "authorized_by": "Harshith Akurati, 2026-08-11",
+   "statement": "A standalone navigation or heading phrase such as a stock-information link is not itself prohibited market data. A structural match becomes prohibited only when the same bounded region also contains a recognized market value or metric, an explicit market-data attribution, or a machine-detected populated quote-field structure.",
+   "bounded_region_chars": 220,
+   "corroborator_classes": [
+    "market_value_or_metric",
+    "market_data_attribution",
+    "populated_quote_field_structure"
+   ],
+   "populated_field_sources_checked": [
+    "OCR output",
+    "committed DOM artifact",
+    "committed accessibility artifact"
+   ],
+   "structure_only_disposition": "OCR_CLEAN_WITH_ADVISORY_STRUCTURE_MATCH",
+   "advisory_counts_as_clean_for_merge_gate": true,
+   "original_match_preserved": true
+  },
+  "limitation": "OCR reduces but does not eliminate image-recognition error. A negative OCR result is evidence of absence only to the accuracy of the recognizer; low-contrast, clipped, canvas-rendered or non-Latin glyphs may be missed.",
+  "provenance_limitation": "This audit establishes SCREENSHOT-CONTENT status only. It does not recover the missing retrieval provenance for s1_1__CTSH__2 and s1_1__MSFT__4: their timestamps, blocked-domain lists, allowed-host lists and canvas counts remain permanently unavailable.",
+  "ocr_text_persisted": false,
+  "matched_values_recorded": false,
+  "screenshots_manually_viewed": 0,
+  "brk_b_note": "The BRK-B screenshot retains an advisory structural match for a stock-information navigation phrase. Zero value, attribution and populated-quote-field corroborators fired, in OCR output and in the committed DOM and accessibility artifacts, across three identical runs. The match is preserved, not erased. BRK-B's round-two screening classification (NO_ENROLLMENT_DECISION_REACHED) is unchanged."
+ }
+}
