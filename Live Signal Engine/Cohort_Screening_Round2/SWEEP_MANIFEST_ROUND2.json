@@ -60,7 +60,7 @@
   "no_decision_cases": 2,
   "issuer_stated_absence": 4,
   "manual_inspection_before_scan": false,
-  "screenshot_verification": "By construction: the screenshot renders the DOM that passed the scan. Canvas element count was captured per navigation and was zero for every navigation whose log survives. This is NOT pixel-level OCR verification.",
+  "screenshot_verification": "OCR-VERIFIED. Every committed screenshot was mechanically OCR'd with Windows.Media.Ocr (Windows built-in) (recognizer en-US) and scanned for prohibited market-data structures. screenshots=20 plain_clean=19 clean_with_advisory_structure_match=1 prohibited=0 unverifiable=0. Three identical runs. OCR reduces but does not eliminate image-recognition error.",
   "provenance_gap": {
    "affected_navigations": [
     "s1_1__CTSH__2",
@@ -79,8 +79,10 @@
     "per-request blocking decisions"
    ],
    "consequence": "The claim that MSFT's same-site stock-ticker component was blocked before its response was received is NOT provable from committed evidence and is withdrawn. What committed evidence does prove is that MSFT's committed DOM and accessibility text contain no populated prohibited value.",
-   "classifications_affected": "none -- CTSH and MSFT dispositions rest on their committed DOM text"
-  }
+   "classifications_affected": "none -- CTSH and MSFT dispositions rest on their committed DOM text",
+   "ocr_followup": "The screenshots for both affected navigations were OCR-verified clean. OCR establishes screenshot-content status only; the missing timestamps, blocked-domain lists, allowed-host lists and canvas counts remain permanently unavailable."
+  },
+  "screenshot_verification_supersedes": "This replaces the earlier structural-inference claim, which asserted screenshot cleanliness from the fact that the DOM had passed rather than from any examination of the images themselves."
  },
  "outcome_distribution": {
   "ACCESS_FAILED": 16,
@@ -648,5 +650,45 @@
    "C: the .gitignore quarantine patterns served no repository-local purpose and were removed",
    "G: CTSH wording strengthened so it cannot read as a no-event finding, plus a prospective scope correction recorded"
   ]
+ },
+ "screenshot_ocr_audit": {
+  "artifact": "Live Signal Engine/Cohort_Screening_Round2/SCREENSHOT_OCR_AUDIT_ROUND2.json",
+  "ocr_engine": "Windows.Media.Ocr (Windows built-in)",
+  "ocr_engine_language": "en-US",
+  "token_count_source": "OCR engine OcrLine/OcrWord results; no fallback word split",
+  "runs_performed": 3,
+  "runs_identical": true,
+  "screenshot_count": 20,
+  "plain_ocr_clean": 19,
+  "ocr_clean_with_advisory_structure_match": 1,
+  "prohibited": 0,
+  "unverifiable": 0,
+  "advisory_screenshots": [
+   "s1_2_fallback__BRK_B__14.png"
+  ],
+  "adjudication_rule": {
+   "authorized_by": "Harshith Akurati, 2026-08-11",
+   "statement": "A standalone navigation or heading phrase such as a stock-information link is not itself prohibited market data. A structural match becomes prohibited only when the same bounded region also contains a recognized market value or metric, an explicit market-data attribution, or a machine-detected populated quote-field structure.",
+   "bounded_region_chars": 220,
+   "corroborator_classes": [
+    "market_value_or_metric",
+    "market_data_attribution",
+    "populated_quote_field_structure"
+   ],
+   "populated_field_sources_checked": [
+    "OCR output",
+    "committed DOM artifact",
+    "committed accessibility artifact"
+   ],
+   "structure_only_disposition": "OCR_CLEAN_WITH_ADVISORY_STRUCTURE_MATCH",
+   "advisory_counts_as_clean_for_merge_gate": true,
+   "original_match_preserved": true
+  },
+  "limitation": "OCR reduces but does not eliminate image-recognition error. A negative OCR result is evidence of absence only to the accuracy of the recognizer; low-contrast, clipped, canvas-rendered or non-Latin glyphs may be missed.",
+  "provenance_limitation": "This audit establishes SCREENSHOT-CONTENT status only. It does not recover the missing retrieval provenance for s1_1__CTSH__2 and s1_1__MSFT__4: their timestamps, blocked-domain lists, allowed-host lists and canvas counts remain permanently unavailable.",
+  "ocr_text_persisted": false,
+  "matched_values_recorded": false,
+  "screenshots_manually_viewed": 0,
+  "brk_b_note": "The BRK-B screenshot retains an advisory structural match for a stock-information navigation phrase. Zero value, attribution and populated-quote-field corroborators fired, in OCR output and in the committed DOM and accessibility artifacts, across three identical runs. The match is preserved, not erased. BRK-B's round-two screening classification (NO_ENROLLMENT_DECISION_REACHED) is unchanged."
  }
 }
