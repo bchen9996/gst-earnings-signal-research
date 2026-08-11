@@ -1,0 +1,50 @@
+{
+ "artifact": "GST Prospective Cohort -- Round 2 Human Review Queue",
+ "sweep_round": 2,
+ "executed_at_utc": "2026-08-10T22:12:42Z",
+ "candidates_requiring_named_human_verification": [],
+ "count": 0,
+ "note": "Round 2 established no candidate with an explicit date and explicit timing from a permitted official source, so no item enters the human-review queue. No registry row and no canonical ENROLLED screening row may be written without a named human verifying the official source; the agent's retrieval is never human verification.",
+ "items_needing_human_action_next_cycle": [
+  {
+   "reason": "issuer pages served bot-verification interstitials that automated rendering cannot pass; the correction overlay records direct human observation as an acceptable alternative",
+   "tickers": [
+    "AAPL",
+    "AMZN",
+    "BKR",
+    "GME",
+    "GOOGL",
+    "NKE",
+    "QCOM",
+    "SBUX",
+    "SYK"
+   ]
+  },
+  {
+   "reason": "edge 'Access Denied' or transport error on every recorded URL",
+   "tickers": [
+    "ABBV",
+    "ADBE",
+    "DELL",
+    "LDOS",
+    "TSLA",
+    "UAL"
+   ]
+  },
+  {
+   "reason": "The URL fixed in advance by the correction overlay failed under the current protocol (the issuer returned its own 404 page). Section 1.1 carries no navigate-from-issuer-root permission -- that belongs to sections 1.2 and 1.3 -- so root navigation was UNAUTHORIZED for this set and no substitute URL was sought. This is NOT a finding that CTSH has no event.",
+   "tickers": [
+    "CTSH"
+   ],
+   "future_action": "PROSPECTIVE SCOPE CORRECTION: re-derive this ticker's source URL before the next scheduled cycle. The URL was not changed and not re-run during this audit."
+  },
+  {
+   "reason": "cycle-specific COMPROMISED_ENROLLMENT_BLINDING; returns to the ordinary cadence next cycle",
+   "tickers": [
+    "DVN",
+    "TTWO"
+   ]
+  }
+ ],
+ "corrective_audit_note": "Offline corrective audit 2026-08-10: no candidate was added, removed or reclassified. The queue remains empty. Prohibited market data was incidentally received for DVN and TTWO; it was not used in an enrollment decision, no numeric value was transcribed into canonical evidence, and both were excluded for this cycle as COMPROMISED_ENROLLMENT_BLINDING."
+}
