@@ -9,14 +9,30 @@ fixture generation, the study-written CR1 / CR2 / CR3 / Satterthwaite /
 restricted wild-cluster-bootstrap implementations, the independent statsmodels
 reference call for CR1, the refusal rules, and the Monte Carlo grid.
 
-It exists so the published numbers can be regenerated and checked. It:
+It exists so the published numbers can be regenerated and checked.
 
-  * reads NO registry, panel, screening, observation, event or market artifact;
-  * makes network access impossible;
-  * writes ONLY to a caller-supplied output path;
-  * never touches a lock, signoff or canonical research artifact;
-  * labels CR2, CR3 and the bootstrap UNVALIDATED_STUDY_IMPLEMENTATION;
-  * exposes no production-analysis entry point.
+What is actually true of THIS revision of the file, stated narrowly:
+
+  * it contains NO code path that opens a registry, panel, screening,
+    observation, event or market artifact -- verifiable by reading it, and
+    asserted by test 10;
+  * every input is generated from the fixed master seed; there is no data input
+    of any kind;
+  * it writes exactly one file, at the caller-supplied --out path, which is
+    screened by assert_not_canonical();
+  * it replaces socket.connect / connect_ex / create_connection / getaddrinfo
+    before importing any numerical library;
+  * it labels CR2, CR3 and the bootstrap UNVALIDATED_STUDY_IMPLEMENTATION;
+  * it exposes no production-analysis entry point.
+
+What this is NOT, and must not be described as:
+
+  * NOT a filesystem sandbox. assert_not_canonical() screens the OUTPUT path
+    only. It does not and cannot prevent a future edit from adding a read of an
+    arbitrary file. The guarantee is "this revision contains no canonical-read
+    path", enforced by review and by test, not "reads are impossible".
+  * NOT a proof that network access is impossible for a determined caller --
+    the socket patches stop ordinary library use, not a deliberate bypass.
 
 Reproduce with:
 
@@ -63,7 +79,15 @@ import statsmodels.api as sm             # noqa: E402
 from scipy import stats                  # noqa: E402
 
 # --------------------------------------------------------------------------
-# Canonical-artifact guard. The runner must never read research data.
+# Canonical-artifact guard for the OUTPUT PATH.
+#
+# Scope, stated exactly: assert_not_canonical() is called on the --out path
+# before anything is written, so this runner cannot be pointed at a lock,
+# registry, panel, screening or dossier file and made to overwrite it.
+#
+# It is NOT a read guard and NOT a sandbox. This revision of the file contains
+# no code that reads a research artifact -- that is a property of the source,
+# checked by review and by test, not something this function enforces.
 # --------------------------------------------------------------------------
 FORBIDDEN_PATH_TOKENS = (
     "registry.jsonl", "Cohort_Screening", "GST_Phase2_DailyPanel",
@@ -101,6 +125,11 @@ REFUSAL = {
     "degenerate_fit_relative_rss_min": 1e-18,  # rss / (n * var(y)) below -> refuse
     "min_clusters_for_any_output": 2,      # arithmetic floor only, NOT an eligibility rule
 }
+
+# Provenance fields that legitimately differ between two identical reruns.
+# Excluded from the output digest and from every semantic reproducibility
+# comparison. Nothing else may be added here to paper over a real difference.
+NONDETERMINISTIC_PROVENANCE_FIELDS = ("generated_at_utc", "runtime_seconds")
 
 MASTER_SEED = 20260811
 BOOTSTRAP = {"B_default": 999, "seed_default": 424242,
@@ -350,6 +379,42 @@ FIXTURE_SPECS = [
 # ==========================================================================
 # CR1 independent-reference comparison (statsmodels)
 # ==========================================================================
+# Fixtures whose full-precision CR1 output is stored so another environment can
+# recompute them and compare under the PREREGISTERED tolerances. This is the
+# portability check: it proves the published numbers survive a different
+# Python/numpy/scipy build to within the declared tolerance, and it deliberately
+# does NOT assert bitwise equality, which would be false across versions.
+PORTABILITY_PROBE_FIXTURES = ("F01_balanced_24c_72n", "F02_unbalanced_24c_60n",
+                              "F03_several_singleton_clusters", "F04_one_dominant_cluster")
+
+
+def portability_probe(fx):
+    """Full-precision CR1 outputs for cross-environment tolerance comparison."""
+    X, y, g = fx["X"], fx["y"], fx["cluster_index"]
+    beta, V, G = cr_vcov(X, y, g, "CR1")
+    se = np.sqrt(np.diag(V))
+    t = beta / se
+    return {
+        # continuous -> compared under preregistered tolerances
+        "beta": [float(v) for v in beta],
+        "standard_error": [float(v) for v in se],
+        "t_statistic": [float(v) for v in t],
+        "covariance_diagonal": [float(v) for v in np.diag(V)],
+        # discrete -> compared with exact equality
+        "n_clusters": int(G),
+        "n_obs": int(len(y)),
+        "n_params": int(X.shape[1]),
+        "inference_df": int(G - 1),
+        "comparison_rule": {
+            "continuous_fields": ["beta", "standard_error", "t_statistic", "covariance_diagonal"],
+            "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+            "discrete_fields": ["n_clusters", "n_obs", "n_params", "inference_df"],
+            "discrete_compared_under": "exact equality",
+            "bitwise_portability_claimed": False,
+        },
+    }
+
+
 def compare_cr1_to_statsmodels(fx):
     X, y, g = fx["X"], fx["y"], fx["cluster_index"]
     refuse, reason = refusal_check(X, y, g)
@@ -521,6 +586,10 @@ def build(quick=False):
         "label": UNVALIDATED_TAG,
     }
 
+    specs = dict(FIXTURE_SPECS)
+    probes = {name: portability_probe(make_fixture(name, **specs[name]))
+              for name in PORTABILITY_PROBE_FIXTURES}
+
     grid = run_grid(quick=quick)
     matched = sorted(k for k, v in cr1.items() if v.get("all_within_preregistered_tolerance"))
     refused = sorted(k for k, v in cr1.items() if v["status"] == "REFUSED_BEFORE_FIT")
@@ -564,6 +633,22 @@ def build(quick=False):
         "simulation_plan": SIM_PLAN,
         "bootstrap_settings": BOOTSTRAP,
 
+        "runner_isolation": {
+            "claimed": [
+                "this revision of the runner contains no code path that reads a research artifact",
+                "all inputs are generated from the fixed master seed; there is no data input",
+                "exactly one file is written, at the caller-supplied --out path",
+                "the --out path is screened by assert_not_canonical() before any write",
+                "socket connect/create_connection/getaddrinfo are replaced before numerical imports",
+            ],
+            "not_claimed": [
+                "a filesystem sandbox -- assert_not_canonical() screens the OUTPUT path only and "
+                "cannot prevent a future edit from adding an arbitrary read",
+                "that network access is impossible for a caller deliberately bypassing the patches",
+            ],
+            "enforcement": "source review plus the committed test suite, not a runtime sandbox",
+        },
+
         "environment_validation_limits": {
             "statement": ("CR2 validation is unavailable in the currently tested environment; an "
                           "independently maintained reference runtime must be added and pinned before "
@@ -574,23 +659,62 @@ def build(quick=False):
                                            "Python wildboottest", "Python linearmodels"],
         },
 
+        # Implementation status is FOUR independent facts, never one boolean.
+        # The earlier `executable_here` field collapsed them and was wrong in a
+        # specific, misleading way: it read False for CR2/CR3/bootstrap, which
+        # suggested those functions cannot run. They run fine. What is missing
+        # is an INDEPENDENT REFERENCE to check them against, and therefore any
+        # basis for production use or method-comparison claims.
+        "method_status_field_semantics": {
+            "study_implementation_runnable": "the study-written function executes and returns output here",
+            "independent_reference_available": "an independently maintained implementation exists in this "
+                                               "environment to check the study code against",
+            "independently_validated": "agreement with that reference was demonstrated under the "
+                                       "preregistered tolerances (implementation agreement, NOT a "
+                                       "statistical endorsement)",
+            "production_eligible": "may be used for a real HYP-01 analysis; requires BOTH independent "
+                                   "validation AND an authorizer decision",
+            "note": "runnable and validated are different facts. An unvalidated method is runnable "
+                    "engineering code whose output cannot support production or comparative claims.",
+        },
         "methods": {
             "CR1": {"implementation_status": VALIDATED,
-                    "reference": f"statsmodels {statsmodels.__version__}",
+                    "study_implementation_runnable": True,
+                    "independent_reference_available": True,
+                    "independent_reference": f"statsmodels {statsmodels.__version__}",
                     "independently_validated": True,
-                    "fixtures_matched": matched,
-                    "executable_here": True},
+                    "validation_meaning": "implementation agreement with the reference under the "
+                                          "preregistered tolerances; not a statistical endorsement",
+                    "production_selection_approved": False,
+                    "production_eligible": False,
+                    "production_eligibility_status": "PENDING_AUTHORIZER_DECISION",
+                    "fixtures_matched": matched},
             "CR2": {"implementation_status": BLOCKED, "label": UNVALIDATED_TAG,
-                    "independently_validated": False, "executable_here": False,
+                    "study_implementation_runnable": True,
+                    "independent_reference_available": False,
+                    "independently_validated": False,
+                    "production_selection_approved": False,
+                    "production_eligible": False,
+                    "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
                     "dependency_needed": "R runtime + clubSandwich (or equivalent independently maintained CR2)",
                     "validation_procedure_needed": "run this fixture matrix through both implementations and "
                                                    "compare under the preregistered tolerances"},
             "CR3": {"implementation_status": BLOCKED, "label": UNVALIDATED_TAG,
-                    "independently_validated": False, "executable_here": False,
+                    "study_implementation_runnable": True,
+                    "independent_reference_available": False,
+                    "independently_validated": False,
+                    "production_selection_approved": False,
+                    "production_eligible": False,
+                    "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
                     "dependency_needed": "R runtime + clubSandwich",
                     "validation_procedure_needed": "as for CR2, comparing CR3 covariance and t"},
             "WCR_BOOTSTRAP_T": {"implementation_status": BLOCKED, "label": UNVALIDATED_TAG,
-                                "independently_validated": False, "executable_here": False,
+                                "study_implementation_runnable": True,
+                                "independent_reference_available": False,
+                                "independently_validated": False,
+                                "production_selection_approved": False,
+                                "production_eligible": False,
+                                "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
                                 "dependency_needed": "R fwildclusterboot / Stata boottest / Python wildboottest",
                                 "validation_procedure_needed": "compare bootstrap p-values at matched "
                                                                "seed/weights/B, allowing Monte Carlo error"},
@@ -599,6 +723,7 @@ def build(quick=False):
         "fixtures": fixtures,
         "refusal_outcomes": refusals,
         "cr1_reference_comparison": cr1,
+        "portability_probe": probes,
         "invariance_checks": invar,
         "bootstrap_diagnostics": boot,
         "monte_carlo_grid": grid,
@@ -617,9 +742,43 @@ def build(quick=False):
             "wild bootstrap role, weights, repetitions and seed",
         ],
     }
+    # ----------------------------------------------------------------------
+    # Output digest canonicalization.
+    #
+    # The digest covers the whole document EXCEPT two nondeterministic
+    # provenance fields, which vary between identical reruns and would make an
+    # otherwise reproducible artifact appear to differ:
+    #
+    #     generated_by.generated_at_utc   -- wall-clock stamp
+    #     generated_by.runtime_seconds    -- measured duration
+    #
+    # Everything else IS covered, including the deterministic provenance
+    # (runner_sha256, deterministic_build_id, quick_mode, exact_command,
+    # runner_path) and the recorded environment versions. An earlier version
+    # excluded the entire `generated_by` block, which quietly left the runner
+    # hash and build id outside the digest while the field name implied full
+    # coverage.
+    #
+    # Rule: json.dumps(doc_without_those_two_fields, sort_keys=True), UTF-8,
+    # Python's default separators, then SHA-256.
+    #
+    # NOTE: the digest is a same-environment reproducibility check. It is NOT a
+    # claim of bitwise portability across Python/numpy/scipy versions.
+    canon = {k: v for k, v in doc.items()}
+    canon["generated_by"] = {k: v for k, v in doc["generated_by"].items()
+                             if k not in NONDETERMINISTIC_PROVENANCE_FIELDS}
     doc["output_sha256"] = hashlib.sha256(
-        json.dumps({k: v for k, v in doc.items() if k != "generated_by"},
-                   sort_keys=True).encode()).hexdigest()
+        json.dumps(canon, sort_keys=True).encode("utf-8")).hexdigest()
+    doc["output_sha256_canonicalization"] = {
+        "algorithm": "SHA-256",
+        "serialization": "json.dumps(document, sort_keys=True), UTF-8, default separators",
+        "excluded_fields": [f"generated_by.{f}" for f in NONDETERMINISTIC_PROVENANCE_FIELDS],
+        "excluded_because": "nondeterministic between identical reruns",
+        "covers_deterministic_provenance": True,
+        "covers_environment_versions": True,
+        "self_excluded": ["output_sha256", "output_sha256_canonicalization"],
+        "scope": "same-environment reproducibility; NOT a claim of bitwise cross-version portability",
+    }
     return doc
 
 

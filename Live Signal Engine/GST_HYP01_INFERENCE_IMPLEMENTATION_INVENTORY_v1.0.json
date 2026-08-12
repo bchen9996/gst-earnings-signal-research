@@ -4,12 +4,12 @@
  "status": "OFFLINE_FEASIBILITY_STUDY_NO_METHOD_APPROVED",
  "generated_by": {
   "runner_path": "tools/hyp01_inference_feasibility.py",
-  "runner_sha256": "80645afbab8e39b7f0f806407a43cce6da812a76e20350548e40a1d7f4b6e8c3",
+  "runner_sha256": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6",
   "exact_command": "python tools/hyp01_inference_feasibility.py --reproduce --out <path.json>",
   "quick_mode": false,
   "deterministic_build_id": "seed=20260811;quick=0;plan=ef4f307b1b41df25",
-  "generated_at_utc": "2026-08-12T04:08:03.352828+00:00",
-  "runtime_seconds": 143.2
+  "generated_at_utc": "2026-08-12T05:24:24.629269+00:00",
+  "runtime_seconds": 74.8
  },
  "environment": {
   "python": "3.14.6",
@@ -117,6 +117,20 @@
   ],
   "null_imposition": "restricted (null imposed before resampling)"
  },
+ "runner_isolation": {
+  "claimed": [
+   "this revision of the runner contains no code path that reads a research artifact",
+   "all inputs are generated from the fixed master seed; there is no data input",
+   "exactly one file is written, at the caller-supplied --out path",
+   "the --out path is screened by assert_not_canonical() before any write",
+   "socket connect/create_connection/getaddrinfo are replaced before numerical imports"
+  ],
+  "not_claimed": [
+   "a filesystem sandbox -- assert_not_canonical() screens the OUTPUT path only and cannot prevent a future edit from adding an arbitrary read",
+   "that network access is impossible for a caller deliberately bypassing the patches"
+  ],
+  "enforcement": "source review plus the committed test suite, not a runtime sandbox"
+ },
  "environment_validation_limits": {
   "statement": "CR2 validation is unavailable in the currently tested environment; an independently maintained reference runtime must be added and pinned before validation. This is a statement about the tested workstation, not about the repository's permanent capabilities.",
   "reference_runtime_present": false,
@@ -127,11 +141,24 @@
    "Python linearmodels"
   ]
  },
+ "method_status_field_semantics": {
+  "study_implementation_runnable": "the study-written function executes and returns output here",
+  "independent_reference_available": "an independently maintained implementation exists in this environment to check the study code against",
+  "independently_validated": "agreement with that reference was demonstrated under the preregistered tolerances (implementation agreement, NOT a statistical endorsement)",
+  "production_eligible": "may be used for a real HYP-01 analysis; requires BOTH independent validation AND an authorizer decision",
+  "note": "runnable and validated are different facts. An unvalidated method is runnable engineering code whose output cannot support production or comparative claims."
+ },
  "methods": {
   "CR1": {
    "implementation_status": "IMPLEMENTATION_VALIDATED",
-   "reference": "statsmodels 0.14.6",
+   "study_implementation_runnable": true,
+   "independent_reference_available": true,
+   "independent_reference": "statsmodels 0.14.6",
    "independently_validated": true,
+   "validation_meaning": "implementation agreement with the reference under the preregistered tolerances; not a statistical endorsement",
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "PENDING_AUTHORIZER_DECISION",
    "fixtures_matched": [
     "F01_balanced_24c_72n",
     "F02_unbalanced_24c_60n",
@@ -146,30 +173,41 @@
     "F16_cluster_heteroskedastic",
     "F17_bootstrap_seed_repeat",
     "F18_below_design_6_clusters"
-   ],
-   "executable_here": true
+   ]
   },
   "CR2": {
    "implementation_status": "IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE",
    "label": "UNVALIDATED_STUDY_IMPLEMENTATION",
+   "study_implementation_runnable": true,
+   "independent_reference_available": false,
    "independently_validated": false,
-   "executable_here": false,
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
    "dependency_needed": "R runtime + clubSandwich (or equivalent independently maintained CR2)",
    "validation_procedure_needed": "run this fixture matrix through both implementations and compare under the preregistered tolerances"
   },
   "CR3": {
    "implementation_status": "IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE",
    "label": "UNVALIDATED_STUDY_IMPLEMENTATION",
+   "study_implementation_runnable": true,
+   "independent_reference_available": false,
    "independently_validated": false,
-   "executable_here": false,
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
    "dependency_needed": "R runtime + clubSandwich",
    "validation_procedure_needed": "as for CR2, comparing CR3 covariance and t"
   },
   "WCR_BOOTSTRAP_T": {
    "implementation_status": "IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE",
    "label": "UNVALIDATED_STUDY_IMPLEMENTATION",
+   "study_implementation_runnable": true,
+   "independent_reference_available": false,
    "independently_validated": false,
-   "executable_here": false,
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
    "dependency_needed": "R fwildclusterboot / Stata boottest / Python wildboottest",
    "validation_procedure_needed": "compare bootstrap p-values at matched seed/weights/B, allowing Monte Carlo error"
   }
@@ -1076,6 +1114,164 @@
    "statsmodels_inference_df": 5
   }
  },
+ "portability_probe": {
+  "F01_balanced_24c_72n": {
+   "beta": [
+    -0.08037476150738267,
+    0.11079544360127996
+   ],
+   "standard_error": [
+    0.21094215684987988,
+    0.15981534039948292
+   ],
+   "t_statistic": [
+    -0.38102749449263745,
+    0.6932716429119369
+   ],
+   "covariance_diagonal": [
+    0.04449659353647933,
+    0.025540943027002598
+   ],
+   "n_clusters": 24,
+   "n_obs": 72,
+   "n_params": 2,
+   "inference_df": 23,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  },
+  "F02_unbalanced_24c_60n": {
+   "beta": [
+    -0.05639096150687047,
+    -0.4264679383829668
+   ],
+   "standard_error": [
+    0.31038505644516595,
+    0.1485696674468707
+   ],
+   "t_statistic": [
+    -0.18168065870411115,
+    -2.870491303586407
+   ],
+   "covariance_diagonal": [
+    0.09633888326446886,
+    0.022072946085273753
+   ],
+   "n_clusters": 24,
+   "n_obs": 60,
+   "n_params": 2,
+   "inference_df": 23,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  },
+  "F03_several_singleton_clusters": {
+   "beta": [
+    -0.12348498188882724,
+    0.16739378153984225
+   ],
+   "standard_error": [
+    0.26143733725799334,
+    0.12121023680914333
+   ],
+   "t_statistic": [
+    -0.47233108776260585,
+    1.3810201674914566
+   ],
+   "covariance_diagonal": [
+    0.06834948131254974,
+    0.014691921507328606
+   ],
+   "n_clusters": 20,
+   "n_obs": 32,
+   "n_params": 2,
+   "inference_df": 19,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  },
+  "F04_one_dominant_cluster": {
+   "beta": [
+    0.07959323536627692,
+    -0.16352617160111294
+   ],
+   "standard_error": [
+    0.11731688261170643,
+    0.0836833190399472
+   ],
+   "t_statistic": [
+    0.6784465593900356,
+    -1.9541071443766687
+   ],
+   "covariance_diagonal": [
+    0.013763250945728906,
+    0.00700289788554159
+   ],
+   "n_clusters": 12,
+   "n_obs": 60,
+   "n_params": 2,
+   "inference_df": 11,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  }
+ },
  "invariance_checks": {
   "F01_balanced_24c_72n": {
    "status": "RUN",
@@ -1640,5 +1836,21 @@
   "implementation language and package",
   "wild bootstrap role, weights, repetitions and seed"
  ],
- "output_sha256": "64dd0062ec32387f5923dd57c6214da3ccb4b45621444d2b9f2946f662f82747"
+ "output_sha256": "213613026738ff41dcf130c293d8eb22f3efef33bdede918ff58e574ef6116e6",
+ "output_sha256_canonicalization": {
+  "algorithm": "SHA-256",
+  "serialization": "json.dumps(document, sort_keys=True), UTF-8, default separators",
+  "excluded_fields": [
+   "generated_by.generated_at_utc",
+   "generated_by.runtime_seconds"
+  ],
+  "excluded_because": "nondeterministic between identical reruns",
+  "covers_deterministic_provenance": true,
+  "covers_environment_versions": true,
+  "self_excluded": [
+   "output_sha256",
+   "output_sha256_canonicalization"
+  ],
+  "scope": "same-environment reproducibility; NOT a claim of bitwise cross-version portability"
+ }
 }

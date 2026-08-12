@@ -19,6 +19,12 @@ Add `--quick` for a reduced smoke grid (**not** publication precision). Routine 
 
 The committed inventory records the runner's SHA-256, the master seed, the full simulation plan, package versions and a deterministic build identifier. A test fails if the runner or the simulation plan changes without the artifact being regenerated.
 
+**What `output_sha256` covers.** SHA-256 over `json.dumps(document, sort_keys=True)` in UTF-8, excluding exactly two nondeterministic provenance fields — `generated_at_utc` and `runtime_seconds` — which differ between identical reruns. Everything else is covered, including the runner hash, build id and recorded package versions. The digest is a **same-environment reproducibility check and is not a claim of bitwise portability** across Python, numpy or scipy builds.
+
+**Cross-environment portability is checked separately, and to tolerance.** The artifact stores full-precision CR1 outputs for four fixtures in `portability_probe`. Another environment recomputes them and compares continuous fields (`beta`, `standard_error`, `t_statistic`, covariance diagonal) under the **preregistered tolerances**, and discrete fields (cluster count, observations, parameters, inference df) under **exact equality**. CI runs Python 3.12 while this artifact was generated on 3.14, so this is exercised on every run.
+
+**What the runner's isolation guarantee is, exactly.** This revision contains no code path that reads a research artifact, every input is generated from the fixed master seed, and exactly one file is written at the caller-supplied `--out` path, which `assert_not_canonical()` screens first. That function guards the **output path only**. It is **not a filesystem sandbox** and cannot prevent a future edit from adding an arbitrary read — the guarantee is a property of this source revision, enforced by review and by test.
+
 ### A reproducibility defect found and fixed during this audit
 
 The first version of this runner seeded each fixture with `abs(hash(name)) % 100000`. **Python randomises `str` hashing per process unless `PYTHONHASHSEED` is fixed**, so every run produced different synthetic data and *nothing reproduced across processes*. Re-running the study into a fresh directory disagreed with the committed artifact on rejection counts, digests and CR1 comparisons.
@@ -27,16 +33,20 @@ The fix replaces it with a stable SHA-256-derived offset. After the fix, an inde
 
 ## 1. What is and is not validated
 
-| Method | Executable here | Status |
-|---|---|---|
-| **CR1** — conventional cluster-robust + finite-sample correction | **Yes** | **`IMPLEMENTATION_VALIDATED`** (implementation agreement with statsmodels) |
-| CR2/BRL + Satterthwaite | No | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
-| CR3 / cluster jackknife | No | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
-| Restricted wild cluster bootstrap-t | No | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+**"Runnable" and "validated" are different facts, and an earlier version of this study collapsed them into one field.** Every method below **runs**. What separates them is whether an independent reference exists to check the study's code against, and therefore whether the output can support a production or comparison claim.
+
+| Method | Study code runs | Independent reference available | Independently validated | Production eligible | Status |
+|---|---|---|---|---|---|
+| **CR1** — conventional cluster-robust + finite-sample correction | Yes | Yes — statsmodels 0.14.6 | **Yes** (implementation agreement) | No — `PENDING_AUTHORIZER_DECISION` | **`IMPLEMENTATION_VALIDATED`** |
+| CR2/BRL + Satterthwaite | Yes | No | No | No — `BLOCKED_PENDING_INDEPENDENT_VALIDATION` | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+| CR3 / cluster jackknife | Yes | No | No | No — `BLOCKED_PENDING_INDEPENDENT_VALIDATION` | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+| Restricted wild cluster bootstrap-t | Yes | No | No | No — `BLOCKED_PENDING_INDEPENDENT_VALIDATION` | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+
+**CR1 being validated does not make it production eligible.** Production eligibility needs both independent validation *and* an authorizer decision, and no decision has been made.
 
 **"Validated" here means implementation agreement, not statistical endorsement.** CR1's covariance, standard errors, t-statistics, inference degrees of freedom and p-values match `statsmodels` 0.14.6 within tolerances preregistered before any comparison and never revised.
 
-**CR2, CR3 and the bootstrap are `UNVALIDATED_STUDY_IMPLEMENTATION`.** No independently maintained reference for them is installed in the tested environment, so their outputs are **engineering diagnostics only and are not evidence of comparative statistical superiority**.
+**CR2, CR3 and the bootstrap are `UNVALIDATED_STUDY_IMPLEMENTATION`.** They are **runnable engineering implementations**, not missing ones — this study wrote them, ran them and reports their output. What is unavailable is an independently maintained reference to check them against, so their output is an **engineering diagnostic only: it cannot support a production choice or a claim that one method is statistically better than another**. Nothing in this study describes them as unable to execute.
 
 **CR2 validation is unavailable in the currently tested environment; an independently maintained reference runtime must be added and pinned before validation.** That is a statement about this workstation, not about the repository in principle: `R`/`Rscript` are not on `PATH` and a filesystem search of the standard install locations found nothing, so `clubSandwich`, `sandwich`, `lmtest` and `fwildclusterboot` cannot be reached here. `linearmodels`, `wildboottest` and `pyfixest` are likewise absent.
 

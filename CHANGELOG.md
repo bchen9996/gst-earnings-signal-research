@@ -1,6 +1,36 @@
 # Changelog
 
 
+## 2026-08-12 — PR #17 CI repair, an explicit supersession notice, and implementation status split into four facts
+
+Offline apart from reading the GitHub Actions log. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged. The corrected full-precision results are unchanged — every statistical section of the regenerated artifact is byte-identical to the one it replaces.
+
+**⚠ The "2026-08-11 — HYP-01 inference feasibility" entry below is SUPERSEDED and its numbers must not be cited.** That entry's grid came from the unstable `hash()` seeding described in the corrective entry above and is not reproducible by anyone, on any machine. Its "0.090–0.110" CR1 range, its "≈11.5 / ≈7.5" Satterthwaite figures, its "Both are correct" perfect-fit claim and its "71 assertions" count are all withdrawn. Only the SHA-256-seeded run at **5,000 replications per null cell and 2,000 per effect cell** is current, as recorded in `GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json`. That artifact is authoritative **for this synthetic feasibility study only**; `GST_HYP01_ANALYSIS_LOCK_v1.0` remains the only operative scientific lock. The original entry's text is preserved verbatim under an adjacent supersession banner rather than edited, following the append-only convention used elsewhere in this repository (protocol v1.0 preserved byte-for-byte; superseded code renamed, not deleted).
+
+**CI root cause — and it was not a statistical problem.** Run `31563766381` failed at the step *Discover and run every deterministic market-response test file*:
+
+```
+=== Running test_market_response_hyp01_inference_feasibility.py ===
+  File ".../tools/hyp01_inference_feasibility.py", line 60, in <module>
+    import scipy
+ModuleNotFoundError: No module named 'scipy'
+```
+
+The test aborted at import, before a single assertion ran. The workflow installed `requirements.txt` (scoped by its own header to `gst_market_response/`) and the validator's `jsonschema`, and nothing else. Making the test *computational* in the previous commit gave it a real dependency on the runner, and therefore on `scipy` and `statsmodels`, which CI never had. Deterministic and environment-specific: it would fail identically on every rerun, and it says nothing about any published number.
+
+**Fix.** A separate pinned `tools/requirements-hyp01-feasibility.txt` — kept out of `requirements.txt`, whose header states it covers `gst_market_response/` only — installed by a third `pip install` line. `statsmodels` is pinned exactly, because it is the reference that defines what CR1 validation means; `scipy` carries a floor, because it supplies the t-distribution used on both sides of a comparison made under preregistered tolerance, and CI runs Python 3.12 where an exact pin of the study's build may have no wheel. **No tolerance was loosened and no assertion weakened.** Nothing here supplies a CR2/CR3/bootstrap reference, so those remain blocked and F5 stays open.
+
+The workflow's path filter also gained `tools/**`. The runner is imported by a discovered test, so before this a runner-only edit would not have triggered CI at all — the failure would have surfaced later, on an unrelated change.
+
+**Implementation status was one boolean pretending to be four facts.** `executable_here: false` on CR2, CR3 and the bootstrap read as *these cannot run*. They run fine. What is absent is an independent reference, and therefore any basis for production use. The field is replaced by four independent ones — `study_implementation_runnable`, `independent_reference_available`, `independently_validated`, `production_eligible` — plus a `production_eligibility_status`. CR1 now records all four separately too: runnable, reference available, implementation agreement validated, **production selection not approved**, eligibility `PENDING_AUTHORIZER_DECISION`. A test asserts the concepts cannot collapse back into one flag, and that no document describes an unvalidated method as unable to execute.
+
+**Provenance honesty.** The output digest previously excluded the entire `generated_by` block, which quietly left `runner_sha256` and the build id outside a hash whose name implied full coverage. It now excludes exactly two nondeterministic fields — `generated_at_utc` and `runtime_seconds` — and a committed `output_sha256_canonicalization` block states the rule, what is covered, and that the digest is a same-environment check rather than a claim of bitwise portability. A new `portability_probe` block stores full-precision CR1 outputs for four fixtures so another environment can recompute them: continuous fields compared under the preregistered tolerances, discrete fields under exact equality.
+
+**Runner isolation language narrowed.** `assert_not_canonical()` screens the **output path** only. It is not a filesystem sandbox and cannot stop a future edit from adding an arbitrary read. The runner and artifact now claim what is true of this revision — *contains no canonical-read path, enforced by review and test* — instead of implying reads are impossible.
+
+Changed: the workflow, the new requirements file, the runner, the regenerated artifact, the report, the decision matrix, this file and the test.
+
+
 ## 2026-08-11 — Corrective reproducibility audit: the feasibility study's numbers were not reproducible, and now are
 
 Offline. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged.
@@ -40,6 +70,16 @@ Changed: `tools/hyp01_inference_feasibility.py` (new), the computational test, t
 
 
 ## 2026-08-11 — HYP-01 inference feasibility: only CR1 can be validated here; CR2, CR3 and the wild bootstrap are blocked
+
+> ### ⚠ SUPERSEDED — DO NOT CITE THE NUMBERS BELOW
+>
+> **Superseded by the "2026-08-11 — Corrective reproducibility audit" entry above, as amended by the "2026-08-12" entry.** The original text of this entry is preserved verbatim below and nothing in it has been edited, per the repository's append-only convention. It is kept for auditability, not for reference.
+>
+> **Its numerical grid is invalid.** Fixtures were seeded with `abs(hash(name)) % 100000`, and Python randomises `str` hashing per process, so the run that produced these figures cannot be reproduced — by anyone, including on the same machine. The grid was also run at 300 replications per cell, a precision too coarse to support the categorical language used.
+>
+> **Specifically not to be cited:** the "0.090–0.110" CR1 null-rejection range; the "≈11.5 balanced to ≈7.5 unbalanced" Satterthwaite figures; the perfect-fit claim that "**Both are correct**"; the "71 assertions" test count; and the description of CR2/CR3/bootstrap as blocked in a way that implies they cannot execute.
+>
+> **The current figures** are the SHA-256-seeded run at 5,000 replications per null cell and 2,000 per effect cell, recorded in `GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json` and the corrective entry above. That artifact is authoritative **for this synthetic feasibility study only** — `GST_HYP01_ANALYSIS_LOCK_v1.0` remains the only operative scientific lock, and **F5 remains OPEN**.
 
 Synthetic data only. **No method approved, no dated amendment created, no signoff field completed.** `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative and the proposed v1.1 remains `PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL`, both byte-identical. **F5 remains OPEN.** DELL unchanged.
 

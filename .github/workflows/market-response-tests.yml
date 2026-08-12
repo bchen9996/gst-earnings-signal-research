@@ -43,6 +43,10 @@ on:
       - "gst_market_response/**"
       - "test_market_response*.py"
       - "Event_Dossier_Protocol/**"
+      # The HYP-01 feasibility runner is imported by a discovered test file, so
+      # a change to it can break the suite. Without this filter that test would
+      # only run when some other matching path happened to change.
+      - "tools/**"
       - "Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md"
       - "Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md"
       - "Live Signal Engine/GST_MARKET_RESPONSE_OPERATIONAL_READINESS_CHECKLIST_v0.1.md"
@@ -82,10 +86,16 @@ jobs:
         #     validator over its emitted addendum. Without it the validator
         #     correctly fails closed ("the 'jsonschema' package ... is not
         #     installed -- freeze-manifest structural validation cannot run").
+        #   tools/requirements-hyp01-feasibility.txt -> scipy and statsmodels,
+        #     needed by test_market_response_hyp01_inference_feasibility.py,
+        #     which imports the feasibility runner and recomputes its results
+        #     rather than reading its declarations. Before this line the test
+        #     aborted at import with ModuleNotFoundError and no assertion ran.
         run: |
           set -e
           pip install -r requirements.txt
           pip install -r Event_Dossier_Protocol/validator/requirements.txt
+          pip install -r tools/requirements-hyp01-feasibility.txt
 
       - name: Discover and run every deterministic market-response test file
         run: |
