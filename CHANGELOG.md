@@ -1,6 +1,34 @@
 # Changelog
 
 
+## 2026-08-11 — HYP-01 inference feasibility: only CR1 can be validated here; CR2, CR3 and the wild bootstrap are blocked
+
+Synthetic data only. **No method approved, no dated amendment created, no signoff field completed.** `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative and the proposed v1.1 remains `PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL`, both byte-identical. **F5 remains OPEN.** DELL unchanged.
+
+**Why this study exists.** The merged proposal names **CR2/BRL plus Satterthwaite** as its provisional recommendation while recording that `statsmodels` does not supply it. This study asked the narrow engineering question: what can actually be implemented reproducibly, today, before the authorizer chooses.
+
+**The answer is uncomfortable, and is reported as found.** **There is no R runtime on this machine** — `R` and `Rscript` are not on `PATH` and a filesystem search of the standard install locations returned nothing, so `clubSandwich`, `sandwich`, `lmtest` and `fwildclusterboot` are **absent, not merely unconfigured**. `linearmodels`, `wildboottest` and `pyfixest` are absent too. Working Python implementations of CR2, CR3, the Satterthwaite degrees of freedom and the restricted wild cluster bootstrap were written and run deterministically, **and are deliberately not labelled validated**, because the validation hierarchy requires agreement with an independently maintained implementation and comparing code to itself proves only self-consistency. **Nothing was installed to close the gap.** Each blocked method records the exact dependency and the exact validation procedure that would be needed.
+
+| Method | Status |
+|---|---|
+| **CR1** + cluster-count finite-sample correction | **`IMPLEMENTATION_VALIDATED`** |
+| CR2 / BRL + Satterthwaite | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+| CR3 / cluster jackknife | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+| Restricted wild cluster bootstrap-t | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+
+**CR1 was validated against `statsmodels` 0.14.6** — independently maintained, already installed, not written for this study — on 11 of 14 synthetic fixtures, matching covariance, standard errors, t, inference degrees of freedom and p-values. **Tolerances were preregistered before any comparison and were not revised afterwards.** Two fixtures were skipped by design and one is a documented refusal case. **This is not a reason to prefer CR1**: the synthetic grid shows it over-rejecting under the null in every configuration tested, and the decision matrix says so plainly.
+
+**A comparison defect was found and corrected mid-study.** An initial pass reported a degrees-of-freedom mismatch on every fixture. The cause was reading the wrong attribute: **`statsmodels` keeps `results.df_resid = n − k` and exposes the inference degrees of freedom separately as `results.df_resid_inference = G − 1`**, which is what its p-values use. The comparison target was corrected; **the preregistered tolerances were not touched**, and the mismatch disappeared.
+
+**Four refusal conditions were identified, none of which has a rule today.** The sharpest is **perfect or near-perfect fit**: with residual sum of squares at 3.7 × 10⁻²⁹, two implementations agreed on the covariance matrix to 2.6 × 10⁻³² and on standard errors to 8.4 × 10⁻¹⁷ — and still reported t-statistics differing by a factor of about 1.7, because at that scale a 10⁻¹⁶ absolute difference is a **75% relative** difference. Both are correct; the ratio β/se is simply not numerically identifiable. A production implementation must **refuse**, not report. The others are missing values (must be refused, never silently row-dropped), rank-deficient designs (a pseudo-inverse absorbs them silently), and zero-variance predictors.
+
+**Eighteen synthetic fixtures** cover balanced and highly unbalanced clusters, singletons, one dominant cluster, near-collinearity, zero variance, perfect fit, missing values, row permutation, cluster relabelling, sign reversal, null and hypothetical positive effects, heavy tails, cluster-level heteroskedasticity, seed reproduction, seed variation and a below-design cluster count. Cluster labels are `CLUSTER_001`-style; **no real ticker appears anywhere**. Row-permutation and cluster-relabelling invariance held on all twelve runnable fixtures, and the bootstrap reproduced exactly under a fixed seed — **which is reproducibility, not validation, and is not counted as such**.
+
+**A hypothetical design-sensitivity grid** was produced with generic standardized effects chosen before simulation. It is labelled throughout as an engineering fixture and **uses no repository effect estimate, because none exists**. It shows CR1 over-rejecting under the null (0.090–0.110 against nominal 0.050) and Satterthwaite degrees of freedom falling from ≈11.5 balanced to ≈7.5 unbalanced at 24 clusters. **It is not converted into a GST power claim and does not produce a minimum-cluster threshold** — that placeholder stands.
+
+Added `GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json`, `GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`, `GST_HYP01_AUTHORIZER_DECISION_MATRIX_v1.0_DRAFT.md` (**16 decisions, 0 made**, every checkbox blank, authorizer and date `PENDING`; recommendations offered only where the offline evidence supports one, and withheld on the primary-estimator choice precisely because the methodologically preferred options are the blocked ones), and `test_market_response_hyp01_inference_feasibility.py` (**71 assertions**). The existing signoff template was **not modified and not filled in**.
+
+
 ## 2026-08-11 — Round-2 screenshot OCR audit: all 20 images machine-read, none carries market data
 
 Offline only. **No live request, no browser, no screenshot manually viewed, no quarantined body reopened.** No ticker classification changed.
