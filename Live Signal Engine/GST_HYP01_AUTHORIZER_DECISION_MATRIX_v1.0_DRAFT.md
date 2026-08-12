@@ -15,9 +15,9 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 ## The constraint that shapes several of these decisions
 
-**CR2 + Satterthwaite — the merged packet's provisional recommendation — is not executable in this repository.** There is no R runtime, so `clubSandwich` is absent; `wildboottest` and `linearmodels` are absent too. Only **CR1** has a validated implementation today.
+**CR2 + Satterthwaite — the merged packet's provisional recommendation — is not executable in the currently tested environment.** No R runtime is present there, so `clubSandwich` cannot be reached; `wildboottest` and `linearmodels` are absent too. An independently maintained reference runtime must be added and pinned before CR2 can be validated. Only **CR1** has an implementation-validated path today.
 
-**This is a dependency problem, not evidence that CR1 is the better method.** The design-sensitivity grid shows CR1 over-rejecting under the null in every configuration tested. Choosing CR1 because it is the only thing that runs would be choosing on convenience.
+**This is a dependency problem, not evidence that CR1 is the better method.** At the corrected simulation precision (5,000 replications per null cell), CR1's 95% Wilson interval lies entirely above 0.05 in **all four null cells tested** — so over-rejection is established for CR1 itself. The CR2 columns are **`UNVALIDATED ENGINEERING OUTPUT — NOT METHOD-COMPARISON EVIDENCE`** and cannot be used to argue any method is better. Choosing CR1 because it is the only thing that runs here would be choosing on convenience.
 
 ---
 
@@ -27,8 +27,8 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 | Option | Implementation status | Consequence if chosen |
 |---|---|---|
-| **A. CR1** | **Validated** against statsmodels 0.14.6 | Runnable today with no new dependency. Over-rejects under the null in every synthetic cell tested (0.090–0.110 vs nominal 0.050) — inflating apparent significance |
-| **B. CR2 / BRL** | **Blocked** — no independent reference installed | Best-behaved in the published literature and in the synthetic grid, but cannot be validated until an R/`clubSandwich` dependency is acquired. Collection cannot honestly begin before that |
+| **A. CR1** | **Validated** against statsmodels 0.14.6 (implementation agreement, not statistical endorsement) | Runnable today with no new dependency. At 5,000 replications per cell its Wilson interval lies entirely above 0.05 in all four null cells (0.0796, 0.1180, 0.0854, 0.0912) — over-rejection, in the direction that inflates apparent significance |
+| **B. CR2 / BRL** | **Blocked** — no independent reference installed in the tested environment | Favoured in the published literature. Its behaviour in this study's grid is **unvalidated engineering output and is not method-comparison evidence**. Cannot be validated until an independently maintained reference runtime is added and pinned. Collection cannot honestly begin before that |
 | **C. CR3 / jackknife** | **Blocked** — same reason | Comparable published performance to CR2 with a simpler `t(G−1)` rule; same dependency gap |
 
 **Recommended:** *none offered.* The methodologically preferred options are exactly the ones that are blocked. This is the authorizer's call, and it is really a call about whether to acquire the dependency.
@@ -59,7 +59,7 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 | Option | Status | Consequence |
 |---|---|---|
 | A. `t(G−1)` | Validated | Simple, reproducible. In this repository, read `results.df_resid_inference`, **not** `results.df_resid` |
-| B. Satterthwaite / Bell–McCaffrey ν | Blocked | Design-dependent; ν fell to ≈7.5 at 24 unbalanced clusters in the synthetic grid |
+| B. Satterthwaite / Bell–McCaffrey ν | Blocked | Design-dependent. The study grid put ν at 7.248 for 24 unbalanced clusters, but that figure is **unvalidated engineering output, not method-comparison evidence** |
 
 **Recommended:** if D1 selects CR2, then **B**; if D1 selects CR1 or CR3, then **A**. The pairing matters more than either alone.
 
@@ -94,7 +94,7 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 - [ ] 999  - [ ] 9,999  - [ ] Other: ______  - [ ] Not applicable
 
-**D7.** A fixed seed **must** be recorded, or the procedure is not reproducible. Verified here: the same seed reproduces exactly, a different seed differs.
+**D7.** A fixed seed **must** be recorded, or the procedure is not reproducible. Verified here by recomputation: the same seed reproduces the identical bootstrap draw vector, and a different seed changes it. The test compares a digest of the draw vector rather than the p-value, because the p-value lies on a coarse 1/(B+1) grid where two seeds may legitimately collide.
 
 - [ ] Fixed seed recorded at the event-60 freeze  - [ ] Fixed seed declared now: ______  - [ ] Not applicable
 
@@ -114,24 +114,24 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 ## D9 — Rank deficiency, missing values, degenerate fit
 
-**This study found three conditions where an implementation would otherwise emit a meaningless number.**
+**This study found five conditions where an implementation would otherwise emit a meaningless number**, each now refused by a distinct prespecified rule: ill-conditioning, exact rank deficiency, zero-variance predictor, degenerate fit and non-finite values.
 
-On the perfect-fit fixture, two correct implementations agreed on the covariance matrix to 2.6 × 10⁻³² and still reported t-statistics differing by a factor of ~1.7, because the standard errors sit at the floating-point noise floor.
+On the perfect-fit fixture both implementations became numerically unstable near the floating-point noise floor and disagreed materially on the derived statistic. No correctness verdict is asserted for either. The runner now refuses this configuration by a prespecified relative-residual-variance threshold rather than by noticing a disagreement.
 
 | Option | Consequence |
 |---|---|
-| A. **Refuse and abort** on rank deficiency, any missing value, and residual variance below a declared floor | Fails loudly; requires declaring the floor |
+| A. **Refuse and abort** on rank deficiency, ill-conditioning, zero variance, any missing value, and residual variance below a declared floor | Fails loudly. The runner already implements exactly this, with five distinct prespecified reasons |
 | B. Refuse on rank deficiency and missing values only | Leaves the degenerate-fit case reporting a meaningless statistic |
 | C. No rule | An implementation may silently report a number that is not identified |
 
 **Recommended: A.** This is the one row where the offline evidence is decisive.
 
 - [ ] A  - [ ] B  - [ ] C
-- Residual-variance floor, if A: `PENDING`
+- Residual-variance floor, if A: `PENDING` (the runner's study default is relative RSS < 1e-18; adopting it is the authorizer's call)
 
 ## D10 — Cluster-count / effective-df warning policy (gap-audit NEW-1)
 
-**No threshold is proposed, and the synthetic grid does not support one.** It shows effective df falling well below the nominal cluster count — ≈11.5 balanced and ≈7.5 unbalanced at 24 clusters — but a rejection floor is a judgement about evidential sufficiency, not a number the grid can produce.
+**No threshold is proposed, and the synthetic grid does not support one.** It shows effective df below the nominal cluster count — 11.42 balanced and 7.248 unbalanced at 24 clusters — but those figures come from **unvalidated CR2/Satterthwaite code**, and a rejection floor is in any case a judgement about evidential sufficiency, not a number a grid can produce.
 
 | Option | Consequence |
 |---|---|
