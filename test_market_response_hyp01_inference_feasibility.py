@@ -290,10 +290,20 @@ def test_8_markdown_numbers_tie_to_inventory() -> None:
             if c[f] is not None:
                 inv_nums.add(f"{c[f]:.3f}")
                 inv_nums.add(f"{c[f]:.2f}")
-    # Allowed non-grid constants, both derived from the artifact rather than hardcoded:
-    # the nominal alpha, and the leading "0.14" of the recorded statsmodels version.
+    # Allowed non-grid constants. Every one is DERIVED from a committed
+    # declaration rather than hardcoded here, so this allowlist cannot drift
+    # into a place to hide a stale statistic:
+    #   - the nominal alpha, from the simulation plan;
+    #   - the statsmodels version, from the artifact's environment block;
+    #   - the interpreter versions the docs legitimately discuss, namely the one
+    #     that generated the artifact and the one CI pins.
+    wf_text = (ROOT / ".github" / "workflows" / "market-response-tests.yml").read_text(encoding="utf-8")
+    ci_py = re.search(r'python-version:\s*"(\d+\.\d+)"', wf_text)
     allowed = {f"{INVENTORY['simulation_plan']['nominal_alpha']:.2f}",
-               ".".join(INVENTORY["environment"]["statsmodels"].split(".")[:2])}
+               ".".join(INVENTORY["environment"]["statsmodels"].split(".")[:2]),
+               ".".join(INVENTORY["environment"]["python"].split(".")[:2])}
+    if ci_py:
+        allowed.add(ci_py.group(1))
     # Scans BOTH prose and tables, and both documents. The regex takes one or more
     # leading digits: an earlier single-digit form silently exempted every
     # Satterthwaite df figure (e.g. "11.42") from the tie-out.
@@ -408,6 +418,171 @@ def test_11_protected_state_unchanged() -> None:
           INVENTORY["method_approved"] is False and INVENTORY["dated_amendment_created"] is False)
 
 
+# ---------------------------------------------------------------- 12. status semantics
+UNVALIDATED_METHODS = ("CR2", "CR3", "WCR_BOOTSTRAP_T")
+STATUS_FACTS = ("study_implementation_runnable", "independent_reference_available",
+                "independently_validated", "production_eligible")
+
+
+def test_12_implementation_status_is_four_separate_facts() -> None:
+    """Guards against re-collapsing runnable / referenced / validated / eligible.
+
+    The earlier artifact carried a single `executable_here` flag that read False
+    for CR2, CR3 and the bootstrap. Those functions run perfectly well; what is
+    missing is an independent reference. One boolean cannot carry both facts.
+    """
+    methods = INVENTORY["methods"]
+    check("12a. the ambiguous executable_here field is gone from every method",
+          not any("executable_here" in m for m in methods.values()))
+    for name in ("CR1",) + UNVALIDATED_METHODS:
+        m = methods[name]
+        missing = [f for f in STATUS_FACTS if f not in m]
+        check(f"12b. {name} records all four status facts separately (missing={missing})", not missing)
+
+    for name in UNVALIDATED_METHODS:
+        m = methods[name]
+        check(f"12c. {name} is recorded as RUNNABLE, not as unable to execute",
+              m["study_implementation_runnable"] is True)
+        check(f"12d. {name} has no independent reference and is not validated",
+              m["independent_reference_available"] is False and m["independently_validated"] is False)
+        check(f"12e. {name} is not production eligible",
+              m["production_eligible"] is False
+              and m["production_eligibility_status"] == "BLOCKED_PENDING_INDEPENDENT_VALIDATION")
+
+    cr1 = methods["CR1"]
+    check("12f. CR1 is runnable with a reference available and validated",
+          cr1["study_implementation_runnable"] is True
+          and cr1["independent_reference_available"] is True
+          and cr1["independently_validated"] is True)
+    check("12g. CR1 validation is recorded as implementation agreement, not endorsement",
+          "not a statistical endorsement" in cr1["validation_meaning"])
+    check("12h. CR1 is validated but NOT production eligible or selected",
+          cr1["production_eligible"] is False
+          and cr1["production_selection_approved"] is False
+          and cr1["production_eligibility_status"] == "PENDING_AUTHORIZER_DECISION")
+    check("12i. the four concepts are documented so they cannot be silently merged",
+          set(INVENTORY["method_status_field_semantics"]) >= set(STATUS_FACTS))
+
+    # No document may describe an unvalidated method as unable to run.
+    bad = []
+    for label, path in (("report", REP), ("matrix", MTX)):
+        text = path.read_text(encoding="utf-8").lower()
+        for phrase in ("cannot be executed", "cannot execute", "is not executable",
+                       "are not executable", "cannot be run", "not runnable"):
+            if phrase in text:
+                bad.append((label, phrase))
+    check(f"12j. no document says an unvalidated method cannot execute (found={bad})", not bad)
+
+
+# ---------------------------------------------------------------- 13. portability
+def test_13_portability_probe_recomputes_within_tolerance() -> None:
+    """Tolerance-bounded cross-environment check.
+
+    Recompute the stored CR1 outputs in THIS interpreter and compare: continuous
+    fields under the preregistered tolerances, discrete fields exactly. CI runs
+    Python 3.12; the artifact was generated on 3.14. Bitwise equality is NOT
+    asserted, because it would not be true across builds.
+    """
+    import numpy as np
+    probes = INVENTORY["portability_probe"]
+    specs = dict(R.FIXTURE_SPECS)
+    check("13a. the artifact carries portability probes", len(probes) >= 3)
+    tol = R.TOLERANCES
+    for name, stored in probes.items():
+        live = R.portability_probe(R.make_fixture(name, **specs[name]))
+        for field, key in (("beta", "standard_error"), ("standard_error", "standard_error"),
+                           ("t_statistic", "t_statistic"), ("covariance_diagonal", "covariance_matrix")):
+            ok = bool(np.allclose(np.array(live[field]), np.array(stored[field]), **tol[key]))
+            check(f"13b. {name}.{field} recomputes within the preregistered tolerance", ok)
+        for field in ("n_clusters", "n_obs", "n_params", "inference_df"):
+            check(f"13c. {name}.{field} is exactly equal (discrete)", live[field] == stored[field])
+    check("13d. the probe does not claim bitwise portability",
+          all(p["comparison_rule"]["bitwise_portability_claimed"] is False for p in probes.values()))
+
+
+# ---------------------------------------------------------------- 14. provenance digest
+def test_14_output_digest_canonicalization_is_documented_and_honest() -> None:
+    canon = INVENTORY["output_sha256_canonicalization"]
+    check("14a. the excluded fields are exactly the two nondeterministic ones",
+          set(canon["excluded_fields"]) == {"generated_by.generated_at_utc",
+                                            "generated_by.runtime_seconds"})
+    check("14b. the digest does not claim to cover its own field",
+          "output_sha256" in canon["self_excluded"])
+    check("14c. the digest claims same-environment scope, not bitwise portability",
+          "NOT a claim of bitwise" in canon["scope"])
+    check("14d. deterministic provenance IS covered", canon["covers_deterministic_provenance"] is True)
+    # Recompute the digest from the committed artifact under the documented rule.
+    doc = {k: v for k, v in INVENTORY.items()
+           if k not in ("output_sha256", "output_sha256_canonicalization")}
+    doc["generated_by"] = {k: v for k, v in INVENTORY["generated_by"].items()
+                           if k not in R.NONDETERMINISTIC_PROVENANCE_FIELDS}
+    recomputed = hashlib.sha256(json.dumps(doc, sort_keys=True).encode("utf-8")).hexdigest()
+    check("14e. the documented rule reproduces the committed output_sha256",
+          recomputed == INVENTORY["output_sha256"])
+    iso = INVENTORY["runner_isolation"]
+    check("14f. a filesystem sandbox is explicitly listed among the things NOT claimed",
+          any("filesystem sandbox" in s.lower() for s in iso["not_claimed"]))
+    check("14g. the output-path guard is not described as a read guard",
+          any("output" in s.lower() and "assert_not_canonical" in s for s in iso["not_claimed"]))
+    check("14h. isolation is enforced by review and test, not asserted as a runtime sandbox",
+          "review" in iso["enforcement"] and "test" in iso["enforcement"])
+
+
+# ---------------------------------------------------------------- 15. supersession
+OLD_ENTRY_HEADING = ("## 2026-08-11 — HYP-01 inference feasibility: only CR1 can be validated here; "
+                     "CR2, CR3 and the wild bootstrap are blocked")
+WITHDRAWN_FIGURES = ("0.090", "0.110", "11.5", "7.5", "71 assertions")
+
+
+def test_15_superseded_changelog_entry_cannot_be_mistaken_for_current() -> None:
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    check("15a. the obsolete entry is still present (append-only: not deleted)",
+          OLD_ENTRY_HEADING in text)
+    head = text.index(OLD_ENTRY_HEADING)
+    banner = text[head:head + 1800]
+    check("15b. a supersession banner sits immediately after its heading",
+          "SUPERSEDED" in banner and "DO NOT CITE" in banner)
+    check("15c. the banner names the unstable hash() seeding as the reason",
+          "hash(" in banner and "randomis" in banner.lower())
+    check("15d. the banner names the current replication counts",
+          "5,000" in banner and "2,000" in banner)
+    check("15e. the banner scopes authority to this feasibility study only",
+          "ANALYSIS_LOCK_v1.0" in banner and "F5 remains OPEN" in banner)
+    # The newest entry must carry the correction notice too.
+    newest = text[:head]
+    check("15f. the newest entry also flags the earlier one as superseded",
+          "SUPERSEDED" in newest.upper())
+    check("15g. the newest entry withdraws the specific obsolete figures",
+          all(f in newest for f in WITHDRAWN_FIGURES),
+          str([f for f in WITHDRAWN_FIGURES if f not in newest]))
+    check("15h. the current artifact is named as authoritative for this study",
+          "GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json" in newest)
+    check("15i. the original entry's own text was not edited away",
+          "Eighteen synthetic fixtures" in text and "statsmodels 0.14.6" in text)
+
+
+# ---------------------------------------------------------------- 16. CI can actually run this
+def test_16_ci_installs_what_this_test_imports() -> None:
+    wf = (ROOT / ".github" / "workflows" / "market-response-tests.yml").read_text(encoding="utf-8")
+    reqs = ROOT / "tools" / "requirements-hyp01-feasibility.txt"
+    check("16a. a pinned requirements file exists for this study's dependencies", reqs.is_file())
+    body = reqs.read_text(encoding="utf-8")
+    check("16b. it declares the two libraries the runner imports",
+          "scipy" in body and "statsmodels" in body)
+    check("16c. CI installs it", "pip install -r tools/requirements-hyp01-feasibility.txt" in wf)
+    check("16d. the runner's directory is in the workflow's path filter",
+          '"tools/**"' in wf or "tools/**" in wf)
+    check("16e. this test file is reachable by the discovery glob",
+          Path(__file__).name.startswith("test_market_response"))
+    # The dependency is real: the runner imports these at module level.
+    src = RUNNER.read_text(encoding="utf-8")
+    check("16f. the runner does import scipy and statsmodels at module level",
+          "import scipy" in src and "import statsmodels" in src)
+    check("16g. no independent CR2/CR3/bootstrap reference was added",
+          not any(tok in body.lower() for tok in ("clubsandwich", "wildboottest", "linearmodels",
+                                                  "pyfixest", "fwildclusterboot")))
+
+
 if __name__ == "__main__":
     test_1_recompute_cr1_against_statsmodels()
     test_2_recompute_all_five_refusals()
@@ -420,6 +595,11 @@ if __name__ == "__main__":
     test_9_unvalidated_never_described_as_validated()
     test_10_isolation()
     test_11_protected_state_unchanged()
+    test_12_implementation_status_is_four_separate_facts()
+    test_13_portability_probe_recomputes_within_tolerance()
+    test_14_output_digest_canonicalization_is_documented_and_honest()
+    test_15_superseded_changelog_entry_cannot_be_mistaken_for_current()
+    test_16_ci_installs_what_this_test_imports()
 
     print()
     if FAILURES:

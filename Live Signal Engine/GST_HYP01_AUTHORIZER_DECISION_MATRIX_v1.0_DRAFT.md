@@ -15,7 +15,7 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 ## The constraint that shapes several of these decisions
 
-**CR2 + Satterthwaite — the merged packet's provisional recommendation — is not executable in the currently tested environment.** No R runtime is present there, so `clubSandwich` cannot be reached; `wildboottest` and `linearmodels` are absent too. An independently maintained reference runtime must be added and pinned before CR2 can be validated. Only **CR1** has an implementation-validated path today.
+**CR2 + Satterthwaite — the merged packet's provisional recommendation — has no independent reference in the currently tested environment.** The study's own CR2 code **runs**; what is missing is something to check it against. No R runtime is present, so `clubSandwich` cannot be reached, and `wildboottest` and `linearmodels` are absent too. An independently maintained reference must be added and pinned before CR2 can be validated or used in production. Only **CR1** has an independently validated implementation today — and validation alone does not make it production eligible, which additionally requires a decision on this page.
 
 **This is a dependency problem, not evidence that CR1 is the better method.** At the corrected simulation precision (5,000 replications per null cell), CR1's 95% Wilson interval lies entirely above 0.05 in **all four null cells tested** — so over-rejection is established for CR1 itself. The CR2 columns are **`UNVALIDATED ENGINEERING OUTPUT — NOT METHOD-COMPARISON EVIDENCE`** and cannot be used to argue any method is better. Choosing CR1 because it is the only thing that runs here would be choosing on convenience.
 
@@ -27,9 +27,9 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 | Option | Implementation status | Consequence if chosen |
 |---|---|---|
-| **A. CR1** | **Validated** against statsmodels 0.14.6 (implementation agreement, not statistical endorsement) | Runnable today with no new dependency. At 5,000 replications per cell its Wilson interval lies entirely above 0.05 in all four null cells (0.0796, 0.1180, 0.0854, 0.0912) — over-rejection, in the direction that inflates apparent significance |
-| **B. CR2 / BRL** | **Blocked** — no independent reference installed in the tested environment | Favoured in the published literature. Its behaviour in this study's grid is **unvalidated engineering output and is not method-comparison evidence**. Cannot be validated until an independently maintained reference runtime is added and pinned. Collection cannot honestly begin before that |
-| **C. CR3 / jackknife** | **Blocked** — same reason | Comparable published performance to CR2 with a simpler `t(G−1)` rule; same dependency gap |
+| **A. CR1** | Runs; reference available; **independently validated** against statsmodels 0.14.6 (implementation agreement, not statistical endorsement); production eligibility `PENDING_AUTHORIZER_DECISION` | Runnable today with no new dependency. At 5,000 replications per cell its Wilson interval lies entirely above 0.05 in all four null cells (0.0796, 0.1180, 0.0854, 0.0912) — over-rejection, in the direction that inflates apparent significance |
+| **B. CR2 / BRL** | Runs, but **unvalidated** — no independent reference in the tested environment; production eligibility `BLOCKED_PENDING_INDEPENDENT_VALIDATION` | Favoured in the published literature. Its behaviour in this study's grid is **unvalidated engineering output and is not method-comparison evidence**. Cannot be validated until an independently maintained reference runtime is added and pinned. Collection cannot honestly begin before that |
+| **C. CR3 / jackknife** | Runs, but **unvalidated** — same reason | Comparable published performance to CR2 with a simpler `t(G−1)` rule; same dependency gap |
 
 **Recommended:** *none offered.* The methodologically preferred options are exactly the ones that are blocked. This is the authorizer's call, and it is really a call about whether to acquire the dependency.
 
@@ -44,9 +44,9 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 | Option | Status | Consequence |
 |---|---|---|
-| A. `c = [G/(G−1)]·[(n−1)/(n−k)]` (CR1 scaling) | Validated | Standard, familiar, insufficient on its own at this cluster count |
-| B. BRL transform built into CR2 | Blocked | Exactly unbiased under a homoskedastic-independent working model |
-| C. Jackknife transform (CR3) | Blocked | Tends conservative |
+| A. `c = [G/(G−1)]·[(n−1)/(n−k)]` (CR1 scaling) | Validated implementation | Standard, familiar, insufficient on its own at this cluster count |
+| B. BRL transform built into CR2 | Runs, unvalidated | Exactly unbiased under a homoskedastic-independent working model |
+| C. Jackknife transform (CR3) | Runs, unvalidated | Tends conservative |
 
 **Recommended:** *none offered* — follows D1.
 
@@ -58,8 +58,8 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 | Option | Status | Consequence |
 |---|---|---|
-| A. `t(G−1)` | Validated | Simple, reproducible. In this repository, read `results.df_resid_inference`, **not** `results.df_resid` |
-| B. Satterthwaite / Bell–McCaffrey ν | Blocked | Design-dependent. The study grid put ν at 7.248 for 24 unbalanced clusters, but that figure is **unvalidated engineering output, not method-comparison evidence** |
+| A. `t(G−1)` | Validated implementation | Simple, reproducible. In this repository, read `results.df_resid_inference`, **not** `results.df_resid` |
+| B. Satterthwaite / Bell–McCaffrey ν | Runs, unvalidated | Design-dependent. The study grid put ν at 7.248 for 24 unbalanced clusters, but that figure is **unvalidated engineering output, not method-comparison evidence** |
 
 **Recommended:** if D1 selects CR2, then **B**; if D1 selects CR1 or CR3, then **A**. The pairing matters more than either alone.
 
@@ -69,11 +69,11 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 | Option | Status | Consequence |
 |---|---|---|
-| A. Labelled sensitivity only, barred from overturning the primary | Blocked | Matches the merged packet's proposal; adds corroboration without method-shopping |
-| B. Primary inference | Blocked | Published evidence does not show it dominating CR2 + Satterthwaite at small G |
+| A. Labelled sensitivity only, barred from overturning the primary | Runs, unvalidated | Matches the merged packet's proposal; adds corroboration without method-shopping |
+| B. Primary inference | Runs, unvalidated | Published evidence does not show it dominating CR2 + Satterthwaite at small G |
 | C. Not used at all | — | Removes a stochastic dependency and a seed-management burden |
 
-**Recommended: A**, on the merged packet's evidence — but note it is **blocked**, so choosing A also incurs the dependency in D11.
+**Recommended: A**, on the merged packet's evidence — but note the implementation is **unvalidated**, so choosing A also incurs the reference dependency in D11.
 
 - [ ] A  - [ ] B  - [ ] C
 

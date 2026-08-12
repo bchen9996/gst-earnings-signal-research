@@ -1,0 +1,37 @@
+# Dependencies for the HYP-01 inference-feasibility reproduction runner
+# (tools/hyp01_inference_feasibility.py) and its computational test,
+# test_market_response_hyp01_inference_feasibility.py.
+#
+# Why this file exists separately: requirements.txt is documented as covering
+# gst_market_response/ ONLY, and this study is not part of that module. Adding
+# statistical packages there would contradict that file's own stated scope.
+#
+# Why CI needs it: the test file is discovered by the market-response workflow's
+# glob (it is named test_market_response*.py), it imports the runner, and the
+# runner imports scipy and statsmodels at module level. Without these, the test
+# aborts at import with ModuleNotFoundError before a single assertion runs --
+# which is exactly how run 31563766381 failed.
+#
+# statsmodels is the INDEPENDENT REFERENCE that CR1 is validated against. It is
+# not a production analysis dependency, and installing it approves no method.
+# Nothing here supplies CR2/CR3/bootstrap validation: that still requires an
+# independently maintained reference runtime, which is deliberately NOT added.
+#
+# Version policy, and why the two lines differ.
+#
+# statsmodels is pinned EXACTLY to the version recorded in the committed
+# artifact's `environment` block. It is the reference whose agreement defines
+# what "IMPLEMENTATION_VALIDATED" means for CR1, so CI must check against the
+# same implementation the study did.
+#
+# scipy carries a floor rather than an exact pin. It supplies the t-distribution
+# tail used for p-values on both sides of that comparison, and the comparison is
+# made under the PREREGISTERED tolerances -- not bitwise. The study recorded
+# scipy 1.18.0 on Python 3.14; CI runs Python 3.12, and pinning a build that may
+# have no wheel for that interpreter would break CI for no correctness gain.
+# The artifact's `portability_probe` block exists precisely so a different scipy
+# build is checked to tolerance rather than assumed identical.
+#
+# numpy and pandas arrive via requirements.txt and statsmodels' own dependencies.
+scipy>=1.11.0
+statsmodels==0.14.6
