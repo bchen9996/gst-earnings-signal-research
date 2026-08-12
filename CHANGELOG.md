@@ -1,6 +1,44 @@
 # Changelog
 
 
+## 2026-08-11 — Corrective reproducibility audit: the feasibility study's numbers were not reproducible, and now are
+
+Offline. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged.
+
+**The original defect.** The committed test read the generated inventory and Markdown and verified their *declarations*. The code that generated the fixtures, computed CR1, compared against statsmodels, computed CR2/CR3/Satterthwaite, ran the bootstrap, tested invariance and produced the simulation grid was never committed — it lived in a scratch file. **The published numbers were therefore not reproducible from the PR.**
+
+**The runner is now committed** at `tools/hyp01_inference_feasibility.py`, clearly marked non-production with no analysis entry point. It contains the actual fixture generation, the study-written CR1/CR2/CR3/Satterthwaite/restricted-bootstrap implementations, the independent statsmodels reference call, the refusal rules and the Monte Carlo grid. It blocks network access before importing any numerical library, refuses canonical research paths by name, accepts a deterministic seed and writes only to a caller-supplied output path.
+
+```
+python tools/hyp01_inference_feasibility.py --reproduce --out <path.json>
+```
+
+**A second, worse defect surfaced while verifying the first.** Re-running the study into a fresh directory did **not** reproduce the committed artifact. Root cause: fixtures were seeded with `abs(hash(name)) % 100000`, and **Python randomises `str` hashing per process unless `PYTHONHASHSEED` is fixed**. Every run produced different synthetic data. The published numbers were not merely uncommitted — they were unreproducible in principle. Replacing it with a stable SHA-256-derived offset fixed it: an independent re-run now reproduces the artifact with identical discrete fields and a worst-case floating-point difference of **0.000e+00**.
+
+**Monte Carlo precision corrected.** The earlier grid used 300 replications per cell, giving a 95% half-width of roughly ±0.03 — far too coarse for categorical language about size distortion. The plan is now fixed in the runner: master seed 20260811, nominal alpha 0.05, **5,000** replications per null cell, **2,000** per effect cell, Wilson score intervals, and an explicit claim rule applied **separately to each cell**. Every rate is reported with numerator, denominator, Monte Carlo standard error and interval.
+
+**CR1 null-cell size**, the reference-validated estimator, at 5,000 replications:
+
+| Cell | k/n | Rate | MCSE | Wilson 95% | Claim |
+|---|---|---|---|---|---|
+| G=24 balanced | 398/5000 | 0.0796 | 0.0038 | [0.0724, 0.0874] | evidence of over-rejection |
+| G=24 unbalanced | 590/5000 | 0.1180 | 0.0046 | [0.1094, 0.1272] | evidence of over-rejection |
+| G=12 balanced | 427/5000 | 0.0854 | 0.0040 | [0.0780, 0.0935] | evidence of over-rejection |
+| G=6 balanced | 456/5000 | 0.0912 | 0.0041 | [0.0835, 0.0995] | evidence of over-rejection |
+
+All four intervals lie entirely above 0.05, so the claim is permitted in each. The unbalanced cell is the largest observed rate, but **no cell is described as the "dominant" risk factor** — no prespecified between-cell comparison was performed.
+
+**Unsupported language corrected.** The perfect-fit case previously said two "correct" implementations disagreed; without an independent reference that verdict is unsupported, and it now reads that both became numerically unstable near the noise floor and disagreed materially, so the configuration must be refused. CR2/CR3/bootstrap columns are labelled **`UNVALIDATED ENGINEERING OUTPUT — NOT METHOD-COMPARISON EVIDENCE`** and are never used to argue one method beats another. The absence of R is scoped to the **currently tested environment**, not to the repository in principle. Nothing infers that CR1 should be selected merely because it executes.
+
+**Fixture semantics corrected.** Near-collinearity (full rank, ill-conditioned) and exact rank deficiency are now **separate fixtures with separate reasons**. Zero-variance predictors and perfect fit are **refusals, not matches**. Missing values fail before fitting. All five refusal thresholds were declared in the runner before the corrected rerun: `ILL_CONDITIONED_DESIGN`, `RANK_DEFICIENT_DESIGN`, `ZERO_VARIANCE_PREDICTOR`, `DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR`, `NONFINITE_VALUE_PRESENT`.
+
+**Bootstrap determinism corrected.** Seed variation is now tested by comparing a SHA-256 digest of the bootstrap t-statistic vector, not the p-value: the p-value lies on a coarse 1/(B+1) grid where two seeds can legitimately collide while having drawn entirely different samples.
+
+**The test now computes.** `test_market_response_hyp01_inference_feasibility.py` (**85 assertions**) invokes the runner, regenerates fixtures, recomputes CR1 and independently calls statsmodels, recomputes all five refusals, recomputes permutation and relabel invariance and sign reversal, recomputes bootstrap seed behaviour, runs a reduced deterministic smoke grid in a temporary directory, and verifies the committed full-precision artifact's arithmetic — that every rate equals k/n, every MCSE matches the binomial formula, every Wilson interval recomputes exactly and every claim follows the preregistered rule. It also fails if the runner or simulation plan changes without the artifact being regenerated, if a Markdown number is absent from the inventory, or if any unvalidated method is described as validated. Routine CI runs the smoke grid only; the full grid takes two to three minutes and is reproduced manually.
+
+Changed: `tools/hyp01_inference_feasibility.py` (new), the computational test, the regenerated inventory, the corrected report and decision matrix.
+
+
 ## 2026-08-11 — HYP-01 inference feasibility: only CR1 can be validated here; CR2, CR3 and the wild bootstrap are blocked
 
 Synthetic data only. **No method approved, no dated amendment created, no signoff field completed.** `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative and the proposed v1.1 remains `PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL`, both byte-identical. **F5 remains OPEN.** DELL unchanged.
