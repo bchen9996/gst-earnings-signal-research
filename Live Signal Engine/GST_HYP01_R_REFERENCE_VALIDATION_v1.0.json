@@ -1,0 +1,1144 @@
+{
+ "artifact": "GST HYP-01 independent R reference validation",
+ "classification_counts": {
+  "INTERCHANGE_OR_SPECIFICATION_DEFECT": 0,
+  "MATCH_WITHIN_PREREGISTERED_TOLERANCE": 13,
+  "PYTHON_IMPLEMENTATION_DEFECT": 0,
+  "REFERENCE_BEHAVIOR_DIFFERENCE": 1,
+  "REFUSED_BY_BOTH": 4,
+  "UNRESOLVED": 0
+ },
+ "cr3_and_bootstrap_note": "Not validated here. clubSandwich supplies CR3, but this PR validates only the CR2 + Satterthwaite path that was actually compared. CR2 agreement is never treated as evidence about CR3 or the wild cluster bootstrap.",
+ "cr3_validated": false,
+ "f5_status": "OPEN (unchanged by this validation)",
+ "fixture_source": {
+  "fixtures_regenerated_in_r": false,
+  "generator": "tools/hyp01_inference_feasibility.py::make_fixture",
+  "master_seed": 20260811,
+  "note": "R must never rebuild 'equivalent' fixtures; it reads these values.",
+  "runner_sha256": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6"
+ },
+ "fixtures_matched_within_preregistered_tolerance": [
+  "F01_balanced_24c_72n",
+  "F02_unbalanced_24c_60n",
+  "F03_several_singleton_clusters",
+  "F04_one_dominant_cluster",
+  "F10_row_permutation_source",
+  "F11_cluster_relabel_source",
+  "F12_sign_reversed_effect",
+  "F13_null_effect",
+  "F14_positive_hypothetical_effect",
+  "F15_heavy_tailed_errors",
+  "F16_cluster_heteroskedastic",
+  "F17_bootstrap_seed_repeat",
+  "F18_below_design_6_clusters"
+ ],
+ "fixtures_regenerated_in_r": false,
+ "lock_activated": false,
+ "method_approved": false,
+ "operative_lock": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0.json (v1.0, unchanged)",
+ "preregistered_tolerances": {
+  "covariance_matrix": {
+   "atol": 1e-12,
+   "rtol": 1e-10
+  },
+  "degrees_of_freedom": {
+   "exact_integer_equality": true
+  },
+  "p_value": {
+   "atol": 1e-12,
+   "rtol": 1e-09
+  },
+  "standard_error": {
+   "atol": 1e-12,
+   "rtol": 1e-10
+  },
+  "t_statistic": {
+   "atol": 1e-11,
+   "rtol": 1e-09
+  }
+ },
+ "preregistered_tolerances_used_as_written": true,
+ "python_runner_sha256": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6",
+ "reference": {
+  "environment": {
+   "clubSandwich": "0.7.0",
+   "digest": "0.6.39",
+   "jsonlite": "2.0.0",
+   "platform": "x86_64-w64-mingw32",
+   "r_version": "4.6.1",
+   "r_version_string": "R version 4.6.1 (2026-06-24 ucrt)",
+   "sandwich": "3.1.3",
+   "zoo": "1.9.0"
+  },
+  "independently_maintained": true,
+  "package": "clubSandwich",
+  "resolved_defaults": {
+   "form": "\"sandwich\"",
+   "inverse_var": "NULL",
+   "target": "NULL",
+   "type": ""
+  },
+  "specification": {
+   "cluster_ordering": "cluster labels are used in the exported row order and converted with factor(labels, levels = unique(labels)) so factor levels follow first appearance rather than locale-dependent alphabetical sorting",
+   "coefficient_ordering": "as exported: column j of X <-> coefficient_names[j], no reordering",
+   "conf_int_call": "clubSandwich::conf_int(fit, vcov = <CR2>, test = 'Satterthwaite', level = 0.95)",
+   "confidence_level": 0.95,
+   "cr2_call": "clubSandwich::vcovCR(fit, cluster = <factor>, type = 'CR2')",
+   "intercept_handling": "The design matrix carries its OWN intercept column (all ones) as column 1. The model is fitted with `y ~ 0 + .` so R does NOT add a second intercept. Coefficient order therefore matches the exported coefficient_names exactly.",
+   "leverage_adjustment": "CR2 is the bias-reduced linearisation of Bell & McCaffrey / Pustejovsky & Tipton: A_g is the symmetric inverse square root of (I - H_gg) under the identity working model. clubSandwich computes this internally; this script does not supply or override the adjustment matrices.",
+   "matrix_tolerance": "clubSandwich's own internal inversion tolerance is used and is NOT overridden here. The Python side clips eigenvalues of (I - H_gg) at 1e-12. These are different mechanisms; any disagreement they cause is a finding, not something to be tuned away.",
+   "missing_value_behaviour": "na.action = na.fail. R's default (na.omit) would SILENTLY DROP the row with a missing outcome and return a number, which would be a false agreement. Failing is the correct reference behaviour to compare against.",
+   "null_value": 0,
+   "satterthwaite_call": "clubSandwich::coef_test(fit, vcov = <CR2>, test = 'Satterthwaite')",
+   "target_coefficient": "coefficient_names[target_index_0based + 1] (the slope on x)",
+   "working_model_target": "target is left NULL, which for an unweighted lm is the identity working model -- the same homoskedastic-independent working model the Python side assumes. The resolved defaults are recorded in `reference_defaults`."
+  },
+  "written_for_this_study": false
+ },
+ "repository_research_artifact_loaded": false,
+ "results": [
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 4.163336342344337e-17,
+     "max_rel_difference": 5.179905065051944e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 6.245004513516506e-17,
+     "max_rel_difference": 1.3990745879371852e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 3.3306690738754696e-16,
+     "max_rel_difference": 6.580892422001709e-16,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.7763568394002505e-15,
+     "max_rel_difference": 1.1431313522876873e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 8.326672684688674e-17,
+     "max_rel_difference": 5.115290977061676e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 6.524533579425114e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 2.42861286636753e-17,
+     "max_rel_difference": 9.16549640114484e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F01_balanced_24c_72n",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.5061120681353397,
+    "satterthwaite_df": 15.539393927437324,
+    "standard_error": 0.16278003972848634,
+    "t_statistic": 0.6806451441226112,
+    "target_estimate": 0.11079544360127996,
+    "target_variance": 0.02649734133400759
+   },
+   "reference_conf_int": [
+    -0.23511599492778415,
+    0.45670688213034416
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.5061120681353394,
+    "satterthwaite_df": 15.539393927437322,
+    "standard_error": 0.16278003972848626,
+    "t_statistic": 0.6806451441226117,
+    "target_estimate": 0.11079544360127999,
+    "target_variance": 0.026497341334007565
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 3.6914926001368953e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.249000902703301e-16,
+     "max_rel_difference": 7.21978286890769e-14,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.3183898417423734e-16,
+     "max_rel_difference": 5.988580347326362e-15,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 3.6022398842410557e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 7.066961123587322e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 2.6645352591003757e-15,
+     "max_rel_difference": 9.815504181591419e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 3.469446951953614e-17,
+     "max_rel_difference": 1.4057406263922856e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F02_unbalanced_24c_60n",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.022015064761233046,
+    "satterthwaite_df": 9.86251275031066,
+    "standard_error": 0.15710048565564863,
+    "t_statistic": -2.71461884158493,
+    "target_estimate": -0.4264679383829668,
+    "target_variance": 0.024680562593240665
+   },
+   "reference_conf_int": [
+    -0.7771722012101472,
+    -0.07576367555578672
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.022015064761232914,
+    "satterthwaite_df": 9.862512750310657,
+    "standard_error": 0.15710048565564852,
+    "t_statistic": -2.7146188415849326,
+    "target_estimate": -0.4264679383829669,
+    "target_variance": 0.02468056259324063
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 1.3877787807814457e-16,
+     "max_rel_difference": 8.290503793004601e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 8.70358756616141e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 8.326672684688674e-17,
+     "max_rel_difference": 3.715316143215424e-16,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 2.6645352591003757e-15,
+     "max_rel_difference": 3.5725100885664645e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 4.3961172215475847e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 3.349977348782585e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 1.3877787807814457e-17,
+     "max_rel_difference": 8.70358756616141e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F03_several_singleton_clusters",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.22411747382235805,
+    "satterthwaite_df": 7.458440124852296,
+    "standard_error": 0.12627313702912588,
+    "t_statistic": 1.3256483958360168,
+    "target_estimate": 0.16739378153984225,
+    "target_variance": 0.015944905135176404
+   },
+   "reference_conf_int": [
+    -0.1275142262865909,
+    0.4623017893662751
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.22411747382235814,
+    "satterthwaite_df": 7.458440124852299,
+    "standard_error": 0.12627313702912582,
+    "t_statistic": 1.3256483958360163,
+    "target_estimate": 0.1673937815398421,
+    "target_variance": 0.01594490513517639
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 1.6973170315105703e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.734723475976807e-16,
+     "max_rel_difference": 5.346194862017697e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 8.326672684688674e-16,
+     "max_rel_difference": 3.0197821853814047e-15,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.9984014443252818e-15,
+     "max_rel_difference": 1.2615944940435774e-15,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 1.942890293094024e-16,
+     "max_rel_difference": 1.9360258874018333e-15,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 2.886579864025407e-15,
+     "max_rel_difference": 1.771468469784057e-15,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 3.9898639947466563e-17,
+     "max_rel_difference": 3.9617207043059506e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F04_one_dominant_cluster",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.2757375258718204,
+    "satterthwaite_df": 1.5840283496483392,
+    "standard_error": 0.10035456166866667,
+    "t_statistic": -1.629484189677549,
+    "target_estimate": -0.16352617160111294,
+    "target_variance": 0.010071038047710222
+   },
+   "reference_conf_int": [
+    -0.7244469919928409,
+    0.39739464879061503
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.27573752587181954,
+    "satterthwaite_df": 1.5840283496483412,
+    "standard_error": 0.10035456166866648,
+    "t_statistic": -1.6294841896775518,
+    "target_estimate": -0.1635261716011129,
+    "target_variance": 0.010071038047710182
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "F05_near_collinear_full_rank",
+   "python_refusal_reason": "ILL_CONDITIONED_DESIGN",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "lm() could not estimate: b2_aux",
+   "reference_refusal_reason": "RANK_DEFICIENT_ALIASED_COEFFICIENT",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "F06_exactly_rank_deficient",
+   "python_refusal_reason": "RANK_DEFICIENT_DESIGN",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "lm() could not estimate: b2_aux",
+   "reference_refusal_reason": "RANK_DEFICIENT_ALIASED_COEFFICIENT",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "F07_zero_variance_predictor",
+   "python_refusal_reason": "ZERO_VARIANCE_PREDICTOR",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "lm() could not estimate: b1_x",
+   "reference_refusal_reason": "RANK_DEFICIENT_ALIASED_COEFFICIENT",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFERENCE_BEHAVIOR_DIFFERENCE",
+   "explanation": "Python refuses before fitting; the reference returns a value after warning. The reference was NOT forced to refuse and Python was NOT relaxed to match it. Reported as a behaviour difference.",
+   "fixture_id": "F08_perfect_fit",
+   "python_refusal_reason": "DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR",
+   "python_status": "PYTHON_REFUSED",
+   "reference_standard_error": "3.9713634691652614e-17",
+   "reference_status": "COMPUTED",
+   "reference_target_estimate": "1.9999999999999998",
+   "reference_warned": true,
+   "reference_warnings": [
+    "essentially perfect fit: summary may be unreliable"
+   ]
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "F09_missing_value",
+   "python_refusal_reason": "NONFINITE_VALUE_PRESENT",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "missing values in object",
+   "reference_refusal_reason": "R_ERROR",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 8.847089727481716e-17,
+     "max_rel_difference": 1.7820948085121048e-14,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 2.0816681711721685e-17,
+     "max_rel_difference": 9.034483833088615e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 1.1641131898121024e-16,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 2.1348051621304929e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 3.3993878556228297e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 1.734723475976807e-16,
+     "max_rel_difference": 2.9435361753473812e-15,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 1.734723475976807e-17,
+     "max_rel_difference": 6.505358347288806e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F10_row_permutation_source",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.953707108845967,
+    "satterthwaite_df": 16.641863818874054,
+    "standard_error": 0.1632974923395058,
+    "t_statistic": 0.05893331600628549,
+    "target_estimate": 0.00962366271907808,
+    "target_variance": 0.026666071004370958
+   },
+   "reference_conf_int": [
+    -0.33546959050314934,
+    0.35471691594130556
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.9537071088459669,
+    "satterthwaite_df": 16.64186381887405,
+    "standard_error": 0.16329749233950586,
+    "t_statistic": 0.058933316006285666,
+    "target_estimate": 0.009623662719078111,
+    "target_variance": 0.026666071004370975
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 6.938893903907228e-17,
+     "max_rel_difference": 8.923672465690803e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.3877787807814457e-17,
+     "max_rel_difference": 1.3030642109253768e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 0.0,
+     "max_rel_difference": 0.0,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 2.338672046039007e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 3.342187764226135e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 2.220446049250313e-16,
+     "max_rel_difference": 5.928611636765682e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 5.204170427930421e-18,
+     "max_rel_difference": 7.545929153591199e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F11_cluster_relabel_source",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.7131862696971811,
+    "satterthwaite_df": 15.191158096825534,
+    "standard_error": 0.08304612898388598,
+    "t_statistic": -0.37453052844285545,
+    "target_estimate": -0.03110331057346835,
+    "target_variance": 0.006896659539208228
+   },
+   "reference_conf_int": [
+    -0.20791814272169987,
+    0.14571152157476322
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.7131862696971811,
+    "satterthwaite_df": 15.191158096825538,
+    "standard_error": 0.08304612898388596,
+    "t_statistic": -0.3745305284428552,
+    "target_estimate": -0.031103310573468324,
+    "target_variance": 0.006896659539208223
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 4.741277236720207e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 2.0816681711721685e-17,
+     "max_rel_difference": 1.5060997700266753e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 6.938893903907228e-18,
+     "max_rel_difference": 2.792626662828492e-16,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 2.8916323846742234e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 2.1393632201301795e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 8.881784197001252e-16,
+     "max_rel_difference": 3.476254494602422e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 1.0408340855860843e-17,
+     "max_rel_difference": 6.183723746664851e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F12_sign_reversed_effect",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.02484719492321691,
+    "satterthwaite_df": 12.286187198725662,
+    "standard_error": 0.1297375562712534,
+    "t_statistic": -2.5549867568073603,
+    "target_estimate": -0.33147773813360215,
+    "target_variance": 0.016831833507236646
+   },
+   "reference_conf_int": [
+    -0.6134230389783661,
+    -0.04953243728883805
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.024847194923216902,
+    "satterthwaite_df": 12.286187198725665,
+    "standard_error": 0.12973755627125344,
+    "t_statistic": -2.5549867568073594,
+    "target_estimate": -0.3314777381336021,
+    "target_variance": 0.016831833507236656
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 1.3877787807814457e-16,
+     "max_rel_difference": 8.011251779251845e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 3.8163916471489756e-17,
+     "max_rel_difference": 3.2686897753403847e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.249000902703301e-16,
+     "max_rel_difference": 1.257876073439269e-15,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 2.624382432573772e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 1.134168142962629e-15,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 2.509476567214839e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 2.2551405187698492e-17,
+     "max_rel_difference": 2.353466590121167e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F13_null_effect",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.09929443202527073,
+    "satterthwaite_df": 13.537332191773205,
+    "standard_error": 0.09788875058023361,
+    "t_statistic": -1.7696487612272795,
+    "target_estimate": -0.17322870620239655,
+    "target_variance": 0.009582207490159185
+   },
+   "reference_conf_int": [
+    -0.3838543765483729,
+    0.037396964143579514
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.09929443202527086,
+    "satterthwaite_df": 13.537332191773208,
+    "standard_error": 0.09788875058023372,
+    "t_statistic": -1.769648761227279,
+    "target_estimate": -0.1732287062023967,
+    "target_variance": 0.009582207490159207
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 4.344137600232538e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 4.163336342344337e-17,
+     "max_rel_difference": 9.784149791571677e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.214306433183765e-17,
+     "max_rel_difference": 1.4838651225744776e-15,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.7763568394002505e-15,
+     "max_rel_difference": 1.5174175031378043e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 1.3877787807814457e-17,
+     "max_rel_difference": 1.4939340857091282e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 1.397515520918523e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 3.469446951953614e-18,
+     "max_rel_difference": 4.0205238099743106e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F14_positive_hypothetical_effect",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.008183401676541642,
+    "satterthwaite_df": 11.706447538182447,
+    "standard_error": 0.09289424440186772,
+    "t_statistic": 3.1777050286939423,
+    "target_estimate": 0.2951905075725392,
+    "target_variance": 0.008629340642993932
+   },
+   "reference_conf_int": [
+    0.09222699293590614,
+    0.4981540222091723
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.00818340167654163,
+    "satterthwaite_df": 11.706447538182445,
+    "standard_error": 0.09289424440186773,
+    "t_statistic": 3.177705028693943,
+    "target_estimate": 0.29519050757253923,
+    "target_variance": 0.008629340642993935
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 3.3306690738754696e-16,
+     "max_rel_difference": 2.5075607224775904e-15,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 8.541604780290157e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 8.881784197001252e-16,
+     "max_rel_difference": 1.4877164593794675e-15,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 7.105427357601002e-15,
+     "max_rel_difference": 5.359331801624158e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 1.131966558637324e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 1.3322676295501878e-15,
+     "max_rel_difference": 2.4593939003742924e-15,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 6.938893903907228e-18,
+     "max_rel_difference": 1.1541359361609767e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F15_heavy_tailed_errors",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.5970078599994697,
+    "satterthwaite_df": 13.258047123426255,
+    "standard_error": 0.24519784090654972,
+    "t_statistic": -0.541705673640742,
+    "target_estimate": -0.132825061583538,
+    "target_variance": 0.06012198118523367
+   },
+   "reference_conf_int": [
+    -0.661496642116441,
+    0.3958465189493656
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.5970078599994706,
+    "satterthwaite_df": 13.258047123426248,
+    "standard_error": 0.2451978409065497,
+    "t_statistic": -0.5417056736407406,
+    "target_estimate": -0.13282506158353766,
+    "target_variance": 0.06012198118523366
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 6.245004513516506e-17,
+     "max_rel_difference": 1.3107172639424014e-15,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 9.71445146547012e-17,
+     "max_rel_difference": 5.420520258281107e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 3.3306690738754696e-16,
+     "max_rel_difference": 4.3656773046366767e-16,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 3.12186675348486e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 1.746870442417286e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 2.7755575615628914e-16,
+     "max_rel_difference": 8.983024938497144e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 6.938893903907228e-18,
+     "max_rel_difference": 2.7485976014787285e-16,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F16_cluster_heteroskedastic",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.762921499108065,
+    "satterthwaite_df": 11.380093896815735,
+    "standard_error": 0.1588874305825524,
+    "t_statistic": 0.3089780536696627,
+    "target_estimate": 0.04909272905397068,
+    "target_variance": 0.025245215597125406
+   },
+   "reference_conf_int": [
+    -0.2991963524622372,
+    0.39738181057017863
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.7629214991080646,
+    "satterthwaite_df": 11.380093896815731,
+    "standard_error": 0.15888743058255236,
+    "t_statistic": 0.30897805366966297,
+    "target_estimate": 0.04909272905397071,
+    "target_variance": 0.0252452155971254
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 3.7821875256159e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 4.119968255444917e-18,
+     "max_rel_difference": 5.886701175070774e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 1.3819366186107026e-16,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 5.329070518200751e-15,
+     "max_rel_difference": 6.79296738317532e-16,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 0.0,
+     "max_rel_difference": 0.0,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 3.3306690738754696e-16,
+     "max_rel_difference": 3.7569770677241854e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 0.0,
+     "max_rel_difference": 0.0,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F17_bootstrap_seed_repeat",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.4016910072696724,
+    "satterthwaite_df": 7.844981754806717,
+    "standard_error": 0.08277786867782709,
+    "t_statistic": 0.8865289869584017,
+    "target_estimate": 0.07338498006152966,
+    "target_variance": 0.006852175542843587
+   },
+   "reference_conf_int": [
+    -0.11815968229630353,
+    0.2649296424193629
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.40169100726967244,
+    "satterthwaite_df": 7.844981754806712,
+    "standard_error": 0.08277786867782709,
+    "t_statistic": 0.886528986958402,
+    "target_estimate": 0.07338498006152969,
+    "target_variance": 0.006852175542843587
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  },
+  {
+   "all_preregistered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 1.6653345369377348e-16,
+     "max_rel_difference": 8.840608703664296e-16,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 4.163336342344337e-17,
+     "max_rel_difference": 1.959730783446761e-14,
+     "tolerance": "covariance_matrix",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 0.0,
+     "max_rel_difference": 0.0,
+     "tolerance": "p_value",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 3.552713678800501e-15,
+     "max_rel_difference": 1.0032039192757447e-15,
+     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 1.5265566588595902e-16,
+     "max_rel_difference": 1.3038140410750319e-15,
+     "tolerance": "standard_error",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 6.661338147750939e-16,
+     "max_rel_difference": 4.140372678859385e-16,
+     "tolerance": "t_statistic",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 3.469446951953614e-17,
+     "max_rel_difference": 2.5308459041384105e-15,
+     "tolerance": "covariance_matrix",
+     "within": true
+    }
+   },
+   "fixture_id": "F18_below_design_6_clusters",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.1920269366589064,
+    "satterthwaite_df": 3.541367423450015,
+    "standard_error": 0.11708392537335299,
+    "t_statistic": 1.6088740469580254,
+    "target_estimate": 0.18837328884915785,
+    "target_variance": 0.013708645580832894
+   },
+   "reference_conf_int": [
+    -0.15399968463603445,
+    0.5307462623343505
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.1920269366589064,
+    "satterthwaite_df": 3.5413674234500117,
+    "standard_error": 0.11708392537335315,
+    "t_statistic": 1.6088740469580247,
+    "target_estimate": 0.18837328884915802,
+    "target_variance": 0.013708645580832929
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_within_declared_tolerance": true
+  }
+ ],
+ "satterthwaite_df_tolerance": {
+  "atol": 1e-10,
+  "declared_before_first_comparison_run": true,
+  "introduced_by": "PR: independent R reference validation",
+  "preregistered_in_pr17": false,
+  "rtol": 1e-08,
+  "why_not_the_preregistered_df_rule": "TOLERANCES['degrees_of_freedom'] is exact_integer_equality, which applies to CR1's integer inference df G-1. The Satterthwaite df is continuous; exact equality is not a meaningful cross-implementation criterion for it and no preregistered tolerance covers this field."
+ },
+ "status": "SYNTHETIC_IMPLEMENTATION_VALIDATION_ONLY_NO_METHOD_APPROVED_NO_LOCK_ACTIVATED_F5_OPEN",
+ "synthetic_data_only": true,
+ "unresolved_fixtures": [],
+ "version": "1.0",
+ "what_this_is": "An implementation-agreement check between the study-written Python CR2 / Satterthwaite code and clubSandwich, on a prespecified synthetic fixture matrix, under the preregistered tolerances. It is not evidence that CR2 is scientifically preferable, and it approves nothing.",
+ "wild_cluster_bootstrap_validated": false
+}

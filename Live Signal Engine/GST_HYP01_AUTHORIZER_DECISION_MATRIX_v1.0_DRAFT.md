@@ -21,6 +21,57 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 ---
 
+## Evidence update — CR2 now has an independent reference (no decision changes)
+
+**Nothing on this page is decided by this update.** Every checkbox below is still blank and every authorizer field is still `PENDING`.
+
+The constraint stated above has changed in one specific way, and it is worth separating three things that are easy to run together.
+
+### Implementation validation evidence — what is now established
+
+**R 4.6.1 with clubSandwich 0.7.0 is installed and pinned**, and the study-written Python CR2 + Satterthwaite implementation was compared against it on the prespecified synthetic fixture matrix, under the tolerances preregistered in PR #17 and used exactly as written.
+
+- **13 of 13 admissible fixtures: `MATCH_WITHIN_PREREGISTERED_TOLERANCE`.** Worst absolute differences — covariance 1.7 × 10⁻¹⁶, standard error 1.9 × 10⁻¹⁶, t 2.9 × 10⁻¹⁵, p 8.9 × 10⁻¹⁶. Agreement is at the floating-point noise floor.
+- **4 fixtures refused by both** implementations, through different diagnostics.
+- **1 documented behaviour difference** (`F08_perfect_fit`): R computes with an "essentially perfect fit" warning where Python refuses by a prespecified threshold. Neither side was adjusted to force agreement.
+- The Satterthwaite df agreed to 7.1 × 10⁻¹⁵, but under a tolerance **declared in this PR, not preregistered in PR #17** — the preregistered df rule is exact integer equality, written for CR1's integer *G* − 1.
+
+Exactly what this supports: *the study-written Python implementation agrees with the independent clubSandwich reference on the prespecified synthetic fixture matrix under the preregistered tolerances.* CR2's status moves from `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` to **implementation-validated**.
+
+**CR3 and the wild cluster bootstrap-t are NOT covered.** They remain runnable but independently unvalidated; `fwildclusterboot` was deliberately not installed, and CR2 agreement is not evidence about either.
+
+### Scientific method recommendation — a proposal, and only that
+
+Implementation validation removes an *engineering* objection to CR2. It supplies no evidence that CR2 is the scientifically better estimator, and this PR ran no prespecified method comparison.
+
+**PROPOSAL (not a decision, not approved):** if the authorizer wants the published literature's preferred small-*G* pairing, D1 = CR2 with D3 = Satterthwaite is now implementable and independently checkable in this repository. That is a statement about *feasibility*, not superiority.
+
+Alternatives and tradeoffs, stated plainly:
+
+| Option | For | Against |
+|---|---|---|
+| **CR2 + Satterthwaite** | Favoured in the literature at small *G*; now implementation-validated; design-sensitive df | Adds a permanent R + clubSandwich dependency to the analysis path; df is design-dependent and harder to state in advance |
+| **CR1 + t(G−1)** | Pure-Python, no new dependency, already validated against statsmodels | Over-rejects in all four null cells tested — in the direction that inflates apparent significance |
+| **CR3 / jackknife** | Comparable published performance, simpler df rule | Still independently unvalidated here; would need its own reference validation first |
+| **Defer** | Costs nothing now | The primary estimator stays undefined, and the study cannot claim to be preregistered until it is fixed |
+
+No option is recommended as final. The over-rejection finding for CR1 and the feasibility finding for CR2 are different kinds of evidence and should not be summed into a single verdict here.
+
+### Final authorizer decision — unchanged, still `PENDING`
+
+- [ ] Reviewed the implementation-validation evidence above
+- [ ] Accepted the proposal for D1 / D3
+- [ ] Chose a different pairing: ______________
+- [ ] Deferred
+
+**Authorizer:** `PENDING`  ·  **Decision date:** `PENDING`  ·  **Signature:** `PENDING`
+
+**Validation is not approval.** A validated implementation is one whose arithmetic has been checked against an independent implementation. Whether to *use* it for HYP-01, and under what finite-sample and df rules, is decided in D1–D16 below and nowhere else. **F5 remains OPEN** and `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative.
+
+Evidence: [`GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md) · [`GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json`](GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json)
+
+---
+
 ## D1 — Primary covariance estimator (gap-audit C6)
 
 **Decision:** which cluster-robust covariance estimator is primary for `beta_gst`?
