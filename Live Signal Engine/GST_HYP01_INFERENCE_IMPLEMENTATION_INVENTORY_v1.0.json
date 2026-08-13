@@ -1,0 +1,1856 @@
+{
+ "artifact": "GST HYP-01 Inference Implementation Inventory",
+ "version": "1.0",
+ "status": "OFFLINE_FEASIBILITY_STUDY_NO_METHOD_APPROVED",
+ "generated_by": {
+  "runner_path": "tools/hyp01_inference_feasibility.py",
+  "runner_sha256": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6",
+  "exact_command": "python tools/hyp01_inference_feasibility.py --reproduce --out <path.json>",
+  "quick_mode": false,
+  "deterministic_build_id": "seed=20260811;quick=0;plan=ef4f307b1b41df25",
+  "generated_at_utc": "2026-08-12T05:24:24.629269+00:00",
+  "runtime_seconds": 74.8
+ },
+ "environment": {
+  "python": "3.14.6",
+  "numpy": "2.4.6",
+  "scipy": "1.18.0",
+  "pandas": "2.3.3",
+  "statsmodels": "0.14.6"
+ },
+ "synthetic_data_only": true,
+ "repository_research_artifact_loaded": false,
+ "network_requests": 0,
+ "packages_installed_or_mutated": 0,
+ "method_approved": false,
+ "dated_amendment_created": false,
+ "operative_lock": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0.json (v1.0, unchanged)",
+ "f5_status": "OPEN (unchanged by this study)",
+ "preregistered_tolerances": {
+  "covariance_matrix": {
+   "rtol": 1e-10,
+   "atol": 1e-12
+  },
+  "standard_error": {
+   "rtol": 1e-10,
+   "atol": 1e-12
+  },
+  "t_statistic": {
+   "rtol": 1e-09,
+   "atol": 1e-11
+  },
+  "p_value": {
+   "rtol": 1e-09,
+   "atol": 1e-12
+  },
+  "degrees_of_freedom": {
+   "exact_integer_equality": true
+  }
+ },
+ "tolerances_fixed_before_any_comparison": true,
+ "tolerances_revised_after_seeing_results": false,
+ "preregistered_refusal_thresholds": {
+  "nonfinite_any": "any non-finite value in the design matrix or outcome",
+  "rank_condition_number_max": 10000000000.0,
+  "zero_variance_column_std_min": 1e-12,
+  "degenerate_fit_relative_rss_min": 1e-18,
+  "min_clusters_for_any_output": 2
+ },
+ "refusal_thresholds_fixed_before_rerun": true,
+ "simulation_plan": {
+  "master_seed": 20260811,
+  "nominal_alpha": 0.05,
+  "interval_method": "Wilson score interval, 95%",
+  "replications_null_cell": 5000,
+  "replications_effect_cell": 2000,
+  "replications_quick_mode": 200,
+  "claim_rule": "'Evidence of over-rejection' only when the entire 95% Wilson interval lies above the nominal alpha. 'Evidence of under-rejection' only when the entire interval lies below it. Otherwise 'not distinguishable from nominal at this simulation precision'. Applied separately to each cell. Blanket words such as 'everywhere', 'all cells' or 'dominant risk factor' are only permitted if every relevant cell's interval supports them.",
+  "cells": [
+   {
+    "clusters": 24,
+    "shape": "balanced",
+    "effects": [
+     0.0,
+     0.2,
+     0.5
+    ]
+   },
+   {
+    "clusters": 24,
+    "shape": "unbalanced",
+    "effects": [
+     0.0,
+     0.2,
+     0.5
+    ]
+   },
+   {
+    "clusters": 12,
+    "shape": "balanced",
+    "effects": [
+     0.0,
+     0.5
+    ]
+   },
+   {
+    "clusters": 6,
+    "shape": "balanced",
+    "effects": [
+     0.0,
+     0.5
+    ]
+   }
+  ],
+  "n_obs_per_cell": 60,
+  "unvalidated_columns": [
+   "CR2_tG1",
+   "CR2_Satterthwaite"
+  ],
+  "unvalidated_column_label": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+ },
+ "bootstrap_settings": {
+  "B_default": 999,
+  "seed_default": 424242,
+  "weights_implemented": [
+   "rademacher",
+   "webb6"
+  ],
+  "null_imposition": "restricted (null imposed before resampling)"
+ },
+ "runner_isolation": {
+  "claimed": [
+   "this revision of the runner contains no code path that reads a research artifact",
+   "all inputs are generated from the fixed master seed; there is no data input",
+   "exactly one file is written, at the caller-supplied --out path",
+   "the --out path is screened by assert_not_canonical() before any write",
+   "socket connect/create_connection/getaddrinfo are replaced before numerical imports"
+  ],
+  "not_claimed": [
+   "a filesystem sandbox -- assert_not_canonical() screens the OUTPUT path only and cannot prevent a future edit from adding an arbitrary read",
+   "that network access is impossible for a caller deliberately bypassing the patches"
+  ],
+  "enforcement": "source review plus the committed test suite, not a runtime sandbox"
+ },
+ "environment_validation_limits": {
+  "statement": "CR2 validation is unavailable in the currently tested environment; an independently maintained reference runtime must be added and pinned before validation. This is a statement about the tested workstation, not about the repository's permanent capabilities.",
+  "reference_runtime_present": false,
+  "reference_runtimes_checked": [
+   "R + clubSandwich",
+   "R + fwildclusterboot",
+   "Python wildboottest",
+   "Python linearmodels"
+  ]
+ },
+ "method_status_field_semantics": {
+  "study_implementation_runnable": "the study-written function executes and returns output here",
+  "independent_reference_available": "an independently maintained implementation exists in this environment to check the study code against",
+  "independently_validated": "agreement with that reference was demonstrated under the preregistered tolerances (implementation agreement, NOT a statistical endorsement)",
+  "production_eligible": "may be used for a real HYP-01 analysis; requires BOTH independent validation AND an authorizer decision",
+  "note": "runnable and validated are different facts. An unvalidated method is runnable engineering code whose output cannot support production or comparative claims."
+ },
+ "methods": {
+  "CR1": {
+   "implementation_status": "IMPLEMENTATION_VALIDATED",
+   "study_implementation_runnable": true,
+   "independent_reference_available": true,
+   "independent_reference": "statsmodels 0.14.6",
+   "independently_validated": true,
+   "validation_meaning": "implementation agreement with the reference under the preregistered tolerances; not a statistical endorsement",
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "PENDING_AUTHORIZER_DECISION",
+   "fixtures_matched": [
+    "F01_balanced_24c_72n",
+    "F02_unbalanced_24c_60n",
+    "F03_several_singleton_clusters",
+    "F04_one_dominant_cluster",
+    "F10_row_permutation_source",
+    "F11_cluster_relabel_source",
+    "F12_sign_reversed_effect",
+    "F13_null_effect",
+    "F14_positive_hypothetical_effect",
+    "F15_heavy_tailed_errors",
+    "F16_cluster_heteroskedastic",
+    "F17_bootstrap_seed_repeat",
+    "F18_below_design_6_clusters"
+   ]
+  },
+  "CR2": {
+   "implementation_status": "IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE",
+   "label": "UNVALIDATED_STUDY_IMPLEMENTATION",
+   "study_implementation_runnable": true,
+   "independent_reference_available": false,
+   "independently_validated": false,
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
+   "dependency_needed": "R runtime + clubSandwich (or equivalent independently maintained CR2)",
+   "validation_procedure_needed": "run this fixture matrix through both implementations and compare under the preregistered tolerances"
+  },
+  "CR3": {
+   "implementation_status": "IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE",
+   "label": "UNVALIDATED_STUDY_IMPLEMENTATION",
+   "study_implementation_runnable": true,
+   "independent_reference_available": false,
+   "independently_validated": false,
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
+   "dependency_needed": "R runtime + clubSandwich",
+   "validation_procedure_needed": "as for CR2, comparing CR3 covariance and t"
+  },
+  "WCR_BOOTSTRAP_T": {
+   "implementation_status": "IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE",
+   "label": "UNVALIDATED_STUDY_IMPLEMENTATION",
+   "study_implementation_runnable": true,
+   "independent_reference_available": false,
+   "independently_validated": false,
+   "production_selection_approved": false,
+   "production_eligible": false,
+   "production_eligibility_status": "BLOCKED_PENDING_INDEPENDENT_VALIDATION",
+   "dependency_needed": "R fwildclusterboot / Stata boottest / Python wildboottest",
+   "validation_procedure_needed": "compare bootstrap p-values at matched seed/weights/B, allowing Monte Carlo error"
+  }
+ },
+ "fixtures": {
+  "F01_balanced_24c_72n": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F02_unbalanced_24c_60n": {
+   "n_clusters": 24,
+   "n_obs": 60,
+   "cluster_sizes": [
+    3,
+    1,
+    1,
+    2,
+    1,
+    13,
+    1,
+    4,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    6,
+    3,
+    4,
+    1,
+    1,
+    7,
+    1,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F03_several_singleton_clusters": {
+   "n_clusters": 20,
+   "n_obs": 32,
+   "cluster_sizes": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F04_one_dominant_cluster": {
+   "n_clusters": 12,
+   "n_obs": 60,
+   "cluster_sizes": [
+    49,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F05_near_collinear_full_rank": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 3,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": true,
+   "refusal_reason": "ILL_CONDITIONED_DESIGN"
+  },
+  "F06_exactly_rank_deficient": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 3,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": true,
+   "refusal_reason": "RANK_DEFICIENT_DESIGN"
+  },
+  "F07_zero_variance_predictor": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": true,
+   "refusal_reason": "ZERO_VARIANCE_PREDICTOR"
+  },
+  "F08_perfect_fit": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": true,
+   "refusal_reason": "DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR"
+  },
+  "F09_missing_value": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": true,
+   "refusal_reason": "NONFINITE_VALUE_PRESENT"
+  },
+  "F10_row_permutation_source": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F11_cluster_relabel_source": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F12_sign_reversed_effect": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F13_null_effect": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F14_positive_hypothetical_effect": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F15_heavy_tailed_errors": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F16_cluster_heteroskedastic": {
+   "n_clusters": 24,
+   "n_obs": 72,
+   "cluster_sizes": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F17_bootstrap_seed_repeat": {
+   "n_clusters": 24,
+   "n_obs": 60,
+   "cluster_sizes": [
+    2,
+    2,
+    3,
+    3,
+    1,
+    1,
+    2,
+    1,
+    1,
+    2,
+    7,
+    1,
+    1,
+    3,
+    2,
+    1,
+    7,
+    2,
+    6,
+    1,
+    5,
+    3,
+    1,
+    2
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  },
+  "F18_below_design_6_clusters": {
+   "n_clusters": 6,
+   "n_obs": 30,
+   "cluster_sizes": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+   ],
+   "n_columns": 2,
+   "label_convention": "CLUSTER_###",
+   "refused_before_fit": false,
+   "refusal_reason": null
+  }
+ },
+ "refusal_outcomes": {
+  "F01_balanced_24c_72n": {
+   "refused": false,
+   "reason": null
+  },
+  "F02_unbalanced_24c_60n": {
+   "refused": false,
+   "reason": null
+  },
+  "F03_several_singleton_clusters": {
+   "refused": false,
+   "reason": null
+  },
+  "F04_one_dominant_cluster": {
+   "refused": false,
+   "reason": null
+  },
+  "F05_near_collinear_full_rank": {
+   "refused": true,
+   "reason": "ILL_CONDITIONED_DESIGN"
+  },
+  "F06_exactly_rank_deficient": {
+   "refused": true,
+   "reason": "RANK_DEFICIENT_DESIGN"
+  },
+  "F07_zero_variance_predictor": {
+   "refused": true,
+   "reason": "ZERO_VARIANCE_PREDICTOR"
+  },
+  "F08_perfect_fit": {
+   "refused": true,
+   "reason": "DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR"
+  },
+  "F09_missing_value": {
+   "refused": true,
+   "reason": "NONFINITE_VALUE_PRESENT"
+  },
+  "F10_row_permutation_source": {
+   "refused": false,
+   "reason": null
+  },
+  "F11_cluster_relabel_source": {
+   "refused": false,
+   "reason": null
+  },
+  "F12_sign_reversed_effect": {
+   "refused": false,
+   "reason": null
+  },
+  "F13_null_effect": {
+   "refused": false,
+   "reason": null
+  },
+  "F14_positive_hypothetical_effect": {
+   "refused": false,
+   "reason": null
+  },
+  "F15_heavy_tailed_errors": {
+   "refused": false,
+   "reason": null
+  },
+  "F16_cluster_heteroskedastic": {
+   "refused": false,
+   "reason": null
+  },
+  "F17_bootstrap_seed_repeat": {
+   "refused": false,
+   "reason": null
+  },
+  "F18_below_design_6_clusters": {
+   "refused": false,
+   "reason": null
+  }
+ },
+ "cr1_reference_comparison": {
+  "F01_balanced_24c_72n": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 5.551115123125783e-17,
+   "max_abs_se_diff": 1.3877787807814457e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F02_unbalanced_24c_60n": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 8.326672684688674e-17,
+   "max_abs_se_diff": 1.6653345369377348e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F03_several_singleton_clusters": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 1.3877787807814457e-16,
+   "max_abs_se_diff": 2.220446049250313e-16,
+   "study_inference_df": 19,
+   "statsmodels_inference_df": 19
+  },
+  "F04_one_dominant_cluster": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 4.5102810375396984e-17,
+   "max_abs_se_diff": 1.942890293094024e-16,
+   "study_inference_df": 11,
+   "statsmodels_inference_df": 11
+  },
+  "F05_near_collinear_full_rank": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "ILL_CONDITIONED_DESIGN",
+   "comparison_performed": false
+  },
+  "F06_exactly_rank_deficient": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "RANK_DEFICIENT_DESIGN",
+   "comparison_performed": false
+  },
+  "F07_zero_variance_predictor": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "ZERO_VARIANCE_PREDICTOR",
+   "comparison_performed": false
+  },
+  "F08_perfect_fit": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR",
+   "comparison_performed": false
+  },
+  "F09_missing_value": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "NONFINITE_VALUE_PRESENT",
+   "comparison_performed": false
+  },
+  "F10_row_permutation_source": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 2.42861286636753e-17,
+   "max_abs_se_diff": 5.551115123125783e-17,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F11_cluster_relabel_source": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 9.540979117872439e-18,
+   "max_abs_se_diff": 5.551115123125783e-17,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F12_sign_reversed_effect": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 5.551115123125783e-17,
+   "max_abs_se_diff": 1.1102230246251565e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F13_null_effect": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 3.122502256758253e-17,
+   "max_abs_se_diff": 1.1102230246251565e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F14_positive_hypothetical_effect": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 6.245004513516506e-17,
+   "max_abs_se_diff": 1.3877787807814457e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F15_heavy_tailed_errors": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 3.885780586188048e-16,
+   "max_abs_se_diff": 4.996003610813204e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F16_cluster_heteroskedastic": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 9.71445146547012e-17,
+   "max_abs_se_diff": 1.6653345369377348e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F17_bootstrap_seed_repeat": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 1.1102230246251565e-16,
+   "max_abs_se_diff": 2.498001805406602e-16,
+   "study_inference_df": 23,
+   "statsmodels_inference_df": 23
+  },
+  "F18_below_design_6_clusters": {
+   "status": "COMPARED",
+   "comparison_performed": true,
+   "reference": "statsmodels 0.14.6 OLS.fit(cov_type='cluster', use_correction=True, df_correction=True, use_t=True)",
+   "matches": {
+    "covariance": true,
+    "standard_error": true,
+    "t_statistic": true,
+    "inference_df": true,
+    "p_value": true
+   },
+   "all_within_preregistered_tolerance": true,
+   "max_abs_cov_diff": 6.938893903907228e-17,
+   "max_abs_se_diff": 1.1102230246251565e-16,
+   "study_inference_df": 5,
+   "statsmodels_inference_df": 5
+  }
+ },
+ "portability_probe": {
+  "F01_balanced_24c_72n": {
+   "beta": [
+    -0.08037476150738267,
+    0.11079544360127996
+   ],
+   "standard_error": [
+    0.21094215684987988,
+    0.15981534039948292
+   ],
+   "t_statistic": [
+    -0.38102749449263745,
+    0.6932716429119369
+   ],
+   "covariance_diagonal": [
+    0.04449659353647933,
+    0.025540943027002598
+   ],
+   "n_clusters": 24,
+   "n_obs": 72,
+   "n_params": 2,
+   "inference_df": 23,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  },
+  "F02_unbalanced_24c_60n": {
+   "beta": [
+    -0.05639096150687047,
+    -0.4264679383829668
+   ],
+   "standard_error": [
+    0.31038505644516595,
+    0.1485696674468707
+   ],
+   "t_statistic": [
+    -0.18168065870411115,
+    -2.870491303586407
+   ],
+   "covariance_diagonal": [
+    0.09633888326446886,
+    0.022072946085273753
+   ],
+   "n_clusters": 24,
+   "n_obs": 60,
+   "n_params": 2,
+   "inference_df": 23,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  },
+  "F03_several_singleton_clusters": {
+   "beta": [
+    -0.12348498188882724,
+    0.16739378153984225
+   ],
+   "standard_error": [
+    0.26143733725799334,
+    0.12121023680914333
+   ],
+   "t_statistic": [
+    -0.47233108776260585,
+    1.3810201674914566
+   ],
+   "covariance_diagonal": [
+    0.06834948131254974,
+    0.014691921507328606
+   ],
+   "n_clusters": 20,
+   "n_obs": 32,
+   "n_params": 2,
+   "inference_df": 19,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  },
+  "F04_one_dominant_cluster": {
+   "beta": [
+    0.07959323536627692,
+    -0.16352617160111294
+   ],
+   "standard_error": [
+    0.11731688261170643,
+    0.0836833190399472
+   ],
+   "t_statistic": [
+    0.6784465593900356,
+    -1.9541071443766687
+   ],
+   "covariance_diagonal": [
+    0.013763250945728906,
+    0.00700289788554159
+   ],
+   "n_clusters": 12,
+   "n_obs": 60,
+   "n_params": 2,
+   "inference_df": 11,
+   "comparison_rule": {
+    "continuous_fields": [
+     "beta",
+     "standard_error",
+     "t_statistic",
+     "covariance_diagonal"
+    ],
+    "continuous_compared_under": "preregistered TOLERANCES (see preregistered_tolerances)",
+    "discrete_fields": [
+     "n_clusters",
+     "n_obs",
+     "n_params",
+     "inference_df"
+    ],
+    "discrete_compared_under": "exact equality",
+    "bitwise_portability_claimed": false
+   }
+  }
+ },
+ "invariance_checks": {
+  "F01_balanced_24c_72n": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F02_unbalanced_24c_60n": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F03_several_singleton_clusters": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F04_one_dominant_cluster": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F05_near_collinear_full_rank": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "ILL_CONDITIONED_DESIGN"
+  },
+  "F06_exactly_rank_deficient": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "RANK_DEFICIENT_DESIGN"
+  },
+  "F07_zero_variance_predictor": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "ZERO_VARIANCE_PREDICTOR"
+  },
+  "F08_perfect_fit": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR"
+  },
+  "F09_missing_value": {
+   "status": "REFUSED_BEFORE_FIT",
+   "refusal_reason": "NONFINITE_VALUE_PRESENT"
+  },
+  "F10_row_permutation_source": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F11_cluster_relabel_source": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F12_sign_reversed_effect": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F13_null_effect": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F14_positive_hypothetical_effect": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F15_heavy_tailed_errors": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F16_cluster_heteroskedastic": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F17_bootstrap_seed_repeat": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  },
+  "F18_below_design_6_clusters": {
+   "status": "RUN",
+   "row_permutation_invariant": true,
+   "cluster_relabel_invariant": true
+  }
+ },
+ "bootstrap_diagnostics": {
+  "seed_determinism": {
+   "same_seed_identical": true,
+   "different_seed_draws_differ": true,
+   "different_seed_p_value_differs": true,
+   "different_weights_draws_differ": true,
+   "note": "p-values sit on a coarse 1/(B+1) grid, so two seeds may collide on p while drawing different samples. The digest is the precise determinism test.",
+   "rademacher_p": 0.315,
+   "repeat_p": 0.315,
+   "different_seed_p": 0.36,
+   "webb6_p": 0.295,
+   "digest_same_seed": "6ebcc244eba6cca2",
+   "digest_different_seed": "2f3eb576366c3293",
+   "label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+  }
+ },
+ "monte_carlo_grid": [
+  {
+   "clusters": 24,
+   "shape": "balanced",
+   "hypothetical_effect": 0.0,
+   "replications_requested": 5000,
+   "replications_used": 5000,
+   "mean_satterthwaite_df": 11.42,
+   "p5_satterthwaite_df": 7.674,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 398,
+     "denominator": 5000,
+     "rate": 0.0796,
+     "monte_carlo_standard_error": 0.00383,
+     "wilson_95_low": 0.07242,
+     "wilson_95_high": 0.08743,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 366,
+     "denominator": 5000,
+     "rate": 0.0732,
+     "monte_carlo_standard_error": 0.00368,
+     "wilson_95_low": 0.0663,
+     "wilson_95_high": 0.08075,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 293,
+     "denominator": 5000,
+     "rate": 0.0586,
+     "monte_carlo_standard_error": 0.00332,
+     "wilson_95_low": 0.05242,
+     "wilson_95_high": 0.06546,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 24,
+   "shape": "balanced",
+   "hypothetical_effect": 0.2,
+   "replications_requested": 2000,
+   "replications_used": 2000,
+   "mean_satterthwaite_df": 11.408,
+   "p5_satterthwaite_df": 7.731,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 560,
+     "denominator": 2000,
+     "rate": 0.28,
+     "monte_carlo_standard_error": 0.01004,
+     "wilson_95_low": 0.26076,
+     "wilson_95_high": 0.30009,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 520,
+     "denominator": 2000,
+     "rate": 0.26,
+     "monte_carlo_standard_error": 0.00981,
+     "wilson_95_low": 0.24125,
+     "wilson_95_high": 0.27967,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 458,
+     "denominator": 2000,
+     "rate": 0.229,
+     "monte_carlo_standard_error": 0.0094,
+     "wilson_95_low": 0.21111,
+     "wilson_95_high": 0.24792,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 24,
+   "shape": "balanced",
+   "hypothetical_effect": 0.5,
+   "replications_requested": 2000,
+   "replications_used": 2000,
+   "mean_satterthwaite_df": 11.421,
+   "p5_satterthwaite_df": 7.599,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 1754,
+     "denominator": 2000,
+     "rate": 0.877,
+     "monte_carlo_standard_error": 0.00734,
+     "wilson_95_low": 0.86188,
+     "wilson_95_high": 0.89068,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 1718,
+     "denominator": 2000,
+     "rate": 0.859,
+     "monte_carlo_standard_error": 0.00778,
+     "wilson_95_low": 0.84306,
+     "wilson_95_high": 0.87357,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 1661,
+     "denominator": 2000,
+     "rate": 0.8305,
+     "monte_carlo_standard_error": 0.00839,
+     "wilson_95_low": 0.81343,
+     "wilson_95_high": 0.84631,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 24,
+   "shape": "unbalanced",
+   "hypothetical_effect": 0.0,
+   "replications_requested": 5000,
+   "replications_used": 5000,
+   "mean_satterthwaite_df": 7.248,
+   "p5_satterthwaite_df": 3.488,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 590,
+     "denominator": 5000,
+     "rate": 0.118,
+     "monte_carlo_standard_error": 0.00456,
+     "wilson_95_low": 0.10935,
+     "wilson_95_high": 0.12724,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 441,
+     "denominator": 5000,
+     "rate": 0.0882,
+     "monte_carlo_standard_error": 0.00401,
+     "wilson_95_low": 0.08065,
+     "wilson_95_high": 0.09638,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 274,
+     "denominator": 5000,
+     "rate": 0.0548,
+     "monte_carlo_standard_error": 0.00322,
+     "wilson_95_low": 0.04883,
+     "wilson_95_high": 0.06146,
+     "claim": "not_distinguishable_from_nominal_at_this_precision",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 24,
+   "shape": "unbalanced",
+   "hypothetical_effect": 0.2,
+   "replications_requested": 2000,
+   "replications_used": 2000,
+   "mean_satterthwaite_df": 7.231,
+   "p5_satterthwaite_df": 3.637,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 618,
+     "denominator": 2000,
+     "rate": 0.309,
+     "monte_carlo_standard_error": 0.01033,
+     "wilson_95_low": 0.28913,
+     "wilson_95_high": 0.3296,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 530,
+     "denominator": 2000,
+     "rate": 0.265,
+     "monte_carlo_standard_error": 0.00987,
+     "wilson_95_low": 0.24612,
+     "wilson_95_high": 0.28478,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 385,
+     "denominator": 2000,
+     "rate": 0.1925,
+     "monte_carlo_standard_error": 0.00882,
+     "wilson_95_low": 0.17582,
+     "wilson_95_high": 0.21036,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 24,
+   "shape": "unbalanced",
+   "hypothetical_effect": 0.5,
+   "replications_requested": 2000,
+   "replications_used": 2000,
+   "mean_satterthwaite_df": 7.347,
+   "p5_satterthwaite_df": 3.556,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 1687,
+     "denominator": 2000,
+     "rate": 0.8435,
+     "monte_carlo_standard_error": 0.00812,
+     "wilson_95_low": 0.82692,
+     "wilson_95_high": 0.85876,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 1603,
+     "denominator": 2000,
+     "rate": 0.8015,
+     "monte_carlo_standard_error": 0.00892,
+     "wilson_95_low": 0.78345,
+     "wilson_95_high": 0.8184,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 1431,
+     "denominator": 2000,
+     "rate": 0.7155,
+     "monte_carlo_standard_error": 0.01009,
+     "wilson_95_low": 0.69533,
+     "wilson_95_high": 0.73485,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 12,
+   "shape": "balanced",
+   "hypothetical_effect": 0.0,
+   "replications_requested": 5000,
+   "replications_used": 5000,
+   "mean_satterthwaite_df": 6.805,
+   "p5_satterthwaite_df": 4.6,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 427,
+     "denominator": 5000,
+     "rate": 0.0854,
+     "monte_carlo_standard_error": 0.00395,
+     "wilson_95_low": 0.07797,
+     "wilson_95_high": 0.09347,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 360,
+     "denominator": 5000,
+     "rate": 0.072,
+     "monte_carlo_standard_error": 0.00366,
+     "wilson_95_low": 0.06516,
+     "wilson_95_high": 0.0795,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 257,
+     "denominator": 5000,
+     "rate": 0.0514,
+     "monte_carlo_standard_error": 0.00312,
+     "wilson_95_low": 0.04562,
+     "wilson_95_high": 0.05787,
+     "claim": "not_distinguishable_from_nominal_at_this_precision",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 12,
+   "shape": "balanced",
+   "hypothetical_effect": 0.5,
+   "replications_requested": 2000,
+   "replications_used": 2000,
+   "mean_satterthwaite_df": 6.785,
+   "p5_satterthwaite_df": 4.619,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 1482,
+     "denominator": 2000,
+     "rate": 0.741,
+     "monte_carlo_standard_error": 0.0098,
+     "wilson_95_low": 0.72135,
+     "wilson_95_high": 0.75972,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 1427,
+     "denominator": 2000,
+     "rate": 0.7135,
+     "monte_carlo_standard_error": 0.01011,
+     "wilson_95_low": 0.69329,
+     "wilson_95_high": 0.73289,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 1308,
+     "denominator": 2000,
+     "rate": 0.654,
+     "monte_carlo_standard_error": 0.01064,
+     "wilson_95_low": 0.63287,
+     "wilson_95_high": 0.67453,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 6,
+   "shape": "balanced",
+   "hypothetical_effect": 0.0,
+   "replications_requested": 5000,
+   "replications_used": 5000,
+   "mean_satterthwaite_df": 3.702,
+   "p5_satterthwaite_df": 2.684,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 456,
+     "denominator": 5000,
+     "rate": 0.0912,
+     "monte_carlo_standard_error": 0.00407,
+     "wilson_95_low": 0.08353,
+     "wilson_95_high": 0.0995,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 338,
+     "denominator": 5000,
+     "rate": 0.0676,
+     "monte_carlo_standard_error": 0.00355,
+     "wilson_95_low": 0.06097,
+     "wilson_95_high": 0.0749,
+     "claim": "evidence_of_over_rejection",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 230,
+     "denominator": 5000,
+     "rate": 0.046,
+     "monte_carlo_standard_error": 0.00296,
+     "wilson_95_low": 0.04053,
+     "wilson_95_high": 0.05216,
+     "claim": "not_distinguishable_from_nominal_at_this_precision",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  },
+  {
+   "clusters": 6,
+   "shape": "balanced",
+   "hypothetical_effect": 0.5,
+   "replications_requested": 2000,
+   "replications_used": 2000,
+   "mean_satterthwaite_df": 3.7,
+   "p5_satterthwaite_df": 2.634,
+   "methods": {
+    "CR1_tG1": {
+     "numerator": 1172,
+     "denominator": 2000,
+     "rate": 0.586,
+     "monte_carlo_standard_error": 0.01101,
+     "wilson_95_low": 0.56427,
+     "wilson_95_high": 0.6074,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "CR1_reference_validated_estimator"
+    },
+    "CR2_tG1": {
+     "numerator": 1025,
+     "denominator": 2000,
+     "rate": 0.5125,
+     "monte_carlo_standard_error": 0.01118,
+     "wilson_95_low": 0.49059,
+     "wilson_95_high": 0.53436,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    },
+    "CR2_Satterthwaite": {
+     "numerator": 876,
+     "denominator": 2000,
+     "rate": 0.438,
+     "monte_carlo_standard_error": 0.01109,
+     "wilson_95_low": 0.4164,
+     "wilson_95_high": 0.45984,
+     "claim": "power_estimate_not_a_size_claim",
+     "validation_label": "UNVALIDATED_STUDY_IMPLEMENTATION"
+    }
+   },
+   "column_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE"
+  }
+ ],
+ "monte_carlo_grid_warning": "UNVALIDATED ENGINEERING OUTPUT -- NOT METHOD-COMPARISON EVIDENCE",
+ "validation_summary": {
+  "cr1_matched_within_tolerance": [
+   "F01_balanced_24c_72n",
+   "F02_unbalanced_24c_60n",
+   "F03_several_singleton_clusters",
+   "F04_one_dominant_cluster",
+   "F10_row_permutation_source",
+   "F11_cluster_relabel_source",
+   "F12_sign_reversed_effect",
+   "F13_null_effect",
+   "F14_positive_hypothetical_effect",
+   "F15_heavy_tailed_errors",
+   "F16_cluster_heteroskedastic",
+   "F17_bootstrap_seed_repeat",
+   "F18_below_design_6_clusters"
+  ],
+  "refused_before_fit": [
+   "F05_near_collinear_full_rank",
+   "F06_exactly_rank_deficient",
+   "F07_zero_variance_predictor",
+   "F08_perfect_fit",
+   "F09_missing_value"
+  ],
+  "cr2_cr3_bootstrap_validated": false
+ },
+ "decisions_not_made_by_this_study": [
+  "C6 primary covariance estimator",
+  "C7 finite-sample correction and df rule",
+  "E3 multiplicity",
+  "C9 sector encoding",
+  "E8 development boundary",
+  "A9 design-sensitivity policy",
+  "NEW-1 minimum-cluster rule",
+  "sparse-sector handling",
+  "per-ticker cap",
+  "implementation language and package",
+  "wild bootstrap role, weights, repetitions and seed"
+ ],
+ "output_sha256": "213613026738ff41dcf130c293d8eb22f3efef33bdede918ff58e574ef6116e6",
+ "output_sha256_canonicalization": {
+  "algorithm": "SHA-256",
+  "serialization": "json.dumps(document, sort_keys=True), UTF-8, default separators",
+  "excluded_fields": [
+   "generated_by.generated_at_utc",
+   "generated_by.runtime_seconds"
+  ],
+  "excluded_because": "nondeterministic between identical reruns",
+  "covers_deterministic_provenance": true,
+  "covers_environment_versions": true,
+  "self_excluded": [
+   "output_sha256",
+   "output_sha256_canonicalization"
+  ],
+  "scope": "same-environment reproducibility; NOT a claim of bitwise cross-version portability"
+ }
+}
