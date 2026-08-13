@@ -1,6 +1,112 @@
 # Changelog
 
 
+## 2026-08-12 — PR #17 CI repair, an explicit supersession notice, and implementation status split into four facts
+
+Offline apart from reading the GitHub Actions log. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged. The corrected full-precision results are unchanged — every statistical section of the regenerated artifact is byte-identical to the one it replaces.
+
+**⚠ The "2026-08-11 — HYP-01 inference feasibility" entry below is SUPERSEDED and its numbers must not be cited.** That entry's grid came from the unstable `hash()` seeding described in the corrective entry above and is not reproducible by anyone, on any machine. Its "0.090–0.110" CR1 range, its "≈11.5 / ≈7.5" Satterthwaite figures, its "Both are correct" perfect-fit claim and its "71 assertions" count are all withdrawn. Only the SHA-256-seeded run at **5,000 replications per null cell and 2,000 per effect cell** is current, as recorded in `GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json`. That artifact is authoritative **for this synthetic feasibility study only**; `GST_HYP01_ANALYSIS_LOCK_v1.0` remains the only operative scientific lock. The original entry's text is preserved verbatim under an adjacent supersession banner rather than edited, following the append-only convention used elsewhere in this repository (protocol v1.0 preserved byte-for-byte; superseded code renamed, not deleted).
+
+**CI root cause — and it was not a statistical problem.** Run `31563766381` failed at the step *Discover and run every deterministic market-response test file*:
+
+```
+=== Running test_market_response_hyp01_inference_feasibility.py ===
+  File ".../tools/hyp01_inference_feasibility.py", line 60, in <module>
+    import scipy
+ModuleNotFoundError: No module named 'scipy'
+```
+
+The test aborted at import, before a single assertion ran. The workflow installed `requirements.txt` (scoped by its own header to `gst_market_response/`) and the validator's `jsonschema`, and nothing else. Making the test *computational* in the previous commit gave it a real dependency on the runner, and therefore on `scipy` and `statsmodels`, which CI never had. Deterministic and environment-specific: it would fail identically on every rerun, and it says nothing about any published number.
+
+**Fix.** A separate pinned `tools/requirements-hyp01-feasibility.txt` — kept out of `requirements.txt`, whose header states it covers `gst_market_response/` only — installed by a third `pip install` line. `statsmodels` is pinned exactly, because it is the reference that defines what CR1 validation means; `scipy` carries a floor, because it supplies the t-distribution used on both sides of a comparison made under preregistered tolerance, and CI runs Python 3.12 where an exact pin of the study's build may have no wheel. **No tolerance was loosened and no assertion weakened.** Nothing here supplies a CR2/CR3/bootstrap reference, so those remain blocked and F5 stays open.
+
+The workflow's path filter also gained `tools/**`. The runner is imported by a discovered test, so before this a runner-only edit would not have triggered CI at all — the failure would have surfaced later, on an unrelated change.
+
+**Implementation status was one boolean pretending to be four facts.** `executable_here: false` on CR2, CR3 and the bootstrap read as *these cannot run*. They run fine. What is absent is an independent reference, and therefore any basis for production use. The field is replaced by four independent ones — `study_implementation_runnable`, `independent_reference_available`, `independently_validated`, `production_eligible` — plus a `production_eligibility_status`. CR1 now records all four separately too: runnable, reference available, implementation agreement validated, **production selection not approved**, eligibility `PENDING_AUTHORIZER_DECISION`. A test asserts the concepts cannot collapse back into one flag, and that no document describes an unvalidated method as unable to execute.
+
+**Provenance honesty.** The output digest previously excluded the entire `generated_by` block, which quietly left `runner_sha256` and the build id outside a hash whose name implied full coverage. It now excludes exactly two nondeterministic fields — `generated_at_utc` and `runtime_seconds` — and a committed `output_sha256_canonicalization` block states the rule, what is covered, and that the digest is a same-environment check rather than a claim of bitwise portability. A new `portability_probe` block stores full-precision CR1 outputs for four fixtures so another environment can recompute them: continuous fields compared under the preregistered tolerances, discrete fields under exact equality.
+
+**Runner isolation language narrowed.** `assert_not_canonical()` screens the **output path** only. It is not a filesystem sandbox and cannot stop a future edit from adding an arbitrary read. The runner and artifact now claim what is true of this revision — *contains no canonical-read path, enforced by review and test* — instead of implying reads are impossible.
+
+Changed: the workflow, the new requirements file, the runner, the regenerated artifact, the report, the decision matrix, this file and the test.
+
+
+## 2026-08-11 — Corrective reproducibility audit: the feasibility study's numbers were not reproducible, and now are
+
+Offline. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged.
+
+**The original defect.** The committed test read the generated inventory and Markdown and verified their *declarations*. The code that generated the fixtures, computed CR1, compared against statsmodels, computed CR2/CR3/Satterthwaite, ran the bootstrap, tested invariance and produced the simulation grid was never committed — it lived in a scratch file. **The published numbers were therefore not reproducible from the PR.**
+
+**The runner is now committed** at `tools/hyp01_inference_feasibility.py`, clearly marked non-production with no analysis entry point. It contains the actual fixture generation, the study-written CR1/CR2/CR3/Satterthwaite/restricted-bootstrap implementations, the independent statsmodels reference call, the refusal rules and the Monte Carlo grid. It blocks network access before importing any numerical library, refuses canonical research paths by name, accepts a deterministic seed and writes only to a caller-supplied output path.
+
+```
+python tools/hyp01_inference_feasibility.py --reproduce --out <path.json>
+```
+
+**A second, worse defect surfaced while verifying the first.** Re-running the study into a fresh directory did **not** reproduce the committed artifact. Root cause: fixtures were seeded with `abs(hash(name)) % 100000`, and **Python randomises `str` hashing per process unless `PYTHONHASHSEED` is fixed**. Every run produced different synthetic data. The published numbers were not merely uncommitted — they were unreproducible in principle. Replacing it with a stable SHA-256-derived offset fixed it: an independent re-run now reproduces the artifact with identical discrete fields and a worst-case floating-point difference of **0.000e+00**.
+
+**Monte Carlo precision corrected.** The earlier grid used 300 replications per cell, giving a 95% half-width of roughly ±0.03 — far too coarse for categorical language about size distortion. The plan is now fixed in the runner: master seed 20260811, nominal alpha 0.05, **5,000** replications per null cell, **2,000** per effect cell, Wilson score intervals, and an explicit claim rule applied **separately to each cell**. Every rate is reported with numerator, denominator, Monte Carlo standard error and interval.
+
+**CR1 null-cell size**, the reference-validated estimator, at 5,000 replications:
+
+| Cell | k/n | Rate | MCSE | Wilson 95% | Claim |
+|---|---|---|---|---|---|
+| G=24 balanced | 398/5000 | 0.0796 | 0.0038 | [0.0724, 0.0874] | evidence of over-rejection |
+| G=24 unbalanced | 590/5000 | 0.1180 | 0.0046 | [0.1094, 0.1272] | evidence of over-rejection |
+| G=12 balanced | 427/5000 | 0.0854 | 0.0040 | [0.0780, 0.0935] | evidence of over-rejection |
+| G=6 balanced | 456/5000 | 0.0912 | 0.0041 | [0.0835, 0.0995] | evidence of over-rejection |
+
+All four intervals lie entirely above 0.05, so the claim is permitted in each. The unbalanced cell is the largest observed rate, but **no cell is described as the "dominant" risk factor** — no prespecified between-cell comparison was performed.
+
+**Unsupported language corrected.** The perfect-fit case previously said two "correct" implementations disagreed; without an independent reference that verdict is unsupported, and it now reads that both became numerically unstable near the noise floor and disagreed materially, so the configuration must be refused. CR2/CR3/bootstrap columns are labelled **`UNVALIDATED ENGINEERING OUTPUT — NOT METHOD-COMPARISON EVIDENCE`** and are never used to argue one method beats another. The absence of R is scoped to the **currently tested environment**, not to the repository in principle. Nothing infers that CR1 should be selected merely because it executes.
+
+**Fixture semantics corrected.** Near-collinearity (full rank, ill-conditioned) and exact rank deficiency are now **separate fixtures with separate reasons**. Zero-variance predictors and perfect fit are **refusals, not matches**. Missing values fail before fitting. All five refusal thresholds were declared in the runner before the corrected rerun: `ILL_CONDITIONED_DESIGN`, `RANK_DEFICIENT_DESIGN`, `ZERO_VARIANCE_PREDICTOR`, `DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR`, `NONFINITE_VALUE_PRESENT`.
+
+**Bootstrap determinism corrected.** Seed variation is now tested by comparing a SHA-256 digest of the bootstrap t-statistic vector, not the p-value: the p-value lies on a coarse 1/(B+1) grid where two seeds can legitimately collide while having drawn entirely different samples.
+
+**The test now computes.** `test_market_response_hyp01_inference_feasibility.py` (**85 assertions**) invokes the runner, regenerates fixtures, recomputes CR1 and independently calls statsmodels, recomputes all five refusals, recomputes permutation and relabel invariance and sign reversal, recomputes bootstrap seed behaviour, runs a reduced deterministic smoke grid in a temporary directory, and verifies the committed full-precision artifact's arithmetic — that every rate equals k/n, every MCSE matches the binomial formula, every Wilson interval recomputes exactly and every claim follows the preregistered rule. It also fails if the runner or simulation plan changes without the artifact being regenerated, if a Markdown number is absent from the inventory, or if any unvalidated method is described as validated. Routine CI runs the smoke grid only; the full grid takes two to three minutes and is reproduced manually.
+
+Changed: `tools/hyp01_inference_feasibility.py` (new), the computational test, the regenerated inventory, the corrected report and decision matrix.
+
+
+## 2026-08-11 — HYP-01 inference feasibility: only CR1 can be validated here; CR2, CR3 and the wild bootstrap are blocked
+
+> ### ⚠ SUPERSEDED — DO NOT CITE THE NUMBERS BELOW
+>
+> **Superseded by the "2026-08-11 — Corrective reproducibility audit" entry above, as amended by the "2026-08-12" entry.** The original text of this entry is preserved verbatim below and nothing in it has been edited, per the repository's append-only convention. It is kept for auditability, not for reference.
+>
+> **Its numerical grid is invalid.** Fixtures were seeded with `abs(hash(name)) % 100000`, and Python randomises `str` hashing per process, so the run that produced these figures cannot be reproduced — by anyone, including on the same machine. The grid was also run at 300 replications per cell, a precision too coarse to support the categorical language used.
+>
+> **Specifically not to be cited:** the "0.090–0.110" CR1 null-rejection range; the "≈11.5 balanced to ≈7.5 unbalanced" Satterthwaite figures; the perfect-fit claim that "**Both are correct**"; the "71 assertions" test count; and the description of CR2/CR3/bootstrap as blocked in a way that implies they cannot execute.
+>
+> **The current figures** are the SHA-256-seeded run at 5,000 replications per null cell and 2,000 per effect cell, recorded in `GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json` and the corrective entry above. That artifact is authoritative **for this synthetic feasibility study only** — `GST_HYP01_ANALYSIS_LOCK_v1.0` remains the only operative scientific lock, and **F5 remains OPEN**.
+
+Synthetic data only. **No method approved, no dated amendment created, no signoff field completed.** `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative and the proposed v1.1 remains `PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL`, both byte-identical. **F5 remains OPEN.** DELL unchanged.
+
+**Why this study exists.** The merged proposal names **CR2/BRL plus Satterthwaite** as its provisional recommendation while recording that `statsmodels` does not supply it. This study asked the narrow engineering question: what can actually be implemented reproducibly, today, before the authorizer chooses.
+
+**The answer is uncomfortable, and is reported as found.** **There is no R runtime on this machine** — `R` and `Rscript` are not on `PATH` and a filesystem search of the standard install locations returned nothing, so `clubSandwich`, `sandwich`, `lmtest` and `fwildclusterboot` are **absent, not merely unconfigured**. `linearmodels`, `wildboottest` and `pyfixest` are absent too. Working Python implementations of CR2, CR3, the Satterthwaite degrees of freedom and the restricted wild cluster bootstrap were written and run deterministically, **and are deliberately not labelled validated**, because the validation hierarchy requires agreement with an independently maintained implementation and comparing code to itself proves only self-consistency. **Nothing was installed to close the gap.** Each blocked method records the exact dependency and the exact validation procedure that would be needed.
+
+| Method | Status |
+|---|---|
+| **CR1** + cluster-count finite-sample correction | **`IMPLEMENTATION_VALIDATED`** |
+| CR2 / BRL + Satterthwaite | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+| CR3 / cluster jackknife | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+| Restricted wild cluster bootstrap-t | `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` |
+
+**CR1 was validated against `statsmodels` 0.14.6** — independently maintained, already installed, not written for this study — on 11 of 14 synthetic fixtures, matching covariance, standard errors, t, inference degrees of freedom and p-values. **Tolerances were preregistered before any comparison and were not revised afterwards.** Two fixtures were skipped by design and one is a documented refusal case. **This is not a reason to prefer CR1**: the synthetic grid shows it over-rejecting under the null in every configuration tested, and the decision matrix says so plainly.
+
+**A comparison defect was found and corrected mid-study.** An initial pass reported a degrees-of-freedom mismatch on every fixture. The cause was reading the wrong attribute: **`statsmodels` keeps `results.df_resid = n − k` and exposes the inference degrees of freedom separately as `results.df_resid_inference = G − 1`**, which is what its p-values use. The comparison target was corrected; **the preregistered tolerances were not touched**, and the mismatch disappeared.
+
+**Four refusal conditions were identified, none of which has a rule today.** The sharpest is **perfect or near-perfect fit**: with residual sum of squares at 3.7 × 10⁻²⁹, two implementations agreed on the covariance matrix to 2.6 × 10⁻³² and on standard errors to 8.4 × 10⁻¹⁷ — and still reported t-statistics differing by a factor of about 1.7, because at that scale a 10⁻¹⁶ absolute difference is a **75% relative** difference. Both are correct; the ratio β/se is simply not numerically identifiable. A production implementation must **refuse**, not report. The others are missing values (must be refused, never silently row-dropped), rank-deficient designs (a pseudo-inverse absorbs them silently), and zero-variance predictors.
+
+**Eighteen synthetic fixtures** cover balanced and highly unbalanced clusters, singletons, one dominant cluster, near-collinearity, zero variance, perfect fit, missing values, row permutation, cluster relabelling, sign reversal, null and hypothetical positive effects, heavy tails, cluster-level heteroskedasticity, seed reproduction, seed variation and a below-design cluster count. Cluster labels are `CLUSTER_001`-style; **no real ticker appears anywhere**. Row-permutation and cluster-relabelling invariance held on all twelve runnable fixtures, and the bootstrap reproduced exactly under a fixed seed — **which is reproducibility, not validation, and is not counted as such**.
+
+**A hypothetical design-sensitivity grid** was produced with generic standardized effects chosen before simulation. It is labelled throughout as an engineering fixture and **uses no repository effect estimate, because none exists**. It shows CR1 over-rejecting under the null (0.090–0.110 against nominal 0.050) and Satterthwaite degrees of freedom falling from ≈11.5 balanced to ≈7.5 unbalanced at 24 clusters. **It is not converted into a GST power claim and does not produce a minimum-cluster threshold** — that placeholder stands.
+
+Added `GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json`, `GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`, `GST_HYP01_AUTHORIZER_DECISION_MATRIX_v1.0_DRAFT.md` (**16 decisions, 0 made**, every checkbox blank, authorizer and date `PENDING`; recommendations offered only where the offline evidence supports one, and withheld on the primary-estimator choice precisely because the methodologically preferred options are the blocked ones), and `test_market_response_hyp01_inference_feasibility.py` (**71 assertions**). The existing signoff template was **not modified and not filled in**.
+
+
 ## 2026-08-11 — Round-2 screenshot OCR audit: all 20 images machine-read, none carries market data
 
 Offline only. **No live request, no browser, no screenshot manually viewed, no quarantined body reopened.** No ticker classification changed.
