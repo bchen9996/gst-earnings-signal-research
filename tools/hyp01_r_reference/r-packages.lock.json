@@ -1,0 +1,100 @@
+{
+ "github_action": {
+  "pinned_commit_sha": "d3c5be51b12e724e68f33216ca3c148b66d5f0b6",
+  "ref_tag": "v2",
+  "uses": "r-lib/actions/setup-r",
+  "why_sha": "a tag can be moved; a commit SHA cannot"
+ },
+ "not_installed_deliberately": {
+  "fwildclusterboot": "would be a wild-cluster-bootstrap reference; NOT installed, so the bootstrap stays unvalidated",
+  "note": "Only the CR2/Satterthwaite reference is added. CR3 and the bootstrap remain independently unvalidated."
+ },
+ "packages": [
+  {
+   "bytes": 1408915,
+   "package": "cli",
+   "version": "3.6.6",
+   "windows_binary": "cli_3.6.6.zip",
+   "windows_binary_sha256": "49b1e08dc87e515778b5a2684e9dc6beb42a728ecc58809ea1f4141ce0c2d18d"
+  },
+  {
+   "bytes": 657114,
+   "package": "clubSandwich",
+   "version": "0.7.0",
+   "windows_binary": "clubSandwich_0.7.0.zip",
+   "windows_binary_sha256": "3506c23e646d328f4d870076df956948395b018c3ea920d0181e20d42ab1482a"
+  },
+  {
+   "bytes": 228560,
+   "package": "digest",
+   "version": "0.6.39",
+   "windows_binary": "digest_0.6.39.zip",
+   "windows_binary_sha256": "43df080a34500155a822b9b9eb26b7af8a609ab225cfe7f399e129a8eabfc7cf"
+  },
+  {
+   "bytes": 192096,
+   "package": "glue",
+   "version": "1.8.1",
+   "windows_binary": "glue_1.8.1.zip",
+   "windows_binary_sha256": "1dfb2977b67ee1f84dcb9218df3e1134e8fdf9e9ba41e25a7092f864a4301cfe"
+  },
+  {
+   "bytes": 1110997,
+   "package": "jsonlite",
+   "version": "2.0.0",
+   "windows_binary": "jsonlite_2.0.0.zip",
+   "windows_binary_sha256": "9e284c050c26f6ea46a724f6c4c33c0878f1691ef078cecb186adb2816cc5f6c"
+  },
+  {
+   "bytes": 1442662,
+   "package": "lattice",
+   "version": "0.22-9",
+   "windows_binary": "lattice_0.22-9.zip",
+   "windows_binary_sha256": "cc2da6b528807f9b14ed6c03a19edf97485537ce5648a66ff16d220577edb2eb"
+  },
+  {
+   "bytes": 150748,
+   "package": "lifecycle",
+   "version": "1.0.5",
+   "windows_binary": "lifecycle_1.0.5.zip",
+   "windows_binary_sha256": "d5edff40c8a99d61898c1d12b2e545c2a1d0d5e1dae156374a8a8d62830769cb"
+  },
+  {
+   "bytes": 1650413,
+   "package": "rlang",
+   "version": "1.3.0",
+   "windows_binary": "rlang_1.3.0.zip",
+   "windows_binary_sha256": "f396b0ed13e150f54555fa30eee7fb9245fd1f30f00b48337b35621aadbf80e2"
+  },
+  {
+   "bytes": 1541807,
+   "package": "sandwich",
+   "version": "3.1-3",
+   "windows_binary": "sandwich_3.1-3.zip",
+   "windows_binary_sha256": "b21484fa9286e97a269387117dba2c64ecd8ebef0677c7aa5e37790e139363cc"
+  },
+  {
+   "bytes": 1002905,
+   "package": "zoo",
+   "version": "1.9-0",
+   "windows_binary": "zoo_1.9-0.zip",
+   "windows_binary_sha256": "67eeecd8bcaaf109ba50b80cb867276a541a78ade98b78a081debac2387f0102"
+  }
+ ],
+ "purpose": "Pinned R runtime and package versions for the independent CR2/Satterthwaite reference. Installing these approves no statistical method.",
+ "r": {
+  "installer_sha256": "c5424c40cd70ef85765a55d2ff96bb602b5f30ed536938ff004f14db5db3c2df",
+  "local_install_scope": "per-user (HKCU only; no elevation, no system PATH change)",
+  "source": "https://cran.r-project.org/bin/windows/base/R-4.6.1-win.exe",
+  "version": "4.6.1",
+  "version_string": "R version 4.6.1 (2026-06-24 ucrt)"
+ },
+ "reference_package": "clubSandwich",
+ "schema": "GST_HYP01_R_REFERENCE_LOCK_v1",
+ "sources": {
+  "ci_snapshot": "https://packagemanager.posit.co/cran/2026-08-11",
+  "ci_snapshot_verified_http_200": true,
+  "local_windows_binaries": "https://cran.r-project.org/bin/windows/contrib/4.6/",
+  "note": "The local install used CRAN Windows binaries; CI uses a dated Posit snapshot. Both must resolve to the versions pinned above -- CI verifies this and fails if not."
+ }
+}

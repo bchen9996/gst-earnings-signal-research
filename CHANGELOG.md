@@ -1,6 +1,47 @@
 # Changelog
 
 
+## 2026-08-12 — CR2 now has an independent R reference: 13 of 13 fixtures agree at the noise floor
+
+**Independent synthetic implementation validation only. No statistical method is approved, no lock is activated, and F5 remains OPEN.** `GST_HYP01_ANALYSIS_LOCK_v1.0` stays operative, the proposed v1.1 stays non-authoritative, every authorizer field stays `PENDING`, no signoff is completed and no dated amendment is created. DELL and every research artifact are byte-identical.
+
+**The dependency that was blocking CR2 is now installed and pinned.** PR #17 recorded CR2 as `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` — the Python code ran, but nothing independent existed here to check it against. **R 4.6.1 + clubSandwich 0.7.0** now serve as that reference: written by other authors, maintained independently, not written for this study.
+
+**Result: 13 of 13 admissible fixtures `MATCH_WITHIN_PREREGISTERED_TOLERANCE`**, under the PR #17 tolerances used exactly as written — none loosened, reinterpreted or replaced.
+
+| Field | Worst absolute difference | Preregistered tolerance |
+|---|---|---|
+| CR2 covariance matrix | 1.735 × 10⁻¹⁶ | rtol 1e-10 |
+| Target variance | 3.990 × 10⁻¹⁷ | rtol 1e-10 |
+| Standard error | 1.943 × 10⁻¹⁶ | rtol 1e-10 |
+| t-statistic | 2.887 × 10⁻¹⁵ | rtol 1e-9 |
+| p-value | 8.882 × 10⁻¹⁶ | rtol 1e-9 |
+
+**One gap in the preregistration, reported rather than papered over.** The PR #17 tolerance set defines degrees of freedom as `exact_integer_equality` — a rule written for CR1's integer *G* − 1. The Satterthwaite df is continuous, so no preregistered tolerance covers it. A separate tolerance (rtol 1e-8) is declared in source, labelled `preregistered_in_pr17: false`, and reported separately. It was fixed before the comparison first ran. The df agreed to 7.1 × 10⁻¹⁵.
+
+**The fixtures are never regenerated in R.** One generator — the committed `make_fixture` — is exported to a strict-JSON interchange file carrying only the outcome vector, design matrix, coefficient names, cluster labels, target coefficient, fixture id and expected refusal status. Missing values travel as JSON `null`, never as a sentinel number. Each fixture carries a SHA-256 over a language-neutral canonical string (`%.17g` per double, fixed field order) that **R rebuilds and re-verifies itself — all 18 confirmed**. Results travel back as `%.17g` strings: jsonlite writes doubles at ~15 significant digits, which would have made the reported discrepancies partly a measurement of the JSON writer rather than of the two implementations.
+
+**Nothing was left to a default.** Intercept handling (the design matrix carries its own ones column; fitted with `~ 0 + .` so R adds no second intercept), coefficient and cluster ordering (first-appearance factor levels, not locale-dependent sorting), target coefficient, null value, confidence level, and matrix tolerance behaviour are all resolved and recorded. `na.action = na.fail` is set deliberately: R's default `na.omit` would have silently dropped the missing row and returned a number — a false agreement. One argument's resolved default is not visible from `formals()`, so `inverse_var` is computed **both ways** on every fixture; maximum difference 2.08 × 10⁻¹⁶.
+
+**Refusals were reported, not forced.** Four fixtures are refused by both implementations through different diagnostics — Python screens condition number, column variance and residual variance explicitly; R discovers the same degeneracies as aliased coefficients in the QR fit. `F08_perfect_fit` is a genuine `REFERENCE_BEHAVIOR_DIFFERENCE`: R returns an estimate with a standard error of 3.97 × 10⁻¹⁷ after warning "essentially perfect fit", where Python refuses by a prespecified threshold. **Neither side was adjusted to make it agree**, and no fixture was deleted, reseeded or omitted.
+
+**CR3 and the wild cluster bootstrap-t remain independently unvalidated.** `fwildclusterboot` was deliberately not installed, and CR2 agreement is never treated as evidence about either.
+
+**What this supports, exactly:** *the study-written Python implementation agrees with the independent clubSandwich reference on the prespecified synthetic fixture matrix under the preregistered tolerances.* It is **not** evidence that CR2 is scientifically optimal or preferable, not an approval, not a power claim, and not a change to F5.
+
+**One command reproduces it**, and exits nonzero on any unexplained mismatch:
+
+```
+python tools/hyp01_r_reference/run_validation.py --out <artifact.json>
+```
+
+Package installation and validation are separate phases: the install step may reach the pinned CRAN snapshot; the validation itself makes no network request.
+
+**The decision matrix now separates three things** that are easy to run together: implementation-validation evidence (established), a scientific method recommendation (offered only as a **proposal**, with alternatives and tradeoffs), and the final authorizer decision (**unchanged and `PENDING`**). Validation is not approval.
+
+Added `tools/hyp01_r_reference/` (exporter, R reference, comparison harness, driver, lockfile), the validation artifact and report, `test_market_response_hyp01_r_reference_validation.py` (**185 assertions**, which execute the bridge rather than reading declarations and skip-with-notice where R is absent), and a **separate** `hyp01-r-reference-validation.yml` workflow pinned to an immutable action SHA. `market-response-tests.yml` is not modified: its permissions, triggers, Python pin, discovery glob and timeout are untouched.
+
+
 ## 2026-08-12 — PR #17 CI repair, an explicit supersession notice, and implementation status split into four facts
 
 Offline apart from reading the GitHub Actions log. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged. The corrected full-precision results are unchanged — every statistical section of the regenerated artifact is byte-identical to the one it replaces.

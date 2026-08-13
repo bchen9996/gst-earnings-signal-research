@@ -1,0 +1,125 @@
+name: HYP-01 R Reference Validation
+
+# Independent synthetic implementation validation only. This workflow approves
+# no statistical method, activates no lock, and leaves F5 OPEN.
+#
+# It is deliberately SEPARATE from market-response-tests.yml. That workflow is
+# not modified by this PR: it keeps its own permissions, triggers, Python pin,
+# discovery glob and timeout exactly as they are. Adding an R toolchain to it
+# would have made every deterministic market-response run pay for an R install.
+#
+# Package installation and validation are separate phases. The install step may
+# reach the pinned CRAN snapshot; the validation step that follows performs no
+# network request -- the exporter, the comparison harness and the test file all
+# replace socket.connect/create_connection/getaddrinfo before importing any
+# numerical library, and the R script contains no download call at all.
+#
+# It never touches live market data, broker APIs, GST, Wikipedia, SEC filings or
+# news sources, consumes no credential, and reads no research artifact: every
+# input is generated from the committed synthetic fixture seed.
+on:
+  pull_request:
+    paths:
+      - "tools/hyp01_r_reference/**"
+      - "tools/hyp01_inference_feasibility.py"
+      - "tools/requirements-hyp01-feasibility.txt"
+      - "test_market_response_hyp01_r_reference_validation.py"
+      - "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json"
+      - "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md"
+      - "Live Signal Engine/GST_HYP01_AUTHORIZER_DECISION_MATRIX_v1.0_DRAFT.md"
+      - ".github/workflows/hyp01-r-reference-validation.yml"
+  workflow_dispatch: {}
+
+# Least privilege, matching the repository's existing workflows.
+permissions:
+  contents: read
+
+jobs:
+  r-reference-validation:
+    name: Independent CR2 / Satterthwaite reference validation
+    # Pinned rather than ubuntu-latest: the CRAN snapshot below serves noble
+    # binaries, and a silent runner-image bump would change what gets installed.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          set -e
+          pip install -r tools/requirements-hyp01-feasibility.txt
+
+      # Pinned to an immutable commit SHA, not a tag: a tag can be moved.
+      - name: Set up R
+        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6
+        with:
+          r-version: "4.6.1"
+          use-public-rspm: false
+
+      - name: Install pinned R packages
+        # The only step permitted to reach the network. Versions come from a
+        # dated CRAN snapshot so a later CRAN release cannot silently change the
+        # reference implementation under us.
+        run: |
+          set -e
+          Rscript -e 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/noble/2026-08-11")); install.packages(c("jsonlite", "clubSandwich", "digest"), dependencies = TRUE)'
+
+      - name: Verify installed versions match the lockfile
+        # Fails closed. If the snapshot ever resolves a different version than
+        # the one this PR validated against, that is a finding, not a warning.
+        run: |
+          set -e
+          Rscript -e '
+            lock <- jsonlite::fromJSON("tools/hyp01_r_reference/r-packages.lock.json")
+            want <- setNames(lock$packages$version, lock$packages$package)
+            bad <- character(0)
+            for (p in c("clubSandwich", "jsonlite", "digest")) {
+              got <- as.character(packageVersion(p))
+              exp <- want[[p]]
+              cat(sprintf("  %-14s installed=%-10s locked=%s\n", p, got, exp))
+              if (!identical(got, exp)) bad <- c(bad, sprintf("%s: installed %s, locked %s", p, got, exp))
+            }
+            if (length(bad)) { cat("VERSION MISMATCH:\n"); cat(paste0("  ", bad, collapse = "\n"), "\n"); quit(status = 1) }
+            cat("all pinned versions match the lockfile\n")'
+
+      - name: Run the independent validation end to end
+        # Single deterministic command. Exits nonzero on any unexplained
+        # mismatch; explained refusals and documented behaviour differences do
+        # not mask a real disagreement.
+        run: |
+          set -e
+          python tools/hyp01_r_reference/run_validation.py --out "$RUNNER_TEMP/validation.json"
+
+      - name: Confirm the committed artifact still reproduces
+        # The freshly computed classifications must equal the committed ones.
+        run: |
+          set -e
+          python - <<'PY'
+          import json, os, sys
+          fresh = json.load(open(os.environ["RUNNER_TEMP"] + "/validation.json", encoding="utf-8"))
+          committed = json.load(open("Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json", encoding="utf-8"))
+          a = {r["fixture_id"]: r["classification"] for r in fresh["results"]}
+          b = {r["fixture_id"]: r["classification"] for r in committed["results"]}
+          if a != b:
+              print("classification drift:", {k: (b.get(k), v) for k, v in a.items() if b.get(k) != v})
+              sys.exit(1)
+          for key in ("method_approved", "lock_activated", "cr3_validated",
+                      "wild_cluster_bootstrap_validated"):
+              if fresh[key] is not False:
+                  print(f"{key} is not False"); sys.exit(1)
+          if not fresh["f5_status"].startswith("OPEN"):
+              print("F5 status changed"); sys.exit(1)
+          print(f"reproduced {len(a)} classifications; nothing approved; F5 OPEN")
+          PY
+
+      - name: Run the computational validation tests
+        # With R present these execute the bridge rather than skipping it.
+        run: |
+          set -e
+          python test_market_response_hyp01_r_reference_validation.py
