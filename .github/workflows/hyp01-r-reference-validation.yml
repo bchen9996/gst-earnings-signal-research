@@ -42,11 +42,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
+      # Every external action is pinned to a full immutable commit SHA. A tag
+      # can be moved; a commit SHA cannot. The tags are recorded in comments and
+      # in r-packages.lock.json for human readability only.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
@@ -55,38 +58,68 @@ jobs:
           set -e
           pip install -r tools/requirements-hyp01-feasibility.txt
 
-      # Pinned to an immutable commit SHA, not a tag: a tag can be moved.
       - name: Set up R
-        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6
+        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
         with:
           r-version: "4.6.1"
           use-public-rspm: false
 
       - name: Install pinned R packages
-        # The only step permitted to reach the network. Versions come from a
-        # dated CRAN snapshot so a later CRAN release cannot silently change the
-        # reference implementation under us.
-        run: |
-          set -e
-          Rscript -e 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/noble/2026-08-11")); install.packages(c("jsonlite", "clubSandwich", "digest"), dependencies = TRUE)'
-
-      - name: Verify installed versions match the lockfile
-        # Fails closed. If the snapshot ever resolves a different version than
-        # the one this PR validated against, that is a finding, not a warning.
+        # The only step permitted to reach the network.
+        #
+        # Every package named in r-packages.lock.json is installed EXPLICITLY, so
+        # the installed set is the locked set by construction rather than by
+        # whatever dependency resolution happens to pull in. Only the dependency
+        # classes required to RUN the reference are installed: Suggests would add
+        # test-only packages this validation never loads and the lockfile does
+        # not pin.
         run: |
           set -e
           Rscript -e '
             lock <- jsonlite::fromJSON("tools/hyp01_r_reference/r-packages.lock.json")
-            want <- setNames(lock$packages$version, lock$packages$package)
-            bad <- character(0)
-            for (p in c("clubSandwich", "jsonlite", "digest")) {
-              got <- as.character(packageVersion(p))
-              exp <- want[[p]]
-              cat(sprintf("  %-14s installed=%-10s locked=%s\n", p, got, exp))
-              if (!identical(got, exp)) bad <- c(bad, sprintf("%s: installed %s, locked %s", p, got, exp))
+            snap <- lock$sources$ci_snapshot_linux_binary_path
+            pkgs <- lock$packages$package
+            cat("snapshot:", snap, "\n")
+            cat("installing", length(pkgs), "locked packages:", paste(pkgs, collapse = ", "), "\n")
+            options(repos = c(CRAN = snap))
+            install.packages(pkgs, dependencies = c("Depends", "Imports", "LinkingTo"))'
+
+      - name: Verify R version and EVERY locked package version
+        # Fails closed on absence or on any version difference, for every package
+        # in the lockfile -- not a hand-picked subset. If the snapshot ever
+        # resolves a different version than the one this PR validated against,
+        # that is a finding, not a warning.
+        run: |
+          set -e
+          Rscript -e '
+            lock <- jsonlite::fromJSON("tools/hyp01_r_reference/r-packages.lock.json")
+
+            want_r <- lock$r$ci_pinned_version
+            got_r <- paste(R.version$major, R.version$minor, sep = ".")
+            cat(sprintf("R: running=%s locked=%s\n", got_r, want_r))
+            if (!identical(got_r, want_r)) {
+              cat(sprintf("R VERSION MISMATCH: running %s, locked %s\n", got_r, want_r))
+              quit(status = 1)
             }
-            if (length(bad)) { cat("VERSION MISMATCH:\n"); cat(paste0("  ", bad, collapse = "\n"), "\n"); quit(status = 1) }
-            cat("all pinned versions match the lockfile\n")'
+
+            pkgs <- lock$packages
+            bad <- character(0)
+            for (i in seq_len(nrow(pkgs))) {
+              nm <- pkgs$package[i]; exp <- pkgs$version[i]
+              got <- tryCatch(as.character(packageVersion(nm)),
+                              error = function(e) NA_character_)
+              status <- if (is.na(got)) "ABSENT" else if (identical(got, exp)) "ok" else "MISMATCH"
+              cat(sprintf("  %-14s installed=%-10s locked=%-10s %s\n",
+                          nm, ifelse(is.na(got), "-", got), exp, status))
+              if (status != "ok") bad <- c(bad, sprintf("%s: installed %s, locked %s",
+                                                        nm, ifelse(is.na(got), "ABSENT", got), exp))
+            }
+            cat(sprintf("verified %d of %d locked packages\n", nrow(pkgs) - length(bad), nrow(pkgs)))
+            if (length(bad)) {
+              cat("LOCKFILE VIOLATION:\n"); cat(paste0("  ", bad, collapse = "\n"), "\n")
+              quit(status = 1)
+            }
+            cat("every locked package is present at its locked version\n")'
 
       - name: Run the independent validation end to end
         # Single deterministic command. Exits nonzero on any unexplained
@@ -97,26 +130,15 @@ jobs:
           python tools/hyp01_r_reference/run_validation.py --out "$RUNNER_TEMP/validation.json"
 
       - name: Confirm the committed artifact still reproduces
-        # The freshly computed classifications must equal the committed ones.
+        # Compares every MATERIAL computed field, not just classifications.
+        # Continuous fields use the documented tolerances (this is a different
+        # OS, R build and BLAS than the artifact was generated on, so bitwise
+        # equality would be a false requirement); discrete fields are exact.
         run: |
           set -e
-          python - <<'PY'
-          import json, os, sys
-          fresh = json.load(open(os.environ["RUNNER_TEMP"] + "/validation.json", encoding="utf-8"))
-          committed = json.load(open("Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json", encoding="utf-8"))
-          a = {r["fixture_id"]: r["classification"] for r in fresh["results"]}
-          b = {r["fixture_id"]: r["classification"] for r in committed["results"]}
-          if a != b:
-              print("classification drift:", {k: (b.get(k), v) for k, v in a.items() if b.get(k) != v})
-              sys.exit(1)
-          for key in ("method_approved", "lock_activated", "cr3_validated",
-                      "wild_cluster_bootstrap_validated"):
-              if fresh[key] is not False:
-                  print(f"{key} is not False"); sys.exit(1)
-          if not fresh["f5_status"].startswith("OPEN"):
-              print("F5 status changed"); sys.exit(1)
-          print(f"reproduced {len(a)} classifications; nothing approved; F5 OPEN")
-          PY
+          python tools/hyp01_r_reference/verify_artifact.py \
+            --fresh "$RUNNER_TEMP/validation.json" \
+            --committed "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json"
 
       - name: Run the computational validation tests
         # With R present these execute the bridge rather than skipping it.

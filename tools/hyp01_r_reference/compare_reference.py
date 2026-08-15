@@ -7,22 +7,32 @@ The Python side is recomputed here from the committed runner -- not read out of
 any stored artifact -- and compared against clubSandwich's output for the same
 fixture bytes.
 
-TOLERANCE POLICY, and one honest gap in it
-------------------------------------------
-Covariance, standard error, t-statistic and p-value are compared under the
-tolerances preregistered in PR #17 and committed in the runner's TOLERANCES
-dict. They are used exactly as written and are not reinterpreted here.
+TOLERANCE PROVENANCE IS SPLIT, AND MUST STAY SPLIT
+--------------------------------------------------
+Two different tolerance sets govern this comparison, and conflating them would
+overstate what was preregistered:
 
-The preregistered set defines degrees of freedom as `exact_integer_equality`.
-That rule was written for CR1, whose inference df is the integer G-1. The
-Satterthwaite df is a continuous quantity, so the preregistered rule cannot be
-applied to it: there is no preregistered tolerance for this field.
+  PR #17 tolerances  -> coefficients, CR2 covariance, target variance,
+                        standard error, t-statistic, p-value.
+                        Preregistered in PR #17, used exactly as written.
 
-Rather than silently borrow a tolerance meant for another quantity, a separate
-one is declared below and labelled as NEW IN THIS PR. It was fixed in source
-before the comparison was executed for the first time, and it is reported
-separately from the preregistered results so no reader can mistake it for part
-of the PR #17 preregistration.
+  PR #18 tolerance   -> the continuous Satterthwaite degrees of freedom.
+                        PRESPECIFIED IN PR #18, NOT preregistered in PR #17.
+
+PR #17's df rule is `exact_integer_equality`, written for CR1's integer G-1. It
+cannot express agreement on a continuous Satterthwaite df, and no PR #17
+tolerance covers that field. Rather than borrow a tolerance meant for another
+quantity, PR #18 prespecified its own -- in source, before the comparison first
+ran -- and every report of the df result carries that provenance.
+
+The supported claim is therefore two-part, and is stored verbatim in the
+artifact as `supported_claim`:
+
+    The study-written Python CR2 covariance, standard-error, t-statistic, and
+    p-value outputs agree with clubSandwich on the prespecified synthetic
+    fixture matrix under the PR #17 tolerances. The continuous Satterthwaite
+    degrees of freedom agree under a separately prespecified PR #18 tolerance
+    that was not preregistered in PR #17.
 """
 from __future__ import annotations
 
@@ -55,31 +65,51 @@ from scipy import stats  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 RUNNER = ROOT / "tools" / "hyp01_inference_feasibility.py"
 
-# NOT preregistered in PR #17. Declared here, in source, before this comparison
-# was ever run, because the preregistered df rule (exact integer equality) was
-# written for CR1's integer G-1 and cannot express agreement on a continuous
-# Satterthwaite df. Reported separately from the preregistered fields.
-SATTERTHWAITE_DF_TOLERANCE = {
+# NOT preregistered in PR #17. Prespecified in PR #18, in source, before this
+# comparison was ever run, because the PR #17 df rule (exact integer equality)
+# was written for CR1's integer G-1 and cannot express agreement on a
+# continuous Satterthwaite df. Always reported separately from PR #17 fields.
+PR18_SATTERTHWAITE_DF_TOLERANCE = {
     "rtol": 1e-8,
     "atol": 1e-10,
     "preregistered_in_pr17": False,
-    "introduced_by": "PR: independent R reference validation",
+    "prespecified_in_pr18": True,
+    "introduced_by": "PR #18 (independent R reference validation)",
     "declared_before_first_comparison_run": True,
-    "why_not_the_preregistered_df_rule": (
+    "why_not_the_pr17_df_rule": (
         "TOLERANCES['degrees_of_freedom'] is exact_integer_equality, which "
         "applies to CR1's integer inference df G-1. The Satterthwaite df is "
         "continuous; exact equality is not a meaningful cross-implementation "
-        "criterion for it and no preregistered tolerance covers this field."),
+        "criterion for it and no PR #17 tolerance covers this field."),
 }
 
+# Which fields each tolerance set governs. Nothing may silently migrate between
+# them: the df field is governed by the PR #18 tolerance and by nothing else.
+PR17_COVERED_FIELDS = ("coefficients", "cr2_covariance", "target_variance",
+                       "standard_error", "t_statistic", "p_value")
+PR18_COVERED_FIELDS = ("satterthwaite_df",)
+
+# The classification name states BOTH provenances, so no reader can mistake the
+# df comparison for a PR #17-preregistered one. The earlier name
+# (MATCH_WITHIN_PREREGISTERED_TOLERANCE) implied every compared field passed a
+# PR #17 tolerance, which was never true of the Satterthwaite df.
+MATCH = "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE"
+
 CLASSES = (
-    "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+    MATCH,
     "REFERENCE_BEHAVIOR_DIFFERENCE",
     "PYTHON_IMPLEMENTATION_DEFECT",
     "INTERCHANGE_OR_SPECIFICATION_DEFECT",
     "REFUSED_BY_BOTH",
     "UNRESOLVED",
 )
+
+SUPPORTED_CLAIM = (
+    "The study-written Python CR2 covariance, standard-error, t-statistic, and "
+    "p-value outputs agree with clubSandwich on the prespecified synthetic fixture "
+    "matrix under the PR #17 tolerances. The continuous Satterthwaite degrees of "
+    "freedom agree under a separately prespecified PR #18 tolerance that was not "
+    "preregistered in PR #17.")
 
 
 def load_runner():
@@ -251,10 +281,13 @@ def compare_one(fixture, py, rr, tol):
         "within": within([py["p_value"]], [ref["p_value"]], tol["p_value"]),
         **discrepancy([py["p_value"]], [ref["p_value"]])}
     fields["satterthwaite_df"] = {
-        "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+        "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+        "tolerance_provenance": "PR18",
         "within": within([py["satterthwaite_df"]], [ref["satterthwaite_df"]],
-                         SATTERTHWAITE_DF_TOLERANCE),
+                         PR18_SATTERTHWAITE_DF_TOLERANCE),
         **discrepancy([py["satterthwaite_df"]], [ref["satterthwaite_df"]])}
+    for _f in PR17_COVERED_FIELDS:
+        fields[_f]["tolerance_provenance"] = "PR17"
 
     rec["fields"] = fields
     keys = ("target_estimate", "target_variance", "standard_error",
@@ -265,22 +298,34 @@ def compare_one(fixture, py, rr, tol):
         [num(rr["conf_int_low"]), num(rr["conf_int_high"])]
         if rr.get("conf_int_defined") else None)
 
-    preregistered = [k for k in fields if k != "satterthwaite_df"]
-    rec["all_preregistered_fields_within_tolerance"] = all(fields[k]["within"] for k in preregistered)
-    rec["satterthwaite_df_within_declared_tolerance"] = fields["satterthwaite_df"]["within"]
+    pr17_ok = all(fields[k]["within"] for k in PR17_COVERED_FIELDS)
+    df_ok = fields["satterthwaite_df"]["within"]
 
-    if rec["all_preregistered_fields_within_tolerance"]:
-        rec["classification"] = "MATCH_WITHIN_PREREGISTERED_TOLERANCE"
-        if not rec["satterthwaite_df_within_declared_tolerance"]:
-            rec["classification"] = "UNRESOLVED"
-            rec["explanation"] = ("Covariance, SE, t and p agree under the preregistered "
-                                  "tolerances, but the Satterthwaite df does not agree under "
-                                  "the separately declared tolerance. Requires diagnosis.")
+    # Three separate statuses. The overall status is never reported without the
+    # two component statuses beside it.
+    rec["pr17_covered_fields"] = list(PR17_COVERED_FIELDS)
+    rec["pr17_covered_fields_status"] = ("PASS_UNDER_PR17_TOLERANCES" if pr17_ok
+                                         else "FAIL_UNDER_PR17_TOLERANCES")
+    rec["satterthwaite_df_status"] = ("PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17"
+                                      if df_ok else "FAIL_UNDER_PR18_TOLERANCE")
+    rec["all_pr17_covered_fields_within_tolerance"] = pr17_ok
+    rec["satterthwaite_df_within_pr18_tolerance"] = df_ok
+
+    if pr17_ok and df_ok:
+        rec["overall_implementation_agreement_status"] = MATCH
+        rec["classification"] = MATCH
+    elif pr17_ok and not df_ok:
+        rec["overall_implementation_agreement_status"] = "UNRESOLVED"
+        rec["classification"] = "UNRESOLVED"
+        rec["explanation"] = ("Covariance, SE, t and p agree under the PR #17 tolerances, "
+                              "but the Satterthwaite df does not agree under the PR #18 "
+                              "tolerance. Requires diagnosis.")
     else:
-        failed = [k for k in preregistered if not fields[k]["within"]]
+        failed = [k for k in PR17_COVERED_FIELDS if not fields[k]["within"]]
+        rec["overall_implementation_agreement_status"] = "UNRESOLVED"
         rec["classification"] = "UNRESOLVED"
         rec["failed_fields"] = failed
-        rec["explanation"] = ("Disagreement outside the preregistered tolerances on: "
+        rec["explanation"] = ("Disagreement outside the PR #17 tolerances on: "
                               + ", ".join(failed) + ". Requires diagnosis; not resolved by "
                               "adjusting a tolerance.")
     return rec
@@ -301,8 +346,7 @@ def build(R, fixtures_doc, reference_doc) -> dict:
         results.append(compare_one(fixture, py, rr, tol))
 
     counts = {c: sum(1 for r in results if r["classification"] == c) for c in CLASSES}
-    matched = [r["fixture_id"] for r in results
-               if r["classification"] == "MATCH_WITHIN_PREREGISTERED_TOLERANCE"]
+    matched = [r["fixture_id"] for r in results if r["classification"] == MATCH]
     unresolved = [r["fixture_id"] for r in results if r["classification"] == "UNRESOLVED"]
 
     runner_bytes = RUNNER.read_bytes()
@@ -333,12 +377,32 @@ def build(R, fixtures_doc, reference_doc) -> dict:
             "specification": reference_doc["specification"],
             "resolved_defaults": reference_doc["reference_defaults"],
         },
+        "supported_claim": SUPPORTED_CLAIM,
+        "tolerance_provenance": {
+            "pr17_preregistered_tolerances": tol,
+            "pr17_tolerances_used_as_written": True,
+            "pr17_covered_fields": list(PR17_COVERED_FIELDS),
+            "pr18_satterthwaite_df_tolerance": PR18_SATTERTHWAITE_DF_TOLERANCE,
+            "pr18_covered_fields": list(PR18_COVERED_FIELDS),
+            "continuous_df_preregistered_in_pr17": False,
+            "note": ("No field is governed by both sets. The Satterthwaite df is "
+                     "governed by the PR #18 tolerance and by nothing preregistered "
+                     "in PR #17."),
+        },
+        # Kept under its PR #17 name because it IS the PR #17 set, unchanged.
         "preregistered_tolerances": tol,
         "preregistered_tolerances_used_as_written": True,
-        "satterthwaite_df_tolerance": SATTERTHWAITE_DF_TOLERANCE,
         "classification_counts": counts,
-        "fixtures_matched_within_preregistered_tolerance": matched,
+        "fixtures_matched_pr17_fields_and_pr18_df": matched,
         "unresolved_fixtures": unresolved,
+        "implementation_validation": {
+            "cr2_covariance_se_t_p": "VALIDATED_UNDER_PR17_TOLERANCES",
+            "satterthwaite_df": "VALIDATED_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+            "cr2_satterthwaite_overall": "IMPLEMENTATION_VALIDATED_SPLIT_TOLERANCE_PROVENANCE",
+            "production_selection_approved": False,
+            "production_eligible": False,
+            "production_eligibility_status": "PENDING_AUTHORIZER_DECISION",
+        },
         "cr3_validated": False,
         "wild_cluster_bootstrap_validated": False,
         "cr3_and_bootstrap_note": (
