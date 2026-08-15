@@ -64,6 +64,22 @@ jobs:
           r-version: "4.6.1"
           use-public-rspm: false
 
+      - name: Resolve the snapshot and package list from the lockfile
+        # Read with Python, not R. The lockfile is the single source of both the
+        # snapshot URL and the package list, but R cannot parse it before
+        # jsonlite exists -- and jsonlite is itself one of the locked packages.
+        # Python's json is stdlib and Python is already set up, so this breaks
+        # the cycle without duplicating the snapshot URL into the workflow.
+        run: |
+          set -e
+          python - <<'PY' >> "$GITHUB_ENV"
+          import json
+          lock = json.load(open("tools/hyp01_r_reference/r-packages.lock.json", encoding="utf-8"))
+          print(f"R_SNAPSHOT={lock['sources']['ci_snapshot_linux_binary_path']}")
+          print("R_LOCKED_PKGS=" + ",".join(p["package"] for p in lock["packages"]))
+          PY
+          echo "resolved from tools/hyp01_r_reference/r-packages.lock.json"
+
       - name: Install pinned R packages
         # The only step permitted to reach the network.
         #
@@ -76,9 +92,9 @@ jobs:
         run: |
           set -e
           Rscript -e '
-            lock <- jsonlite::fromJSON("tools/hyp01_r_reference/r-packages.lock.json")
-            snap <- lock$sources$ci_snapshot_linux_binary_path
-            pkgs <- lock$packages$package
+            snap <- Sys.getenv("R_SNAPSHOT")
+            pkgs <- strsplit(Sys.getenv("R_LOCKED_PKGS"), ",", fixed = TRUE)[[1]]
+            if (!nzchar(snap) || !length(pkgs)) stop("lockfile did not resolve")
             cat("snapshot:", snap, "\n")
             cat("installing", length(pkgs), "locked packages:", paste(pkgs, collapse = ", "), "\n")
             options(repos = c(CRAN = snap))

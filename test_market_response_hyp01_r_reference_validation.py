@@ -637,6 +637,12 @@ def test_14_ci_enforces_the_lock_and_pins_every_action() -> None:
     #     structurally -- not by naming a hand-picked subset.
     check("14d. CI iterates over the lockfile's package list rather than a literal subset",
           "lock$packages" in wf and "seq_len(nrow(pkgs))" in wf)
+    # The INSTALL list must come from the lockfile too, not a hardcoded vector.
+    check("14d2. the install list is resolved from the lockfile, not hardcoded",
+          "r-packages.lock.json" in wf and "R_LOCKED_PKGS" in wf
+          and 'install.packages(pkgs' in wf)
+    check("14d3. the snapshot URL is read from the lockfile, not duplicated in the workflow",
+          "R_SNAPSHOT" in wf and LOCK_DOC["sources"]["ci_snapshot_linux_binary_path"] not in wf)
     hardcoded = re.findall(r'for \(p in c\("([^"]+)"[^)]*\)\)', wf)
     check(f"14e. no hand-picked package subset drives the check (found={hardcoded})", not hardcoded)
     check("14f. CI fails closed on a version mismatch",
