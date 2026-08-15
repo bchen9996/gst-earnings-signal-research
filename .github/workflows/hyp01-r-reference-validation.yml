@@ -118,17 +118,23 @@ jobs:
               quit(status = 1)
             }
 
+            # Versions are compared AS VERSIONS, not as strings. CRAN writes the
+            # final separator as "-" (0.22-9) while R normalises it to "."
+            # (0.22.9), so a string compare would report a mismatch on packages
+            # that are in fact at the locked version. numeric_version() treats
+            # the separators as equivalent and still fails on any real
+            # difference (0.22-9 vs 0.22-8 remains a mismatch).
             pkgs <- lock$packages
             bad <- character(0)
             for (i in seq_len(nrow(pkgs))) {
               nm <- pkgs$package[i]; exp <- pkgs$version[i]
-              got <- tryCatch(as.character(packageVersion(nm)),
-                              error = function(e) NA_character_)
-              status <- if (is.na(got)) "ABSENT" else if (identical(got, exp)) "ok" else "MISMATCH"
+              got <- tryCatch(packageVersion(nm), error = function(e) NULL)
+              status <- if (is.null(got)) "ABSENT"
+                        else if (got == numeric_version(exp)) "ok" else "MISMATCH"
               cat(sprintf("  %-14s installed=%-10s locked=%-10s %s\n",
-                          nm, ifelse(is.na(got), "-", got), exp, status))
+                          nm, ifelse(is.null(got), "-", as.character(got)), exp, status))
               if (status != "ok") bad <- c(bad, sprintf("%s: installed %s, locked %s",
-                                                        nm, ifelse(is.na(got), "ABSENT", got), exp))
+                                                        nm, ifelse(is.null(got), "ABSENT", as.character(got)), exp))
             }
             cat(sprintf("verified %d of %d locked packages\n", nrow(pkgs) - length(bad), nrow(pkgs)))
             if (length(bad)) {
