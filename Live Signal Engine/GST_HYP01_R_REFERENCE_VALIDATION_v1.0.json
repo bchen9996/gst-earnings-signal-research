@@ -2,7 +2,7 @@
  "artifact": "GST HYP-01 independent R reference validation",
  "classification_counts": {
   "INTERCHANGE_OR_SPECIFICATION_DEFECT": 0,
-  "MATCH_WITHIN_PREREGISTERED_TOLERANCE": 13,
+  "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE": 13,
   "PYTHON_IMPLEMENTATION_DEFECT": 0,
   "REFERENCE_BEHAVIOR_DIFFERENCE": 1,
   "REFUSED_BY_BOTH": 4,
@@ -18,7 +18,7 @@
   "note": "R must never rebuild 'equivalent' fixtures; it reads these values.",
   "runner_sha256": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6"
  },
- "fixtures_matched_within_preregistered_tolerance": [
+ "fixtures_matched_pr17_fields_and_pr18_df": [
   "F01_balanced_24c_72n",
   "F02_unbalanced_24c_60n",
   "F03_several_singleton_clusters",
@@ -34,6 +34,14 @@
   "F18_below_design_6_clusters"
  ],
  "fixtures_regenerated_in_r": false,
+ "implementation_validation": {
+  "cr2_covariance_se_t_p": "VALIDATED_UNDER_PR17_TOLERANCES",
+  "cr2_satterthwaite_overall": "IMPLEMENTATION_VALIDATED_SPLIT_TOLERANCE_PROVENANCE",
+  "production_eligibility_status": "PENDING_AUTHORIZER_DECISION",
+  "production_eligible": false,
+  "production_selection_approved": false,
+  "satterthwaite_df": "VALIDATED_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17"
+ },
  "lock_activated": false,
  "method_approved": false,
  "operative_lock": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0.json (v1.0, unchanged)",
@@ -99,53 +107,70 @@
  "repository_research_artifact_loaded": false,
  "results": [
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 4.163336342344337e-17,
      "max_rel_difference": 5.179905065051944e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 6.245004513516506e-17,
      "max_rel_difference": 1.3990745879371852e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 3.3306690738754696e-16,
      "max_rel_difference": 6.580892422001709e-16,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 1.7763568394002505e-15,
      "max_rel_difference": 1.1431313522876873e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 8.326672684688674e-17,
      "max_rel_difference": 5.115290977061676e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 4.440892098500626e-16,
      "max_rel_difference": 6.524533579425114e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 2.42861286636753e-17,
      "max_rel_difference": 9.16549640114484e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F01_balanced_24c_72n",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.5061120681353397,
@@ -170,56 +195,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 1.1102230246251565e-16,
      "max_rel_difference": 3.6914926001368953e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 1.249000902703301e-16,
      "max_rel_difference": 7.21978286890769e-14,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 1.3183898417423734e-16,
      "max_rel_difference": 5.988580347326362e-15,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 3.6022398842410557e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 1.1102230246251565e-16,
      "max_rel_difference": 7.066961123587322e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 2.6645352591003757e-15,
      "max_rel_difference": 9.815504181591419e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 3.469446951953614e-17,
      "max_rel_difference": 1.4057406263922856e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F02_unbalanced_24c_60n",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.022015064761233046,
@@ -244,56 +287,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 1.3877787807814457e-16,
      "max_rel_difference": 8.290503793004601e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 2.7755575615628914e-17,
      "max_rel_difference": 8.70358756616141e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 8.326672684688674e-17,
      "max_rel_difference": 3.715316143215424e-16,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 2.6645352591003757e-15,
      "max_rel_difference": 3.5725100885664645e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 5.551115123125783e-17,
      "max_rel_difference": 4.3961172215475847e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 4.440892098500626e-16,
      "max_rel_difference": 3.349977348782585e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 1.3877787807814457e-17,
      "max_rel_difference": 8.70358756616141e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F03_several_singleton_clusters",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.22411747382235805,
@@ -318,56 +379,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 2.7755575615628914e-17,
      "max_rel_difference": 1.6973170315105703e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 1.734723475976807e-16,
      "max_rel_difference": 5.346194862017697e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 8.326672684688674e-16,
      "max_rel_difference": 3.0197821853814047e-15,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 1.9984014443252818e-15,
      "max_rel_difference": 1.2615944940435774e-15,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 1.942890293094024e-16,
      "max_rel_difference": 1.9360258874018333e-15,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 2.886579864025407e-15,
      "max_rel_difference": 1.771468469784057e-15,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 3.9898639947466563e-17,
      "max_rel_difference": 3.9617207043059506e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F04_one_dominant_cluster",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.2757375258718204,
@@ -392,7 +471,8 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
    "classification": "REFUSED_BY_BOTH",
@@ -461,53 +541,70 @@
    "reference_warnings": []
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 8.847089727481716e-17,
      "max_rel_difference": 1.7820948085121048e-14,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 2.0816681711721685e-17,
      "max_rel_difference": 9.034483833088615e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 1.1102230246251565e-16,
      "max_rel_difference": 1.1641131898121024e-16,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 2.1348051621304929e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 5.551115123125783e-17,
      "max_rel_difference": 3.3993878556228297e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 1.734723475976807e-16,
      "max_rel_difference": 2.9435361753473812e-15,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 1.734723475976807e-17,
      "max_rel_difference": 6.505358347288806e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F10_row_permutation_source",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.953707108845967,
@@ -532,56 +629,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 6.938893903907228e-17,
      "max_rel_difference": 8.923672465690803e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 1.3877787807814457e-17,
      "max_rel_difference": 1.3030642109253768e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 0.0,
      "max_rel_difference": 0.0,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 2.338672046039007e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 2.7755575615628914e-17,
      "max_rel_difference": 3.342187764226135e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 2.220446049250313e-16,
      "max_rel_difference": 5.928611636765682e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 5.204170427930421e-18,
      "max_rel_difference": 7.545929153591199e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F11_cluster_relabel_source",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.7131862696971811,
@@ -606,56 +721,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 5.551115123125783e-17,
      "max_rel_difference": 4.741277236720207e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 2.0816681711721685e-17,
      "max_rel_difference": 1.5060997700266753e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 6.938893903907228e-18,
      "max_rel_difference": 2.792626662828492e-16,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 2.8916323846742234e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 2.7755575615628914e-17,
      "max_rel_difference": 2.1393632201301795e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 8.881784197001252e-16,
      "max_rel_difference": 3.476254494602422e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 1.0408340855860843e-17,
      "max_rel_difference": 6.183723746664851e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F12_sign_reversed_effect",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.02484719492321691,
@@ -680,56 +813,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 1.3877787807814457e-16,
      "max_rel_difference": 8.011251779251845e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 3.8163916471489756e-17,
      "max_rel_difference": 3.2686897753403847e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 1.249000902703301e-16,
      "max_rel_difference": 1.257876073439269e-15,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 2.624382432573772e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 1.1102230246251565e-16,
      "max_rel_difference": 1.134168142962629e-15,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 4.440892098500626e-16,
      "max_rel_difference": 2.509476567214839e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 2.2551405187698492e-17,
      "max_rel_difference": 2.353466590121167e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F13_null_effect",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.09929443202527073,
@@ -754,56 +905,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 5.551115123125783e-17,
      "max_rel_difference": 4.344137600232538e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 4.163336342344337e-17,
      "max_rel_difference": 9.784149791571677e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 1.214306433183765e-17,
      "max_rel_difference": 1.4838651225744776e-15,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 1.7763568394002505e-15,
      "max_rel_difference": 1.5174175031378043e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 1.3877787807814457e-17,
      "max_rel_difference": 1.4939340857091282e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 4.440892098500626e-16,
      "max_rel_difference": 1.397515520918523e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 3.469446951953614e-18,
      "max_rel_difference": 4.0205238099743106e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F14_positive_hypothetical_effect",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.008183401676541642,
@@ -828,56 +997,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 3.3306690738754696e-16,
      "max_rel_difference": 2.5075607224775904e-15,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 1.1102230246251565e-16,
      "max_rel_difference": 8.541604780290157e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 8.881784197001252e-16,
      "max_rel_difference": 1.4877164593794675e-15,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 7.105427357601002e-15,
      "max_rel_difference": 5.359331801624158e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 2.7755575615628914e-17,
      "max_rel_difference": 1.131966558637324e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 1.3322676295501878e-15,
      "max_rel_difference": 2.4593939003742924e-15,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 6.938893903907228e-18,
      "max_rel_difference": 1.1541359361609767e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F15_heavy_tailed_errors",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.5970078599994697,
@@ -902,56 +1089,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 6.245004513516506e-17,
      "max_rel_difference": 1.3107172639424014e-15,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 9.71445146547012e-17,
      "max_rel_difference": 5.420520258281107e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 3.3306690738754696e-16,
      "max_rel_difference": 4.3656773046366767e-16,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 3.12186675348486e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 2.7755575615628914e-17,
      "max_rel_difference": 1.746870442417286e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 2.7755575615628914e-16,
      "max_rel_difference": 8.983024938497144e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 6.938893903907228e-18,
      "max_rel_difference": 2.7485976014787285e-16,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F16_cluster_heteroskedastic",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.762921499108065,
@@ -976,56 +1181,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 1.1102230246251565e-16,
      "max_rel_difference": 3.7821875256159e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 4.119968255444917e-18,
      "max_rel_difference": 5.886701175070774e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 5.551115123125783e-17,
      "max_rel_difference": 1.3819366186107026e-16,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 5.329070518200751e-15,
      "max_rel_difference": 6.79296738317532e-16,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 0.0,
      "max_rel_difference": 0.0,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 3.3306690738754696e-16,
      "max_rel_difference": 3.7569770677241854e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 0.0,
      "max_rel_difference": 0.0,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F17_bootstrap_seed_repeat",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.4016910072696724,
@@ -1050,56 +1273,74 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   },
   {
-   "all_preregistered_fields_within_tolerance": true,
-   "classification": "MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
    "fields": {
     "coefficients": {
      "max_abs_difference": 1.6653345369377348e-16,
      "max_rel_difference": 8.840608703664296e-16,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "cr2_covariance": {
      "max_abs_difference": 4.163336342344337e-17,
      "max_rel_difference": 1.959730783446761e-14,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "p_value": {
      "max_abs_difference": 0.0,
      "max_rel_difference": 0.0,
      "tolerance": "p_value",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "satterthwaite_df": {
      "max_abs_difference": 3.552713678800501e-15,
      "max_rel_difference": 1.0032039192757447e-15,
-     "tolerance": "satterthwaite_df (NEW IN THIS PR, not preregistered)",
+     "tolerance": "PR18_satterthwaite_df (prespecified in PR #18, NOT preregistered in PR #17)",
+     "tolerance_provenance": "PR18",
      "within": true
     },
     "standard_error": {
      "max_abs_difference": 1.5265566588595902e-16,
      "max_rel_difference": 1.3038140410750319e-15,
      "tolerance": "standard_error",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "t_statistic": {
      "max_abs_difference": 6.661338147750939e-16,
      "max_rel_difference": 4.140372678859385e-16,
      "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17",
      "within": true
     },
     "target_variance": {
      "max_abs_difference": 3.469446951953614e-17,
      "max_rel_difference": 2.5308459041384105e-15,
      "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17",
      "within": true
     }
    },
    "fixture_id": "F18_below_design_6_clusters",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_PR17_TOLERANCES",
    "python_status": "COMPUTED",
    "python_values": {
     "p_value": 0.1920269366589064,
@@ -1124,19 +1365,59 @@
    },
    "reference_warned": false,
    "reference_warnings": [],
-   "satterthwaite_df_within_declared_tolerance": true
+   "satterthwaite_df_status": "PASS_UNDER_PR18_TOLERANCE_NOT_PREREGISTERED_IN_PR17",
+   "satterthwaite_df_within_pr18_tolerance": true
   }
  ],
- "satterthwaite_df_tolerance": {
-  "atol": 1e-10,
-  "declared_before_first_comparison_run": true,
-  "introduced_by": "PR: independent R reference validation",
-  "preregistered_in_pr17": false,
-  "rtol": 1e-08,
-  "why_not_the_preregistered_df_rule": "TOLERANCES['degrees_of_freedom'] is exact_integer_equality, which applies to CR1's integer inference df G-1. The Satterthwaite df is continuous; exact equality is not a meaningful cross-implementation criterion for it and no preregistered tolerance covers this field."
- },
  "status": "SYNTHETIC_IMPLEMENTATION_VALIDATION_ONLY_NO_METHOD_APPROVED_NO_LOCK_ACTIVATED_F5_OPEN",
+ "supported_claim": "The study-written Python CR2 covariance, standard-error, t-statistic, and p-value outputs agree with clubSandwich on the prespecified synthetic fixture matrix under the PR #17 tolerances. The continuous Satterthwaite degrees of freedom agree under a separately prespecified PR #18 tolerance that was not preregistered in PR #17.",
  "synthetic_data_only": true,
+ "tolerance_provenance": {
+  "continuous_df_preregistered_in_pr17": false,
+  "note": "No field is governed by both sets. The Satterthwaite df is governed by the PR #18 tolerance and by nothing preregistered in PR #17.",
+  "pr17_covered_fields": [
+   "coefficients",
+   "cr2_covariance",
+   "target_variance",
+   "standard_error",
+   "t_statistic",
+   "p_value"
+  ],
+  "pr17_preregistered_tolerances": {
+   "covariance_matrix": {
+    "atol": 1e-12,
+    "rtol": 1e-10
+   },
+   "degrees_of_freedom": {
+    "exact_integer_equality": true
+   },
+   "p_value": {
+    "atol": 1e-12,
+    "rtol": 1e-09
+   },
+   "standard_error": {
+    "atol": 1e-12,
+    "rtol": 1e-10
+   },
+   "t_statistic": {
+    "atol": 1e-11,
+    "rtol": 1e-09
+   }
+  },
+  "pr17_tolerances_used_as_written": true,
+  "pr18_covered_fields": [
+   "satterthwaite_df"
+  ],
+  "pr18_satterthwaite_df_tolerance": {
+   "atol": 1e-10,
+   "declared_before_first_comparison_run": true,
+   "introduced_by": "PR #18 (independent R reference validation)",
+   "preregistered_in_pr17": false,
+   "prespecified_in_pr18": true,
+   "rtol": 1e-08,
+   "why_not_the_pr17_df_rule": "TOLERANCES['degrees_of_freedom'] is exact_integer_equality, which applies to CR1's integer inference df G-1. The Satterthwaite df is continuous; exact equality is not a meaningful cross-implementation criterion for it and no PR #17 tolerance covers this field."
+  }
+ },
  "unresolved_fixtures": [],
  "version": "1.0",
  "what_this_is": "An implementation-agreement check between the study-written Python CR2 / Satterthwaite code and clubSandwich, on a prespecified synthetic fixture matrix, under the preregistered tolerances. It is not evidence that CR2 is scientifically preferable, and it approves nothing.",

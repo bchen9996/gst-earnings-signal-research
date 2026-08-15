@@ -210,10 +210,9 @@ def test_3_reference_reruns_and_recompares() -> None:
               str({k: (commit_cls.get(k), v) for k, v in fresh_cls.items() if commit_cls.get(k) != v}))
 
         # And the agreement must still hold when recomputed, not merely be asserted.
-        tol = R.TOLERANCES
         worst = 0.0
         for r_ in fresh["results"]:
-            if r_["classification"] != "MATCH_WITHIN_PREREGISTERED_TOLERANCE":
+            if r_["classification"] != CMP.MATCH:
                 continue
             for name, f in r_["fields"].items():
                 if name == "satterthwaite_df":
@@ -232,8 +231,7 @@ def test_4_python_side_is_recomputed_not_read() -> None:
                        capture_output=True, text=True, timeout=900)
         doc = json.loads(out.read_text(encoding="utf-8"))
         by_id = {f["fixture_id"]: f for f in doc["fixtures"]}
-        rec = [r_ for r_ in ARTIFACT_DOC["results"]
-               if r_["classification"] == "MATCH_WITHIN_PREREGISTERED_TOLERANCE"]
+        rec = [r_ for r_ in ARTIFACT_DOC["results"] if r_["classification"] == CMP.MATCH]
         check("4a. the artifact has matched fixtures to recheck", len(rec) >= 10)
         bad = []
         for r_ in rec[:4]:
@@ -259,11 +257,19 @@ def test_5_tolerances_are_the_preregistered_ones() -> None:
           ARTIFACT_DOC["preregistered_tolerances"] == R.TOLERANCES)
     check("5b. it states they were used as written",
           ARTIFACT_DOC["preregistered_tolerances_used_as_written"] is True)
-    sdt = ARTIFACT_DOC["satterthwaite_df_tolerance"]
-    check("5c. the Satterthwaite df tolerance is flagged as NOT preregistered",
-          sdt["preregistered_in_pr17"] is False)
-    check("5d. it explains why the preregistered df rule cannot apply",
-          "exact_integer_equality" in sdt["why_not_the_preregistered_df_rule"])
+    tp = ARTIFACT_DOC["tolerance_provenance"]
+    sdt = tp["pr18_satterthwaite_df_tolerance"]
+    check("5c. the Satterthwaite df tolerance is flagged as NOT preregistered in PR #17",
+          sdt["preregistered_in_pr17"] is False and sdt["prespecified_in_pr18"] is True)
+    check("5d. it explains why the PR #17 df rule cannot apply",
+          "exact_integer_equality" in sdt["why_not_the_pr17_df_rule"])
+    check("5g. PR17 and PR18 covered-field sets are disjoint",
+          not (set(tp["pr17_covered_fields"]) & set(tp["pr18_covered_fields"])))
+    check("5h. the df field is governed by PR #18 only",
+          tp["pr18_covered_fields"] == ["satterthwaite_df"]
+          and "satterthwaite_df" not in tp["pr17_covered_fields"])
+    check("5i. the artifact states the continuous df was not preregistered in PR #17",
+          tp["continuous_df_preregistered_in_pr17"] is False)
     check("5e. the preregistered df rule is still exact integer equality",
           R.TOLERANCES["degrees_of_freedom"] == {"exact_integer_equality": True})
     # no tolerance may be looser in the artifact than in the runner
@@ -376,9 +382,12 @@ def test_7_no_overclaim() -> None:
           and ARTIFACT_DOC["wild_cluster_bootstrap_validated"] is False)
     check("7f. CR2 agreement is not used to claim CR3/bootstrap validation",
           "never treated as evidence about CR3" in ARTIFACT_DOC["cr3_and_bootstrap_note"])
-    check("7g. the report states the supported claim verbatim",
-          "agrees with the independent clubSandwich reference on the prespecified synthetic "
-          "fixture matrix under the preregistered tolerances" in REPORT.read_text(encoding="utf-8"))
+    rep_text = REPORT.read_text(encoding="utf-8")
+    check("7g. the artifact carries the exact two-part supported claim",
+          ARTIFACT_DOC["supported_claim"] == CMP.SUPPORTED_CLAIM)
+    for part in ("under the PR #17 tolerances",
+                 "separately prespecified PR #18 tolerance that was not preregistered in PR #17"):
+        check(f"7h. the report states '{part[:44]}...'", part in rep_text)
 
 
 # ---------------------------------------------------------------- 8. isolation
@@ -419,12 +428,17 @@ def test_9_dependencies_are_pinned() -> None:
     check("9a. R version is pinned", LOCK_DOC["r"]["version"] == "4.6.1")
     check("9b. the installer hash is recorded", len(LOCK_DOC["r"]["installer_sha256"]) == 64)
     pkgs = {p["package"]: p for p in LOCK_DOC["packages"]}
-    check("9c. clubSandwich is pinned with a binary hash",
-          "clubSandwich" in pkgs and len(pkgs["clubSandwich"]["windows_binary_sha256"]) == 64)
+    check("9c. clubSandwich is pinned, with its Windows binary hash scoped to Windows",
+          "clubSandwich" in pkgs
+          and len(pkgs["clubSandwich"]["local_windows_binary"]["sha256"]) == 64
+          and "Windows" in pkgs["clubSandwich"]["local_windows_binary"]["authenticates"])
     check("9d. every pinned package has an exact version",
           all(re.fullmatch(r"[\d.\-]+", p["version"]) for p in LOCK_DOC["packages"]))
-    check("9e. the CI action is pinned to an immutable commit SHA",
-          re.fullmatch(r"[0-9a-f]{40}", LOCK_DOC["github_action"]["pinned_commit_sha"]) is not None)
+    check("9e. every CI action is pinned to an immutable commit SHA",
+          all(re.fullmatch(r"[0-9a-f]{40}", a["pinned_commit_sha"])
+              for a in LOCK_DOC["github_actions"]) and len(LOCK_DOC["github_actions"]) >= 3)
+    check("9h. the lockfile's package_count matches the list it carries",
+          LOCK_DOC["package_count"] == len(LOCK_DOC["packages"]) == 10)
     check("9f. no wild-bootstrap reference was installed",
           "fwildclusterboot" not in {p["package"] for p in LOCK_DOC["packages"]})
     check("9g. the lock states installing it approves no method",
@@ -514,6 +528,194 @@ def test_12_matrix_separates_evidence_from_decision() -> None:
           "validated" in mtx.lower() and "not approved" in mtx.lower())
 
 
+# ---------------------------------------------------------------- 13. claim-precision regressions
+STALE_CLAIM_PATTERNS = (
+    # the whole result described as if every field passed a PR #17 tolerance
+    r"agrees? with (?:the )?(?:independent )?clubSandwich reference on the prespecified "
+    r"synthetic fixture matrix under the preregistered tolerances",
+    r"all fields? .{0,40}under the preregistered tolerances",
+    r"MATCH_WITHIN_PREREGISTERED_TOLERANCE",
+    # continuous df called preregistered
+    r"preregistered .{0,30}satterthwaite",
+    r"satterthwaite .{0,40}preregistered in pr ?#?17",
+    # CR2 described as still blocked / referenceless
+    r"cr2 .{0,60}no independent reference",
+    r"cr2 .{0,60}implementation[_ ]blocked",
+    r"cr2 .{0,40}lacks? (?:an )?independent reference",
+    # CR2 described as approved
+    r"cr2 is approved", r"cr2 (?:is |was )?(?:production[- ])?selected",
+    # CR3 / bootstrap described as validated
+    r"cr3 (?:is |was )?(?:independently )?validated",
+    r"bootstrap (?:is |was )?(?:independently )?validated",
+    # the stale matrix conclusion
+    r"preferred options are (?:exactly the ones that are )?blocked",
+    r"collection cannot honestly begin",
+)
+
+CLAIM_DOCS = ("report", "matrix", "artifact", "changelog_pr18_entry")
+
+
+def _pr18_changelog_entry() -> str:
+    text = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    start = text.find("## 2026-08-12 — CR2 now has an independent R reference")
+    if start < 0:
+        return ""
+    nxt = text.find("\n## ", start + 10)
+    return text[start:nxt if nxt > 0 else len(text)]
+
+
+def test_13_claim_precision_regressions() -> None:
+    docs = {
+        "report": REPORT.read_text(encoding="utf-8"),
+        "matrix": MATRIX.read_text(encoding="utf-8"),
+        "artifact": json.dumps(ARTIFACT_DOC),
+        "changelog_pr18_entry": _pr18_changelog_entry(),
+    }
+    check("13a. the PR #18 CHANGELOG entry was located", len(docs["changelog_pr18_entry"]) > 500)
+    for label, text in docs.items():
+        low = text.lower()
+        for pat in STALE_CLAIM_PATTERNS:
+            hits = [m.group(0)[:70] for m in re.finditer(pat, low)
+                    if not _is_disowned(low, m.start())]
+            check(f"13b. {label} does not assert /{pat[:38]}.../", not hits, str(hits[:1]))
+
+    # The split provenance must be PRESENT, not merely un-violated.
+    for label in ("report", "matrix", "artifact"):
+        low = docs[label].lower()
+        check(f"13c. {label} states the PR #17 tolerance scope", "pr #17 tolerance" in low
+              or "pr17_covered_fields" in low or "pr #17: rtol" in low)
+        check(f"13d. {label} marks the df tolerance as PR #18 / not preregistered in PR #17",
+              ("pr #18" in low or "pr18" in low) and "preregistered" in low)
+
+    # CR2 must be described as validated somewhere, with the qualification adjacent.
+    mlow = docs["matrix"].lower()
+    i = mlow.find("implementation-validated")
+    check("13e. the matrix calls CR2 implementation-validated", i >= 0)
+    if i >= 0:
+        near = mlow[max(0, i - 400):i + 700]
+        check("13f. split tolerance provenance appears immediately with that statement",
+              ("pr #17" in near and "pr #18" in near) or "split tolerance provenance" in near)
+
+
+def _is_disowned(low: str, idx: int) -> bool:
+    """True when the match sits in a disclaimer or a past-tense attribution.
+
+    Two legitimate contexts contain these phrases without asserting them now:
+    explicit "not claimed" lists, and historical statements of what an EARLIER
+    PR recorded ("PR #17 recorded CR2 as IMPLEMENTATION_BLOCKED..."), which is
+    exactly the context needed to explain what this PR changed. Flagging those
+    would be a matcher defect; the guarantee -- that no document asserts the
+    stale claim as current -- is unchanged.
+    """
+    window = low[max(0, idx - 160):idx]
+    return any(m in window for m in (
+        # explicit disclaimers
+        "not supported, and not claimed", "do not translate", "not claimed anywhere",
+        "must never be described", "cannot be mistaken", "must not be merged",
+        # historical attribution / supersession
+        "superseded", "previously", "no longer", "earlier name", "the earlier",
+        "used to", "stale", "recorded", "moves from", "was blocking",
+        "before this", "prior to", "pr #17 "))
+
+
+# ---------------------------------------------------------------- 14. CI enforcement regressions
+def test_14_ci_enforces_the_lock_and_pins_every_action() -> None:
+    wf_path = ROOT / ".github" / "workflows" / "hyp01-r-reference-validation.yml"
+    wf = wf_path.read_text(encoding="utf-8")
+
+    # (a) every external action pinned to a 40-hex commit SHA, no movable tags
+    uses = re.findall(r"uses:\s*([^\s#]+)", wf)
+    movable = [u for u in uses if not re.search(r"@[0-9a-f]{40}$", u)]
+    check(f"14a. every workflow action is pinned to an immutable SHA (movable={movable})", not movable)
+    check("14b. the workflow uses at least three external actions", len(uses) >= 3)
+    locked_shas = {a["pinned_commit_sha"] for a in LOCK_DOC["github_actions"]}
+    used_shas = {u.split("@")[1] for u in uses if "@" in u}
+    check(f"14c. every action SHA used is recorded in the lockfile "
+          f"(unrecorded={sorted(used_shas - locked_shas)})", used_shas <= locked_shas)
+
+    # (b) the version-verification loop must cover EVERY locked package,
+    #     structurally -- not by naming a hand-picked subset.
+    check("14d. CI iterates over the lockfile's package list rather than a literal subset",
+          "lock$packages" in wf and "seq_len(nrow(pkgs))" in wf)
+    hardcoded = re.findall(r'for \(p in c\("([^"]+)"[^)]*\)\)', wf)
+    check(f"14e. no hand-picked package subset drives the check (found={hardcoded})", not hardcoded)
+    check("14f. CI fails closed on a version mismatch",
+          "LOCKFILE VIOLATION" in wf and "quit(status = 1)" in wf)
+    check("14g. CI verifies the exact R version",
+          "R VERSION MISMATCH" in wf and "ci_pinned_version" in wf)
+
+    # (c) install only required dependency classes
+    check("14h. CI installs only required dependency classes, never Suggests",
+          'dependencies = c("Depends", "Imports", "LinkingTo")' in wf
+          and "dependencies = TRUE" not in wf)
+    check("14i. the lockfile records the excluded classes",
+          "Suggests" in LOCK_DOC["dependency_classes_excluded"])
+
+    # (d) the lockfile must not imply a Windows hash authenticates Linux CI
+    blob = json.dumps(LOCK_DOC)
+    check("14j. Windows binary hashes are scoped to the Windows install",
+          all("local_windows_binary" in p for p in LOCK_DOC["packages"]))
+    check("14k. the lockfile states CI is pinned by snapshot+version, not by that hash",
+          "does not claim byte-level authentication" in LOCK_DOC["pinning_model"]["not_claimed"])
+    check("14l. the snapshot is recorded as reproducing every locked version",
+          LOCK_DOC["sources"]["ci_snapshot_reproduces_every_locked_version"] is True)
+
+    # (e) artifact reproduction must be more than a classification check
+    check("14m. CI runs the full artifact verifier", "verify_artifact.py" in wf)
+    ver = (BRIDGE / "verify_artifact.py").read_text(encoding="utf-8")
+    for field in ("python_values", "reference_values", "tolerance_provenance",
+                  "max_abs_difference", "reference_warnings", "clubSandwich",
+                  "f5_status", "classification"):
+        check(f"14n. artifact verification covers {field}", field in ver)
+    check("14o. artifact verification does not demand bitwise equality",
+          "CROSS_ENV" in ver and "rtol" in ver)
+
+
+def test_15_artifact_verifier_rejects_a_corrupted_artifact() -> None:
+    """The verifier must FAIL on a doctored artifact, or it proves nothing."""
+    VER = BRIDGE / "verify_artifact.py"
+    with tempfile.TemporaryDirectory() as td:
+        good = json.loads(ARTIFACT.read_text(encoding="utf-8"))
+        cases = {}
+
+        c1 = json.loads(json.dumps(good))
+        for r_ in c1["results"]:
+            if r_.get("python_values"):
+                r_["python_values"]["standard_error"] *= 1.01
+                break
+        cases["perturbed numeric value"] = c1
+
+        c2 = json.loads(json.dumps(good))
+        for r_ in c2["results"]:
+            if r_["classification"] == CMP.MATCH:
+                r_["classification"] = "REFUSED_BY_BOTH"
+                break
+        cases["altered classification"] = c2
+
+        c3 = json.loads(json.dumps(good))
+        c3["tolerance_provenance"]["continuous_df_preregistered_in_pr17"] = True
+        cases["falsified tolerance provenance"] = c3
+
+        c4 = json.loads(json.dumps(good))
+        c4["results"] = c4["results"][:-1]
+        cases["dropped fixture"] = c4
+
+        for label, doc in cases.items():
+            f = Path(td) / "bad.json"
+            f.write_text(json.dumps(doc), encoding="utf-8")
+            r = subprocess.run([sys.executable, str(VER), "--fresh", str(f),
+                                "--committed", str(ARTIFACT)],
+                               capture_output=True, text=True, timeout=600)
+            check(f"15a. verifier rejects: {label}", r.returncode != 0)
+
+        # and it must accept the genuine artifact
+        r = subprocess.run([sys.executable, str(VER), "--fresh", str(ARTIFACT),
+                            "--committed", str(ARTIFACT)],
+                           capture_output=True, text=True, timeout=600)
+        check("15b. verifier accepts the committed artifact against itself", r.returncode == 0,
+              (r.stdout or "")[-200:])
+
+
 if __name__ == "__main__":
     test_1_interchange_is_built_from_the_committed_generator()
     test_2_interchange_carries_no_research_value()
@@ -527,6 +729,9 @@ if __name__ == "__main__":
     test_10_driver_exits_nonzero_on_unexplained_mismatch()
     test_11_protected_state_unchanged()
     test_12_matrix_separates_evidence_from_decision()
+    test_13_claim_precision_regressions()
+    test_14_ci_enforces_the_lock_and_pins_every_action()
+    test_15_artifact_verifier_rejects_a_corrupted_artifact()
 
     print()
     if SKIPS:

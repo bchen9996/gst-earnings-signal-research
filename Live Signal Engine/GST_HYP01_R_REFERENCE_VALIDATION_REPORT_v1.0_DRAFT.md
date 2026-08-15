@@ -43,26 +43,34 @@ The fixtures are **not** regenerated in R. There is one generator — `make_fixt
 
 One argument's resolved default is not visible from `formals()`: `inverse_var`. Rather than assert what it resolves to, the bridge computes the CR2 covariance **both ways** on every fixture. Maximum difference across all of them: **2.08 × 10⁻¹⁶**. The branch does not matter here, which is what the identity working model predicts.
 
-## 4. Result — 13 of 13 admissible fixtures agree
+## 4. Result — 13 of 13 admissible fixtures agree, under two tolerance sets
 
-Every fixture the Python implementation admits was compared under the tolerances **preregistered in PR #17 and used exactly as written**. None was loosened, reinterpreted or replaced.
+**The supported claim is two-part, and the parts must not be merged:**
 
-| Field | Worst absolute difference | Worst relative difference | Preregistered tolerance |
+> The study-written Python CR2 **covariance, standard-error, t-statistic, and p-value** outputs agree with clubSandwich on the prespecified synthetic fixture matrix **under the PR #17 tolerances**. The continuous **Satterthwaite degrees of freedom** agree under a **separately prespecified PR #18 tolerance that was not preregistered in PR #17**.
+
+The PR #17 tolerances were used exactly as written — none loosened, reinterpreted or replaced. The classification records both provenances in its name: **`MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE`**, and every fixture additionally carries three separate statuses (`pr17_covered_fields_status`, `satterthwaite_df_status`, `overall_implementation_agreement_status`) so the df comparison cannot be mistaken for a PR #17-preregistered one.
+
+The first five rows are governed by PR #17; the last row is governed by PR #18 and by nothing preregistered in PR #17.
+
+| Field | Worst absolute difference | Worst relative difference | Tolerance and its provenance |
 |---|---|---|---|
-| CR2 covariance matrix | 1.735 × 10⁻¹⁶ | 7.220 × 10⁻¹⁴ | rtol 1e-10, atol 1e-12 |
-| Target variance | 3.990 × 10⁻¹⁷ | 3.962 × 10⁻¹⁵ | rtol 1e-10, atol 1e-12 |
-| Standard error | 1.943 × 10⁻¹⁶ | 1.936 × 10⁻¹⁵ | rtol 1e-10, atol 1e-12 |
-| t-statistic | 2.887 × 10⁻¹⁵ | 2.944 × 10⁻¹⁵ | rtol 1e-9, atol 1e-11 |
-| p-value | 8.882 × 10⁻¹⁶ | 5.989 × 10⁻¹⁵ | rtol 1e-9, atol 1e-12 |
-| Satterthwaite df | 7.105 × 10⁻¹⁵ | 1.262 × 10⁻¹⁵ | *see §5 — not preregistered* |
+| CR2 covariance matrix | 1.735 × 10⁻¹⁶ | 7.220 × 10⁻¹⁴ | PR #17: rtol 1e-10, atol 1e-12 |
+| Target variance | 3.990 × 10⁻¹⁷ | 3.962 × 10⁻¹⁵ | PR #17: rtol 1e-10, atol 1e-12 |
+| Standard error | 1.943 × 10⁻¹⁶ | 1.936 × 10⁻¹⁵ | PR #17: rtol 1e-10, atol 1e-12 |
+| t-statistic | 2.887 × 10⁻¹⁵ | 2.944 × 10⁻¹⁵ | PR #17: rtol 1e-9, atol 1e-11 |
+| p-value | 8.882 × 10⁻¹⁶ | 5.989 × 10⁻¹⁵ | PR #17: rtol 1e-9, atol 1e-12 |
+| **Satterthwaite df** | 7.105 × 10⁻¹⁵ | 1.262 × 10⁻¹⁵ | **PR #18 tolerance — NOT preregistered in PR #17** (see §5) |
 
 Agreement is at the floating-point noise floor, four to six orders of magnitude inside the tolerances.
 
-## 5. One honest gap in the preregistration
+## 5. The continuous-df tolerance is a PR #18 tolerance, not a PR #17 preregistration
 
-The PR #17 tolerance set defines degrees of freedom as `exact_integer_equality`. **That rule was written for CR1**, whose inference df is the integer *G* − 1. The Satterthwaite df is continuous, so the preregistered rule cannot express agreement on it, and **no preregistered tolerance covers this field**.
+The PR #17 tolerance set defines degrees of freedom as `exact_integer_equality`. **That rule was written for CR1**, whose inference df is the integer *G* − 1. The Satterthwaite df is continuous, so the PR #17 rule cannot express agreement on it, and **no PR #17 tolerance covers this field**.
 
-Rather than quietly borrow a tolerance intended for another quantity, a separate one — rtol 1e-8, atol 1e-10 — is declared in `compare_reference.py`, labelled `preregistered_in_pr17: false`, and reported separately. It was fixed in source before the comparison was executed for the first time. Readers should treat the Satterthwaite df row above as evidence gathered under a **new** rule, not under the PR #17 preregistration.
+Rather than quietly borrow a tolerance intended for another quantity, a separate one — rtol 1e-8, atol 1e-10 — is **prespecified in PR #18** in `compare_reference.py`, labelled `preregistered_in_pr17: false` and `prespecified_in_pr18: true`, and reported separately everywhere. It was fixed in source before the comparison was executed for the first time.
+
+**The Satterthwaite df row above is evidence gathered under a PR #18 rule. It is not part of the PR #17 preregistration and must never be described as preregistered.** The artifact enforces this structurally: `tolerance_provenance.pr17_covered_fields` and `tolerance_provenance.pr18_covered_fields` are disjoint, and each field record carries its own `tolerance_provenance` tag.
 
 ## 6. Refusal fixtures — the reference was never forced to produce a number
 
@@ -86,9 +94,11 @@ Four fixtures are refused by both. **The stated reasons are not identical, and t
 
 ## 8. What this evidence does and does not support
 
-Supported, exactly:
+Supported, exactly — and both sentences are required:
 
-> **The study-written Python implementation agrees with the independent clubSandwich reference on the prespecified synthetic fixture matrix under the preregistered tolerances.**
+> **The study-written Python CR2 covariance, standard-error, t-statistic, and p-value outputs agree with clubSandwich on the prespecified synthetic fixture matrix under the PR #17 tolerances. The continuous Satterthwaite degrees of freedom agree under a separately prespecified PR #18 tolerance that was not preregistered in PR #17.**
+
+CR2 + Satterthwaite may be described as **implementation-validated** on that basis, provided the split tolerance provenance appears immediately alongside the statement — as it does here, in the artifact, in the decision matrix and in the PR body.
 
 Not supported, and not claimed anywhere in this PR:
 
@@ -108,4 +118,8 @@ python tools/hyp01_r_reference/run_validation.py --out <artifact.json>
 
 One command: export fixtures, run the R reference, recompute the Python side, compare, write the artifact, exit nonzero on any unexplained mismatch. R and its packages are installed beforehand per [`r-packages.lock.json`](../tools/hyp01_r_reference/r-packages.lock.json); the validation itself makes no network request.
 
+**How the lock is enforced, and what it does not claim.** The lockfile pins R and **ten** packages. CI installs exactly those packages from a dated CRAN snapshot, using only the dependency classes required to run the reference (`Depends`, `Imports`, `LinkingTo` — never `Suggests`), then verifies the exact R version and iterates over **every** package in the lockfile, failing closed if any is absent or at a different version. The Windows binary SHA-256 values in the lockfile authenticate the **developer workstation's Windows install only**; they do not and cannot authenticate a Linux installation, which is pinned by (snapshot date + exact version) instead. The lockfile states this distinction explicitly rather than implying byte-level authentication it does not provide.
+
 `test_market_response_hyp01_r_reference_validation.py` executes this bridge and recomputes the comparison rather than reading the artifact's declarations. Where R is unavailable it verifies everything that does not require it and says plainly which assertions were skipped — it never reports a pass it did not earn.
+
+CI additionally runs `verify_artifact.py`, which re-checks the freshly computed result against the committed artifact across **every material field** — fixture coverage, classifications and the three split statuses, tolerance provenance, all Python and reference numeric values, worst-difference summaries, refusal outcomes, behaviour differences, the reference package version, and the no-approval and F5 fields. Continuous quantities are compared under documented tolerances rather than bitwise, because CI runs a different operating system, R build and BLAS than the workstation that generated the artifact; discrete fields are compared exactly.

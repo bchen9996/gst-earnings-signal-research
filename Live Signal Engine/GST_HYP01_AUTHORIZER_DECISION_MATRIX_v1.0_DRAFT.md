@@ -13,11 +13,20 @@ Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01
 
 ---
 
-## The constraint that shapes several of these decisions
+## The constraint that used to shape several of these decisions — now resolved for CR2
 
-**CR2 + Satterthwaite — the merged packet's provisional recommendation — has no independent reference in the currently tested environment.** The study's own CR2 code **runs**; what is missing is something to check it against. No R runtime is present, so `clubSandwich` cannot be reached, and `wildboottest` and `linearmodels` are absent too. An independently maintained reference must be added and pinned before CR2 can be validated or used in production. Only **CR1** has an independently validated implementation today — and validation alone does not make it production eligible, which additionally requires a decision on this page.
+**CR2 + Satterthwaite now has an independent reference, and the study's implementation of it has been validated against that reference.** R 4.6.1 + clubSandwich 0.7.0 are installed and pinned. On the prespecified synthetic fixture matrix:
 
-**This is a dependency problem, not evidence that CR1 is the better method.** At the corrected simulation precision (5,000 replications per null cell), CR1's 95% Wilson interval lies entirely above 0.05 in **all four null cells tested** — so over-rejection is established for CR1 itself. The CR2 columns are **`UNVALIDATED ENGINEERING OUTPUT — NOT METHOD-COMPARISON EVIDENCE`** and cannot be used to argue any method is better. Choosing CR1 because it is the only thing that runs here would be choosing on convenience.
+- CR2 **covariance, standard error, t-statistic and p-value** agree with clubSandwich under the **PR #17 tolerances**;
+- the continuous **Satterthwaite degrees of freedom** agree under a **separately prespecified PR #18 tolerance that was not preregistered in PR #17**.
+
+That split provenance travels with the result everywhere it is cited, including here.
+
+**What this changed and what it did not.** It removed an *engineering* blocker: CR2 and Satterthwaite are no longer unvalidated code. It supplied **no** evidence that CR2 is scientifically preferable to anything, because no prespecified method comparison was run. **CR2 is not approved and not production eligible** — production eligibility requires both independent validation *and* a decision on this page, and that decision is `PENDING`.
+
+**CR3 and the wild cluster bootstrap-t remain independently unvalidated.** clubSandwich implements CR3, so a reference for it now exists in principle, but **PR #18 did not validate CR3**, and `fwildclusterboot` was deliberately not installed. CR2 agreement is not evidence about either.
+
+**Still true, and unaffected by any of this:** at 5,000 replications per null cell, CR1's 95% Wilson interval lies entirely above 0.05 in **all four null cells tested**, so over-rejection is established for CR1 itself. The CR2 columns of that grid were produced by the code now validated here — which makes them **trustworthy as arithmetic**, and still **not a method-comparison result**, because the grid was never designed as a prespecified comparison.
 
 ---
 
@@ -31,12 +40,16 @@ The constraint stated above has changed in one specific way, and it is worth sep
 
 **R 4.6.1 with clubSandwich 0.7.0 is installed and pinned**, and the study-written Python CR2 + Satterthwaite implementation was compared against it on the prespecified synthetic fixture matrix, under the tolerances preregistered in PR #17 and used exactly as written.
 
-- **13 of 13 admissible fixtures: `MATCH_WITHIN_PREREGISTERED_TOLERANCE`.** Worst absolute differences — covariance 1.7 × 10⁻¹⁶, standard error 1.9 × 10⁻¹⁶, t 2.9 × 10⁻¹⁵, p 8.9 × 10⁻¹⁶. Agreement is at the floating-point noise floor.
+- **13 of 13 admissible fixtures: `MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE`.** Worst absolute differences — covariance 1.7 × 10⁻¹⁶, standard error 1.9 × 10⁻¹⁶, t 2.9 × 10⁻¹⁵, p 8.9 × 10⁻¹⁶. Agreement is at the floating-point noise floor.
 - **4 fixtures refused by both** implementations, through different diagnostics.
 - **1 documented behaviour difference** (`F08_perfect_fit`): R computes with an "essentially perfect fit" warning where Python refuses by a prespecified threshold. Neither side was adjusted to force agreement.
-- The Satterthwaite df agreed to 7.1 × 10⁻¹⁵, but under a tolerance **declared in this PR, not preregistered in PR #17** — the preregistered df rule is exact integer equality, written for CR1's integer *G* − 1.
+- The Satterthwaite df agreed to 7.1 × 10⁻¹⁵, under a tolerance **prespecified in PR #18 and NOT preregistered in PR #17** — the PR #17 df rule is exact integer equality, written for CR1's integer *G* − 1, and cannot express agreement on a continuous quantity.
 
-Exactly what this supports: *the study-written Python implementation agrees with the independent clubSandwich reference on the prespecified synthetic fixture matrix under the preregistered tolerances.* CR2's status moves from `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` to **implementation-validated**.
+Exactly what this supports, in two parts that must stay together:
+
+> The study-written Python CR2 **covariance, standard-error, t-statistic, and p-value** outputs agree with clubSandwich on the prespecified synthetic fixture matrix **under the PR #17 tolerances**. The continuous **Satterthwaite degrees of freedom** agree under a **separately prespecified PR #18 tolerance that was not preregistered in PR #17**.
+
+CR2's status moves from `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` to **implementation-validated with split tolerance provenance**. It does not move to approved, selected, or production-eligible.
 
 **CR3 and the wild cluster bootstrap-t are NOT covered.** They remain runnable but independently unvalidated; `fwildclusterboot` was deliberately not installed, and CR2 agreement is not evidence about either.
 
@@ -79,10 +92,10 @@ Evidence: [`GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01_R_
 | Option | Implementation status | Consequence if chosen |
 |---|---|---|
 | **A. CR1** | Runs; reference available; **independently validated** against statsmodels 0.14.6 (implementation agreement, not statistical endorsement); production eligibility `PENDING_AUTHORIZER_DECISION` | Runnable today with no new dependency. At 5,000 replications per cell its Wilson interval lies entirely above 0.05 in all four null cells (0.0796, 0.1180, 0.0854, 0.0912) — over-rejection, in the direction that inflates apparent significance |
-| **B. CR2 / BRL** | Runs, but **unvalidated** — no independent reference in the tested environment; production eligibility `BLOCKED_PENDING_INDEPENDENT_VALIDATION` | Favoured in the published literature. Its behaviour in this study's grid is **unvalidated engineering output and is not method-comparison evidence**. Cannot be validated until an independently maintained reference runtime is added and pinned. Collection cannot honestly begin before that |
-| **C. CR3 / jackknife** | Runs, but **unvalidated** — same reason | Comparable published performance to CR2 with a simpler `t(G−1)` rule; same dependency gap |
+| **B. CR2 / BRL** | Runs; reference available; **implementation-validated** against clubSandwich 0.7.0 — covariance/SE/t/p under PR #17 tolerances, Satterthwaite df under the PR #18 tolerance that was not preregistered in PR #17. Production eligibility `PENDING_AUTHORIZER_DECISION` | Favoured in the published literature. Its implementation is now independently checked, so the arithmetic can be relied on. That is **not** evidence it is the better estimator: no prespecified method comparison was run. Selecting it makes R + clubSandwich a permanent dependency of the analysis path (see D11) |
+| **C. CR3 / jackknife** | Runs, but **independently unvalidated** — clubSandwich implements CR3, so a reference now exists, but **PR #18 did not validate it** | Comparable published performance to CR2 with a simpler `t(G−1)` rule. Choosing it requires its own reference validation first |
 
-**Recommended:** *none offered.* The methodologically preferred options are exactly the ones that are blocked. This is the authorizer's call, and it is really a call about whether to acquire the dependency.
+**Recommended:** *none offered.* The dependency question is now answered — the reference exists and CR2's implementation passed it — so this is no longer a resourcing call. It is a **scientific** call between a validated-but-dependency-bearing CR2 and a validated dependency-free CR1 that over-rejects in every null cell tested. The offline evidence does not decide it, and neither does this page.
 
 - [ ] A — CR1
 - [ ] B — CR2 / BRL
@@ -96,8 +109,8 @@ Evidence: [`GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01_R_
 | Option | Status | Consequence |
 |---|---|---|
 | A. `c = [G/(G−1)]·[(n−1)/(n−k)]` (CR1 scaling) | Validated implementation | Standard, familiar, insufficient on its own at this cluster count |
-| B. BRL transform built into CR2 | Runs, unvalidated | Exactly unbiased under a homoskedastic-independent working model |
-| C. Jackknife transform (CR3) | Runs, unvalidated | Tends conservative |
+| B. BRL transform built into CR2 | Runs; **implementation-validated** against clubSandwich (PR #17 tolerances) | Exactly unbiased under a homoskedastic-independent working model. The implemented path is now independently checked; **scientific selection remains pending** |
+| C. Jackknife transform (CR3) | Runs; **independently unvalidated** (not covered by PR #18) | Tends conservative |
 
 **Recommended:** *none offered* — follows D1.
 
@@ -110,7 +123,7 @@ Evidence: [`GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01_R_
 | Option | Status | Consequence |
 |---|---|---|
 | A. `t(G−1)` | Validated implementation | Simple, reproducible. In this repository, read `results.df_resid_inference`, **not** `results.df_resid` |
-| B. Satterthwaite / Bell–McCaffrey ν | Runs, unvalidated | Design-dependent. The study grid put ν at 7.248 for 24 unbalanced clusters, but that figure is **unvalidated engineering output, not method-comparison evidence** |
+| B. Satterthwaite / Bell–McCaffrey ν | Runs; **implementation agreement established** against clubSandwich — with the explicit qualification that its continuous-df tolerance was **newly prespecified in PR #18 and was not preregistered in PR #17** | Design-dependent. The study grid put ν at 7.248 for 24 unbalanced clusters. That figure now comes from independently checked code, but it is still **not method-comparison evidence** |
 
 **Recommended:** if D1 selects CR2, then **B**; if D1 selects CR1 or CR3, then **A**. The pairing matters more than either alone.
 
@@ -120,11 +133,11 @@ Evidence: [`GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01_R_
 
 | Option | Status | Consequence |
 |---|---|---|
-| A. Labelled sensitivity only, barred from overturning the primary | Runs, unvalidated | Matches the merged packet's proposal; adds corroboration without method-shopping |
-| B. Primary inference | Runs, unvalidated | Published evidence does not show it dominating CR2 + Satterthwaite at small G |
+| A. Labelled sensitivity only, barred from overturning the primary | Runs; **independently unvalidated** — no bootstrap reference installed | Matches the merged packet's proposal; adds corroboration without method-shopping |
+| B. Primary inference | Runs; **independently unvalidated** — no bootstrap reference installed | Published evidence does not show it dominating CR2 + Satterthwaite at small G |
 | C. Not used at all | — | Removes a stochastic dependency and a seed-management burden |
 
-**Recommended: A**, on the merged packet's evidence — but note the implementation is **unvalidated**, so choosing A also incurs the reference dependency in D11.
+**Recommended: A**, on the merged packet's evidence — but note the bootstrap implementation is **still independently unvalidated** (PR #18 validated CR2 + Satterthwaite only), so choosing A also incurs the reference dependency in D11.
 
 - [ ] A  - [ ] B  - [ ] C
 
@@ -182,7 +195,7 @@ On the perfect-fit fixture both implementations became numerically unstable near
 
 ## D10 — Cluster-count / effective-df warning policy (gap-audit NEW-1)
 
-**No threshold is proposed, and the synthetic grid does not support one.** It shows effective df below the nominal cluster count — 11.42 balanced and 7.248 unbalanced at 24 clusters — but those figures come from **unvalidated CR2/Satterthwaite code**, and a rejection floor is in any case a judgement about evidential sufficiency, not a number a grid can produce.
+**No threshold is proposed, and the synthetic grid still does not support one.** It shows effective df below the nominal cluster count — 11.42 balanced and 7.248 unbalanced at 24 clusters. Those figures are **no longer unvalidated engineering output**: the CR2/Satterthwaite code that produced them has been independently checked against clubSandwich (covariance/SE/t/p under PR #17 tolerances; the continuous df under the PR #18 tolerance that was not preregistered in PR #17). **That changes their arithmetic standing, not their evidentiary standing.** A rejection floor is a judgement about evidential sufficiency, not a number a grid can produce — validated arithmetic still cannot establish a threshold.
 
 | Option | Consequence |
 |---|---|
@@ -200,11 +213,13 @@ On the perfect-fit fixture both implementations became numerically unstable near
 | Option | Consequence |
 |---|---|
 | A. Python + statsmodels 0.14.6 only | Runs today. **Restricts D1 to CR1** — statsmodels provides no CR2, CR3, Satterthwaite or wild bootstrap |
-| B. Add an R runtime + `clubSandwich` | Unblocks CR2, CR3 and Satterthwaite and supplies the independent reference needed to validate them |
+| B. Add an R runtime + `clubSandwich` | **Already done and pinned** (R 4.6.1 + clubSandwich 0.7.0). It supplied the reference that validated CR2 + Satterthwaite. It is also a potential reference for CR3 — but **PR #18 did not validate CR3** |
 | C. Add `fwildclusterboot` (R) or `wildboottest` (Python) | Unblocks the wild bootstrap |
 | D. Implement in Python and validate against an acquired reference | Most work; keeps a single runtime |
 
-**Recommended:** *none offered* — this is a resourcing decision. **But note the dependency: selecting CR2, CR3 or the wild bootstrap in D1/D4 without also selecting B, C or D leaves the chosen method unvalidated, and collection must not begin in that state.**
+**Recommended:** *none offered* — this remains a resourcing decision, but a narrower one: **B is already in place**. What is left is whether to keep it as a permanent analysis dependency, and whether to acquire a bootstrap reference (C).
+
+**The standing rule is unchanged: no method may be used for collection while its implementation is independently unvalidated.** CR2 + Satterthwaite now satisfies that rule. **CR3 and the wild cluster bootstrap-t do not** — selecting either in D1/D4 without first validating it against an independent reference would leave the chosen method unvalidated, and collection must not begin in that state.
 
 - [ ] A  - [ ] B  - [ ] C  - [ ] D  - [ ] Other: ______________
 
@@ -253,7 +268,7 @@ The grid in this study is **hypothetical engineering output**. It used generic s
 
 | ID | Decision | Recommendation offered? |
 |---|---|---|
-| D1 | Primary covariance estimator | No — preferred options are blocked |
+| D1 | Primary covariance estimator | No — CR1 and CR2 are both implementation-validated; the choice is scientific, not a dependency question |
 | D2 | Finite-sample correction | No — follows D1 |
 | D3 | Degrees-of-freedom rule | Conditional on D1 |
 | D4 | Wild bootstrap role | Yes — sensitivity only |
