@@ -647,6 +647,9 @@ def test_14_ci_enforces_the_lock_and_pins_every_action() -> None:
     check(f"14e. no hand-picked package subset drives the check (found={hardcoded})", not hardcoded)
     check("14f. CI fails closed on a version mismatch",
           "LOCKFILE VIOLATION" in wf and "quit(status = 1)" in wf)
+    check("14f2. versions are compared as versions, not as strings",
+          "numeric_version(exp)" in wf,
+          "a string compare reports a false mismatch on CRAN's 0.22-9 vs R's 0.22.9")
     check("14g. CI verifies the exact R version",
           "R VERSION MISMATCH" in wf and "ci_pinned_version" in wf)
 
