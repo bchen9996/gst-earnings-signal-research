@@ -19,15 +19,50 @@ a human judgment about evidential sufficiency — not something the numbers deci
 
 ## How to verify without trusting the audit
 
-Recompute everything from the committed sources:
+Every input is committed. Reproduction needs **no network and no external scratch directory**:
 
 ```
-python tools/sector_composition/classify_universe_sectors.py \
-  --sources <dir containing sec_sic_by_ticker.json, sec_company_tickers.json, Siccodes12/> \
-  --out-dir <scratch dir>
+git archive --format=tar HEAD | tar -x -C <empty dir>     # clean LF export
+cd <empty dir>
+python tools/sector_composition/classify_universe_sectors.py --out-dir <scratch>
 ```
 
-Then diff against the committed classification and audit JSON.
+Then diff `<scratch>` against the committed classification and audit JSON. The inputs are:
+
+| Input | Role |
+|---|---|
+| `sources/SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json` | ticker → CIK → SIC, identity only |
+| `sources/FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt` | official Kenneth R. French definition bytes |
+| `sources/FF12_SIC_INTERVALS_NORMALIZED_2026-08-16.json` | interval table derived from those bytes |
+| `sources/GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json` | URL, retrieval time, byte count, SHA-256 for every input |
+| `Universe_Expansion_2026-08-16/GST_OEF_IDENTITY_SNAPSHOT_2026-08-13.json` | OEF membership (already committed) |
+| `Universe_Expansion_2026-08-16/GST_PROSPECTIVE_UNIVERSE_EXPANSION_50_v1.0_PROPOSED.json` | the 50 and the frozen aliases (already committed) |
+
+The classifier verifies every input against the manifest's SHA-256 before computing. Delete an
+input, or change one byte, and it must **refuse and write nothing** — try it.
+
+### 0. Denominators
+
+The audit reports figures against four distinct denominators: **50** final-50 securities (= 50
+issuers), **101** OEF source securities → **100** unique issuers, **113** unique canonical
+securities in the union, **112** unique CIKs in that union, and **150** classification requests.
+Confirm no figure is quoted against an undefined or mismatched base, and that the proxy pool is
+counted **per issuer** — not per security — on both sides of every comparison.
+
+- Finding: `PENDING`
+- Notes:
+
+### 0b. Issuer grouping
+
+Confirm: the issuer key is the official SEC CIK; the frozen alias `BRKB → BRK-B` is applied
+**before** identity matching; `GOOG` and `GOOGL` fall in **one** CIK group counted **once**; every
+constituent security is preserved in `source_securities`; the display ticker is the
+lexicographically smallest canonical ticker and affects **no** metric; a CIK with conflicting SICs
+or conflicting FF12 results is **refused**; and the final 50's 50 unique CIKs were **verified, not
+assumed**.
+
+- Finding: `PENDING`
+- Notes:
 
 ### 1. The universe was not altered
 
@@ -82,8 +117,9 @@ entropy and effective-category counts recompute independently from the counts?
 
 ### 7. Comparison and sensitivity
 
-Do the FINAL_50-vs-OEF percentage-point differences recompute? Does the leave-one-ticker-out range
-recompute? Confirm no subset search was performed and no alternative universe was generated.
+Do the FINAL_50-vs-OEF percentage-point differences recompute **against the 100-issuer
+denominator**? Does the leave-one-ticker-out range recompute? Confirm no subset search was performed
+and no alternative universe was generated.
 
 - Finding: `PENDING`
 - Notes:
@@ -99,8 +135,9 @@ biased or statistically significant, and asserts no accept/reject conclusion.
 ### 9. The substantive judgment — yours, not the audit's
 
 The audit reports, descriptively: expansion produced **lower** concentration; the largest category in
-the final 50 is `BusEq` at **24.0%** (12 of 50); all 12 FF categories are represented; and every
-category sits within **±3.0 percentage points** of the OEF proxy pool.
+the final 50 is `BusEq` at **24.0000%** (12 of 50); all 12 FF categories are represented; and every
+category sits within **±3.0 percentage points** of the OEF **unique-issuer** proxy pool (largest gap
+`NoDur` −3.0 pp).
 
 Whether that is adequate for HYP-01's clustered inference — and whether a stratified or
 sector-specific redesign is warranted instead — is **not** answered here.

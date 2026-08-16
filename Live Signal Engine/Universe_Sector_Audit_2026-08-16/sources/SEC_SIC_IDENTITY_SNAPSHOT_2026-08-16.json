@@ -1,0 +1,1814 @@
+{
+ "artifact": "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16",
+ "contains_earnings_values": false,
+ "contains_financial_statement_data": false,
+ "contains_market_capitalization": false,
+ "contains_market_data": false,
+ "contains_prices_returns_or_volumes": false,
+ "content": "IDENTITY AND SIC CLASSIFICATION METADATA ONLY",
+ "n_securities": 113,
+ "n_unique_ciks": 112,
+ "securities": [
+  {
+   "canonical_ticker": "AAPL",
+   "cik": 320193,
+   "raw_response_bytes": 164300,
+   "raw_response_sha256": "9ce67c0a62345214dd42434cbacfa70dad226e679c6ce752281578b1cfd2fac4",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Apple Inc.",
+   "sec_registrant_title": "Apple Inc.",
+   "sec_sic": 3571,
+   "sec_sic_description": "Electronic Computers",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000320193.json",
+   "source_securities": [
+    "AAPL"
+   ]
+  },
+  {
+   "canonical_ticker": "ABBV",
+   "cik": 1551152,
+   "raw_response_bytes": 156461,
+   "raw_response_sha256": "fc44f9ed84c2f780e9ee762d7b48d81422ab80635533bd7641579de0bc142a72",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "AbbVie Inc.",
+   "sec_registrant_title": "AbbVie Inc.",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001551152.json",
+   "source_securities": [
+    "ABBV"
+   ]
+  },
+  {
+   "canonical_ticker": "ABT",
+   "cik": 1800,
+   "raw_response_bytes": 155458,
+   "raw_response_sha256": "a11a5109bae8b5f5ddf73ee33224bcb840b644ff060c41322993a3b808535d35",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ABBOTT LABORATORIES",
+   "sec_registrant_title": "ABBOTT LABORATORIES",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000001800.json",
+   "source_securities": [
+    "ABT"
+   ]
+  },
+  {
+   "canonical_ticker": "ACN",
+   "cik": 1467373,
+   "raw_response_bytes": 159228,
+   "raw_response_sha256": "96d64e39dc3b7997d988d51cf5cb2fb4036cb84e951c0dd8a9d73f03ecd540cc",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Accenture plc",
+   "sec_registrant_title": "Accenture plc",
+   "sec_sic": 7389,
+   "sec_sic_description": "Services-Business Services, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001467373.json",
+   "source_securities": [
+    "ACN"
+   ]
+  },
+  {
+   "canonical_ticker": "ADBE",
+   "cik": 796343,
+   "raw_response_bytes": 161989,
+   "raw_response_sha256": "18e724df1458f9f1abef0fc8b67d6b356cd92da34788b433c163e38112d7d99d",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ADOBE INC.",
+   "sec_registrant_title": "ADOBE INC.",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000796343.json",
+   "source_securities": [
+    "ADBE"
+   ]
+  },
+  {
+   "canonical_ticker": "AMAT",
+   "cik": 6951,
+   "raw_response_bytes": 159576,
+   "raw_response_sha256": "abeea8f1192e8cfa0fc1d38189141c3d34040e322d892b16bfbc7d118071e71c",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "APPLIED MATERIALS INC /DE",
+   "sec_registrant_title": "APPLIED MATERIALS INC /DE",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000006951.json",
+   "source_securities": [
+    "AMAT"
+   ]
+  },
+  {
+   "canonical_ticker": "AMD",
+   "cik": 2488,
+   "raw_response_bytes": 163284,
+   "raw_response_sha256": "85cc94773b7b46b14853facbe97ac32df43eefde18ccefa3a5cb467f7569f5d4",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ADVANCED MICRO DEVICES INC",
+   "sec_registrant_title": "ADVANCED MICRO DEVICES INC",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000002488.json",
+   "source_securities": [
+    "AMD"
+   ]
+  },
+  {
+   "canonical_ticker": "AMGN",
+   "cik": 318154,
+   "raw_response_bytes": 158642,
+   "raw_response_sha256": "b9f17ce5b3499ee93b318f31a65aaed780c847939fbed2b37ea36c390a7adf85",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "AMGEN INC",
+   "sec_registrant_title": "AMGEN INC",
+   "sec_sic": 2836,
+   "sec_sic_description": "Biological Products, (No Diagnostic Substances)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000318154.json",
+   "source_securities": [
+    "AMGN"
+   ]
+  },
+  {
+   "canonical_ticker": "AMT",
+   "cik": 1053507,
+   "raw_response_bytes": 162287,
+   "raw_response_sha256": "2feeb647422956f41feec68646e4819a4d0342a833fae1fb645cd7d525f97612",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "AMERICAN TOWER CORP /MA/",
+   "sec_registrant_title": "AMERICAN TOWER CORP /MA/",
+   "sec_sic": 6798,
+   "sec_sic_description": "Real Estate Investment Trusts",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001053507.json",
+   "source_securities": [
+    "AMT"
+   ]
+  },
+  {
+   "canonical_ticker": "AMZN",
+   "cik": 1018724,
+   "raw_response_bytes": 159717,
+   "raw_response_sha256": "1b9f17e617d44a2e84892c8c6cdf3f9bd0fb8cd452840df5dcaccd2c2561839f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "AMAZON COM INC",
+   "sec_registrant_title": "AMAZON COM INC",
+   "sec_sic": 5961,
+   "sec_sic_description": "Retail-Catalog & Mail-Order Houses",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001018724.json",
+   "source_securities": [
+    "AMZN"
+   ]
+  },
+  {
+   "canonical_ticker": "AVGO",
+   "cik": 1730168,
+   "raw_response_bytes": 158214,
+   "raw_response_sha256": "da697e3931a5150a2d4bfbfeff9172190f208a9687fdfda3fc84212fb045b0cf",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Broadcom Inc.",
+   "sec_registrant_title": "Broadcom Inc.",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001730168.json",
+   "source_securities": [
+    "AVGO"
+   ]
+  },
+  {
+   "canonical_ticker": "AXP",
+   "cik": 4962,
+   "raw_response_bytes": 159484,
+   "raw_response_sha256": "4530ada372477d429fa25e1f51280312d6acb1d5ef04c9be628cc56c1ea6e12f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "AMERICAN EXPRESS CO",
+   "sec_registrant_title": "AMERICAN EXPRESS CO",
+   "sec_sic": 6199,
+   "sec_sic_description": "Finance Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000004962.json",
+   "source_securities": [
+    "AXP"
+   ]
+  },
+  {
+   "canonical_ticker": "BA",
+   "cik": 12927,
+   "raw_response_bytes": 146152,
+   "raw_response_sha256": "ea6b6763ae52d16fe619de1af4a081ea3983fd1e741578a891dfbce9fe60206f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "BOEING CO",
+   "sec_registrant_title": "BOEING CO",
+   "sec_sic": 3721,
+   "sec_sic_description": "Aircraft",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000012927.json",
+   "source_securities": [
+    "BA"
+   ]
+  },
+  {
+   "canonical_ticker": "BAC",
+   "cik": 70858,
+   "raw_response_bytes": 1788102,
+   "raw_response_sha256": "d0c1c8384e9e12eb9f9ea02d03f4bd5f3fc6cf5eee4932d6cbb5512e29820a57",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "BANK OF AMERICA CORP /DE/",
+   "sec_registrant_title": "BANK OF AMERICA CORP /DE/",
+   "sec_sic": 6021,
+   "sec_sic_description": "National Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000070858.json",
+   "source_securities": [
+    "BAC"
+   ]
+  },
+  {
+   "canonical_ticker": "BKNG",
+   "cik": 1075531,
+   "raw_response_bytes": 158317,
+   "raw_response_sha256": "fa308833ebd27a7224aa0405e1fdfc2f438cf2d175c2f75d2030d14f924650d1",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Booking Holdings Inc.",
+   "sec_registrant_title": "Booking Holdings Inc.",
+   "sec_sic": 4700,
+   "sec_sic_description": "Transportation Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001075531.json",
+   "source_securities": [
+    "BKNG"
+   ]
+  },
+  {
+   "canonical_ticker": "BKR",
+   "cik": 1701605,
+   "raw_response_bytes": 158798,
+   "raw_response_sha256": "ae6c164525055b8364bd7c89b3bb87928b853efc90ce12108de1c329b18dfe85",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Baker Hughes Co",
+   "sec_registrant_title": "Baker Hughes Co",
+   "sec_sic": 3533,
+   "sec_sic_description": "Oil & Gas Field Machinery & Equipment",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001701605.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "BLK",
+   "cik": 2012383,
+   "raw_response_bytes": 288540,
+   "raw_response_sha256": "7321c2e7431a8181e69e4015177cd9b9a1c002d0b3ae5a0a7471c23142b4853b",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "BlackRock, Inc.",
+   "sec_registrant_title": "BlackRock, Inc.",
+   "sec_sic": 6211,
+   "sec_sic_description": "Security Brokers, Dealers & Flotation Companies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0002012383.json",
+   "source_securities": [
+    "BLK"
+   ]
+  },
+  {
+   "canonical_ticker": "BMY",
+   "cik": 14272,
+   "raw_response_bytes": 166076,
+   "raw_response_sha256": "b059c1232ec56568a917950f7660b2b66257a8106cfe19486d08d626f891b3f1",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "BRISTOL MYERS SQUIBB CO",
+   "sec_registrant_title": "BRISTOL MYERS SQUIBB CO",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000014272.json",
+   "source_securities": [
+    "BMY"
+   ]
+  },
+  {
+   "canonical_ticker": "BNY",
+   "cik": 1390777,
+   "raw_response_bytes": 156944,
+   "raw_response_sha256": "1d0d33a245653b2bd5e14c35f863c6d25b932000167d9ff411a5dfaeda0ae705",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Bank of New York Mellon Corp",
+   "sec_registrant_title": "Bank of New York Mellon Corp",
+   "sec_sic": 6022,
+   "sec_sic_description": "State Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001390777.json",
+   "source_securities": [
+    "BNY"
+   ]
+  },
+  {
+   "canonical_ticker": "BRK-B",
+   "cik": 1067983,
+   "raw_response_bytes": 161425,
+   "raw_response_sha256": "ca619a37dc072dc39fd55adf7a825439255962e9b6be1b41cc632475d78957d7",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "BERKSHIRE HATHAWAY INC",
+   "sec_registrant_title": "BERKSHIRE HATHAWAY INC",
+   "sec_sic": 6331,
+   "sec_sic_description": "Fire, Marine & Casualty Insurance",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001067983.json",
+   "source_securities": [
+    "BRKB"
+   ]
+  },
+  {
+   "canonical_ticker": "C",
+   "cik": 831001,
+   "raw_response_bytes": 2282251,
+   "raw_response_sha256": "5275b030a177d932e5281522c3b340347d2cf6962dac94dac4f30b39d79667ad",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CITIGROUP INC",
+   "sec_registrant_title": "CITIGROUP INC",
+   "sec_sic": 6021,
+   "sec_sic_description": "National Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000831001.json",
+   "source_securities": [
+    "C"
+   ]
+  },
+  {
+   "canonical_ticker": "CAT",
+   "cik": 18230,
+   "raw_response_bytes": 168550,
+   "raw_response_sha256": "813097be189d7219837b5cccad6a86827b30876eff502b30ca4e35ea882596b2",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CATERPILLAR INC",
+   "sec_registrant_title": "CATERPILLAR INC",
+   "sec_sic": 3531,
+   "sec_sic_description": "Construction Machinery & Equip",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000018230.json",
+   "source_securities": [
+    "CAT"
+   ]
+  },
+  {
+   "canonical_ticker": "CL",
+   "cik": 21665,
+   "raw_response_bytes": 147308,
+   "raw_response_sha256": "8d8ad37102010769373c24fe5814db3053a1b78b9207195aaa9513843ca90d66",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "COLGATE PALMOLIVE CO",
+   "sec_registrant_title": "COLGATE PALMOLIVE CO",
+   "sec_sic": 2844,
+   "sec_sic_description": "Perfumes, Cosmetics & Other Toilet Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000021665.json",
+   "source_securities": [
+    "CL"
+   ]
+  },
+  {
+   "canonical_ticker": "CMCSA",
+   "cik": 1166691,
+   "raw_response_bytes": 149175,
+   "raw_response_sha256": "cbf13aac474d8edbebe0ee255fa7e0769a9dbd4219636a627c36f2aa219b451f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "COMCAST CORP",
+   "sec_registrant_title": "COMCAST CORP",
+   "sec_sic": 4841,
+   "sec_sic_description": "Cable & Other Pay Television Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001166691.json",
+   "source_securities": [
+    "CMCSA"
+   ]
+  },
+  {
+   "canonical_ticker": "COF",
+   "cik": 927628,
+   "raw_response_bytes": 161608,
+   "raw_response_sha256": "378304e65e5c1f5d072ceee5031176963c8ae7be253b8e75cac53743451347e2",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CAPITAL ONE FINANCIAL CORP",
+   "sec_registrant_title": "CAPITAL ONE FINANCIAL CORP",
+   "sec_sic": 6021,
+   "sec_sic_description": "National Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000927628.json",
+   "source_securities": [
+    "COF"
+   ]
+  },
+  {
+   "canonical_ticker": "COP",
+   "cik": 1163165,
+   "raw_response_bytes": 156525,
+   "raw_response_sha256": "c3c11fde48f2f99c088930c45305ab4f38cf06d91ce7ce73021208937728fc00",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CONOCOPHILLIPS",
+   "sec_registrant_title": "CONOCOPHILLIPS",
+   "sec_sic": 2911,
+   "sec_sic_description": "Petroleum Refining",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001163165.json",
+   "source_securities": [
+    "COP"
+   ]
+  },
+  {
+   "canonical_ticker": "COST",
+   "cik": 909832,
+   "raw_response_bytes": 158811,
+   "raw_response_sha256": "0e77534d3aaf301a91769a2f1d26c5c7b4a5f4039c2c44ce6ec0877a0d2bb92c",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "COSTCO WHOLESALE CORP /NEW",
+   "sec_registrant_title": "COSTCO WHOLESALE CORP /NEW",
+   "sec_sic": 5331,
+   "sec_sic_description": "Retail-Variety Stores",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000909832.json",
+   "source_securities": [
+    "COST"
+   ]
+  },
+  {
+   "canonical_ticker": "CRM",
+   "cik": 1108524,
+   "raw_response_bytes": 156365,
+   "raw_response_sha256": "fec572bf941ad9aa543f5aa82c563227a0409486a12f0e1fad9a6e7fde59a911",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Salesforce, Inc.",
+   "sec_registrant_title": "Salesforce, Inc.",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001108524.json",
+   "source_securities": [
+    "CRM"
+   ]
+  },
+  {
+   "canonical_ticker": "CSCO",
+   "cik": 858877,
+   "raw_response_bytes": 157595,
+   "raw_response_sha256": "22b7fa927247d7204a0bf217b9fa3a1634369897b663c28beef920e85e71e8c5",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CISCO SYSTEMS, INC.",
+   "sec_registrant_title": "CISCO SYSTEMS, INC.",
+   "sec_sic": 3576,
+   "sec_sic_description": "Computer Communications Equipment",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000858877.json",
+   "source_securities": [
+    "CSCO"
+   ]
+  },
+  {
+   "canonical_ticker": "CTSH",
+   "cik": 1058290,
+   "raw_response_bytes": 161716,
+   "raw_response_sha256": "c88a4fd5c8fbd09aef2fbf7a9013bfc10cdcb1df9b28cbb68c1871387329ae98",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "COGNIZANT TECHNOLOGY SOLUTIONS CORP",
+   "sec_registrant_title": "COGNIZANT TECHNOLOGY SOLUTIONS CORP",
+   "sec_sic": 7371,
+   "sec_sic_description": "Services-Computer Programming Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001058290.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "CVS",
+   "cik": 64803,
+   "raw_response_bytes": 158888,
+   "raw_response_sha256": "53a30f23e6be7e2e0be3e213709b80f50961d09de56848afd4021722ff3a0e9e",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CVS HEALTH Corp",
+   "sec_registrant_title": "CVS HEALTH Corp",
+   "sec_sic": 5912,
+   "sec_sic_description": "Retail-Drug Stores and Proprietary Stores",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000064803.json",
+   "source_securities": [
+    "CVS"
+   ]
+  },
+  {
+   "canonical_ticker": "CVX",
+   "cik": 93410,
+   "raw_response_bytes": 157864,
+   "raw_response_sha256": "212c114c711922ec8aa0c111789fd1e6aa10fa045f46ed11e893327d80f3bba1",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CHEVRON CORP",
+   "sec_registrant_title": "CHEVRON CORP",
+   "sec_sic": 2911,
+   "sec_sic_description": "Petroleum Refining",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000093410.json",
+   "source_securities": [
+    "CVX"
+   ]
+  },
+  {
+   "canonical_ticker": "DE",
+   "cik": 315189,
+   "raw_response_bytes": 163719,
+   "raw_response_sha256": "73b61370ae641ec904c1bbdf5a7d21d3bd716c02906731f92dc6d3728066cc74",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "DEERE & CO",
+   "sec_registrant_title": "DEERE & CO",
+   "sec_sic": 3523,
+   "sec_sic_description": "Farm Machinery & Equipment",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000315189.json",
+   "source_securities": [
+    "DE"
+   ]
+  },
+  {
+   "canonical_ticker": "DELL",
+   "cik": 1571996,
+   "raw_response_bytes": 157813,
+   "raw_response_sha256": "1458f9935e361eb36cd204c3e47538c445ae2993e4bcd05638fd2326b01a00bd",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Dell Technologies Inc.",
+   "sec_registrant_title": "Dell Technologies Inc.",
+   "sec_sic": 3571,
+   "sec_sic_description": "Electronic Computers",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001571996.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "DHR",
+   "cik": 313616,
+   "raw_response_bytes": 160408,
+   "raw_response_sha256": "5e0f331e86b2b85f26f1192e5c64271f7d322892e11b2842c4a2e8b846d87af1",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "DANAHER CORP /DE/",
+   "sec_registrant_title": "DANAHER CORP /DE/",
+   "sec_sic": 3823,
+   "sec_sic_description": "Industrial Instruments For Measurement, Display, and Control",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000313616.json",
+   "source_securities": [
+    "DHR"
+   ]
+  },
+  {
+   "canonical_ticker": "DIS",
+   "cik": 1744489,
+   "raw_response_bytes": 165791,
+   "raw_response_sha256": "66d035cf9a6393f0c69bf944fa0f90842859822df926d9ec6f24f9817a2977de",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Walt Disney Co",
+   "sec_registrant_title": "Walt Disney Co",
+   "sec_sic": 7990,
+   "sec_sic_description": "Services-Miscellaneous Amusement & Recreation",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001744489.json",
+   "source_securities": [
+    "DIS"
+   ]
+  },
+  {
+   "canonical_ticker": "DUK",
+   "cik": 1326160,
+   "raw_response_bytes": 165558,
+   "raw_response_sha256": "a65ed12eae1a04ecccb18fcba42b15892dc0b016ab7cb74b7add0f2b66f8a247",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Duke Energy CORP",
+   "sec_registrant_title": "Duke Energy CORP",
+   "sec_sic": 4931,
+   "sec_sic_description": "Electric & Other Services Combined",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001326160.json",
+   "source_securities": [
+    "DUK"
+   ]
+  },
+  {
+   "canonical_ticker": "DVN",
+   "cik": 1090012,
+   "raw_response_bytes": 159789,
+   "raw_response_sha256": "6da0f8f242525e0b492b5fc137e4f3ad5a37eb431e4825192b28936db5a5db20",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "DEVON ENERGY CORP/DE",
+   "sec_registrant_title": "DEVON ENERGY CORP/DE",
+   "sec_sic": 1311,
+   "sec_sic_description": "Crude Petroleum & Natural Gas",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001090012.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "EMR",
+   "cik": 32604,
+   "raw_response_bytes": 164354,
+   "raw_response_sha256": "131b8ade3abbeb70151f07d6130817db6ae1096ca4cc5b126652d2306a14cbde",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "EMERSON ELECTRIC CO",
+   "sec_registrant_title": "EMERSON ELECTRIC CO",
+   "sec_sic": 3600,
+   "sec_sic_description": "Electronic & Other Electrical Equipment (No Computer Equip)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000032604.json",
+   "source_securities": [
+    "EMR"
+   ]
+  },
+  {
+   "canonical_ticker": "FDX",
+   "cik": 1048911,
+   "raw_response_bytes": 160635,
+   "raw_response_sha256": "42903d480e7e2d25de92a748099ef5fd6933dd322c420a3b8f4566a3100b9a4f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "FEDEX CORP",
+   "sec_registrant_title": "FEDEX CORP",
+   "sec_sic": 4513,
+   "sec_sic_description": "Air Courier Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001048911.json",
+   "source_securities": [
+    "FDX"
+   ]
+  },
+  {
+   "canonical_ticker": "GD",
+   "cik": 40533,
+   "raw_response_bytes": 154674,
+   "raw_response_sha256": "27ed1fab56c540ca5939bc3561daed5c12198bf3591f3c67ad30e3073dbfc535",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GENERAL DYNAMICS CORP",
+   "sec_registrant_title": "GENERAL DYNAMICS CORP",
+   "sec_sic": 3730,
+   "sec_sic_description": "Ship & Boat Building & Repairing",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000040533.json",
+   "source_securities": [
+    "GD"
+   ]
+  },
+  {
+   "canonical_ticker": "GE",
+   "cik": 40545,
+   "raw_response_bytes": 165945,
+   "raw_response_sha256": "7ff173e29df4d8090e4e1ae64b1bd9ebd8e89a8e263000ed3b9baba2f22e6400",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GENERAL ELECTRIC CO",
+   "sec_registrant_title": "GENERAL ELECTRIC CO",
+   "sec_sic": 3600,
+   "sec_sic_description": "Electronic & Other Electrical Equipment (No Computer Equip)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000040545.json",
+   "source_securities": [
+    "GE"
+   ]
+  },
+  {
+   "canonical_ticker": "GEV",
+   "cik": 1996810,
+   "raw_response_bytes": 34600,
+   "raw_response_sha256": "bd86de9a94fc3f0d2088acf07464a12c7354493ad7e145f055641adc3592ffe4",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GE Vernova Inc.",
+   "sec_registrant_title": "GE Vernova Inc.",
+   "sec_sic": 3600,
+   "sec_sic_description": "Electronic & Other Electrical Equipment (No Computer Equip)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001996810.json",
+   "source_securities": [
+    "GEV"
+   ]
+  },
+  {
+   "canonical_ticker": "GILD",
+   "cik": 882095,
+   "raw_response_bytes": 160513,
+   "raw_response_sha256": "e0d3fe641a8e066a6dd58f98a4fa42ded5f2cc3f61d49a48b046ee42d9c3053f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GILEAD SCIENCES, INC.",
+   "sec_registrant_title": "GILEAD SCIENCES, INC.",
+   "sec_sic": 2836,
+   "sec_sic_description": "Biological Products, (No Diagnostic Substances)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000882095.json",
+   "source_securities": [
+    "GILD"
+   ]
+  },
+  {
+   "canonical_ticker": "GM",
+   "cik": 1467858,
+   "raw_response_bytes": 164664,
+   "raw_response_sha256": "3b748d6fb8ed82a98a220f115b7c76edaec79a50c8a45d714df4a4938a2fcaac",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "General Motors Co",
+   "sec_registrant_title": "General Motors Co",
+   "sec_sic": 3711,
+   "sec_sic_description": "Motor Vehicles & Passenger Car Bodies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001467858.json",
+   "source_securities": [
+    "GM"
+   ]
+  },
+  {
+   "canonical_ticker": "GME",
+   "cik": 1326380,
+   "raw_response_bytes": 163822,
+   "raw_response_sha256": "9f18830aed1e2b088d789f615e3faed59c12ba208a6c552d49cfe51cbdf08da2",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GameStop Corp.",
+   "sec_registrant_title": "GameStop Corp.",
+   "sec_sic": 5734,
+   "sec_sic_description": "Retail-Computer & Computer Software Stores",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001326380.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "GOOG",
+   "cik": 1652044,
+   "raw_response_bytes": 153256,
+   "raw_response_sha256": "f07010855a929e2007a4a88af904b612b250ea97c70c1d0faef479ec0c03b635",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Alphabet Inc.",
+   "sec_registrant_title": "Alphabet Inc.",
+   "sec_sic": 7370,
+   "sec_sic_description": "Services-Computer Programming, Data Processing, Etc.",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001652044.json",
+   "source_securities": [
+    "GOOG"
+   ]
+  },
+  {
+   "canonical_ticker": "GOOGL",
+   "cik": 1652044,
+   "raw_response_bytes": 153256,
+   "raw_response_sha256": "f07010855a929e2007a4a88af904b612b250ea97c70c1d0faef479ec0c03b635",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Alphabet Inc.",
+   "sec_registrant_title": "Alphabet Inc.",
+   "sec_sic": 7370,
+   "sec_sic_description": "Services-Computer Programming, Data Processing, Etc.",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001652044.json",
+   "source_securities": [
+    "GOOGL"
+   ]
+  },
+  {
+   "canonical_ticker": "GPN",
+   "cik": 1123360,
+   "raw_response_bytes": 157668,
+   "raw_response_sha256": "384924c1dd77a356c2a14a90d9c0395b9f749709749e8ab843ba4419786d3d76",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GLOBAL PAYMENTS INC",
+   "sec_registrant_title": "GLOBAL PAYMENTS INC",
+   "sec_sic": 7389,
+   "sec_sic_description": "Services-Business Services, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001123360.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "GS",
+   "cik": 886982,
+   "raw_response_bytes": 2507681,
+   "raw_response_sha256": "45642f09cacf694b177654e7b8fa7a5287e8409d68bb14d1a464166aa25f0f66",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "GOLDMAN SACHS GROUP INC",
+   "sec_registrant_title": "GOLDMAN SACHS GROUP INC",
+   "sec_sic": 6211,
+   "sec_sic_description": "Security Brokers, Dealers & Flotation Companies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000886982.json",
+   "source_securities": [
+    "GS"
+   ]
+  },
+  {
+   "canonical_ticker": "HD",
+   "cik": 354950,
+   "raw_response_bytes": 160898,
+   "raw_response_sha256": "8639456f9b6b59c1c6a4bc502c54f42afb1ecc20db1737eb0fd09803724e2593",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "HOME DEPOT, INC.",
+   "sec_registrant_title": "HOME DEPOT, INC.",
+   "sec_sic": 5211,
+   "sec_sic_description": "Retail-Lumber & Other Building Materials Dealers",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000354950.json",
+   "source_securities": [
+    "HD"
+   ]
+  },
+  {
+   "canonical_ticker": "HONA",
+   "cik": 2089271,
+   "raw_response_bytes": 13357,
+   "raw_response_sha256": "2f345e9dbe5dd21fafd45187f9dcbb45f0f41e6c7fe0d099ea5846ccbfa28b9e",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Honeywell Aerospace Inc.",
+   "sec_registrant_title": "Honeywell Aerospace Inc.",
+   "sec_sic": 3724,
+   "sec_sic_description": "Aircraft Engines & Engine Parts",
+   "sec_url": "https://data.sec.gov/submissions/CIK0002089271.json",
+   "source_securities": [
+    "HONA"
+   ]
+  },
+  {
+   "canonical_ticker": "IBM",
+   "cik": 51143,
+   "raw_response_bytes": 165787,
+   "raw_response_sha256": "e51e4bf4b64b5b918cd06420c54fedbd0efb8e8e1a9293ce14155ceff87385b2",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "INTERNATIONAL BUSINESS MACHINES CORP",
+   "sec_registrant_title": "INTERNATIONAL BUSINESS MACHINES CORP",
+   "sec_sic": 3570,
+   "sec_sic_description": "Computer & office Equipment",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000051143.json",
+   "source_securities": [
+    "IBM"
+   ]
+  },
+  {
+   "canonical_ticker": "INTC",
+   "cik": 50863,
+   "raw_response_bytes": 159297,
+   "raw_response_sha256": "1da589372d91f9bc394c28765b0dac93ea80f0c008c101de0e72ab5afaca06a6",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "INTEL CORP",
+   "sec_registrant_title": "INTEL CORP",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000050863.json",
+   "source_securities": [
+    "INTC"
+   ]
+  },
+  {
+   "canonical_ticker": "INTU",
+   "cik": 896878,
+   "raw_response_bytes": 171324,
+   "raw_response_sha256": "13d643a612a040ad93fc946f47a422817d2a84ba6f5a6fe5335ec7e0d8b4f090",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "INTUIT INC.",
+   "sec_registrant_title": "INTUIT INC.",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000896878.json",
+   "source_securities": [
+    "INTU"
+   ]
+  },
+  {
+   "canonical_ticker": "ISRG",
+   "cik": 1035267,
+   "raw_response_bytes": 157745,
+   "raw_response_sha256": "4c1afb2c94ad7d0f6a9919eef86e98fd89dcae078460b40e7e02ebe73f61013c",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "INTUITIVE SURGICAL INC",
+   "sec_registrant_title": "INTUITIVE SURGICAL INC",
+   "sec_sic": 3842,
+   "sec_sic_description": "Orthopedic, Prosthetic & Surgical Appliances & Supplies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001035267.json",
+   "source_securities": [
+    "ISRG"
+   ]
+  },
+  {
+   "canonical_ticker": "JNJ",
+   "cik": 200406,
+   "raw_response_bytes": 154236,
+   "raw_response_sha256": "c6d82210ca7304f34f8dd9d6102df9dd9a9981a0b3241292b871b81eb8eb9a45",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "JOHNSON & JOHNSON",
+   "sec_registrant_title": "JOHNSON & JOHNSON",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000200406.json",
+   "source_securities": [
+    "JNJ"
+   ]
+  },
+  {
+   "canonical_ticker": "JPM",
+   "cik": 19617,
+   "raw_response_bytes": 4569474,
+   "raw_response_sha256": "d0499271ffc99716f2fcfbdc923f61f8c4360615f57a11dd6efc39e2514d00c5",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "JPMORGAN CHASE & CO",
+   "sec_registrant_title": "JPMORGAN CHASE & CO",
+   "sec_sic": 6021,
+   "sec_sic_description": "National Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000019617.json",
+   "source_securities": [
+    "JPM"
+   ]
+  },
+  {
+   "canonical_ticker": "KO",
+   "cik": 21344,
+   "raw_response_bytes": 158952,
+   "raw_response_sha256": "eddab6906fb1fa1868e455ddfe7d8988b374c107b72302652e7b4ea7cdc19710",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "COCA COLA CO",
+   "sec_registrant_title": "COCA COLA CO",
+   "sec_sic": 2080,
+   "sec_sic_description": "Beverages",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000021344.json",
+   "source_securities": [
+    "KO"
+   ]
+  },
+  {
+   "canonical_ticker": "LDOS",
+   "cik": 1336920,
+   "raw_response_bytes": 161661,
+   "raw_response_sha256": "341d9bea5e146d7b0251b5f8666c404833246a4a670c201f1b192dc1fe90b09f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Leidos Holdings, Inc.",
+   "sec_registrant_title": "Leidos Holdings, Inc.",
+   "sec_sic": 7373,
+   "sec_sic_description": "Services-Computer Integrated Systems Design",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001336920.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "LIN",
+   "cik": 1707925,
+   "raw_response_bytes": 125295,
+   "raw_response_sha256": "2896b789e25444660b3d0f4f316af32eac878660e60d1c449eec5ae38959fb37",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "LINDE PLC",
+   "sec_registrant_title": "LINDE PLC",
+   "sec_sic": 2810,
+   "sec_sic_description": "Industrial Inorganic Chemicals",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001707925.json",
+   "source_securities": [
+    "LIN"
+   ]
+  },
+  {
+   "canonical_ticker": "LLY",
+   "cik": 59478,
+   "raw_response_bytes": 158777,
+   "raw_response_sha256": "7c9a546d97bd251f936d12575656fb583abf5bf4e9ce23517a0091823fc92bd7",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ELI LILLY & Co",
+   "sec_registrant_title": "ELI LILLY & Co",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000059478.json",
+   "source_securities": [
+    "LLY"
+   ]
+  },
+  {
+   "canonical_ticker": "LMT",
+   "cik": 936468,
+   "raw_response_bytes": 149398,
+   "raw_response_sha256": "eb54aff15081619b2fe7de74a8022f0f53d894d729dc7951bfc36e49d929bd24",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "LOCKHEED MARTIN CORP",
+   "sec_registrant_title": "LOCKHEED MARTIN CORP",
+   "sec_sic": 3760,
+   "sec_sic_description": "Guided Missiles & Space Vehicles & Parts",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000936468.json",
+   "source_securities": [
+    "LMT"
+   ]
+  },
+  {
+   "canonical_ticker": "LOW",
+   "cik": 60667,
+   "raw_response_bytes": 164994,
+   "raw_response_sha256": "22ab606b0116efa6dd5fbd6b0261591e252dc5340eec2f4a4b731ed92d3892af",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "LOWES COMPANIES INC",
+   "sec_registrant_title": "LOWES COMPANIES INC",
+   "sec_sic": 5211,
+   "sec_sic_description": "Retail-Lumber & Other Building Materials Dealers",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000060667.json",
+   "source_securities": [
+    "LOW"
+   ]
+  },
+  {
+   "canonical_ticker": "LRCX",
+   "cik": 707549,
+   "raw_response_bytes": 165542,
+   "raw_response_sha256": "0743e49f5243bc83c1f7029f4771c41dae0bda5906cb148030703b8d95ce6f31",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "LAM RESEARCH CORP",
+   "sec_registrant_title": "LAM RESEARCH CORP",
+   "sec_sic": 3559,
+   "sec_sic_description": "Special Industry Machinery, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000707549.json",
+   "source_securities": [
+    "LRCX"
+   ]
+  },
+  {
+   "canonical_ticker": "MA",
+   "cik": 1141391,
+   "raw_response_bytes": 160286,
+   "raw_response_sha256": "eb2d554c098e8c30e51d9eef8fbb74899bda0d4daafbbb36ebe6f2545fc63485",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Mastercard Inc",
+   "sec_registrant_title": "Mastercard Inc",
+   "sec_sic": 7389,
+   "sec_sic_description": "Services-Business Services, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001141391.json",
+   "source_securities": [
+    "MA"
+   ]
+  },
+  {
+   "canonical_ticker": "MCD",
+   "cik": 63908,
+   "raw_response_bytes": 157403,
+   "raw_response_sha256": "18a98eaa197fcb52b93d5f20f3b06e571442993cbdb837b688e45b1bef3241f4",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "MCDONALDS CORP",
+   "sec_registrant_title": "MCDONALDS CORP",
+   "sec_sic": 5812,
+   "sec_sic_description": "Retail-Eating  Places",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000063908.json",
+   "source_securities": [
+    "MCD"
+   ]
+  },
+  {
+   "canonical_ticker": "MDLZ",
+   "cik": 1103982,
+   "raw_response_bytes": 161399,
+   "raw_response_sha256": "521ae1e7d8d08128c31762b1a3ce091d5d8ce4d54b49ea91527c8076c525cdb1",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Mondelez International, Inc.",
+   "sec_registrant_title": "Mondelez International, Inc.",
+   "sec_sic": 2000,
+   "sec_sic_description": "Food and Kindred Products",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001103982.json",
+   "source_securities": [
+    "MDLZ"
+   ]
+  },
+  {
+   "canonical_ticker": "MDT",
+   "cik": 1613103,
+   "raw_response_bytes": 160107,
+   "raw_response_sha256": "6bf5efc5069bb9a42a94def5a2bc7b330deb9de63eee98bd52ee9812c96999b9",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Medtronic plc",
+   "sec_registrant_title": "Medtronic plc",
+   "sec_sic": 3845,
+   "sec_sic_description": "Electromedical & Electrotherapeutic Apparatus",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001613103.json",
+   "source_securities": [
+    "MDT"
+   ]
+  },
+  {
+   "canonical_ticker": "META",
+   "cik": 1326801,
+   "raw_response_bytes": 157797,
+   "raw_response_sha256": "58f825c93fca9796db7ce7b3d99b35bef02aaafeee52db6632237951ceb606af",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Meta Platforms, Inc.",
+   "sec_registrant_title": "Meta Platforms, Inc.",
+   "sec_sic": 7370,
+   "sec_sic_description": "Services-Computer Programming, Data Processing, Etc.",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001326801.json",
+   "source_securities": [
+    "META"
+   ]
+  },
+  {
+   "canonical_ticker": "MMM",
+   "cik": 66740,
+   "raw_response_bytes": 159980,
+   "raw_response_sha256": "ef0a453e3a22ac980e6cd602f11756d12c0f08bf88245dedc29ff619f76db00f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "3M CO",
+   "sec_registrant_title": "3M CO",
+   "sec_sic": 3841,
+   "sec_sic_description": "Surgical & Medical Instruments & Apparatus",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000066740.json",
+   "source_securities": [
+    "MMM"
+   ]
+  },
+  {
+   "canonical_ticker": "MO",
+   "cik": 764180,
+   "raw_response_bytes": 160571,
+   "raw_response_sha256": "7b06a8212e72936241ad90d21eb7748d2d60cc06a113a3c8e8d7e601e0ea3e61",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ALTRIA GROUP, INC.",
+   "sec_registrant_title": "ALTRIA GROUP, INC.",
+   "sec_sic": 2111,
+   "sec_sic_description": "Cigarettes",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000764180.json",
+   "source_securities": [
+    "MO"
+   ]
+  },
+  {
+   "canonical_ticker": "MRK",
+   "cik": 310158,
+   "raw_response_bytes": 158583,
+   "raw_response_sha256": "71724bc1287c8f97f98492c5f82e8f225ebe0c840910d771ff4e99d508d607d4",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Merck & Co., Inc.",
+   "sec_registrant_title": "Merck & Co., Inc.",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000310158.json",
+   "source_securities": [
+    "MRK"
+   ]
+  },
+  {
+   "canonical_ticker": "MS",
+   "cik": 895421,
+   "raw_response_bytes": 3900706,
+   "raw_response_sha256": "83b3236592cb1c0699edc485491fd11f7e6fd35a233505e1b998b703f1286216",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "MORGAN STANLEY",
+   "sec_registrant_title": "MORGAN STANLEY",
+   "sec_sic": 6211,
+   "sec_sic_description": "Security Brokers, Dealers & Flotation Companies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000895421.json",
+   "source_securities": [
+    "MS"
+   ]
+  },
+  {
+   "canonical_ticker": "MSFT",
+   "cik": 789019,
+   "raw_response_bytes": 183608,
+   "raw_response_sha256": "3fdd6b07aa3950609976affbb7e655f7783cb665333b42f76e73a379715aae96",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "MICROSOFT CORP",
+   "sec_registrant_title": "MICROSOFT CORP",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000789019.json",
+   "source_securities": [
+    "MSFT"
+   ]
+  },
+  {
+   "canonical_ticker": "MU",
+   "cik": 723125,
+   "raw_response_bytes": 164795,
+   "raw_response_sha256": "ef22fa08264bdc60751c7ab7a4f9d58f9f5760f31b4c86a4032017f63b12ddda",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "MICRON TECHNOLOGY INC",
+   "sec_registrant_title": "MICRON TECHNOLOGY INC",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000723125.json",
+   "source_securities": [
+    "MU"
+   ]
+  },
+  {
+   "canonical_ticker": "NCLH",
+   "cik": 1513761,
+   "raw_response_bytes": 167639,
+   "raw_response_sha256": "9b48ae562ee0054b1608380d2dafe7907d87b97a9a19097e74748f10bab2a1cd",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Norwegian Cruise Line Holdings Ltd.",
+   "sec_registrant_title": "Norwegian Cruise Line Holdings Ltd.",
+   "sec_sic": 4400,
+   "sec_sic_description": "Water Transportation",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001513761.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "NEE",
+   "cik": 753308,
+   "raw_response_bytes": 172595,
+   "raw_response_sha256": "44681e33ecb32780aea6fbf4dd612a6a60af13add40874bd6ba0d83a0a16499d",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "NEXTERA ENERGY INC",
+   "sec_registrant_title": "NEXTERA ENERGY INC",
+   "sec_sic": 4911,
+   "sec_sic_description": "Electric Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000753308.json",
+   "source_securities": [
+    "NEE"
+   ]
+  },
+  {
+   "canonical_ticker": "NFLX",
+   "cik": 1065280,
+   "raw_response_bytes": 159632,
+   "raw_response_sha256": "562cb61c2f865535cd1e4a9fb627bd6b2b7d53e41ec59fedc38195dcc2b0692f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "NETFLIX INC",
+   "sec_registrant_title": "NETFLIX INC",
+   "sec_sic": 7841,
+   "sec_sic_description": "Services-Video Tape Rental",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001065280.json",
+   "source_securities": [
+    "NFLX"
+   ]
+  },
+  {
+   "canonical_ticker": "NKE",
+   "cik": 320187,
+   "raw_response_bytes": 160262,
+   "raw_response_sha256": "2c323f0021da267b0f4da44505b3d07087ed0b0625040239115ca3c5ec62a308",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "NIKE, Inc.",
+   "sec_registrant_title": "NIKE, Inc.",
+   "sec_sic": 3021,
+   "sec_sic_description": "Rubber & Plastics Footwear",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000320187.json",
+   "source_securities": [
+    "NKE"
+   ]
+  },
+  {
+   "canonical_ticker": "NOW",
+   "cik": 1373715,
+   "raw_response_bytes": 159140,
+   "raw_response_sha256": "eb213625aa05c52594e73d8c22ac51fadba9fee8f1d684f20982c410381081af",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ServiceNow, Inc.",
+   "sec_registrant_title": "ServiceNow, Inc.",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001373715.json",
+   "source_securities": [
+    "NOW"
+   ]
+  },
+  {
+   "canonical_ticker": "NVDA",
+   "cik": 1045810,
+   "raw_response_bytes": 161219,
+   "raw_response_sha256": "6409047f0e8bcae37da64801161b928c531957e519e765c6de3a605c5134d2e0",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "NVIDIA CORP",
+   "sec_registrant_title": "NVIDIA CORP",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001045810.json",
+   "source_securities": [
+    "NVDA"
+   ]
+  },
+  {
+   "canonical_ticker": "ORCL",
+   "cik": 1341439,
+   "raw_response_bytes": 158561,
+   "raw_response_sha256": "c431ef8d2d24e1fdb729f77094bb9ccfde65ed89458237e10f18236ddb55ee89",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ORACLE CORP",
+   "sec_registrant_title": "ORACLE CORP",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001341439.json",
+   "source_securities": [
+    "ORCL"
+   ]
+  },
+  {
+   "canonical_ticker": "PEP",
+   "cik": 77476,
+   "raw_response_bytes": 162290,
+   "raw_response_sha256": "78a5ef7e21df9d597bd3ae154fa1ecd4b1ec39de2241ddf3baadd577399f4ab9",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "PEPSICO INC",
+   "sec_registrant_title": "PEPSICO INC",
+   "sec_sic": 2080,
+   "sec_sic_description": "Beverages",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000077476.json",
+   "source_securities": [
+    "PEP"
+   ]
+  },
+  {
+   "canonical_ticker": "PFE",
+   "cik": 78003,
+   "raw_response_bytes": 145855,
+   "raw_response_sha256": "e01a2e8a12c57113ed779ee7ddc18f232f566c9cb467ea45b909ec9b103f4331",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "PFIZER INC",
+   "sec_registrant_title": "PFIZER INC",
+   "sec_sic": 2834,
+   "sec_sic_description": "Pharmaceutical Preparations",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000078003.json",
+   "source_securities": [
+    "PFE"
+   ]
+  },
+  {
+   "canonical_ticker": "PG",
+   "cik": 80424,
+   "raw_response_bytes": 161331,
+   "raw_response_sha256": "db79016fb14826e0a443a68bc558641c8ec42d1444662f3a0a181aee2eec0e17",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "PROCTER & GAMBLE Co",
+   "sec_registrant_title": "PROCTER & GAMBLE Co",
+   "sec_sic": 2840,
+   "sec_sic_description": "Soap, Detergents, Cleang Preparations, Perfumes, Cosmetics",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000080424.json",
+   "source_securities": [
+    "PG"
+   ]
+  },
+  {
+   "canonical_ticker": "PLTR",
+   "cik": 1321655,
+   "raw_response_bytes": 157023,
+   "raw_response_sha256": "609ebd3b5bb0c5ed7d7971598ae8c29973ba2c74c250feab79a124d495e9a948",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Palantir Technologies Inc.",
+   "sec_registrant_title": "Palantir Technologies Inc.",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001321655.json",
+   "source_securities": [
+    "PLTR"
+   ]
+  },
+  {
+   "canonical_ticker": "PM",
+   "cik": 1413329,
+   "raw_response_bytes": 158553,
+   "raw_response_sha256": "0c0bdba713e81b9e2b51be2ec2351454ef8e86aaf108f9e1b823e14c14c889fd",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Philip Morris International Inc.",
+   "sec_registrant_title": "Philip Morris International Inc.",
+   "sec_sic": 2111,
+   "sec_sic_description": "Cigarettes",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001413329.json",
+   "source_securities": [
+    "PM"
+   ]
+  },
+  {
+   "canonical_ticker": "QCOM",
+   "cik": 804328,
+   "raw_response_bytes": 159539,
+   "raw_response_sha256": "352e8d09cb92dc811288e08f35fb6fe584ceb50e419f6193f6335a0fc5c1d70e",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "QUALCOMM INC/DE",
+   "sec_registrant_title": "QUALCOMM INC/DE",
+   "sec_sic": 3663,
+   "sec_sic_description": "Radio & Tv Broadcasting & Communications Equipment",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000804328.json",
+   "source_securities": [
+    "QCOM"
+   ]
+  },
+  {
+   "canonical_ticker": "RTX",
+   "cik": 101829,
+   "raw_response_bytes": 149427,
+   "raw_response_sha256": "cba2a131b959d22a12b3a532ae0b787d32d1b82fd5f85ada82a78e1799a8cb99",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "RTX Corp",
+   "sec_registrant_title": "RTX Corp",
+   "sec_sic": 3724,
+   "sec_sic_description": "Aircraft Engines & Engine Parts",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000101829.json",
+   "source_securities": [
+    "RTX"
+   ]
+  },
+  {
+   "canonical_ticker": "SBUX",
+   "cik": 829224,
+   "raw_response_bytes": 161719,
+   "raw_response_sha256": "a69bbce0af48202dd2c6efe19361de251853a7d4184253f4512bafbe43a2612b",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "STARBUCKS CORP",
+   "sec_registrant_title": "STARBUCKS CORP",
+   "sec_sic": 5810,
+   "sec_sic_description": "Retail-Eating & Drinking Places",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000829224.json",
+   "source_securities": [
+    "SBUX"
+   ]
+  },
+  {
+   "canonical_ticker": "SCHW",
+   "cik": 316709,
+   "raw_response_bytes": 160827,
+   "raw_response_sha256": "24fca2b34e8b6bee58705c771ac7edce947ca23e3378eee68c5ee5d7f4d05f00",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "SCHWAB CHARLES CORP",
+   "sec_registrant_title": "SCHWAB CHARLES CORP",
+   "sec_sic": 6211,
+   "sec_sic_description": "Security Brokers, Dealers & Flotation Companies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000316709.json",
+   "source_securities": [
+    "SCHW"
+   ]
+  },
+  {
+   "canonical_ticker": "SO",
+   "cik": 92122,
+   "raw_response_bytes": 155828,
+   "raw_response_sha256": "9e1fa702b973d6e6cb0f00c779e6ab26e7a3011c3c21b07c666ac05c44eff8f3",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "SOUTHERN CO",
+   "sec_registrant_title": "SOUTHERN CO",
+   "sec_sic": 4911,
+   "sec_sic_description": "Electric Services",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000092122.json",
+   "source_securities": [
+    "SO"
+   ]
+  },
+  {
+   "canonical_ticker": "SPG",
+   "cik": 1063761,
+   "raw_response_bytes": 157489,
+   "raw_response_sha256": "2d2977fbb1f89dbaa78f6dbffd61d65fac24a2942391725155dfb68d7affae09",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "SIMON PROPERTY GROUP INC.",
+   "sec_registrant_title": "SIMON PROPERTY GROUP INC.",
+   "sec_sic": 6798,
+   "sec_sic_description": "Real Estate Investment Trusts",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001063761.json",
+   "source_securities": [
+    "SPG"
+   ]
+  },
+  {
+   "canonical_ticker": "STZ",
+   "cik": 16918,
+   "raw_response_bytes": 161039,
+   "raw_response_sha256": "f3c0162dd582db76062b096d7802f1c5b3d5a92f665c06f77bcfc1d585953e9d",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "CONSTELLATION BRANDS, INC.",
+   "sec_registrant_title": "CONSTELLATION BRANDS, INC.",
+   "sec_sic": 2080,
+   "sec_sic_description": "Beverages",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000016918.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "SYK",
+   "cik": 310764,
+   "raw_response_bytes": 162406,
+   "raw_response_sha256": "74bf1dd49ff13a1154d14fcb044101381631ceb6529969fce3c2c66d590d0ad1",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "STRYKER CORP",
+   "sec_registrant_title": "STRYKER CORP",
+   "sec_sic": 3841,
+   "sec_sic_description": "Surgical & Medical Instruments & Apparatus",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000310764.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "T",
+   "cik": 732717,
+   "raw_response_bytes": 159105,
+   "raw_response_sha256": "f9d5650fbcb664c9ccade2c0c3a2ab3219f9c30f1344669b1d39903093f09f92",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "AT&T INC.",
+   "sec_registrant_title": "AT&T INC.",
+   "sec_sic": 4813,
+   "sec_sic_description": "Telephone Communications (No Radiotelephone)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000732717.json",
+   "source_securities": [
+    "T"
+   ]
+  },
+  {
+   "canonical_ticker": "TMO",
+   "cik": 97745,
+   "raw_response_bytes": 157773,
+   "raw_response_sha256": "50ba0673fc95e4aa8f1d8ef6b7bb499af12f927f7663731ebab9ddb1b94f3e13",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "THERMO FISHER SCIENTIFIC INC.",
+   "sec_registrant_title": "THERMO FISHER SCIENTIFIC INC.",
+   "sec_sic": 3829,
+   "sec_sic_description": "Measuring & Controlling Devices, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000097745.json",
+   "source_securities": [
+    "TMO"
+   ]
+  },
+  {
+   "canonical_ticker": "TMUS",
+   "cik": 1283699,
+   "raw_response_bytes": 162717,
+   "raw_response_sha256": "d76c3a105dbb4fc382dff9f4dced3f97aa7c9a6e5ae0e0a3ac848b3a74b3d841",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "T-Mobile US, Inc.",
+   "sec_registrant_title": "T-Mobile US, Inc.",
+   "sec_sic": 4812,
+   "sec_sic_description": "Radiotelephone Communications",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001283699.json",
+   "source_securities": [
+    "TMUS"
+   ]
+  },
+  {
+   "canonical_ticker": "TSLA",
+   "cik": 1318605,
+   "raw_response_bytes": 162093,
+   "raw_response_sha256": "4478acfc395a7ae3e1766c9f436fafe2bd17a133335cae0c69de3110a5dcfac9",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Tesla, Inc.",
+   "sec_registrant_title": "Tesla, Inc.",
+   "sec_sic": 3711,
+   "sec_sic_description": "Motor Vehicles & Passenger Car Bodies",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001318605.json",
+   "source_securities": [
+    "TSLA"
+   ]
+  },
+  {
+   "canonical_ticker": "TTWO",
+   "cik": 946581,
+   "raw_response_bytes": 157511,
+   "raw_response_sha256": "8d3cca08e1dafb359d7813552426046f01c5615ac12175d863d74808d779b4df",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "TAKE TWO INTERACTIVE SOFTWARE INC",
+   "sec_registrant_title": "TAKE TWO INTERACTIVE SOFTWARE INC",
+   "sec_sic": 7372,
+   "sec_sic_description": "Services-Prepackaged Software",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000946581.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "TXN",
+   "cik": 97476,
+   "raw_response_bytes": 157743,
+   "raw_response_sha256": "b92c950d33086557b8323015dfab7395a8221efe280b756086d4688bf54fe35b",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "TEXAS INSTRUMENTS INC",
+   "sec_registrant_title": "TEXAS INSTRUMENTS INC",
+   "sec_sic": 3674,
+   "sec_sic_description": "Semiconductors & Related Devices",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000097476.json",
+   "source_securities": [
+    "TXN"
+   ]
+  },
+  {
+   "canonical_ticker": "UAL",
+   "cik": 100517,
+   "raw_response_bytes": 161912,
+   "raw_response_sha256": "52b92d44c81b19705fe29f2ddc4dce98bda00e9d86eb482db739888287ebf835",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "United Airlines Holdings, Inc.",
+   "sec_registrant_title": "United Airlines Holdings, Inc.",
+   "sec_sic": 4512,
+   "sec_sic_description": "Air Transportation, Scheduled",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000100517.json",
+   "source_securities": []
+  },
+  {
+   "canonical_ticker": "UBER",
+   "cik": 1543151,
+   "raw_response_bytes": 163597,
+   "raw_response_sha256": "46c142d09fb548caee16a44dc4d4f25208c9af069617c2438a9abc2dd112aee2",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Uber Technologies, Inc",
+   "sec_registrant_title": "Uber Technologies, Inc",
+   "sec_sic": 7389,
+   "sec_sic_description": "Services-Business Services, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001543151.json",
+   "source_securities": [
+    "UBER"
+   ]
+  },
+  {
+   "canonical_ticker": "UNH",
+   "cik": 731766,
+   "raw_response_bytes": 158457,
+   "raw_response_sha256": "b80d84b80d045c871e888665736ce58a45b1f74167ca25e20ca6f009df6d695a",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "UNITEDHEALTH GROUP INC",
+   "sec_registrant_title": "UNITEDHEALTH GROUP INC",
+   "sec_sic": 6324,
+   "sec_sic_description": "Hospital & Medical Service Plans",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000731766.json",
+   "source_securities": [
+    "UNH"
+   ]
+  },
+  {
+   "canonical_ticker": "UNP",
+   "cik": 100885,
+   "raw_response_bytes": 156489,
+   "raw_response_sha256": "979cc3b6707dfe100e8f020137fb7dda769b7af48feeb39dee3b30474aa59a0b",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "UNION PACIFIC CORP",
+   "sec_registrant_title": "UNION PACIFIC CORP",
+   "sec_sic": 4011,
+   "sec_sic_description": "Railroads, Line-Haul Operating",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000100885.json",
+   "source_securities": [
+    "UNP"
+   ]
+  },
+  {
+   "canonical_ticker": "UPS",
+   "cik": 1090727,
+   "raw_response_bytes": 148311,
+   "raw_response_sha256": "98257f5aa7be4455dc090b0fa4427313043bdafad8fc8e26684f130f88341cd2",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "UNITED PARCEL SERVICE INC",
+   "sec_registrant_title": "UNITED PARCEL SERVICE INC",
+   "sec_sic": 4210,
+   "sec_sic_description": "Trucking & Courier Services (No Air)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001090727.json",
+   "source_securities": [
+    "UPS"
+   ]
+  },
+  {
+   "canonical_ticker": "USB",
+   "cik": 36104,
+   "raw_response_bytes": 157738,
+   "raw_response_sha256": "2bb644aed794e913ad30aa928eb757a3962d69bbeaae600da94fd346b0b2737b",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "US BANCORP \\DE\\",
+   "sec_registrant_title": "US BANCORP \\DE\\",
+   "sec_sic": 6021,
+   "sec_sic_description": "National Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000036104.json",
+   "source_securities": [
+    "USB"
+   ]
+  },
+  {
+   "canonical_ticker": "V",
+   "cik": 1403161,
+   "raw_response_bytes": 159789,
+   "raw_response_sha256": "9d56d4dfcfd9c06c6a627ece25ddf8ccf578c3de75878952c6b76faba928fc26",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "VISA INC.",
+   "sec_registrant_title": "VISA INC.",
+   "sec_sic": 7389,
+   "sec_sic_description": "Services-Business Services, NEC",
+   "sec_url": "https://data.sec.gov/submissions/CIK0001403161.json",
+   "source_securities": [
+    "V"
+   ]
+  },
+  {
+   "canonical_ticker": "VZ",
+   "cik": 732712,
+   "raw_response_bytes": 176409,
+   "raw_response_sha256": "d0e94a2a276356f82732678bbba1cec37740756489edf2d59093c1f7e478e959",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "VERIZON COMMUNICATIONS INC",
+   "sec_registrant_title": "VERIZON COMMUNICATIONS INC",
+   "sec_sic": 4813,
+   "sec_sic_description": "Telephone Communications (No Radiotelephone)",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000732712.json",
+   "source_securities": [
+    "VZ"
+   ]
+  },
+  {
+   "canonical_ticker": "WFC",
+   "cik": 72971,
+   "raw_response_bytes": 186906,
+   "raw_response_sha256": "e4ab831fb60a1d27766ff9f0c623c30d43cbecebaec220338d1877270eca4f7f",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "WELLS FARGO & COMPANY/MN",
+   "sec_registrant_title": "WELLS FARGO & COMPANY/MN",
+   "sec_sic": 6021,
+   "sec_sic_description": "National Commercial Banks",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000072971.json",
+   "source_securities": [
+    "WFC"
+   ]
+  },
+  {
+   "canonical_ticker": "WMT",
+   "cik": 104169,
+   "raw_response_bytes": 158207,
+   "raw_response_sha256": "ebb592bca2c6a391de939c53f6855ed122e5ccdbc83f19ac052f46ac457df9db",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "Walmart Inc.",
+   "sec_registrant_title": "Walmart Inc.",
+   "sec_sic": 5331,
+   "sec_sic_description": "Retail-Variety Stores",
+   "sec_url": "https://data.sec.gov/submissions/CIK0000104169.json",
+   "source_securities": [
+    "WMT"
+   ]
+  },
+  {
+   "canonical_ticker": "XOM",
+   "cik": 2115436,
+   "raw_response_bytes": 5989,
+   "raw_response_sha256": "6c4b7c84ae3cf7501768f4e2301bbf7009ee5163fe3c57f11400ca9dfe4db49b",
+   "retrieval_timestamp_granularity": "batch",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sec_entity_name": "ExxonMobil Holdings Corp",
+   "sec_registrant_title": "ExxonMobil Holdings Corp",
+   "sec_sic": 2911,
+   "sec_sic_description": "Petroleum Refining",
+   "sec_url": "https://data.sec.gov/submissions/CIK0002115436.json",
+   "source_securities": [
+    "XOM"
+   ]
+  }
+ ],
+ "sic_source": {
+  "batch_end_utc": "2026-08-16T07:52:00Z",
+  "batch_start_utc": "2026-08-16T07:52:00Z",
+  "fair_access": "identifying User-Agent, request rate held well under 10/s",
+  "note": "per-response timestamps were not captured at retrieval time; the raw-response SHA-256 is the per-record provenance anchor",
+  "timestamp_granularity": "batch",
+  "url_pattern": "https://data.sec.gov/submissions/CIK##########.json"
+ },
+ "ticker_to_cik_source": {
+  "bytes": 795501,
+  "http_status": 200,
+  "retrieved_utc": "2026-08-16T07:49:58Z",
+  "sha256": "2d3f4250a7b5c9c6e7ee4c3187dca1cff75431169857678c4b853cd9563c9b63",
+  "url": "https://www.sec.gov/files/company_tickers.json"
+ },
+ "user_agent_family": "gst-earnings-signal-research academic audit",
+ "version": "1.0"
+}
