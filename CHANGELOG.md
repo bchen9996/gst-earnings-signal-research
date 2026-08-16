@@ -99,10 +99,11 @@ The GST filter selects the *worse* half. Decisive statistic — incremental GST 
 clusters): **−1.0404 pp, SE 1.8752, t=−0.555, p=0.5858, CI [−4.978, +2.897]**. Secondary confidence
 filter (one fixed threshold at 0.60, not searched): 63 trades, −1.8891% net.
 
-**Conclusion: `NEITHER_ADDS_VALUE`.** Neither leg of the two-stage design works on this sample. This
-does not establish that earnings-gap direction is unpredictable in general — only that these four
-fixed models, on these eight frozen point-in-time features and this event population, have no
-out-of-sample directional skill, and that GST filtering does not improve them.
+**Conclusion (superseded — the correction entry above replaces this with
+`TESTED_DIRECTION_MODELS_HAVE_NO_SKILL` after adding the proper probabilistic null):** the tested
+pre-earnings price-based direction models have no out-of-sample directional skill, and applying GST
+as a magnitude filter does not rescue those models. This does not establish that earnings-gap
+direction is unpredictable in general.
 
 Verified: one focused test confirms GST never enters the model, that no feature reads an index at or
 after T, deduplication of event identities, chronological-only validation with fold-local
