@@ -1,6 +1,62 @@
 # Changelog
 
 
+## 2026-08-12 — CR2 now has an independent R reference: 13 of 13 fixtures agree at the noise floor
+
+**Independent synthetic implementation validation only. No statistical method is approved, no lock is activated, and F5 remains OPEN.** `GST_HYP01_ANALYSIS_LOCK_v1.0` stays operative, the proposed v1.1 stays non-authoritative, every authorizer field stays `PENDING`, no signoff is completed and no dated amendment is created. DELL and every research artifact are byte-identical.
+
+**The dependency that was blocking CR2 is now installed and pinned.** PR #17 recorded CR2 as `IMPLEMENTATION_BLOCKED_REFERENCE_UNAVAILABLE` — the Python code ran, but nothing independent existed here to check it against. **R 4.6.1 + clubSandwich 0.7.0** now serve as that reference: written by other authors, maintained independently, not written for this study.
+
+**Result: 13 of 13 admissible fixtures `MATCH_WITHIN_PR17_TOLERANCES_AND_PR18_DF_TOLERANCE`.** The supported claim is two-part and the parts must not be merged:
+
+> The study-written Python CR2 **covariance, standard-error, t-statistic, and p-value** outputs agree with clubSandwich on the prespecified synthetic fixture matrix **under the PR #17 tolerances**. The continuous **Satterthwaite degrees of freedom** agree under a **separately prespecified PR #18 tolerance that was not preregistered in PR #17**.
+
+The PR #17 tolerances were used exactly as written — none loosened, reinterpreted or replaced. Every fixture carries three separate statuses (`pr17_covered_fields_status`, `satterthwaite_df_status`, `overall_implementation_agreement_status`), so the df comparison cannot be read as a PR #17-preregistered one.
+
+| Field | Worst absolute difference | Tolerance and provenance |
+|---|---|---|
+| CR2 covariance matrix | 1.735 × 10⁻¹⁶ | PR #17: rtol 1e-10 |
+| Target variance | 3.990 × 10⁻¹⁷ | PR #17: rtol 1e-10 |
+| Standard error | 1.943 × 10⁻¹⁶ | PR #17: rtol 1e-10 |
+| t-statistic | 2.887 × 10⁻¹⁵ | PR #17: rtol 1e-9 |
+| p-value | 8.882 × 10⁻¹⁶ | PR #17: rtol 1e-9 |
+| **Satterthwaite df** | 7.105 × 10⁻¹⁵ | **PR #18: rtol 1e-8 — NOT preregistered in PR #17** |
+
+**The continuous-df tolerance is a PR #18 tolerance and is never called preregistered.** The PR #17 set defines degrees of freedom as `exact_integer_equality` — a rule written for CR1's integer *G* − 1 that cannot express agreement on a continuous quantity. PR #18 therefore prespecified its own (rtol 1e-8), in source, before the comparison first ran, labelled `preregistered_in_pr17: false` and `prespecified_in_pr18: true`. The artifact keeps `pr17_covered_fields` and `pr18_covered_fields` disjoint and tags every field record with its own provenance, so nothing can silently migrate between the two sets.
+
+**CR2 + Satterthwaite is described as implementation-validated only with that split provenance attached** — in the artifact, the report, the decision matrix and the PR body.
+
+**The fixtures are never regenerated in R.** One generator — the committed `make_fixture` — is exported to a strict-JSON interchange file carrying only the outcome vector, design matrix, coefficient names, cluster labels, target coefficient, fixture id and expected refusal status. Missing values travel as JSON `null`, never as a sentinel number. Each fixture carries a SHA-256 over a language-neutral canonical string (`%.17g` per double, fixed field order) that **R rebuilds and re-verifies itself — all 18 confirmed**. Results travel back as `%.17g` strings: jsonlite writes doubles at ~15 significant digits, which would have made the reported discrepancies partly a measurement of the JSON writer rather than of the two implementations.
+
+**Nothing was left to a default.** Intercept handling (the design matrix carries its own ones column; fitted with `~ 0 + .` so R adds no second intercept), coefficient and cluster ordering (first-appearance factor levels, not locale-dependent sorting), target coefficient, null value, confidence level, and matrix tolerance behaviour are all resolved and recorded. `na.action = na.fail` is set deliberately: R's default `na.omit` would have silently dropped the missing row and returned a number — a false agreement. One argument's resolved default is not visible from `formals()`, so `inverse_var` is computed **both ways** on every fixture; maximum difference 2.08 × 10⁻¹⁶.
+
+**Refusals were reported, not forced.** Four fixtures are refused by both implementations through different diagnostics — Python screens condition number, column variance and residual variance explicitly; R discovers the same degeneracies as aliased coefficients in the QR fit. `F08_perfect_fit` is a genuine `REFERENCE_BEHAVIOR_DIFFERENCE`: R returns an estimate with a standard error of 3.97 × 10⁻¹⁷ after warning "essentially perfect fit", where Python refuses by a prespecified threshold. **Neither side was adjusted to make it agree**, and no fixture was deleted, reseeded or omitted.
+
+**CR3 and the wild cluster bootstrap-t remain independently unvalidated.** `fwildclusterboot` was deliberately not installed, and CR2 agreement is never treated as evidence about either.
+
+**What this supports, exactly:** *the study-written Python implementation agrees with the independent clubSandwich reference on the prespecified synthetic fixture matrix under the preregistered tolerances.* It is **not** evidence that CR2 is scientifically optimal or preferable, not an approval, not a power claim, and not a change to F5.
+
+**One command reproduces it**, and exits nonzero on any unexplained mismatch:
+
+```
+python tools/hyp01_r_reference/run_validation.py --out <artifact.json>
+```
+
+Package installation and validation are separate phases: the install step may reach the pinned CRAN snapshot; the validation itself makes no network request.
+
+**The decision matrix is now one coherent current-state document.** It previously carried the new result alongside pre-validation prose that contradicted it. Corrected throughout: the opening constraint section (which claimed no R runtime or reference exists), D1 option B (CR2 is implementation-validated, unapproved, production eligibility pending), D1 option C and D2 option C (CR3 is independently unvalidated — clubSandwich implements it, but PR #18 did not validate it), D2 option B (the BRL/CR2 path is independently checked; scientific selection pending), D3 option B (Satterthwaite implementation agreement established, with the PR #18 df-tolerance qualification stated inline), D4 (bootstrap still independently unvalidated — no bootstrap reference installed), D10 (the Satterthwaite figures are no longer unvalidated engineering output, but validated arithmetic still cannot establish an evidentiary threshold), D11 (option B is already done and pinned; it is a potential CR3 reference, but PR #18 did not validate CR3), and the summary row that claimed the preferred options were blocked. The rule that no method may be used for collection while independently unvalidated is retained and now applies to CR3 and the bootstrap, not to CR2.
+
+It still separates three things that are easy to run together: implementation-validation evidence (established, with split tolerance provenance), a scientific method recommendation (offered only as a **proposal**, with alternatives and tradeoffs), and the final authorizer decision (**unchanged and `PENDING`**). Validation is not approval. All 59 checkboxes remain blank and no authorizer field is filled.
+
+**The dependency lock is now truthful and enforced.** The lockfile pins R and **ten** packages; CI previously installed with `dependencies = TRUE` and verified only three of them. It now installs every locked package explicitly using only the classes required to run the reference (`Depends`, `Imports`, `LinkingTo` — never `Suggests`), verifies the exact R version, and iterates over **every** package in the lockfile, failing closed on absence or version difference. The dated snapshot was checked against the lockfile: all ten versions match. The Windows binary SHA-256 values are now scoped explicitly to the developer workstation's Windows install and no longer sit where they could be read as authenticating the Linux CI installation, which is pinned by (snapshot date + exact version) instead.
+
+**Every external action is pinned to an immutable commit SHA**, not a movable tag: `actions/checkout` (v4 → `11d5960a`), `actions/setup-python` (v5 → `a26af69b`) and `r-lib/actions/setup-r` (v2 → `d3c5be51`). Tags are recorded in comments and the lockfile for readability only. Permissions, triggers, Python version, runner version, timeout and validation semantics are unchanged.
+
+**Artifact reproduction in CI now compares every material field**, not just classifications: fixture identities and coverage, classifications and the three split statuses, tolerance provenance, all Python and reference numeric values, worst-difference summaries, refusal outcomes, behaviour differences, the reference package version, and the no-approval and F5 fields. Continuous quantities are compared under documented tolerances rather than bitwise — CI runs a different OS, R build and BLAS than the artifact was generated on — while discrete fields are exact.
+
+Added `tools/hyp01_r_reference/` (exporter, R reference, comparison harness, driver, artifact verifier, lockfile), the validation artifact and report, `test_market_response_hyp01_r_reference_validation.py` (which executes the bridge rather than reading declarations and skips-with-notice where R is absent), and a **separate** `hyp01-r-reference-validation.yml` workflow. `market-response-tests.yml` is not modified: its permissions, triggers, Python pin, discovery glob and timeout are untouched.
+
+
 ## 2026-08-12 — PR #17 CI repair, an explicit supersession notice, and implementation status split into four facts
 
 Offline apart from reading the GitHub Actions log. No method approved, no dated amendment, no signoff field completed. **F5 remains OPEN.** DELL unchanged. The corrected full-precision results are unchanged — every statistical section of the regenerated artifact is byte-identical to the one it replaces.

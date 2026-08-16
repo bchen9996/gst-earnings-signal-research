@@ -1,0 +1,169 @@
+name: HYP-01 R Reference Validation
+
+# Independent synthetic implementation validation only. This workflow approves
+# no statistical method, activates no lock, and leaves F5 OPEN.
+#
+# It is deliberately SEPARATE from market-response-tests.yml. That workflow is
+# not modified by this PR: it keeps its own permissions, triggers, Python pin,
+# discovery glob and timeout exactly as they are. Adding an R toolchain to it
+# would have made every deterministic market-response run pay for an R install.
+#
+# Package installation and validation are separate phases. The install step may
+# reach the pinned CRAN snapshot; the validation step that follows performs no
+# network request -- the exporter, the comparison harness and the test file all
+# replace socket.connect/create_connection/getaddrinfo before importing any
+# numerical library, and the R script contains no download call at all.
+#
+# It never touches live market data, broker APIs, GST, Wikipedia, SEC filings or
+# news sources, consumes no credential, and reads no research artifact: every
+# input is generated from the committed synthetic fixture seed.
+on:
+  pull_request:
+    paths:
+      - "tools/hyp01_r_reference/**"
+      - "tools/hyp01_inference_feasibility.py"
+      - "tools/requirements-hyp01-feasibility.txt"
+      - "test_market_response_hyp01_r_reference_validation.py"
+      - "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json"
+      - "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md"
+      - "Live Signal Engine/GST_HYP01_AUTHORIZER_DECISION_MATRIX_v1.0_DRAFT.md"
+      - ".github/workflows/hyp01-r-reference-validation.yml"
+  workflow_dispatch: {}
+
+# Least privilege, matching the repository's existing workflows.
+permissions:
+  contents: read
+
+jobs:
+  r-reference-validation:
+    name: Independent CR2 / Satterthwaite reference validation
+    # Pinned rather than ubuntu-latest: the CRAN snapshot below serves noble
+    # binaries, and a silent runner-image bump would change what gets installed.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      # Every external action is pinned to a full immutable commit SHA. A tag
+      # can be moved; a commit SHA cannot. The tags are recorded in comments and
+      # in r-packages.lock.json for human readability only.
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          set -e
+          pip install -r tools/requirements-hyp01-feasibility.txt
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@d3c5be51b12e724e68f33216ca3c148b66d5f0b6 # v2
+        with:
+          r-version: "4.6.1"
+          use-public-rspm: false
+
+      - name: Resolve the snapshot and package list from the lockfile
+        # Read with Python, not R. The lockfile is the single source of both the
+        # snapshot URL and the package list, but R cannot parse it before
+        # jsonlite exists -- and jsonlite is itself one of the locked packages.
+        # Python's json is stdlib and Python is already set up, so this breaks
+        # the cycle without duplicating the snapshot URL into the workflow.
+        run: |
+          set -e
+          python - <<'PY' >> "$GITHUB_ENV"
+          import json
+          lock = json.load(open("tools/hyp01_r_reference/r-packages.lock.json", encoding="utf-8"))
+          print(f"R_SNAPSHOT={lock['sources']['ci_snapshot_linux_binary_path']}")
+          print("R_LOCKED_PKGS=" + ",".join(p["package"] for p in lock["packages"]))
+          PY
+          echo "resolved from tools/hyp01_r_reference/r-packages.lock.json"
+
+      - name: Install pinned R packages
+        # The only step permitted to reach the network.
+        #
+        # Every package named in r-packages.lock.json is installed EXPLICITLY, so
+        # the installed set is the locked set by construction rather than by
+        # whatever dependency resolution happens to pull in. Only the dependency
+        # classes required to RUN the reference are installed: Suggests would add
+        # test-only packages this validation never loads and the lockfile does
+        # not pin.
+        run: |
+          set -e
+          Rscript -e '
+            snap <- Sys.getenv("R_SNAPSHOT")
+            pkgs <- strsplit(Sys.getenv("R_LOCKED_PKGS"), ",", fixed = TRUE)[[1]]
+            if (!nzchar(snap) || !length(pkgs)) stop("lockfile did not resolve")
+            cat("snapshot:", snap, "\n")
+            cat("installing", length(pkgs), "locked packages:", paste(pkgs, collapse = ", "), "\n")
+            options(repos = c(CRAN = snap))
+            install.packages(pkgs, dependencies = c("Depends", "Imports", "LinkingTo"))'
+
+      - name: Verify R version and EVERY locked package version
+        # Fails closed on absence or on any version difference, for every package
+        # in the lockfile -- not a hand-picked subset. If the snapshot ever
+        # resolves a different version than the one this PR validated against,
+        # that is a finding, not a warning.
+        run: |
+          set -e
+          Rscript -e '
+            lock <- jsonlite::fromJSON("tools/hyp01_r_reference/r-packages.lock.json")
+
+            want_r <- lock$r$ci_pinned_version
+            got_r <- paste(R.version$major, R.version$minor, sep = ".")
+            cat(sprintf("R: running=%s locked=%s\n", got_r, want_r))
+            if (!identical(got_r, want_r)) {
+              cat(sprintf("R VERSION MISMATCH: running %s, locked %s\n", got_r, want_r))
+              quit(status = 1)
+            }
+
+            # Versions are compared AS VERSIONS, not as strings. CRAN writes the
+            # final separator as "-" (0.22-9) while R normalises it to "."
+            # (0.22.9), so a string compare would report a mismatch on packages
+            # that are in fact at the locked version. numeric_version() treats
+            # the separators as equivalent and still fails on any real
+            # difference (0.22-9 vs 0.22-8 remains a mismatch).
+            pkgs <- lock$packages
+            bad <- character(0)
+            for (i in seq_len(nrow(pkgs))) {
+              nm <- pkgs$package[i]; exp <- pkgs$version[i]
+              got <- tryCatch(packageVersion(nm), error = function(e) NULL)
+              status <- if (is.null(got)) "ABSENT"
+                        else if (got == numeric_version(exp)) "ok" else "MISMATCH"
+              cat(sprintf("  %-14s installed=%-10s locked=%-10s %s\n",
+                          nm, ifelse(is.null(got), "-", as.character(got)), exp, status))
+              if (status != "ok") bad <- c(bad, sprintf("%s: installed %s, locked %s",
+                                                        nm, ifelse(is.null(got), "ABSENT", as.character(got)), exp))
+            }
+            cat(sprintf("verified %d of %d locked packages\n", nrow(pkgs) - length(bad), nrow(pkgs)))
+            if (length(bad)) {
+              cat("LOCKFILE VIOLATION:\n"); cat(paste0("  ", bad, collapse = "\n"), "\n")
+              quit(status = 1)
+            }
+            cat("every locked package is present at its locked version\n")'
+
+      - name: Run the independent validation end to end
+        # Single deterministic command. Exits nonzero on any unexplained
+        # mismatch; explained refusals and documented behaviour differences do
+        # not mask a real disagreement.
+        run: |
+          set -e
+          python tools/hyp01_r_reference/run_validation.py --out "$RUNNER_TEMP/validation.json"
+
+      - name: Confirm the committed artifact still reproduces
+        # Compares every MATERIAL computed field, not just classifications.
+        # Continuous fields use the documented tolerances (this is a different
+        # OS, R build and BLAS than the artifact was generated on, so bitwise
+        # equality would be a false requirement); discrete fields are exact.
+        run: |
+          set -e
+          python tools/hyp01_r_reference/verify_artifact.py \
+            --fresh "$RUNNER_TEMP/validation.json" \
+            --committed "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json"
+
+      - name: Run the computational validation tests
+        # With R present these execute the bridge rather than skipping it.
+        run: |
+          set -e
+          python test_market_response_hyp01_r_reference_validation.py
