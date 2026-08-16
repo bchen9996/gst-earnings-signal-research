@@ -101,12 +101,15 @@ check("5a. out-of-sample n matches", P["logistic_l2"]["n"] == len(OOS) == 144)
 check("5b. class counts match",
       P["logistic_l2"]["n_positive"] == int((y == 1).sum())
       and P["logistic_l2"]["n_negative"] == int((y == 0).sum()))
+# pred_prob holds the STRATEGY model's predictions (the learned logistic model), which
+# is deliberately NOT the selected model once the null wins.
+STRAT = RES["combined_strategy"]["predictions_from"]
 acc = float(((p > 0.5).astype(int) == y).mean())
-check("5c. selected-model accuracy recomputes",
-      round(acc, 4) == P[RES["primary_model"]["selected"]]["accuracy"], f"{acc}")
+check("5c. strategy-model accuracy recomputes", round(acc, 4) == P[STRAT]["accuracy"], f"{acc}")
 brier = float(np.mean((np.clip(p, 0, 1) - y) ** 2))
-check("5d. selected-model Brier recomputes",
-      abs(brier - P[RES["primary_model"]["selected"]]["brier"]) < 1e-5)
+check("5d. strategy-model Brier recomputes", abs(brier - P[STRAT]["brier"]) < 1e-5)
+check("5d'. the strategy model is not the selected model",
+      STRAT != RES["primary_model"]["selected"])
 # stored rounded to 5 dp, so compare against the same rounding
 check("5e. always-positive baseline Brier equals 1 - positive rate",
       P["always_positive"]["brier"] == round(float(1 - y.mean()), 5))
@@ -145,12 +148,66 @@ check("7d. the decisive statistic is named as the incremental coefficient",
       "incremental" in C["decisive_statistic"])
 
 # ---- 8. conclusion is one of the five allowed labels and matches the evidence ----
+# The original five, plus the mandated label used when no learned model beats the
+# probabilistic null (there is then no direction model to combine GST with).
 ALLOWED = {"DIRECTION_SIGNAL_AND_GST_FILTER_BOTH_ADD_VALUE", "DIRECTION_SIGNAL_ONLY",
-           "GST_FILTER_ONLY", "NEITHER_ADDS_VALUE", "INSUFFICIENT_DATA"}
+           "GST_FILTER_ONLY", "NEITHER_ADDS_VALUE", "INSUFFICIENT_DATA",
+           "TESTED_DIRECTION_MODELS_HAVE_NO_SKILL"}
 check("8a. conclusion is one of the five allowed labels", RES["conclusion"] in ALLOWED)
-check("8b. conclusion is NEITHER_ADDS_VALUE", RES["conclusion"] == "NEITHER_ADDS_VALUE")
+check("8b. conclusion is TESTED_DIRECTION_MODELS_HAVE_NO_SKILL",
+      RES["conclusion"] == "TESTED_DIRECTION_MODELS_HAVE_NO_SKILL")
 check("8c. direction leg genuinely failed (negative net and no AUC edge)",
       C["direction_only"]["mean_net_pct"] < 0 and P["logistic_l2"]["auc"] < 0.5)
+
+# ---- 9. proper probabilistic null ----
+N = P["intercept_only_prevalence"]
+check("9a. intercept-only null is reported", N["n"] == len(OOS))
+check("9b. null beats every learned model on Brier",
+      N["brier"] < P["logistic_l2"]["brier"] and N["brier"] < P["gbt_shallow"]["brier"])
+check("9c. null beats every learned model on log loss",
+      N["log_loss"] < P["logistic_l2"]["log_loss"] and N["log_loss"] < P["gbt_shallow"]["log_loss"])
+check("9d. no learned model beats the null",
+      RES["primary_model"]["any_learned_model_beats_null"] is False)
+check("9e. the frozen rule now selects the null",
+      RES["primary_model"]["selected"] == "intercept_only_prevalence"
+      and RES["primary_model"]["is_null_model"] is True)
+check("9f. selection rule text is unchanged (Brier primary, AUC secondary)",
+      "Brier" in RES["primary_model"]["rule"] and "AUC secondary" in RES["primary_model"]["rule"])
+check("9g. the null is the lowest-Brier candidate",
+      RES["primary_model"]["selected"] == min(RES["primary_model"]["candidates"],
+                                              key=lambda m: P[m]["brier"]))
+check("9h. null predictions come from training-fold prevalence only",
+      "out[\"intercept_only_prevalence\"] = np.full(len(te), float(ytr.mean()))" in TOOL)
+check("9i. always-positive is demoted to a classification benchmark",
+      "NOT the primary probabilistic comparator" in RES["always_positive_role"])
+check("9j. always-positive AUC is not claimed (constant predictions)",
+      P["always_positive"]["auc"] is None and P["always_positive"]["auc_defined"] is False)
+
+# ---- 10. strategy is secondary, and never trades the null ----
+check("10a. strategy is labelled secondary evidence",
+      "SECONDARY EVIDENCE" in C["status"] and "not presented as an investable strategy" in C["status"])
+check("10b. strategy uses the learned model, never the null",
+      C["predictions_from"] == "logistic_l2")
+check("10c. results declare trading results secondary",
+      RES["conclusion_basis"]["trading_results_are_secondary"] is True)
+
+# ---- 11. corrected scope ----
+flat_rep = " ".join(REPORT.split())
+check("11a. the over-broad scope line is gone",
+      "Neither leg of the two-stage design works" not in REPORT)
+check("11b. the corrected scope sentence is present",
+      "tested pre-earnings price-based direction models have no out-of-sample directional skill"
+      in flat_rep and "does not rescue those models" in flat_rep)
+for claim in ("does not invalidate the separate GST magnitude hypothesis",
+              "independently possesses directional skill",
+              "analyst revisions",
+              "cannot determine whether GST would improve a genuinely informative"):
+    check(f"11c. report states: {claim[:46]}", claim.lower() in flat_rep.lower())
+check("11d. NEITHER_ADDS_VALUE is kept only as a narrow secondary label",
+      RES["secondary_conclusion_narrow"]["label"] == "NEITHER_ADDS_VALUE"
+      and "not the overall two-stage research concept" in RES["secondary_conclusion_narrow"]["applies_to"])
+check("11e. results carry the four explicit non-claims",
+      len(RES["what_this_does_not_establish"]) == 4)
 check("8d. GST leg genuinely failed (negative coefficient, unsupported)",
       inc["coef_pp"] < 0 and inc["p_value"] > 0.05)
 check("8e. report states the conclusion", "NEITHER_ADDS_VALUE" in REPORT)

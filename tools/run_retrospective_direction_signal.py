@@ -156,6 +156,11 @@ def fit_predict(tr: pd.DataFrame, te: pd.DataFrame) -> dict[str, np.ndarray]:
     ytr = tr.y.values
 
     out = {"always_positive": np.ones(len(te))}
+    # Proper probabilistic null: the positive-gap prevalence of the TRAINING fold,
+    # assigned to every test observation. This, not always-positive, is the correct
+    # Brier-score baseline; always-positive predicts 0/1 and is kept only as a
+    # classification benchmark.
+    out["intercept_only_prevalence"] = np.full(len(te), float(ytr.mean()))
     # momentum baseline: deterministic sign rule mapped to {0.25, 0.75}
     out["momentum_sign"] = np.where(te.ret_5d.values > 0, 0.75, 0.25)
     if len(np.unique(ytr)) < 2:
@@ -182,9 +187,14 @@ def metrics(y: np.ndarray, p: np.ndarray) -> dict:
         auc = float(roc_auc_score(y, p)) if len(np.unique(y)) > 1 else float("nan")
     except Exception:
         auc = float("nan")
+    q = np.clip(p, 1e-12, 1 - 1e-12)
+    logloss = float(-np.mean(y * np.log(q) + (1 - y) * np.log(1 - q)))
+    constant = bool(np.allclose(p, p[0])) if len(p) else False
     return {"n": int(len(y)), "accuracy": round(acc, 4), "balanced_accuracy": round(bal, 4),
-            "auc": None if math.isnan(auc) else round(auc, 4),
+            "auc": None if (math.isnan(auc) or constant) else round(auc, 4),
+            "auc_defined": not constant,
             "brier": round(float(brier_score_loss(y, np.clip(p, 0, 1))), 5),
+            "log_loss": round(logloss, 5),
             "n_positive": int(pos.sum()), "n_negative": int(neg.sum())}
 
 
@@ -257,7 +267,12 @@ def main() -> int:
         "outcome": "sign(open(T)/close(T-1) - 1)",
         "features_frozen_before_fitting": FEATURES,
         "features_omitted": [],
-        "models": ["always_positive", "momentum_sign", "logistic_l2", "gbt_shallow"],
+        "models": ["always_positive", "intercept_only_prevalence", "momentum_sign",
+                   "logistic_l2", "gbt_shallow"],
+        "probabilistic_baseline": ("INTERCEPT_ONLY_PREVALENCE - training-fold positive-gap "
+                                   "prevalence assigned to every test observation"),
+        "always_positive_role": ("classification benchmark only; its 0/1 predictions are NOT the "
+                                 "primary probabilistic comparator"),
         "validation": "chronological expanding window; standardization fit within each training fold",
         "selection_rule": "pooled out-of-sample Brier score, AUC secondary; never trading returns",
         "cost_bps_round_trip": COST_BPS,
@@ -270,7 +285,8 @@ def main() -> int:
     }
 
     # ---------------- chronological expanding window ----------------
-    preds = {m: [] for m in ("always_positive", "momentum_sign", "logistic_l2", "gbt_shallow")}
+    preds = {m: [] for m in ("always_positive", "intercept_only_prevalence", "momentum_sign",
+                             "logistic_l2", "gbt_shallow")}
     keep = []
     folds = []
     for te_year in TEST_YEARS:
@@ -306,11 +322,21 @@ def main() -> int:
     res["pooled_out_of_sample"] = pooled
 
     # ---------------- primary selection: Brier, AUC secondary ----------------
+    # Frozen rule unchanged: lowest pooled out-of-sample Brier, AUC secondary. The
+    # intercept-only null is now a candidate, and a null model is an acceptable winner.
+    candidates = ["intercept_only_prevalence", "logistic_l2", "gbt_shallow"]
+    best = min(candidates, key=lambda m: (pooled[m]["brier"], -(pooled[m]["auc"] or 0)))
     learned = ["logistic_l2", "gbt_shallow"]
-    best = min(learned, key=lambda m: (pooled[m]["brier"], -(pooled[m]["auc"] or 0)))
     res["primary_model"] = {
         "selected": best, "rule": "lowest pooled out-of-sample Brier score, AUC secondary",
+        "candidates": candidates,
         "brier": pooled[best]["brier"], "auc": pooled[best]["auc"],
+        "is_null_model": best == "intercept_only_prevalence",
+        "beats_probabilistic_null_brier": {m: pooled[m]["brier"] < pooled["intercept_only_prevalence"]["brier"]
+                                           for m in learned},
+        "any_learned_model_beats_null": any(pooled[m]["brier"] < pooled["intercept_only_prevalence"]["brier"]
+                                            for m in learned),
+        "intercept_only_brier": pooled["intercept_only_prevalence"]["brier"],
         "beats_always_positive_brier": pooled[best]["brier"] < pooled["always_positive"]["brier"],
         "beats_momentum_brier": pooled[best]["brier"] < pooled["momentum_sign"]["brier"],
         "beats_always_positive_accuracy": pooled[best]["accuracy"] > pooled["always_positive"]["accuracy"],
@@ -318,7 +344,12 @@ def main() -> int:
     }
 
     # ---------------- combined strategy ----------------
-    p_best = P[best]
+    # The strategy is evaluated on the LEARNED model's predictions, never the null's.
+    # A constant-prevalence null emits no directional signal; trading it would be a
+    # disguised always-long rule. These figures are secondary evidence about the failed
+    # learned model, not an investable strategy.
+    strategy_model = "logistic_l2"
+    p_best = P[strategy_model]
     pos = np.where(p_best > 0.5, 1.0, -1.0)
     oos = oos.copy()
     oos["pred_prob"] = p_best
@@ -335,6 +366,10 @@ def main() -> int:
         return {"year": str(g.idxmin()), "mean_net_pct": round(100 * float(g.min()), 4)}
 
     res["combined_strategy"] = {
+        "status": ("SECONDARY EVIDENCE ABOUT THE FAILED LEARNED MODEL - not presented as an "
+                   "investable strategy; the model selected under the frozen rule is the "
+                   "intercept-only null, which produces no directional signal to trade"),
+        "predictions_from": strategy_model,
         "entry": "close(T-1)", "exit": "open(T)",
         "rule": "long if predicted probability > 0.5, short if < 0.5",
         "cost_bps_round_trip": COST_BPS,
@@ -355,11 +390,15 @@ def main() -> int:
     # ---------------- conclusion ----------------
     bm = res["primary_model"]
     inc = res["combined_strategy"]["incremental_gst_effect_cr2"]
-    dir_ok = bool(bm["beats_always_positive_brier"] and bm["beats_momentum_brier"]
-                  and res["combined_strategy"]["direction_only"]["mean_net_pct"] > 0)
+    any_skill = bool(bm["any_learned_model_beats_null"])
+    dir_ok = bool(any_skill and res["combined_strategy"]["direction_only"]["mean_net_pct"] > 0)
     gst_ok = bool(inc.get("p_value", 1) < 0.05 and inc.get("coef_pp", 0) > 0)
     if len(oos) < 100:
         concl = "INSUFFICIENT_DATA"
+    elif bm["is_null_model"] or not any_skill:
+        # No learned model beats the probabilistic null, so there is no investable
+        # direction model to combine GST with.
+        concl = "TESTED_DIRECTION_MODELS_HAVE_NO_SKILL"
     elif dir_ok and gst_ok:
         concl = "DIRECTION_SIGNAL_AND_GST_FILTER_BOTH_ADD_VALUE"
     elif dir_ok:
@@ -369,11 +408,32 @@ def main() -> int:
     else:
         concl = "NEITHER_ADDS_VALUE"
     res["conclusion"] = concl
+    res["conclusion_scope"] = (
+        "The tested pre-earnings price-based direction models have no out-of-sample "
+        "directional skill, and applying GST as a magnitude filter does not rescue those "
+        "models.")
+    res["secondary_conclusion_narrow"] = {
+        "label": "NEITHER_ADDS_VALUE",
+        "applies_to": ("the tested logistic-direction strategy and its GST combination ONLY - "
+                       "not the overall two-stage research concept"),
+    }
+    res["what_this_does_not_establish"] = [
+        "It does not invalidate the separate GST magnitude hypothesis.",
+        "It does not test GST combined with a direction signal that independently possesses "
+        "directional skill.",
+        "It does not test analyst revisions, point-in-time news, options skew, fundamental "
+        "expectations or network-diffusion features.",
+        "A failed direction model cannot determine whether GST would improve a genuinely "
+        "informative direction model.",
+    ]
     res["conclusion_basis"] = {
-        "direction_beats_both_baselines_on_brier": dir_ok,
+        "any_learned_model_beats_probabilistic_null": any_skill,
+        "selected_is_null_model": bm["is_null_model"],
         "gst_incremental_supported": gst_ok,
-        "note": ("a model is not useful merely because accuracy exceeds 50%; it must beat the "
-                 "fixed baselines chronologically and be economically meaningful after costs"),
+        "trading_results_are_secondary": True,
+        "note": ("the selected model is the intercept-only null, so no directional trading "
+                 "strategy is presented as investable; the logistic strategy figures are kept "
+                 "only as secondary evidence about the failed learned model"),
     }
 
     oos[["ticker", "event_day", "year", "role", "high_gst", "y", "gap", "pred_prob",
@@ -383,10 +443,11 @@ def main() -> int:
         json.dumps(res, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
 
     print(f"OOS n={len(oos)}  positive rate={oos.y.mean():.4f}")
-    for m in ("always_positive", "momentum_sign", "logistic_l2", "gbt_shallow"):
+    for m in ("always_positive", "intercept_only_prevalence", "momentum_sign",
+              "logistic_l2", "gbt_shallow"):
         x = pooled[m]
         print(f"  {m:18s} acc={x['accuracy']:.4f} bal={x['balanced_accuracy']:.4f} "
-              f"auc={x['auc']} brier={x['brier']:.5f}")
+              f"auc={x['auc']} brier={x['brier']:.5f} logloss={x['log_loss']:.5f}")
     print(f"  selected: {best}")
     cs = res["combined_strategy"]
     for k in ("direction_only", "direction_plus_gst_filter", "contemporaneous_unfiltered_low_gst"):

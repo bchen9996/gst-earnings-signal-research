@@ -1,7 +1,55 @@
 # Changelog
 
 
-## 2026-08-16 — Independent pre-earnings direction model: NEITHER_ADDS_VALUE
+## 2026-08-16 — Correction: proper probabilistic null added; the null wins
+
+Narrow correction to PR #23. No feature was added, no other strategy tried, nothing searched.
+
+**The Brier baseline was wrong.** Always-positive predicts a hard 1.0, so its Brier (0.46528) and log
+loss (12.86) are terrible by construction — beating it proves nothing probabilistic. The proper null
+is **`INTERCEPT_ONLY_PREVALENCE`**: within each expanding-window fold, the positive-gap prevalence is
+estimated from **training data only** and assigned to every test observation.
+
+| Model | Accuracy | AUC | **Brier** | Log loss |
+|---|---|---|---|---|
+| **INTERCEPT_ONLY_PREVALENCE** *(selected)* | 0.4653 | 0.5042 | **0.25600** | **0.70522** |
+| Logistic L2 | 0.4792 | 0.4654 | 0.27110 | 0.73762 |
+| Shallow GBT | 0.4931 | 0.4757 | 0.28710 | 0.78249 |
+| Momentum-sign | 0.4792 | 0.4752 | 0.32292 | 0.85988 |
+| Always-positive *(classification benchmark only)* | 0.5347 | n/a | 0.46528 | 12.85611 |
+
+**The null beats every learned model on both Brier and log loss.** The frozen selection rule — lowest
+pooled out-of-sample Brier, AUC secondary — was reapplied **unchanged** with the null as a candidate,
+and it now selects the null. A null model is an acceptable winner. The logistic model's earlier Brier
+edge came from predicting near 0.5; against a null that is unconfident by construction, that edge
+disappears. Always-positive is kept as a classification benchmark (53.47% accuracy is the bar a
+classifier must clear) but is no longer treated as the probabilistic comparator.
+
+**Main conclusion: `TESTED_DIRECTION_MODELS_HAVE_NO_SKILL`** — the tested pre-earnings price-based
+direction models have no out-of-sample directional skill, and applying GST as a magnitude filter does
+not rescue those models. The earlier line "Neither leg of the two-stage design works on this sample"
+was too broad and is removed. `NEITHER_ADDS_VALUE` is retained only as a narrow secondary label for
+the tested logistic-direction strategy and its GST combination — not for the two-stage concept.
+
+Because the selected model is the null, **no directional trading strategy is presented as
+investable**; a constant-prevalence null emits no directional signal and trading it would be a
+disguised always-long rule. The logistic strategy figures (direction-only −0.7027% net; +GST
+−0.8865%; incremental GST −1.0404 pp, p=0.5858) are retained explicitly as **secondary evidence about
+the failed learned model**.
+
+**Stated explicitly:** this does not invalidate the separate GST magnitude hypothesis; it does not
+test GST combined with a direction signal that independently possesses directional skill; it does not
+test analyst revisions, point-in-time news, options skew, fundamental expectations or
+network-diffusion features; and a failed direction model cannot determine whether GST would improve a
+genuinely informative direction model.
+
+**The leakage finding is unchanged and remains prominent:** 68 duplicate rows out of 285 (one event 7
+times) meant a duplicate's `prior_gap_dir` read its own gap sign. Before correction the logistic model
+showed **63.6% accuracy and +0.60% net**; after deduplication to 217 unique identities and a strictly
+lagging `prior_gap_dir`, **47.9% and −0.70% net**.
+
+
+## 2026-08-16 — Independent pre-earnings direction model (superseded by the correction above)
 
 `RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01, uses no gated prospective outcome.
 Additive files only; HYP-01 locks, registry, F5 artifacts, universe constants and frozen methodology
