@@ -33,22 +33,56 @@ Then diff your output against the committed proposal.
 
 ---
 
-### 1. Authoritative-source authenticity
+### 1a. Source authenticity
 
-Is the source what it claims to be — the dated official iShares OEF holdings snapshot published by
-BlackRock/iShares, and **not** an S&P DJI constituent file, aggregator, encyclopedia, or generated
-list?
+Is the publisher what it claims to be — **BlackRock / iShares**, the fund issuer — and was the file
+obtained from the download link the official product page itself publishes?
 
 - Finding: `PENDING`
 - Notes:
 
-### 2. Source hash
+### 1b. Historical raw-byte hash verification
 
-Does the raw file you download match the recorded SHA-256, or can you account for the difference
-(the fund republishes daily, so an as-of drift is expected and must be stated, not hand-waved)?
+The raw holdings file is **deliberately not tracked by Git**, because it carries prohibited numeric
+holdings fields. `GST_OEF_RAW_SOURCE_EVIDENCE_MANIFEST_v1.0.json` records its exact filename,
+repository-external location, byte count (17,200), SHA-256, retrieval timestamp, as-of date and
+official URL, and confirms it remains available to an authorized reviewer.
 
-Recorded: raw SHA-256 `3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892`, as-of
-**Aug 13, 2026**.
+Recorded: raw SHA-256 `3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892`,
+as-of **Aug 13, 2026**.
+
+Two verification paths, and they are not equivalent:
+
+- **Direct** — hash the quarantined file at the recorded location. This verifies the *historical
+  bytes* exactly.
+- **Indirect** — re-download from the official URL. The fund republishes daily, so a *different* hash
+  is expected and is **not** by itself a discrepancy; it verifies the source, not the historical
+  bytes. If you take this path and cannot reach the original bytes, mark this check `UNRESOLVED`
+  rather than `APPROVE`.
+
+- Finding: `PENDING`
+- Verification path used: `PENDING`
+- Notes:
+
+### 1c. Sanitized identity projection verification
+
+Does `GST_OEF_IDENTITY_SNAPSHOT_2026-08-13.json` contain **only** `Ticker`, `Name` and `Asset Class`,
+with all twelve other columns dropped and no numeric holdings value present anywhere? Does its
+recorded SHA-256 match, and does re-running the sanitizer over the raw file reproduce it?
+
+- Finding: `PENDING`
+- Notes:
+
+### 1d. Acceptance of the OEF proxy
+
+**This is a judgment call, not a checkable fact, and it is yours.** The candidate pool came from a
+**fund's holdings file**, not from S&P DJI's canonical constituent list. A fund's holdings may differ
+from index membership through sampling, timing, corporate actions, cash positions and derivative
+overlays.
+
+S&P DJI's own export was unobtainable — its security controls blocked access and were **not**
+circumvented. Do you accept a fund-holdings file as an identity-only proxy for the S&P 100 investable
+universe for this purpose, or does the proposal fail on this ground regardless of everything else?
 
 - Finding: `PENDING`
 - Notes:
@@ -69,12 +103,30 @@ with no symbol invented and no two distinct securities merged?
 - Finding: `PENDING`
 - Notes:
 
-### 5. Economic-issuer deduplication
+### 5. Economic-issuer deduplication and the corrected grouping rule
 
-Is the ALPHABET decision correct (`GOOG` excluded because `GOOGL` is already locked)? Is the
-issuer-key construction — case/punctuation normalization plus removal of a trailing share-class
-designator **for grouping only, never applied to the ticker** — acceptable to you? *This is the one
-mechanical step the frozen rule required but did not spell out; it is flagged here deliberately.*
+**A previous version of this proposal was rejected on exactly this point.** It used a general regex
+stripping a trailing `CLASS/CL/SER/SERIES` designator, which is not the case-and-punctuation-only
+normalization frozen rule R5 specifies. That general behaviour has been **removed entirely**.
+
+It is replaced by an exact frozen source-name map covering only the two names present in this dated
+snapshot:
+
+```json
+{"ALPHABET CLASS A": "ALPHABET", "ALPHABET CLASS C": "ALPHABET"}
+```
+
+applied immediately before R5 deduplication and nowhere else. Every other name falls back to R5's
+sentence verbatim, with no suffix removed. An unlisted share-class group makes the build **stop**.
+
+Verify: that no general suffix stripping remains in the grouping path; that exactly two source names
+resolve to `ALPHABET`; that the map is applied only before R5; that `GOOG` is excluded under R5.1
+because `GOOGL` is locked; and that the amendment recording this was created **before** the corrected
+selection was computed.
+
+Note the independently verified consequence: **`GOOG`'s exclusion does not move the rank-26
+boundary** — its digest sorts below rank 26 — and the corrected recomputation produced an **identical**
+selected 26. The defect was a real rule inconsistency, not a wrong outcome.
 
 - Finding: `PENDING`
 - Notes:

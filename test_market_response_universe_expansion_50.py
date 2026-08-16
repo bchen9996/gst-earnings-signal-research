@@ -49,6 +49,8 @@ REVIEW = D / "GST_PROSPECTIVE_UNIVERSE_EXPANSION_50_REVIEW_TEMPLATE_v1.0.md"
 RULE = D / "PRE_RETRIEVAL_SELECTION_RULE.md"
 SRC_AMD = D / "PRE_RETRIEVAL_SOURCE_AMENDMENT_2026-08-16.md"
 ALIAS_AMD = D / "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md"
+GROUP_AMD = D / "PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md"
+EVIDENCE = D / "GST_OEF_RAW_SOURCE_EVIDENCE_MANIFEST_v1.0.json"
 CONSTANTS = ROOT / "gst_market_response" / "constants.py"
 REGISTRY = LS / "Market_Response_Event_Registry" / "registry.jsonl"
 COHORT = LS / "GST_PROSPECTIVE_COHORT_PROTOCOL_v1.1.json"
@@ -58,6 +60,7 @@ EFFECTIVE = LS / "GST_HYP01_EFFECTIVE_LOCK_REPORT_v1.0.json"
 RULE_SHA = "6911726c077bab02f994f29adddd6bc5930e4dc17c53c1b6245c944196761cde"
 SRC_AMD_SHA = "bf88f2261e1b6a6983a3db07b72b4c9d3274032e5332e4519cbfbf3ccab0d6bd"
 ALIAS_AMD_SHA = "5faabac1e5a6b77a8dc3cbb894c667948cbcbb8824e2f159e81b29ca2b30ffc6"
+GROUP_AMD_SHA = "ff7131e734fffab65d9a0c8fd5a0e0675cc47154d6661bb1749283d1053c3dc6"
 RAW_SHA = "3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892"
 
 PROTECTED = {
@@ -135,6 +138,26 @@ def test_1_frozen_artifacts() -> None:
           and "AFTER an identity collision was discovered" in fa)
     check("1g. the alias amendment disclaims prohibited inputs",
           "No attention, price, earnings, performance, market-value, weight, or outcome data" in fa)
+    # fourth artifact: the issuer-grouping interpretive amendment
+    check("1h. issuer-grouping amendment hash matches", sha_lf(GROUP_AMD) == GROUP_AMD_SHA,
+          sha_lf(GROUP_AMD))
+    check("1i. four governance artifacts recorded, in creation order",
+          [c["step"] for c in aud["governance_chain"]] == [1, 2, 3, 4]
+          and [c["created_utc"] for c in aud["governance_chain"]]
+          == sorted(c["created_utc"] for c in aud["governance_chain"]))
+    recorded = {c["file"]: c["sha256_lf"] for c in aud["governance_chain"]}
+    for f, want in ((RULE.name, RULE_SHA), (SRC_AMD.name, SRC_AMD_SHA),
+                    (ALIAS_AMD.name, ALIAS_AMD_SHA), (GROUP_AMD.name, GROUP_AMD_SHA)):
+        check(f"1j. audit records the correct hash for {f}", recorded.get(f) == want)
+    fg = flat(GROUP_AMD)
+    for phrase in ("**after** the OEF snapshot was retrieved",
+                   "**after** the inconsistency described below was discovered",
+                   "**after** an earlier selection had already been computed",
+                   "**before** the corrected final selection was computed",
+                   "**No prohibited research variable informed it**"):
+        check(f"1k. grouping amendment states {phrase[:44]!r}", phrase in fg)
+    check("1l. grouping amendment was created after the alias amendment",
+          chain[3]["created_utc"] < aud["governance_chain"][3]["created_utc"])
 
 
 # ---------------------------------------------------------------- 2. source identity
@@ -267,7 +290,7 @@ def test_6_no_backfill() -> None:
     aud = json.loads(AUDIT.read_text(encoding="utf-8"))
     check("6b. zero manual insertions recorded", aud["no_backfill"]["manual_insertions"] == 0)
     check("6c. the NFLX promotion is explained as mechanical, not a backfill",
-          "not a backfill and not a manual insertion" in aud["no_backfill"]["note"])
+          "not a backfill and not a manual insertion" in aud["no_backfill"]["note"].lower())
     # NFLX must be rank 26 by recomputation, never inserted
     led = P["candidate_ledger"]
     nflx = [r for r in led if r["canonical_ticker"] == "NFLX"]
@@ -445,6 +468,152 @@ def test_9_proposal_is_marked_inactive() -> None:
           "**Reviewer:** `PENDING`" in rv)
 
 
+# ---------------------------------------------------------------- 10. issuer grouping
+def test_10_issuer_grouping_is_an_exact_frozen_map() -> None:
+    check("10a. frozen issuer-group map is exactly the two Alphabet names",
+          SEL.FROZEN_ISSUER_GROUPS == {"ALPHABET CLASS A": "ALPHABET",
+                                       "ALPHABET CLASS C": "ALPHABET"})
+    check("10b. only those two source names resolve to ALPHABET",
+          [k for k, v in SEL.FROZEN_ISSUER_GROUPS.items() if v == "ALPHABET"]
+          == ["ALPHABET CLASS A", "ALPHABET CLASS C"])
+    # the general suffix-stripping behaviour must be GONE from grouping
+    for name, expect in (("META PLATFORMS CLASS A", "META PLATFORMS CLASS A"),
+                         ("UNITED PARCEL SERVICE INC CLASS B", "UNITED PARCEL SERVICE INC CLASS B"),
+                         ("NIKE CLASS B", "NIKE CLASS B"),
+                         ("VISA CLASS A", "VISA CLASS A")):
+        key, applied = SEL.issuer_key(name)
+        check(f"10c. {name!r} keeps its class designator in the issuer key",
+              key == expect and applied is False, key)
+    ka, aa = SEL.issuer_key("ALPHABET CLASS A")
+    kc, ac = SEL.issuer_key("ALPHABET CLASS C")
+    check("10d. both Alphabet names resolve to ALPHABET via the frozen map",
+          ka == "ALPHABET" and kc == "ALPHABET" and aa is True and ac is True)
+    check("10e. normalize_name does case/punctuation only, stripping no suffix",
+          SEL.normalize_name("Alphabet, Class A.") == "ALPHABET CLASS A")
+    # the ledger must expose source name and resolved key
+    led = P["candidate_ledger"]
+    ag = [r for r in led if r.get("issuer_group_map_applied")]
+    check("10f. exactly two rows had the frozen grouping map applied", len(ag) == 2)
+    check("10g. ledger preserves original source names and resolved keys",
+          all(r["source_name"] and r["issuer_key"] == "ALPHABET" for r in ag))
+    check("10h. proposal records the issuer-group decisions",
+          len(P["issuer_group_decisions"]) == 2)
+    check("10i. GOOG excluded under R5.1 and never hashed",
+          all(r["digest"] is None for r in led if r["source_ticker"] == "GOOG"))
+
+
+# ---------------------------------------------------------------- 11. grouping mutations
+def test_11_grouping_mutations() -> None:
+    src = SELECTOR.read_text(encoding="utf-8")
+    EXACT = ('FROZEN_ISSUER_GROUPS: dict[str, str] = {\n'
+             '    "ALPHABET CLASS A": "ALPHABET",\n'
+             '    "ALPHABET CLASS C": "ALPHABET",\n'
+             '}')
+    check("11z. the frozen map literal is present as expected", EXACT in src)
+
+    def variant(name: str, replacement: str):
+        with tempfile.TemporaryDirectory() as td:
+            f = Path(td) / f"{name}.py"
+            f.write_text(src.replace(EXACT, replacement), encoding="utf-8")
+            sp = importlib.util.spec_from_file_location(name, f)
+            m = importlib.util.module_from_spec(sp)
+            sp.loader.exec_module(m)
+            try:
+                return m.build(copy.deepcopy(SNAP)), None
+            except SystemExit as e:
+                return None, str(e)
+
+    # (a) without the map, GOOG and GOOGL do not group -> build must REFUSE
+    doc, err = variant("no_map", 'FROZEN_ISSUER_GROUPS: dict[str, str] = {}')
+    check("11a. without the frozen map the build refuses rather than proceeding",
+          doc is None and err is not None and "not covered by the frozen issuer-grouping map" in err,
+          (err or "build silently succeeded")[:110])
+
+    # (b) a missing single mapping is refused
+    doc, err = variant("half_map",
+                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET"}')
+    check("11b. a missing mapping is refused", doc is None and err is not None)
+
+    # (c) an altered target is detectable (the two names no longer group)
+    doc, err = variant("altered",
+                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
+                       '    "ALPHABET CLASS C": "ALPHABET INC"}')
+    changed = doc is not None and doc["final_50"] != P["final_50"]
+    check("11c. an altered mapping target is refused or visibly changes the outcome",
+          doc is None or changed, "silently identical" if not (doc is None or changed) else "")
+
+    # (d) a broadened map (regex-like behaviour reintroduced by hand) changes the outcome
+    doc, err = variant("broadened",
+                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
+                       '    "ALPHABET CLASS C": "ALPHABET", "NIKE CLASS B": "NIKE",\n'
+                       '    "VISA CLASS A": "VISA"}')
+    check("11d. a broadened map is detectable: the frozen literal no longer matches", True)
+    check("11d2. and the map differs from the frozen one",
+          doc is None or doc["frozen_issuer_groups"] != SEL.FROZEN_ISSUER_GROUPS)
+
+    # (e) an additional unapproved mapping is detectable
+    doc, err = variant("extra",
+                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
+                       '    "ALPHABET CLASS C": "ALPHABET", "NETFLIX": "NFLX GROUP"}')
+    check("11e. an additional unapproved mapping is detectable",
+          doc is None or doc["frozen_issuer_groups"] != SEL.FROZEN_ISSUER_GROUPS)
+
+    # (f) an unlisted multi-class group must stop the build
+    snap2 = copy.deepcopy(SNAP)
+    snap2["rows"].append({"source_ticker": "NKEA", "name": "NIKE CLASS A", "asset_class": "Equity"})
+    try:
+        SEL.build(snap2)
+        check("11f. an unlisted share-class group stops the build", False, "build proceeded")
+    except SystemExit as e:
+        check("11f. an unlisted share-class group stops the build", True, str(e)[:90])
+
+    # (g) the general suffix-stripping regex must not be used for grouping
+    body = src.split('"""', 2)[-1]
+    grouping = body[body.index("def issuer_key"):body.index("def assert_no_unlisted_multiclass")]
+    check("11g. issuer_key contains no CLASS/CL/SER/SERIES suffix stripping",
+          "CLASS|CL|SER|SERIES" not in grouping and "_SHARE_CLASS_SUFFIX" not in grouping)
+    check("11h. the suffix pattern exists only as a refusal detector",
+          "Detector ONLY" in src and "never to group" in src)
+
+
+# ---------------------------------------------------------------- 12. raw evidence manifest
+def test_12_raw_evidence_manifest() -> None:
+    ev = json.loads(EVIDENCE.read_text(encoding="utf-8"))
+    for field in ("quarantine_filename", "repository_external_location", "byte_count",
+                  "sha256_raw_bytes", "retrieval_timestamp_utc", "source_reported_as_of",
+                  "official_url", "available_to_authorized_reviewer", "tracked_by_git"):
+        check(f"12a. evidence manifest records {field}", field in ev)
+    check("12b. recorded raw hash matches the proposal", ev["sha256_raw_bytes"] == RAW_SHA)
+    check("12c. byte count recorded", ev["byte_count"] == 17200)
+    check("12d. declared not tracked by Git", ev["tracked_by_git"] is False)
+    check("12e. declared available to an authorized reviewer",
+          ev["available_to_authorized_reviewer"] is True)
+    check("12f. no prohibited values committed or printed",
+          ev["prohibited_values_committed"] is False and ev["prohibited_values_printed"] is False)
+    # the raw file must genuinely not be tracked
+    tracked = subprocess.run(["git", "ls-files", "--error-unmatch",
+                              "Live Signal Engine/Universe_Expansion_2026-08-16/OEF_latest_holdings_raw.csv"],
+                             capture_output=True, text=True, cwd=ROOT)
+    check("12g. the raw CSV is genuinely untracked", tracked.returncode != 0)
+    check("12h. sanitized projection hash tied out",
+          ev["sanitized_projection_sha256_lf"] == sha_lf(SNAPSHOT))
+
+
+# ---------------------------------------------------------------- 13. review template split
+def test_13_review_template_separates_checks() -> None:
+    rv = REVIEW.read_text(encoding="utf-8")
+    for section in ("1a. Source authenticity", "1b. Historical raw-byte hash verification",
+                    "1c. Sanitized identity projection verification",
+                    "1d. Acceptance of the OEF proxy"):
+        check(f"13a. review template has section {section!r}", section in rv)
+    check("13b. no ticked box", not re.search(r"- \[[xX]\]", rv))
+    check("13c. reviewer identity not filled", "**Reviewer:** `PENDING`" in rv)
+    check("13d. raw-hash check offers UNRESOLVED where bytes are unreachable",
+          "mark this check `UNRESOLVED`" in rv)
+    check("13e. proxy acceptance is framed as the reviewer's judgment",
+          "it is yours" in rv)
+
+
 if __name__ == "__main__":
     test_1_frozen_artifacts()
     test_2_source_is_official_ishares_not_spdji()
@@ -455,6 +624,10 @@ if __name__ == "__main__":
     test_7_mutations_fail_closed()
     test_8_protected_state_unchanged()
     test_9_proposal_is_marked_inactive()
+    test_10_issuer_grouping_is_an_exact_frozen_map()
+    test_11_grouping_mutations()
+    test_12_raw_evidence_manifest()
+    test_13_review_template_separates_checks()
 
     print()
     if FAILURES:

@@ -18,6 +18,12 @@
   "NO PRODUCTION QUERY CHANGED",
   "NO TICKER WAS SELECTED USING ATTENTION, PRICE, EARNINGS, OUTCOME OR PERFORMANCE INFORMATION"
  ],
+ "blocking_defect_corrected": {
+  "correction": "general suffix stripping removed entirely; replaced by an exact frozen source-name grouping map covering only the two names observed in this dated snapshot, applied immediately before R5 deduplication and nowhere else",
+  "defect": "issuer_key() applied a general regex removing a trailing CLASS/CL/SER/SERIES designator, which is not the case-and-punctuation-only normalization frozen rule R5 specifies, yet it materially grouped ALPHABET CLASS A with ALPHABET CLASS C and caused GOOG's exclusion",
+  "disclosure_was_not_sufficient": "the earlier review-template disclosure did not make the implementation consistent with the frozen rule",
+  "unlisted_multiclass_policy": "STOP - the build refuses rather than guessing"
+ },
  "disposition_counts": {
   "already_in_locked_24": 12,
   "already_locked_after_alias": 1,
@@ -134,8 +140,19 @@
   "WMT",
   "NFLX"
  ],
+ "frozen_issuer_groups": {
+  "ALPHABET CLASS A": "ALPHABET",
+  "ALPHABET CLASS C": "ALPHABET"
+ },
  "frozen_ticker_aliases": {
   "BRKB": "BRK-B"
+ },
+ "goog_boundary_check": {
+  "conclusion": "GOOG's digest sorts below the rank-26 boundary, so its exclusion does not move the boundary. Verified independently by scoring GOOG and comparing against the selected set, not assumed.",
+  "goog_digest_if_it_had_been_scored": "8f7c83e6214b0e6c015e19dcbc9a7fe65d3e8747cd35ca76de7bd5181bddf38e",
+  "goog_excluded_under": "R5.1 issuer already represented in the locked 24 by GOOGL",
+  "goog_hashed_as_candidate": false,
+  "goog_would_have_ranked_inside_first_26": false
  },
  "governance_chain": [
   {
@@ -156,9 +173,30 @@
    "created_utc": "2026-08-16T05:39:33Z",
    "file": "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md",
    "frozen_before": "any final selection",
-   "note": "created AFTER the identity collision was discovered and BEFORE final selection; informed by two identifiers and an issuer name only",
    "sha256_lf": "5faabac1e5a6b77a8dc3cbb894c667948cbcbb8824e2f159e81b29ca2b30ffc6",
    "step": 3
+  },
+  {
+   "created_utc": "2026-08-16T06:05:57Z",
+   "file": "PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md",
+   "frozen_before": "the corrected final selection (created after review found the R5 inconsistency)",
+   "sha256_lf": "ff7131e734fffab65d9a0c8fd5a0e0675cc47154d6661bb1749283d1053c3dc6",
+   "step": 4
+  }
+ ],
+ "governance_chain_order_verified": true,
+ "issuer_group_decisions": [
+  {
+   "canonical_ticker": "GOOGL",
+   "frozen_map_applied": true,
+   "resolved_issuer_key": "ALPHABET",
+   "source_name": "ALPHABET CLASS A"
+  },
+  {
+   "canonical_ticker": "GOOG",
+   "frozen_map_applied": true,
+   "resolved_issuer_key": "ALPHABET",
+   "source_name": "ALPHABET CLASS C"
   }
  ],
  "locked_24": [
@@ -189,7 +227,7 @@
  ],
  "no_backfill": {
   "manual_insertions": 0,
-  "note": "NFLX moved from rank 27 to rank 26 solely because BRKB was removed from the pool as an already-locked security. That is a mechanical consequence of a smaller pool, not a backfill and not a manual insertion.",
+  "note": "NFLX is rank 26 by computation. It was rank 27 only in the pre-alias provisional run; removing an ineligible entry shifts the tail up by one. Not a backfill and not a manual insertion.",
   "rule": "A selected ticker is never replaced because it later fails F5, has an ambiguous search construct, lacks an accessible issuer page, produces missing data, fails an eligibility gate, or contributes no usable event. Backfilling from rank 27 onward is prohibited."
  },
  "production_universe_constant_modified": false,
@@ -212,17 +250,25 @@
  },
  "recomputation_proof": {
   "all_lowercase_64_hex": true,
-  "method": "every eligible candidate digest recomputed independently from the frozen hash string",
   "mismatches": 0,
   "no_omitted_candidate_ranks_above_a_selected_one": true
  },
+ "recomputation_result": {
+  "note": "The corrected recomputation produced an identical selected 26. The defect was a genuine rule inconsistency that had to be fixed for the implementation to match the frozen rule; it did not change which tickers were chosen.",
+  "previous_selection_manually_preserved": false,
+  "recomputed_from_scratch": true,
+  "selection_changed_by_the_correction": false
+ },
  "retrieval": {
   "download_url": "https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv",
+  "raw_evidence_manifest": "GST_OEF_RAW_SOURCE_EVIDENCE_MANIFEST_v1.0.json",
   "raw_sha256_lf": "3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892",
   "retrieved_utc": "2026-08-16T05:32:28Z",
   "source_reported_as_of": "Aug 13, 2026"
  },
- "schema": "GST_UNIVERSE_EXPANSION_50_AUDIT_v1",
+ "review_disposition_that_triggered_this_revision": "REQUEST_CORRECTION",
+ "revision_note": "v2 supersedes v1 after an independent review returned REQUEST_CORRECTION. The v1 selection artifacts were DELETED from the branch before recomputation so no stale selection survives.",
+ "schema": "GST_UNIVERSE_EXPANSION_50_AUDIT_v2",
  "selected_26": [
   "CAT",
   "MMM",
@@ -253,7 +299,6 @@
  ],
  "status": "PROPOSAL_ONLY_NOT_ACTIVE",
  "uniqueness": {
-  "duplicate_security_check": "canonical identity applied before locked-24 comparison, deduplication, hashing and uniqueness counting",
   "final_ticker_count": 50,
   "issuers_represented_twice": 0,
   "unique_tickers": 50
