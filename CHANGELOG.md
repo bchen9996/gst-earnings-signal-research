@@ -1,6 +1,88 @@
 # Changelog
 
 
+## 2026-08-16 — Descriptive sector-composition audit of the proposed 50 (NO UNIVERSE CHANGE)
+
+**DESCRIPTIVE AUDIT ONLY · NO UNIVERSE CHANGE · PROPOSED 50 REMAIN INACTIVE · PRODUCTION UNIVERSE REMAINS 24 · NO GST OR MARKET OUTCOME USED · F5 REMAINS OPEN · COLLECTION REMAINS BLOCKED · NO CONCENTRATION THRESHOLD WAS INVENTED.**
+
+Not one of the 50 tickers was altered, reordered, replaced or removed, and no
+alternative universe was generated. This entry adds measurement, not a decision.
+
+**What was measured.** Every security in the legacy 24, the 26 proposed additions,
+their union, and the 101-security OEF eligible-equity proxy pool was assigned a
+Fama–French 12 industry **mechanically**: `ticker → CIK → SEC SIC → matched SIC
+interval → FF12`. No manual override, no name-based inference, no aggregator, no
+encyclopedia, no model-generated sector label, no ETF weight and no market
+capitalization was used as evidence. Sources are the official SEC
+`company_tickers.json` and `data.sec.gov/submissions/` (identity and SIC metadata
+only — no financial statements, no earnings values) and the official Kenneth R.
+French `Siccodes12` definition file. All metrics use **equal ticker weights**.
+
+**The rule was frozen first.** `PRE_RETRIEVAL_SECTOR_COMPOSITION_AUDIT_RULE_2026-08-16.md`
+(SHA-256 `5ce6a0f0…4dab`) was written and hashed at `2026-08-16T07:49:31Z`, before
+any SEC or French retrieval. It fixes the groups, sources, metrics, weighting,
+missing-data policy and language discipline, and it deliberately freezes **no**
+concentration threshold. A test recomputes that hash from the committed file.
+
+**Coverage: 113/113 securities classified, zero `CLASSIFICATION_UNRESOLVED`.** The
+code still refuses to infer a missing SIC — a test asserts a `None` SIC yields
+`CLASSIFICATION_UNRESOLVED` rather than a guessed category, and that an unresolved
+ticker would be reported in place rather than deleted or replaced.
+
+**Descriptive findings.** Expansion produced **lower** concentration: HHI falls
+0.225694 → 0.140800 and the effective number of categories rises 6.22 → 8.55. The
+largest category's share falls from 41.6667% (`BusEq`, legacy 24) to 24.0000%
+(`BusEq`, final 50). The legacy 24 was missing `Chems`, `Telcm` and `Utils`; the
+final 50 represents **all 12** categories with none absent. Against the OEF proxy
+pool every category sits within **±3.0 percentage points** (`NoDur` −3.0 the
+largest gap; `Manuf` and `Shops` +2.1 each). Leave-one-ticker-out moves the
+largest-category share only within 22.449%–24.490% and HHI within
+0.137026–0.146189, so no single ticker drives the result.
+
+**What this does not establish.** No accept/reject threshold was specified by this
+task, so no such verdict is drawn, and the audit does not call any distribution
+representative, balanced, acceptable, unacceptable, biased or statistically
+significant. Whether this composition is adequate for HYP-01 — and whether a
+stratified or sector-specific redesign is warranted — is left to an independent
+reviewer. `GST_UNIVERSE_50_SECTOR_COMPOSITION_REVIEW_TEMPLATE_v1.0.md` ships with
+every finding and all four dispositions `PENDING`; none is preselected. That
+decision must be made **without consulting GST attention data or return outcomes**,
+since choosing a universe after seeing outcomes would make the sampling frame
+outcome-dependent.
+
+**Verified before committing.** `test_market_response_universe_50_sector_composition.py`
+runs offline with sockets blocked and passes **127 assertions**. It does not trust
+the audit's own declarations: it re-executes `ff12_for_sic` against the frozen
+intervals for all 113 records, recomputes every count, percentage, HHI, entropy,
+effective-category count, FINAL_50-vs-OEF difference and the full 50-way
+leave-one-out sweep, and confirms the ordering matches the merged proposal exactly.
+A **28-mutation battery** confirms the suite actually fails: reordering, dropping or
+substituting a ticker; overriding a category away from its SIC; falsifying any
+metric or sensitivity bound; citing a non-SEC provenance URL; inferring a category
+for a missing SIC; leaking an OEF weight; claiming a threshold, a verdict, a subset
+search or an altered universe; falsifying or post-dating the frozen-rule hash;
+editing the frozen rule; ticking a disposition or naming a reviewer; deleting a
+banner or the no-threshold statement; desynchronising the CSV from the JSON;
+removing the socket block; or making the classifier read a price field. **28 of 28
+were caught.**
+
+Three test failures during development were traced to the test, not the audit, and
+each matcher was tightened rather than the guarantee relaxed: a substring search for
+prohibited weight fields was matching the Python `return` keyword and the disclaimer
+strings that assert those fields were *not* read (now matched only in read position,
+with a self-check that the matcher catches a planted `row["price"]`); a 1e-6
+tolerance was applied to percentages stored at 4 dp, so denominators of 24, 26 and
+101 summed to 100.0001 (replaced with the **stricter** pair — unrounded shares sum
+to exactly 100, and each stored value equals the exact 4-dp rounding of its share);
+and a required phrase was line-wrapped in the Markdown source, so a raw substring
+match missed text that was present.
+
+Protected state is asserted byte-identical: `constants.py` (still exactly the
+original 24), both HYP-01 locks, the effective-lock report, the cohort protocol, the
+F5 audit, the merged universe proposal, and the single unchanged `DELL` registry
+row. F5 remains `OPEN`; prospective collection remains `BLOCKED`.
+
+
 ## 2026-08-16 — Proposed outcome-blind universe expansion 24 → 50 (PROPOSAL ONLY, NOT ACTIVE)
 
 **PROPOSAL ONLY · NOT ACTIVE · NOT AN S&P DJI CONSTITUENT FILE · CURRENT 24 REMAIN OPERATIVE · F5 REMAINS OPEN · COLLECTION REMAINS BLOCKED · NO PRODUCTION QUERY CHANGED · NO TICKER WAS SELECTED USING ATTENTION, PRICE, EARNINGS, OUTCOME OR PERFORMANCE INFORMATION.**
