@@ -1,6 +1,115 @@
 # Changelog
 
 
+## 2026-08-16 — Correction: proper probabilistic null added; the null wins
+
+Narrow correction to PR #23. No feature was added, no other strategy tried, nothing searched.
+
+**The Brier baseline was wrong.** Always-positive predicts a hard 1.0, so its Brier (0.46528) and log
+loss (12.86) are terrible by construction — beating it proves nothing probabilistic. The proper null
+is **`INTERCEPT_ONLY_PREVALENCE`**: within each expanding-window fold, the positive-gap prevalence is
+estimated from **training data only** and assigned to every test observation.
+
+| Model | Accuracy | AUC | **Brier** | Log loss |
+|---|---|---|---|---|
+| **INTERCEPT_ONLY_PREVALENCE** *(selected)* | 0.4653 | 0.5042 | **0.25600** | **0.70522** |
+| Logistic L2 | 0.4792 | 0.4654 | 0.27110 | 0.73762 |
+| Shallow GBT | 0.4931 | 0.4757 | 0.28710 | 0.78249 |
+| Momentum-sign | 0.4792 | 0.4752 | 0.32292 | 0.85988 |
+| Always-positive *(classification benchmark only)* | 0.5347 | n/a | 0.46528 | 12.85611 |
+
+**The null beats every learned model on both Brier and log loss.** The frozen selection rule — lowest
+pooled out-of-sample Brier, AUC secondary — was reapplied **unchanged** with the null as a candidate,
+and it now selects the null. A null model is an acceptable winner. The logistic model's earlier Brier
+edge came from predicting near 0.5; against a null that is unconfident by construction, that edge
+disappears. Always-positive is kept as a classification benchmark (53.47% accuracy is the bar a
+classifier must clear) but is no longer treated as the probabilistic comparator.
+
+**Main conclusion: `TESTED_DIRECTION_MODELS_HAVE_NO_SKILL`** — the tested pre-earnings price-based
+direction models have no out-of-sample directional skill, and applying GST as a magnitude filter does
+not rescue those models. The earlier line "Neither leg of the two-stage design works on this sample"
+was too broad and is removed. `NEITHER_ADDS_VALUE` is retained only as a narrow secondary label for
+the tested logistic-direction strategy and its GST combination — not for the two-stage concept.
+
+Because the selected model is the null, **no directional trading strategy is presented as
+investable**; a constant-prevalence null emits no directional signal and trading it would be a
+disguised always-long rule. The logistic strategy figures (direction-only −0.7027% net; +GST
+−0.8865%; incremental GST −1.0404 pp, p=0.5858) are retained explicitly as **secondary evidence about
+the failed learned model**.
+
+**Stated explicitly:** this does not invalidate the separate GST magnitude hypothesis; it does not
+test GST combined with a direction signal that independently possesses directional skill; it does not
+test analyst revisions, point-in-time news, options skew, fundamental expectations or
+network-diffusion features; and a failed direction model cannot determine whether GST would improve a
+genuinely informative direction model.
+
+**The leakage finding is unchanged and remains prominent:** 68 duplicate rows out of 285 (one event 7
+times) meant a duplicate's `prior_gap_dir` read its own gap sign. Before correction the logistic model
+showed **63.6% accuracy and +0.60% net**; after deduplication to 217 unique identities and a strictly
+lagging `prior_gap_dir`, **47.9% and −0.70% net**.
+
+
+## 2026-08-16 — Independent pre-earnings direction model (superseded by the correction above)
+
+`RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01, uses no gated prospective outcome.
+Additive files only; HYP-01 locks, registry, F5 artifacts, universe constants and frozen methodology
+untouched.
+
+Stage 2 of the two-stage design: an independent model predicts the sign of the overnight earnings
+gap, and **GST is applied only afterwards** as a magnitude/event-selection filter. GST is never an
+input to the direction model.
+
+**A leak was found and removed, and it changed the answer.** The event population reuses matched
+controls, so the same `(ticker, event_day)` identity appears several times — **68 duplicate rows out
+of 285, one event 7 times**. Left in place this double-counted the evaluation sample and leaked the
+outcome: a duplicate's `prior_gap_dir` feature read *the same event's* gap sign. With duplicates
+present the logistic model scored **63.6% accuracy, AUC 0.6395, Brier 0.23824** and the strategy
+returned **+0.60% net**. After deduplicating to **217 unique identities** and requiring
+`prior_gap_dir` to use a strictly earlier date, the same model scores **47.9% accuracy, AUC 0.4654**
+and the strategy returns **−0.70% net**. The apparent skill was the leak.
+
+**Out-of-sample (144 events, chronological expanding window: train ≤2022 → test 2023, ≤2023 → 2024,
+≤2024 → 2025):**
+
+| Model | Accuracy | AUC | Brier |
+|---|---|---|---|
+| Always-positive | 0.5347 | 0.500 | 0.46528 |
+| Momentum-sign | 0.4792 | 0.4752 | 0.32292 |
+| Logistic L2 *(selected on Brier)* | 0.4792 | **0.4654** | **0.27110** |
+| Shallow GBT | 0.4931 | 0.4757 | 0.28710 |
+
+Selection was by pooled out-of-sample Brier, fixed before fitting and never based on returns. It
+picks the logistic model, but the choice is hollow: accuracy is **below** the always-positive
+baseline and AUC is **below 0.5**. The Brier edge comes from predicting near 0.5, not from
+discrimination. Calibration is inverted at both ends — in the most-confident-up bin the observed
+positive rate is 0.364. Two of three test years are below chance.
+
+**Combined strategy** (enter close(T−1), exit open(T), 10 bps round trip):
+
+| | Direction only | Direction + GST filter | Low-GST comparator |
+|---|---:|---:|---:|
+| Trades | 144 | 90 | 54 |
+| Mean net | −0.7027% | −0.8865% | −0.3962% |
+| Hit rate | 47.92% | 47.78% | 48.15% |
+| Max drawdown | −81.66% | −78.90% | −26.27% |
+| Worst year | 2023: −2.3316% | 2023: −2.5048% | 2023: −1.8785% |
+
+The GST filter selects the *worse* half. Decisive statistic — incremental GST effect,
+`strategy_return ~ high_GST + ticker FE`, ticker-clustered CR2/BRL with Satterthwaite df (27
+clusters): **−1.0404 pp, SE 1.8752, t=−0.555, p=0.5858, CI [−4.978, +2.897]**. Secondary confidence
+filter (one fixed threshold at 0.60, not searched): 63 trades, −1.8891% net.
+
+**Conclusion (superseded — the correction entry above replaces this with
+`TESTED_DIRECTION_MODELS_HAVE_NO_SKILL` after adding the proper probabilistic null):** the tested
+pre-earnings price-based direction models have no out-of-sample directional skill, and applying GST
+as a magnitude filter does not rescue those models. This does not establish that earnings-gap
+direction is unpredictable in general.
+
+Verified: one focused test confirms GST never enters the model, that no feature reads an index at or
+after T, deduplication of event identities, chronological-only validation with fold-local
+standardization, and that every reported metric and strategy figure recomputes.
+
+
 ## 2026-08-16 — Clustered-inference correction to the retrospective decomposition
 
 Narrow statistical review of PR #22. The descriptive results and strategy definitions are unchanged;
