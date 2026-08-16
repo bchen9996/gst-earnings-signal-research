@@ -1,6 +1,98 @@
 # Changelog
 
 
+## 2026-08-16 — Clustered-inference correction to the retrospective decomposition
+
+Narrow statistical review of PR #22. The descriptive results and strategy definitions are unchanged;
+the inference is not. Ordinary t-statistics treated observations as independent despite repeated
+ticker events and reused matched controls, so every load-bearing statistic is re-estimated with
+**CR2/BRL and coefficient-specific Satterthwaite df, clustered by ticker (28 clusters)**, reusing
+`tools/hyp01_inference_feasibility.py` unchanged — the implementation tied out against an independent
+R `clubSandwich` reference on 13 of 13 admissible fixtures. Retrospective development inference, not
+HYP-01 confirmation.
+
+| Model (+ ticker FE) | Coefficient on high_GST |
+|---|---|
+| **Primary** abs(day_return) | **+1.509 pp**, SE 0.766, df 16.3, t=1.969, **p=0.0662**, CI [-0.113, +3.131] |
+| abs(day_return − SPY) | +1.539 pp, SE 0.678, t=2.27, p=0.03707, CI [+0.104, +2.973] |
+| **Strategy E incremental** | **+0.013 pp**, SE 0.618, t=0.021, **p=0.98332**, CI [-1.294, +1.320] |
+| Strategy B incremental | -0.344 pp, t=-0.747, p=0.46577 |
+| Deduplicated abs(day_return) | +1.921 pp, t=3.561, p=0.00193, CI [+0.797, +3.045] |
+
+**The primary magnitude coefficient weakened.** A naive ticker-demeaned t of 2.57 becomes
+**t=1.969, p=0.0662**, with a 95% interval spanning zero — directionally unchanged but no longer
+supported at 5% in the primary specification. The benchmark-adjusted (p=0.03707) and
+deduplicated (p=0.00193) versions do clear 5%. All are reported; no model was chosen after
+seeing the answers.
+
+**Repeated controls were real and are now counted:** 152 signal rows = 152 unique events, but
+133 control rows collapse to only **85 unique control events** — 24 identities duplicated,
+48 extra rows, one control reused **6×**. Duplicated appearances are not treated as
+independent: a fully deduplicated analysis (237 rows) is reported, and clustering is on ticker
+because every repeated event and reused control is nested strictly within one ticker, making it
+weakly coarser than event identity.
+
+**NO STRATEGY is reaffirmed and strengthened, scoped to the five strategies tested.** All five ask
+GST or the earnings gap to supply direction; a two-stage design in which direction comes from an
+independent pre-earnings model and GST is applied only afterwards as a magnitude filter was not
+tested and remains open. E's standalone profitability is post-earnings drift,
+not a GST result; its incremental GST coefficient is +0.013 pp with p=0.98332. The high-GST
+(+0.854%), low-attention (+0.861%) and all-event (+0.858%) returns are all retained alongside it.
+
+Release timing audited: **249 AMC** events, all mapped to the next trading session; **36 BMO**,
+34 on the announcement session and 2 on the next session because the announcement date
+(a Berkshire Saturday release) was not a trading day. The 71.7% figure is now stated only as *the
+overnight gap accounts for 71.7% of mean |gap| plus mean |open-to-close| among high-GST events* —
+never as a share of total return or total movement.
+
+Changes are confined to the existing PR #22 files.
+
+
+## 2026-08-16 — Retrospective decomposition: the GST filter adds nothing to any stock strategy
+
+`RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01, changes no locked methodology,
+uses no gated prospective outcome. Additive files only; F5 remains `OPEN`, collection `BLOCKED`,
+the production universe unchanged.
+
+285 usable earnings events, 28 tickers, 2021-03-24 → 2025-12-19, from the existing C5 matched
+population plus committed daily OHLC. **No intraday bars exist in this repository**, so the
+open→+30min and +30min→close components and **Strategy A** (opening-range breakout) are
+**NOT TESTABLE**; no substitute was invented.
+
+**Where the move is.** High abnormal GST does predict a larger absolute earnings move — 7.89% vs
+6.45%, **+1.44 pp**, t=2.14 *(unclustered; superseded by the CR2 entry above)* — and the overnight
+gap accounts for **71.7% of mean |gap| plus mean |open-to-close| among high-GST events** (7.00% vs
+open→close 2.76%). It is stock-specific: 96.6% of the magnitude survives SPY subtraction. The
+correlation between the gap and the subsequent open→close move is **−0.003**, so the gap says
+nothing about what happens next.
+
+**The magnitude effect is robust.** Matched pairs +1.66 pp (t=2.58), same-ticker pairs only +1.62 pp
+(t=2.495), ticker fixed effects +1.50 pp (t=2.57). It weakens across time (+2.18 pp older half →
++1.11 pp newer) but does not vanish.
+
+**The tradable edge is not.** Strategy E (benchmark-neutral continuation, T→T+3) returns +0.854% net
+per trade, t=3.03, 63.2% hit rate, −10.4% max drawdown — but the identical rule returns **+0.858% on
+all earnings events** and **+0.861% on the low-attention controls**, with a matched within-pair
+difference of **+0.116% (t=0.27)**. E is post-earnings drift; GST is not what makes it work. Gap
+continuation (B) is worse: controls (+0.840%) beat high-attention (+0.473%). Gap reversal (C) is
+−0.673% net, `FAILS_AFTER_COSTS`. Attention–price divergence (D) is `WEAK/UNSTABLE` (quiet 7.43% vs
+loud 8.18% absolute, t=−0.76).
+
+**Verdict: NO STRATEGY, scoped to the five strategies tested.** None of the five qualifies for
+prospective testing. The
+one surviving attention effect is magnitude rather than direction and is realized overnight;
+capturing it would need a volatility structure, which is outside this stock-only scope.
+
+Costs (10 bps single-leg, 20 bps two-leg), the quiet-price threshold (|pre-drift| ≤ 2%), event-day
+convention and all windows were fixed before outcomes were computed. No window, threshold, holding
+period or cost was searched over afterwards.
+
+Verified: one focused test recomputes 25 sampled events exactly from raw OHLC, ties sample counts
+(285 usable + 19 dropped = 304), checks gap×(open→close) = day return across all events, verifies
+cost subtraction for every strategy, and confirms the report's headline numbers match the results
+JSON. The existing market-response decomposition suite also passes.
+
+
 ## 2026-08-16 — Final verification: the tracked-test count was wrong (45 → 47), and disposition recorded
 
 **No numerical result changed.** No classification, category count, metric, source snapshot, frozen
