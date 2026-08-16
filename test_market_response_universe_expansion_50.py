@@ -17,6 +17,7 @@ import importlib.util
 import json
 import re
 import socket
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -110,6 +111,44 @@ SEL = load(SELECTOR, "universe_selector")
 SNAP = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
 P = json.loads(PROPOSAL.read_text(encoding="utf-8"))
 LOCKED_24 = list(SEL.LOCKED_24)
+
+
+PROPOSAL_BASENAME = "GST_PROSPECTIVE_UNIVERSE_EXPANSION_50_v1.0_PROPOSED.json"
+
+
+def refuses(source: str, *, governance_dir: Path | None = None,
+            snapshot: dict | None = None) -> tuple[bool, bool, str]:
+    """Run a mutated selector END TO END and report (refused, emitted_nothing, msg).
+
+    The guarantee under test is not "a reviewer could notice". It is: the
+    selector REFUSES and EMITS NO PROPOSAL. Both halves are asserted -- a
+    SystemExit that still left an artifact on disk would not satisfy it.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        work = Path(td)
+        mod_path = work / "mutated_selector.py"
+        mod_path.write_text(source, encoding="utf-8")
+        out_dir = work / "out"
+        out_dir.mkdir()
+        spec = importlib.util.spec_from_file_location("mutated_selector", mod_path)
+        m = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(m)
+        except SystemExit as e:
+            return True, True, str(e)
+        # point the integrity check at the real (or a doctored) governance dir
+        m.GOVERNANCE_DIR = governance_dir if governance_dir is not None else D
+        snap = copy.deepcopy(snapshot if snapshot is not None else SNAP)
+        refused, msg = False, ""
+        try:
+            doc = m.build(snap)
+            # if it did not refuse, emulate main()'s write so "emitted nothing"
+            # is measured against real behaviour rather than assumed
+            (out_dir / PROPOSAL_BASENAME).write_text(json.dumps(doc), encoding="utf-8")
+        except SystemExit as e:
+            refused, msg = True, str(e)
+        emitted_nothing = not any(out_dir.iterdir())
+        return refused, emitted_nothing, msg
 
 
 def run_selector(snapshot: dict, out_dir: Path) -> int:
@@ -308,46 +347,19 @@ def test_7_mutations_fail_closed() -> None:
     with tempfile.TemporaryDirectory() as td:
         out = Path(td)
 
-        # (a) removing the alias must make the duplicate-security check fail
         src = SELECTOR.read_text(encoding="utf-8")
-        noalias = src.replace('FROZEN_TICKER_ALIASES: dict[str, str] = {"BRKB": "BRK-B"}',
-                              'FROZEN_TICKER_ALIASES: dict[str, str] = {}')
-        mod = out / "no_alias.py"
-        mod.write_text(noalias, encoding="utf-8")
-        spec = importlib.util.spec_from_file_location("no_alias", mod)
-        m = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(m)
-        try:
-            doc = m.build(copy.deepcopy(SNAP))
-            dup_sec = "BRKB" in doc["final_50"] and "BRK-B" in doc["final_50"]
-            check("7a. removing the alias reintroduces the duplicate security", dup_sec,
-                  "expected BRKB and BRK-B both present")
-        except SystemExit as e:
-            check("7a. removing the alias fails closed", True, str(e))
+        ALIAS_LIT = 'FROZEN_TICKER_ALIASES: dict[str, str] = {"BRKB": "BRK-B"}'
+        check("7z. the frozen ticker-alias literal is present as expected", ALIAS_LIT in src)
 
-        # (b) changing the alias target is refused
-        badtarget = src.replace('{"BRKB": "BRK-B"}', '{"BRKB": "BRK-C"}')
-        mod2 = out / "bad_target.py"
-        mod2.write_text(badtarget, encoding="utf-8")
-        spec2 = importlib.util.spec_from_file_location("bad_target", mod2)
-        m2 = importlib.util.module_from_spec(spec2)
-        spec2.loader.exec_module(m2)
-        d2 = m2.build(copy.deepcopy(SNAP))
-        check("7b. a changed alias target does not resolve onto the locked ticker",
-              "BRK-C" in d2["final_50"] and d2["final_50"].count("BRK-B") == 1,
-              "BRK-C must appear as a distinct (wrong) entry, detectable by review")
-
-        # (c) an unapproved extra alias is refused by the frozen-map assertion
-        extra = src.replace('{"BRKB": "BRK-B"}', '{"BRKB": "BRK-B", "NFLX": "NFLX-A"}')
-        mod3 = out / "extra_alias.py"
-        mod3.write_text(extra, encoding="utf-8")
-        spec3 = importlib.util.spec_from_file_location("extra_alias", mod3)
-        m3 = importlib.util.module_from_spec(spec3)
-        spec3.loader.exec_module(m3)
-        check("7c. an unapproved alias is detectable: the frozen map no longer matches",
-              m3.FROZEN_TICKER_ALIASES != {"BRKB": "BRK-B"})
-        d3 = m3.build(copy.deepcopy(SNAP))
-        check("7c2. and it visibly changes the outcome", d3["final_50"] != P["final_50"])
+        for label, replacement in (
+            ("ticker alias removed", 'FROZEN_TICKER_ALIASES: dict[str, str] = {}'),
+            ("ticker alias target changed", 'FROZEN_TICKER_ALIASES: dict[str, str] = {"BRKB": "BRK-C"}'),
+            ("unauthorized ticker alias added",
+             'FROZEN_TICKER_ALIASES: dict[str, str] = {"BRKB": "BRK-B", "NFLX": "NFLX-A"}'),
+        ):
+            refused, empty, msg = refuses(src.replace(ALIAS_LIT, replacement))
+            check(f"7a. selector refuses and emits no proposal: {label}",
+                  refused and empty, msg[:100] if refused else "BUILD SUCCEEDED")
 
         # (d) a 25th / 27th addition must fail
         for n in (25, 27):
@@ -511,52 +523,24 @@ def test_11_grouping_mutations() -> None:
              '}')
     check("11z. the frozen map literal is present as expected", EXACT in src)
 
-    def variant(name: str, replacement: str):
-        with tempfile.TemporaryDirectory() as td:
-            f = Path(td) / f"{name}.py"
-            f.write_text(src.replace(EXACT, replacement), encoding="utf-8")
-            sp = importlib.util.spec_from_file_location(name, f)
-            m = importlib.util.module_from_spec(sp)
-            sp.loader.exec_module(m)
-            try:
-                return m.build(copy.deepcopy(SNAP)), None
-            except SystemExit as e:
-                return None, str(e)
-
-    # (a) without the map, GOOG and GOOGL do not group -> build must REFUSE
-    doc, err = variant("no_map", 'FROZEN_ISSUER_GROUPS: dict[str, str] = {}')
-    check("11a. without the frozen map the build refuses rather than proceeding",
-          doc is None and err is not None and "not covered by the frozen issuer-grouping map" in err,
-          (err or "build silently succeeded")[:110])
-
-    # (b) a missing single mapping is refused
-    doc, err = variant("half_map",
-                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET"}')
-    check("11b. a missing mapping is refused", doc is None and err is not None)
-
-    # (c) an altered target is detectable (the two names no longer group)
-    doc, err = variant("altered",
-                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
-                       '    "ALPHABET CLASS C": "ALPHABET INC"}')
-    changed = doc is not None and doc["final_50"] != P["final_50"]
-    check("11c. an altered mapping target is refused or visibly changes the outcome",
-          doc is None or changed, "silently identical" if not (doc is None or changed) else "")
-
-    # (d) a broadened map (regex-like behaviour reintroduced by hand) changes the outcome
-    doc, err = variant("broadened",
-                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
-                       '    "ALPHABET CLASS C": "ALPHABET", "NIKE CLASS B": "NIKE",\n'
-                       '    "VISA CLASS A": "VISA"}')
-    check("11d. a broadened map is detectable: the frozen literal no longer matches", True)
-    check("11d2. and the map differs from the frozen one",
-          doc is None or doc["frozen_issuer_groups"] != SEL.FROZEN_ISSUER_GROUPS)
-
-    # (e) an additional unapproved mapping is detectable
-    doc, err = variant("extra",
-                       'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
-                       '    "ALPHABET CLASS C": "ALPHABET", "NETFLIX": "NFLX GROUP"}')
-    check("11e. an additional unapproved mapping is detectable",
-          doc is None or doc["frozen_issuer_groups"] != SEL.FROZEN_ISSUER_GROUPS)
+    for label, replacement in (
+        ("issuer grouping map removed", 'FROZEN_ISSUER_GROUPS: dict[str, str] = {}'),
+        ("one issuer mapping missing",
+         'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET"}'),
+        ("issuer target altered",
+         'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
+         '    "ALPHABET CLASS C": "ALPHABET INC"}'),
+        ("issuer map broadened",
+         'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
+         '    "ALPHABET CLASS C": "ALPHABET", "NIKE CLASS B": "NIKE",\n'
+         '    "VISA CLASS A": "VISA"}'),
+        ("unauthorized issuer mapping added",
+         'FROZEN_ISSUER_GROUPS: dict[str, str] = {"ALPHABET CLASS A": "ALPHABET",\n'
+         '    "ALPHABET CLASS C": "ALPHABET", "NETFLIX": "NFLX GROUP"}'),
+    ):
+        refused, empty, msg = refuses(src.replace(EXACT, replacement))
+        check(f"11a. selector refuses and emits no proposal: {label}",
+              refused and empty, msg[:100] if refused else "BUILD SUCCEEDED")
 
     # (f) an unlisted multi-class group must stop the build
     snap2 = copy.deepcopy(SNAP)
@@ -614,6 +598,81 @@ def test_13_review_template_separates_checks() -> None:
           "it is yours" in rv)
 
 
+# ---------------------------------------------------------------- 14. governance integrity
+def test_14_governance_integrity_is_fail_closed() -> None:
+    src = SELECTOR.read_text(encoding="utf-8")
+
+    # the frozen expected digests must equal the canonical digests of the real maps
+    def canon(m):
+        return hashlib.sha256(json.dumps(m, sort_keys=True, separators=(",", ":"),
+                                         ensure_ascii=True).encode("utf-8")).hexdigest()
+    check("14a. ticker-alias expected digest matches the canonical map digest",
+          SEL.EXPECTED_TICKER_ALIAS_DIGEST == canon({"BRKB": "BRK-B"}),
+          SEL.EXPECTED_TICKER_ALIAS_DIGEST)
+    check("14b. issuer-grouping expected digest matches the canonical map digest",
+          SEL.EXPECTED_ISSUER_GROUP_DIGEST == canon({"ALPHABET CLASS A": "ALPHABET",
+                                                     "ALPHABET CLASS C": "ALPHABET"}),
+          SEL.EXPECTED_ISSUER_GROUP_DIGEST)
+    check("14c. the committed proposal records both verified digests",
+          P["governance_integrity"]["ticker_alias_map_digest"] == SEL.EXPECTED_TICKER_ALIAS_DIGEST
+          and P["governance_integrity"]["issuer_grouping_map_digest"] == SEL.EXPECTED_ISSUER_GROUP_DIGEST)
+    check("14d. integrity is verified before any disposition",
+          P["governance_integrity"]["verified_before_any_disposition"] is True
+          and "governance = assert_governance_integrity()" in src)
+    check("14e. code map is required to equal the amendment map",
+          P["governance_integrity"]["code_map_equals_amendment_map"] is True)
+
+    # the maps parsed out of the amendments must equal the in-code maps
+    check("14f. alias map parsed from its amendment equals the code map",
+          SEL._map_from_amendment(ALIAS_AMD) == SEL.FROZEN_TICKER_ALIASES)
+    check("14g. issuer map parsed from its amendment equals the code map",
+          SEL._map_from_amendment(GROUP_AMD) == SEL.FROZEN_ISSUER_GROUPS)
+
+    # --- artifact-level mutations: missing / altered amendment, altered digest ---
+    with tempfile.TemporaryDirectory() as td:
+        for label, mutate in (
+            ("alias amendment missing", ("del", ALIAS_AMD.name)),
+            ("grouping amendment missing", ("del", GROUP_AMD.name)),
+            ("alias amendment altered", ("edit", ALIAS_AMD.name)),
+            ("grouping amendment altered", ("edit", GROUP_AMD.name)),
+        ):
+            gov = Path(td) / label.replace(" ", "_")
+            gov.mkdir()
+            for name in SEL.AMENDMENT_ARTIFACTS:
+                shutil.copy2(D / name, gov / name)
+            action, target = mutate
+            if action == "del":
+                (gov / target).unlink()
+            else:
+                t = (gov / target).read_text(encoding="utf-8")
+                (gov / target).write_text(t + "\n<!-- tampered -->\n", encoding="utf-8")
+            refused, empty, msg = refuses(src, governance_dir=gov)
+            check(f"14h. selector refuses and emits no proposal: {label}",
+                  refused and empty, msg[:100] if refused else "BUILD SUCCEEDED")
+
+        # expected digest altered in code
+        bad = src.replace(SEL.EXPECTED_TICKER_ALIAS_DIGEST, "0" * 64)
+        refused, empty, msg = refuses(bad)
+        check("14i. selector refuses and emits no proposal: expected map digest altered",
+              refused and empty, msg[:100] if refused else "BUILD SUCCEEDED")
+
+        # code map and amendment map disagreeing: amendment says something else
+        gov = Path(td) / "disagree"
+        gov.mkdir()
+        for name in SEL.AMENDMENT_ARTIFACTS:
+            shutil.copy2(D / name, gov / name)
+        t = (gov / ALIAS_AMD.name).read_text(encoding="utf-8")
+        t = t.replace('{"BRKB": "BRK-B"}', '{"BRKB": "BRK-Z"}')
+        (gov / ALIAS_AMD.name).write_text(t, encoding="utf-8")
+        refused, empty, msg = refuses(src, governance_dir=gov)
+        check("14j. selector refuses and emits no proposal: code map disagrees with amendment",
+              refused and empty, msg[:100] if refused else "BUILD SUCCEEDED")
+
+    # the genuine configuration must still succeed
+    refused, empty, msg = refuses(src)
+    check("14k. the genuine configuration is NOT refused", not refused, msg[:100])
+
+
 if __name__ == "__main__":
     test_1_frozen_artifacts()
     test_2_source_is_official_ishares_not_spdji()
@@ -628,6 +687,7 @@ if __name__ == "__main__":
     test_11_grouping_mutations()
     test_12_raw_evidence_manifest()
     test_13_review_template_separates_checks()
+    test_14_governance_integrity_is_fail_closed()
 
     print()
     if FAILURES:
