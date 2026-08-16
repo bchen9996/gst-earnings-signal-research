@@ -117,6 +117,71 @@ check("7d. report leads with the results table, not methodology",
       flat.index("Strategy scorecard") < flat.index("Frozen definitions"))
 check("7e. report records the NO STRATEGY verdict", "NO STRATEGY" in REPORT)
 
+# ---- 8. clustered inference is present, reused, and load-bearing ----
+ci = RES["clustered_inference"]
+P = ci["primary_magnitude_abs_day_return"]
+E = ci["strategy_E_incremental_high_gst"]
+rc = RES["repeated_control_sensitivity"]
+for k in ("primary_magnitude_abs_day_return", "magnitude_abs_excess_vs_spy",
+          "strategy_E_incremental_high_gst", "strategy_B_incremental_high_gst"):
+    m = ci[k]
+    check(f"8a. {k}: CR2 + Satterthwaite, ticker-clustered",
+          m["vcov"] == "CR2 (BRL)" and m["df_method"] == "coefficient-specific Satterthwaite"
+          and m["cluster_unit"] == "ticker" and m["n_clusters"] == 28)
+    check(f"8b. {k}: CI brackets the coefficient",
+          m["ci95_pp"][0] < m["coef_pp"] < m["ci95_pp"][1])
+    check(f"8c. {k}: t == coef/SE", abs(m["t_stat"] - m["coef_pp"] / m["cr2_se_pp"]) < 5e-3)
+    check(f"8d. {k}: Satterthwaite df far below n", m["satterthwaite_df"] < m["n"])
+check("8e. inference is labelled retrospective, not HYP-01 confirmation",
+      P["inference_scope"] == "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION")
+
+# recompute the primary coefficient independently of the tool's own call
+sys.path.insert(0, str(ROOT / "tools"))
+from hyp01_inference_feasibility import cr_vcov as _cr  # noqa: E402
+_d = EV.dropna(subset=["day_return"]).copy()
+_d["hg"] = (_d.role == "signal").astype(float)
+_y = 100 * _d.day_return.abs().values
+_X = np.column_stack([np.ones(len(_d)), _d.hg.values,
+                      pd.get_dummies(_d.ticker, drop_first=True).values.astype(float)])
+_b, _V, _G = _cr(_X, _y, _d.ticker.values, "CR2")
+check("8f. primary coefficient recomputes independently",
+      abs(float(_b[1]) - P["coef_pp"]) < 1e-3, f"{float(_b[1])} vs {P['coef_pp']}")
+check("8g. 28 ticker clusters", _G == 28)
+
+# ---- 9. repeated controls counted, not assumed independent ----
+check("9a. control reuse is real and counted",
+      rc["unique_control_events"] < rc["control_rows"] == 133
+      and rc["unique_control_events"] == 85)
+check("9b. signal events are not duplicated",
+      rc["unique_signal_events"] == rc["signal_rows"] == 152)
+check("9c. duplicated rows accounted for exactly",
+      rc["control_rows"] - rc["unique_control_events"] == rc["duplicated_control_extra_rows"])
+check("9d. deduplicated rows == unique signal + unique control",
+      rc["deduplicated_unique_event_rows"] == rc["unique_signal_events"] + rc["unique_control_events"])
+check("9e. deduplicated CR2 reported", rc["deduplicated_cr2"]["vcov"] == "CR2 (BRL)")
+check("9f. clustering unit is explained", len(rc["clustering_unit_rationale"]) > 300)
+
+# ---- 10. release-timing audit ----
+ta = RES["release_timing_audit"]
+check("10a. AMC maps to the next trading session for every AMC event",
+      ta["amc_correct"] and ta["amc_mapped_to_next_session"] == ta["amc_events"] == 249)
+check("10b. BMO maps to the announcement session (or next, when not a session)",
+      ta["bmo_correct"] and ta["bmo_events"] == 36
+      and ta["bmo_mapped_to_announcement_session"] == 34)
+check("10c. AMC + BMO == usable events", ta["amc_events"] + ta["bmo_events"] == len(EV))
+
+# ---- 11. the corrected conclusion is what the report states ----
+check("11a. E's incremental GST coefficient is indistinguishable from zero",
+      E["p_value"] > 0.05 and E["ci95_pp"][0] < 0 < E["ci95_pp"][1])
+check("11b. report uses the corrected 71.7% framing",
+      "71.7% of mean |gap| plus mean |open-to-close| among high-GST events" in flat
+      and "71.7%** of the move" not in REPORT)
+check("11c. report keeps all four E comparators",
+      all(x in flat for x in ("+0.854%", "+0.858%", "+0.861%", f"{E['coef_pp']:+.3f} pp")))
+check("11d. NO STRATEGY verdict retained", "NO STRATEGY" in REPORT)
+check("11e. report labels the inference retrospective, not HYP-01 confirmation",
+      "not HYP-01" in flat)
+
 print()
 if FAIL:
     print(f"{len(FAIL)} FAILURE(S): {FAIL}")

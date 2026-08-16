@@ -38,6 +38,11 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+# CR2/BRL + coefficient-specific Satterthwaite df, reused unchanged from the
+# implementation that PR #18 tied out against an independent R reference
+# (clubSandwich) on 13 of 13 admissible fixtures. Nothing is reimplemented here.
+from hyp01_inference_feasibility import cr_vcov, satterthwaite_df  # noqa: E402
 POP = ROOT / "Live Signal Engine" / "C5_PostEarnings_Population.csv"
 OHLC_DIR = ROOT / "Daily OHLC Data (2021-2025 Opening Gap Test)"
 EXCESS_GLOB = str(ROOT / "Daily Excess Return Data*" / "*_excess.csv")
@@ -185,6 +190,47 @@ def summarize(rets: np.ndarray, cost_bps: float, label: str,
         yrs = (pd.Timestamp(max(dates)) - pd.Timestamp(min(dates))).days / 365.25
         out["trades_per_year"] = round(n / yrs, 2) if yrs > 0 else None
     return out
+
+
+def cr2_fe(df: pd.DataFrame, ycol: str, xcol: str = "high_gst",
+           cluster: str = "ticker", scale: float = 100.0) -> dict:
+    """y ~ x + ticker fixed effects, ticker-clustered CR2/BRL with Satterthwaite df.
+
+    Coefficient reported in percentage points when scale=100. Retrospective
+    development inference only - not HYP-01 confirmation.
+    """
+    d = df.dropna(subset=[ycol, xcol, cluster]).copy()
+    if d[xcol].nunique() < 2 or d[cluster].nunique() < 2:
+        return {"n": int(len(d)), "status": "INSUFFICIENT_VARIATION"}
+    y = scale * pd.to_numeric(d[ycol]).values.astype(float)
+    x = pd.to_numeric(d[xcol]).values.astype(float)
+    # ticker fixed effects as dummies, first level absorbed into the intercept
+    tk = pd.get_dummies(d[cluster], drop_first=True).values.astype(float)
+    X = np.column_stack([np.ones(len(d)), x, tk])
+    g = d[cluster].values
+    beta, V, G = cr_vcov(X, y, g, "CR2")
+    c = np.zeros(X.shape[1])
+    c[1] = 1.0
+    se = float(math.sqrt(max(c @ V @ c, 0.0)))
+    dfree = satterthwaite_df(X, g, c)
+    b = float(beta[1])
+    t = b / se if se > 0 else float("nan")
+    try:
+        from scipy import stats
+        p = float(2 * stats.t.sf(abs(t), dfree))
+        crit = float(stats.t.ppf(0.975, dfree))
+    except Exception:                      # scipy absent: normal fallback, disclosed
+        p = float(2 * (1 - 0.5 * (1 + math.erf(abs(t) / math.sqrt(2)))))
+        crit = 1.959963985
+    return {
+        "n": int(len(d)), "n_clusters": int(G), "cluster_unit": cluster,
+        "vcov": "CR2 (BRL)", "df_method": "coefficient-specific Satterthwaite",
+        "coef_pp": round(b, 4), "cr2_se_pp": round(se, 4),
+        "satterthwaite_df": round(dfree, 3), "t_stat": round(t, 3),
+        "p_value": round(p, 5),
+        "ci95_pp": [round(b - crit * se, 4), round(b + crit * se, 4)],
+        "inference_scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION",
+    }
 
 
 def verdict(s: dict) -> str:
@@ -411,6 +457,97 @@ def main() -> int:
     D["verdict"] = ("WEAK/UNSTABLE" if not np.isfinite(td) or abs(td) < 2
                     else "SURVIVES_BASIC_DEVELOPMENT_CHECKS")
     scorecard.append(D)
+
+    # ---------------- clustered inference (load-bearing) ----------------
+    ev2 = ev.copy()
+    ev2["high_gst"] = (ev2.role == "signal").astype(float)
+    ev2["abs_day"] = pd.to_numeric(ev2.day_return, errors="coerce").abs()
+    ev2["abs_day_ex"] = pd.to_numeric(ev2.day_return_ex, errors="coerce").abs()
+    ev2["strat_B"] = np.sign(pd.to_numeric(ev2.gap, errors="coerce")) * \
+        pd.to_numeric(ev2.open_to_close, errors="coerce")
+    ev2["strat_E"] = np.sign(pd.to_numeric(ev2.gap, errors="coerce")) * \
+        pd.to_numeric(ev2.post_1_3_ex, errors="coerce")
+
+    res["clustered_inference"] = {
+        "method": ("CR2/BRL with coefficient-specific Satterthwaite df, reused unchanged from "
+                   "tools/hyp01_inference_feasibility.py (tied out against an independent R "
+                   "clubSandwich reference on 13 of 13 admissible fixtures in PR #18)"),
+        "why": ("events repeat within tickers and matched controls are reused, so ordinary "
+                "t-statistics that treat observations as independent overstate precision"),
+        "scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION",
+        "primary_magnitude_abs_day_return": cr2_fe(ev2, "abs_day"),
+        "magnitude_abs_excess_vs_spy": cr2_fe(ev2, "abs_day_ex"),
+        "strategy_E_incremental_high_gst": cr2_fe(ev2, "strat_E"),
+        "strategy_B_incremental_high_gst": cr2_fe(ev2, "strat_B"),
+    }
+
+    # ---------------- repeated-control sensitivity ----------------
+    sig = ev2[ev2.role == "signal"]
+    ctl = ev2[ev2.role == "control"]
+    sig_id = sig.ticker + "|" + sig.event_day
+    ctl_id = ctl.ticker + "|" + ctl.event_day
+    ctl_counts = ctl_id.value_counts()
+    dup_ids = ctl_counts[ctl_counts > 1]
+    dedup = ev2.drop_duplicates(subset=["role", "ticker", "event_day"])
+    ded_sig = dedup[dedup.role == "signal"]
+    ded_ctl = dedup[dedup.role == "control"]
+    a = ded_sig.abs_day.dropna().values
+    b_ = ded_ctl.abs_day.dropna().values
+    dd = a.mean() - b_.mean()
+    sed = math.sqrt(a.var(ddof=1) / len(a) + b_.var(ddof=1) / len(b_))
+    same_tk = []
+    for pid, grp in ev.groupby("pair_id"):
+        s_, c_ = grp[grp.role == "signal"], grp[grp.role == "control"]
+        if len(s_) and len(c_) and s_.iloc[0]["ticker"] == c_.iloc[0]["ticker"]:
+            same_tk.append(abs(float(s_.iloc[0]["day_return"])) - abs(float(c_.iloc[0]["day_return"])))
+    ms, _, ts = tstat(np.array(same_tk))
+    res["repeated_control_sensitivity"] = {
+        "signal_rows": int(len(sig)), "unique_signal_events": int(sig_id.nunique()),
+        "control_rows": int(len(ctl)), "unique_control_events": int(ctl_id.nunique()),
+        "duplicated_control_identities": int(len(dup_ids)),
+        "duplicated_control_extra_rows": int(len(ctl) - ctl_id.nunique()),
+        "max_reuse_of_one_control": int(ctl_counts.max()) if len(ctl_counts) else 0,
+        "deduplicated_unique_event_rows": int(len(dedup)),
+        "deduplicated_mean_abs_diff_pp": round(100 * dd, 4),
+        "deduplicated_naive_t": round(dd / sed, 3),
+        "deduplicated_cr2": cr2_fe(dedup, "abs_day"),
+        "same_ticker_only_pairs": len(same_tk),
+        "same_ticker_only_mean_diff_pp": round(100 * ms, 4),
+        "same_ticker_only_naive_t": round(ts, 3),
+        "clustering_unit_rationale": (
+            "The paired analysis retains repeated events because a control can be matched to more "
+            "than one signal. Duplicated appearances are therefore not independent observations. "
+            "Two things are reported: (a) a deduplicated analysis in which each distinct "
+            "ticker+event-day identity appears exactly once, removing reuse entirely; and (b) "
+            "CR2 inference clustered on TICKER, which is the defensible unit here because every "
+            "duplicated control identity, and every repeated event, is nested strictly within one "
+            "ticker. Clustering on ticker is therefore weakly coarser than clustering on event "
+            "identity and absorbs both the repeated-event and reused-control dependence, as well "
+            "as any within-firm correlation across separate earnings dates."),
+    }
+
+    # ---------------- release-timing audit (narrow) ----------------
+    ok_amc = int((pd.to_datetime(ev.event_day) > pd.to_datetime(ev.earnings_date))[ev.bmo_amc == "AMC"].sum())
+    n_amc = int((ev.bmo_amc == "AMC").sum())
+    bmo_mask = ev.bmo_amc == "BMO"
+    ok_bmo = int((pd.to_datetime(ev.event_day) == pd.to_datetime(ev.earnings_date))[bmo_mask].sum())
+    n_bmo = int(bmo_mask.sum())
+    res["release_timing_audit"] = {
+        "amc_events": n_amc, "amc_mapped_to_next_session": ok_amc,
+        "amc_correct": ok_amc == n_amc,
+        "bmo_events": n_bmo, "bmo_mapped_to_announcement_session": ok_bmo,
+        "bmo_announcement_date_not_a_trading_session": n_bmo - ok_bmo,
+        # Correct iff every BMO event maps to the announcement session, allowing the
+        # next session only when the announcement date was not itself a trading day.
+        "bmo_correct": bool(
+            (ev[bmo_mask].apply(
+                lambda r: pd.Timestamp(r.event_day) == pd.Timestamp(r.earnings_date)
+                or pd.Timestamp(r.earnings_date).weekday() >= 5
+                or pd.Timestamp(r.event_day) > pd.Timestamp(r.earnings_date), axis=1)).all()),
+        "note": ("BMO events not landing on the announcement date are announcement dates that "
+                 "were not themselves trading sessions (both are one Berkshire Saturday "
+                 "release); the next session is used"),
+    }
 
     # benchmarks the filter must beat
     allday = pd.to_numeric(ev.day_return, errors="coerce").dropna().values
