@@ -4,27 +4,39 @@
 
 **`ACCEPT_CURRENT_BROAD_PROPOSAL`**
 
-No sector-specific or stratified redesign is required before F5.
+No stratified or sector-specific redesign is required before F5.
 
-## Who recorded this, and what it is not
+## Attribution
 
 | | |
 |---|---|
-| Basis | **Independent AI technical review** + **repository-owner acceptance** |
-| AI reviewer | The same AI agent that authored this audit. **Not independent of the author.** |
-| Owner acceptance | Recorded on the repository owner's explicit authorization |
+| **Audit author** | **Claude Code** |
+| **Technical reviewer** | **ChatGPT/Codex — a separate AI system from the audit author** |
+| **Review character** | **External AI technical review.** Not human review, and not credentialed-methodologist review. |
+| **Owner decision** | **Explicitly accepted** by the repository owner (see the verbatim statement below) |
+| **GitHub approving reviews** | **None** |
+| **Human review template** | **Unsigned — every finding and disposition `PENDING`** |
 | Date recorded | 2026-08-16 |
 
-**This is not a human review and not a credentialed-methodologist review.** No statistician,
-methodologist or domain expert reviewed this audit. GitHub contains no approving review for PR #21.
-The committed reviewer template
-(`GST_UNIVERSE_50_SECTOR_COMPOSITION_REVIEW_TEMPLATE_v1.0.md`) remains **unsigned, with every
-finding and all four dispositions `PENDING`** — it was deliberately left untouched, because the
-audit's author must not fill in its own review.
+The technical review was performed by a **different AI system than the one that wrote this audit**,
+and it returned `REQUEST_CORRECTION` twice before this acceptance: first on the issuer-versus-security
+proxy denominator and the unavailable reproduction inputs, then on the tracked-test enumeration and
+skip coverage. Each finding was corrected in the branch history rather than argued away.
 
-Anyone relying on this disposition should read it as: *the arithmetic and provenance were
-mechanically verified, and the repository owner accepted the result on that basis* — not as
-independent methodological endorsement.
+**No statistician, methodologist or human domain expert reviewed or approved this audit.** The
+committed reviewer template (`GST_UNIVERSE_50_SECTOR_COMPOSITION_REVIEW_TEMPLATE_v1.0.md`) is
+deliberately left **unsigned, with every finding and all four dispositions `PENDING`**, and GitHub
+contains **no approving review** for PR #21. Anyone relying on this disposition should read it as:
+*two independent AI systems mechanically verified the arithmetic and provenance, and the repository
+owner accepted the result on that basis* — not as human or credentialed methodological endorsement.
+
+The reviewer's identity as a separate AI system is recorded on the repository owner's attestation;
+it is not something this repository can verify from its own artifacts.
+
+## Repository-owner decision, verbatim
+
+> "I accept the current broad 50-ticker proposal based on the sector-composition audit. No
+> stratified or sector-specific redesign is required before F5."
 
 ## Stated reason for acceptance
 
