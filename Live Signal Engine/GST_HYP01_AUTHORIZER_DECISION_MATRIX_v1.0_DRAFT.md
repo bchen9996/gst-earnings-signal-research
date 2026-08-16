@@ -1,11 +1,21 @@
 # HYP-01 Authorizer Decision Matrix v1.0 (DRAFT)
 
-> **Nothing here is decided. Every checkbox is blank and every authorizer field is `PENDING`.**
-> This document presents choices. It does not make them, and merging it approves nothing.
+> ## ⚠ DECIDED — this page is no longer the decision status of record
 >
-> `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative. The proposed v1.1 remains `PROPOSED_PENDING_HUMAN_AND_METHODOLOGIST_APPROVAL`. **F5 remains OPEN.** No dated amendment is created by this document.
+> **D1–D16 were authorized on 2026-08-16 (declared UTC date).** The authoritative record is the dated amendment:
+>
+> - [`GST_HYP01_ANALYSIS_LOCK_AMENDMENT_2026-08-16.json`](GST_HYP01_ANALYSIS_LOCK_AMENDMENT_2026-08-16.json) — machine-readable authority
+> - [`GST_HYP01_ANALYSIS_LOCK_AMENDMENT_2026-08-16.md`](GST_HYP01_ANALYSIS_LOCK_AMENDMENT_2026-08-16.md) — human companion
+> - [`GST_HYP01_METHOD_AUTHORIZATION_2026-08-16.md`](GST_HYP01_METHOD_AUTHORIZATION_2026-08-16.md) — authorization provenance and the proposed → authorized → effective mapping
+>
+> **What this page still is:** the deliberation record — the options, evidence and tradeoffs the authorizer weighed. Its option tables and analysis remain accurate and are preserved.
+>
+> **What this page is NOT any more:** a statement that the decisions are open. Every `PENDING` marker, blank checkbox and "still pending" sentence below is **historical** — it records the state *before* the authorization, not the state now. **Do not read any checkbox on this page as the current decision status.** The checkboxes were deliberately left blank rather than back-filled, so this document stays an honest record of what was undecided at the time it was written.
+>
+> **Unchanged by the authorization:** `GST_HYP01_ANALYSIS_LOCK_v1.0` remains the operative base lock. The proposed v1.1 remains a non-authoritative proposal and takes no part in resolving the effective lock. **F5 remains OPEN and prospective collection remains BLOCKED.**
 
-**Authorizer:** `PENDING`  ·  **Decision date:** `PENDING`  ·  **Signature / confirmation:** `PENDING`
+**Decision status of record:** see the dated amendment above.
+**Historical fields on this page, as written before authorization —** **Authorizer:** `PENDING`  ·  **Decision date:** `PENDING`  ·  **Signature / confirmation:** `PENDING`
 
 Evidence base: [`GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md`](GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md) · [`GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json`](GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json) · the merged [review packet](GST_HYP01_STATISTICAL_METHOD_REVIEW_PACKET_v1.0_DRAFT.md).
 
@@ -70,14 +80,18 @@ Alternatives and tradeoffs, stated plainly:
 
 No option is recommended as final. The over-rejection finding for CR1 and the feasibility finding for CR2 are different kinds of evidence and should not be summed into a single verdict here.
 
-### Final authorizer decision — unchanged, still `PENDING`
+### Final authorizer decision — MADE on 2026-08-16, recorded in the dated amendment
+
+> **Historical section.** The checkboxes below are preserved unticked as the record of what was open *before* authorization. They are **not** the current status.
 
 - [ ] Reviewed the implementation-validation evidence above
 - [ ] Accepted the proposal for D1 / D3
 - [ ] Chose a different pairing: ______________
 - [ ] Deferred
 
-**Authorizer:** `PENDING`  ·  **Decision date:** `PENDING`  ·  **Signature:** `PENDING`
+**Historical fields as written before authorization —** **Authorizer:** `PENDING`  ·  **Decision date:** `PENDING`  ·  **Signature:** `PENDING`
+
+**Current status:** D1 = CR2 / BRL, D3 = coefficient-specific Satterthwaite, authorized by the **project authorizer / repository owner** on the declared UTC date **2026-08-16**. Not externally peer-reviewed. See [`GST_HYP01_METHOD_AUTHORIZATION_2026-08-16.md`](GST_HYP01_METHOD_AUTHORIZATION_2026-08-16.md).
 
 **Validation is not approval.** A validated implementation is one whose arithmetic has been checked against an independent implementation. Whether to *use* it for HYP-01, and under what finite-sample and df rules, is decided in D1–D16 below and nowhere else. **F5 remains OPEN** and `GST_HYP01_ANALYSIS_LOCK_v1.0` remains operative.
 
