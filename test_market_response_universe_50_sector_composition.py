@@ -482,6 +482,21 @@ def test_13_issuer_level_denominator() -> None:
           "unique canonical securities across the union" in flat)
     check("13x. the report states the issuer denominator for the proxy pool",
           "unique issuers" in flat and "OEF issuer proxy pool" in flat)
+    # The proxy denominator must be LABELLED as issuers everywhere it is named, not
+    # merely mentioned as issuers once. Relabelling it "securities" must fail.
+    n_iss = dn["oef_unique_issuers"]
+    check("13x'. the denominator table labels the proxy pool as unique issuers",
+          "| **OEF pool, unique issuers**" in flat
+          and "OEF pool, unique securities" not in flat)
+    check(f"13x''. the proxy count {n_iss} is stated as issuers, never as securities",
+          f"{n_iss} unique issuers" in flat and f"{n_iss} unique securities" not in flat
+          and f"{n_iss} securities" not in flat)
+    check("13x'''. the source-security count is not presented as the proxy denominator",
+          f"OEF percentages are over **{n_iss} unique issuers**" in flat)
+    for art, label in ((REPORT, "report"), (REVIEW, "review template")):
+        t = " ".join(art.read_text(encoding="utf-8").split())
+        check(f"13x''''. the {label} never calls the proxy pool a security pool",
+              "OEF security proxy pool" not in t and "security proxy pool" not in t)
     check("13y. the frozen rule is unchanged by this correction",
           A["frozen_rule"]["unchanged_by_this_correction"] is True and sha_lf(RULE) == RULE_SHA)
 

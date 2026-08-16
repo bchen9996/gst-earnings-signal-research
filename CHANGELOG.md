@@ -1,6 +1,104 @@
 # Changelog
 
 
+## 2026-08-16 — Correction: the proxy pool is an issuer denominator, and its sources are now committed
+
+**Supersedes the figures in the entry immediately below for the OEF proxy pool only.** Independent
+review returned `REQUEST_CORRECTION` on two findings. Both were correct. The frozen pre-retrieval
+rule is **unchanged** (`sha256_lf` still `5ce6a0f0…4dab`), the 50 tickers are untouched, and no
+verdict is drawn.
+
+**Issue 1 — security denominator vs issuer denominator.** The frozen rule defines the proxy pool as
+every eligible equity **issuer**, but the implementation deduplicated only by canonical ticker. That
+gave Alphabet two equal-weight observations (`GOOG` and `GOOGL`, one CIK, one SIC) while the final 50
+gives every issuer exactly one — the two sides were not on the same denominator, and the PR body
+called the pool both "101-security" and "issuer".
+
+The pool is now grouped by **official SEC CIK**, with the frozen alias `BRKB → BRK-B` applied
+**before** identity matching. Every security under one CIK must carry the same SEC SIC **and** the
+same FF12 category or the run **refuses and writes nothing**. Each issuer contributes one
+observation; all constituent securities are preserved in `source_securities`; the display ticker is
+the lexicographically smallest canonical ticker and enters no metric — a test renames every display
+ticker to `ZZZZ` and asserts the metrics are identical. The resulting n is recomputed from the
+identity snapshot, never hardcoded. The final 50 was **verified** to hold 50 unique CIKs rather than
+trusting the proposal's declaration; a duplicate issuer there stops the run.
+
+Every OEF figure was recomputed, none preserved by assumption:
+
+| Figure | Before (security) | After (issuer) |
+|---|---|---|
+| OEF denominator | 101 securities | **100 unique issuers** |
+| OEF `BusEq` | 23 (22.7723%) | **22 (22.0000%)** |
+| OEF HHI | 0.128321 | **0.126400** |
+| OEF entropy | 2.232480 | **2.239874** |
+| OEF effective categories | 9.323290 | **9.392143** |
+| Δ `BusEq` | +1.2 pp | **+2.0 pp** |
+| Δ `Manuf`, Δ `Shops` | +2.1 pp each | **+2.0 pp each** |
+| Δ `Hlth`, Δ `Money`, Δ `Other` | +0.1 / +0.2 / +0.1 pp | **0.0 pp each** |
+| Classification requests | 151 | **150** |
+
+`LEGACY_24`, `PROPOSED_ADDITIONS_26` and `PROPOSED_FINAL_50` metrics are unchanged. The **±3.0
+percentage-point** statement was **re-derived, not preserved**: the largest absolute gap is still
+3.0 pp at `NoDur`, so it remains true on the issuer denominator. The `OEF_ELIGIBLE_PROXY_POOL` label
+is renamed `OEF_UNIQUE_ISSUER_PROXY_POOL` throughout — a naming correction stating the denominator
+the rule always specified, not a rule change.
+
+**Issue 2 — claimed reproducibility from unavailable inputs.** The review template promised
+recomputation "from the committed sources" while naming three inputs that were in no changed path
+and nowhere in the repository. Committed outputs cannot serve simultaneously as inputs and as
+independently verified results. Added under `Universe_Sector_Audit_2026-08-16/sources/`, identity and
+classification metadata only:
+
+- `SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json` — 113 securities / 112 CIKs: canonical ticker, source
+  securities, CIK, SEC entity name, SIC, SIC description, SEC URL, retrieval time, raw-response
+  SHA-256. No filing financial data, earnings value or market information.
+- `FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt` — the official Kenneth R. French definition bytes.
+- `FF12_SIC_INTERVALS_NORMALIZED_2026-08-16.json` — the interval table derived from those bytes, with
+  ZIP hash, extracted-file hash, canonical URL and the deterministic extraction procedure.
+- `GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json` — filename, URL, retrieval time, byte count and
+  SHA-256 for every input.
+
+Per-response retrieval timestamps were **not** captured at fetch time. The batch window is recorded
+with `timestamp_granularity: "batch"` and the per-record raw-response SHA-256 is the provenance
+anchor. Nothing was back-dated or fabricated to fill that field.
+
+The documented reproduction command is now argument-free and needs no external scratch directory:
+
+```
+python tools/sector_composition/classify_universe_sectors.py
+```
+
+It verifies every declared input against the manifest SHA-256 **before** computing; a missing input
+or any hash mismatch is a refusal that writes nothing. Correcting this also exposed a real hole:
+input verification resolved paths against the repository root, so a mutated `--sources` directory
+would have passed its own hash check and then been used. Verification now resolves the files
+actually read.
+
+**Denominator clarification.** The report previously said "151/151" while the CHANGELOG and PR body
+said "113/113" — neither defined. All denominators are now stated explicitly: **50** final-50
+securities (= 50 issuers); **101** OEF source securities → **100** unique issuers; **113** unique
+canonical securities in the union of the two groups; **112** unique CIKs in that union; **150**
+classification requests, the overlap counted in both. **113 means unique canonical securities** —
+not issuers, not classification requests.
+
+**Verified.** The suite now passes **202 assertions** and the mutation battery is extended to **45
+mutations, 45 caught**, including: splitting share classes back to security level; falsifying the
+issuer, final-50-CIK or union counts; dropping `source_securities`; claiming the display ticker
+affects metrics; choosing a non-deterministic display ticker; duplicating a CIK in either group;
+deleting or tampering with any committed source; falsifying a manifest hash; and relabelling the
+proxy denominator as securities in the report prose. That last one **survived the first run** — the
+suite could not yet detect the exact mislabelling the review asked me to prevent — so the check was
+added rather than the finding waved through. New tests also confirm a clean `git archive` export
+contains every declared input and reproduces all four artifacts **byte-identically** offline, and
+that removing an input, changing a hash, changing a CIK, changing a SIC, changing an FF12 interval,
+or giving one CIK conflicting SICs or conflicting FF12 results each fails. All **45 tracked test
+files** pass sockets-blocked.
+
+Protected state is unchanged: `constants.py` (still exactly the original 24), both HYP-01 locks, the
+effective-lock report, the cohort protocol, the F5 audit, the merged universe proposal and the single
+`DELL` registry row. F5 remains `OPEN`; collection remains `BLOCKED`.
+
+
 ## 2026-08-16 — Descriptive sector-composition audit of the proposed 50 (NO UNIVERSE CHANGE)
 
 **DESCRIPTIVE AUDIT ONLY · NO UNIVERSE CHANGE · PROPOSED 50 REMAIN INACTIVE · PRODUCTION UNIVERSE REMAINS 24 · NO GST OR MARKET OUTCOME USED · F5 REMAINS OPEN · COLLECTION REMAINS BLOCKED · NO CONCENTRATION THRESHOLD WAS INVENTED.**
