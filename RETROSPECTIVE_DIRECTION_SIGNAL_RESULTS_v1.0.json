@@ -1,0 +1,523 @@
+{
+ "artifact": "RETROSPECTIVE_DIRECTION_SIGNAL_RESULTS",
+ "version": "1.0",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "confirms_hyp01": false,
+ "uses_prospective_outcomes": false,
+ "gst_used_as_direction_input": false,
+ "gst_role": "magnitude / event-selection filter applied AFTER predictions exist",
+ "outcome": "sign(open(T)/close(T-1) - 1)",
+ "features_frozen_before_fitting": [
+  "ret_5d",
+  "ret_20d",
+  "realized_vol",
+  "spy_ret_5d",
+  "spy_ret_20d",
+  "mom_minus_spy",
+  "prior_gap_dir",
+  "quarter"
+ ],
+ "features_omitted": [],
+ "models": [
+  "always_positive",
+  "momentum_sign",
+  "logistic_l2",
+  "gbt_shallow"
+ ],
+ "validation": "chronological expanding window; standardization fit within each training fold",
+ "selection_rule": "pooled out-of-sample Brier score, AUC secondary; never trading returns",
+ "cost_bps_round_trip": 10.0,
+ "sample": {
+  "events": 217,
+  "tickers": 28,
+  "date_range": [
+   "2021-03-24",
+   "2025-12-19"
+  ],
+  "omitted": 0,
+  "omitted_reasons": {},
+  "positive_rate_overall": 0.4977,
+  "rows_in_source": 285,
+  "unique_event_identities": 217,
+  "duplicate_rows_removed": 68
+ },
+ "folds": [
+  {
+   "test_year": "2023",
+   "n_train": 73,
+   "n_test": 47,
+   "train_positive_rate": 0.4247,
+   "test_positive_rate": 0.4894,
+   "per_model": {
+    "always_positive": {
+     "n": 47,
+     "accuracy": 0.4894,
+     "balanced_accuracy": 0.5,
+     "auc": 0.5,
+     "brier": 0.51064,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "momentum_sign": {
+     "n": 47,
+     "accuracy": 0.2979,
+     "balanced_accuracy": 0.2989,
+     "auc": 0.2989,
+     "brier": 0.41356,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "logistic_l2": {
+     "n": 47,
+     "accuracy": 0.4468,
+     "balanced_accuracy": 0.442,
+     "auc": 0.433,
+     "brier": 0.27277,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "gbt_shallow": {
+     "n": 47,
+     "accuracy": 0.5106,
+     "balanced_accuracy": 0.5045,
+     "auc": 0.4257,
+     "brier": 0.30375,
+     "n_positive": 23,
+     "n_negative": 24
+    }
+   }
+  },
+  {
+   "test_year": "2024",
+   "n_train": 120,
+   "n_test": 49,
+   "train_positive_rate": 0.45,
+   "test_positive_rate": 0.6122,
+   "per_model": {
+    "always_positive": {
+     "n": 49,
+     "accuracy": 0.6122,
+     "balanced_accuracy": 0.5,
+     "auc": 0.5,
+     "brier": 0.38776,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "momentum_sign": {
+     "n": 49,
+     "accuracy": 0.551,
+     "balanced_accuracy": 0.5465,
+     "auc": 0.5465,
+     "brier": 0.28699,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "logistic_l2": {
+     "n": 49,
+     "accuracy": 0.5714,
+     "balanced_accuracy": 0.5728,
+     "auc": 0.5368,
+     "brier": 0.25638,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "gbt_shallow": {
+     "n": 49,
+     "accuracy": 0.4286,
+     "balanced_accuracy": 0.4561,
+     "auc": 0.5018,
+     "brier": 0.28576,
+     "n_positive": 30,
+     "n_negative": 19
+    }
+   }
+  },
+  {
+   "test_year": "2025",
+   "n_train": 169,
+   "n_test": 48,
+   "train_positive_rate": 0.497,
+   "test_positive_rate": 0.5,
+   "per_model": {
+    "always_positive": {
+     "n": 48,
+     "accuracy": 0.5,
+     "balanced_accuracy": 0.5,
+     "auc": 0.5,
+     "brier": 0.5,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "momentum_sign": {
+     "n": 48,
+     "accuracy": 0.5833,
+     "balanced_accuracy": 0.5833,
+     "auc": 0.5833,
+     "brier": 0.27083,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "logistic_l2": {
+     "n": 48,
+     "accuracy": 0.4167,
+     "balanced_accuracy": 0.4167,
+     "auc": 0.3767,
+     "brier": 0.28448,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "gbt_shallow": {
+     "n": 48,
+     "accuracy": 0.5417,
+     "balanced_accuracy": 0.5417,
+     "auc": 0.4844,
+     "brier": 0.27216,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  }
+ ],
+ "pooled_out_of_sample": {
+  "always_positive": {
+   "n": 144,
+   "accuracy": 0.5347,
+   "balanced_accuracy": 0.5,
+   "auc": 0.5,
+   "brier": 0.46528,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 0
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 0
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 0
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 144,
+     "mean_predicted": 1.0,
+     "observed_positive_rate": 0.5347
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.4894,
+     "balanced_accuracy": 0.5,
+     "auc": 0.5,
+     "brier": 0.51064,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.6122,
+     "balanced_accuracy": 0.5,
+     "auc": 0.5,
+     "brier": 0.38776,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5,
+     "balanced_accuracy": 0.5,
+     "auc": 0.5,
+     "brier": 0.5,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "momentum_sign": {
+   "n": 144,
+   "accuracy": 0.4792,
+   "balanced_accuracy": 0.4752,
+   "auc": 0.4752,
+   "brier": 0.32292,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 64,
+     "mean_predicted": 0.25,
+     "observed_positive_rate": 0.5625
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 0
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 0
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 80,
+     "mean_predicted": 0.75,
+     "observed_positive_rate": 0.5125
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.2979,
+     "balanced_accuracy": 0.2989,
+     "auc": 0.2989,
+     "brier": 0.41356,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.551,
+     "balanced_accuracy": 0.5465,
+     "auc": 0.5465,
+     "brier": 0.28699,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5833,
+     "balanced_accuracy": 0.5833,
+     "auc": 0.5833,
+     "brier": 0.27083,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "logistic_l2": {
+   "n": 144,
+   "accuracy": 0.4792,
+   "balanced_accuracy": 0.4849,
+   "auc": 0.4654,
+   "brier": 0.2711,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 41,
+     "mean_predicted": 0.3416,
+     "observed_positive_rate": 0.5854
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 43,
+     "mean_predicted": 0.4409,
+     "observed_positive_rate": 0.5116
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 38,
+     "mean_predicted": 0.5514,
+     "observed_positive_rate": 0.6053
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 22,
+     "mean_predicted": 0.6435,
+     "observed_positive_rate": 0.3636
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.4468,
+     "balanced_accuracy": 0.442,
+     "auc": 0.433,
+     "brier": 0.27277,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.5714,
+     "balanced_accuracy": 0.5728,
+     "auc": 0.5368,
+     "brier": 0.25638,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.4167,
+     "balanced_accuracy": 0.4167,
+     "auc": 0.3767,
+     "brier": 0.28448,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "gbt_shallow": {
+   "n": 144,
+   "accuracy": 0.4931,
+   "balanced_accuracy": 0.5056,
+   "auc": 0.4757,
+   "brier": 0.2871,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 65,
+     "mean_predicted": 0.3054,
+     "observed_positive_rate": 0.6
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 33,
+     "mean_predicted": 0.4423,
+     "observed_positive_rate": 0.3939
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 20,
+     "mean_predicted": 0.5512,
+     "observed_positive_rate": 0.5
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 26,
+     "mean_predicted": 0.7454,
+     "observed_positive_rate": 0.5769
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.5106,
+     "balanced_accuracy": 0.5045,
+     "auc": 0.4257,
+     "brier": 0.30375,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.4286,
+     "balanced_accuracy": 0.4561,
+     "auc": 0.5018,
+     "brier": 0.28576,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5417,
+     "balanced_accuracy": 0.5417,
+     "auc": 0.4844,
+     "brier": 0.27216,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  }
+ },
+ "primary_model": {
+  "selected": "logistic_l2",
+  "rule": "lowest pooled out-of-sample Brier score, AUC secondary",
+  "brier": 0.2711,
+  "auc": 0.4654,
+  "beats_always_positive_brier": true,
+  "beats_momentum_brier": true,
+  "beats_always_positive_accuracy": false,
+  "beats_momentum_accuracy": false
+ },
+ "combined_strategy": {
+  "entry": "close(T-1)",
+  "exit": "open(T)",
+  "rule": "long if predicted probability > 0.5, short if < 0.5",
+  "cost_bps_round_trip": 10.0,
+  "direction_only": {
+   "trades": 144,
+   "mean_gross_pct": -0.6027,
+   "mean_net_pct": -0.7027,
+   "median_net_pct": -0.5406,
+   "hit_rate_pct": 47.92,
+   "max_drawdown_pct": -81.66,
+   "trades_per_year": 48.79,
+   "naive_t": -0.956,
+   "worst_test_year": {
+    "year": "2023",
+    "mean_net_pct": -2.3316
+   }
+  },
+  "direction_plus_gst_filter": {
+   "trades": 90,
+   "mean_gross_pct": -0.7865,
+   "mean_net_pct": -0.8865,
+   "median_net_pct": -0.6018,
+   "hit_rate_pct": 47.78,
+   "max_drawdown_pct": -78.902,
+   "trades_per_year": 30.72,
+   "naive_t": -0.84,
+   "worst_test_year": {
+    "year": "2023",
+    "mean_net_pct": -2.5048
+   },
+   "note": "same predictions; no retraining on the high-GST subset; no cutoff tuning"
+  },
+  "contemporaneous_unfiltered_low_gst": {
+   "trades": 54,
+   "mean_gross_pct": -0.2962,
+   "mean_net_pct": -0.3962,
+   "median_net_pct": -0.3439,
+   "hit_rate_pct": 48.15,
+   "max_drawdown_pct": -26.27,
+   "trades_per_year": 18.54,
+   "naive_t": -0.453,
+   "worst_test_year": {
+    "year": "2023",
+    "mean_net_pct": -1.8785
+   }
+  },
+  "confidence_filter_secondary": {
+   "threshold": 0.6,
+   "trades": 63,
+   "mean_gross_pct": -1.7891,
+   "mean_net_pct": -1.8891,
+   "median_net_pct": -1.9499,
+   "hit_rate_pct": 39.68,
+   "max_drawdown_pct": -77.859,
+   "trades_per_year": 22.21,
+   "naive_t": -1.877,
+   "label": "SECONDARY - one fixed conventional threshold, not searched"
+  },
+  "incremental_gst_effect_cr2": {
+   "n": 144,
+   "n_clusters": 27,
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "cluster_unit": "ticker",
+   "coef_pp": -1.0404,
+   "cr2_se_pp": 1.8752,
+   "satterthwaite_df": 18.127,
+   "t_stat": -0.555,
+   "p_value": 0.5858,
+   "ci95_pp": [
+    -4.9781,
+    2.8973
+   ]
+  },
+  "decisive_statistic": "the incremental GST coefficient above, not the filtered strategy's standalone mean"
+ },
+ "conclusion": "NEITHER_ADDS_VALUE",
+ "conclusion_basis": {
+  "direction_beats_both_baselines_on_brier": false,
+  "gst_incremental_supported": false,
+  "note": "a model is not useful merely because accuracy exceeds 50%; it must beat the fixed baselines chronologically and be economically meaningful after costs"
+ }
+}
