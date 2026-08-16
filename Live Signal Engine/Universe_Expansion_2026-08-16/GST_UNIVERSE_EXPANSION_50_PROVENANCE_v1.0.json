@@ -1,0 +1,91 @@
+{
+ "artifact": "Source provenance manifest — universe expansion 24 -> 50",
+ "canonical_source": {
+  "content_type": "text/plain; charset=utf-8",
+  "description": "the dated official iShares OEF holdings snapshot, used as an identity-only proxy for the S&P 100 investable universe",
+  "download_url": "https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv",
+  "http_status": 200,
+  "is_index_provider_canonical_constituent_list": false,
+  "is_sp_dji_constituent_file": false,
+  "link_discovered_from": "the official product page's own published holdings link",
+  "product_page": "https://www.ishares.com/us/products/239723/ishares-sp-100-etf",
+  "publisher": "BlackRock / iShares (fund issuer)",
+  "raw_bytes": 17200,
+  "raw_kept_outside_version_control": true,
+  "raw_quarantine_note": "the raw holdings file is retained outside Git; only the identity-only projection is committed",
+  "raw_sha256_lf": "3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892",
+  "retrieved_utc": "2026-08-16T05:32:28Z",
+  "source_reported_as_of": "Aug 13, 2026"
+ },
+ "frozen_governance_artifacts": [
+  {
+   "file": "PRE_RETRIEVAL_SELECTION_RULE.md",
+   "sha256_lf": "6911726c077bab02f994f29adddd6bc5930e4dc17c53c1b6245c944196761cde",
+   "unchanged": true
+  },
+  {
+   "file": "PRE_RETRIEVAL_SOURCE_AMENDMENT_2026-08-16.md",
+   "sha256_lf": "bf88f2261e1b6a6983a3db07b72b4c9d3274032e5332e4519cbfbf3ccab0d6bd",
+   "unchanged": true
+  },
+  {
+   "file": "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md",
+   "sha256_lf": "5faabac1e5a6b77a8dc3cbb894c667948cbcbb8824e2f159e81b29ca2b30ffc6",
+   "unchanged": true
+  }
+ ],
+ "no_prohibited_data_used": true,
+ "sanitization": {
+  "columns_dropped": [
+   "Sector",
+   "Market Value",
+   "Weight (%)",
+   "Notional Value",
+   "Quantity",
+   "Price",
+   "Location",
+   "Exchange",
+   "Currency",
+   "FX Rate",
+   "Market Currency",
+   "Accrual Date"
+  ],
+  "dropped_column_count": 12,
+  "identity_columns_kept": [
+   "Ticker",
+   "Name",
+   "Asset Class"
+  ],
+  "prohibited_fields_emitted": false,
+  "row_count": 105,
+  "sanitized_sha256_lf": "c895fa36843fbf909d6d8d01d8a02e3ccc5a7cc1a5cdf3b907e1ba45034d20fe"
+ },
+ "schema": "GST_UNIVERSE_EXPANSION_PROVENANCE_v1",
+ "sp_dji_route_unavailable": {
+  "block_page_sha256": "e8e8b3e332fd6b19658f4ab4e4ae4bc29768bb0a47f0bc075880ef648975b465",
+  "routes_attempted": [
+   {
+    "result": "HTTP 403",
+    "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-100/"
+   },
+   {
+    "result": "HTTP 403",
+    "url": "https://www.spglobal.com/spdji/en/idsexport/file.xls?selectedModule=Constituents&selectedSubModule=ConstituentsFullList&indexId=340"
+   },
+   {
+    "result": "HTTP 403",
+    "url": "https://www.spglobal.com/spdji/en/"
+   },
+   {
+    "result": "DNS does not resolve",
+    "url": "https://us.spindices.com/indices/equity/sp-100"
+   },
+   {
+    "result": "HTTP 200 serving 'Security Controls Triggered' error page",
+    "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-100/ (browser engine)"
+   }
+  ],
+  "statement": "S&P Dow Jones Indices' own constituent export was not obtainable; its security controls blocked access and were NOT retried, evaded, proxied around, or circumvented."
+ },
+ "status": "PROPOSAL_ONLY_NOT_ACTIVE"
+}
