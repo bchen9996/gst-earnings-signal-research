@@ -1,0 +1,708 @@
+{
+ "artifact": "RETROSPECTIVE_DIRECTION_SIGNAL_RESULTS",
+ "version": "1.0",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "confirms_hyp01": false,
+ "uses_prospective_outcomes": false,
+ "gst_used_as_direction_input": false,
+ "gst_role": "magnitude / event-selection filter applied AFTER predictions exist",
+ "outcome": "sign(open(T)/close(T-1) - 1)",
+ "features_frozen_before_fitting": [
+  "ret_5d",
+  "ret_20d",
+  "realized_vol",
+  "spy_ret_5d",
+  "spy_ret_20d",
+  "mom_minus_spy",
+  "prior_gap_dir",
+  "quarter"
+ ],
+ "features_omitted": [],
+ "models": [
+  "always_positive",
+  "intercept_only_prevalence",
+  "momentum_sign",
+  "logistic_l2",
+  "gbt_shallow"
+ ],
+ "probabilistic_baseline": "INTERCEPT_ONLY_PREVALENCE - training-fold positive-gap prevalence assigned to every test observation",
+ "always_positive_role": "classification benchmark only; its 0/1 predictions are NOT the primary probabilistic comparator",
+ "validation": "chronological expanding window; standardization fit within each training fold",
+ "selection_rule": "pooled out-of-sample Brier score, AUC secondary; never trading returns",
+ "cost_bps_round_trip": 10.0,
+ "sample": {
+  "events": 217,
+  "tickers": 28,
+  "date_range": [
+   "2021-03-24",
+   "2025-12-19"
+  ],
+  "omitted": 0,
+  "omitted_reasons": {},
+  "positive_rate_overall": 0.4977,
+  "rows_in_source": 285,
+  "unique_event_identities": 217,
+  "duplicate_rows_removed": 68
+ },
+ "folds": [
+  {
+   "test_year": "2023",
+   "n_train": 73,
+   "n_test": 47,
+   "train_positive_rate": 0.4247,
+   "test_positive_rate": 0.4894,
+   "per_model": {
+    "always_positive": {
+     "n": 47,
+     "accuracy": 0.4894,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.51064,
+     "log_loss": 14.10947,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "intercept_only_prevalence": {
+     "n": 47,
+     "accuracy": 0.5106,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.25407,
+     "log_loss": 0.7014,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "momentum_sign": {
+     "n": 47,
+     "accuracy": 0.2979,
+     "balanced_accuracy": 0.2989,
+     "auc": 0.2989,
+     "auc_defined": true,
+     "brier": 0.41356,
+     "log_loss": 1.05905,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "logistic_l2": {
+     "n": 47,
+     "accuracy": 0.4468,
+     "balanced_accuracy": 0.442,
+     "auc": 0.433,
+     "auc_defined": true,
+     "brier": 0.27277,
+     "log_loss": 0.74148,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "gbt_shallow": {
+     "n": 47,
+     "accuracy": 0.5106,
+     "balanced_accuracy": 0.5045,
+     "auc": 0.4257,
+     "auc_defined": true,
+     "brier": 0.30375,
+     "log_loss": 0.83572,
+     "n_positive": 23,
+     "n_negative": 24
+    }
+   }
+  },
+  {
+   "test_year": "2024",
+   "n_train": 120,
+   "n_test": 49,
+   "train_positive_rate": 0.45,
+   "test_positive_rate": 0.6122,
+   "per_model": {
+    "always_positive": {
+     "n": 49,
+     "accuracy": 0.6122,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.38776,
+     "log_loss": 10.71408,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "intercept_only_prevalence": {
+     "n": 49,
+     "accuracy": 0.3878,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.26372,
+     "log_loss": 0.7207,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "momentum_sign": {
+     "n": 49,
+     "accuracy": 0.551,
+     "balanced_accuracy": 0.5465,
+     "auc": 0.5465,
+     "auc_defined": true,
+     "brier": 0.28699,
+     "log_loss": 0.78094,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "logistic_l2": {
+     "n": 49,
+     "accuracy": 0.5714,
+     "balanced_accuracy": 0.5728,
+     "auc": 0.5368,
+     "auc_defined": true,
+     "brier": 0.25638,
+     "log_loss": 0.70737,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "gbt_shallow": {
+     "n": 49,
+     "accuracy": 0.4286,
+     "balanced_accuracy": 0.4561,
+     "auc": 0.5018,
+     "auc_defined": true,
+     "brier": 0.28576,
+     "log_loss": 0.77189,
+     "n_positive": 30,
+     "n_negative": 19
+    }
+   }
+  },
+  {
+   "test_year": "2025",
+   "n_train": 169,
+   "n_test": 48,
+   "train_positive_rate": 0.497,
+   "test_positive_rate": 0.5,
+   "per_model": {
+    "always_positive": {
+     "n": 48,
+     "accuracy": 0.5,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.5,
+     "log_loss": 13.81552,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "intercept_only_prevalence": {
+     "n": 48,
+     "accuracy": 0.5,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.25001,
+     "log_loss": 0.69316,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "momentum_sign": {
+     "n": 48,
+     "accuracy": 0.5833,
+     "balanced_accuracy": 0.5833,
+     "auc": 0.5833,
+     "auc_defined": true,
+     "brier": 0.27083,
+     "log_loss": 0.74544,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "logistic_l2": {
+     "n": 48,
+     "accuracy": 0.4167,
+     "balanced_accuracy": 0.4167,
+     "auc": 0.3767,
+     "auc_defined": true,
+     "brier": 0.28448,
+     "log_loss": 0.76472,
+     "n_positive": 24,
+     "n_negative": 24
+    },
+    "gbt_shallow": {
+     "n": 48,
+     "accuracy": 0.5417,
+     "balanced_accuracy": 0.5417,
+     "auc": 0.4844,
+     "auc_defined": true,
+     "brier": 0.27216,
+     "log_loss": 0.7412,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  }
+ ],
+ "pooled_out_of_sample": {
+  "always_positive": {
+   "n": 144,
+   "accuracy": 0.5347,
+   "balanced_accuracy": 0.5,
+   "auc": null,
+   "auc_defined": false,
+   "brier": 0.46528,
+   "log_loss": 12.85611,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 0
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 0
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 0
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 144,
+     "mean_predicted": 1.0,
+     "observed_positive_rate": 0.5347
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.4894,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.51064,
+     "log_loss": 14.10947,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.6122,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.38776,
+     "log_loss": 10.71408,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.5,
+     "log_loss": 13.81552,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "intercept_only_prevalence": {
+   "n": 144,
+   "accuracy": 0.4653,
+   "balanced_accuracy": 0.5,
+   "auc": 0.5042,
+   "auc_defined": true,
+   "brier": 0.256,
+   "log_loss": 0.70522,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 0
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 144,
+     "mean_predicted": 0.4574,
+     "observed_positive_rate": 0.5347
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 0
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 0
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.5106,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.25407,
+     "log_loss": 0.7014,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.3878,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.26372,
+     "log_loss": 0.7207,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5,
+     "balanced_accuracy": 0.5,
+     "auc": null,
+     "auc_defined": false,
+     "brier": 0.25001,
+     "log_loss": 0.69316,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "momentum_sign": {
+   "n": 144,
+   "accuracy": 0.4792,
+   "balanced_accuracy": 0.4752,
+   "auc": 0.4752,
+   "auc_defined": true,
+   "brier": 0.32292,
+   "log_loss": 0.85988,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 64,
+     "mean_predicted": 0.25,
+     "observed_positive_rate": 0.5625
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 0
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 0
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 80,
+     "mean_predicted": 0.75,
+     "observed_positive_rate": 0.5125
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.2979,
+     "balanced_accuracy": 0.2989,
+     "auc": 0.2989,
+     "auc_defined": true,
+     "brier": 0.41356,
+     "log_loss": 1.05905,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.551,
+     "balanced_accuracy": 0.5465,
+     "auc": 0.5465,
+     "auc_defined": true,
+     "brier": 0.28699,
+     "log_loss": 0.78094,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5833,
+     "balanced_accuracy": 0.5833,
+     "auc": 0.5833,
+     "auc_defined": true,
+     "brier": 0.27083,
+     "log_loss": 0.74544,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "logistic_l2": {
+   "n": 144,
+   "accuracy": 0.4792,
+   "balanced_accuracy": 0.4849,
+   "auc": 0.4654,
+   "auc_defined": true,
+   "brier": 0.2711,
+   "log_loss": 0.73762,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 41,
+     "mean_predicted": 0.3416,
+     "observed_positive_rate": 0.5854
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 43,
+     "mean_predicted": 0.4409,
+     "observed_positive_rate": 0.5116
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 38,
+     "mean_predicted": 0.5514,
+     "observed_positive_rate": 0.6053
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 22,
+     "mean_predicted": 0.6435,
+     "observed_positive_rate": 0.3636
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.4468,
+     "balanced_accuracy": 0.442,
+     "auc": 0.433,
+     "auc_defined": true,
+     "brier": 0.27277,
+     "log_loss": 0.74148,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.5714,
+     "balanced_accuracy": 0.5728,
+     "auc": 0.5368,
+     "auc_defined": true,
+     "brier": 0.25638,
+     "log_loss": 0.70737,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.4167,
+     "balanced_accuracy": 0.4167,
+     "auc": 0.3767,
+     "auc_defined": true,
+     "brier": 0.28448,
+     "log_loss": 0.76472,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  },
+  "gbt_shallow": {
+   "n": 144,
+   "accuracy": 0.4931,
+   "balanced_accuracy": 0.5056,
+   "auc": 0.4757,
+   "auc_defined": true,
+   "brier": 0.2871,
+   "log_loss": 0.78249,
+   "n_positive": 77,
+   "n_negative": 67,
+   "calibration": [
+    {
+     "bin": "[0.0,0.4)",
+     "n": 65,
+     "mean_predicted": 0.3054,
+     "observed_positive_rate": 0.6
+    },
+    {
+     "bin": "[0.4,0.5)",
+     "n": 33,
+     "mean_predicted": 0.4423,
+     "observed_positive_rate": 0.3939
+    },
+    {
+     "bin": "[0.5,0.6)",
+     "n": 20,
+     "mean_predicted": 0.5512,
+     "observed_positive_rate": 0.5
+    },
+    {
+     "bin": "[0.6,1.0)",
+     "n": 26,
+     "mean_predicted": 0.7454,
+     "observed_positive_rate": 0.5769
+    }
+   ],
+   "by_test_year": {
+    "2023": {
+     "n": 47,
+     "accuracy": 0.5106,
+     "balanced_accuracy": 0.5045,
+     "auc": 0.4257,
+     "auc_defined": true,
+     "brier": 0.30375,
+     "log_loss": 0.83572,
+     "n_positive": 23,
+     "n_negative": 24
+    },
+    "2024": {
+     "n": 49,
+     "accuracy": 0.4286,
+     "balanced_accuracy": 0.4561,
+     "auc": 0.5018,
+     "auc_defined": true,
+     "brier": 0.28576,
+     "log_loss": 0.77189,
+     "n_positive": 30,
+     "n_negative": 19
+    },
+    "2025": {
+     "n": 48,
+     "accuracy": 0.5417,
+     "balanced_accuracy": 0.5417,
+     "auc": 0.4844,
+     "auc_defined": true,
+     "brier": 0.27216,
+     "log_loss": 0.7412,
+     "n_positive": 24,
+     "n_negative": 24
+    }
+   }
+  }
+ },
+ "primary_model": {
+  "selected": "intercept_only_prevalence",
+  "rule": "lowest pooled out-of-sample Brier score, AUC secondary",
+  "candidates": [
+   "intercept_only_prevalence",
+   "logistic_l2",
+   "gbt_shallow"
+  ],
+  "brier": 0.256,
+  "auc": 0.5042,
+  "is_null_model": true,
+  "beats_probabilistic_null_brier": {
+   "logistic_l2": false,
+   "gbt_shallow": false
+  },
+  "any_learned_model_beats_null": false,
+  "intercept_only_brier": 0.256,
+  "beats_always_positive_brier": true,
+  "beats_momentum_brier": true,
+  "beats_always_positive_accuracy": false,
+  "beats_momentum_accuracy": false
+ },
+ "combined_strategy": {
+  "status": "SECONDARY EVIDENCE ABOUT THE FAILED LEARNED MODEL - not presented as an investable strategy; the model selected under the frozen rule is the intercept-only null, which produces no directional signal to trade",
+  "predictions_from": "logistic_l2",
+  "entry": "close(T-1)",
+  "exit": "open(T)",
+  "rule": "long if predicted probability > 0.5, short if < 0.5",
+  "cost_bps_round_trip": 10.0,
+  "direction_only": {
+   "trades": 144,
+   "mean_gross_pct": -0.6027,
+   "mean_net_pct": -0.7027,
+   "median_net_pct": -0.5406,
+   "hit_rate_pct": 47.92,
+   "max_drawdown_pct": -81.66,
+   "trades_per_year": 48.79,
+   "naive_t": -0.956,
+   "worst_test_year": {
+    "year": "2023",
+    "mean_net_pct": -2.3316
+   }
+  },
+  "direction_plus_gst_filter": {
+   "trades": 90,
+   "mean_gross_pct": -0.7865,
+   "mean_net_pct": -0.8865,
+   "median_net_pct": -0.6018,
+   "hit_rate_pct": 47.78,
+   "max_drawdown_pct": -78.902,
+   "trades_per_year": 30.72,
+   "naive_t": -0.84,
+   "worst_test_year": {
+    "year": "2023",
+    "mean_net_pct": -2.5048
+   },
+   "note": "same predictions; no retraining on the high-GST subset; no cutoff tuning"
+  },
+  "contemporaneous_unfiltered_low_gst": {
+   "trades": 54,
+   "mean_gross_pct": -0.2962,
+   "mean_net_pct": -0.3962,
+   "median_net_pct": -0.3439,
+   "hit_rate_pct": 48.15,
+   "max_drawdown_pct": -26.27,
+   "trades_per_year": 18.54,
+   "naive_t": -0.453,
+   "worst_test_year": {
+    "year": "2023",
+    "mean_net_pct": -1.8785
+   }
+  },
+  "confidence_filter_secondary": {
+   "threshold": 0.6,
+   "trades": 63,
+   "mean_gross_pct": -1.7891,
+   "mean_net_pct": -1.8891,
+   "median_net_pct": -1.9499,
+   "hit_rate_pct": 39.68,
+   "max_drawdown_pct": -77.859,
+   "trades_per_year": 22.21,
+   "naive_t": -1.877,
+   "label": "SECONDARY - one fixed conventional threshold, not searched"
+  },
+  "incremental_gst_effect_cr2": {
+   "n": 144,
+   "n_clusters": 27,
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "cluster_unit": "ticker",
+   "coef_pp": -1.0404,
+   "cr2_se_pp": 1.8752,
+   "satterthwaite_df": 18.127,
+   "t_stat": -0.555,
+   "p_value": 0.5858,
+   "ci95_pp": [
+    -4.9781,
+    2.8973
+   ]
+  },
+  "decisive_statistic": "the incremental GST coefficient above, not the filtered strategy's standalone mean"
+ },
+ "conclusion": "TESTED_DIRECTION_MODELS_HAVE_NO_SKILL",
+ "conclusion_scope": "The tested pre-earnings price-based direction models have no out-of-sample directional skill, and applying GST as a magnitude filter does not rescue those models.",
+ "secondary_conclusion_narrow": {
+  "label": "NEITHER_ADDS_VALUE",
+  "applies_to": "the tested logistic-direction strategy and its GST combination ONLY - not the overall two-stage research concept"
+ },
+ "what_this_does_not_establish": [
+  "It does not invalidate the separate GST magnitude hypothesis.",
+  "It does not test GST combined with a direction signal that independently possesses directional skill.",
+  "It does not test analyst revisions, point-in-time news, options skew, fundamental expectations or network-diffusion features.",
+  "A failed direction model cannot determine whether GST would improve a genuinely informative direction model."
+ ],
+ "conclusion_basis": {
+  "any_learned_model_beats_probabilistic_null": false,
+  "selected_is_null_model": true,
+  "gst_incremental_supported": false,
+  "trading_results_are_secondary": true,
+  "note": "the selected model is the intercept-only null, so no directional trading strategy is presented as investable; the logistic strategy figures are kept only as secondary evidence about the failed learned model"
+ }
+}
