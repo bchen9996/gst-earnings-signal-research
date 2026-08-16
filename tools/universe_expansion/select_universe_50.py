@@ -103,19 +103,77 @@ def normalize_ticker(raw: str) -> tuple[str, bool]:
     return t, False
 
 
-def issuer_key(name: str) -> str:
-    """R5. Economic-issuer identity from the snapshot's own company-name field.
+# Frozen issuer-grouping map (PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md,
+# sha256 ff7131e734fffab65d9a0c8fd5a0e0675cc47154d6661bb1749283d1053c3dc6).
+#
+# R5 requires economic-issuer deduplication and says explicitly that an issuer
+# represented by GOOGL contributes no further classes -- but its operational
+# sentence restricts name normalization to case and punctuation, which cannot
+# group "ALPHABET CLASS A" with "ALPHABET CLASS C". Independent review found the
+# earlier general suffix-stripping regex inconsistent with that sentence.
+#
+# The conflict is resolved by EXACT source-name equality for the two names
+# actually observed in this dated snapshot, and by nothing more general. A regex
+# would silently group issuers nobody has examined; this map groups two known
+# names. It is applied immediately before R5 deduplication and nowhere else.
+FROZEN_ISSUER_GROUPS: dict[str, str] = {
+    "ALPHABET CLASS A": "ALPHABET",
+    "ALPHABET CLASS C": "ALPHABET",
+}
 
-    Case and punctuation are normalized. A trailing share-class designator is
-    then removed, because that suffix IS the marker distinguishing two classes
-    of one issuer -- without removing it, R5 could never group them and the rule
-    would be inoperative. This is applied ONLY to build the grouping key and
-    NEVER to the ticker. It is deterministic and reads no outcome.
-    """
+# Detector ONLY. Used to REFUSE on an unlisted multi-class case, never to group.
+_SHARE_CLASS_SUFFIX = re.compile(r"\s+(CLASS|CL|SER|SERIES)\s+[A-Z]$")
+
+
+def normalize_name(name: str) -> str:
+    """R5's operational sentence, exactly as frozen: case and punctuation only."""
     s = re.sub(r"[^A-Z0-9 ]", " ", name.upper())
-    s = re.sub(r"\s+", " ", s).strip()
-    s = re.sub(r"\s+(CLASS|CL|SER|SERIES)\s+[A-Z]$", "", s)
-    return s.strip()
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def issuer_key(name: str) -> tuple[str, bool]:
+    """Resolved issuer identity. Returns (issuer_key, frozen_map_applied).
+
+    A name listed in the frozen map resolves to its mapped group. Every other
+    name falls back to R5's operational sentence verbatim -- case and punctuation
+    normalization only, with NO suffix removed.
+    """
+    n = normalize_name(name)
+    if n in FROZEN_ISSUER_GROUPS:
+        return FROZEN_ISSUER_GROUPS[n], True
+    return n, False
+
+
+def assert_no_unlisted_multiclass(rows: list[dict]) -> None:
+    """Refuse if the snapshot holds a share-class group the frozen map misses.
+
+    This inspects names only to DETECT a collision and stop. It never merges
+    anything: guessing is the defect this amendment exists to correct.
+    """
+    groups: dict[str, list[str]] = {}
+    for r in rows:
+        n = normalize_name(r["name"])
+        if _SHARE_CLASS_SUFFIX.search(n):
+            groups.setdefault(_SHARE_CLASS_SUFFIX.sub("", n).strip(), []).append(n)
+    for base, names in sorted(groups.items()):
+        if len(names) < 2:
+            continue
+        uncovered = [n for n in names if n not in FROZEN_ISSUER_GROUPS]
+        if uncovered:
+            raise SystemExit(
+                "STOP: share-class group not covered by the frozen issuer-grouping map: "
+                f"base={base!r} names={sorted(names)} uncovered={sorted(uncovered)}. "
+                "A new dated amendment is required; the map may not be widened here.")
+        # Being LISTED is not enough: every member of one share-class group must
+        # resolve to the SAME issuer key. A map that covers both names but sends
+        # them to different groups would defeat R5 deduplication silently, which
+        # a mutation test caught.
+        resolved = {FROZEN_ISSUER_GROUPS[n] for n in names}
+        if len(resolved) != 1:
+            raise SystemExit(
+                "STOP: share-class group resolves to more than one issuer key: "
+                f"base={base!r} names={sorted(names)} resolved={sorted(resolved)}. "
+                "Members of one share-class group must map to a single issuer.")
 
 
 def digest_for(ticker: str) -> tuple[str, str]:
@@ -145,6 +203,9 @@ def build(snapshot: dict) -> dict:
             if isinstance(v, (int, float)):
                 raise SystemExit(f"STOP: numeric value in identity field {k!r} of row {i}")
 
+    # Refuse before doing anything if an unlisted share-class group exists.
+    assert_no_unlisted_multiclass(rows)
+
     locked_set = set(LOCKED_24)
     ledger = []
 
@@ -159,7 +220,9 @@ def build(snapshot: dict) -> dict:
             "asset_class": asset,
             "canonical_ticker": None,
             "alias_applied": False,
-            "issuer_key": issuer_key(name),
+            "source_name": name,
+            "issuer_key": issuer_key(name)[0],
+            "issuer_group_map_applied": issuer_key(name)[1],
             "status": None,
             "exclusion_rule": None,
             "hash_input": None,
@@ -315,6 +378,23 @@ def build(snapshot: dict) -> dict:
             "raw_sha256_lf": snapshot.get("raw_sha256_lf"),
         },
         "frozen_ticker_aliases": dict(FROZEN_TICKER_ALIASES),
+        "frozen_issuer_groups": dict(FROZEN_ISSUER_GROUPS),
+        "issuer_grouping_amendment": {
+            "file": "PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md",
+            "sha256_lf": "ff7131e734fffab65d9a0c8fd5a0e0675cc47154d6661bb1749283d1053c3dc6",
+            "created_after_retrieval": True,
+            "created_after_inconsistency_discovered": True,
+            "created_after_earlier_selection_computed": True,
+            "created_before_corrected_final_selection": True,
+            "identity_information_only": True,
+            "general_suffix_stripping_removed": True,
+            "applied_before": "R5 economic-issuer deduplication, and nowhere else",
+            "unlisted_multiclass_policy": "STOP",
+        },
+        "issuer_group_decisions": [
+            {"source_name": r["source_name"], "resolved_issuer_key": r["issuer_key"],
+             "canonical_ticker": r["canonical_ticker"], "frozen_map_applied": True}
+            for r in ledger if r.get("issuer_group_map_applied")],
         "alias_amendment": {
             "file": "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md",
             "sha256_lf": "5faabac1e5a6b77a8dc3cbb894c667948cbcbb8824e2f159e81b29ca2b30ffc6",

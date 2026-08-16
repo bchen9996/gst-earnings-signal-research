@@ -1,0 +1,21 @@
+{
+ "artifact": "Hash-only evidence manifest for the quarantined raw OEF holdings file",
+ "availability_verification_method": "re-hashed in place; byte count and SHA-256 both matched the value recorded at retrieval",
+ "availability_verified_at_utc": "2026-08-16T06:05:00Z",
+ "available_to_authorized_reviewer": true,
+ "byte_count": 17200,
+ "location_note": "Repository-external quarantine directory on the machine that performed the retrieval. A reviewer with access to that machine can hash the file directly; a reviewer without it can re-download from the official URL and compare, accounting for the fund's daily republication.",
+ "official_url": "https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv",
+ "prohibited_values_committed": false,
+ "prohibited_values_printed": false,
+ "purpose": "The raw fund-holdings file is NOT tracked by Git because it carries prohibited numeric holdings fields. This manifest lets an independent reviewer verify its recorded SHA-256 without the repository ever containing those values.",
+ "quarantine_filename": "OEF_latest_holdings_raw.csv",
+ "repository_external_location": "C:\\Users\\hakur\\AppData\\Local\\Temp\\claude\\C--Users-hakur-Downloads-gst-event-dossiers-worktree\\9ed6a2ef-3f2f-4009-8985-c14d79c34f37\\scratchpad\\quarantine_oef\\OEF_latest_holdings_raw.csv",
+ "retrieval_timestamp_utc": "2026-08-16T05:32:28Z",
+ "sanitized_projection_committed": "GST_OEF_IDENTITY_SNAPSHOT_2026-08-13.json",
+ "sanitized_projection_sha256_lf": "c895fa36843fbf909d6d8d01d8a02e3ccc5a7cc1a5cdf3b907e1ba45034d20fe",
+ "schema": "GST_RAW_SOURCE_EVIDENCE_MANIFEST_v1",
+ "sha256_raw_bytes": "3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892",
+ "source_reported_as_of": "Aug 13, 2026",
+ "tracked_by_git": false
+}

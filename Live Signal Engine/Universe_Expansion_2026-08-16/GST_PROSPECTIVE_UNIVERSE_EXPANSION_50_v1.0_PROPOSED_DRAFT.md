@@ -5,62 +5,76 @@
 > ## NO PRODUCTION QUERY CHANGED
 > ## NO TICKER WAS SELECTED USING ATTENTION, PRICE, EARNINGS, OUTCOME OR PERFORMANCE INFORMATION
 
-The production universe constant `LOCKED_24_TICKER_UNIVERSE` is **unchanged**. Nothing here is
-activated by merging this proposal.
+The production constant `LOCKED_24_TICKER_UNIVERSE` is **unchanged**. Merging this activates nothing.
 
-## Source
+**Revision note.** An independent review returned **`REQUEST_CORRECTION`** on the first version. The
+selection artifacts from that version were **deleted from the branch** before recomputation, so no
+stale selection survives beside this one.
 
-**The dated official iShares OEF holdings snapshot, used as an identity-only proxy for the S&P 100
-investable universe.** It is **not** the index provider's canonical constituent list, and no document
-in this proposal describes it as one.
+## The corrected defect
 
-| | |
-|---|---|
-| Publisher | BlackRock / iShares (fund issuer) |
-| Download | `https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv` |
-| Retrieved | 2026-08-16T05:32:28Z, HTTP 200 |
-| Source as-of | **Aug 13, 2026** |
-| Raw SHA-256 | `3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892` |
-| Raw file | quarantined **outside** version control |
+Frozen rule R5 says issuer identity comes from the company-name field *"normalized for case and
+punctuation only."* The first implementation additionally stripped a trailing `CLASS/CL/SER/SERIES`
+designator with a general regex. **That is not case or punctuation normalization**, yet it materially
+grouped `ALPHABET CLASS A` with `ALPHABET CLASS C` and drove `GOOG`'s exclusion. Disclosing it in the
+review template did not make the implementation consistent with the frozen rule, and the reviewer was
+right to treat it as blocking.
 
-S&P Dow Jones Indices' own export was unobtainable: its security controls blocked access. **They were
-not retried, evaded, proxied around, or circumvented.**
+The general suffix stripping is **removed entirely**. It is replaced by an exact frozen source-name
+map covering only the two names actually present in this dated snapshot:
 
-Only three identity columns were kept - `Ticker`, `Name`, `Asset Class`. **Twelve columns were
-dropped**, including Market Value, Weight (%), Notional Value, Quantity, Price and FX Rate. No
-prohibited value was read, printed, persisted or used.
+```json
+{"ALPHABET CLASS A": "ALPHABET", "ALPHABET CLASS C": "ALPHABET"}
+```
 
-## Governance chain
+applied immediately before R5 deduplication and nowhere else. Every other name falls back to R5's
+sentence verbatim, with no suffix removed. **Any unlisted share-class group makes the build stop**
+rather than guess.
+
+**The corrected recomputation produced an identical selected 26.** The defect was a real rule
+inconsistency that had to be fixed; it did not change which tickers were chosen. And `GOOG`'s
+exclusion does **not** move the rank-26 boundary - verified by scoring `GOOG` independently and
+finding its digest sorts below rank 26, rather than assuming it.
+
+## Governance chain - each artifact frozen before the step it governs
 
 | Step | Artifact | Frozen before | SHA-256 |
 |---|---|---|---|
 | 1 | `PRE_RETRIEVAL_SELECTION_RULE.md` | any constituent retrieval | `6911726c077bab02f994f29adddd6bc5...` |
 | 2 | `PRE_RETRIEVAL_SOURCE_AMENDMENT_2026-08-16.md` | any OEF request | `bf88f2261e1b6a6983a3db07b72b4c9d...` |
 | 3 | `PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md` | any final selection | `5faabac1e5a6b77a8dc3cbb894c66794...` |
+| 4 | `PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md` | the corrected final selection (created after review found the R5 inconsistency) | `ff7131e734fffab65d9a0c8fd5a0e067...` |
 
-Steps 1 and 2 are byte-for-byte unchanged. Step 3 was created **after** an identity collision was
-discovered and **before** final selection - stated plainly rather than implied, because the collision
-had to be seen before it could be described. It was informed by two identifiers and an issuer name,
-and by nothing else.
+Steps 1-3 are byte-for-byte unchanged. Step 4 was created **after** retrieval, **after** the
+inconsistency was discovered, **after** the earlier selection had been computed, and **before** the
+corrected selection - using identity information only.
 
-## Selection rule
+## Source
 
-```
-SHA256( UTF8( "GST-HYP01-UNIVERSE-EXPANSION-2026-08-16|" + canonical_ticker ) )
-```
+**The dated official iShares OEF holdings snapshot, used as an identity-only proxy for the S&P 100
+investable universe.** It is **not** the index provider's canonical constituent list.
 
-lowercase hexadecimal, sorted ascending by `(digest, canonical_ticker)`, first **26** selected.
-**No human judgment affected which 26 were selected.**
+| | |
+|---|---|
+| Publisher | BlackRock / iShares (fund issuer) |
+| Download | `https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv` |
+| Retrieved | 2026-08-16T05:32:28Z |
+| Source as-of | **Aug 13, 2026** |
+| Raw SHA-256 | `3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892` |
+| Raw file | quarantined **outside** Git; see the hash-only evidence manifest |
+
+Only `Ticker`, `Name`, `Asset Class` were kept; twelve columns dropped including Market Value,
+Weight (%), Notional Value, Quantity, Price and FX Rate.
 
 ## Dispositions - every source row has exactly one
 
 | Disposition | Count |
 |---|---|
 | Source rows | 105 |
-| Excluded - not operating-company common equity (R6.2) | 4 |
-| Excluded - malformed identifier (R6.3) | 0 |
-| Excluded - duplicate economic issuer (R5) | 1 |
-| Already in the locked 24 (incl. 1 after alias normalization) | 12 |
+| Excluded - not operating-company common equity | 4 |
+| Excluded - malformed identifier | 0 |
+| Excluded - duplicate economic issuer | 1 |
+| Already in the locked 24 (incl. 1 after ticker-alias normalization) | 12 |
 | Eligible candidates | 88 |
 | **Selected** | **26** |
 | Not selected | 62 |
@@ -74,14 +88,6 @@ lowercase hexadecimal, sorted ascending by `(digest, canonical_ticker)`, first *
 | `MSFUT` | CASH COLLATERAL MSFUT USD | R6.2 not operating-company common equity |
 | `ESU6` | S&P500 EMINI SEP 26 | R6.2 not operating-company common equity |
 | `USD` | USD CASH | R6.2 not operating-company common equity |
-
-## Ticker-alias decision
-
-`BRKB` -> `BRK-B` - both identifiers represent **Berkshire Hathaway Inc. Class B**. Identity
-reconciliation, not a scientific exclusion and not an outcome-informed decision. Because `BRK-B` is
-already locked, source `BRKB` was classified `ALREADY_LOCKED_AFTER_ALIAS_NORMALIZATION`, excluded
-from the addition pool, and **never hashed as a candidate**. The frozen map is exactly
-`{"BRKB": "BRK-B"}`; no other alias may be inferred.
 
 ## The selected 26
 
@@ -114,28 +120,22 @@ from the addition pool, and **never hashed as a candidate**. The frozen map is e
 | 25 | `WMT` | WALMART INC | `51170adfa62d729da7321f01...` |
 | 26 | `NFLX` | NETFLIX | `5267fc36c0f570bbe42ce5a2...` |
 
-Rank boundary: #25 `WMT` < #26 `NFLX` < #27 `SO`, strictly increasing.
-
-**NFLX entered at rank 26 mechanically.** It was rank 27 before `BRKB` was removed as an
-already-locked security; removing an ineligible entry shifts the tail up by one. That is a
-consequence of a smaller pool, **not** a backfill and **not** a manual insertion.
+Boundary: #25 `WMT` < #26 `NFLX` < #27 `SO`, strictly increasing.
 
 ## Final proposed universe - 50
-
-Positions 1-24 are the existing locked tickers **in their existing order**; 25-50 are the selected
-additions **in deterministic hash order**.
 
 ```
 ["AAPL", "ABBV", "ADBE", "AMZN", "BKR", "BRK-B", "CTSH", "DELL", "DVN", "GME", "GOOGL", "GPN", "INTC", "LDOS", "MSFT", "NCLH", "NKE", "QCOM", "SBUX", "STZ", "SYK", "TSLA", "TTWO", "UAL", "CAT", "MMM", "BA", "COF", "NEE", "HONA", "CL", "DUK", "HD", "GS", "INTU", "BMY", "BNY", "AMT", "ACN", "LRCX", "MS", "TMO", "ISRG", "T", "BLK", "LMT", "AXP", "LLY", "WMT", "NFLX"]
 ```
 
-50 entries, 50 unique tickers, 50 unique securities, 0 issuers represented twice.
+50 entries, 50 unique tickers, 50 unique securities, 0 issuers represented twice. Positions 1-24 are
+the existing locked tickers in their existing order.
 
 ## No replacement, ever
 
-A selected ticker is **never** replaced because it later fails F5, has an ambiguous search construct,
+A selected ticker is never replaced because it later fails F5, has an ambiguous search construct,
 lacks an accessible issuer page, produces missing data, fails an eligibility gate, or contributes no
-usable event. Those outcomes are recorded honestly. Backfilling from rank 27 onward is prohibited.
+usable event. Backfilling from rank 27 onward is prohibited.
 
 ## What this proposal does not do
 
