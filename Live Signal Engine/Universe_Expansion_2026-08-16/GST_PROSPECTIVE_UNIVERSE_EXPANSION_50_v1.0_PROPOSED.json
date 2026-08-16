@@ -1789,6 +1789,19 @@
  "frozen_ticker_aliases": {
   "BRKB": "BRK-B"
  },
+ "governance_integrity": {
+  "amendment_artifact_hashes": {
+   "PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md": "ff7131e734fffab65d9a0c8fd5a0e0675cc47154d6661bb1749283d1053c3dc6",
+   "PRE_RETRIEVAL_SELECTION_RULE.md": "6911726c077bab02f994f29adddd6bc5930e4dc17c53c1b6245c944196761cde",
+   "PRE_RETRIEVAL_SOURCE_AMENDMENT_2026-08-16.md": "bf88f2261e1b6a6983a3db07b72b4c9d3274032e5332e4519cbfbf3ccab0d6bd",
+   "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md": "5faabac1e5a6b77a8dc3cbb894c667948cbcbb8824e2f159e81b29ca2b30ffc6"
+  },
+  "canonicalization": "json.dumps(map, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=True) encoded UTF-8, then SHA-256",
+  "code_map_equals_amendment_map": true,
+  "issuer_grouping_map_digest": "50bd57cfd00693abc78c86215ecd8c34868bf6423bf649359cd46033153fa8a0",
+  "ticker_alias_map_digest": "d4b80e13e4dd6ea90b42eabad444218042d8270f2d3513af759b361a4405d860",
+  "verified_before_any_disposition": true
+ },
  "hash_prefix": "GST-HYP01-UNIVERSE-EXPANSION-2026-08-16|",
  "issuer_group_decisions": [
   {

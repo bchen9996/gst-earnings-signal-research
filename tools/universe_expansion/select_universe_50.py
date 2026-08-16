@@ -176,12 +176,130 @@ def assert_no_unlisted_multiclass(rows: list[dict]) -> None:
                 "Members of one share-class group must map to a single issuer.")
 
 
+# ==========================================================================
+# GOVERNANCE INTEGRITY -- fail closed before anything is processed.
+#
+# The governance maps above are not merely "review-detectable". Running under a
+# mapping that differs from the frozen amendments must be IMPOSSIBLE, not
+# noticeable: the selector refuses and emits no proposal at all.
+#
+# Three independent things must agree before a single row is dispositioned:
+#   1. each in-code map's canonical digest equals its frozen expected digest;
+#   2. each amendment artifact still hashes to its recorded value;
+#   3. the map parsed OUT of the amendment artifact equals the in-code map.
+# ==========================================================================
+ROOT_DIR = Path(__file__).resolve().parents[2]
+GOVERNANCE_DIR = ROOT_DIR / "Live Signal Engine" / "Universe_Expansion_2026-08-16"
+
+# Canonical serialization, fixed: json.dumps(map, sort_keys=True,
+# separators=(",", ":"), ensure_ascii=True) encoded UTF-8.
+EXPECTED_TICKER_ALIAS_DIGEST = "d4b80e13e4dd6ea90b42eabad444218042d8270f2d3513af759b361a4405d860"
+EXPECTED_ISSUER_GROUP_DIGEST = "50bd57cfd00693abc78c86215ecd8c34868bf6423bf649359cd46033153fa8a0"
+
+AMENDMENT_ARTIFACTS = {
+    "PRE_RETRIEVAL_SELECTION_RULE.md":
+        "6911726c077bab02f994f29adddd6bc5930e4dc17c53c1b6245c944196761cde",
+    "PRE_RETRIEVAL_SOURCE_AMENDMENT_2026-08-16.md":
+        "bf88f2261e1b6a6983a3db07b72b4c9d3274032e5332e4519cbfbf3ccab0d6bd",
+    "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md":
+        "5faabac1e5a6b77a8dc3cbb894c667948cbcbb8824e2f159e81b29ca2b30ffc6",
+    "PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md":
+        "ff7131e734fffab65d9a0c8fd5a0e0675cc47154d6661bb1749283d1053c3dc6",
+}
+
+# Which amendment artifact carries the authoritative text of each map.
+MAP_SOURCE_ARTIFACT = {
+    "ticker_alias": "PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md",
+    "issuer_grouping": "PRE_RECOMPUTE_ISSUER_GROUPING_AMENDMENT_2026-08-16.md",
+}
+
+
+def canonical_map_digest(mapping: dict) -> str:
+    """Fixed canonicalization; any change to it invalidates the frozen digests."""
+    blob = json.dumps(mapping, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=True).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
+
+
+def _sha_lf(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def _map_from_amendment(path: Path) -> dict:
+    """Parse the single fenced ```json block that states the frozen map."""
+    blocks = re.findall(r"```json\s*\n(.*?)\n```", path.read_text(encoding="utf-8"), re.S)
+    parsed = []
+    for b in blocks:
+        try:
+            obj = json.loads(b)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict) and obj and all(isinstance(v, str) for v in obj.values()):
+            parsed.append(obj)
+    if len(parsed) != 1:
+        raise SystemExit(f"STOP: expected exactly one frozen map in {path.name}, found {len(parsed)}")
+    return parsed[0]
+
+
+def assert_governance_integrity() -> dict:
+    """Refuse to run under any mapping that differs from the frozen amendments."""
+    # (1) in-code maps must match their frozen canonical digests
+    for label, mapping, expected in (
+        ("ticker_alias", FROZEN_TICKER_ALIASES, EXPECTED_TICKER_ALIAS_DIGEST),
+        ("issuer_grouping", FROZEN_ISSUER_GROUPS, EXPECTED_ISSUER_GROUP_DIGEST),
+    ):
+        got = canonical_map_digest(mapping)
+        if got != expected:
+            raise SystemExit(
+                f"STOP: {label} map digest mismatch. expected={expected} got={got}. "
+                f"The in-code map is {json.dumps(mapping, sort_keys=True)}. "
+                "A map may only change through a new dated amendment; no proposal is emitted.")
+
+    # (2) amendment artifacts must still hash to their recorded values
+    for name, expected in AMENDMENT_ARTIFACTS.items():
+        p = GOVERNANCE_DIR / name
+        if not p.is_file():
+            raise SystemExit(f"STOP: governance artifact missing: {name}. No proposal is emitted.")
+        got = _sha_lf(p)
+        if got != expected:
+            raise SystemExit(
+                f"STOP: governance artifact altered: {name}. expected={expected} got={got}. "
+                "No proposal is emitted.")
+
+    # (3) the map parsed OUT of the amendment must equal the in-code map
+    for label, mapping in (("ticker_alias", FROZEN_TICKER_ALIASES),
+                           ("issuer_grouping", FROZEN_ISSUER_GROUPS)):
+        artifact = GOVERNANCE_DIR / MAP_SOURCE_ARTIFACT[label]
+        from_doc = _map_from_amendment(artifact)
+        if from_doc != mapping:
+            raise SystemExit(
+                f"STOP: {label} map in code disagrees with {artifact.name}. "
+                f"code={json.dumps(mapping, sort_keys=True)} "
+                f"amendment={json.dumps(from_doc, sort_keys=True)}. No proposal is emitted.")
+
+    return {
+        "ticker_alias_map_digest": canonical_map_digest(FROZEN_TICKER_ALIASES),
+        "issuer_grouping_map_digest": canonical_map_digest(FROZEN_ISSUER_GROUPS),
+        "canonicalization": ('json.dumps(map, sort_keys=True, separators=(",", ":"), '
+                             'ensure_ascii=True) encoded UTF-8, then SHA-256'),
+        "amendment_artifact_hashes": {n: _sha_lf(GOVERNANCE_DIR / n)
+                                      for n in AMENDMENT_ARTIFACTS},
+        "code_map_equals_amendment_map": True,
+        "verified_before_any_disposition": True,
+    }
+
+
 def digest_for(ticker: str) -> tuple[str, str]:
     payload = HASH_PREFIX + ticker
     return payload, hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def build(snapshot: dict) -> dict:
+    # Governance integrity FIRST: before any disposition, hashing, ranking or
+    # output. A mapping that differs from the frozen amendments must make this
+    # refuse, not merely be noticeable afterwards.
+    governance = assert_governance_integrity()
+
     rows = snapshot["rows"]
     if not rows:
         raise SystemExit("STOP: sanitized snapshot contains no rows")
@@ -377,6 +495,7 @@ def build(snapshot: dict) -> dict:
             "source_reported_as_of": snapshot.get("source_reported_as_of"),
             "raw_sha256_lf": snapshot.get("raw_sha256_lf"),
         },
+        "governance_integrity": governance,
         "frozen_ticker_aliases": dict(FROZEN_TICKER_ALIASES),
         "frozen_issuer_groups": dict(FROZEN_ISSUER_GROUPS),
         "issuer_grouping_amendment": {

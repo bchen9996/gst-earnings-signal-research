@@ -51,17 +51,59 @@ official URL, and confirms it remains available to an authorized reviewer.
 Recorded: raw SHA-256 `3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892`,
 as-of **Aug 13, 2026**.
 
-Two verification paths, and they are not equivalent:
+**This check has NOT been performed by the proposal's author and must not be.** It is left
+`PENDING` deliberately: the author hashing their own file proves nothing to a reviewer.
 
-- **Direct** — hash the quarantined file at the recorded location. This verifies the *historical
-  bytes* exactly.
-- **Indirect** — re-download from the official URL. The fund republishes daily, so a *different* hash
-  is expected and is **not** by itself a discrepancy; it verifies the source, not the historical
-  bytes. If you take this path and cannot reach the original bytes, mark this check `UNRESOLVED`
-  rather than `APPROVE`.
+### Run this yourself
+
+The file is **not** committed — it carries prohibited numeric holdings fields. It is retained
+repository-external at:
+
+```
+C:\Users\hakur\AppData\Local\Temp\claude\C--Users-hakur-Downloads-gst-event-dossiers-worktree\9ed6a2ef-3f2f-4009-8985-c14d79c34f37\scratchpad\quarantine_oef\OEF_latest_holdings_raw.csv
+```
+
+Hash it **without opening it**. The commands below read bytes and print a digest; neither displays
+any holdings value:
+
+Windows (PowerShell):
+
+```powershell
+Get-FileHash -Algorithm SHA256 "C:\Users\hakur\AppData\Local\Temp\claude\C--Users-hakur-Downloads-gst-event-dossiers-worktree\9ed6a2ef-3f2f-4009-8985-c14d79c34f37\scratchpad\quarantine_oef\OEF_latest_holdings_raw.csv"
+```
+
+Linux / macOS / Git Bash:
+
+```bash
+sha256sum "<path to OEF_latest_holdings_raw.csv>"
+```
+
+**Expected:**
+
+```
+3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892
+```
+
+Byte count must also be **17,200**.
+
+### Access
+
+The file sits on the workstation that performed the retrieval and is available to an authorized
+reviewer by local access or repository-external transfer. **If you cannot obtain those exact bytes,
+mark this check `UNRESOLVED` — not `APPROVE`.**
+
+### Two paths, and they are not equivalent
+
+- **Direct** — hash the quarantined file above. This verifies the *historical bytes* exactly and is
+  the only path that satisfies this check.
+- **Indirect** — re-download from the official URL. The fund republishes daily, so a *different*
+  hash is **expected** and is not by itself a discrepancy. This verifies the *source*, not the
+  historical bytes, and is **not** sufficient for this check.
 
 - Finding: `PENDING`
 - Verification path used: `PENDING`
+- Byte count observed: `PENDING`
+- Digest observed: `PENDING`
 - Notes:
 
 ### 1c. Sanitized identity projection verification
