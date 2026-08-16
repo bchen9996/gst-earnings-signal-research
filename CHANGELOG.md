@@ -1,6 +1,65 @@
 # Changelog
 
 
+## 2026-08-16 — Final verification: the tracked-test count was wrong (45 → 47), and disposition recorded
+
+**No numerical result changed.** No classification, category count, metric, source snapshot, frozen
+rule, proposed universe, production universe, F5 status or research state was touched. This entry
+corrects a **reporting** error and records a disposition.
+
+**The test count was an undercount.** Previous entries and the PR body said "45 tracked test files".
+The enumeration used `git ls-files 'test_*.py'`, which matches only the repository root, so it never
+had a chance to see `Event_Dossier_Protocol/validator/`. Re-enumerated with
+`git ls-files '**/test_*.py' 'test_*.py'` at head `024c614`:
+
+| Category | Count |
+|---|---|
+| Market Response (`test_market_response*.py`, root) | **33** |
+| Phase 2 (`test_phase2*.py`, root) | **12** |
+| Event Dossier (`Event_Dossier_Protocol/validator/test_*.py`) | **2** |
+| **Total tracked deterministic test files** | **47** |
+
+Nothing is intentionally excluded; the two missing files were an enumeration defect, not a policy.
+**All 47 pass** with sockets blocked *externally* via an injected `sitecustomize`, so blocking no
+longer depends on each file policing itself. The two Event Dossier files were additionally run
+through their workflow's exact discovery loop (`working-directory:
+Event_Dossier_Protocol/validator`, `files=$(ls test_*.py)`, `python "$f"`) — both pass. All 47 were
+then repeated from a clean-LF `git archive` export of `024c614` — 47/47 again.
+
+**A skip-coverage defect was found and fixed.** Auditing the announced clean-export skips showed two
+problems. First, the skipped set was larger than reported: three nested `14h'` sub-checks disappeared
+**unannounced** (199 executed labels in the export vs 202 in the repository). Second — and more
+importantly — `14h`/`14h'` compared clean-export output against the committed artifacts, so the
+skipped set **did** touch classification arithmetic and issuer denominators. That could not be
+certified as harmless, so it was removed rather than explained away.
+
+The reproduction guarantee needs no `.git` metadata, so it is now checked unconditionally in every
+context (`14A` argument-free reproduction succeeds; `14B` all four artifacts byte-identical; `14C` no
+network call). The git-archive checks remain, but only as *packaging* evidence, and every skip —
+including nested sub-checks — is announced with its reason.
+
+After the fix: **208 assertions, 0 skips** in the repository; **200 assertions + 8 announced skips**
+from a clean export, and 200 + 8 = 208 with **zero unannounced omissions**. All eight skips depend
+solely on unavailable `.git` metadata or on attempting a nested `git archive`, and each is a
+duplicate of `14A`/`14B`/`14C`, which run everywhere. **No skipped check is now the sole cover for**
+classification arithmetic, source hashes, CIK grouping, FF12 derivation, issuer denominators,
+universe membership or protected research state.
+
+**Disposition recorded** in `GST_UNIVERSE_50_SECTOR_COMPOSITION_DISPOSITION_v1.0.md`:
+**`ACCEPT_CURRENT_BROAD_PROPOSAL`** — no sector-specific or stratified redesign required before F5,
+on the grounds that the final 50 covers all 12 FF12 categories, has a 24.0000% largest-category
+share, is less concentrated than the legacy 24 on every specified metric, tracks the 100-issuer OEF
+proxy within ±3.0 pp under equal weights, and is stable under leave-one-out.
+
+It is recorded as **independent AI technical review plus repository-owner acceptance**, and states
+plainly that the AI reviewer is *the same agent that authored the audit* and therefore not
+independent of the author. It is **not** a human review and **not** a credentialed-methodologist
+review; GitHub contains no approving review. The committed reviewer template remains **unsigned with
+every field `PENDING`** — deliberately untouched, since an audit's author must not fill in its own
+review. The disposition changes no ticker and activates nothing: F5 remains `OPEN`, collection
+remains `BLOCKED`, the production universe remains the original 24.
+
+
 ## 2026-08-16 — Correction: the proxy pool is an issuer denominator, and its sources are now committed
 
 **Supersedes the figures in the entry immediately below for the OEF proxy pool only.** Independent
@@ -81,7 +140,7 @@ canonical securities in the union of the two groups; **112** unique CIKs in that
 classification requests, the overlap counted in both. **113 means unique canonical securities** —
 not issuers, not classification requests.
 
-**Verified.** The suite now passes **202 assertions** and the mutation battery is extended to **45
+**Verified.** The suite now passes **208 assertions** and the mutation battery is extended to **45
 mutations, 45 caught**, including: splitting share classes back to security level; falsifying the
 issuer, final-50-CIK or union counts; dropping `source_securities`; claiming the display ticker
 affects metrics; choosing a non-deterministic display ticker; duplicating a CIK in either group;
@@ -91,8 +150,10 @@ suite could not yet detect the exact mislabelling the review asked me to prevent
 added rather than the finding waved through. New tests also confirm a clean `git archive` export
 contains every declared input and reproduces all four artifacts **byte-identically** offline, and
 that removing an input, changing a hash, changing a CIK, changing a SIC, changing an FF12 interval,
-or giving one CIK conflicting SICs or conflicting FF12 results each fails. All **45 tracked test
-files** pass sockets-blocked.
+or giving one CIK conflicting SICs or conflicting FF12 results each fails. All **47 tracked test
+files** pass sockets-blocked. *(This entry originally said 45 — an undercount, corrected in the
+verification entry above: the enumeration globbed only the repository root and missed the two
+`Event_Dossier_Protocol/validator/` files.)*
 
 Protected state is unchanged: `constants.py` (still exactly the original 24), both HYP-01 locks, the
 effective-lock report, the cohort protocol, the F5 audit, the merged universe proposal and the single
