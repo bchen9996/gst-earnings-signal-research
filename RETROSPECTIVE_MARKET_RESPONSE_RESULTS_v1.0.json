@@ -1,0 +1,288 @@
+{
+ "artifact": "RETROSPECTIVE_MARKET_RESPONSE_RESULTS",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "confirms_hyp01": false,
+ "uses_prospective_outcomes": false,
+ "frozen_definitions": {
+  "event_day": "AMC -> next trading day; BMO -> earnings date",
+  "high_gst": "role=signal in C5 matched population (all z>=5.0)",
+  "pooled_z_cut": 4.0,
+  "pre_drift": "close(T-6)->close(T-1)",
+  "gap": "close(T-1)->open(T)",
+  "open_to_close": "open(T)->close(T)",
+  "post": "close(T)->close(T+3)",
+  "quiet_price_abs_pre_drift": 0.02,
+  "cost_bps_1leg": 10.0,
+  "cost_bps_2leg": 20.0,
+  "benchmark": "SPY daily close-to-close"
+ },
+ "data_availability": {
+  "intraday_bars_available": false,
+  "not_testable_due_to_missing_intraday": [
+   "open -> +30 minutes component",
+   "+30 minutes -> close component",
+   "Strategy A (attention-conditioned opening-range breakout)"
+  ],
+  "spy_open_available": false,
+  "note_on_E": "no SPY open price exists, so the benchmark leg cannot be hedged intraday; E is evaluated close(T)->close(T+3), which SPY supports"
+ },
+ "sample": {
+  "events_in_population": 304,
+  "events_usable": 285,
+  "high_gst_events": 152,
+  "control_events": 133,
+  "tickers": 28,
+  "date_range": [
+   "2021-03-24",
+   "2025-12-19"
+  ],
+  "dropped": 19,
+  "drop_reasons": {
+   "earnings date beyond price coverage": 19
+  }
+ },
+ "decomposition": {
+  "high_gst": {
+   "pre_drift": {
+    "n": 152,
+    "mean_abs_pct": 3.3252,
+    "median_abs_pct": 2.5882,
+    "mean_signed_pct": 0.6785
+   },
+   "gap": {
+    "n": 152,
+    "mean_abs_pct": 6.9959,
+    "median_abs_pct": 6.1921,
+    "mean_signed_pct": -0.4117
+   },
+   "open_to_close": {
+    "n": 152,
+    "mean_abs_pct": 2.7585,
+    "median_abs_pct": 2.1088,
+    "mean_signed_pct": -0.6632
+   },
+   "day_return": {
+    "n": 152,
+    "mean_abs_pct": 7.8871,
+    "median_abs_pct": 6.9699,
+    "mean_signed_pct": -1.0733
+   },
+   "post_1_3": {
+    "n": 152,
+    "mean_abs_pct": 3.1264,
+    "median_abs_pct": 2.2184,
+    "mean_signed_pct": 0.217
+   },
+   "day_return_ex": {
+    "n": 152,
+    "mean_abs_pct": 7.6224,
+    "median_abs_pct": 6.7171,
+    "mean_signed_pct": -1.0002
+   },
+   "post_1_3_ex": {
+    "n": 152,
+    "mean_abs_pct": 2.5018,
+    "median_abs_pct": 1.8049,
+    "mean_signed_pct": -0.1315
+   }
+  },
+  "control": {
+   "pre_drift": {
+    "n": 133,
+    "mean_abs_pct": 3.2057,
+    "median_abs_pct": 2.2899,
+    "mean_signed_pct": 0.4346
+   },
+   "gap": {
+    "n": 133,
+    "mean_abs_pct": 5.3693,
+    "median_abs_pct": 3.8417,
+    "mean_signed_pct": -0.7069
+   },
+   "open_to_close": {
+    "n": 133,
+    "mean_abs_pct": 2.3401,
+    "median_abs_pct": 1.6368,
+    "mean_signed_pct": -0.5016
+   },
+   "day_return": {
+    "n": 133,
+    "mean_abs_pct": 6.4459,
+    "median_abs_pct": 4.8107,
+    "mean_signed_pct": -1.1643
+   },
+   "post_1_3": {
+    "n": 133,
+    "mean_abs_pct": 3.3652,
+    "median_abs_pct": 1.8594,
+    "mean_signed_pct": -0.4716
+   },
+   "day_return_ex": {
+    "n": 133,
+    "mean_abs_pct": 6.1604,
+    "median_abs_pct": 4.2813,
+    "mean_signed_pct": -0.9504
+   },
+   "post_1_3_ex": {
+    "n": 133,
+    "mean_abs_pct": 2.9526,
+    "median_abs_pct": 1.8054,
+    "mean_signed_pct": -0.8967
+   }
+  }
+ },
+ "Q1_abs_move_high_vs_control": {
+  "high_mean_abs_pct": 7.8871,
+  "n_high": 152,
+  "control_mean_abs_pct": 6.4459,
+  "n_control": 133,
+  "difference_pp": 1.4411,
+  "t_stat": 2.138,
+  "answer": "YES"
+ },
+ "Q6_robustness_of_the_attention_effect": {
+  "matched_pair_mean_diff_pp": 1.6645,
+  "matched_pair_t": 2.581,
+  "n_pairs": 133,
+  "same_ticker_pairs_only_mean_diff_pp": 1.6169,
+  "same_ticker_pairs_only_t": 2.495,
+  "n_same_ticker_pairs": 132,
+  "ticker_fixed_effects_diff_pp": 1.4956,
+  "ticker_fixed_effects_t": 2.57,
+  "older_half_mean_diff_pp": 2.1794,
+  "n_older": 69,
+  "newer_half_mean_diff_pp": 1.1093,
+  "n_newer": 64,
+  "answer": "SURVIVES"
+ },
+ "Q2_Q3_where_the_move_occurs": {
+  "high_gst_mean_abs_gap_pct": 6.9959,
+  "high_gst_mean_abs_open_to_close_pct": 2.7585,
+  "gap_share_of_gap_plus_oc": 0.7172,
+  "answer": "MOSTLY_OVERNIGHT"
+ },
+ "Q4_continuation_vs_reversal": {
+  "n": 152,
+  "mean_gap_direction_open_to_close_pct": 0.573,
+  "t_stat": 1.929,
+  "corr_gap_vs_open_to_close": -0.0032,
+  "answer": "NEITHER_SIGNIFICANT"
+ },
+ "Q5_survives_benchmark_subtraction": {
+  "mean_abs_raw_pct": 7.8871,
+  "mean_abs_excess_pct": 7.6224,
+  "retained_fraction": 0.9664,
+  "answer": "YES"
+ },
+ "benchmarks": {
+  "no_trade": {
+   "mean_net_pct": 0.0,
+   "n_trades": 0
+  },
+  "unfiltered_all_earnings_long_only_day": {
+   "n_trades": 285,
+   "mean_net_pct": -1.2157
+  },
+  "high_gst_long_only_day": {
+   "n_trades": 152,
+   "mean_net_pct": -1.1733
+  }
+ },
+ "scorecard": [
+  {
+   "strategy": "A. Attention-conditioned opening-range breakout",
+   "n_trades": 0,
+   "verdict": "NOT_TESTABLE",
+   "reason": "requires intraday bars; none exist in this repository"
+  },
+  {
+   "strategy": "B. Gap continuation (high-GST)",
+   "n_trades": 152,
+   "mean_gross_pct": 0.573,
+   "median_gross_pct": 0.6398,
+   "mean_net_pct": 0.473,
+   "hit_rate_pct": 57.24,
+   "hit_rate_net_pct": 56.58,
+   "t_stat_gross": 1.929,
+   "t_stat_net": 1.592,
+   "ci95_gross_pct": [
+    -0.0092,
+    1.1552
+   ],
+   "cost_bps_round_trip": 10.0,
+   "max_drawdown_pct": -18.823,
+   "trades_per_year": 32.22,
+   "all_earnings_events_mean_net_pct": 0.644,
+   "control_only_mean_net_pct": 0.8395,
+   "older_mean_net_pct": 0.4442,
+   "newer_mean_net_pct": 0.5042,
+   "same_ticker_paired_diff_pct": -0.3904,
+   "same_ticker_paired_t": -1.011,
+   "same_ticker_n_pairs": 133,
+   "verdict": "WEAK/UNSTABLE"
+  },
+  {
+   "strategy": "C. Gap reversal (high-GST)",
+   "n_trades": 152,
+   "mean_gross_pct": -0.573,
+   "median_gross_pct": -0.6398,
+   "mean_net_pct": -0.673,
+   "hit_rate_pct": 42.76,
+   "hit_rate_net_pct": 40.13,
+   "t_stat_gross": -1.929,
+   "t_stat_net": -2.266,
+   "ci95_gross_pct": [
+    -1.1552,
+    0.0092
+   ],
+   "cost_bps_round_trip": 10.0,
+   "max_drawdown_pct": -71.847,
+   "trades_per_year": 32.22,
+   "all_earnings_events_mean_net_pct": -0.844,
+   "control_only_mean_net_pct": -1.0395,
+   "older_mean_net_pct": -0.6442,
+   "newer_mean_net_pct": -0.7042,
+   "same_ticker_paired_diff_pct": 0.3904,
+   "same_ticker_paired_t": 1.011,
+   "same_ticker_n_pairs": 133,
+   "verdict": "FAILS_AFTER_COSTS"
+  },
+  {
+   "strategy": "E. Benchmark-neutral continuation (high-GST, T->T+3)",
+   "n_trades": 152,
+   "mean_gross_pct": 1.0543,
+   "median_gross_pct": 0.7249,
+   "mean_net_pct": 0.8543,
+   "hit_rate_pct": 63.16,
+   "hit_rate_net_pct": 58.55,
+   "t_stat_gross": 3.737,
+   "t_stat_net": 3.028,
+   "ci95_gross_pct": [
+    0.5014,
+    1.6072
+   ],
+   "cost_bps_round_trip": 20.0,
+   "max_drawdown_pct": -10.431,
+   "trades_per_year": 32.22,
+   "all_earnings_events_mean_net_pct": 0.8575,
+   "control_only_mean_net_pct": 0.8611,
+   "older_mean_net_pct": 0.691,
+   "newer_mean_net_pct": 1.0311,
+   "same_ticker_paired_diff_pct": 0.1155,
+   "same_ticker_paired_t": 0.274,
+   "same_ticker_n_pairs": 133,
+   "verdict": "SURVIVES_BASIC_DEVELOPMENT_CHECKS"
+  },
+  {
+   "strategy": "D. Attention-price divergence (quiet |pre-drift|<=2%)",
+   "n_trades": 60,
+   "quiet_mean_abs_day_pct": 7.4329,
+   "loud_n": 92,
+   "loud_mean_abs_day_pct": 8.1832,
+   "difference_pp": -0.7503,
+   "t_stat": -0.755,
+   "note": "contrast of absolute responses, not a directional tradable series",
+   "verdict": "WEAK/UNSTABLE"
+  }
+ ]
+}
