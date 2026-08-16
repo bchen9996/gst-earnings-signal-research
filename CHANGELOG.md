@@ -1,6 +1,247 @@
 # Changelog
 
 
+## 2026-08-16 — Final verification: the tracked-test count was wrong (45 → 47), and disposition recorded
+
+**No numerical result changed.** No classification, category count, metric, source snapshot, frozen
+rule, proposed universe, production universe, F5 status or research state was touched. This entry
+corrects a **reporting** error and records a disposition.
+
+**The test count was an undercount.** Previous entries and the PR body said "45 tracked test files".
+The enumeration used `git ls-files 'test_*.py'`, which matches only the repository root, so it never
+had a chance to see `Event_Dossier_Protocol/validator/`. Re-enumerated with
+`git ls-files '**/test_*.py' 'test_*.py'` at head `024c614`:
+
+| Category | Count |
+|---|---|
+| Market Response (`test_market_response*.py`, root) | **33** |
+| Phase 2 (`test_phase2*.py`, root) | **12** |
+| Event Dossier (`Event_Dossier_Protocol/validator/test_*.py`) | **2** |
+| **Total tracked deterministic test files** | **47** |
+
+Nothing is intentionally excluded; the two missing files were an enumeration defect, not a policy.
+**All 47 pass** with sockets blocked *externally* via an injected `sitecustomize`, so blocking no
+longer depends on each file policing itself. The two Event Dossier files were additionally run
+through their workflow's exact discovery loop (`working-directory:
+Event_Dossier_Protocol/validator`, `files=$(ls test_*.py)`, `python "$f"`) — both pass. All 47 were
+then repeated from a clean-LF `git archive` export of `024c614` — 47/47 again.
+
+**A skip-coverage defect was found and fixed.** Auditing the announced clean-export skips showed two
+problems. First, the skipped set was larger than reported: three nested `14h'` sub-checks disappeared
+**unannounced** (199 executed labels in the export vs 202 in the repository). Second — and more
+importantly — `14h`/`14h'` compared clean-export output against the committed artifacts, so the
+skipped set **did** touch classification arithmetic and issuer denominators. That could not be
+certified as harmless, so it was removed rather than explained away.
+
+The reproduction guarantee needs no `.git` metadata, so it is now checked unconditionally in every
+context (`14A` argument-free reproduction succeeds; `14B` all four artifacts byte-identical; `14C` no
+network call). The git-archive checks remain, but only as *packaging* evidence, and every skip —
+including nested sub-checks — is announced with its reason.
+
+After the fix: **208 assertions, 0 skips** in the repository; **200 assertions + 8 announced skips**
+from a clean export, and 200 + 8 = 208 with **zero unannounced omissions**. All eight skips depend
+solely on unavailable `.git` metadata or on attempting a nested `git archive`, and each is a
+duplicate of `14A`/`14B`/`14C`, which run everywhere. **No skipped check is now the sole cover for**
+classification arithmetic, source hashes, CIK grouping, FF12 derivation, issuer denominators,
+universe membership or protected research state.
+
+**Disposition recorded** in `GST_UNIVERSE_50_SECTOR_COMPOSITION_DISPOSITION_v1.0.md`:
+**`ACCEPT_CURRENT_BROAD_PROPOSAL`** — no sector-specific or stratified redesign required before F5,
+on the grounds that the final 50 covers all 12 FF12 categories, has a 24.0000% largest-category
+share, is less concentrated than the legacy 24 on every specified metric, tracks the 100-issuer OEF
+proxy within ±3.0 pp under equal weights, and is stable under leave-one-out.
+
+It is recorded as **independent AI technical review plus repository-owner acceptance**, and states
+plainly that the AI reviewer is *the same agent that authored the audit* and therefore not
+independent of the author. It is **not** a human review and **not** a credentialed-methodologist
+review; GitHub contains no approving review. The committed reviewer template remains **unsigned with
+every field `PENDING`** — deliberately untouched, since an audit's author must not fill in its own
+review. The disposition changes no ticker and activates nothing: F5 remains `OPEN`, collection
+remains `BLOCKED`, the production universe remains the original 24.
+
+
+## 2026-08-16 — Correction: the proxy pool is an issuer denominator, and its sources are now committed
+
+**Supersedes the figures in the entry immediately below for the OEF proxy pool only.** Independent
+review returned `REQUEST_CORRECTION` on two findings. Both were correct. The frozen pre-retrieval
+rule is **unchanged** (`sha256_lf` still `5ce6a0f0…4dab`), the 50 tickers are untouched, and no
+verdict is drawn.
+
+**Issue 1 — security denominator vs issuer denominator.** The frozen rule defines the proxy pool as
+every eligible equity **issuer**, but the implementation deduplicated only by canonical ticker. That
+gave Alphabet two equal-weight observations (`GOOG` and `GOOGL`, one CIK, one SIC) while the final 50
+gives every issuer exactly one — the two sides were not on the same denominator, and the PR body
+called the pool both "101-security" and "issuer".
+
+The pool is now grouped by **official SEC CIK**, with the frozen alias `BRKB → BRK-B` applied
+**before** identity matching. Every security under one CIK must carry the same SEC SIC **and** the
+same FF12 category or the run **refuses and writes nothing**. Each issuer contributes one
+observation; all constituent securities are preserved in `source_securities`; the display ticker is
+the lexicographically smallest canonical ticker and enters no metric — a test renames every display
+ticker to `ZZZZ` and asserts the metrics are identical. The resulting n is recomputed from the
+identity snapshot, never hardcoded. The final 50 was **verified** to hold 50 unique CIKs rather than
+trusting the proposal's declaration; a duplicate issuer there stops the run.
+
+Every OEF figure was recomputed, none preserved by assumption:
+
+| Figure | Before (security) | After (issuer) |
+|---|---|---|
+| OEF denominator | 101 securities | **100 unique issuers** |
+| OEF `BusEq` | 23 (22.7723%) | **22 (22.0000%)** |
+| OEF HHI | 0.128321 | **0.126400** |
+| OEF entropy | 2.232480 | **2.239874** |
+| OEF effective categories | 9.323290 | **9.392143** |
+| Δ `BusEq` | +1.2 pp | **+2.0 pp** |
+| Δ `Manuf`, Δ `Shops` | +2.1 pp each | **+2.0 pp each** |
+| Δ `Hlth`, Δ `Money`, Δ `Other` | +0.1 / +0.2 / +0.1 pp | **0.0 pp each** |
+| Classification requests | 151 | **150** |
+
+`LEGACY_24`, `PROPOSED_ADDITIONS_26` and `PROPOSED_FINAL_50` metrics are unchanged. The **±3.0
+percentage-point** statement was **re-derived, not preserved**: the largest absolute gap is still
+3.0 pp at `NoDur`, so it remains true on the issuer denominator. The `OEF_ELIGIBLE_PROXY_POOL` label
+is renamed `OEF_UNIQUE_ISSUER_PROXY_POOL` throughout — a naming correction stating the denominator
+the rule always specified, not a rule change.
+
+**Issue 2 — claimed reproducibility from unavailable inputs.** The review template promised
+recomputation "from the committed sources" while naming three inputs that were in no changed path
+and nowhere in the repository. Committed outputs cannot serve simultaneously as inputs and as
+independently verified results. Added under `Universe_Sector_Audit_2026-08-16/sources/`, identity and
+classification metadata only:
+
+- `SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json` — 113 securities / 112 CIKs: canonical ticker, source
+  securities, CIK, SEC entity name, SIC, SIC description, SEC URL, retrieval time, raw-response
+  SHA-256. No filing financial data, earnings value or market information.
+- `FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt` — the official Kenneth R. French definition bytes.
+- `FF12_SIC_INTERVALS_NORMALIZED_2026-08-16.json` — the interval table derived from those bytes, with
+  ZIP hash, extracted-file hash, canonical URL and the deterministic extraction procedure.
+- `GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json` — filename, URL, retrieval time, byte count and
+  SHA-256 for every input.
+
+Per-response retrieval timestamps were **not** captured at fetch time. The batch window is recorded
+with `timestamp_granularity: "batch"` and the per-record raw-response SHA-256 is the provenance
+anchor. Nothing was back-dated or fabricated to fill that field.
+
+The documented reproduction command is now argument-free and needs no external scratch directory:
+
+```
+python tools/sector_composition/classify_universe_sectors.py
+```
+
+It verifies every declared input against the manifest SHA-256 **before** computing; a missing input
+or any hash mismatch is a refusal that writes nothing. Correcting this also exposed a real hole:
+input verification resolved paths against the repository root, so a mutated `--sources` directory
+would have passed its own hash check and then been used. Verification now resolves the files
+actually read.
+
+**Denominator clarification.** The report previously said "151/151" while the CHANGELOG and PR body
+said "113/113" — neither defined. All denominators are now stated explicitly: **50** final-50
+securities (= 50 issuers); **101** OEF source securities → **100** unique issuers; **113** unique
+canonical securities in the union of the two groups; **112** unique CIKs in that union; **150**
+classification requests, the overlap counted in both. **113 means unique canonical securities** —
+not issuers, not classification requests.
+
+**Verified.** The suite now passes **208 assertions** and the mutation battery is extended to **45
+mutations, 45 caught**, including: splitting share classes back to security level; falsifying the
+issuer, final-50-CIK or union counts; dropping `source_securities`; claiming the display ticker
+affects metrics; choosing a non-deterministic display ticker; duplicating a CIK in either group;
+deleting or tampering with any committed source; falsifying a manifest hash; and relabelling the
+proxy denominator as securities in the report prose. That last one **survived the first run** — the
+suite could not yet detect the exact mislabelling the review asked me to prevent — so the check was
+added rather than the finding waved through. New tests also confirm a clean `git archive` export
+contains every declared input and reproduces all four artifacts **byte-identically** offline, and
+that removing an input, changing a hash, changing a CIK, changing a SIC, changing an FF12 interval,
+or giving one CIK conflicting SICs or conflicting FF12 results each fails. All **47 tracked test
+files** pass sockets-blocked. *(This entry originally said 45 — an undercount, corrected in the
+verification entry above: the enumeration globbed only the repository root and missed the two
+`Event_Dossier_Protocol/validator/` files.)*
+
+Protected state is unchanged: `constants.py` (still exactly the original 24), both HYP-01 locks, the
+effective-lock report, the cohort protocol, the F5 audit, the merged universe proposal and the single
+`DELL` registry row. F5 remains `OPEN`; collection remains `BLOCKED`.
+
+
+## 2026-08-16 — Descriptive sector-composition audit of the proposed 50 (NO UNIVERSE CHANGE)
+
+**DESCRIPTIVE AUDIT ONLY · NO UNIVERSE CHANGE · PROPOSED 50 REMAIN INACTIVE · PRODUCTION UNIVERSE REMAINS 24 · NO GST OR MARKET OUTCOME USED · F5 REMAINS OPEN · COLLECTION REMAINS BLOCKED · NO CONCENTRATION THRESHOLD WAS INVENTED.**
+
+Not one of the 50 tickers was altered, reordered, replaced or removed, and no
+alternative universe was generated. This entry adds measurement, not a decision.
+
+**What was measured.** Every security in the legacy 24, the 26 proposed additions,
+their union, and the 101-security OEF eligible-equity proxy pool was assigned a
+Fama–French 12 industry **mechanically**: `ticker → CIK → SEC SIC → matched SIC
+interval → FF12`. No manual override, no name-based inference, no aggregator, no
+encyclopedia, no model-generated sector label, no ETF weight and no market
+capitalization was used as evidence. Sources are the official SEC
+`company_tickers.json` and `data.sec.gov/submissions/` (identity and SIC metadata
+only — no financial statements, no earnings values) and the official Kenneth R.
+French `Siccodes12` definition file. All metrics use **equal ticker weights**.
+
+**The rule was frozen first.** `PRE_RETRIEVAL_SECTOR_COMPOSITION_AUDIT_RULE_2026-08-16.md`
+(SHA-256 `5ce6a0f0…4dab`) was written and hashed at `2026-08-16T07:49:31Z`, before
+any SEC or French retrieval. It fixes the groups, sources, metrics, weighting,
+missing-data policy and language discipline, and it deliberately freezes **no**
+concentration threshold. A test recomputes that hash from the committed file.
+
+**Coverage: 113/113 securities classified, zero `CLASSIFICATION_UNRESOLVED`.** The
+code still refuses to infer a missing SIC — a test asserts a `None` SIC yields
+`CLASSIFICATION_UNRESOLVED` rather than a guessed category, and that an unresolved
+ticker would be reported in place rather than deleted or replaced.
+
+**Descriptive findings.** Expansion produced **lower** concentration: HHI falls
+0.225694 → 0.140800 and the effective number of categories rises 6.22 → 8.55. The
+largest category's share falls from 41.6667% (`BusEq`, legacy 24) to 24.0000%
+(`BusEq`, final 50). The legacy 24 was missing `Chems`, `Telcm` and `Utils`; the
+final 50 represents **all 12** categories with none absent. Against the OEF proxy
+pool every category sits within **±3.0 percentage points** (`NoDur` −3.0 the
+largest gap; `Manuf` and `Shops` +2.1 each). Leave-one-ticker-out moves the
+largest-category share only within 22.449%–24.490% and HHI within
+0.137026–0.146189, so no single ticker drives the result.
+
+**What this does not establish.** No accept/reject threshold was specified by this
+task, so no such verdict is drawn, and the audit does not call any distribution
+representative, balanced, acceptable, unacceptable, biased or statistically
+significant. Whether this composition is adequate for HYP-01 — and whether a
+stratified or sector-specific redesign is warranted — is left to an independent
+reviewer. `GST_UNIVERSE_50_SECTOR_COMPOSITION_REVIEW_TEMPLATE_v1.0.md` ships with
+every finding and all four dispositions `PENDING`; none is preselected. That
+decision must be made **without consulting GST attention data or return outcomes**,
+since choosing a universe after seeing outcomes would make the sampling frame
+outcome-dependent.
+
+**Verified before committing.** `test_market_response_universe_50_sector_composition.py`
+runs offline with sockets blocked and passes **127 assertions**. It does not trust
+the audit's own declarations: it re-executes `ff12_for_sic` against the frozen
+intervals for all 113 records, recomputes every count, percentage, HHI, entropy,
+effective-category count, FINAL_50-vs-OEF difference and the full 50-way
+leave-one-out sweep, and confirms the ordering matches the merged proposal exactly.
+A **28-mutation battery** confirms the suite actually fails: reordering, dropping or
+substituting a ticker; overriding a category away from its SIC; falsifying any
+metric or sensitivity bound; citing a non-SEC provenance URL; inferring a category
+for a missing SIC; leaking an OEF weight; claiming a threshold, a verdict, a subset
+search or an altered universe; falsifying or post-dating the frozen-rule hash;
+editing the frozen rule; ticking a disposition or naming a reviewer; deleting a
+banner or the no-threshold statement; desynchronising the CSV from the JSON;
+removing the socket block; or making the classifier read a price field. **28 of 28
+were caught.**
+
+Three test failures during development were traced to the test, not the audit, and
+each matcher was tightened rather than the guarantee relaxed: a substring search for
+prohibited weight fields was matching the Python `return` keyword and the disclaimer
+strings that assert those fields were *not* read (now matched only in read position,
+with a self-check that the matcher catches a planted `row["price"]`); a 1e-6
+tolerance was applied to percentages stored at 4 dp, so denominators of 24, 26 and
+101 summed to 100.0001 (replaced with the **stricter** pair — unrounded shares sum
+to exactly 100, and each stored value equals the exact 4-dp rounding of its share);
+and a required phrase was line-wrapped in the Markdown source, so a raw substring
+match missed text that was present.
+
+Protected state is asserted byte-identical: `constants.py` (still exactly the
+original 24), both HYP-01 locks, the effective-lock report, the cohort protocol, the
+F5 audit, the merged universe proposal, and the single unchanged `DELL` registry
+row. F5 remains `OPEN`; prospective collection remains `BLOCKED`.
+
+
 ## 2026-08-16 — Proposed outcome-blind universe expansion 24 → 50 (PROPOSAL ONLY, NOT ACTIVE)
 
 **PROPOSAL ONLY · NOT ACTIVE · NOT AN S&P DJI CONSTITUENT FILE · CURRENT 24 REMAIN OPERATIVE · F5 REMAINS OPEN · COLLECTION REMAINS BLOCKED · NO PRODUCTION QUERY CHANGED · NO TICKER WAS SELECTED USING ATTENTION, PRICE, EARNINGS, OUTCOME OR PERFORMANCE INFORMATION.**
