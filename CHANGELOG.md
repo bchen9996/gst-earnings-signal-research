@@ -1,6 +1,50 @@
 # Changelog
 
 
+## 2026-08-16 — Clustered-inference correction to the retrospective decomposition
+
+Narrow statistical review of PR #22. The descriptive results and strategy definitions are unchanged;
+the inference is not. Ordinary t-statistics treated observations as independent despite repeated
+ticker events and reused matched controls, so every load-bearing statistic is re-estimated with
+**CR2/BRL and coefficient-specific Satterthwaite df, clustered by ticker (28 clusters)**, reusing
+`tools/hyp01_inference_feasibility.py` unchanged — the implementation tied out against an independent
+R `clubSandwich` reference on 13 of 13 admissible fixtures. Retrospective development inference, not
+HYP-01 confirmation.
+
+| Model (+ ticker FE) | Coefficient on high_GST |
+|---|---|
+| **Primary** abs(day_return) | **+1.509 pp**, SE 0.766, df 16.3, t=1.969, **p=0.0662**, CI [-0.113, +3.131] |
+| abs(day_return − SPY) | +1.539 pp, SE 0.678, t=2.27, p=0.03707, CI [+0.104, +2.973] |
+| **Strategy E incremental** | **+0.013 pp**, SE 0.618, t=0.021, **p=0.98332**, CI [-1.294, +1.320] |
+| Strategy B incremental | -0.344 pp, t=-0.747, p=0.46577 |
+| Deduplicated abs(day_return) | +1.921 pp, t=3.561, p=0.00193, CI [+0.797, +3.045] |
+
+**The primary magnitude coefficient weakened.** A naive ticker-demeaned t of 2.57 becomes
+**t=1.969, p=0.0662**, with a 95% interval spanning zero — directionally unchanged but no longer
+supported at 5% in the primary specification. The benchmark-adjusted (p=0.03707) and
+deduplicated (p=0.00193) versions do clear 5%. All are reported; no model was chosen after
+seeing the answers.
+
+**Repeated controls were real and are now counted:** 152 signal rows = 152 unique events, but
+133 control rows collapse to only **85 unique control events** — 24 identities duplicated,
+48 extra rows, one control reused **6×**. Duplicated appearances are not treated as
+independent: a fully deduplicated analysis (237 rows) is reported, and clustering is on ticker
+because every repeated event and reused control is nested strictly within one ticker, making it
+weakly coarser than event identity.
+
+**NO STRATEGY is reaffirmed and strengthened.** E's standalone profitability is post-earnings drift,
+not a GST result; its incremental GST coefficient is +0.013 pp with p=0.98332. The high-GST
+(+0.854%), low-attention (+0.861%) and all-event (+0.858%) returns are all retained alongside it.
+
+Release timing audited: **249 AMC** events, all mapped to the next trading session; **36 BMO**,
+34 on the announcement session and 2 on the next session because the announcement date
+(a Berkshire Saturday release) was not a trading day. The 71.7% figure is now stated only as *the
+overnight gap accounts for 71.7% of mean |gap| plus mean |open-to-close| among high-GST events* —
+never as a share of total return or total movement.
+
+Changes are confined to the existing PR #22 files.
+
+
 ## 2026-08-16 — Retrospective decomposition: the GST filter adds nothing to any stock strategy
 
 `RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01, changes no locked methodology,
@@ -13,7 +57,8 @@ open→+30min and +30min→close components and **Strategy A** (opening-range br
 **NOT TESTABLE**; no substitute was invented.
 
 **Where the move is.** High abnormal GST does predict a larger absolute earnings move — 7.89% vs
-6.45%, **+1.44 pp**, t=2.14 — and **71.7% of it is the overnight gap** (mean abs gap 7.00% vs
+6.45%, **+1.44 pp**, t=2.14 *(unclustered; superseded by the CR2 entry above)* — and the overnight
+gap accounts for **71.7% of mean |gap| plus mean |open-to-close| among high-GST events** (7.00% vs
 open→close 2.76%). It is stock-specific: 96.6% of the magnitude survives SPY subtraction. The
 correlation between the gap and the subsequent open→close move is **−0.003**, so the gap says
 nothing about what happens next.

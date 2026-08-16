@@ -174,6 +174,122 @@
   "retained_fraction": 0.9664,
   "answer": "YES"
  },
+ "clustered_inference": {
+  "method": "CR2/BRL with coefficient-specific Satterthwaite df, reused unchanged from tools/hyp01_inference_feasibility.py (tied out against an independent R clubSandwich reference on 13 of 13 admissible fixtures in PR #18)",
+  "why": "events repeat within tickers and matched controls are reused, so ordinary t-statistics that treat observations as independent overstate precision",
+  "scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION",
+  "primary_magnitude_abs_day_return": {
+   "n": 285,
+   "n_clusters": 28,
+   "cluster_unit": "ticker",
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "coef_pp": 1.509,
+   "cr2_se_pp": 0.7664,
+   "satterthwaite_df": 16.301,
+   "t_stat": 1.969,
+   "p_value": 0.0662,
+   "ci95_pp": [
+    -0.1133,
+    3.1313
+   ],
+   "inference_scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION"
+  },
+  "magnitude_abs_excess_vs_spy": {
+   "n": 285,
+   "n_clusters": 28,
+   "cluster_unit": "ticker",
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "coef_pp": 1.5388,
+   "cr2_se_pp": 0.6777,
+   "satterthwaite_df": 16.301,
+   "t_stat": 2.27,
+   "p_value": 0.03707,
+   "ci95_pp": [
+    0.1042,
+    2.9734
+   ],
+   "inference_scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION"
+  },
+  "strategy_E_incremental_high_gst": {
+   "n": 285,
+   "n_clusters": 28,
+   "cluster_unit": "ticker",
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "coef_pp": 0.0131,
+   "cr2_se_pp": 0.6175,
+   "satterthwaite_df": 16.301,
+   "t_stat": 0.021,
+   "p_value": 0.98332,
+   "ci95_pp": [
+    -1.2939,
+    1.3201
+   ],
+   "inference_scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION"
+  },
+  "strategy_B_incremental_high_gst": {
+   "n": 285,
+   "n_clusters": 28,
+   "cluster_unit": "ticker",
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "coef_pp": -0.3439,
+   "cr2_se_pp": 0.4605,
+   "satterthwaite_df": 16.301,
+   "t_stat": -0.747,
+   "p_value": 0.46577,
+   "ci95_pp": [
+    -1.3187,
+    0.6308
+   ],
+   "inference_scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION"
+  }
+ },
+ "repeated_control_sensitivity": {
+  "signal_rows": 152,
+  "unique_signal_events": 152,
+  "control_rows": 133,
+  "unique_control_events": 85,
+  "duplicated_control_identities": 24,
+  "duplicated_control_extra_rows": 48,
+  "max_reuse_of_one_control": 6,
+  "deduplicated_unique_event_rows": 237,
+  "deduplicated_mean_abs_diff_pp": 1.7876,
+  "deduplicated_naive_t": 2.521,
+  "deduplicated_cr2": {
+   "n": 237,
+   "n_clusters": 28,
+   "cluster_unit": "ticker",
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "coef_pp": 1.921,
+   "cr2_se_pp": 0.5395,
+   "satterthwaite_df": 20.279,
+   "t_stat": 3.561,
+   "p_value": 0.00193,
+   "ci95_pp": [
+    0.7967,
+    3.0453
+   ],
+   "inference_scope": "RETROSPECTIVE_DEVELOPMENT_ONLY_NOT_HYP01_CONFIRMATION"
+  },
+  "same_ticker_only_pairs": 132,
+  "same_ticker_only_mean_diff_pp": 1.6169,
+  "same_ticker_only_naive_t": 2.495,
+  "clustering_unit_rationale": "The paired analysis retains repeated events because a control can be matched to more than one signal. Duplicated appearances are therefore not independent observations. Two things are reported: (a) a deduplicated analysis in which each distinct ticker+event-day identity appears exactly once, removing reuse entirely; and (b) CR2 inference clustered on TICKER, which is the defensible unit here because every duplicated control identity, and every repeated event, is nested strictly within one ticker. Clustering on ticker is therefore weakly coarser than clustering on event identity and absorbs both the repeated-event and reused-control dependence, as well as any within-firm correlation across separate earnings dates."
+ },
+ "release_timing_audit": {
+  "amc_events": 249,
+  "amc_mapped_to_next_session": 249,
+  "amc_correct": true,
+  "bmo_events": 36,
+  "bmo_mapped_to_announcement_session": 34,
+  "bmo_announcement_date_not_a_trading_session": 2,
+  "bmo_correct": true,
+  "note": "BMO events not landing on the announcement date are announcement dates that were not themselves trading sessions (both are one Berkshire Saturday release); the next session is used"
+ },
  "benchmarks": {
   "no_trade": {
    "mean_net_pct": 0.0,
