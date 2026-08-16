@@ -1,6 +1,59 @@
 # Changelog
 
 
+## 2026-08-16 — Proposed outcome-blind universe expansion 24 → 50 (PROPOSAL ONLY, NOT ACTIVE)
+
+**PROPOSAL ONLY · NOT ACTIVE · NOT AN S&P DJI CONSTITUENT FILE · CURRENT 24 REMAIN OPERATIVE · F5 REMAINS OPEN · COLLECTION REMAINS BLOCKED · NO PRODUCTION QUERY CHANGED · NO TICKER WAS SELECTED USING ATTENTION, PRICE, EARNINGS, OUTCOME OR PERFORMANCE INFORMATION.**
+
+The production constant `LOCKED_24_TICKER_UNIVERSE` is byte-identical. Nothing is activated by merging this.
+
+**Three artifacts were frozen and hashed in order, each before the step it governs.**
+
+| Step | Artifact | Frozen before | SHA-256 |
+|---|---|---|---|
+| 1 | `PRE_RETRIEVAL_SELECTION_RULE.md` | any constituent retrieval | `6911726c…761cde` |
+| 2 | `PRE_RETRIEVAL_SOURCE_AMENDMENT_2026-08-16.md` | any OEF request | `bf88f226…ab0d6bd` |
+| 3 | `PRE_SELECTION_ALIAS_AMENDMENT_2026-08-16.md` | any final selection | `5faabac1…b30ffc6` |
+
+Steps 1 and 2 are byte-for-byte unchanged by everything that followed.
+
+**S&P DJI was unobtainable, and its controls were not circumvented.** Four routes returned HTTP 403 or failed DNS; a real browser engine received an explicit **"Security Controls Triggered"** page (`e8e8b3e3…8975b465`). That is an access control the operator imposed. It was **not retried, evaded, proxied around, or circumvented**, and no aggregator, encyclopedia or generated list was substituted.
+
+**The permitted source was amended, additively, to a fund-holdings proxy** — *the dated official iShares OEF holdings snapshot, used as an identity-only proxy for the S&P 100 investable universe*. It is **not** the index provider's canonical constituent list, and no document in the proposal calls it one. Downloaded from the link the official product page itself publishes: 17,200 bytes, raw SHA-256 `3d85de45…f125f892`, as-of **Aug 13, 2026**, quarantined outside Git.
+
+**Only three identity columns survived sanitization** — `Ticker`, `Name`, `Asset Class`. **Twelve were dropped**, including Market Value, Weight (%), Notional Value, Quantity, Price and FX Rate. No prohibited value was read, printed, persisted or used, and the selector fails closed if a non-identity field reaches it.
+
+**An identity collision stopped the first attempt.** The OEF file writes Berkshire Hathaway class B as `BRKB`; the repository writes `BRK-B`. Frozen rule R4 converts a provider *separator*, but this provider emits none — zero of 101 equity identifiers contain `.`, `-` or a space — so producing `BRK-B` required *inserting* one, which is interpretation, not transformation. R5 could not rescue it either, because the locked 24 is a ticker list with no issuer names. The provisional run had selected `BRKB` at rank 10, which would have put **one security in the universe twice under two spellings**. Work stopped and the provisional artifact was deleted rather than patched.
+
+**A narrow alias amendment resolved it**, frozen at `{"BRKB": "BRK-B"}` and applied before locked-24 comparison, issuer deduplication, hashing and uniqueness counting. Source `BRKB` is classified `ALREADY_LOCKED_AFTER_ALIAS_NORMALIZATION`, excluded from the addition pool, and **never hashed as a candidate**. Both identifiers survive in the ledger so the transformation is visible. The amendment was created **after** the collision was discovered and **before** final selection — stated plainly, because the collision had to be seen before it could be described — and was informed by two identifiers and an issuer name, nothing else.
+
+**Dispositions — 105 source rows, each with exactly one:** 4 excluded as non-equity (`XTSLA`, `MSFUT`, `ESU6`, `USD`), 1 excluded as a duplicate economic issuer (`GOOG`, because `GOOGL` is locked), 0 malformed, 12 already locked (including `BRKB`→`BRK-B`), 88 eligible candidates, **26 selected**, 62 not selected.
+
+**Selected 26**, first-26 under `SHA256(UTF8("GST-HYP01-UNIVERSE-EXPANSION-2026-08-16|" + ticker))` sorted ascending: CAT, MMM, BA, COF, NEE, HONA, CL, DUK, HD, GS, INTU, BMY, BNY, AMT, ACN, LRCX, MS, TMO, ISRG, T, BLK, LMT, AXP, LLY, WMT, NFLX. **No human judgment affected which 26.**
+
+**NFLX entered at rank 26 mechanically.** It was rank 27 before `BRKB` left the pool; removing an ineligible entry shifts the tail up by one. That is a smaller pool, **not a backfill and not a manual insertion** — and R14 still forbids replacing any selected ticker that later fails F5, access, eligibility or data quality.
+
+Final proposed universe: **50 entries, 50 unique tickers, 50 unique securities, 0 issuers represented twice**, with positions 1–24 the existing locked tickers in their existing order.
+
+**The proposed cohort/universe amendment is append-only** and states why 24 was an operational starting scope rather than a derived optimum, why expansion happens now (zero eligible observations exist, so nothing can be influenced), and why 50 balances recruitment, cluster diversity, F5 workload and feasibility — offered as a governance judgment, **not** a demonstrated power target. It records that all 24 remain, that no failed ticker will be replaced, and that the first-60-eligible-events rule, D1–D16 and DELL's registration are unchanged.
+
+**Correction after independent review (`REQUEST_CORRECTION`).** The first version's `issuer_key()` stripped a trailing `CLASS/CL/SER/SERIES` designator with a general regex. That is **not** the case-and-punctuation-only normalization frozen rule R5 specifies, yet it materially grouped `ALPHABET CLASS A` with `ALPHABET CLASS C` and drove `GOOG`'s exclusion — and disclosing it in the review template did not make the implementation consistent with the frozen rule. The reviewer was right to treat it as blocking.
+
+The general suffix stripping is **removed entirely** and replaced by an exact frozen source-name map, `{"ALPHABET CLASS A": "ALPHABET", "ALPHABET CLASS C": "ALPHABET"}`, applied immediately before R5 deduplication and nowhere else; every other name falls back to R5's sentence verbatim. An unlisted share-class group makes the build **stop** rather than guess, and a mutation test found a second gap on the way: a map that *covers* both names but sends them to *different* groups would have defeated R5 silently, so the detector now also requires every member of a share-class group to resolve to one issuer key. A fourth dated amendment (`ff7131e7…3c3dc6`, 06:05:57Z) records the resolution, created after retrieval, after the inconsistency was found, after the earlier selection existed, and **before** the corrected one. The v1 selection artifacts were **deleted from the branch** before recomputation so no stale selection survives.
+
+**The corrected recomputation produced an identical selected 26**, and `GOOG`'s exclusion was independently verified **not** to move the rank-26 boundary — its digest sorts below rank 26. The defect was a real rule inconsistency, not a wrong outcome.
+
+**Governance mappings are now fail-closed, not merely review-detectable.** A second review pass found that mutating a frozen map still produced a proposal — the tests asserted only that the change was *noticeable*. That is not the guarantee. The selector now runs `assert_governance_integrity()` **before any disposition, hashing, ranking or output**, and refuses — emitting nothing — unless three independent things agree: each in-code map's canonical digest (`json.dumps(map, sort_keys=True, separators=(",", ":"), ensure_ascii=True)`, UTF-8, SHA-256) equals its frozen expected digest (`d4b80e13…05d860` for `{"BRKB":"BRK-B"}`, `50bd57cf…3fa8a0` for the Alphabet pair); every amendment artifact still hashes to its recorded value; and the map parsed **out of** the amendment equals the in-code map. Twelve mutation classes — alias removed/retargeted/extended, issuer map removed/partial/retargeted/broadened/extended, either amendment missing or altered, expected digest altered, and code disagreeing with amendment — each now assert **SystemExit occurred and the output directory is empty**, and the phrases "detectable by review" and "refused or visibly changes the outcome" are gone.
+
+**A hash-only evidence manifest** now lets a reviewer verify the historical raw bytes without the repository ever containing them: filename, repository-external location, byte count, SHA-256, retrieval timestamp, as-of date, official URL, confirmation it remains available to an authorized reviewer, and confirmation it is untracked. The raw file was re-hashed in place and still matches.
+
+**A review template ships with every field `PENDING`**, all three dispositions unticked, and no reviewer identity invented. It flags for the reviewer the one mechanical step the frozen rule required but did not spell out — removal of a trailing share-class designator when building the issuer grouping key, applied to the key only and never to the ticker.
+
+Tests: `test_market_response_universe_expansion_50.py` (**102 assertions**) executes the selector and recomputes rather than trusting the proposal, and includes mutation tests proving that removing the alias reintroduces the duplicate security, that a changed or unapproved alias is detectable, that 25 or 27 additions fail closed, that removing or reordering the original 24 fails, that malformed input fails closed, that selection is invariant to input row order, and that a one-character ticker change changes the digest. All tracked test files pass with sockets blocked, in the working tree and in a line-ending-normalized archive export.
+
+Added `tools/universe_expansion/` (sanitizer and selector) and `Live Signal Engine/Universe_Expansion_2026-08-16/` (the three frozen governance artifacts copied in unchanged, the identity-only snapshot, provenance manifest, proposal JSON and Markdown, audit, cohort amendment and review template). Protected hashes, DELL and all research state unchanged.
+
+
 ## 2026-08-16 — Dated authorizer amendment: D1–D16 authorized; F5 still OPEN and collection still BLOCKED
 
 **Dated authorizer amendment for HYP-01 statistical rules. No prospective outcome was inspected, F5 remains OPEN, and collection remains blocked.**

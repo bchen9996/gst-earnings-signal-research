@@ -1,0 +1,562 @@
+{
+ "artifact": "Sanitized identity-only OEF holdings snapshot",
+ "columns_dropped": [
+  "Sector",
+  "Market Value",
+  "Weight (%)",
+  "Notional Value",
+  "Quantity",
+  "Price",
+  "Location",
+  "Exchange",
+  "Currency",
+  "FX Rate",
+  "Market Currency",
+  "Accrual Date"
+ ],
+ "identity_columns_kept": [
+  "Ticker",
+  "Name",
+  "Asset Class"
+ ],
+ "is_sp_dji_constituent_file": false,
+ "prohibited_fields_emitted": false,
+ "publisher": "BlackRock / iShares (fund issuer)",
+ "raw_bytes": 17200,
+ "raw_kept_outside_version_control": true,
+ "raw_sha256_lf": "3d85de45d0f07bbd830a6431ed671ffbb8266e7aa7bef4cfa360e06df125f892",
+ "retrieved_utc": "2026-08-16T05:32:28Z",
+ "row_count": 105,
+ "rows": [
+  {
+   "asset_class": "Equity",
+   "name": "NVIDIA CORP",
+   "source_ticker": "NVDA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "APPLE INC",
+   "source_ticker": "AAPL"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MICROSOFT",
+   "source_ticker": "MSFT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "AMAZON.COM INC",
+   "source_ticker": "AMZN"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ALPHABET CLASS A",
+   "source_ticker": "GOOGL"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BROADCOM INC",
+   "source_ticker": "AVGO"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ALPHABET CLASS C",
+   "source_ticker": "GOOG"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "META PLATFORMS CLASS A",
+   "source_ticker": "META"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MICRON TECHNOLOGY",
+   "source_ticker": "MU"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "JPMORGAN CHASE & CO",
+   "source_ticker": "JPM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "TESLA INC",
+   "source_ticker": "TSLA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ELI LILLY",
+   "source_ticker": "LLY"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BERKSHIRE HATHAWAY INC CLASS B",
+   "source_ticker": "BRKB"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ADVANCED MICRO DEVICES",
+   "source_ticker": "AMD"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "EXXONMOBIL HOLDINGS CORP",
+   "source_ticker": "XOM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "JOHNSON & JOHNSON",
+   "source_ticker": "JNJ"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "VISA CLASS A",
+   "source_ticker": "V"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "INTEL CORPORATION",
+   "source_ticker": "INTC"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "WALMART INC",
+   "source_ticker": "WMT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MASTERCARD CLASS A",
+   "source_ticker": "MA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CISCO SYSTEMS INC",
+   "source_ticker": "CSCO"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ABBVIE",
+   "source_ticker": "ABBV"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "COSTCO WHOLESALE CORP",
+   "source_ticker": "COST"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "APPLIED MATERIAL INC",
+   "source_ticker": "AMAT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "LAM RESEARCH",
+   "source_ticker": "LRCX"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BANK OF AMERICA CORP",
+   "source_ticker": "BAC"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "PALANTIR TECHNOLOGIES CLASS A",
+   "source_ticker": "PLTR"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CATERPILLAR INC",
+   "source_ticker": "CAT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "GE AEROSPACE",
+   "source_ticker": "GE"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CHEVRON CORP",
+   "source_ticker": "CVX"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "UNITEDHEALTH GROUP INC",
+   "source_ticker": "UNH"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "HOME DEPOT",
+   "source_ticker": "HD"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "COCA-COLA",
+   "source_ticker": "KO"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "PROCTER & GAMBLE",
+   "source_ticker": "PG"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MERCK & CO INC",
+   "source_ticker": "MRK"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "NETFLIX",
+   "source_ticker": "NFLX"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "GOLDMAN SACHS GROUP INC",
+   "source_ticker": "GS"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "RTX CORP",
+   "source_ticker": "RTX"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "PHILIP MORRIS INTERNATIONAL INC",
+   "source_ticker": "PM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "GE VERNOVA INC",
+   "source_ticker": "GEV"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "WELLS FARGO",
+   "source_ticker": "WFC"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ORACLE",
+   "source_ticker": "ORCL"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MORGAN STANLEY",
+   "source_ticker": "MS"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "TEXAS INSTRUMENT INC",
+   "source_ticker": "TXN"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CITIGROUP INC",
+   "source_ticker": "C"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "AMGEN INC",
+   "source_ticker": "AMGN"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "INTERNATIONAL BUSINESS MACHINES CO",
+   "source_ticker": "IBM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "THERMO FISHER SCIENTIFIC INC",
+   "source_ticker": "TMO"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "LINDE PLC",
+   "source_ticker": "LIN"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "VERIZON COMMUNICATIONS INC",
+   "source_ticker": "VZ"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ABBOTT LABORATORIES",
+   "source_ticker": "ABT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MCDONALDS CORP",
+   "source_ticker": "MCD"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "PEPSICO INC",
+   "source_ticker": "PEP"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "AMERICAN EXPRESS",
+   "source_ticker": "AXP"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "WALT DISNEY",
+   "source_ticker": "DIS"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BOEING",
+   "source_ticker": "BA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CHARLES SCHWAB",
+   "source_ticker": "SCHW"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "NEXTERA ENERGY",
+   "source_ticker": "NEE"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "UNION PACIFIC",
+   "source_ticker": "UNP"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "QUALCOMM",
+   "source_ticker": "QCOM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "GILEAD SCIENCES INC",
+   "source_ticker": "GILD"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "AT&T INC",
+   "source_ticker": "T"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BLACKROCK",
+   "source_ticker": "BLK"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BOOKING HOLDINGS",
+   "source_ticker": "BKNG"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "SALESFORCE",
+   "source_ticker": "CRM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "UBER TECHNOLOGIES",
+   "source_ticker": "UBER"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "DEERE",
+   "source_ticker": "DE"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "PFIZER",
+   "source_ticker": "PFE"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CONOCOPHILLIPS",
+   "source_ticker": "COP"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "INTUITIVE SURGICAL INC",
+   "source_ticker": "ISRG"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CAPITAL ONE FINANCIAL CORP",
+   "source_ticker": "COF"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BRISTOL MYERS SQUIBB",
+   "source_ticker": "BMY"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "SERVICENOW INC",
+   "source_ticker": "NOW"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "DANAHER CORP",
+   "source_ticker": "DHR"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "STARBUCKS CORP",
+   "source_ticker": "SBUX"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "LOWES COMPANIES INC",
+   "source_ticker": "LOW"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "CVS HEALTH",
+   "source_ticker": "CVS"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "LOCKHEED MARTIN CORP",
+   "source_ticker": "LMT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MEDTRONIC PLC",
+   "source_ticker": "MDT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "BANK OF NEW YORK MELLON CORP",
+   "source_ticker": "BNY"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ACCENTURE PLC CLASS A",
+   "source_ticker": "ACN"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ADOBE INC",
+   "source_ticker": "ADBE"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "ALTRIA GROUP INC",
+   "source_ticker": "MO"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "SOUTHERN",
+   "source_ticker": "SO"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "US BANCORP",
+   "source_ticker": "USB"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "GENERAL DYNAMICS CORP",
+   "source_ticker": "GD"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "INTUIT",
+   "source_ticker": "INTU"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "DUKE ENERGY CORP",
+   "source_ticker": "DUK"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "3M",
+   "source_ticker": "MMM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "COMCAST CLASS A",
+   "source_ticker": "CMCSA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "EMERSON ELECTRIC",
+   "source_ticker": "EMR"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "T MOBILE US INC",
+   "source_ticker": "TMUS"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "MONDELEZ INTERNATIONAL INC CLASS A",
+   "source_ticker": "MDLZ"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "AMERICAN TOWER REIT",
+   "source_ticker": "AMT"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "UNITED PARCEL SERVICE INC CLASS B",
+   "source_ticker": "UPS"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "GENERAL MOTORS",
+   "source_ticker": "GM"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "COLGATE-PALMOLIVE",
+   "source_ticker": "CL"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "FEDEX CORP",
+   "source_ticker": "FDX"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "SIMON PROPERTY GROUP REIT INC",
+   "source_ticker": "SPG"
+  },
+  {
+   "asset_class": "Money Market",
+   "name": "BLK CSH FND TREASURY SL AGENCY",
+   "source_ticker": "XTSLA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "HONEYWELL AEROSPACE INC",
+   "source_ticker": "HONA"
+  },
+  {
+   "asset_class": "Equity",
+   "name": "NIKE CLASS B",
+   "source_ticker": "NKE"
+  },
+  {
+   "asset_class": "Cash Collateral and Margins",
+   "name": "CASH COLLATERAL MSFUT USD",
+   "source_ticker": "MSFUT"
+  },
+  {
+   "asset_class": "Futures",
+   "name": "S&P500 EMINI SEP 26",
+   "source_ticker": "ESU6"
+  },
+  {
+   "asset_class": "Cash",
+   "name": "USD CASH",
+   "source_ticker": "USD"
+  }
+ ],
+ "schema": "GST_OEF_IDENTITY_SNAPSHOT_v1",
+ "source_description": "the dated official iShares OEF holdings snapshot, used as an identity-only proxy for the S&P 100 investable universe",
+ "source_is_index_provider_canonical_list": false,
+ "source_reported_as_of": "Aug 13, 2026",
+ "source_url": "https://www.ishares.com/us/products/239723/ishares-s-p-100-etf/latest-holdings.csv"
+}
