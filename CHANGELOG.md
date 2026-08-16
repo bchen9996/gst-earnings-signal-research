@@ -32,7 +32,10 @@ independent: a fully deduplicated analysis (237 rows) is reported, and clusterin
 because every repeated event and reused control is nested strictly within one ticker, making it
 weakly coarser than event identity.
 
-**NO STRATEGY is reaffirmed and strengthened.** E's standalone profitability is post-earnings drift,
+**NO STRATEGY is reaffirmed and strengthened, scoped to the five strategies tested.** All five ask
+GST or the earnings gap to supply direction; a two-stage design in which direction comes from an
+independent pre-earnings model and GST is applied only afterwards as a magnitude filter was not
+tested and remains open. E's standalone profitability is post-earnings drift,
 not a GST result; its incremental GST coefficient is +0.013 pp with p=0.98332. The high-GST
 (+0.854%), low-attention (+0.861%) and all-event (+0.858%) returns are all retained alongside it.
 
@@ -75,7 +78,8 @@ continuation (B) is worse: controls (+0.840%) beat high-attention (+0.473%). Gap
 −0.673% net, `FAILS_AFTER_COSTS`. Attention–price divergence (D) is `WEAK/UNSTABLE` (quiet 7.43% vs
 loud 8.18% absolute, t=−0.76).
 
-**Verdict: NO STRATEGY.** No GST-conditioned stock strategy qualifies for prospective testing. The
+**Verdict: NO STRATEGY, scoped to the five strategies tested.** None of the five qualifies for
+prospective testing. The
 one surviving attention effect is magnitude rather than direction and is realized overnight;
 capturing it would need a volatility structure, which is outside this stock-only scope.
 

@@ -129,14 +129,23 @@ information about what happens next.
    coefficient fell from a naive t of 2.57 to **t=1.969, p=0.0662**, with an interval spanning zero.
    (b) The GST filter's contribution to Strategy E is **+0.013 pp, p=0.98332** — flatly zero.
 4. **Anything economically interesting after costs?** — Post-earnings drift is (E, +0.854% net), but
-   it is **not a GST result**. There is **no attention-conditioned stock edge** after costs.
-5. **Next single strategy worth prospective testing** — **None stock-based.** The only attention
-   effect with support is magnitude, not direction, and it is realized overnight; capturing it would
-   require a volatility structure, outside this sprint's stock-only scope and subject to the gated
-   prospective process.
-6. **Verdict: NO STRATEGY — reaffirmed and strengthened.** The incremental GST coefficient for the
-   only profitable strategy is +0.013 pp with p=0.98332, so GST's incremental effect is neither
-   economically meaningful nor statistically supported.
+   it is **not a GST result**. None of the five strategies tested here produces an
+   attention-conditioned edge after costs.
+5. **Next single strategy worth prospective testing** — **None among the five tested.** Every one of
+   them asks GST, or the gap it produces, to supply *direction*. The only attention effect with
+   support is **magnitude**, and it is realized overnight. The untested design this points to is a
+   **two-stage** one: an independent pre-earnings model supplies direction, and GST is applied only
+   afterwards as a magnitude/event-selection filter. That is not evaluated here and remains open.
+6. **Verdict: NO STRATEGY, scoped to the five strategies tested (A–E).** The incremental GST
+   coefficient for the only profitable one is +0.013 pp with p=0.98332, so GST's incremental effect
+   is neither economically meaningful nor statistically supported **in these five designs**.
+
+### What this verdict does not claim
+
+It does **not** claim that every possible combined-signal strategy has failed. Five strategies were
+tested, and all five ask GST or the earnings gap to supply direction. A design in which direction
+comes from an **independent** pre-earnings model and GST is used **only** as a magnitude filter after
+those predictions exist was **not tested here** — the evidence in this report is silent on it.
 
 ## Not testable, and why
 
