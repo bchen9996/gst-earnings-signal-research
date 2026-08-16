@@ -1,6 +1,53 @@
 # Changelog
 
 
+## 2026-08-16 — Dated authorizer amendment: D1–D16 authorized; F5 still OPEN and collection still BLOCKED
+
+**Dated authorizer amendment for HYP-01 statistical rules. No prospective outcome was inspected, F5 remains OPEN, and collection remains blocked.**
+
+**The authorization, verbatim:** *"I authorize the recommended D1–D16 methodological package as specified on August 16, 2026."*
+
+Authorized by the **project authorizer / repository owner**. **No external peer review, methodological review, institutional approval or reviewer sign-off occurred**, and none is claimed — the authorizer is not an independent statistician or methodologist, and no handwritten signature exists. Declared authorization date **2026-08-16**, basis **user-declared UTC calendar date**; recorded at 2026-08-16T03:57:18Z. The record does **not** assert the authorization happened on 2026-08-16 in America/Chicago — at that UTC instant the local civil date was 2026-08-15. Commit timestamps, preserved by git, record entry into history separately.
+
+**Nothing was rewritten.** The amendment is append-only. v1.0 and its companion, the proposed v1.1 and its companion, the signoff template and the PR #17 / PR #18 validation artifacts are all byte-identical, and their exact hashes are recorded inside the amendment so drift is detectable.
+
+**The authorized package:**
+
+| | Decision |
+|---|---|
+| D1 | **CR2 / bias-reduced linearization**; official path R 4.6.1 + clubSandwich 0.7.0, `vcovCR(..., type = "CR2")`. Python is a validated cross-check, not the authoritative calculation |
+| D2 | **BRL adjustment built into clubSandwich CR2** — no CR1 scaling, no second correction |
+| D3 | **Coefficient-specific Satterthwaite** via `coef_test(..., test = "Satterthwaite")`; realized continuous df persisted and reported |
+| D4–D7 | **Wild bootstrap not used in HYP-01**; weights, repetitions and seed not applicable, with **no activatable placeholder retained** |
+| D8 | **Retain singleton ticker clusters**; report cluster count, singleton count, permitted singleton identities and effective df |
+| D9 | **Refuse and abort** on nine conditions, thresholds adopted **verbatim** from the committed feasibility runner; a refusal is **not** a null result |
+| D10 | **No invented cluster or effective-df cutoff**; report five quantities always |
+| D11 | R official / Python cross-check, **roles may not be reversed**; eight items frozen at event 60; a discrepancy **stops release** and may not be averaged or hand-reconciled |
+| D12 | **Treatment/reference coding**, deterministic reference recorded before fitting, secondary model only |
+| D13 | **Pool sectors with fewer than 3 eligible events into OTHER**, from counts only, map computed once and persisted |
+| D14 | **No per-ticker cap** |
+| D15 | **No multiplicity adjustment**; protected family = 1 predictor, 1 outcome, 1 test, α = 0.05 two-sided |
+| D16 | **No project-derived power claim**; n = 60 is a **governance floor**, not a demonstrated power target |
+
+**No new numerical threshold was invented.** D9's guards are read out of `tools/hyp01_inference_feasibility.py` (symbol `REFUSAL`, SHA recorded): condition number 1e10, zero-variance std 1e-12, relative RSS 1e-18, arithmetic cluster floor 2. `min_clusters_for_any_output` is labelled an arithmetic floor, explicitly **not** an eligibility rule — D10 imposes no cluster policy.
+
+**Split tolerance provenance survives into the lock.** CR2 covariance, SE, t and p were validated under the **PR #17** tolerances; the continuous **Satterthwaite df** under a **separately prespecified PR #18 tolerance that was not preregistered in PR #17**. D3 carries that qualification inline, and the resolver refuses if it is ever dropped.
+
+**No outcome existed to inspect.** At authorization `results` was null, `frozen_event_ids` empty, `eligible_events_now` 0 and `screening_rows` empty. There was no estimate, direction, p-value or plot to see.
+
+**Effective state:** statistical package **AUTHORIZED** · implementation **VALIDATED** (implementation agreement, not scientific proof) · F5 construct validity **OPEN** · prospective collection **BLOCKED** · scientific result **NONE** · analysis **NOT RUN** · external preregistration **NOT PERFORMED**. Completing the internal lock does not make the study externally preregistered; that needs actual submission to an external timestamped registry.
+
+**The decision matrix no longer contradicts the lock.** It carried "nothing here is decided… every authorizer field is PENDING". It now opens with a conspicuous banner stating that D1–D16 were decided on 2026-08-16 and that every `PENDING` marker and blank checkbox below is **historical**. The checkboxes were deliberately left unticked rather than back-filled, so the page stays an honest record of what was open when it was written. Its option tables and analysis are preserved unchanged.
+
+**Enforcement.** `tools/hyp01_effective_lock/resolve_effective_lock.py` resolves the effective lock from exactly three inputs — the v1.0 base lock, the dated amendment, and the protected hashes recorded inside it — and **fails closed**, emitting nothing, if an artifact is missing, a hash drifts, more than one amendment claims a field, an amended field is absent, an unamended field drifts, the authorization statement or date is missing, the authorizer role is misrepresented, F5 is marked closed, bootstrap settings activate, CR3 is selected, CR1 becomes primary, package versions drift, the R/Python roles reverse, sector pooling reads outcomes, a ticker cap appears, alpha or sidedness changes, or n = 60 is called empirically powered. The proposed v1.1 takes no part in resolution. A machine-readable `GST_HYP01_EFFECTIVE_LOCK_REPORT_v1.0.json` is generated solely from the base lock and the amendment.
+
+**No analysis runner was created or executed.** This freezes methodology; it analyzes nothing.
+
+Tests: `test_market_response_hyp01_dated_amendment.py` (**187 assertions**), including **25 mutation tests** that independently corrupt each critical decision plus five structural corruptions — a missing decision, a hash drift, two competing amendments, unamended base-lock drift — and require the resolver to refuse every one. One mutation found a real gap: `package_version` could drift on its own because only the `locked_packages` map was checked. The resolver was strengthened.
+
+Added the amendment JSON and companion, the authorization record, the effective-lock resolver and report, and the test file. Protected artifacts, DELL and all research state unchanged.
+
+
 ## 2026-08-12 — CR2 now has an independent R reference: 13 of 13 fixtures agree at the noise floor
 
 **Independent synthetic implementation validation only. No statistical method is approved, no lock is activated, and F5 remains OPEN.** `GST_HYP01_ANALYSIS_LOCK_v1.0` stays operative, the proposed v1.1 stays non-authoritative, every authorizer field stays `PENDING`, no signoff is completed and no dated amendment is created. DELL and every research artifact are byte-identical.

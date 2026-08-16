@@ -1,0 +1,108 @@
+{
+ "amended_fields": [
+  "primary_model.covariance.estimator_family",
+  "primary_model.covariance.finite_sample_correction_procedure",
+  "primary_model.degrees_of_freedom_rule",
+  "primary_model.refusal_rules",
+  "primary_model.reporting_requirements",
+  "environment_freeze.fields.language_version",
+  "environment_freeze.fields.statistics_package",
+  "environment_freeze.fields.statistics_package_version",
+  "environment_freeze.fields.cluster_covariance_option_string",
+  "environment_freeze.fields.finite_sample_correction_option",
+  "environment_freeze.fields.random_seed_if_any",
+  "adjusted_sensitivity_model.sector_encoding",
+  "adjusted_sensitivity_model.sparse_sector_pooling",
+  "remaining_pending_decisions[exact statistics package and version]",
+  "remaining_pending_decisions[sector fixed-effect encoding]"
+ ],
+ "artifact": "GST HYP-01 effective statistical lock (resolved)",
+ "authoritative_calculation": {
+  "covariance_call": "vcovCR(fit, cluster = <ticker factor>, type = \"CR2\")",
+  "environment": "the exact locked package environment from PR #18",
+  "inference_call": "coef_test(fit, vcov = <CR2>, test = \"Satterthwaite\")",
+  "language": "R",
+  "language_version": "4.6.1",
+  "locked_packages": {
+   "cli": "3.6.6",
+   "clubSandwich": "0.7.0",
+   "digest": "0.6.39",
+   "glue": "1.8.1",
+   "jsonlite": "2.0.0",
+   "lattice": "0.22-9",
+   "lifecycle": "1.0.5",
+   "rlang": "1.3.0",
+   "sandwich": "3.1-3",
+   "zoo": "1.9-0"
+  },
+  "package": "clubSandwich",
+  "package_version": "0.7.0"
+ },
+ "authorization": {
+  "authorization_date_basis": "user-declared UTC calendar date",
+  "authorization_declared_date": "2026-08-16",
+  "authorizer_role": "Project authorizer / repository owner",
+  "externally_peer_reviewed": false,
+  "recorded_at_utc": "2026-08-16T03:57:18Z",
+  "statement_verbatim": "I authorize the recommended D1–D16 methodological package as specified on August 16, 2026."
+ },
+ "effective_decisions": {
+  "D1": "CR2_BIAS_REDUCED_LINEARIZATION",
+  "D10": "REPORT_WITHOUT_THRESHOLD",
+  "D11": "R_4.6.1_CLUBSANDWICH_OFFICIAL_PYTHON_CROSS_CHECK",
+  "D12": "TREATMENT_REFERENCE_CODING",
+  "D13": "POOL_BELOW_THRESHOLD_INTO_OTHER",
+  "D14": "NO_CAP",
+  "D15": "NO_ADJUSTMENT_FOR_THE_SINGLE_LOCKED_PRIMARY_TEST",
+  "D16": "NO_PROJECT_DERIVED_POWER_CLAIM",
+  "D2": "BRL_ADJUSTMENT_BUILT_INTO_CLUBSANDWICH_CR2",
+  "D3": "COEFFICIENT_SPECIFIC_SATTERTHWAITE",
+  "D4": "NOT_USED_IN_HYP01",
+  "D5": "NOT_APPLICABLE",
+  "D6": "NOT_APPLICABLE",
+  "D7": "NOT_APPLICABLE",
+  "D8": "RETAIN_SINGLETON_TICKER_CLUSTERS",
+  "D9": "REFUSE_AND_ABORT"
+ },
+ "effective_state": {
+  "analysis_run": false,
+  "external_preregistration": "NOT_PERFORMED",
+  "f5_construct_validity": "OPEN",
+  "implementation": "VALIDATED",
+  "implementation_validation_is_not_scientific_proof": true,
+  "prospective_collection": "BLOCKED",
+  "scientific_result": null,
+  "statistical_package": "AUTHORIZED"
+ },
+ "generated_from": {
+  "amendment": "GST_HYP01_ANALYSIS_LOCK_AMENDMENT_2026-08-16.json",
+  "amendment_sha256_lf": "11b4df9a6e3321584a617fb2134afae431ac2c84ced193f85279b5bee70b54bd",
+  "base_lock": "GST_HYP01_ANALYSIS_LOCK_v1.0.json",
+  "base_lock_sha256_lf": "85264e9786e42180547a22f320da7384b4a54d1e45c777e40b2f596a982b3805",
+  "inputs_note": "Resolved solely from the base lock and the dated amendment. No other artifact contributes a rule.",
+  "proposed_v1_1_excluded": true
+ },
+ "python_role": "INDEPENDENT_IMPLEMENTATION_CROSS_CHECK",
+ "refusal_thresholds": {
+  "degenerate_fit_relative_rss_min": 1e-18,
+  "min_clusters_for_any_output": 2,
+  "nonfinite_any": "any non-finite value in the design matrix or outcome",
+  "rank_condition_number_max": 10000000000.0,
+  "zero_variance_column_std_min": 1e-12
+ },
+ "schema": "GST_HYP01_EFFECTIVE_LOCK_REPORT_v1",
+ "unamended_base_lock_invariants": {
+  "freeze_and_display.run_count": 1,
+  "freeze_and_display.threshold": 60,
+  "missingness_and_exclusions.imputation": "prohibited",
+  "missingness_and_exclusions.zero_fill": "prohibited",
+  "primary_model.alpha": 0.05,
+  "primary_model.coefficient_of_interest": "gst_zscore",
+  "primary_model.covariance.cluster_variable": "ticker",
+  "primary_model.estimator": "ordinary_least_squares",
+  "primary_model.formula": "abs_overnight_gap ~ gst_zscore",
+  "primary_model.null_hypothesis": "beta_gst = 0",
+  "primary_model.sidedness": "two_sided"
+ },
+ "violations": []
+}
