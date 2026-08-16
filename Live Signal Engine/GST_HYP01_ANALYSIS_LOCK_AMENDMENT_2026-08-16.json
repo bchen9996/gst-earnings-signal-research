@@ -1,0 +1,396 @@
+{
+ "amendment_id": "GST_HYP01_ANALYSIS_LOCK_AMENDMENT_2026-08-16",
+ "amendment_version": "1.0",
+ "amends": {
+  "fields_amended": [
+   "primary_model.covariance.estimator_family",
+   "primary_model.covariance.finite_sample_correction_procedure",
+   "primary_model.degrees_of_freedom_rule",
+   "primary_model.refusal_rules",
+   "primary_model.reporting_requirements",
+   "environment_freeze.fields.language_version",
+   "environment_freeze.fields.statistics_package",
+   "environment_freeze.fields.statistics_package_version",
+   "environment_freeze.fields.cluster_covariance_option_string",
+   "environment_freeze.fields.finite_sample_correction_option",
+   "environment_freeze.fields.random_seed_if_any",
+   "adjusted_sensitivity_model.sector_encoding",
+   "adjusted_sensitivity_model.sparse_sector_pooling",
+   "remaining_pending_decisions[exact statistics package and version]",
+   "remaining_pending_decisions[sector fixed-effect encoding]"
+  ],
+  "fields_explicitly_unamended": [
+   "primary_model.formula",
+   "primary_model.estimator",
+   "primary_model.coefficient_of_interest",
+   "primary_model.null_hypothesis",
+   "primary_model.sidedness",
+   "primary_model.alpha",
+   "primary_model.covariates",
+   "primary_model.covariate_rule",
+   "primary_outcome",
+   "predictor",
+   "sample",
+   "missingness_and_exclusions",
+   "freeze_and_display",
+   "eligibility_and_freeze_rules",
+   "results",
+   "frozen_event_ids",
+   "eligible_events_now",
+   "cohort_protocol",
+   "hypothesis_registry"
+  ],
+  "target_lock": "GST_HYP01_ANALYSIS_LOCK_v1.0.json",
+  "unamended_fields_remain_operative_verbatim": true
+ },
+ "analysis_executed_by_this_amendment": false,
+ "analysis_runner_created_by_this_amendment": false,
+ "append_only": true,
+ "artifact": "GST HYP-01 Analysis Lock — dated statistical-method amendment",
+ "authorization": {
+  "authorization_date_basis": "user-declared UTC calendar date",
+  "authorization_declared_date": "2026-08-16",
+  "authorizer_is_independent_statistician": false,
+  "authorizer_is_methodologist": false,
+  "authorizer_role": "Project authorizer / repository owner",
+  "commit_timestamp_is_authoritative_for_entry_into_history": "The git commit and push timestamps of this file record when the amendment entered version control. They are preserved by git and are deliberately not restated here.",
+  "declared_date_is_not_a_local_civil_date": "The declared date is a UTC calendar date supplied by the authorizer. This artifact does not assert that the authorization occurred on 2026-08-16 in America/Chicago or in any other local timezone.",
+  "external_methodological_review_performed": false,
+  "external_peer_review_performed": false,
+  "handwritten_signature_captured": false,
+  "institutional_approval_obtained": false,
+  "recorded_at_utc": "2026-08-16T03:57:18Z",
+  "recording_timestamp_is_distinct_from_declared_date": true,
+  "reviewer_identity_recorded": null,
+  "scope": "HYP-01 statistical rules D1–D16 only",
+  "statement_verbatim": "I authorize the recommended D1–D16 methodological package as specified on August 16, 2026."
+ },
+ "decisions": {
+  "D1": {
+   "authoritative_implementation": {
+    "call": "vcovCR(fit, cluster = <ticker factor>, type = \"CR2\")",
+    "language": "R",
+    "language_version": "4.6.1",
+    "package": "clubSandwich",
+    "package_version": "0.7.0"
+   },
+   "note": "The study-written Python CR2 is a validated cross-check. The official confirmatory number is produced by the pinned R reference path.",
+   "python_role": "VALIDATED_CROSS_CHECK_NOT_AUTHORITATIVE",
+   "selected": "CR2_BIAS_REDUCED_LINEARIZATION",
+   "title": "Primary covariance estimator"
+  },
+  "D10": {
+   "always_report": [
+    "number of eligible events",
+    "number of ticker clusters",
+    "cluster-size distribution",
+    "singleton count",
+    "realized Satterthwaite degrees of freedom"
+   ],
+   "future_threshold_rule": "Any future cluster-count or effective-df threshold requires a NEW dated amendment authored without outcome inspection.",
+   "invented_cutoff_imposed": false,
+   "minimum_cluster_cutoff": null,
+   "minimum_effective_df_cutoff": null,
+   "selected": "REPORT_WITHOUT_THRESHOLD",
+   "suppress_primary_on_post_hoc_threshold": false,
+   "title": "Cluster-count and effective-df policy"
+  },
+  "D11": {
+   "discrepancy_rule": {
+    "averaging_permitted": false,
+    "manual_reconciliation_permitted": false,
+    "on_mismatch": "STOP_RELEASE_AND_PRODUCE_DISCREPANCY_REPORT",
+    "selecting_preferred_output_permitted": false
+   },
+   "freeze_at_event_60": [
+    "exact analysis-script Git SHA",
+    "exact R version",
+    "exact package lockfile",
+    "exact package versions",
+    "operating system and architecture",
+    "fixture-validation artifact hash",
+    "analysis input manifest",
+    "eligible event IDs"
+   ],
+   "official_confirmatory_calculation": {
+    "covariance_call": "vcovCR(fit, cluster = <ticker factor>, type = \"CR2\")",
+    "environment": "the exact locked package environment from PR #18",
+    "inference_call": "coef_test(fit, vcov = <CR2>, test = \"Satterthwaite\")",
+    "language": "R",
+    "language_version": "4.6.1",
+    "locked_packages": {
+     "cli": "3.6.6",
+     "clubSandwich": "0.7.0",
+     "digest": "0.6.39",
+     "glue": "1.8.1",
+     "jsonlite": "2.0.0",
+     "lattice": "0.22-9",
+     "lifecycle": "1.0.5",
+     "rlang": "1.3.0",
+     "sandwich": "3.1-3",
+     "zoo": "1.9-0"
+    },
+    "package": "clubSandwich",
+    "package_version": "0.7.0"
+   },
+   "python_bridge": "tools/hyp01_r_reference/ (the PR #18 validated bridge)",
+   "python_role": "INDEPENDENT_IMPLEMENTATION_CROSS_CHECK",
+   "roles_may_not_be_reversed": true,
+   "selected": "R_4.6.1_CLUBSANDWICH_OFFICIAL_PYTHON_CROSS_CHECK",
+   "title": "Language, package and version"
+  },
+  "D12": {
+   "applies_to": "the locked secondary adjusted model ONLY",
+   "applies_to_primary_model": false,
+   "existing_lock_override": "If an existing lock already specifies a different reference rule, that rule governs; this amendment does not silently override it.",
+   "reference_recorded_before_fitting": true,
+   "reference_selection_after_examining_coefficients_prohibited": true,
+   "reference_selection_is_deterministic": true,
+   "reference_selection_may_use_outcomes": false,
+   "reference_selection_rule": "lexicographically first among represented non-OTHER sectors",
+   "selected": "TREATMENT_REFERENCE_CODING",
+   "title": "Sector fixed-effect encoding"
+  },
+  "D13": {
+   "applies_to": "the secondary sector-adjusted model ONLY",
+   "applies_to_primary_model": false,
+   "persisted_mapping": "exact original-sector -> final-category mapping",
+   "pooling_determined_from": "eligible-event counts only",
+   "pooling_map_computed_once_from_frozen_60_event_cohort": true,
+   "pooling_map_persisted": true,
+   "pooling_may_read_outcomes": false,
+   "pooling_threshold_eligible_events": 3,
+   "primary_unadjusted_model_altered": false,
+   "rank_deficient_fallback": "If the pooled secondary design remains rank deficient, REFUSE the secondary model and report why. Do not alter the pooling threshold.",
+   "selected": "POOL_BELOW_THRESHOLD_INTO_OTHER",
+   "threshold_established_by_pr18": false,
+   "threshold_is_authorizer_selected_governance_rule": true,
+   "threshold_note": "The threshold of 3 is an authorizer-selected governance rule. PR #18 established nothing about sector pooling and provides no support for this or any other threshold.",
+   "ticker_clusters_pooled_or_removed_or_altered": false,
+   "title": "Sparse sectors"
+  },
+  "D14": {
+   "all_eligible_events_among_first_60_retained": true,
+   "cap_value": null,
+   "repeated_ticker_handling": "ticker-clustered inference, not selective deletion",
+   "selected": "NO_CAP",
+   "selective_deletion_permitted": false,
+   "title": "Per-ticker cap"
+  },
+  "D15": {
+   "analyses_requiring_own_labels": [
+    "secondary",
+    "sensitivity",
+    "descriptive",
+    "HYP-02",
+    "HYP-03",
+    "strategy",
+    "product"
+   ],
+   "confirmatory_secondary_requires_own_preregistration": true,
+   "protected_family": {
+    "alpha": 0.05,
+    "primary_coefficient_tests": 1,
+    "primary_outcomes": 1,
+    "primary_predictors": 1,
+    "sidedness": "two_sided"
+   },
+   "secondary_may_reinterpret_or_replace_primary": false,
+   "selected": "NO_ADJUSTMENT_FOR_THE_SINGLE_LOCKED_PRIMARY_TEST",
+   "title": "Multiplicity"
+  },
+  "D16": {
+   "future_power_analysis_rule": "Any future power analysis must be anchored to citable EXTERNAL effect sizes and requires a NEW dated amendment authored before outcome inspection.",
+   "n_events": 60,
+   "n_events_characterization": "GOVERNANCE_FLOOR_NOT_A_DEMONSTRATED_POWER_TARGET",
+   "prospective_outcomes_used": false,
+   "retrospective_reconstruction_effects_used": false,
+   "sample_target_revised_after_examining_results": false,
+   "selected": "NO_PROJECT_DERIVED_POWER_CLAIM",
+   "study_is_adequately_powered_claim": false,
+   "title": "Design-sensitivity policy"
+  },
+  "D2": {
+   "additional_cr1_scaling_applied": false,
+   "note": "Exactly one correction. CR1 scaling must not be applied on top of CR2.",
+   "second_correction_applied": false,
+   "selected": "BRL_ADJUSTMENT_BUILT_INTO_CLUBSANDWICH_CR2",
+   "title": "Finite-sample correction"
+  },
+  "D3": {
+   "call": "coef_test(fit, vcov = <CR2>, test = \"Satterthwaite\")",
+   "provenance_qualification": "Implementation agreement for the continuous Satterthwaite df was established under a tolerance prespecified in PR #18. That tolerance was NOT preregistered in PR #17, whose df rule is exact integer equality for CR1's integer G-1.",
+   "realized_df_persisted_and_reported": true,
+   "selected": "COEFFICIENT_SPECIFIC_SATTERTHWAITE",
+   "title": "Degrees-of-freedom rule"
+  },
+  "D4": {
+   "is_primary": false,
+   "is_sensitivity": false,
+   "may_overturn_primary": false,
+   "note": "The wild cluster bootstrap-t plays no role in HYP-01.",
+   "selected": "NOT_USED_IN_HYP01",
+   "title": "Wild bootstrap role"
+  },
+  "D5": {
+   "placeholder_retained": false,
+   "selected": "NOT_APPLICABLE",
+   "title": "Bootstrap weights"
+  },
+  "D6": {
+   "placeholder_retained": false,
+   "selected": "NOT_APPLICABLE",
+   "title": "Bootstrap repetitions"
+  },
+  "D7": {
+   "placeholder_retained": false,
+   "selected": "NOT_APPLICABLE",
+   "title": "Bootstrap seed"
+  },
+  "D8": {
+   "always_report": [
+    "total cluster count",
+    "number of singleton clusters",
+    "identities of singleton cluster labels only where the blinded analysis protocol permits",
+    "effective Satterthwaite degrees of freedom"
+   ],
+   "numerical_guard": "D9 refusal rules apply unchanged",
+   "selected": "RETAIN_SINGLETON_TICKER_CLUSTERS",
+   "singleton_presence_is_an_exclusion_rule": false,
+   "title": "Singleton clusters"
+  },
+  "D9": {
+   "abort_without_confirmatory_p_value": true,
+   "min_clusters_note": "min_clusters_for_any_output is an ARITHMETIC floor inherited verbatim from the runner. It is not an eligibility rule and not a minimum-cluster policy; see D10, which imposes no cluster cutoff.",
+   "outcome_taxonomy": {
+    "ANALYSIS_REFUSAL": "a guard fired; no confirmatory p-value is produced",
+    "DATA_QUALITY_FAILURE": "inputs failed capture or completeness rules",
+    "NULL_RESULT": "the analysis ran and did not reject the null",
+    "SOFTWARE_FAILURE": "the toolchain failed to execute"
+   },
+   "refusal_is_not_a_null_result": true,
+   "selected": "REFUSE_AND_ABORT",
+   "thresholds_are_newly_invented": false,
+   "thresholds_source": {
+    "path": "tools/hyp01_inference_feasibility.py",
+    "rationale": "These thresholds were prespecified in the PR #17 feasibility runner before the corrected rerun and are adopted verbatim. No new numerical threshold is introduced by this amendment.",
+    "sha256_lf": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6",
+    "symbol": "REFUSAL"
+   },
+   "thresholds_verbatim": {
+    "degenerate_fit_relative_rss_min": 1e-18,
+    "min_clusters_for_any_output": 2,
+    "nonfinite_any": "any non-finite value in the design matrix or outcome",
+    "rank_condition_number_max": 10000000000.0,
+    "zero_variance_column_std_min": 1e-12
+   },
+   "title": "Invalid or degenerate fits",
+   "trigger_conditions": [
+    "non-finite or missing required value",
+    "rank-deficient design",
+    "zero-variance primary predictor",
+    "condition number exceeding the prespecified guard",
+    "residual variance below the prespecified relative noise-floor guard",
+    "undefined or non-finite covariance",
+    "nonpositive or non-finite standard error",
+    "nonpositive or non-finite Satterthwaite degrees of freedom",
+    "reference-package warning or error classified as fatal by this rule"
+   ]
+  },
+  "bootstrap_reactivation_rule": "No bootstrap setting is retained in an activatable state. Introducing any bootstrap role into HYP-01 requires a NEW dated amendment."
+ },
+ "effective_lock_resolution": {
+  "competing_amendment_policy": "FAIL_CLOSED",
+  "precedence": "base lock v1.0 < dated amendment (this file)",
+  "procedure": [
+   "1. Load GST_HYP01_ANALYSIS_LOCK_v1.0.json as the base lock.",
+   "2. Verify every artifact hash recorded under evidence_referenced.",
+   "3. Load every GST_HYP01_ANALYSIS_LOCK_AMENDMENT_*.json present.",
+   "4. Fail closed if more than one amendment claims authority over the same field.",
+   "5. Apply this amendment's `decisions` as an overlay onto the base lock.",
+   "6. Every base-lock field not listed in amends.fields_amended remains operative verbatim.",
+   "7. Emit the effective-lock report; refuse to emit if any check fails."
+  ],
+  "proposed_v1_1_participates_in_resolution": false,
+  "report": "Live Signal Engine/GST_HYP01_EFFECTIVE_LOCK_REPORT_v1.0.json",
+  "resolver": "tools/hyp01_effective_lock/resolve_effective_lock.py"
+ },
+ "epistemic_status": {
+  "external_preregistration_note": "Completing this internal lock does NOT make the study externally preregistered. External preregistration requires actual submission to an external timestamped registry, which has not occurred.",
+  "external_preregistration_performed": false,
+  "implementation_validation_is_not_scientific_proof": "PR #18 established that the study's CR2/Satterthwaite code computes what clubSandwich computes on a synthetic fixture matrix. That is implementation agreement. It is not evidence that CR2 is the scientifically correct or optimal estimator for HYP-01, and it is not a result about the world.",
+  "no_prospective_outcome_existed_or_was_inspected": true,
+  "outcome_inspection_statement": "At the moment this package was authorized, zero HYP-01-eligible prospective observations existed: results are null, frozen_event_ids is empty and eligible_events_now is 0. No effect estimate, direction, p-value, interim result or plot existed to inspect, and none was inspected.",
+  "split_tolerance_provenance": {
+   "continuous_df_preregistered_in_pr17": false,
+   "continuous_satterthwaite_df": "validated under a separately prespecified PR #18 tolerance that was NOT preregistered in PR #17",
+   "covariance_se_t_p": "validated under the PR #17 preregistered tolerances"
+  }
+ },
+ "evidence_referenced": {
+  "base_lock_v1_0": {
+   "path": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0.json",
+   "sha256_lf": "85264e9786e42180547a22f320da7384b4a54d1e45c777e40b2f596a982b3805"
+  },
+  "base_lock_v1_0_companion": {
+   "path": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.0_DRAFT.md",
+   "sha256_lf": "411371d79770da5d2cb3f003a778cde749f19d29e184ff2e9c872b44e1b99906"
+  },
+  "feasibility_runner": {
+   "path": "tools/hyp01_inference_feasibility.py",
+   "sha256_lf": "1537a25a96295b92e3e01128c47241ced3f3792beb93b45ac9034ba0c60f45c6"
+  },
+  "pr17_feasibility_inventory": {
+   "path": "Live Signal Engine/GST_HYP01_INFERENCE_IMPLEMENTATION_INVENTORY_v1.0.json",
+   "sha256_lf": "21426f103114e9842dc4affc90ebe41ea1dab3e4c915920579b2635d42bfeb9d"
+  },
+  "pr17_feasibility_report": {
+   "path": "Live Signal Engine/GST_HYP01_SYNTHETIC_VALIDATION_REPORT_v1.0_DRAFT.md",
+   "sha256_lf": "7e98652143565987c3de9a5b8f1beb97fe4ec073f883ba3858bbfb3757a7632e"
+  },
+  "pr18_r_reference_report": {
+   "path": "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_REPORT_v1.0_DRAFT.md",
+   "sha256_lf": "4ebbcd6577155fab2897f8c68952142ab2a1396ac2fdbd736ad5ae00ae24c687"
+  },
+  "pr18_r_reference_validation": {
+   "path": "Live Signal Engine/GST_HYP01_R_REFERENCE_VALIDATION_v1.0.json",
+   "sha256_lf": "abe16d336a3a5a6cbcbfb8de1fc570497af2153692f97713a2f1a0ad339cb461"
+  },
+  "proposed_v1_1": {
+   "path": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.1_PROPOSED.json",
+   "sha256_lf": "132a632b0d45d450d0f320c82fbb4af4affd59a98786ca8c603051931b92195e"
+  },
+  "proposed_v1_1_companion": {
+   "path": "Live Signal Engine/GST_HYP01_ANALYSIS_LOCK_v1.1_PROPOSED_DRAFT.md",
+   "sha256_lf": "b62203c21d52eb48058e5e6cba29306ecb06f8e28455b35bf743debdc0921fc6"
+  },
+  "r_package_lockfile": {
+   "path": "tools/hyp01_r_reference/r-packages.lock.json",
+   "sha256_lf": "a924552b59d840e32fded277844b42655cb63accdf296ae9817abf235920af73"
+  },
+  "signoff_template_unmodified": {
+   "path": "Live Signal Engine/GST_HYP01_STATISTICAL_METHOD_SIGNOFF_v1.0_TEMPLATE.md",
+   "sha256_lf": "7eef69e81e4764ed19534762d0f3031d3ac2a50c30adc363447d99e38fe69320"
+  }
+ },
+ "gates": {
+  "analysis_run": false,
+  "collection_unblock_conditions": [
+   "F5 construct validity resolved and recorded",
+   "every other pre-observation gate in the cohort protocol and eligibility rules satisfied",
+   "the event-60 environment freeze recorded per D11"
+  ],
+  "f5_closed_by_this_amendment": false,
+  "f5_construct_validity": "OPEN",
+  "implementation_validated": true,
+  "production_eligibility": "AUTHORIZED_FOR_HYP01_CONFIRMATORY_USE_ONCE_ALL_GATES_PASS",
+  "prospective_collection": "BLOCKED",
+  "scientific_result": null,
+  "statistical_package_authorized": true
+ },
+ "proposed_v1_1_is_authoritative": false,
+ "proposed_v1_1_status_note": "GST_HYP01_ANALYSIS_LOCK_v1.1_PROPOSED.json remains a PROPOSAL and is NOT authoritative. It is referenced here only as an input the authorizer considered. This dated amendment — not that file — is the authoritative statistical-rule overlay once merged.",
+ "schema": "GST_HYP01_DATED_LOCK_AMENDMENT_v1",
+ "status": "AUTHORIZED_BY_PROJECT_AUTHORIZER",
+ "supersedes_nothing_by_deletion": "This amendment adds an overlay. It does not rewrite, delete, rename or activate any prior artifact. v1.0 remains the base lock and every rule it states that is not listed under `amends` remains operative verbatim."
+}
