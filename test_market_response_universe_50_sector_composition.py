@@ -50,6 +50,17 @@ PROPOSAL = U / "GST_PROSPECTIVE_UNIVERSE_EXPANSION_50_v1.0_PROPOSED.json"
 CONSTANTS = ROOT / "gst_market_response" / "constants.py"
 REGISTRY = LS / "Market_Response_Event_Registry" / "registry.jsonl"
 
+SOURCES = D / "sources"
+IDENTITY = SOURCES / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json"
+FF12_SRC = SOURCES / "FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt"
+FF12_NORM = SOURCES / "FF12_SIC_INTERVALS_NORMALIZED_2026-08-16.json"
+PROVENANCE = SOURCES / "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json"
+OEF_SNAPSHOT = U / "GST_OEF_IDENTITY_SNAPSHOT_2026-08-13.json"
+
+# The proxy denominator is the ECONOMIC ISSUER, keyed by SEC CIK.
+OEF_GROUP = "OEF_UNIQUE_ISSUER_PROXY_POOL"
+OEF_KEY = "oef_unique_issuer_proxy_pool"
+
 RULE_SHA = "5ce6a0f01ce7dec84bcf755ee655c4b938165859cdb495a6ff9c37c5021b4dab"
 
 PROTECTED = {
@@ -114,7 +125,7 @@ def test_1_universe_not_altered() -> None:
 # ---------------------------------------------------------------- 2. classification provenance
 def test_2_every_record_tied_to_official_sic() -> None:
     bad_sic, bad_cik, bad_url = [], [], []
-    for r in R["proposed_final_50"] + R["oef_eligible_proxy_pool"]:
+    for r in R["proposed_final_50"] + R[OEF_KEY]:
         if r["classification_status"] == "CLASSIFIED":
             if not isinstance(r["sec_sic"], int):
                 bad_sic.append(r["canonical_ticker"])
@@ -139,7 +150,7 @@ def test_2_every_record_tied_to_official_sic() -> None:
 def test_3_ff12_derived_from_frozen_intervals() -> None:
     ff = {"categories": A["ff12_definitions"]}
     bad = []
-    for r in R["proposed_final_50"] + R["oef_eligible_proxy_pool"]:
+    for r in R["proposed_final_50"] + R[OEF_KEY]:
         got = SEC.ff12_for_sic(r["sec_sic"], ff)
         if (got["category_abbr"] != r["ff12_category_abbr"]
                 or got["status"] != r["classification_status"]):
@@ -215,7 +226,7 @@ def _recompute(records):
 def test_6_metrics_recompute() -> None:
     for g, key in (("LEGACY_24", "legacy_24"), ("PROPOSED_ADDITIONS_26", "proposed_additions_26"),
                    ("PROPOSED_FINAL_50", "proposed_final_50"),
-                   ("OEF_ELIGIBLE_PROXY_POOL", "oef_eligible_proxy_pool")):
+                   (OEF_GROUP, OEF_KEY)):
         counts, shares, n = _recompute(R[key])
         m = M[g]
         check(f"6a. {g}: counts tie to records", dict(sorted(counts.items())) == m["counts"])
@@ -252,7 +263,7 @@ def test_6_metrics_recompute() -> None:
 # ---------------------------------------------------------------- 7. comparison + sensitivity
 def test_7_comparison_and_sensitivity_recompute() -> None:
     f = M["PROPOSED_FINAL_50"]["percentages"]
-    o = M["OEF_ELIGIBLE_PROXY_POOL"]["percentages"]
+    o = M[OEF_GROUP]["percentages"]
     diff = A["final50_vs_oef_percentage_point_difference"]
     bad = [c for c in set(f) | set(o) if abs((f.get(c, 0.0) - o.get(c, 0.0)) - diff.get(c, 0.0)) > 1e-6]
     check(f"7a. FINAL_50 vs OEF differences recompute (bad={bad})", not bad)
@@ -377,6 +388,313 @@ def test_12_offline_and_no_outcome_data() -> None:
         check("12c. network blocked", type(e).__name__ == "NetworkBlocked")
 
 
+# ---------------------------------------------------------------- 13. issuer denominator
+def test_13_issuer_level_denominator() -> None:
+    dn = A["denominators"]
+    ig = A["issuer_level_grouping"]
+    oef = R[OEF_KEY]
+    snap = json.loads(OEF_SNAPSHOT.read_text(encoding="utf-8"))
+    alias = P["frozen_ticker_aliases"]
+
+    # ---- recompute the grouping from the committed identity snapshot ----
+    ident = {s["canonical_ticker"]: s for s in
+             json.loads(IDENTITY.read_text(encoding="utf-8"))["securities"]}
+    groups: dict[int, set] = {}
+    n_src = 0
+    for row in snap["rows"]:
+        if row["asset_class"] != "Equity":
+            continue
+        n_src += 1
+        raw = row["source_ticker"].strip().upper().replace(".", "-")
+        t = alias.get(raw, raw)
+        groups.setdefault(ident[t]["cik"], set()).add(t)
+
+    check(f"13a. OEF source equity securities recompute ({n_src})",
+          dn["oef_source_equity_securities"] == n_src)
+    check(f"13b. OEF unique issuers recompute ({len(groups)}) and are NOT the security count",
+          dn["oef_unique_issuers"] == len(groups) == len(oef) < n_src)
+    check("13c. every OEF record is one CIK, appearing exactly once",
+          len({r["cik"] for r in oef}) == len(oef))
+    check("13d. issuer key is the official SEC CIK", ig["issuer_key"] == "official SEC CIK")
+
+    # ---- duplicate tickers sharing one CIK count once; GOOG+GOOGL in one group ----
+    alpha = [r for r in oef if "GOOGL" in r["canonical_securities"]]
+    check("13e. GOOG and GOOGL fall in exactly one CIK group", len(alpha) == 1)
+    if alpha:
+        g = alpha[0]
+        check("13f. that group holds both share classes",
+              sorted(g["canonical_securities"]) == ["GOOG", "GOOGL"], str(g["canonical_securities"]))
+        check("13g. it contributes exactly one observation", g["n_source_securities"] == 2
+              and sum(1 for r in oef if r["cik"] == g["cik"]) == 1)
+        check("13h. source securities are preserved", sorted(g["source_securities"]) == ["GOOG", "GOOGL"])
+        check("13i. display ticker is the lexicographically smallest canonical ticker",
+              g["display_ticker"] == min(g["canonical_securities"]) == "GOOG")
+    check("13j. every record declares the display ticker affects no metric",
+          all(r["display_ticker_affects_metrics"] is False for r in oef)
+          and ig["display_ticker_affects_metrics"] is False)
+    # the display ticker must be cosmetic: renaming it must not move any metric
+    import copy as _copy
+    mutated = _copy.deepcopy(oef)
+    for r in mutated:
+        r["display_ticker"] = r["canonical_ticker"] = "ZZZZ"
+    ffdef = {"categories": A["ff12_definitions"]}
+    check("13k. renaming every display ticker changes no metric",
+          SEC.metrics(mutated, ffdef) == SEC.metrics(oef, ffdef))
+
+    # ---- alias applied before identity matching ----
+    check("13l. frozen alias applied before identity matching",
+          ig["alias_applied_before_identity_matching"] == alias and "BRKB" in alias)
+    check("13m. BRK-B resolves through the alias to one issuer",
+          any(r["canonical_ticker"] == "BRK-B" or "BRK-B" in r["canonical_securities"] for r in oef))
+
+    # ---- the final 50 is verified, not assumed ----
+    f50 = R["proposed_final_50"]
+    ciks = [r["cik"] for r in f50]
+    check("13n. the final 50 has 50 unique CIKs (verified from records)",
+          len(set(ciks)) == 50 == len(ciks) and None not in ciks)
+    check("13o. the audit reports that verification",
+          dn["proposed_final_50_unique_ciks"] == 50 and dn["proposed_final_50_securities"] == 50)
+
+    # ---- denominators are stated, not implied ----
+    union_sec = {r["canonical_ticker"] for r in f50} | {
+        t for r in oef for t in r["canonical_securities"]}
+    union_cik = {r["cik"] for r in f50} | {r["cik"] for r in oef}
+    check(f"13p. union unique canonical securities recompute ({len(union_sec)})",
+          dn["union_unique_canonical_securities"] == len(union_sec))
+    check(f"13q. union unique CIKs recompute ({len(union_cik)})",
+          dn["union_unique_ciks"] == len(union_cik))
+    check("13r. classification requests = final 50 + OEF issuers",
+          dn["classification_requests"] == len(f50) + len(oef))
+    check("13s. the security and issuer denominators are defined in the artifact",
+          "security" in dn["definitions"] and "issuer" in dn["definitions"]
+          and "CIK" in dn["definitions"]["issuer"])
+
+    # ---- labels say issuer, not security ----
+    check("13t. the metric group is named for unique issuers", OEF_GROUP in M
+          and "OEF_ELIGIBLE_PROXY_POOL" not in M)
+    check("13u. the records block is named for unique issuers", OEF_KEY in R
+          and "oef_eligible_proxy_pool" not in R)
+    ojson = json.loads(OEF_JSON.read_text(encoding="utf-8"))
+    check("13v. the OEF classification artifact declares the issuer denominator",
+          ojson["denominator_level"] == "ECONOMIC_ISSUER" and ojson["issuer_key"] == "official SEC CIK")
+    flat = " ".join(REPORT.read_text(encoding="utf-8").split())
+    check("13w. the report defines the 113 figure rather than asserting it bare",
+          "unique canonical securities across the union" in flat)
+    check("13x. the report states the issuer denominator for the proxy pool",
+          "unique issuers" in flat and "OEF issuer proxy pool" in flat)
+    check("13y. the frozen rule is unchanged by this correction",
+          A["frozen_rule"]["unchanged_by_this_correction"] is True and sha_lf(RULE) == RULE_SHA)
+
+
+# ---------------------------------------------------------------- 14. reproducible from committed sources
+def _tmp_sources(tmp: Path) -> Path:
+    """A writable copy of the committed sources directory."""
+    import shutil
+    dst = tmp / "sources"
+    shutil.copytree(SOURCES, dst)
+    return dst
+
+
+def _refuses(sources: Path, why: str) -> bool:
+    """build() must raise SystemExit and write nothing."""
+    try:
+        SEC.build(sources)
+    except SystemExit:
+        return True
+    except Exception:
+        return False
+    return False
+
+
+def _remanifest(sources: Path) -> None:
+    """Re-hash the manifest so a mutation is internally consistent (isolates the
+    check under test from the hash gate that would otherwise fire first)."""
+    prov = json.loads((sources / "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json").read_text(encoding="utf-8"))
+    for item in prov["inputs"]:
+        p = SEC.resolve_input(sources, item)
+        if p.is_file():
+            item["sha256_lf"] = sha_lf(p)
+    (sources / "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json").write_text(
+        json.dumps(prov, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+
+
+def test_14_sources_committed_and_fail_closed() -> None:
+    import subprocess
+    import tempfile
+
+    for p in (IDENTITY, FF12_SRC, FF12_NORM, PROVENANCE):
+        check(f"14a. committed source present: {p.name}", p.is_file())
+
+    prov = json.loads(PROVENANCE.read_text(encoding="utf-8"))
+    check("14b. manifest declares no network is needed",
+          prov["network_required_for_reproduction"] is False and prov["all_inputs_committed"] is True)
+    bad = [i["filename"] for i in prov["inputs"]
+           if not all(k in i for k in ("filename", "url", "retrieved_utc", "bytes", "sha256_lf"))]
+    check(f"14c. manifest records filename, URL, retrieval time, bytes and SHA-256 (bad={bad})", not bad)
+    mism = [i["filename"] for i in prov["inputs"]
+            if not (ROOT / i["repo_path"]).is_file() or sha_lf(ROOT / i["repo_path"]) != i["sha256_lf"]]
+    check(f"14d. every manifest hash matches the committed file (bad={mism})", not mism)
+
+    # ---- a clean git archive must contain every required input ----
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        tar = tmp / "clean.tar"
+        r = subprocess.run(["git", "archive", "--format=tar", "-o", str(tar), "HEAD"],
+                           cwd=ROOT, capture_output=True, text=True)
+        if r.returncode != 0:
+            check("14e. git archive export succeeded", False, r.stderr[:120])
+        else:
+            import tarfile
+            ex = tmp / "clean"
+            ex.mkdir()
+            with tarfile.open(tar) as tf:
+                names = set(tf.getnames())
+                tf.extractall(ex)
+            need = [i["repo_path"] for i in prov["inputs"]]
+            missing = [n for n in need if n not in names]
+            check(f"14e. clean archive contains every declared input (missing={missing})", not missing)
+            check("14f. clean archive contains the classifier and the frozen rule",
+                  "tools/sector_composition/classify_universe_sectors.py" in names
+                  and any(n.endswith("PRE_RETRIEVAL_SECTOR_COMPOSITION_AUDIT_RULE_2026-08-16.md")
+                          for n in names))
+            # ---- documented reproduction command, no external scratch dir, LF checkout ----
+            out = tmp / "repro"
+            rr = subprocess.run([sys.executable,
+                                 "tools/sector_composition/classify_universe_sectors.py",
+                                 "--out-dir", str(out)],
+                                cwd=ex, capture_output=True, text=True)
+            check("14g. documented reproduction command succeeds from a clean LF export",
+                  rr.returncode == 0, (rr.stderr or rr.stdout)[-200:])
+            produced = out / "GST_UNIVERSE_50_SECTOR_COMPOSITION_AUDIT_v1.0.json"
+            if produced.is_file():
+                check("14h. clean-export output is byte-identical to the committed audit",
+                      sha_lf(produced) == sha_lf(AUDIT))
+                for nm in ("GST_UNIVERSE_50_SECTOR_CLASSIFICATION_v1.0.csv",
+                           "GST_UNIVERSE_50_SECTOR_CLASSIFICATION_v1.0.json",
+                           "GST_OEF_PROXY_SECTOR_CLASSIFICATION_v1.0.json"):
+                    check(f"14h'. clean-export {nm} is byte-identical", sha_lf(out / nm) == sha_lf(D / nm))
+            else:
+                check("14h. clean-export output produced", False)
+            check("14i. the reproduction run did not touch the network",
+                  "NetworkBlocked" not in (rr.stderr or ""))
+
+    # ---- removing any source input refuses ----
+    for name in ("SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json",
+                 "FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt",
+                 "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json"):
+        with tempfile.TemporaryDirectory() as td:
+            s = _tmp_sources(Path(td))
+            (s / name).unlink()
+            check(f"14j. removing {name} refuses", _refuses(s, name))
+
+    # ---- changing any source hash refuses ----
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        prov2 = json.loads((s / "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json").read_text(encoding="utf-8"))
+        prov2["inputs"][0]["sha256_lf"] = "0" * 64
+        (s / "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0.json").write_text(
+            json.dumps(prov2, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+        check("14k. a falsified manifest hash refuses", _refuses(s, "hash"))
+
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        b = (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").read_text(encoding="utf-8")
+        (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").write_text(
+            b.replace('"sec_sic": 3571', '"sec_sic": 2911', 1), encoding="utf-8", newline="\n")
+        check("14l. editing a source without updating the manifest refuses", _refuses(s, "tamper"))
+
+    # ---- changing a CIK / SIC / FF interval changes the output detectably ----
+    ffdef = {"categories": A["ff12_definitions"]}
+    before = SEC.ff12_for_sic(3571, ffdef)["category_abbr"]
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        b = (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").read_text(encoding="utf-8")
+        (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").write_text(
+            b.replace('"sec_sic": 3571', '"sec_sic": 2911', 1), encoding="utf-8", newline="\n")
+        _remanifest(s)
+        try:
+            doc2 = SEC.build(s)
+            changed = doc2["metrics"]["PROPOSED_FINAL_50"]["counts"] != M["PROPOSED_FINAL_50"]["counts"]
+        except SystemExit:
+            changed = True
+        check("14m. changing a SIC changes the output detectably", changed)
+
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        b = (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").read_text(encoding="utf-8")
+        (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").write_text(
+            b.replace('"cik": 320193', '"cik": 999999999', 1), encoding="utf-8", newline="\n")
+        _remanifest(s)
+        try:
+            doc2 = SEC.build(s)
+            changed = [r["cik"] for r in doc2["records"]["proposed_final_50"]] != \
+                      [r["cik"] for r in R["proposed_final_50"]]
+        except SystemExit:
+            changed = True
+        check("14n. changing a CIK changes the output detectably", changed)
+
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        f = s / "FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt"
+        f.write_text(f.read_text(encoding="utf-8").replace("3570-3579", "3570-3570", 1),
+                     encoding="utf-8", newline="\n")
+        _remanifest(s)
+        try:
+            doc2 = SEC.build(s)
+            changed = doc2["metrics"]["PROPOSED_FINAL_50"]["counts"] != M["PROPOSED_FINAL_50"]["counts"]
+        except SystemExit:
+            changed = True
+        check("14o. changing an FF12 interval changes the output detectably", changed)
+
+    # ---- conflicting SIC / FF12 within one CIK is refused ----
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        ident = json.loads((s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").read_text(encoding="utf-8"))
+        for sec in ident["securities"]:
+            if sec["canonical_ticker"] == "GOOGL":
+                sec["sec_sic"] = 7371          # same FF12 category (BusEq), different SIC
+        (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").write_text(
+            json.dumps(ident, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+        _remanifest(s)
+        check("14p. one CIK with conflicting SICs is refused", _refuses(s, "sic conflict"))
+
+    with tempfile.TemporaryDirectory() as td:
+        s = _tmp_sources(Path(td))
+        ident = json.loads((s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").read_text(encoding="utf-8"))
+        for sec in ident["securities"]:
+            if sec["canonical_ticker"] == "GOOGL":
+                sec["sec_sic"] = 4813          # Telcm: different SIC AND different FF12
+        (s / "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json").write_text(
+            json.dumps(ident, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+        _remanifest(s)
+        check("14q. one CIK with conflicting FF12 results is refused", _refuses(s, "ff12 conflict"))
+    check("14q'. the SIC conflict gate fires before the FF12 gate, so both are reachable",
+          SEC.ff12_for_sic(7371, ffdef)["category_abbr"] == before
+          and SEC.ff12_for_sic(4813, ffdef)["category_abbr"] != before)
+
+    # ---- no prohibited input anywhere in the committed sources ----
+    # Scope to the DATA records: the document also carries declaration flags such as
+    # contains_market_capitalization / contains_earnings_values whose whole purpose is to
+    # assert those inputs are absent. Matching the full blob flags the disclaimer and
+    # proves nothing about the data.
+    ident_doc = json.loads(IDENTITY.read_text(encoding="utf-8"))
+    blob = json.dumps(ident_doc["securities"]).lower()
+    for f in ("market_value", "marketcap", "market_cap", "oef_weight", "weight",
+              "price", "return", "volume", "earnings", "revenue", "market cap"):
+        check(f"14r. identity records contain no {f}", f not in blob)
+    check("14r'. that matcher would catch a planted weight in a record",
+          "oef_weight" in json.dumps([{**ident_doc["securities"][0], "oef_weight": 1.0}]).lower())
+    for flag in ("contains_financial_statement_data", "contains_earnings_values",
+                 "contains_market_data", "contains_market_capitalization",
+                 "contains_prices_returns_or_volumes"):
+        check(f"14s. identity snapshot declares {flag} is False", ident_doc[flag] is False)
+    check("14t. manifest declares no prohibited inputs", prov["prohibited_inputs_present"] is False)
+    keys = {k for s in ident_doc["securities"] for k in s}
+    check(f"14u. identity records carry only identity/SIC fields",
+          not any(any(p in k.lower() for p in ("weight", "price", "value", "return", "volume",
+                                               "shares", "cap")) for k in keys), str(sorted(keys)))
+
+
 if __name__ == "__main__":
     test_1_universe_not_altered()
     test_2_every_record_tied_to_official_sic()
@@ -390,6 +708,8 @@ if __name__ == "__main__":
     test_10_review_template_pending()
     test_11_protected_state_unchanged()
     test_12_offline_and_no_outcome_data()
+    test_13_issuer_level_denominator()
+    test_14_sources_committed_and_fail_closed()
 
     print()
     if FAILURES:

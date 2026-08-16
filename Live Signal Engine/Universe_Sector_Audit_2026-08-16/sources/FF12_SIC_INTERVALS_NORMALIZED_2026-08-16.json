@@ -1,0 +1,351 @@
+{
+ "artifact": "FF12_SIC_INTERVALS_NORMALIZED_2026-08-16",
+ "categories": [
+  {
+   "abbr": "NoDur",
+   "code": 1,
+   "intervals": [
+    {
+     "hi": 999,
+     "label": "0100-0999",
+     "lo": 100
+    },
+    {
+     "hi": 2399,
+     "label": "2000-2399",
+     "lo": 2000
+    },
+    {
+     "hi": 2749,
+     "label": "2700-2749",
+     "lo": 2700
+    },
+    {
+     "hi": 2799,
+     "label": "2770-2799",
+     "lo": 2770
+    },
+    {
+     "hi": 3199,
+     "label": "3100-3199",
+     "lo": 3100
+    },
+    {
+     "hi": 3989,
+     "label": "3940-3989",
+     "lo": 3940
+    }
+   ],
+   "name": "Consumer Nondurables -- Food, Tobacco, Textiles, Apparel, Leather, Toys"
+  },
+  {
+   "abbr": "Durbl",
+   "code": 2,
+   "intervals": [
+    {
+     "hi": 2519,
+     "label": "2500-2519",
+     "lo": 2500
+    },
+    {
+     "hi": 2599,
+     "label": "2590-2599",
+     "lo": 2590
+    },
+    {
+     "hi": 3659,
+     "label": "3630-3659",
+     "lo": 3630
+    },
+    {
+     "hi": 3711,
+     "label": "3710-3711",
+     "lo": 3710
+    },
+    {
+     "hi": 3714,
+     "label": "3714-3714",
+     "lo": 3714
+    },
+    {
+     "hi": 3716,
+     "label": "3716-3716",
+     "lo": 3716
+    },
+    {
+     "hi": 3751,
+     "label": "3750-3751",
+     "lo": 3750
+    },
+    {
+     "hi": 3792,
+     "label": "3792-3792",
+     "lo": 3792
+    },
+    {
+     "hi": 3939,
+     "label": "3900-3939",
+     "lo": 3900
+    },
+    {
+     "hi": 3999,
+     "label": "3990-3999",
+     "lo": 3990
+    }
+   ],
+   "name": "Consumer Durables -- Cars, TVs, Furniture, Household Appliances"
+  },
+  {
+   "abbr": "Manuf",
+   "code": 3,
+   "intervals": [
+    {
+     "hi": 2589,
+     "label": "2520-2589",
+     "lo": 2520
+    },
+    {
+     "hi": 2699,
+     "label": "2600-2699",
+     "lo": 2600
+    },
+    {
+     "hi": 2769,
+     "label": "2750-2769",
+     "lo": 2750
+    },
+    {
+     "hi": 3099,
+     "label": "3000-3099",
+     "lo": 3000
+    },
+    {
+     "hi": 3569,
+     "label": "3200-3569",
+     "lo": 3200
+    },
+    {
+     "hi": 3629,
+     "label": "3580-3629",
+     "lo": 3580
+    },
+    {
+     "hi": 3709,
+     "label": "3700-3709",
+     "lo": 3700
+    },
+    {
+     "hi": 3713,
+     "label": "3712-3713",
+     "lo": 3712
+    },
+    {
+     "hi": 3715,
+     "label": "3715-3715",
+     "lo": 3715
+    },
+    {
+     "hi": 3749,
+     "label": "3717-3749",
+     "lo": 3717
+    },
+    {
+     "hi": 3791,
+     "label": "3752-3791",
+     "lo": 3752
+    },
+    {
+     "hi": 3799,
+     "label": "3793-3799",
+     "lo": 3793
+    },
+    {
+     "hi": 3839,
+     "label": "3830-3839",
+     "lo": 3830
+    },
+    {
+     "hi": 3899,
+     "label": "3860-3899",
+     "lo": 3860
+    }
+   ],
+   "name": "Manufacturing -- Machinery, Trucks, Planes, Off Furn, Paper, Com Printing"
+  },
+  {
+   "abbr": "Enrgy",
+   "code": 4,
+   "intervals": [
+    {
+     "hi": 1399,
+     "label": "1200-1399",
+     "lo": 1200
+    },
+    {
+     "hi": 2999,
+     "label": "2900-2999",
+     "lo": 2900
+    }
+   ],
+   "name": "Oil, Gas, and Coal Extraction and Products"
+  },
+  {
+   "abbr": "Chems",
+   "code": 5,
+   "intervals": [
+    {
+     "hi": 2829,
+     "label": "2800-2829",
+     "lo": 2800
+    },
+    {
+     "hi": 2899,
+     "label": "2840-2899",
+     "lo": 2840
+    }
+   ],
+   "name": "Chemicals and Allied Products"
+  },
+  {
+   "abbr": "BusEq",
+   "code": 6,
+   "intervals": [
+    {
+     "hi": 3579,
+     "label": "3570-3579",
+     "lo": 3570
+    },
+    {
+     "hi": 3692,
+     "label": "3660-3692",
+     "lo": 3660
+    },
+    {
+     "hi": 3699,
+     "label": "3694-3699",
+     "lo": 3694
+    },
+    {
+     "hi": 3829,
+     "label": "3810-3829",
+     "lo": 3810
+    },
+    {
+     "hi": 7379,
+     "label": "7370-7379",
+     "lo": 7370
+    }
+   ],
+   "name": "Business Equipment -- Computers, Software, and Electronic Equipment"
+  },
+  {
+   "abbr": "Telcm",
+   "code": 7,
+   "intervals": [
+    {
+     "hi": 4899,
+     "label": "4800-4899",
+     "lo": 4800
+    }
+   ],
+   "name": "Telephone and Television Transmission"
+  },
+  {
+   "abbr": "Utils",
+   "code": 8,
+   "intervals": [
+    {
+     "hi": 4949,
+     "label": "4900-4949",
+     "lo": 4900
+    }
+   ],
+   "name": "Utilities"
+  },
+  {
+   "abbr": "Shops",
+   "code": 9,
+   "intervals": [
+    {
+     "hi": 5999,
+     "label": "5000-5999",
+     "lo": 5000
+    },
+    {
+     "hi": 7299,
+     "label": "7200-7299",
+     "lo": 7200
+    },
+    {
+     "hi": 7699,
+     "label": "7600-7699",
+     "lo": 7600
+    }
+   ],
+   "name": "Wholesale, Retail, and Some Services (Laundries, Repair Shops)"
+  },
+  {
+   "abbr": "Hlth",
+   "code": 10,
+   "intervals": [
+    {
+     "hi": 2839,
+     "label": "2830-2839",
+     "lo": 2830
+    },
+    {
+     "hi": 3693,
+     "label": "3693-3693",
+     "lo": 3693
+    },
+    {
+     "hi": 3859,
+     "label": "3840-3859",
+     "lo": 3840
+    },
+    {
+     "hi": 8099,
+     "label": "8000-8099",
+     "lo": 8000
+    }
+   ],
+   "name": "Healthcare, Medical Equipment, and Drugs"
+  },
+  {
+   "abbr": "Money",
+   "code": 11,
+   "intervals": [
+    {
+     "hi": 6999,
+     "label": "6000-6999",
+     "lo": 6000
+    }
+   ],
+   "name": "Finance"
+  },
+  {
+   "abbr": "Other",
+   "code": 12,
+   "intervals": [],
+   "name": "Other -- Mines, Constr, BldMt, Trans, Hotels, Bus Serv, Entertainment"
+  }
+ ],
+ "derived_from": {
+  "definition_sha256_lf": "1299ee557c903e27a38b947edc39b15d64f58b3e5d6538d8a97c05395a4078d0",
+  "file": "FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt",
+  "original_definition_sha256": "55b51d1dc6939a570cd866824e9d49a9b16c0ad6247286b676aca25af8c78409",
+  "retrieved_utc": "2026-08-16T07:51:11Z",
+  "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/Siccodes12.zip",
+  "zip_sha256": "d801141acf039f2e06e6d4d9ba2b3992e9747a1d82fabd53ef21da4a3af79fff"
+ },
+ "extraction_procedure": [
+  "1. Download Siccodes12.zip from the canonical Kenneth R. French Data Library URL.",
+  "2. Verify zip_sha256.",
+  "3. Extract the single member Siccodes12.txt; verify original_definition_sha256.",
+  "4. Normalize CRLF to LF; this yields definition_sha256_lf.",
+  "5. A line matching '^<int> <abbr> <name>' opens a category; a line matching '^<4-digit>-<4-digit>' appends a closed SIC interval to the open category.",
+  "6. Category 12 (Other) carries no intervals and is the residual."
+ ],
+ "n_categories": 12,
+ "version": "1.0"
+}

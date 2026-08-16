@@ -1,0 +1,67 @@
+{
+ "all_inputs_committed": true,
+ "artifact": "GST_SECTOR_AUDIT_SOURCE_PROVENANCE_v1.0",
+ "inputs": [
+  {
+   "bytes": 64297,
+   "content_note": "SEC identity and SIC metadata only",
+   "filename": "SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json",
+   "repo_path": "Live Signal Engine/Universe_Sector_Audit_2026-08-16/sources/SEC_SIC_IDENTITY_SNAPSHOT_2026-08-16.json",
+   "retrieved_utc": "2026-08-16T07:52:00Z",
+   "sha256_lf": "b0005df88a54b36234f17bae820c097cc73118a0ee38c8c13a497332d5bfa979",
+   "url": "https://data.sec.gov/submissions/CIK##########.json + https://www.sec.gov/files/company_tickers.json"
+  },
+  {
+   "bytes": 1692,
+   "content_note": "official FF12 SIC definition bytes, CRLF normalized to LF",
+   "filename": "FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt",
+   "repo_path": "Live Signal Engine/Universe_Sector_Audit_2026-08-16/sources/FF12_SIC_DEFINITION_SOURCE_2026-08-16.txt",
+   "retrieved_utc": "2026-08-16T07:51:11Z",
+   "sha256_lf": "1299ee557c903e27a38b947edc39b15d64f58b3e5d6538d8a97c05395a4078d0",
+   "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/Siccodes12.zip"
+  },
+  {
+   "bytes": 6227,
+   "content_note": "interval table derived mechanically from the definition bytes",
+   "filename": "FF12_SIC_INTERVALS_NORMALIZED_2026-08-16.json",
+   "repo_path": "Live Signal Engine/Universe_Sector_Audit_2026-08-16/sources/FF12_SIC_INTERVALS_NORMALIZED_2026-08-16.json",
+   "retrieved_utc": "2026-08-16T07:51:11Z",
+   "sha256_lf": "601d3713a21055d60d353db3f4d5ca564c35b07656941617af9c7b0004365496",
+   "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/Siccodes12.zip"
+  },
+  {
+   "bytes": 11529,
+   "content_note": "universe membership and frozen ticker aliases; identity only",
+   "filename": "GST_OEF_IDENTITY_SNAPSHOT_2026-08-13.json",
+   "repo_path": "Live Signal Engine/Universe_Expansion_2026-08-16/GST_OEF_IDENTITY_SNAPSHOT_2026-08-13.json",
+   "retrieved_utc": "n/a (already in repository)",
+   "sha256_lf": "c895fa36843fbf909d6d8d01d8a02e3ccc5a7cc1a5cdf3b907e1ba45034d20fe",
+   "url": "committed in a prior merged PR"
+  },
+  {
+   "bytes": 59025,
+   "content_note": "universe membership and frozen ticker aliases; identity only",
+   "filename": "GST_PROSPECTIVE_UNIVERSE_EXPANSION_50_v1.0_PROPOSED.json",
+   "repo_path": "Live Signal Engine/Universe_Expansion_2026-08-16/GST_PROSPECTIVE_UNIVERSE_EXPANSION_50_v1.0_PROPOSED.json",
+   "retrieved_utc": "n/a (already in repository)",
+   "sha256_lf": "aeab18e845fa7cc5f152f43b43c6afbe28403f64d58568a76b319aade4ecb07a",
+   "url": "committed in a prior merged PR"
+  }
+ ],
+ "n_inputs": 5,
+ "network_required_for_reproduction": false,
+ "prohibited_inputs": [
+  "market capitalization",
+  "OEF holdings weight",
+  "price",
+  "return",
+  "volume",
+  "earnings value",
+  "financial statement data",
+  "GST attention data",
+  "any outcome measure"
+ ],
+ "prohibited_inputs_present": false,
+ "purpose": "Every input required to recompute the sector-composition audit offline.",
+ "version": "1.0"
+}
