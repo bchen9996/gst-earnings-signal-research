@@ -557,6 +557,29 @@ def test_14_sources_committed_and_fail_closed() -> None:
             if not (ROOT / i["repo_path"]).is_file() or sha_lf(ROOT / i["repo_path"]) != i["sha256_lf"]]
     check(f"14d. every manifest hash matches the committed file (bad={mism})", not mism)
 
+    # ---- reproduction, WITHOUT git: this must never be skipped ----
+    # The substantive guarantee - that the committed artifacts are exactly what the
+    # committed sources produce - depends on no .git metadata. It is therefore checked
+    # in-place, in every context, so no skipped check ever covers classification
+    # arithmetic, CIK grouping, FF12 derivation, issuer denominators or universe
+    # membership. The git-archive checks below only add packaging evidence.
+    ARTIFACTS = ("GST_UNIVERSE_50_SECTOR_COMPOSITION_AUDIT_v1.0.json",
+                 "GST_UNIVERSE_50_SECTOR_CLASSIFICATION_v1.0.csv",
+                 "GST_UNIVERSE_50_SECTOR_CLASSIFICATION_v1.0.json",
+                 "GST_OEF_PROXY_SECTOR_CLASSIFICATION_v1.0.json")
+    with tempfile.TemporaryDirectory() as td:
+        out = Path(td) / "inplace"
+        rr = subprocess.run([sys.executable, str(CLASSIFIER), "--out-dir", str(out)],
+                            cwd=ROOT, capture_output=True, text=True)
+        check("14A. argument-free reproduction succeeds from the committed sources",
+              rr.returncode == 0, (rr.stderr or rr.stdout)[-200:])
+        for nm in ARTIFACTS:
+            p = out / nm
+            check(f"14B. in-place reproduction of {nm} is byte-identical",
+                  p.is_file() and sha_lf(p) == sha_lf(D / nm))
+        check("14C. the reproduction run made no network call",
+              "NetworkBlocked" not in (rr.stderr or ""))
+
     # ---- a clean git archive must contain every required input ----
     in_git = subprocess.run(["git", "rev-parse", "--git-dir"], cwd=ROOT,
                             capture_output=True, text=True).returncode == 0
@@ -570,12 +593,20 @@ def test_14_sources_committed_and_fail_closed() -> None:
             # This tree is itself an export (no .git), so the archive checks cannot run
             # here. They are NOT quietly passed - they are reported as skipped, and they
             # do run in the repository, which is where a reviewer executes them.
-            for lbl in ("14e. clean archive contains every declared input",
+            for lbl in ["14e. clean archive contains every declared input",
                         "14f. clean archive contains the classifier and the frozen rule",
                         "14g. documented reproduction command succeeds from a clean LF export",
                         "14h. clean-export output is byte-identical to the committed audit",
-                        "14i. the reproduction run did not touch the network"):
-                skip(lbl, "not a git repository - this tree is already a clean export")
+                        "14i. the reproduction run did not touch the network"] + [
+                        f"14h'. clean-export {nm} is byte-identical"
+                        for nm in ("GST_UNIVERSE_50_SECTOR_CLASSIFICATION_v1.0.csv",
+                                   "GST_UNIVERSE_50_SECTOR_CLASSIFICATION_v1.0.json",
+                                   "GST_OEF_PROXY_SECTOR_CLASSIFICATION_v1.0.json")]:
+                # Every one of these is a git-packaging duplicate of 14A/14B/14C above,
+                # which run unconditionally. Nested sub-checks are announced too, so the
+                # skipped set is fully enumerated rather than partly invisible.
+                skip(lbl, "not a git repository - this tree is already a clean export; "
+                          "the same guarantee is covered unconditionally by 14A/14B/14C")
         elif r.returncode != 0:
             check("14e. git archive export succeeded", False, r.stderr[:120])
         else:
