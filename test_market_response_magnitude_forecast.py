@@ -132,6 +132,29 @@ FLAT = " ".join(REPORT.split())
 check("7f. report states no trading was evaluated",
       "No directional trading or profitability is evaluated" in FLAT)
 
+# ---- 8. scientific framing ----
+check("8a. secondary metrics are labelled descriptive, not evidence of value",
+      "Secondary descriptive metrics that favor GST" in REPORT
+      and "no prespecified inferential decision rule" in FLAT
+      and "do not establish predictive value" in FLAT.replace("**", ""))
+check("8b. the secondary metrics are framed as a prospective hypothesis",
+      "hypothesis to test prospectively" in FLAT
+      and RES["secondary_metrics_status"]["prespecified_inferential_decision_rule"] is False)
+check("8c. the null is scoped to this specification, sample, folds and objective",
+      "this fixed ridge specification" in FLAT and "MAE objective" in FLAT
+      and "0.144 pp" in FLAT)
+for nr in ("tail-ranking value", "alternative genuinely prespecified models",
+           "prospective performance", "usefulness relative to options-implied movement"):
+    check(f"8d. null does not rule out: {nr[:40]}", nr in RES["null_scope"]["does_not_rule_out"])
+check("8e. the PR #22 citation correction is present",
+      "cannot be cited as evidence that GST was available pre-event or predictively caused the "
+      "larger move" in " ".join(RES["correction_to_pr22_citation"].split())
+      and "+1.509 pp" in FLAT and "14-day window overlaps the earnings event" in FLAT)
+check("8f. numerical results are untouched",
+      RES["pooled_out_of_sample"]["B_baseline_no_gst"]["mae_pp"] == 3.6284
+      and RES["pooled_out_of_sample"]["C_baseline_plus_gst"]["mae_pp"] == 3.6299
+      and RES["decisive_paired_loss_difference"]["mean_pp"] == -0.00152)
+
 print()
 if FAIL:
     print(f"{len(FAIL)} FAILURE(S): {FAIL}")

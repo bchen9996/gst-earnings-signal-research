@@ -26,9 +26,20 @@ Satterthwaite df, reusing `tools/hyp01_inference_feasibility.py` unchanged:
 > **−0.00152 pp**, CR2 SE 0.06902, df 17.2, t = **−0.022**, **p = 0.9827**,
 > 95% CI **[−0.14703, +0.14399]**
 
-GST is better on **49.26%** of events — a coin flip. The interval is tight and centred on zero: this
-is not an underpowered null, it is a precisely estimated *absence* of improvement. The interval
-excludes any improvement larger than about **0.14 pp** against a mean absolute gap of ~6.1 pp.
+GST is better on **49.26%** of events — a coin flip.
+
+**What the interval does and does not say.** For **this fixed ridge specification, this sample, these
+folds and the MAE objective**, and under the stated ticker-clustering assumptions, the 95% interval
+excludes a mean MAE improvement greater than approximately **0.144 pp**. That is a bounded null on
+one objective, not a general finding.
+
+It does **not** rule out:
+
+- **tail-ranking value** — see the secondary descriptive metrics below;
+- **alternative, genuinely prespecified models** — only one fixed ridge was estimated here;
+- **prospective performance** — nothing here is a forward test;
+- **usefulness relative to options-implied movement** — no implied-volatility or options benchmark
+  was constructed or compared.
 
 ## The GST feature had to be rebuilt to be point-in-time
 
@@ -42,11 +53,16 @@ before** the event day, `gst_z_pre` = (latest closed week − mean of the prior 
 of those weeks, minimum 20 baseline weeks. The population's spike z-score is retained in the output
 for reference only and never enters a model.
 
-## Secondary evidence
+## Secondary descriptive metrics that favor GST
 
-**Where C does help.** C beats B on RMSE (4.6395 vs 4.6844) and roughly doubles OOS R² (0.0517 vs
-0.0333). Both are squared-error metrics, so this says GST helps slightly on the *largest* moves while
-being neutral-to-worse on the typical one — consistent with MAE being flat.
+**These are descriptive.** They were designated secondary before results were seen, and this study
+carries **no prespecified inferential decision rule** for any of them — no threshold, no test, no
+multiplicity control. They therefore **generate a prospective tail-ranking hypothesis; they do not
+establish predictive value.**
+
+**Where C does better.** C beats B on RMSE (4.6395 vs 4.6844) and roughly doubles OOS R² (0.0517 vs
+0.0333). Both are squared-error metrics, so this is consistent with GST helping slightly on the
+*largest* moves while being neutral-to-worse on the typical one — which is why MAE is flat.
 
 **Top-quintile realized magnitude lift:**
 
@@ -56,7 +72,9 @@ being neutral-to-worse on the typical one — consistent with MAE being flat.
 | C (+ GST) | 7.7118 pp | 6.1135 pp | **1.261×** |
 
 C's top predicted quintile does contain larger realized moves. This is the one place GST looks
-useful, and it is a **secondary** metric.
+useful. It is a **secondary descriptive** metric with no prespecified decision rule attached, so the
+appropriate status of this observation is a **hypothesis to test prospectively** — specifically, that
+pre-event GST helps rank events by tail magnitude — not a demonstrated predictive gain.
 
 **Calibration by predicted quintile (C):** predicted 5.07 / 6.18 / 6.76 / 7.41 / 9.26 pp against
 realized 4.16 / 4.49 / 7.32 / 6.96 / 7.71 pp. Monotone in the broad sense but over-predicting at the
@@ -88,6 +106,17 @@ return|, 20-day SPY volatility, AMC indicator. One fixed model — ridge, alpha 
 with standardization and fitting inside each training fold only. Chronological expanding window on
 the same 2023/2024/2025 folds as PR #23. **No model search, no threshold search, no hyperparameter
 tuning.** Primary metric fixed as MAE before any result was seen.
+
+## Correction to how PR #22's result may be cited
+
+PR #22's **+1.509 pp** retrospective association used the historical spike classification whose
+14-day window overlaps the earnings event in this population. It remains a **retrospective
+association** but **cannot be cited as evidence that GST was available pre-event or predictively
+caused the larger move.**
+
+That is not a retraction of PR #22's arithmetic, which is unchanged. It is a limit on the
+interpretation: the present study is the first to require a strictly pre-event GST construction, and
+under that construction GST does not improve out-of-sample magnitude prediction on the primary metric.
 
 ## Scope
 
