@@ -18,12 +18,36 @@ highly sensitive to leakage, duplicated events, timing, calibration and comparat
 The paper does **not** claim markets are perfectly efficient, that Google Trends is universally
 useless, that earnings surprises never matter, or that alternative data cannot work.
 
-**Deliverables.** `SIGNAL_WITHOUT_STRATEGY_MANUSCRIPT_v1.0.md` (4,415 words excluding references and
-tables, twelve required sections, ten primary academic sources with DOIs);
-`SIGNAL_WITHOUT_STRATEGY_EXECUTIVE_SUMMARY_v1.0.md` (~850 words, with an empty contribution table
-for the owner to complete); three deterministic SVG figures — evidence ladder, surprise-replication
-intervals, and leakage correction — built by `tools/build_signal_without_strategy_figures.py`; and
+**Deliverables.** `SIGNAL_WITHOUT_STRATEGY_MANUSCRIPT_v1.0.md` (**4,455** words excluding references
+and tables, twelve required sections, ten primary academic sources);
+`SIGNAL_WITHOUT_STRATEGY_EXECUTIVE_SUMMARY_v1.0.md` (**900** words under the same counting
+convention, with an empty contribution table for the owner to complete); three deterministic SVG
+figures — evidence ladder, surprise-replication intervals, and leakage correction — built by
+`tools/build_signal_without_strategy_figures.py`; and
 `tools/check_signal_without_strategy_numbers.py`, the executable numerical audit.
+
+**Editorial corrections (final pass).** The executive summary's prespecification claim was too
+broad. It now distinguishes what was frozen per designated study — model specification, primary
+metric, decision gates and temporal-replication rules, each committed before that study's designated
+outcomes were opened — from **reactive** controls introduced only after defects were found,
+specifically **event-identity deduplication** and the **strictly earlier lag-feature repair**, and
+states plainly that the overall program and this synthesis were **not preregistered**. The
+manuscript's limitations section was aligned to the same wording, and the audit now fails if the
+broad claim returns.
+
+The bibliography was independently re-verified against publisher, CrossRef, DOI and journal pages.
+Corrections: the Bailey–López de Prado title now carries its published serial comma and the journal
+its full name; Bernard–Thomas is marked as the volume 27 Supplement; the Brier DOI is given as plain
+text because its angle brackets break markdown links, with the AMS publisher page as the resolvable
+link. **Foster, Olsen and Shevlin (1984) is marked stable-identifier unresolved** — its metadata is
+confirmed but no DOI or JSTOR stable URL could be independently verified, so none is asserted.
+
+**Volatility-artifact dependency.** The audit now prefers the in-tree
+`ATTENTION_ACTIVITY_MISMATCH_RESULTS_v1.0.json` when present, falls back to the pinned
+`ddc8488` copy during stacked review, verifies the resolved source against an expected content hash
+(`8cd711cf…`, blob `48020213…`), and **fails if in-tree and pinned copies both exist and disagree**.
+**PR #30 (`phase2-attention-activity-mismatch`) must merge before PR #36** for main to be
+self-contained; PR #36 alone does not contain that source artifact.
 
 **Numerical audit.** It loads the committed source artifacts and resolves **82** claimed values
 against exact artifact fields, accounting for **all 139** distinct numeric tokens in the manuscript,

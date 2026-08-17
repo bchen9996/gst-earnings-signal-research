@@ -52,12 +52,58 @@ def jload(path):
     return json.loads((ROOT / path).read_text(encoding="utf-8"))
 
 
-def jload_rev(rev, path):
-    r = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT,
-                       capture_output=True, text=True)
-    if r.returncode != 0:
-        raise SystemExit(f"cannot read {path} at {rev}: {r.stderr[:200]}")
-    return json.loads(r.stdout)
+def _show_bytes(rev, path):
+    r = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True)
+    return r.stdout if r.returncode == 0 else None
+
+
+def sha256(b):
+    import hashlib
+    return hashlib.sha256(b).hexdigest()
+
+
+# The weekly-volatility artifact is committed on `phase2-attention-activity-mismatch`
+# (PR #30), which is NOT in this stacked branch's ancestry. During stacked review it is
+# resolved from that pinned commit; once PR #30 is merged the in-tree copy is used
+# instead. Whichever source is used must hash to exactly this content.
+MISMATCH_CONTENT_SHA256 = \
+    "8cd711cf2297480a838e5c69a499b6e41652283b45857a8b31649c4be7f9e79b"
+MISMATCH_BLOB_SHA1 = "4802021306239ac5834b77fa0831d845fe1f185d"
+
+
+def load_mismatch_artifact():
+    """Prefer the in-tree artifact; fall back to the pinned commit during review.
+
+    Fails if the resolved source does not match the expected content hash, and fails if
+    an in-tree copy exists but disagrees with the pinned one.
+    """
+    in_tree = ROOT / MISMATCH_PATH
+    pinned = _show_bytes(MISMATCH_REV, MISMATCH_PATH)
+    tree_bytes = in_tree.read_bytes() if in_tree.exists() else None
+
+    def norm(b):
+        return None if b is None else b.replace(b"\r\n", b"\n")
+
+    t, p = norm(tree_bytes), norm(pinned)
+    if t is not None and p is not None and t != p:
+        raise SystemExit(
+            "volatility artifact disagreement: the in-tree copy of "
+            f"{MISMATCH_PATH} differs from the pinned {MISMATCH_REV[:7]} version. "
+            "Refusing to choose between two versions of a research result.")
+    chosen, origin = (t, "in-tree") if t is not None else (p, f"pinned {MISMATCH_REV[:7]}")
+    if chosen is None:
+        raise SystemExit(
+            f"{MISMATCH_PATH} is unavailable both in-tree and at {MISMATCH_REV[:7]}")
+    got = sha256(chosen)
+    if got != MISMATCH_CONTENT_SHA256:
+        raise SystemExit(f"volatility artifact hash mismatch from {origin}: "
+                         f"expected {MISMATCH_CONTENT_SHA256}, got {got}")
+    print(f"PASS: volatility artifact resolved {origin}, content hash verified")
+    if t is None:
+        print("      NOTE: PR #30 (phase2-attention-activity-mismatch) must merge "
+              "before PR #36 for main to be self-contained. PR #36 alone does not "
+              "contain this source artifact.")
+    return json.loads(chosen.decode("utf-8"))
 
 
 def dig(obj, path):
@@ -81,7 +127,7 @@ A = {
                          "structured_earnings_feasibility_v1.0.json"),
     "pr34": jload("SEMICONDUCTOR_SURPRISE_ABSORPTION_V3_RESULTS_v1.0.json"),
     "pr35": jload("SEMICONDUCTOR_SURPRISE_TEMPORAL_REPLICATION_RESULTS_v1.0.json"),
-    "mismatch": jload_rev(MISMATCH_REV, MISMATCH_PATH),
+    "mismatch": load_mismatch_artifact(),
 }
 DIRTXT = (ROOT / DIR_REPORT).read_text(encoding="utf-8")
 
@@ -418,6 +464,16 @@ def main(argv=None):
          "denies the significant Spearman association"),
         (r"\b(proven|guaranteed|risk[- ]free) (alpha|profit|return)",
          "overstates a result"),
+        # The prespecification claim must stay narrow. A blanket statement that rules
+        # were committed before results, without the designated/reactive distinction,
+        # overstates what the record supports.
+        (r"[Rr]ules were written down and committed before the corresponding results",
+         "restates the overly broad prespecification claim"),
+        (r"\b(all|every|the entire) (rules?|controls?|specifications?) (were|was) "
+         r"(frozen|prespecified|committed) before",
+         "claims blanket prespecification across the whole program"),
+        (r"\bthe (program|research program|synthesis) was preregistered\b",
+         "claims the program or synthesis was preregistered"),
         (r"\bwe (recommend|advise) (trading|deploying|investing)",
          "recommends deployment"),
     ]
@@ -433,6 +489,12 @@ def main(argv=None):
         ("POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED", "provenance limitation named"),
         ("not SEC-validated GAAP diluted EPS", "vendor EPS explicitly distinguished"),
         ("Not preregistered", "non-preregistration stated"),
+        ("before that study's designated outcomes",
+         "designated-vs-reactive prespecification distinction stated"),
+        ("event-identity deduplication", "reactive control named"),
+        ("strictly earlier lag-feature repair", "reactive control named"),
+        ("research program and this synthesis were not preregistered",
+         "program-level non-preregistration stated"),
     ]
     # Strip markdown emphasis only. Underscores are load-bearing inside the frozen
     # constant names, so they are never removed.
