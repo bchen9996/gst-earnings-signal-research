@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="560" viewBox="0 0 1020 560" role="img" aria-labelledby="t d">
+<title id="t">Evidence ladder</title>
+<desc id="d">Association, incremental prediction and tradability for seven studies.</desc>
+<rect width="1020" height="560" fill="#ffffff"/>
+<text x="40" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="20" fill="#1a1a1a" text-anchor="start" font-weight="bold" font-style="normal">Figure 1. Evidence ladder</text>
+<text x="40" y="70" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">Each study is placed at the highest level its evidence actually supports, not the level it was designed to reach.</text>
+<text x="40" y="90" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="italic">No study in this program reached Level 3.</text>
+<rect x="470" y="84" width="158" height="26" fill="#f2f2f2" stroke="#d6d6d6"/>
+<text x="549.0" y="102" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="bold" font-style="normal">1. Association</text>
+<rect x="638" y="84" width="158" height="26" fill="#f2f2f2" stroke="#d6d6d6"/>
+<text x="717.0" y="102" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="bold" font-style="normal">2. Incremental prediction</text>
+<rect x="806" y="84" width="158" height="26" fill="#f2f2f2" stroke="#d6d6d6"/>
+<text x="885.0" y="102" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="bold" font-style="normal">3. Tradability</text>
+<line x1="40" y1="140" x2="980" y2="140" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="134" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Search attention -&gt; absolute earnings move</text>
+<circle cx="549.0" cy="129" r="7" fill="#0072b2"/>
+<circle cx="717.0" cy="129" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="713.0" y1="125" x2="721.0" y2="133" stroke="#d55e00" stroke-width="2"/>
+<line x1="713.0" y1="133" x2="721.0" y2="125" stroke="#d55e00" stroke-width="2"/>
+<circle cx="885.0" cy="129" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="134" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">standalone only; incremental p = 0.98332</text>
+<line x1="40" y1="186" x2="980" y2="186" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="180" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Search attention -&gt; move direction</text>
+<circle cx="549.0" cy="175" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="171" x2="553.0" y2="179" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="179" x2="553.0" y2="171" stroke="#d55e00" stroke-width="2"/>
+<circle cx="717.0" cy="175" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<circle cx="885.0" cy="175" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="180" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">worse than intercept-only baseline</text>
+<line x1="40" y1="232" x2="980" y2="232" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="226" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Search attention -&gt; move magnitude</text>
+<circle cx="549.0" cy="221" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="217" x2="553.0" y2="225" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="225" x2="553.0" y2="217" stroke="#d55e00" stroke-width="2"/>
+<circle cx="717.0" cy="221" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<circle cx="885.0" cy="221" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="226" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">paired p = 0.9827</text>
+<line x1="40" y1="278" x2="980" y2="278" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="272" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Search attention -&gt; weekly volatility</text>
+<circle cx="549.0" cy="267" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="263" x2="553.0" y2="271" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="271" x2="553.0" y2="263" stroke="#d55e00" stroke-width="2"/>
+<circle cx="717.0" cy="267" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<circle cx="885.0" cy="267" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="272" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">interval spans zero</text>
+<line x1="40" y1="324" x2="980" y2="324" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="318" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Product search -&gt; restaurant moves</text>
+<circle cx="549.0" cy="313" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="309" x2="553.0" y2="317" stroke="#d55e00" stroke-width="2"/>
+<line x1="545.0" y1="317" x2="553.0" y2="309" stroke="#d55e00" stroke-width="2"/>
+<circle cx="717.0" cy="313" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<circle cx="885.0" cy="313" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="318" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">Brier and MAE both worsened</text>
+<line x1="40" y1="370" x2="980" y2="370" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="364" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Earnings surprise -&gt; initial reaction (2023-2025)</text>
+<circle cx="549.0" cy="359" r="7" fill="#0072b2"/>
+<circle cx="717.0" cy="359" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="713.0" y1="355" x2="721.0" y2="363" stroke="#d55e00" stroke-width="2"/>
+<line x1="713.0" y1="363" x2="721.0" y2="355" stroke="#d55e00" stroke-width="2"/>
+<circle cx="885.0" cy="359" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="364" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">suggestive; uncertainty gate failed</text>
+<line x1="40" y1="416" x2="980" y2="416" stroke="#d6d6d6" stroke-width="1"/>
+<text x="40" y="410" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#1a1a1a" text-anchor="start" font-weight="normal" font-style="normal">Earnings surprise -&gt; initial reaction (2010-2017)</text>
+<circle cx="549.0" cy="405" r="7" fill="#0072b2"/>
+<circle cx="717.0" cy="405" r="7" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<line x1="713.0" y1="401" x2="721.0" y2="409" stroke="#d55e00" stroke-width="2"/>
+<line x1="713.0" y1="409" x2="721.0" y2="401" stroke="#d55e00" stroke-width="2"/>
+<circle cx="885.0" cy="405" r="7" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="980" y="410" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">significant association; prediction gate failed</text>
+<circle cx="48" cy="466" r="6" fill="#0072b2"/>
+<text x="62" y="471" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">level reached</text>
+<circle cx="188" cy="466" r="6" fill="#ffffff" stroke="#d55e00" stroke-width="2"/>
+<text x="202" y="471" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">level tested and not reached</text>
+<circle cx="418" cy="466" r="6" fill="#ffffff" stroke="#d6d6d6" stroke-width="1.5"/>
+<text x="432" y="471" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">not evaluated</text>
+</svg>
