@@ -3,7 +3,13 @@
  "version": "1.0",
  "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
  "sector": "SEMICONDUCTORS",
- "decision_label": "EXTRACTION_NOT_RELIABLE",
+ "frozen_gate_decision": "FAILED_EXTRACTION_QUALITY_GATE",
+ "extraction_characterization": "HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE",
+ "label_correction": {
+  "superseded_label": "EXTRACTION_NOT_RELIABLE",
+  "reason": "The single label was overly broad. It read as a verdict on extraction accuracy, which the evidence contradicts: conditional precision is 0.9868 combined and 0.9860 held out. The frozen gate failed on verified COVERAGE, not on precision. The gate itself, its thresholds and its FAILED outcome are unchanged.",
+  "gate_retroactively_changed_or_marked_passed": false
+ },
  "google_trends_used": false,
  "analyst_consensus_used": false,
  "later_xbrl_used_for_prediction": false,
@@ -11,9 +17,9 @@
  "stopped_at": "phase_1_extraction_quality_gate",
  "attempts": {
   "first_attempt_commit": "cafc50a80d56f8d5bcd3881a9d24d8bb2a914525",
-  "first_attempt_label": "EXTRACTION_NOT_RELIABLE",
+  "first_attempt_frozen_gate_decision": "FAILED_EXTRACTION_QUALITY_GATE",
   "second_attempt": "final bounded filer-adapter pass",
-  "second_attempt_label": "EXTRACTION_NOT_RELIABLE",
+  "second_attempt_frozen_gate_decision": "FAILED_EXTRACTION_QUALITY_GATE",
   "outcome_stage_ever_run": false
  },
  "universe": [
@@ -166,6 +172,7 @@
   "no_reference_among_them": 39,
   "no_reference_among_other_events": 17,
   "max_attainable_reference_coverage": 0.7824,
+  "max_attainable_reference_coverage_derivation": "1 - 47/216 = 0.7824",
   "required_reference_coverage": 0.8,
   "reachable": false,
   "implication": "reference_coverage >= 0.80 is arithmetically unreachable for this universe under the frozen reference definition, independent of parser quality. The gate was not loosened."
@@ -266,5 +273,17 @@
  },
  "failure_character": "coverage_limited_not_precision_limited",
  "most_important_limitation": "Stop hand-building this parser. Reliable structured data would be required to test this hypothesis. Extraction recall rose from 123 to 216 and precision stayed at 0.9868 combined and 0.9860 held out, yet the coverage gates remain unreachable because roughly a fifth of all earnings events are fiscal-year-end quarters that cannot be validated against a subsequent 10-Q at all. No further hand-built parser iteration is recommended for this solo project.",
- "failure_mode_classification": "inadequate_extraction"
+ "failure_mode_classification": "insufficient_verified_coverage",
+ "interpretation": {
+  "frozen_study_stopped_correctly": true,
+  "frozen_study_remains_untested": true,
+  "frozen_study_status": "The frozen study stopped correctly at the extraction quality gate and remains UNTESTED. No hypothesis about semiconductor EPS-price absorption was evaluated, supported or refuted.",
+  "conditional_precision_scope": "High conditional precision (0.9868 combined, 0.9860 held out) applies ONLY to the subset of extractions for which the selected later-10-Q audit reference exists. It is precision conditional on referenceability, not overall extraction accuracy.",
+  "does_not_validate_unreferenced_fiscal_year_end_extractions": true,
+  "unreferenced_fy_end_scope_note": "47 of 216 extractions are fiscal-year-end quarters lacking the selected later-10-Q reference. Their accuracy is neither confirmed nor refuted by the conditional-precision figure; they are unverified, not verified-wrong.",
+  "failure_composition": "The failure combines (a) inadequate verified coverage - reference_coverage 0.7037 and usable_event_coverage 0.2742 against required 0.80 and 0.60 - with (b) a reference design that structurally cannot label many fiscal-year-end quarters, capping attainable reference_coverage at 1 - 47/216 = 0.7824, below the frozen 0.80 gate.",
+  "returns_inspected": false,
+  "returns_inspected_note": "No return was inspected. No price reaction, strategy or outcome was read or computed at any point in either attempt or in this correction pass.",
+  "further_hand_built_parser_iteration_recommended": false
+ }
 }

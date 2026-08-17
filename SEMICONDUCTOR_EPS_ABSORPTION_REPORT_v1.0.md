@@ -4,9 +4,10 @@
 `google_trends_used: false` · `analyst_consensus_used: false` ·
 `later_xbrl_used_for_prediction: false`
 
-## Decision (unchanged after a second, final attempt)
+## Decision (two separate fields)
 
-# `EXTRACTION_NOT_RELIABLE`
+# `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+# `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
 
 Two attempts were made. The first (`cafc50a`) failed the extraction gate. This second, bounded pass
 added deterministic filer-specific structural adapters for NVDA, INTC, AVGO, MU, TXN and QCOM. It
@@ -15,6 +16,43 @@ added deterministic filer-specific structural adapters for NVDA, INTC, AVGO, MU,
 **No return has ever been inspected.** No SUE, no `eps_price_gap`, no Model B or C, no bootstrap, no
 trading test, and no pre-outcome frozen-design commit — because the gate that precedes it never
 passed.
+
+### Correction to the earlier single label
+
+These two commits originally recorded one label, `EXTRACTION_NOT_RELIABLE`. That label was **overly
+broad**: it reads as a verdict on extraction *accuracy*, and the evidence does not support such a
+verdict. It is replaced by the two fields above. **The frozen gate, its thresholds and its FAILED
+outcome are unchanged — nothing has been lowered, reinterpreted or marked passed.**
+
+What the evidence actually shows:
+
+| Quantity | Value |
+|---|---|
+| Held-out conditional precision | **0.9860** |
+| Combined conditional precision | **0.9868** |
+| `reference_coverage` | **0.7037** |
+| `usable_event_coverage` | **0.2742** |
+| Usable events / usable tickers / OOS events | **82 / 7 / 48** |
+| Fiscal-year-end-quarter extractions lacking the selected later-10-Q reference | **47 of 216** |
+| Maximum attainable `reference_coverage` under this reference design | **1 − 47/216 = 0.7824** |
+
+The observed ceiling of **0.7824** sits below the frozen **0.80** gate.
+
+### Statements this correction makes explicitly
+
+1. **The frozen study stopped correctly and remains untested.** The gate that precedes the outcome
+   stage never passed, so no hypothesis about EPS–price absorption was evaluated, supported or
+   refuted.
+2. **High conditional precision applies only to extractions for which the selected audit reference
+   exists.** It is precision *conditional on referenceability*, not overall extraction accuracy.
+3. **It does not validate the unreferenced fiscal-year-end extractions.** Those 47 events are
+   **unverified, not verified-wrong**; the conditional-precision figure says nothing about them
+   either way.
+4. **The failure combines two things**: inadequate verified coverage (0.7037 and 0.2742 against
+   required 0.80 and 0.60) *and* a reference design that structurally cannot label many
+   fiscal-year-end quarters, capping attainable coverage at 0.7824.
+5. **No return was inspected** — in either attempt or in this correction pass.
+6. **Further hand-built parser iteration is not recommended.**
 
 ## 1. Before versus after
 

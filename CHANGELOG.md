@@ -1,6 +1,45 @@
 # Changelog
 
 
+## 2026-08-17 — Semiconductor EPS absorption: extraction interpretation corrected
+
+**Semantic correction only. No extraction count, gate threshold or prior numerical artifact was
+altered, and the frozen gate's FAILED outcome stands exactly as recorded.**
+
+The two commits on this branch recorded a single label, `EXTRACTION_NOT_RELIABLE`. That label was
+overly broad: it reads as a verdict on extraction *accuracy*, which the evidence contradicts. It is
+replaced by two separate fields:
+
+- `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+- `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
+
+The evidence: held-out conditional precision **0.9860**, combined conditional precision **0.9868**,
+`reference_coverage` **0.7037**, `usable_event_coverage` **0.2742**, **82** usable events across
+**7** usable tickers with **48** OOS events. **47 of 216** extractions are fiscal-year-end quarters
+that lack the selected later-10-Q reference, so under this reference design the observed maximum
+attainable `reference_coverage` is **1 − 47/216 = 0.7824**, below the frozen **0.80** gate.
+
+Stated explicitly in the report and results artifact:
+
+1. The frozen study **stopped correctly and remains untested**.
+2. High conditional precision applies **only** to extractions for which the selected audit reference
+   exists — it is precision conditional on referenceability.
+3. It **does not validate** the unreferenced fiscal-year-end extractions; those are unverified, not
+   verified-wrong.
+4. The failure **combines** inadequate verified coverage with a reference design that cannot label
+   many fiscal-year-end quarters.
+5. **No return was inspected.**
+6. **Further hand-built parser iteration is not recommended.**
+
+`failure_mode_classification` changed from `inadequate_extraction` to `insufficient_verified_coverage`.
+The extraction test gained section 16, which recomputes the 0.7824 ceiling as `1 − 47/216` rather
+than reading it, and asserts the gate was not retroactively lowered or marked passed.
+
+Known residual: `tools/run_semiconductor_eps_absorption.py` still emits the superseded single label
+if re-run. The instruction for this pass scoped edits to the report, results classification fields,
+test assertions and changelog, so the runner was deliberately left untouched.
+
+
 ## 2026-08-17 — Semiconductor EPS absorption, final adapter pass: still EXTRACTION_NOT_RELIABLE
 
 Final bounded extraction attempt on the same branch. Added a deterministic filer-adapter registry
