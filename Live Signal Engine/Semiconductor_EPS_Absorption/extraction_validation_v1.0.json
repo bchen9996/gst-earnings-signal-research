@@ -1,0 +1,361 @@
+{
+ "artifact": "SEMICONDUCTOR_EPS_EXTRACTION_VALIDATION",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "sector": "SEMICONDUCTORS",
+ "google_trends_used": false,
+ "analyst_consensus_used": false,
+ "later_xbrl_used_for_prediction": false,
+ "later_xbrl_role": "audit reference only; it never selected, replaced or altered an Exhibit value and never entered a model feature",
+ "universe": [
+  "NVDA",
+  "AMD",
+  "INTC",
+  "QCOM",
+  "AVGO",
+  "MU",
+  "TXN",
+  "AMAT",
+  "LRCX",
+  "KLAC"
+ ],
+ "benchmark": "SMH",
+ "item_202_events": 306,
+ "located_exhibits": 250,
+ "extracted": 123,
+ "validated": 92,
+ "contradicted": 0,
+ "no_reference": 31,
+ "duplicate_identities_refused": 0,
+ "dev_sample": {
+  "seed": "SEMICONDUCTOR_EPS_PARSER_DEV",
+  "per_ticker": 2,
+  "n": 17,
+  "tickers": 9,
+  "rule": "ascending SHA-256 of 'SEMICONDUCTOR_EPS_PARSER_DEV|ticker|fiscal_period_end|accession'; no reference to returns"
+ },
+ "extracted_by_ticker": {
+  "NVDA": 0,
+  "AMD": 31,
+  "INTC": 0,
+  "QCOM": 9,
+  "AVGO": 0,
+  "MU": 0,
+  "TXN": 0,
+  "AMAT": 30,
+  "LRCX": 30,
+  "KLAC": 23
+ },
+ "usable_events": 61,
+ "usable_by_year": {
+  "2023": 12,
+  "2024": 10,
+  "2025": 10
+ },
+ "tolerance_eps_absolute": 0.01,
+ "gates": {
+  "reference_coverage": {
+   "value": 0.748,
+   "required": 0.8,
+   "passed": false
+  },
+  "conditional_precision": {
+   "value": 1.0,
+   "required": 0.95,
+   "passed": true
+  },
+  "usable_event_coverage": {
+   "value": 0.244,
+   "required": 0.6,
+   "passed": false
+  },
+  "tickers": {
+   "value": 4,
+   "required": 8,
+   "passed": false
+  },
+  "usable_events": {
+   "value": 61,
+   "required": 160,
+   "passed": false
+  },
+  "oos_events": {
+   "value": 32,
+   "required": 90,
+   "passed": false
+  },
+  "oos_per_year": {
+   "value": {
+    "2023": 12,
+    "2024": 10,
+    "2025": 10
+   },
+   "required": 25,
+   "passed": false
+  },
+  "later_xbrl_predictive_inputs": {
+   "value": 0,
+   "required": 0,
+   "passed": true
+  }
+ },
+ "extraction_gate_passed": false,
+ "xbrl_audit_concepts": {
+  "AMAT": [
+   "EarningsPerShareDiluted"
+  ],
+  "AMD": [
+   "EarningsPerShareDiluted"
+  ],
+  "KLAC": [
+   "EarningsPerShareDiluted"
+  ],
+  "LRCX": [
+   "EarningsPerShareDiluted"
+  ],
+  "QCOM": [
+   "EarningsPerShareDiluted"
+  ]
+ },
+ "structural_spot_audit_note": "author-side structural record of the fixed development sample; NOT an independent human review",
+ "structural_spot_audit": [
+  {
+   "ticker": "AMAT",
+   "accession": "0000006951-22-000016",
+   "fiscal_period_end": "2022-06-01",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/6951/000000695122000016/exhibit991q22022earningsre.htm",
+   "selected_statement_table_index": 4.0,
+   "selected_row_index": 24.0,
+   "selected_row_label": "Diluted",
+   "selected_column_label": "Three Months Ended May 1,2022",
+   "parsed_value": 1.74,
+   "later_xbrl_reference": NaN,
+   "audit_status": "no_reference",
+   "parse_reason": "exhibit991q22022earningsre.htm:ok"
+  },
+  {
+   "ticker": "AMAT",
+   "accession": "0000006951-20-000032",
+   "fiscal_period_end": "2020-07-26",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/6951/000000695120000032/exhibit991q32020earnin.htm",
+   "selected_statement_table_index": 4.0,
+   "selected_row_index": 24.0,
+   "selected_row_label": "Diluted",
+   "selected_column_label": "Three Months Ended July 26,2020",
+   "parsed_value": 0.91,
+   "later_xbrl_reference": 0.91,
+   "audit_status": "validated",
+   "parse_reason": "exhibit991q32020earnin.htm:ok"
+  },
+  {
+   "ticker": "AMD",
+   "accession": "0000002488-19-000004",
+   "fiscal_period_end": "2018-12-29",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248819000004/q418991.htm",
+   "selected_statement_table_index": 49.0,
+   "selected_row_index": 20.0,
+   "selected_row_label": "Diluted",
+   "selected_column_label": "Three Months Ended December 29, 2018",
+   "parsed_value": 0.04,
+   "later_xbrl_reference": 0.04,
+   "audit_status": "validated",
+   "parse_reason": "q418991.htm:ok"
+  },
+  {
+   "ticker": "AMD",
+   "accession": "0000002488-25-000106",
+   "fiscal_period_end": "2025-06-28",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248825000106/q22025991.htm",
+   "selected_statement_table_index": 6.0,
+   "selected_row_index": 29.0,
+   "selected_row_label": "Diluted earnings per share",
+   "selected_column_label": "Three Months Ended June 28,2025",
+   "parsed_value": 0.54,
+   "later_xbrl_reference": 0.54,
+   "audit_status": "validated",
+   "parse_reason": "q22025991.htm:ok"
+  },
+  {
+   "ticker": "AVGO",
+   "accession": "0001730168-24-000077",
+   "fiscal_period_end": "2024-06-05",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016824000077/avgo-05052024x8kxex99.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "avgo-05052024x8kxex99.htm:no_structural_match"
+  },
+  {
+   "ticker": "AVGO",
+   "accession": "0001193125-19-243919",
+   "fiscal_period_end": "2019-08-04",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312519243919/d800073dex991.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "d800073dex991.htm:no_structural_match"
+  },
+  {
+   "ticker": "INTC",
+   "accession": "0001193125-21-009142",
+   "fiscal_period_end": null,
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000119312521009142/d82915dex991.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "d82915dex991.htm:no_structural_match"
+  },
+  {
+   "ticker": "KLAC",
+   "accession": "0000319201-18-000052",
+   "fiscal_period_end": "2018-09-30",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/319201/000031920118000052/exhibit991earningsrelease0.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "exhibit991earningsrelease0.htm:no_structural_match"
+  },
+  {
+   "ticker": "KLAC",
+   "accession": "0000319201-24-000003",
+   "fiscal_period_end": "2023-12-31",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/319201/000031920124000003/exhibit991earningsrelease1.htm",
+   "selected_statement_table_index": 3.0,
+   "selected_row_index": 25.0,
+   "selected_row_label": "Diluted",
+   "selected_column_label": "Condensed Consolidated Unaudited Statements of Operations Three Months Ended December 31, 2023",
+   "parsed_value": 4.28,
+   "later_xbrl_reference": 4.28,
+   "audit_status": "validated",
+   "parse_reason": "exhibit991earningsrelease1.htm:ok"
+  },
+  {
+   "ticker": "LRCX",
+   "accession": "0000707549-18-000108",
+   "fiscal_period_end": "2018-06-24",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/707549/000070754918000108/lrcx_exhibitx991xq4x2018.htm",
+   "selected_statement_table_index": 9.0,
+   "selected_row_index": 20.0,
+   "selected_row_label": "Diluted",
+   "selected_column_label": "Three Months Ended June 24,2018",
+   "parsed_value": 5.82,
+   "later_xbrl_reference": NaN,
+   "audit_status": "no_reference",
+   "parse_reason": "lrcx_exhibitx991xq4x2018.htm:ok"
+  },
+  {
+   "ticker": "LRCX",
+   "accession": "0000707549-24-000125",
+   "fiscal_period_end": "2024-09-29",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/707549/000070754924000125/lrcx_exhibitx991xq1x2025.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "lrcx_exhibitx991xq1x2025.htm:ambiguous_multiple_match:[0.86, 8.56]"
+  },
+  {
+   "ticker": "MU",
+   "accession": "0000723125-25-000044",
+   "fiscal_period_end": null,
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312525000044/a2026q1ex991-pressrelease.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "a2026q1ex991-pressrelease.htm:no_structural_match"
+  },
+  {
+   "ticker": "MU",
+   "accession": "0000723125-25-000019",
+   "fiscal_period_end": null,
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312525000019/a2025q3ex991-pressrelease.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "a2025q3ex991-pressrelease.htm:no_structural_match"
+  },
+  {
+   "ticker": "QCOM",
+   "accession": "0001728949-19-000071",
+   "fiscal_period_end": "2019-09-29",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/804328/000172894919000071/qcom092919erex991.htm",
+   "selected_statement_table_index": 65.0,
+   "selected_row_index": 22.0,
+   "selected_row_label": "Diluted earnings (loss) per share attributable to Qualcomm",
+   "selected_column_label": "Three Months Ended September 29, 2019",
+   "parsed_value": 0.42,
+   "later_xbrl_reference": NaN,
+   "audit_status": "no_reference",
+   "parse_reason": "qcom092919erex991.htm:ok"
+  },
+  {
+   "ticker": "QCOM",
+   "accession": "0001728949-20-000056",
+   "fiscal_period_end": "2020-06-28",
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/804328/000172894920000056/qcom062820erex991.htm",
+   "selected_statement_table_index": 9.0,
+   "selected_row_index": 32.0,
+   "selected_row_label": "Diluted earnings per share",
+   "selected_column_label": "Three Months Ended June 28,2020",
+   "parsed_value": 0.74,
+   "later_xbrl_reference": NaN,
+   "audit_status": "no_reference",
+   "parse_reason": "qcom062820erex991.htm:ok"
+  },
+  {
+   "ticker": "TXN",
+   "accession": "0000097476-25-000025",
+   "fiscal_period_end": null,
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000009747625000025/q12025txnex99-er1.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "q12025txnex99-er1.htm:no_structural_match"
+  },
+  {
+   "ticker": "TXN",
+   "accession": "0000097476-23-000023",
+   "fiscal_period_end": null,
+   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000009747623000023/q12023txnex99-er1.htm",
+   "selected_statement_table_index": NaN,
+   "selected_row_index": NaN,
+   "selected_row_label": null,
+   "selected_column_label": null,
+   "parsed_value": NaN,
+   "later_xbrl_reference": null,
+   "audit_status": "not_extracted",
+   "parse_reason": "q12023txnex99-er1.htm:no_structural_match"
+  }
+ ]
+}
