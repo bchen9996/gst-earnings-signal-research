@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1020" height="470" viewBox="0 0 1020 470" role="img" aria-labelledby="t d">
+<title id="t">Earnings-surprise replication intervals</title>
+<desc id="d">Point estimates and bootstrap intervals for two non-overlapping samples, shown separately and never pooled.</desc>
+<rect width="1020" height="470" fill="#ffffff"/>
+<text x="40" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="19" fill="#1a1a1a" text-anchor="start" font-weight="bold" font-style="normal">Figure 2. Earnings-surprise replication: MAE difference (baseline minus augmented)</text>
+<text x="40" y="70" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">Positive means adding vendor-defined earnings surprise reduced out-of-sample forecast error.</text>
+<text x="40" y="90" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">Bars are 95% moving-block bootstrap intervals (2,000 draws, 28-day blocks, seed 20260817).</text>
+<text x="40" y="110" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="italic">The two samples do not overlap in time and are NOT pooled.</text>
+<line x1="494.43" y1="128" x2="494.43" y2="292" stroke="#1a1a1a" stroke-width="1.4" stroke-dasharray="5,4"/>
+<text x="494.4288183960996" y="120" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#1a1a1a" text-anchor="middle" font-weight="normal" font-style="normal">zero</text>
+<text x="40" y="154" font-family="Georgia, 'Times New Roman', serif" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="bold" font-style="normal">PR #34 study</text>
+<text x="40" y="174" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">2023-2025 · n = 116 OOS events</text>
+<line x1="410.74" y1="150" x2="859.26" y2="150" stroke="#0072b2" stroke-width="3"/>
+<line x1="410.74" y1="141" x2="410.74" y2="159" stroke="#0072b2" stroke-width="3"/>
+<line x1="859.26" y1="141" x2="859.26" y2="159" stroke="#0072b2" stroke-width="3"/>
+<circle cx="640.67" cy="150" r="6" fill="#0072b2"/>
+<text x="410.7352941176471" y="184" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">-0.0007272</text>
+<text x="859.2647058823529" y="184" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">0.0031700</text>
+<text x="640.6726711204003" y="132" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#0072b2" text-anchor="middle" font-weight="bold" font-style="normal">mean 0.0012707</text>
+<text x="946" y="154" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">interval includes zero</text>
+<text x="40" y="250" font-family="Georgia, 'Times New Roman', serif" font-size="14" fill="#1a1a1a" text-anchor="start" font-weight="bold" font-style="normal">PR #35 replication</text>
+<text x="40" y="270" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">2010-2017 · n = 283 OOS events</text>
+<line x1="487.97" y1="246" x2="740.05" y2="246" stroke="#d55e00" stroke-width="3"/>
+<line x1="487.97" y1="237" x2="487.97" y2="255" stroke="#d55e00" stroke-width="3"/>
+<line x1="740.05" y1="237" x2="740.05" y2="255" stroke="#d55e00" stroke-width="3"/>
+<circle cx="607.35" cy="246" r="6" fill="#d55e00"/>
+<text x="487.97477060212" y="280" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">-0.0000561</text>
+<text x="740.051846586196" y="280" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">0.0021342</text>
+<text x="607.3480312386085" y="228" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#d55e00" text-anchor="middle" font-weight="bold" font-style="normal">mean 0.0009811</text>
+<text x="946" y="250" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">interval includes zero</text>
+<line x1="330" y1="312" x2="940" y2="312" stroke="#5b5b5b" stroke-width="1"/>
+<line x1="379.34" y1="312" x2="379.34" y2="318" stroke="#5b5b5b"/>
+<text x="379.3386970383769" y="332" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">-0.001</text>
+<line x1="494.43" y1="312" x2="494.43" y2="318" stroke="#5b5b5b"/>
+<text x="494.4288183960996" y="332" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">0.000</text>
+<line x1="609.52" y1="312" x2="609.52" y2="318" stroke="#5b5b5b"/>
+<text x="609.5189397538222" y="332" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">0.001</text>
+<line x1="724.61" y1="312" x2="724.61" y2="318" stroke="#5b5b5b"/>
+<text x="724.6090611115449" y="332" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">0.002</text>
+<line x1="839.70" y1="312" x2="839.70" y2="318" stroke="#5b5b5b"/>
+<text x="839.6991824692675" y="332" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">0.003</text>
+<text x="635.0" y="354" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="middle" font-weight="normal" font-style="normal">MAE difference (baseline minus augmented), in return units</text>
+<text x="40" y="448" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#5b5b5b" text-anchor="start" font-weight="normal" font-style="normal">Both intervals include zero, so both windows failed the same unchanged uncertainty gate.</text>
+</svg>
