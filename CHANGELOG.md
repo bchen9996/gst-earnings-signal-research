@@ -1,6 +1,61 @@
 # Changelog
 
 
+## 2026-08-17 — Structured earnings feasibility probe: STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT
+
+Outcome-blind data audit of the official Alpha Vantage `EARNINGS` endpoint, asking whether the
+semiconductor earnings-surprise study can be run credibly without further hand-built parser work.
+**This is a data audit, not an outcome study. No return, price, price reaction, volume, option,
+model or trading result was read or computed.** `FROZEN_STRUCTURED_EARNINGS_FEASIBILITY_DESIGN` was
+committed at `088dc8e`, before the first provider request.
+
+Decision: **`STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT`**. Seven of eight gates pass; the crosswalk
+gate fails.
+
+| Gate | Value | Required | |
+|---|---|---|---|
+| g1 tickers with complete records | 10 | ≥ 8 | pass |
+| g2 complete records 2018–2025 | 320 | ≥ 200 | pass |
+| g3 complete records 2023–2025 | 120 | ≥ 90 | pass |
+| g4 complete per year 2023/24/25 | 40 / 40 / 40 | ≥ 25 | pass |
+| **g5 unique SEC crosswalk rate** | **0.6719** | **≥ 0.90** | **fail** |
+| g6 surprise-arithmetic agreement | 1.0000 (320/320) | ≥ 0.99 | pass |
+| g7 unresolved duplicate identities | 0 | 0 | pass |
+| g8 vendor-vs-GAAP terminology | true | true | pass |
+
+All ten tickers retrieved; 1153 raw records, 320 in period, 320 complete, 32 per ticker, 40 per
+year, 0 malformed, 0 duplicates. The first attempt returned 369-byte **rate-limit notices** for 5
+tickers; a throttle is a transport failure, not a coverage finding, so retrieval now retries with
+backoff, never caches a body that fails the provider-error check, and reports `DATA_ACCESS_BLOCKED`
+rather than a coverage verdict if any ticker stays throttled.
+
+**The failing gate is not a provider defect.** The frozen crosswalk requires a fiscal-period match,
+and `fiscal_period_end` exists for only 267 of the 306 SEC Item 2.02 events — it is populated only
+where the hand-built parser dated the filing. The structural ceiling is therefore **267/320 =
+0.8344**, already below 0.90 before any provider record was examined: the same class of defect the
+extraction phase found in its own reference design. A report-date-only match against the full
+306-event index reaches **300/320 = 0.9375 with zero ambiguity**; that is recorded as a
+**diagnostic and was not substituted for the gate**.
+
+Alpha Vantage vs the 150 SEC-validated parser values, on 139 overlapping events: **8 match within
+$0.01 (5.76%)**, median absolute difference **$0.26**. The differences are not random — they
+decompose into (a) **retroactive 10-for-1 split restatement** for LRCX 0.1033, KLAC 0.1074,
+NVDA 0.1645 and AVGO 0.2877 median provider/SEC ratio, and (b) a **GAAP-versus-adjusted** difference
+among the 45 near-parity pairs (8 within $0.01, median $0.05, one outright sign disagreement).
+EPS agreement was never a gate and neither source was corrected by the other.
+
+Provider EPS is therefore **vendor-defined and restated, not SEC-validated GAAP diluted EPS**; any
+eventual construct is named `VENDOR_DEFINED_REPORTED_EPS_SURPRISE`. Alpha Vantage publishes no
+guarantee that historical `estimatedEPS` is the contemporaneous consensus preserved as of the
+announcement, so **`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED`** is recorded — reinforced by
+the split-restatement evidence and not resolved by assumption.
+
+The key is read only from `ALPHAVANTAGE_API_KEY` and never printed, logged, serialized, committed or
+placed in a recorded URL. Raw bodies are cached repository-external with timestamp, byte count,
+SHA-256, HTTP status and redacted URL. **Passing feasibility would not authorize modeling, and this
+pass did not pass.**
+
+
 ## 2026-08-17 — Semiconductor EPS absorption: extraction interpretation corrected
 
 **Semantic correction only. No extraction count, gate threshold or prior numerical artifact was

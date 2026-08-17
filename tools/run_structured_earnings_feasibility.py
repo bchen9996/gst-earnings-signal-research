@@ -234,8 +234,38 @@ def provider_error(payload):
     return None
 
 
-def fetch(ticker, key, timeout=60, use_cache=True):
-    """Fetch one ticker. Returns (raw_bytes, meta). Raises nothing key-bearing."""
+THROTTLE_MARK = re.compile(
+    r"(spreading out your free api requests|higher api call volume|call frequency|"
+    r"premium plan|rate limit|per (minute|day))", re.I)
+REQUEST_SPACING_S = 2.0     # provider asks for <= 1 request/second on the free tier
+MAX_ATTEMPTS = 5
+
+
+def is_throttle(err):
+    """A throttle notice is a TRANSPORT failure, never a data finding."""
+    return bool(err) and bool(THROTTLE_MARK.search(str(err)))
+
+
+def _http_get(ticker, key, timeout):
+    url = f"{ENDPOINT}?" + urllib.parse.urlencode(
+        {"function": "EARNINGS", "symbol": ticker, "apikey": key})
+    try:
+        with urllib.request.urlopen(
+                urllib.request.Request(url, headers={"User-Agent": "gst-feasibility-audit"}),
+                timeout=timeout) as r:
+            return r.status, r.read()
+    except urllib.error.HTTPError as e:
+        return e.code, e.read()
+    except Exception as e:                    # network-level failure
+        raise RuntimeError(redact(f"{type(e).__name__}: {e}", key)) from None
+
+
+def fetch(ticker, key, timeout=60, use_cache=True, max_attempts=MAX_ATTEMPTS, sleeper=time.sleep):
+    """Fetch one ticker with throttle-aware retry.
+
+    Only a payload that passes provider_error() is ever cached, so a throttle
+    notice can never poison the cache or masquerade as missing coverage.
+    """
     CACHE.mkdir(parents=True, exist_ok=True)
     cf = CACHE / f"AV_EARNINGS_{ticker}.json"
     mf = CACHE / f"AV_EARNINGS_{ticker}.meta.json"
@@ -244,27 +274,27 @@ def fetch(ticker, key, timeout=60, use_cache=True):
         meta = json.loads(mf.read_text(encoding="utf-8"))
         meta["from_cache"] = True
         return raw, meta
-    url = f"{ENDPOINT}?" + urllib.parse.urlencode(
-        {"function": "EARNINGS", "symbol": ticker, "apikey": key})
-    status, raw = None, b""
-    try:
-        with urllib.request.urlopen(
-                urllib.request.Request(url, headers={"User-Agent": "gst-feasibility-audit"}),
-                timeout=timeout) as r:
-            status = r.status
-            raw = r.read()
-    except urllib.error.HTTPError as e:      # noqa: PERF203 - explicit branch
-        status, raw = e.code, e.read()
-    except Exception as e:                    # network-level failure
-        raise RuntimeError(redact(f"{type(e).__name__}: {e}", key)) from None
+    status, raw, err, attempts = None, b"", None, 0
+    for attempt in range(1, max_attempts + 1):
+        attempts = attempt
+        status, raw = _http_get(ticker, key, timeout)
+        try:
+            payload = json.loads(raw.decode("utf-8", "replace"))
+        except json.JSONDecodeError:
+            payload = None
+        err = provider_error(payload)
+        if not is_throttle(err):
+            break
+        sleeper(REQUEST_SPACING_S * (2 ** attempt))     # exponential backoff
     meta = {"ticker": ticker,
             "retrieved_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "http_status": status, "byte_count": len(raw),
             "sha256": sha256_bytes(raw), "provider_url_redacted": redacted_url(ticker),
-            "from_cache": False}
-    cf.write_bytes(raw)
-    mf.write_text(json.dumps(meta, indent=1), encoding="utf-8")
-    time.sleep(0.5)
+            "attempts": attempts, "throttled": is_throttle(err), "from_cache": False}
+    if err is None:
+        cf.write_bytes(raw)
+        mf.write_text(json.dumps(meta, indent=1), encoding="utf-8")
+    sleeper(REQUEST_SPACING_S)
     return raw, meta
 
 
@@ -376,10 +406,11 @@ def load_sec_events(path=SEC_PANEL):
     """SEC Item 2.02 event index. No return/price column exists here or is read."""
     df = pd.read_csv(path, usecols=["ticker", "cik", "accession", "filing_date",
                                     "fiscal_period_end", "eps", "audit_status"])
-    df = df[df.fiscal_period_end.notna() & df.filing_date.notna()]
+    df = df[df.filing_date.notna()]
     return [{"ticker": r.ticker, "accession": r.accession,
              "filing_date": str(r.filing_date)[:10],
-             "fiscal_period_end": str(r.fiscal_period_end)[:10],
+             "fiscal_period_end": (None if pd.isna(r.fiscal_period_end)
+                                   else str(r.fiscal_period_end)[:10]),
              "eps": (None if pd.isna(r.eps) else float(r.eps)),
              "audit_status": (None if pd.isna(r.audit_status) else str(r.audit_status))}
             for r in df.itertuples(index=False)]
@@ -397,7 +428,8 @@ def crosswalk(records, sec_events, fpe_window=FPE_WINDOW_DAYS, rpt_window=REPORT
     out = []
     for r in records:
         cands = [e for e in by_ticker.get(r["ticker"], [])
-                 if _days(r["fiscalDateEnding"], e["fiscal_period_end"]) <= fpe_window
+                 if e["fiscal_period_end"]
+                 and _days(r["fiscalDateEnding"], e["fiscal_period_end"]) <= fpe_window
                  and _days(r["reportedDate"], e["filing_date"]) <= rpt_window]
         if not cands:
             out.append({"record": r, "status": "unmatched_no_candidate", "sec": None,
@@ -421,6 +453,59 @@ def crosswalk(records, sec_events, fpe_window=FPE_WINDOW_DAYS, rpt_window=REPORT
 UNIQUE_STATUSES = ("unique", "unique_after_tiebreak")
 
 
+def crosswalk_diagnostics(records, sec_events, rpt_window=REPORT_WINDOW_DAYS):
+    """DIAGNOSTIC ONLY -- NEVER a gate and never substituted for one.
+
+    The frozen crosswalk requires a fiscal-period match. fiscal_period_end exists in
+    the SEC index only for events the hand-built parser successfully dated, so the
+    frozen rule inherits that parser's coverage. This quantifies the resulting
+    structural ceiling, and separately reports a report-date-only match against the
+    FULL Item 2.02 index to show what the provider records themselves support.
+    """
+    total = len(sec_events)
+    dated = sum(1 for e in sec_events if e["fiscal_period_end"])
+    by_ticker = {}
+    for e in sec_events:
+        by_ticker.setdefault(e["ticker"], []).append(e)
+    uniq = amb = none = 0
+    for r in records:
+        c = [e for e in by_ticker.get(r["ticker"], [])
+             if _days(r["reportedDate"], e["filing_date"]) <= rpt_window]
+        if not c:
+            none += 1
+        elif len(c) == 1:
+            uniq += 1
+        else:
+            d = [_days(r["reportedDate"], e["filing_date"]) for e in c]
+            if sum(1 for x in d if x == min(d)) == 1:
+                uniq += 1
+            else:
+                amb += 1
+    n = len(records)
+    return {
+        "IS_A_GATE": False,
+        "note": ("Diagnostic only. The frozen g5 crosswalk gate stands exactly as "
+                 "computed; nothing here replaces, relaxes or re-scores it."),
+        "sec_index_events_total": total,
+        "sec_index_events_with_parsed_fiscal_period": dated,
+        "sec_index_events_without_parsed_fiscal_period": total - dated,
+        "structural_ceiling_on_frozen_crosswalk_rate": (
+            None if not n else round(dated / n, 4)),
+        "structural_ceiling_derivation": (
+            None if not n else f"{dated}/{n} = {round(dated / n, 4)}"),
+        "frozen_gate_requires": GATES["crosswalk_rate_min"],
+        "frozen_gate_reachable": (None if not n else (dated / n)
+                                  >= GATES["crosswalk_rate_min"]),
+        "binding_constraint": ("the SEC index's own parse coverage, not the provider's "
+                               "record coverage"),
+        "report_date_only_match": {
+            "window_days": rpt_window, "against": "the full Item 2.02 index",
+            "uniquely_matched": uniq, "ambiguous": amb, "no_candidate": none,
+            "rate": (None if not n else round(uniq / n, 4)),
+        },
+    }
+
+
 def compare_eps(cross, tol=EPS_TOL):
     """Provider reportedEPS versus SEC-validated parser EPS on overlapping events."""
     pairs = [(c["record"], c["sec"]) for c in cross
@@ -433,8 +518,47 @@ def compare_eps(cross, tol=EPS_TOL):
     srt = sorted(diffs, key=lambda x: -x[0])
     med = (None if n == 0 else
            float(pd.Series([d for d, _, _ in diffs]).median()))
+    # Definition signature: are the differences consistent with a retroactive split
+    # restatement, a GAAP-versus-adjusted definition difference, or neither?
+    rr = [(abs(r["reportedEPS"] / s["eps"]), r["reportedEPS"] / s["eps"], r, s)
+          for r, s in pairs if abs(s["eps"]) > 1e-9]
+    split_like = [x for x in rr if 0.085 <= x[0] <= 0.115]
+    parity_like = [x for x in rr if 0.85 <= x[0] <= 1.15]
+    sign_flip = [x for x in rr if x[1] is not None and x[1] < 0]
+    par_d = [abs(x[2]["reportedEPS"] - x[3]["eps"]) for x in parity_like]
+    par_within = sum(1 for d in par_d if d <= tol + 1e-9)
+    per_ticker = {}
+    for x in rr:
+        per_ticker.setdefault(x[2]["ticker"], []).append(x[0])
     return {"overlapping_events": n,
             "match_within_0_01": within,
+            "definition_signature": {
+                "split_restated_like_pairs": len(split_like),
+                "split_restated_like_note": ("provider/SEC EPS ratio in [0.085, 0.115], the "
+                                             "signature of a retroactive 10-for-1 split "
+                                             "restatement of historical EPS"),
+                "near_parity_pairs": len(parity_like),
+                "near_parity_match_within_0_01": par_within,
+                "near_parity_match_rate": (None if not par_d else
+                                           round(par_within / len(par_d), 4)),
+                "near_parity_median_absolute_difference": (
+                    None if not par_d else round(float(pd.Series(par_d).median()), 4)),
+                "sign_disagreements": len(sign_flip),
+                "sign_disagreement_note": ("provider and SEC disagree on the sign of EPS; "
+                                           "the signature of an adjusted/non-GAAP figure "
+                                           "against a GAAP loss"),
+                "median_ratio_by_ticker": {t: round(float(pd.Series(v).median()), 4)
+                                           for t, v in sorted(per_ticker.items())},
+                "consistent_with_gaap_versus_adjusted": bool(parity_like) and par_within < len(par_d),
+                "consistent_with_retroactive_split_restatement": bool(split_like),
+                "interpretation": (
+                    "Differences are NOT random error. They decompose into (a) retroactive "
+                    "split restatement of historical EPS for the tickers that later split, "
+                    "and (b) a GAAP-versus-adjusted definition difference among the "
+                    "remaining near-parity pairs, including outright sign disagreements. "
+                    "Provider EPS is therefore vendor-defined, not SEC-validated GAAP "
+                    "diluted EPS, and its historical values are not preserved as announced."),
+            },
             "match_rate_within_0_01": (None if n == 0 else round(within / n, 4)),
             "median_absolute_difference": (None if med is None else round(med, 4)),
             "largest_discrepancies": [
@@ -516,7 +640,7 @@ def main(argv=None):
         print(LABELS[4])
         return 2
 
-    retrieval, all_records, all_rejects, errors = [], [], [], []
+    retrieval, all_records, all_rejects, errors, throttled = [], [], [], [], []
     for t in UNIVERSE:
         try:
             raw, meta = fetch(t, key)
@@ -536,7 +660,10 @@ def main(argv=None):
         meta["provider_error"] = redact(err, key) if err else None
         retrieval.append(meta)
         if err:
-            errors.append({"ticker": t, "error": redact(err, key)})
+            errors.append({"ticker": t, "error": redact(err, key),
+                           "throttle": is_throttle(err)})
+            if is_throttle(err):
+                throttled.append(t)
             continue
         recs, rej = sanitize(payload, t)
         all_records.extend(recs)
@@ -586,7 +713,9 @@ def main(argv=None):
     terminology_ok = True   # asserted by the artifact fields written below
     gates = evaluate(complete, len(tickers_complete), xrate, arith_rate,
                      len(dup_refused), terminology_ok)
-    label = decide(gates, pit_guaranteed=False, access_blocked=False)
+    # A ticker still throttled after retries is a TRANSPORT failure. Coverage computed
+    # over an incomplete retrieval must never be reported as a coverage finding.
+    label = decide(gates, pit_guaranteed=False, access_blocked=bool(throttled))
 
     art = {
         "artifact": "STRUCTURED_EARNINGS_FEASIBILITY", "version": "1.0",
@@ -609,11 +738,36 @@ def main(argv=None):
         "point_in_time_provenance": {
             "status": PIT_NOT_GUARANTEED,
             "official_guarantee_found": False,
+            "documentation_checked": "https://www.alphavantage.co/documentation/ (EARNINGS)",
             "note": ("No official Alpha Vantage guarantee was found that historical "
                      "estimatedEPS is the contemporaneous consensus preserved as of the "
-                     "announcement. The limitation is recorded, not resolved by assumption."),
+                     "announcement. The documentation describes the fields but makes no "
+                     "point-in-time, as-of-announcement or non-restatement claim for them. "
+                     "The limitation is recorded, not resolved by assumption."),
+            "empirical_counter_evidence": (
+                "Historical reportedEPS is demonstrably RESTATED rather than preserved as "
+                "announced: for every ticker that later executed a 10-for-1 split (NVDA, "
+                "AVGO, LRCX and KLAC) the provider's historical EPS is carried on the "
+                "post-split share basis, giving provider/SEC ratios clustered near 0.10 "
+                "against the as-announced SEC exhibit figures. Restatement of reportedEPS "
+                "does not by itself prove estimatedEPS is also restated, but it removes any "
+                "basis for assuming the series is point-in-time."),
+            "consequence": ("Any surprise built on this source is "
+                            f"{CONSTRUCT_NAME} computed from possibly-restated inputs, and "
+                            "must not be described as a point-in-time consensus surprise."),
         },
         "retrieval": retrieval, "provider_errors": errors,
+        "retrieval_integrity": {
+            "tickers_requested": len(UNIVERSE),
+            "tickers_retrieved": sum(1 for m in retrieval if not m.get("provider_error")
+                                     and not m.get("error")),
+            "throttled_after_retries": throttled,
+            "retrieval_complete": not throttled,
+            "note": ("A throttle notice is a transport failure, not a data finding. If any "
+                     "ticker remains throttled after retries the run reports "
+                     "DATA_ACCESS_BLOCKED and its coverage counts are NOT a coverage "
+                     "finding."),
+        },
         "counts": {
             "tickers_requested": len(UNIVERSE),
             "tickers_with_payload": sum(1 for m in retrieval if not m.get("provider_error")
@@ -648,6 +802,7 @@ def main(argv=None):
             "unmatched_no_candidate": len(nomatch),
             "crosswalk_rate": xrate,
         },
+        "crosswalk_diagnostics": crosswalk_diagnostics(complete, sec),
         "provider_vs_sec_eps": compare_eps(cross),
         "gates": gates,
         "sanitized_panel": panel,
