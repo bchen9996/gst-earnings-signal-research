@@ -1,0 +1,79 @@
+{
+ "artifact": "SEMICONDUCTOR_EPS_ABSORPTION_RESULTS",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "sector": "SEMICONDUCTORS",
+ "decision_label": "EXTRACTION_NOT_RELIABLE",
+ "google_trends_used": false,
+ "analyst_consensus_used": false,
+ "later_xbrl_used_for_prediction": false,
+ "later_xbrl_role": "audit reference only; it never selected, replaced or altered an Exhibit value and never entered a model feature",
+ "stopped_at": "phase_1_extraction_quality_gate",
+ "universe": ["NVDA", "AMD", "INTC", "QCOM", "AVGO", "MU", "TXN", "AMAT", "LRCX", "KLAC"],
+ "benchmark_primary": "SMH",
+ "benchmark_sensitivity_only": "SPY",
+ "question": "Does a mismatch between standardized unexpected GAAP diluted EPS and the market's first full-session reaction predict subsequent semiconductor-stock drift?",
+ "coverage": {
+  "item_202_events_2018_2025": 306,
+  "located_earnings_exhibits": 250,
+  "extracted_gaap_diluted_eps": 123,
+  "duplicate_identities_refused": 0
+ },
+ "extraction_audit": {
+  "validated": 92,
+  "contradicted": 0,
+  "no_reference": 31,
+  "tolerance_eps_absolute": 0.01,
+  "xbrl_concept_used": "us-gaap:EarningsPerShareDiluted",
+  "equivalent_concepts_needed": false
+ },
+ "extracted_by_ticker": {
+  "NVDA": 0, "AMD": 31, "INTC": 0, "QCOM": 9, "AVGO": 0,
+  "MU": 0, "TXN": 0, "AMAT": 30, "LRCX": 30, "KLAC": 23
+ },
+ "gates": {
+  "reference_coverage": {"value": 0.748, "required": 0.8, "passed": false},
+  "conditional_precision": {"value": 1.0, "required": 0.95, "passed": true},
+  "usable_event_coverage": {"value": 0.244, "required": 0.6, "passed": false},
+  "tickers": {"value": 4, "required": 8, "passed": false},
+  "usable_events": {"value": 61, "required": 160, "passed": false},
+  "oos_events": {"value": 32, "required": 90, "passed": false},
+  "oos_per_year": {"value": {"2023": 12, "2024": 10, "2025": 10}, "required": 25, "passed": false},
+  "later_xbrl_predictive_inputs": {"value": 0, "required": 0, "passed": true},
+  "overall_passed": false
+ },
+ "dev_sample": {
+  "seed": "SEMICONDUCTOR_EPS_PARSER_DEV",
+  "rule": "ascending SHA-256 of 'SEMICONDUCTOR_EPS_PARSER_DEV|ticker|fiscal_period_end|accession', 2 per ticker where available; no reference to returns",
+  "n": 17,
+  "tickers": 9,
+  "structural_spot_audit": {"validated": 4, "no_reference": 4, "not_extracted": 9, "contradicted": 0},
+  "spot_audit_note": "author-side structural record; explicitly NOT an independent human review"
+ },
+ "failure_character": "recall_limited_not_precision_limited",
+ "failure_note": "Every extracted value that had a later-XBRL reference matched it: 92 of 92, zero contradictions, conditional precision 1.0000. The parser is highly precise and structurally conservative. It fails because it refuses on five of the ten filers entirely, so coverage rather than correctness is the binding constraint.",
+ "tickers_with_zero_extraction": ["NVDA", "INTC", "AVGO", "MU", "TXN"],
+ "not_run_because_gate_failed": {
+  "frozen_design_outcome_commit": "not created",
+  "sue_construction": "not run",
+  "eps_price_gap": "not run",
+  "model_b_vs_model_c": "not run",
+  "block_bootstrap": "not run",
+  "trading_simulation": "not run",
+  "twenty_day_secondary": "not run",
+  "spy_sensitivity": "not run",
+  "post_entry_returns_inspected": false
+ },
+ "discipline": {
+  "gates_loosened_after_seeing_rates": false,
+  "values_hand_corrected": false,
+  "returns_used_to_choose_a_parsing_rule": false,
+  "parser_debugged_only_on_fixed_dev_sample": true
+ },
+ "prohibited_interpretations_not_made": [
+  "analyst surprise", "consensus miss", "fair value", "intrinsic value",
+  "proven mispricing", "causal underreaction"
+ ],
+ "most_important_limitation": "Semiconductor earnings releases are not structurally uniform enough for one conservative table parser: five of ten filers publish their consolidated statement of operations in a layout this parser refuses, so the study is blocked by coverage, not by measurement error. Because conditional precision is 1.0000, the correct successor is per-filer structural templates for the five refused layouts rather than looser matching, which would trade away the one property that is currently perfect.",
+ "reproduce": "python tools/run_semiconductor_eps_absorption.py"
+}

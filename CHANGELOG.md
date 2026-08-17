@@ -1,6 +1,54 @@
 # Changelog
 
 
+## 2026-08-17 — Semiconductor EPS–price absorption: EXTRACTION_NOT_RELIABLE
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. `sector: SEMICONDUCTORS`,
+`google_trends_used: false`, `analyst_consensus_used: false`,
+`later_xbrl_used_for_prediction: false`.
+
+Tested whether a mismatch between standardized unexpected GAAP diluted EPS and the market's first
+full-session reaction predicts subsequent semiconductor drift. Frozen universe NVDA, AMD, INTC,
+QCOM, AVGO, MU, TXN, AMAT, LRCX, KLAC; benchmark SMH; 8-K Item 2.02 events 2018–2025; outer test
+years 2023–2025. **The extraction gate failed, so the question was not tested** — no return was
+inspected, no SUE, no gap, no model, no bootstrap, no trade.
+
+306 Item 2.02 events → 250 located earnings exhibits → **123 GAAP diluted EPS extracted**.
+Later-10-Q XBRL `us-gaap:EarningsPerShareDiluted` as an audit reference only: **92 validated, 0
+contradicted, 31 without a reference in window**.
+
+| Gate | Value | Required | |
+|---|---|---|---|
+| reference_coverage | 0.7480 | ≥ 0.80 | fail |
+| conditional_precision | **1.0000** | ≥ 0.95 | pass |
+| usable_event_coverage | 0.2440 | ≥ 0.60 | fail |
+| tickers | 4 | ≥ 8 | fail |
+| usable events | 61 | ≥ 160 | fail |
+| OOS events | 32 | ≥ 90 | fail |
+| OOS per year (2023/24/25) | 12 / 10 / 10 | ≥ 25 each | fail |
+| later-XBRL predictive inputs | 0 | 0 | pass |
+
+**The failure is recall, not accuracy.** Every extracted value with a reference matched it, and five
+of ten filers (NVDA, INTC, AVGO, MU, TXN) yield nothing at all. Three structural defects were found
+and fixed on the fixed outcome-blind development sample (17 events / 9 tickers), lifting extraction
+from 33 to 123: a date regex that could not read `June 29,2024`; year-only header rows misclassified
+as data, which stripped the year from every column heading; and financial statements filed in a
+sibling exhibit rather than 99.1. The remaining five filers use a statement layout the structural
+acceptance test still refuses.
+
+Gates were not loosened after the rates were seen, no value was hand-corrected, and no return was
+used to choose a parsing rule. The later XBRL never selected, replaced or altered an Exhibit value
+and never entered a feature. SUE is defined as a seasonal historical-expectation surprise; nothing
+is called an analyst surprise, consensus miss, fair value, intrinsic value, proven mispricing or
+causal underreaction.
+
+Artifacts: `SEMICONDUCTOR_EPS_ABSORPTION_RESULTS_v1.0.json`,
+`SEMICONDUCTOR_EPS_ABSORPTION_REPORT_v1.0.md`,
+`Live Signal Engine/Semiconductor_EPS_Absorption/`,
+`tools/run_semiconductor_eps_absorption.py`,
+`test_market_response_semiconductor_eps_absorption.py` (71 checks).
+
+
 ## 2026-08-16 — Restaurant search pilot: NO_INCREMENTAL_SEARCH_VALUE
 
 `EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Not HYP-01 confirmation, not prospective collection.
