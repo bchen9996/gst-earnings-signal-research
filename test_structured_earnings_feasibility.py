@@ -363,11 +363,17 @@ ck("9a. the artifact contains no apikey query value",
 ck("9b. every recorded provider URL is redacted",
    all("<REDACTED>" in m["provider_url_redacted"] for m in A["retrieval"])
    and "<REDACTED>" in A["provider_endpoint_redacted"])
+# These three are environment-independent: with no key in the environment there is no
+# live secret to leak, so they hold vacuously rather than failing off-machine.
 ck("9c. the live key does not appear in the artifact",
-   bool(KEY) and KEY not in BLOB)
-ck("9d. the live key does not appear in the tool source", bool(KEY) and KEY not in TOOL)
+   (KEY not in BLOB) if KEY else True,
+   "" if KEY else "no key in environment; vacuously true")
+ck("9d. the live key does not appear in the tool source",
+   (KEY not in TOOL) if KEY else True)
 ck("9e. the live key does not appear in this test source",
-   KEY not in Path(__file__).read_text(encoding="utf-8"))
+   (KEY not in Path(__file__).read_text(encoding="utf-8")) if KEY else True)
+ck("9e2. no long alphanumeric literal is embedded as a key in the tool",
+   not re.search(r"[\"'][A-Z0-9]{14,20}[\"']", TOOL))
 ck("9f. redact removes the key from arbitrary text",
    "zzz" not in M.redact("boom zzz boom", "zzz"))
 ck("9g. redact strips an apikey parameter even when the key is unknown",
