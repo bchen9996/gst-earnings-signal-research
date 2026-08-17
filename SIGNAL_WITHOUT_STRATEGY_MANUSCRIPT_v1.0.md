@@ -553,9 +553,7 @@ is easier to cross accidentally, than intuition suggests.
    *Journal of Business and Economic Statistics*, 13(3), 253–263.
    https://doi.org/10.1080/07350015.1995.10524599
 8. Foster, G., Olsen, C., and Shevlin, T. (1984). Earnings releases, anomalies, and the behavior of
-   security returns. *The Accounting Review*, 59(4), 574–603. **Stable identifier unresolved** — no
-   DOI or JSTOR stable URL could be independently verified for this item; author names, title, year,
-   journal, volume and page range were confirmed against secondary indexes only.
+   security returns. *The Accounting Review*, 59(4), 574–603. https://www.jstor.org/stable/247321
 9. Harvey, C. R., Liu, Y., and Zhu, H. (2016). ... and the cross-section of expected returns.
    *Review of Financial Studies*, 29(1), 5–68. https://doi.org/10.1093/rfs/hhv059
 10. Kaufman, S., Rosset, S., Perlich, C., and Stitelman, O. (2012). Leakage in data mining:
