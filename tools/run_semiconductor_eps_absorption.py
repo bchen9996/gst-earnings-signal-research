@@ -63,8 +63,12 @@ EXTRACTION GATES (all evaluated BEFORE any return is inspected)
   usable_event_coverage = usable events / located earnings exhibits     >= 0.60
   tickers >= 8; usable events >= 160; OOS events >= 90; >= 25 OOS in each of
   2023, 2024, 2025; zero later-XBRL values used as predictive inputs.
-  Any failure -> EXTRACTION_NOT_RELIABLE. Gates are never loosened afterwards and no
-  value is ever hand-corrected after seeing aggregate validation rates.
+  Any failure -> frozen_gate_decision = FAILED_EXTRACTION_QUALITY_GATE, reported
+  alongside an independent extraction_characterization. (HISTORICAL: the first two
+  commits on this branch recorded a single label, EXTRACTION_NOT_RELIABLE. That label
+  is SUPERSEDED and is never emitted as a current classification.) Gates are never
+  loosened afterwards and no value is ever hand-corrected after seeing aggregate
+  validation rates.
 
 SUE           SUE(i,q) = (EPS(i,q) - EPS(i,q-4)) / sigma_i(seasonal EPS differences)
               Exhibit-extracted GAAP diluted EPS ONLY. The denominator uses ONLY
@@ -130,9 +134,16 @@ TRADING TEST  run ONLY if the predictive gate passes. Per outer fold: threshold 
   positive mean net return, bootstrap 95% interval entirely above zero, and positive
   net return in >= 2 of 3 years.
 
-LABELS        exactly one of EXTRACTION_NOT_RELIABLE | DATA_UNAVAILABLE |
+LABELS        the extraction phase reports TWO independent fields, never one label:
+  frozen_gate_decision        = PASSED_EXTRACTION_QUALITY_GATE |
+                                FAILED_EXTRACTION_QUALITY_GATE
+  extraction_characterization = HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE |
+                                HIGH_CONDITIONAL_PRECISION_AND_SUFFICIENT_VERIFIED_COVERAGE |
+                                LOW_CONDITIONAL_PRECISION | DATA_UNAVAILABLE
+  If the gate passes, the outcome stage reports exactly one of
   NO_SEMICONDUCTOR_EPS_ABSORPTION_EDGE | PREDICTIVE_NOT_TRADABLE |
   SEMICONDUCTOR_EPS_ABSORPTION_SIGNAL
+  (HISTORICAL: the superseded single label EXTRACTION_NOT_RELIABLE is never emitted.)
 ============================= END FROZEN_DESIGN =============================
 """
 from __future__ import annotations
@@ -180,6 +191,39 @@ TGATE = {"trades": 30, "years_positive": 2}
 
 UA = {"User-Agent": "gst-earnings-signal-research academic research (hakurati11@gmail.com)"}
 UA_MKT = {"User-Agent": "Mozilla/5.0"}
+
+# Current classification vocabulary. The single label EXTRACTION_NOT_RELIABLE is
+# SUPERSEDED and is never emitted as a current classification: it conflated a failed
+# coverage gate with a verdict on extraction accuracy, which the measured conditional
+# precision contradicts. The gate decision and the characterization are reported as two
+# independent fields.
+SUPERSEDED_LABEL = "EXTRACTION_NOT_RELIABLE"          # historical only, never emitted
+GATE_DECISIONS = ("PASSED_EXTRACTION_QUALITY_GATE", "FAILED_EXTRACTION_QUALITY_GATE")
+CHARACTERIZATIONS = ("HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE",
+                     "LOW_CONDITIONAL_PRECISION",
+                     "HIGH_CONDITIONAL_PRECISION_AND_SUFFICIENT_VERIFIED_COVERAGE",
+                     "DATA_UNAVAILABLE")
+
+
+def classify(gates, validated, contradicted):
+    """Recompute the two current classification fields from the gate values.
+
+    Returns (frozen_gate_decision, extraction_characterization). Never returns the
+    superseded single label. Nothing here loosens, reinterprets or re-scores a gate:
+    it only reports what the already-computed gates say.
+    """
+    passed = all(g["passed"] for g in gates.values())
+    decision = GATE_DECISIONS[0] if passed else GATE_DECISIONS[1]
+    referenced = validated + contradicted
+    if referenced == 0:
+        return decision, "DATA_UNAVAILABLE"
+    precise = (gates["conditional_precision"]["passed"]
+               and gates["heldout_conditional_precision"]["passed"])
+    if not precise:
+        return decision, "LOW_CONDITIONAL_PRECISION"
+    covered = (gates["reference_coverage"]["passed"]
+               and gates["usable_event_coverage"]["passed"])
+    return decision, (CHARACTERIZATIONS[2] if covered else CHARACTERIZATIONS[0])
 
 
 def get(url, hdr, key, timeout=60):
@@ -884,8 +928,11 @@ def phase1():
     (OUT / "provenance_v1.0.json").write_text(
         json.dumps(prov, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
 
+    gate_decision, characterization = classify(gates, validated, contradicted)
     val = {"artifact": "SEMICONDUCTOR_EPS_EXTRACTION_VALIDATION", "version": "1.0",
            "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY", "sector": SECTOR,
+           "frozen_gate_decision": gate_decision,
+           "extraction_characterization": characterization,
            "google_trends_used": False, "analyst_consensus_used": False,
            "later_xbrl_used_for_prediction": False,
            "later_xbrl_role": ("audit reference only; it never selected, replaced or altered "
@@ -928,7 +975,9 @@ def main() -> int:
         # Gate failed. Stop BEFORE any return is inspected. No FROZEN_DESIGN outcome
         # commit, no SUE construction, no Model B/C fit, no bootstrap, no trading test.
         failing = [k for k, g in val["gates"].items() if not g["passed"]]
-        print("STOP: EXTRACTION_NOT_RELIABLE; failing gates:", failing)
+        print("STOP: frozen_gate_decision:", val["frozen_gate_decision"])
+        print("      extraction_characterization:", val["extraction_characterization"])
+        print("      failing gates:", failing)
         return 0
     raise SystemExit("phase 2 runs only after the extraction gate passes")
 
