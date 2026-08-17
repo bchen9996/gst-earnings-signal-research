@@ -7,7 +7,8 @@ Targets **magnitude**, never direction — stock direction is never a target any
 
 # `NO_INCREMENTAL_SEARCH_VALUE`
 
-**No search family helps, and nothing beats the probabilistic null.**
+**No search family helps. On the prespecified primary metric — pooled out-of-sample Brier — and on
+log loss, the probabilistic null wins.**
 
 | Model | **Brier** | Log loss | AUC | Accuracy @0.5 |
 |---|---|---|---|---|
@@ -16,8 +17,24 @@ Targets **magnitude**, never direction — stock direction is never a target any
 | **C.** B + investor attention (`[TICKER] stock`) | 0.23665 | 0.81574 | 0.6177 | 0.7073 |
 | **D.** C + product demand (consumer brand) | 0.24739 | 0.90235 | 0.6427 | 0.6829 |
 
-**Brier gets monotonically worse as features are added.** The intercept-only null wins outright; adding
-investor attention makes it worse; adding brand demand makes it worse again.
+**Brier gets monotonically worse as features are added.** The intercept-only null wins **on Brier and
+log loss**; adding investor attention makes both worse; adding brand demand makes them worse again.
+
+### The null does not win on every metric — and the exception is not a search result
+
+Baseline **Model B**, which contains **no search features at all**, shows secondary ranking evidence:
+
+| Metric | Model B | Reference |
+|---|---|---|
+| AUC | **0.6460** | null 0.4665 |
+| Top-quintile realized large-move rate | **35.29%** | base rate 24.39% |
+| Lift over base rate | **1.447×** | — |
+
+That ranking evidence belongs to the **non-search baseline**. It carries **no prespecified inferential
+decision rule** in this pilot — no threshold, no test, no multiplicity control — so it **does not
+establish an investable model**, and it provides **no evidence whatever for GST or product-demand
+searches**, both of which made every metric worse. It is reported because it is true, not because it
+supports anything.
 
 ## Central test — C versus D
 
@@ -67,8 +84,9 @@ Same ordering: search makes the continuous forecast worse too.
 | 4 | 21 | **0.7549** | **0.2381** |
 
 D is badly miscalibrated: it is far too confident in its top bin, where the realized rate (23.8%) is
-*below* the base rate. AUC near 0.64 with a worse Brier than a constant is the signature of usable
-*ordering* destroyed by overconfident probabilities — which is exactly why Brier, not AUC, is primary.
+*below* the base rate. **AUC ≈ 0.64 indicates limited ranking ability, but the probabilities are
+severely overconfident and miscalibrated; consequently, the model loses to the null on the
+prespecified Brier score.**
 
 ## Sample and timing
 
