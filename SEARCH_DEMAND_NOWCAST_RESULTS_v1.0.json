@@ -1,0 +1,334 @@
+{
+ "artifact": "SEARCH_DEMAND_NOWCAST_RESULTS",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "study_type": "fundamentals nowcasting; NOT a stock-return or trading study",
+ "ticker_gst_used": false,
+ "stock_returns_or_options_retrieved": false,
+ "point_in_time_limitation": "Google Trends series retrieved today are a RETROSPECTIVE RECONSTRUCTION. Google rescales to the requested window's maximum and may revise sampling, so the identical series was not necessarily available at the time each quarter closed. This MVP can generate a prospective hypothesis; it cannot establish contemporaneous availability.",
+ "frozen_queries": [
+  {
+   "ticker": "SBUX",
+   "frozen_search_query": "Starbucks",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "MCD",
+   "frozen_search_query": "McDonald's",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "CMG",
+   "frozen_search_query": "Chipotle Mexican Grill",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "DPZ",
+   "frozen_search_query": "Domino's Pizza",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "WING",
+   "frozen_search_query": "Wingstop",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "CAVA",
+   "frozen_search_query": "CAVA restaurant",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "TXRH",
+   "frozen_search_query": "Texas Roadhouse",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  },
+  {
+   "ticker": "BROS",
+   "frozen_search_query": "Dutch Bros Coffee",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly"
+  }
+ ],
+ "companies_unavailable": [],
+ "search_parameters": {
+  "geo": "US",
+  "gprop": "web",
+  "category": 0,
+  "frequency": "weekly",
+  "related_query_selection": false,
+  "outcome_informed_substitution": false
+ },
+ "search_features": [
+  "search_quarter_avg",
+  "search_surprise"
+ ],
+ "revenue_concepts_used": {
+  "SBUX": "Revenues",
+  "MCD": "Revenues",
+  "CMG": "Revenues",
+  "DPZ": "Revenues",
+  "WING": "Revenues",
+  "CAVA": "RevenueFromContractWithCustomerExcludingAssessedTax",
+  "TXRH": "SalesRevenueNet",
+  "BROS": "RevenueFromContractWithCustomerExcludingAssessedTax"
+ },
+ "models": {
+  "A": "expanding company-level historical mean",
+  "B": "ridge(alpha=1.0) on fundamentals + fiscal-quarter + company indicators",
+  "C": "B plus the two frozen search-demand features"
+ },
+ "no_model_or_hyperparameter_search": true,
+ "sample": {
+  "raw_quarterly_revenue_facts": 292,
+  "panel_company_quarters": 251,
+  "eligible_company_quarters": 66,
+  "companies": [
+   "BROS",
+   "CAVA",
+   "CMG",
+   "DPZ",
+   "MCD",
+   "SBUX",
+   "WING"
+  ],
+  "date_range": [
+   "2022-06-19",
+   "2025-12-28"
+  ]
+ },
+ "folds": [
+  {
+   "test_year": "2023",
+   "status": "SKIPPED",
+   "n_train": 9,
+   "n_test": 18
+  },
+  {
+   "test_year": "2024",
+   "n_train": 27,
+   "n_test": 18,
+   "A": {
+    "n": 18,
+    "mae_pp": 5.3765,
+    "rmse_pp": 6.7562,
+    "r2_vs_model_a": 0.0
+   },
+   "B": {
+    "n": 18,
+    "mae_pp": 6.8212,
+    "rmse_pp": 8.3003,
+    "r2_vs_model_a": -0.50935
+   },
+   "C": {
+    "n": 18,
+    "mae_pp": 6.0994,
+    "rmse_pp": 7.1683,
+    "r2_vs_model_a": -0.12572
+   }
+  },
+  {
+   "test_year": "2025",
+   "n_train": 45,
+   "n_test": 20,
+   "A": {
+    "n": 20,
+    "mae_pp": 7.2822,
+    "rmse_pp": 9.8276,
+    "r2_vs_model_a": 0.0
+   },
+   "B": {
+    "n": 20,
+    "mae_pp": 5.9599,
+    "rmse_pp": 7.8912,
+    "r2_vs_model_a": 0.35526
+   },
+   "C": {
+    "n": 20,
+    "mae_pp": 7.5702,
+    "rmse_pp": 8.9999,
+    "r2_vs_model_a": 0.16135
+   }
+  }
+ ],
+ "out_of_sample": {
+  "n": 38,
+  "companies": 7
+ },
+ "minimum_sample_gates": {
+  "min_eligible_quarters": true,
+  "min_oos_observations": false,
+  "min_oos_companies": true,
+  "required": {
+   "eligible_quarters": 60,
+   "oos_observations": 40,
+   "oos_companies": 6
+  },
+  "observed": {
+   "eligible_quarters": 66,
+   "oos_observations": 38,
+   "oos_companies": 7
+  }
+ },
+ "pooled_out_of_sample": {
+  "A_historical_mean": {
+   "n": 38,
+   "mae_pp": 6.3795,
+   "rmse_pp": 8.512,
+   "r2_vs_model_a": 0.0
+  },
+  "B_fundamental": {
+   "n": 38,
+   "mae_pp": 6.3679,
+   "rmse_pp": 8.0876,
+   "r2_vs_model_a": 0.09724
+  },
+  "C_fundamental_plus_search": {
+   "n": 38,
+   "mae_pp": 6.8735,
+   "rmse_pp": 8.1836,
+   "r2_vs_model_a": 0.07568
+  }
+ },
+ "mae_improvement_pct": -7.9398,
+ "decisive_paired_comparison": {
+  "definition": "abs_error(B) - abs_error(C); positive means search helps",
+  "mean_pp": -0.5056,
+  "median_pp": -0.4116,
+  "pct_events_C_wins": 44.74,
+  "by_test_year": {
+   "2024": 0.72179,
+   "2025": -1.61026
+  },
+  "clustered": {
+   "vcov": "CR2 (BRL)",
+   "cluster_unit": "ticker",
+   "n_clusters": 7,
+   "mean_pp": -0.5056,
+   "cr2_se_pp": 0.97855,
+   "satterthwaite_df": 5.565,
+   "t_stat": -0.517,
+   "p_value": 0.62525,
+   "ci95_pp": [
+    -2.9461,
+    1.93489
+   ]
+  }
+ },
+ "by_company": {
+  "BROS": {
+   "n": 6,
+   "mae_B_pp": 4.2231,
+   "mae_C_pp": 7.3256,
+   "improvement_pp": -3.1025
+  },
+  "CAVA": {
+   "n": 2,
+   "mae_B_pp": 3.4021,
+   "mae_C_pp": 7.1163,
+   "improvement_pp": -3.7141
+  },
+  "CMG": {
+   "n": 6,
+   "mae_B_pp": 5.1066,
+   "mae_C_pp": 6.2099,
+   "improvement_pp": -1.1032
+  },
+  "DPZ": {
+   "n": 6,
+   "mae_B_pp": 2.4591,
+   "mae_C_pp": 5.341,
+   "improvement_pp": -2.8819
+  },
+  "MCD": {
+   "n": 6,
+   "mae_B_pp": 4.889,
+   "mae_C_pp": 3.5913,
+   "improvement_pp": 1.2977
+  },
+  "SBUX": {
+   "n": 6,
+   "mae_B_pp": 7.8833,
+   "mae_C_pp": 7.3173,
+   "improvement_pp": 0.566
+  },
+  "WING": {
+   "n": 6,
+   "mae_B_pp": 14.635,
+   "mae_C_pp": 11.3751,
+   "improvement_pp": 3.2599
+  }
+ },
+ "by_test_year": {
+  "2024": {
+   "A_mae": 5.3765,
+   "B_mae": 6.8212,
+   "C_mae": 6.0994
+  },
+  "2025": {
+   "A_mae": 7.2822,
+   "B_mae": 5.9599,
+   "C_mae": 7.5702
+  }
+ },
+ "acceleration_sign_accuracy": {
+  "B": 55.26,
+  "C": 60.53
+ },
+ "calibration_by_predicted_quintile_C": [
+  {
+   "quintile": 1,
+   "n": 8,
+   "mean_predicted_pct": 0.7237,
+   "mean_actual_pct": 3.8173
+  },
+  {
+   "quintile": 2,
+   "n": 7,
+   "mean_predicted_pct": 6.0037,
+   "mean_actual_pct": 2.6558
+  },
+  {
+   "quintile": 3,
+   "n": 8,
+   "mean_predicted_pct": 13.0883,
+   "mean_actual_pct": 8.5857
+  },
+  {
+   "quintile": 4,
+   "n": 7,
+   "mean_predicted_pct": 24.2641,
+   "mean_actual_pct": 19.8407
+  },
+  {
+   "quintile": 5,
+   "n": 8,
+   "mean_predicted_pct": 35.6991,
+   "mean_actual_pct": 29.4735
+  }
+ ],
+ "decision_label": "INSUFFICIENT_DATA",
+ "next_stage_rule": "A later project may test whether a predicted fundamental surprise helps forecast earnings-gap direction ONLY if search demand improves the fixed primary MAE metric. No stock return was tested here."
+}

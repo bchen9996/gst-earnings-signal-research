@@ -51,6 +51,57 @@ A baseline-feature defect was found and fixed during the run: quarterly revenue 
 under multiple accessions, so a naive "exactly one year-ago match" silently dropped every established
 company (122 events → 3). Deduplicating to the earliest-filed value per period end fixed it — a
 point-in-time-preserving dedup, not an outcome-driven choice.
+## 2026-08-16 — Brand search demand and revenue nowcasting: INSUFFICIENT_DATA
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. A **fundamentals-nowcasting** study — no stock return,
+option, analyst estimate or prospective HYP-01 outcome retrieved or used. **Ticker GST is not used**;
+only the eight frozen brand queries enter.
+
+**Point-in-time limitation.** Google Trends series retrieved today are a **retrospective
+reconstruction**: Google rescales to the requested window's maximum and may revise sampling, so the
+identical series was not necessarily available when each quarter closed. This MVP can generate a
+prospective hypothesis; it cannot establish contemporaneous availability. Every figure inherits that.
+
+**Decision: `INSUFFICIENT_DATA`** — the minimum-sample rule fails at **38 out-of-sample observations
+against a required 40** (eligible company-quarters 66 ≥ 60 ✓; out-of-sample companies 7 ≥ 6 ✓). The
+label is set by the gate, not by the numbers.
+
+The numbers were computed anyway and point the same way:
+
+| Model | MAE (pp) | RMSE (pp) | OOS R² vs A |
+|---|---|---|---|
+| A. Expanding company historical mean | 6.3795 | 8.5120 | 0.000 |
+| B. Fundamental ridge | **6.3679** | 8.0876 | 0.09724 |
+| C. Fundamental + search demand | 6.8735 | 8.1836 | 0.07568 |
+
+**MAE change B → C: −7.94%** — search made the primary metric worse. Decisive paired comparison
+`abs_error(B) − abs_error(C)`: mean **−0.5056 pp**, C wins only **44.74%** of events; ticker-clustered
+(CR2/BRL, 7 clusters) **−0.5056 pp, SE 0.97855, t = −0.517, p = 0.62525, CI [−2.946, +1.935]**. The
+interval is wide — 38 observations cannot resolve a small effect either way, which is why the gate
+exists. Not stable across years: 2024 **+0.72 pp**, 2025 **−1.61 pp**, a sign flip across the only two
+evaluable folds.
+
+By company, strongest **WING +3.2599 pp** (the company B forecasts worst), weakest **CAVA −3.7141 pp**
+(only 2 observations); three of seven improve, four worsen.
+
+A secondary metric does favour C — acceleration-sign accuracy **60.53% vs 55.26%** — while RMSE and
+OOS R² do not. **The fixed primary MAE comparison fails, so this is not reinterpreted as success.**
+
+**Why only 38 out-of-sample:** the 2023 fold could not run (9 training observations). Google serves
+weekly resolution only for windows up to ~5 years — an 8-year request silently returns *monthly*
+points, which cannot fill a fiscal-quarter average — so usable weekly history starts in 2021 and the
+first two years are consumed by the year-ago revenue base and the four-quarter search baseline.
+
+292 raw quarterly revenue facts → 251 company-quarters after deduplication by ticker, fiscal period
+and accession → 66 eligible. All eight frozen queries returned usable data (none marked unavailable);
+TXRH dropped at the feature-completeness stage, not the query stage. Exactly two search features, both
+normalized on earlier quarters only; the search window is the company's own fiscal quarter and ends
+strictly before the earnings release. One fixed ridge (alpha 1.0) for both B and C; chronological
+expanding window with fold-local scaling; no model search, alpha tuning, feature selection, trees,
+neural networks or quantum models; universe and query strings frozen before retrieval and unchanged.
+
+**The next-stage rule is not triggered** — search demand did not improve the fixed primary metric, so
+no later project may proceed to earnings-gap direction on this basis. No stock return was tested.
 
 
 ## 2026-08-16 — GST does not improve out-of-sample magnitude forecasting
