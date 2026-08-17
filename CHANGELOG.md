@@ -1,6 +1,58 @@
 # Changelog
 
 
+## 2026-08-16 — Restaurant search pilot: NO_INCREMENTAL_SEARCH_VALUE
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Not HYP-01 confirmation, not prospective collection.
+Targets **magnitude**, never direction.
+
+8 usable tickers, 210 candidate events → **122 complete** → **82 out-of-sample** (2021-07-20 →
+2025-11-06; 63 AMC / 59 BMO from SEC 8-K item 2.02 acceptance timestamps). Large-move base rate 24.39%.
+
+| Model | Brier | Log loss | AUC |
+|---|---|---|---|
+| A. Intercept-only training prevalence | **0.18454** | **0.55588** | 0.4665 |
+| B. Baseline | 0.20211 | 0.62690 | 0.6460 |
+| C. B + investor attention (`[TICKER] stock`) | 0.23665 | 0.81574 | 0.6177 |
+| D. C + product demand (brand) | 0.24739 | 0.90235 | 0.6427 |
+
+**Brier degrades monotonically as features are added; the intercept-only null wins outright.**
+
+Central test `Brier loss(C) − Brier loss(D)`: raw mean **−0.010745**, CI [−0.041115, +0.019625];
+CR2/BRL clustered by ticker (8 clusters, Satterthwaite df 6.543) **−0.010745, SE 0.02501, t = −0.430,
+p = 0.68126, CI [−0.070734, +0.049243]**. **D beats C on 59.76% of events yet the mean is negative** —
+product demand wins slightly more often but loses far more heavily; counting wins would invert the
+conclusion. Tail lift moves the wrong way too: top-quintile realized large-move rate B 35.29%
+(1.447×), C 29.41% (1.206×), D 23.53% (0.965×). Continuous MAE: B 5.4534, C 5.6790, D 5.8543 pp.
+Model D is badly miscalibrated — its top bin predicts 0.7549 against a realized 0.2381.
+
+**Leakage assertion: 353 checks, 0 violations** — every search week closes strictly before its
+announcement timestamp, asserted mechanically per event and independently rechecked in the test.
+
+**Options: `OPTIONS_HISTORY_UNAVAILABLE`** — no per-event pre-announcement implied move exists for
+these tickers (committed IV files cover one ticker and are keyed on the forbidden GST spike window),
+and no authenticated provider is configured. Current options data was not substituted and no implied
+move was reconstructed from realized returns.
+
+**Relationship to PR #27.** That revenue-nowcasting null is untouched — not reinterpreted, retuned or
+rerun. This pilot reuses PR #27's exact frozen query map and weekly consumer series. **Success here
+would not have overturned PR #27's null**: different targets, neither substitutes for the other. Two
+disclosures from the reuse: the executed consumer queries are `Chipotle Mexican Grill` and `Dutch Bros
+Coffee` (this task's spec froze `Chipotle` and `Dutch Bros`), and PR #27's series starts 2020-12-27,
+so with the 52-week baseline the panel begins 2021-07-20 rather than 2019. The investor series was
+fetched here (2018-12-30 →) since PR #27 had none.
+
+Universe and queries frozen before retrieval; one fixed robust transformation
+`(x − median₅₂)/(1.4826·MAD₅₂)` for both families; tail threshold recomputed from the training fold
+only at each step; regularization chosen inside each training fold from a grid fixed in advance;
+expanding chronological folds, never shuffled; identical folds and observations across A/B/C/D.
+
+A baseline-feature defect was found and fixed during the run: quarterly revenue facts are re-filed
+under multiple accessions, so a naive "exactly one year-ago match" silently dropped every established
+company (122 events → 3). Deduplicating to the earliest-filed value per period end fixed it — a
+point-in-time-preserving dedup, not an outcome-driven choice.
+
+
 ## 2026-08-16 — GST does not improve out-of-sample magnitude forecasting
 
 `RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01. **No directional trading or
