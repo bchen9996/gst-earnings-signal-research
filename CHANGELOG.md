@@ -277,6 +277,41 @@ Artifacts: `SEMICONDUCTOR_EPS_ABSORPTION_RESULTS_v1.0.json`,
 `test_market_response_semiconductor_eps_absorption.py` (71 checks).
 
 
+## 2026-08-17 — Attention–Activity Mismatch: RETIRE_GST_AS_TRADING_SIGNAL
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Measured variable is a **search–trading-activity
+mismatch proxy**; "unabsorbed attention" is an interpretation, not a measurement. GST remains a
+**candidate** proxy (F5 open). Historical Trends downloads are **not point-in-time vintages**.
+
+Locked 24-ticker universe, 208 panel weeks (2022-01-10 → 2025-12-29), 4,992 rows; out-of-sample
+**157 weeks / 3,768 ticker-weeks**, zero duplicate `(ticker, target_week)`. Folds: train ≤2022→test
+2023, ≤2023→2024, ≤2024→2025. Features close with Trends week t (Sunday-start, closes Saturday);
+targets are week t+1 Monday open→Friday close.
+
+**Volatility (primary).** MAE **B 0.420367 vs C 0.420497** — **−0.0309%**, i.e. worse. Block bootstrap
+(2,000 draws, 4-week blocks, all tickers kept per sampled week) on `loss_B − loss_C`: mean −0.00013,
+**95% CI [−0.001102, +0.001084]** straddling zero. C wins 2 of 3 years by fourth-decimal margins.
+Gates: 1% improvement FAIL, CI-above-zero FAIL, 2-of-3 years PASS → **does not pass**.
+
+**Return direction (secondary).** Log loss **R0 0.704603 vs R1 0.707252**; both worse than the
+intercept-only null (**0.694786**). AUC **0.5019**. Bootstrap CI **[−0.004151, −0.001369]** entirely
+below zero — adding search reliably hurt. All four gates FAIL. **No portfolio simulation was run.**
+
+**Interaction signs (descriptive).** `search_z × volume_z` is positive and sign-stable in the
+volatility model (+0.020338) — the direction the hypothesis anticipated — but produced no
+out-of-sample gain. The two return interactions carrying the mismatch idea most directly are not
+sign-stable.
+
+**Sensitivity (robustness only).** Excluding known earnings weeks (−0.032%), dropping the five most
+lexically ambiguous queries per the existing construct audit — BRK-B, GME, GOOGL, BKR, DELL
+(−0.227%) — and winsorizing at training 1st/99th percentiles (−0.021%) all agree with the primary
+result. Earnings coverage is partial (existing frozen C5 population).
+
+**Decision: `RETIRE_GST_AS_TRADING_SIGNAL`.** This was the final conditional GST trading test. The
+recommendation is to retire GST as a trading signal rather than launch another adjacent pilot. No
+causality, market absorption, investability, or universal uselessness of Google Trends is claimed.
+
+
 ## 2026-08-16 — Restaurant search pilot: NO_INCREMENTAL_SEARCH_VALUE
 
 `EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Not HYP-01 confirmation, not prospective collection.
