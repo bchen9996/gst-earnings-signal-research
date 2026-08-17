@@ -1,6 +1,226 @@
 # Changelog
 
 
+## 2026-08-17 — Semiconductor EPS absorption: two residual corrections
+
+Closes the two residuals flagged when the extraction interpretation was corrected.
+
+**1. The runner no longer emits the superseded label.**
+`tools/run_semiconductor_eps_absorption.py` gained a `classify()` function that recomputes the two
+current classification fields from the already-computed gate values and writes them into
+`extraction_validation_v1.0.json`:
+
+- `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+- `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
+
+`EXTRACTION_NOT_RELIABLE` is never emitted as a current classification. It survives only as the
+`SUPERSEDED_LABEL` constant and in clearly-marked historical notes inside the frozen-design block.
+`classify()` loosens, reinterprets and re-scores nothing — it reports what the gates already say.
+
+The runner was **re-run** to regenerate its artifacts. `event_panel_v1.0.csv` and
+`provenance_v1.0.json` came back **byte-identical**, and `extraction_validation_v1.0.json` differs by
+exactly the two added fields. Every number is unchanged: 306 events, 299 located, 216 extracted,
+150 validated / 2 contradicted / 56 no-reference, reference_coverage 0.7037, conditional_precision
+0.9868, usable_event_coverage 0.2742, 82 usable events, 7 tickers, OOS 18/15/15.
+
+**2. The SEC response cache is now gitignored.**
+`Live Signal Engine/Semiconductor_EPS_Absorption/_cache/` was untracked but not ignored — the hazard
+that swept it into a commit before. It is now in `.gitignore`. The 548 cached files remain untracked
+and unstaged, and a repo-wide `git add -A` would now sweep in **zero** of them.
+
+Tests gained sections 17 and 18: a rerun reproduces the corrected classification, `classify()`
+returns the superseded label under no gate configuration, every mention of it in the runner is
+marked historical, no emitted field is assigned it, git genuinely ignores the cache path, no cache
+file is tracked or staged, and the committed artifacts in that directory are still tracked.
+
+
+## 2026-08-17 — Structured earnings feasibility probe: STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT
+
+Outcome-blind data audit of the official Alpha Vantage `EARNINGS` endpoint, asking whether the
+semiconductor earnings-surprise study can be run credibly without further hand-built parser work.
+**This is a data audit, not an outcome study. No return, price, price reaction, volume, option,
+model or trading result was read or computed.** `FROZEN_STRUCTURED_EARNINGS_FEASIBILITY_DESIGN` was
+committed at `088dc8e`, before the first provider request.
+
+Decision: **`STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT`**. Seven of eight gates pass; the crosswalk
+gate fails.
+
+| Gate | Value | Required | |
+|---|---|---|---|
+| g1 tickers with complete records | 10 | ≥ 8 | pass |
+| g2 complete records 2018–2025 | 320 | ≥ 200 | pass |
+| g3 complete records 2023–2025 | 120 | ≥ 90 | pass |
+| g4 complete per year 2023/24/25 | 40 / 40 / 40 | ≥ 25 | pass |
+| **g5 unique SEC crosswalk rate** | **0.6719** | **≥ 0.90** | **fail** |
+| g6 surprise-arithmetic agreement | 1.0000 (320/320) | ≥ 0.99 | pass |
+| g7 unresolved duplicate identities | 0 | 0 | pass |
+| g8 vendor-vs-GAAP terminology | true | true | pass |
+
+All ten tickers retrieved; 1153 raw records, 320 in period, 320 complete, 32 per ticker, 40 per
+year, 0 malformed, 0 duplicates. The first attempt returned 369-byte **rate-limit notices** for 5
+tickers; a throttle is a transport failure, not a coverage finding, so retrieval now retries with
+backoff, never caches a body that fails the provider-error check, and reports `DATA_ACCESS_BLOCKED`
+rather than a coverage verdict if any ticker stays throttled.
+
+**The failing gate is not a provider defect.** The frozen crosswalk requires a fiscal-period match,
+and `fiscal_period_end` exists for only 267 of the 306 SEC Item 2.02 events — it is populated only
+where the hand-built parser dated the filing. The structural ceiling is therefore **267/320 =
+0.8344**, already below 0.90 before any provider record was examined: the same class of defect the
+extraction phase found in its own reference design. A report-date-only match against the full
+306-event index reaches **300/320 = 0.9375 with zero ambiguity**; that is recorded as a
+**diagnostic and was not substituted for the gate**.
+
+Alpha Vantage vs the 150 SEC-validated parser values, on 139 overlapping events: **8 match within
+$0.01 (5.76%)**, median absolute difference **$0.26**. The differences are not random — they
+decompose into (a) **retroactive 10-for-1 split restatement** for LRCX 0.1033, KLAC 0.1074,
+NVDA 0.1645 and AVGO 0.2877 median provider/SEC ratio, and (b) a **GAAP-versus-adjusted** difference
+among the 45 near-parity pairs (8 within $0.01, median $0.05, one outright sign disagreement).
+EPS agreement was never a gate and neither source was corrected by the other.
+
+Provider EPS is therefore **vendor-defined and restated, not SEC-validated GAAP diluted EPS**; any
+eventual construct is named `VENDOR_DEFINED_REPORTED_EPS_SURPRISE`. Alpha Vantage publishes no
+guarantee that historical `estimatedEPS` is the contemporaneous consensus preserved as of the
+announcement, so **`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED`** is recorded — reinforced by
+the split-restatement evidence and not resolved by assumption.
+
+The key is read only from `ALPHAVANTAGE_API_KEY` and never printed, logged, serialized, committed or
+placed in a recorded URL. Raw bodies are cached repository-external with timestamp, byte count,
+SHA-256, HTTP status and redacted URL. **Passing feasibility would not authorize modeling, and this
+pass did not pass.**
+
+
+## 2026-08-17 — Semiconductor EPS absorption: extraction interpretation corrected
+
+**Semantic correction only. No extraction count, gate threshold or prior numerical artifact was
+altered, and the frozen gate's FAILED outcome stands exactly as recorded.**
+
+The two commits on this branch recorded a single label, `EXTRACTION_NOT_RELIABLE`. That label was
+overly broad: it reads as a verdict on extraction *accuracy*, which the evidence contradicts. It is
+replaced by two separate fields:
+
+- `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+- `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
+
+The evidence: held-out conditional precision **0.9860**, combined conditional precision **0.9868**,
+`reference_coverage` **0.7037**, `usable_event_coverage` **0.2742**, **82** usable events across
+**7** usable tickers with **48** OOS events. **47 of 216** extractions are fiscal-year-end quarters
+that lack the selected later-10-Q reference, so under this reference design the observed maximum
+attainable `reference_coverage` is **1 − 47/216 = 0.7824**, below the frozen **0.80** gate.
+
+Stated explicitly in the report and results artifact:
+
+1. The frozen study **stopped correctly and remains untested**.
+2. High conditional precision applies **only** to extractions for which the selected audit reference
+   exists — it is precision conditional on referenceability.
+3. It **does not validate** the unreferenced fiscal-year-end extractions; those are unverified, not
+   verified-wrong.
+4. The failure **combines** inadequate verified coverage with a reference design that cannot label
+   many fiscal-year-end quarters.
+5. **No return was inspected.**
+6. **Further hand-built parser iteration is not recommended.**
+
+`failure_mode_classification` changed from `inadequate_extraction` to `insufficient_verified_coverage`.
+The extraction test gained section 16, which recomputes the 0.7824 ceiling as `1 − 47/216` rather
+than reading it, and asserts the gate was not retroactively lowered or marked passed.
+
+Known residual: `tools/run_semiconductor_eps_absorption.py` still emits the superseded single label
+if re-run. The instruction for this pass scoped edits to the report, results classification fields,
+test assertions and changelog, so the runner was deliberately left untouched.
+
+
+## 2026-08-17 — Semiconductor EPS absorption, final adapter pass: still EXTRACTION_NOT_RELIABLE
+
+Final bounded extraction attempt on the same branch. Added a deterministic filer-adapter registry
+for NVDA, INTC, AVGO, MU, TXN and QCOM, plus five general structural fixes proven on the frozen
+development sample. **Extraction improved substantially and the unchanged gate still failed, so no
+outcome stage was run and no return was ever inspected.**
+
+| | Before (`cafc50a`) | After |
+|---|---|---|
+| Located exhibits | 250 | 299 |
+| Extracted | 123 | **216** |
+| Validated / contradicted / no reference | 92 / 0 / 31 | **150 / 2 / 56** |
+| Usable events | 61 | 82 |
+| Tickers with usable events | 4 | 7 |
+| OOS events | 32 | 48 |
+
+Per ticker after: NVDA 22, AMD 32, INTC 20, QCOM 9, AVGO 19, MU 25, TXN 8, AMAT 28, LRCX 30,
+KLAC 23. Precision: development **1.0000**, held out **0.9860**, combined **0.9868** — held-out
+precision independently clears 0.95.
+
+Gate values (all thresholds unchanged): reference_coverage 0.7037 (≥0.80, fail), conditional
+precision 0.9868 (pass), held-out conditional precision 0.9860 (pass), usable_event_coverage 0.2742
+(≥0.60, fail), tickers 7 (≥8, fail), usable events 82 (≥160, fail), OOS 48 (≥90, fail), OOS per year
+18/15/15 (≥25, fail), later-XBRL predictive inputs 0 (pass).
+
+**Binding finding: the gate is arithmetically unreachable.** A fiscal-year-end quarter's EPS is never
+restated as a discrete three-month fact in a later 10-Q — the next periodic report is the 10-K with
+the annual figure — so those events can only ever be `no_reference`. Missing references cluster in
+each filer's own fiscal-year-end month (LRCX 8/8 June, NVDA 5/5 January, AMAT 5/8 October, AMD 4/8
+December). 47 of 216 extracted events (21.8%) are fiscal-year-end quarters, capping attainable
+`reference_coverage` at **0.7824** against a required 0.80, independent of parser quality.
+
+Adapters contain only structural properties — exhibit name patterns, quarter-span representations,
+per-share section nesting — and no accession numbers, column indexes, EPS values, later-XBRL values
+or outcome information. Across 121 accessions extracted both before and after, **zero values
+changed**; AMAT became more conservative (−2) and AMD gained 1. The development sample's realization
+grew 17→20 events as NVDA and INTC exhibits became locatable under the unchanged hash rule; no
+held-out filing was moved in.
+
+Recommendation: **stop hand-building this parser.** Reliable structured earnings data would be
+required to test this hypothesis.
+
+Focused test extended to 108 checks; all 53 tracked test files pass.
+
+
+## 2026-08-17 — Semiconductor EPS–price absorption: EXTRACTION_NOT_RELIABLE
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. `sector: SEMICONDUCTORS`,
+`google_trends_used: false`, `analyst_consensus_used: false`,
+`later_xbrl_used_for_prediction: false`.
+
+Tested whether a mismatch between standardized unexpected GAAP diluted EPS and the market's first
+full-session reaction predicts subsequent semiconductor drift. Frozen universe NVDA, AMD, INTC,
+QCOM, AVGO, MU, TXN, AMAT, LRCX, KLAC; benchmark SMH; 8-K Item 2.02 events 2018–2025; outer test
+years 2023–2025. **The extraction gate failed, so the question was not tested** — no return was
+inspected, no SUE, no gap, no model, no bootstrap, no trade.
+
+306 Item 2.02 events → 250 located earnings exhibits → **123 GAAP diluted EPS extracted**.
+Later-10-Q XBRL `us-gaap:EarningsPerShareDiluted` as an audit reference only: **92 validated, 0
+contradicted, 31 without a reference in window**.
+
+| Gate | Value | Required | |
+|---|---|---|---|
+| reference_coverage | 0.7480 | ≥ 0.80 | fail |
+| conditional_precision | **1.0000** | ≥ 0.95 | pass |
+| usable_event_coverage | 0.2440 | ≥ 0.60 | fail |
+| tickers | 4 | ≥ 8 | fail |
+| usable events | 61 | ≥ 160 | fail |
+| OOS events | 32 | ≥ 90 | fail |
+| OOS per year (2023/24/25) | 12 / 10 / 10 | ≥ 25 each | fail |
+| later-XBRL predictive inputs | 0 | 0 | pass |
+
+**The failure is recall, not accuracy.** Every extracted value with a reference matched it, and five
+of ten filers (NVDA, INTC, AVGO, MU, TXN) yield nothing at all. Three structural defects were found
+and fixed on the fixed outcome-blind development sample (17 events / 9 tickers), lifting extraction
+from 33 to 123: a date regex that could not read `June 29,2024`; year-only header rows misclassified
+as data, which stripped the year from every column heading; and financial statements filed in a
+sibling exhibit rather than 99.1. The remaining five filers use a statement layout the structural
+acceptance test still refuses.
+
+Gates were not loosened after the rates were seen, no value was hand-corrected, and no return was
+used to choose a parsing rule. The later XBRL never selected, replaced or altered an Exhibit value
+and never entered a feature. SUE is defined as a seasonal historical-expectation surprise; nothing
+is called an analyst surprise, consensus miss, fair value, intrinsic value, proven mispricing or
+causal underreaction.
+
+Artifacts: `SEMICONDUCTOR_EPS_ABSORPTION_RESULTS_v1.0.json`,
+`SEMICONDUCTOR_EPS_ABSORPTION_REPORT_v1.0.md`,
+`Live Signal Engine/Semiconductor_EPS_Absorption/`,
+`tools/run_semiconductor_eps_absorption.py`,
+`test_market_response_semiconductor_eps_absorption.py` (71 checks).
+
+
 ## 2026-08-17 — Attention–Activity Mismatch: RETIRE_GST_AS_TRADING_SIGNAL
 
 `EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Measured variable is a **search–trading-activity
