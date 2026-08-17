@@ -198,10 +198,33 @@ ck("10f. spot audit records statement, row, column, value and reference",
 ck("10g. spot audit is not described as independent human review",
    "NOT an independent human review" in V["structural_spot_audit_note"]
    and "NOT an independent human review" in R["dev_sample"]["spot_audit_note"])
-ALLOWED = {"EXTRACTION_NOT_RELIABLE", "DATA_UNAVAILABLE", "NO_SEMICONDUCTOR_EPS_ABSORPTION_EDGE",
-           "PREDICTIVE_NOT_TRADABLE", "SEMICONDUCTOR_EPS_ABSORPTION_SIGNAL"}
-ck("10i. decision label is one of the five allowed", R["decision_label"] in ALLOWED)
-ck("10j. label matches a failed extraction gate", R["decision_label"] == "EXTRACTION_NOT_RELIABLE")
+ALLOWED_GATE = {"FAILED_EXTRACTION_QUALITY_GATE", "PASSED_EXTRACTION_QUALITY_GATE"}
+ALLOWED_CHAR = {"HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE",
+                "LOW_CONDITIONAL_PRECISION", "DATA_UNAVAILABLE"}
+ck("10i. gate decision and extraction characterization are separate allowed fields",
+   R["frozen_gate_decision"] in ALLOWED_GATE
+   and R["extraction_characterization"] in ALLOWED_CHAR)
+ck("10j. gate decision records the failure and is not marked passed",
+   R["frozen_gate_decision"] == "FAILED_EXTRACTION_QUALITY_GATE"
+   and R["gates"]["overall_passed"] is False)
+ck("10j2. the overly broad single label is gone from the results artifact",
+   "decision_label" not in R
+   and json.dumps(R).count("EXTRACTION_NOT_RELIABLE") == 1
+   and R["label_correction"]["superseded_label"] == "EXTRACTION_NOT_RELIABLE")
+ck("10j3. the correction did not retroactively pass or lower the frozen gate",
+   R["label_correction"]["gate_retroactively_changed_or_marked_passed"] is False
+   and R["gates_unchanged_from_first_attempt"] is True
+   and R["gates"]["reference_coverage"]["required"] == 0.80)
+ck("10j4. characterization is consistent with the recomputed precision and coverage",
+   (R["extraction_characterization"]
+    == "HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE")
+   == (V["gates"]["heldout_conditional_precision"]["value"] >= 0.95
+       and V["gates"]["conditional_precision"]["value"] >= 0.95
+       and V["gates"]["reference_coverage"]["value"] < 0.80
+       and V["gates"]["usable_event_coverage"]["value"] < 0.60))
+ck("10j5. failure mode is classified as insufficient verified coverage",
+   R["failure_mode_classification"] == "insufficient_verified_coverage"
+   and R["failure_character"] == "coverage_limited_not_precision_limited")
 ck("10k. discipline flags recorded", R["discipline"]["gates_loosened_after_seeing_rates"] is False
    and R["discipline"]["values_hand_corrected"] is False
    and R["discipline"]["returns_used_to_choose_a_parsing_rule"] is False)
@@ -267,7 +290,8 @@ ck("13c. before/after counts recompute against the current run",
    and R["before_after"]["located_earnings_exhibits"]["after"] == V["located_exhibits"])
 ck("13d. the first attempt's failed result is preserved",
    R["attempts"]["first_attempt_commit"].startswith("cafc50a")
-   and R["attempts"]["first_attempt_label"] == "EXTRACTION_NOT_RELIABLE")
+   and R["attempts"]["first_attempt_frozen_gate_decision"] == "FAILED_EXTRACTION_QUALITY_GATE"
+   and R["attempts"]["second_attempt_frozen_gate_decision"] == "FAILED_EXTRACTION_QUALITY_GATE")
 ck("13e. extraction improved but the gate still failed",
    V["extracted"] > R["before_after"]["extracted"]["before"]
    and V["extraction_gate_passed"] is False)
@@ -301,6 +325,58 @@ ck("15f. recommendation is to stop hand-building the parser",
    and "no further hand-built parser iteration" in R["recommendation"].lower())
 ck("15g. report states reliable structured data would be required",
    "reliable structured earnings data" in FLAT)
+
+# ---- 16. corrected interpretation (recomputed, not merely read) ----
+I = R["interpretation"]
+ck("16a. the study is recorded as stopped-correctly and still untested",
+   I["frozen_study_stopped_correctly"] is True and I["frozen_study_remains_untested"] is True
+   and R["attempts"]["outcome_stage_ever_run"] is False)
+ck("16b. conditional precision is scoped to referenced extractions only",
+   "ONLY" in I["conditional_precision_scope"]
+   and "audit reference exists" in I["conditional_precision_scope"])
+ck("16c. the unreferenced fiscal-year-end extractions are explicitly not validated",
+   I["does_not_validate_unreferenced_fiscal_year_end_extractions"] is True
+   and "unverified, not verified-wrong" in I["unreferenced_fy_end_scope_note"])
+ck("16d. conditional precision is computed only over referenced extractions",
+   V["validated"] + V["contradicted"] < V["extracted"]
+   and abs(V["gates"]["conditional_precision"]["value"]
+           - V["validated"] / (V["validated"] + V["contradicted"])) < 1e-4)
+ck("16e. the 47 fy-end extractions are outside the referenced denominator",
+   BF["fy_end_quarter_events"] == 47 and V["extracted"] == 216
+   and BF["no_reference_among_them"] + BF["no_reference_among_other_events"] == V["no_reference"])
+ck("16f. the 0.7824 ceiling recomputes as 1 - 47/216",
+   abs(BF["max_attainable_reference_coverage"]
+       - (1 - BF["fy_end_quarter_events"] / V["extracted"])) < 5e-5
+   and abs(round(1 - 47 / 216, 4) - 0.7824) < 5e-5)
+ck("16g. the ceiling is below the frozen 0.80 gate, which is unchanged",
+   (1 - BF["fy_end_quarter_events"] / V["extracted"]) < V["gates"]["reference_coverage"]["required"]
+   == 0.80)
+ck("16h. failure composition names both coverage and reference design",
+   "verified coverage" in I["failure_composition"]
+   and "reference design" in I["failure_composition"] and "0.7824" in I["failure_composition"])
+ck("16i. no return inspected is asserted in the interpretation",
+   I["returns_inspected"] is False
+   and R["not_run_because_gate_failed"]["post_entry_returns_inspected"] is False)
+ck("16j. further hand-built parser iteration is not recommended",
+   I["further_hand_built_parser_iteration_recommended"] is False)
+ck("16k. report carries both corrected fields, not the single broad label",
+   "frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE" in FLAT
+   and "extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE"
+   in FLAT)
+ck("16l. report states the correction did not pass or lower the gate",
+   "nothing has been lowered, reinterpreted or marked passed" in FLAT.lower())
+ck("16m. report states the six required points",
+   "remains untested" in FLAT.lower()
+   and "conditional on referenceability" in FLAT.lower()
+   and "unverified, not verified-wrong" in FLAT.lower()
+   and "1 − 47/216 = 0.7824" in FLAT
+   and "no return was inspected" in FLAT.lower()
+   and "further hand-built parser iteration is not recommended" in FLAT.lower())
+ck("16n. prior numerical artifacts were not altered by the correction",
+   V["extracted"] == 216 and V["validated"] == 150 and V["contradicted"] == 2
+   and V["no_reference"] == 56 and V["usable_events"] == 82
+   and R["before_after"]["oos_events"]["after"] == 48
+   and R["gates"]["tickers"]["value"] == 7)
 
 print()
 if FAIL:
