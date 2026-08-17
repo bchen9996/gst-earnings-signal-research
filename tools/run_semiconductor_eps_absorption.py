@@ -195,6 +195,43 @@ def get(url, hdr, key, timeout=60):
     return b
 
 
+# ============================ filer adapter registry ============================
+# Deterministic, filer-specific STRUCTURAL adapters. Each entry may describe only
+# reusable layout properties. No adapter may contain an accession number, a
+# period-specific column index, an expected EPS value, a later-XBRL value or any
+# outcome information. Every field below was derived by inspecting ONLY the frozen
+# parser-development sample; no held-out filing and no return was consulted.
+FILER_ADAPTERS = {
+    # Press release is filed as "q<N>fy<YY>pr.htm" with no "99" in the file name, and
+    # a separate CFO commentary file that is not the earnings release.
+    "NVDA": {"exhibit_name_patterns": [r"q\d+fy\d+pr\.htm$"],
+             "exhibit_exclude_patterns": [r"cfocommentary"]},
+    # Press release is filed as "q<N><YY>[_]earningsrelease.htm", again with no "99".
+    "INTC": {"exhibit_name_patterns": [r"earnings[_-]?release"]},
+    # Statement caption is "CONDENSED CONSOLIDATED STATEMENTS OF OPERATIONS"; periods
+    # are labelled "Fiscal Quarter Ended"; the diluted EPS figure is carried on a
+    # "Net income per share" row nested under a "Diluted income per share:" section
+    # header rather than on a row whose own label contains "diluted".
+    "AVGO": {"quarter_span_patterns": [r"fiscal quarter ended"],
+             "section_scoped_net_income_per_share": True},
+    # Periods are labelled "1st Qtr." / "3rd Qtr." rather than "three months ended",
+    # and the statement sits after non-GAAP outlook tables whose text bleeds backwards.
+    "MU": {"quarter_span_patterns": [r"\d\s*(st|nd|rd|th)\s*qtr"]},
+    # Same "Nth Qtr."-style period labelling and the same backward text bleed.
+    "TXN": {"quarter_span_patterns": [r"\d\s*(st|nd|rd|th)\s*qtr"]},
+    # Statement caption is "CONDENSED CONSOLIDATED STATEMENTS OF OPERATIONS"; later
+    # filings nest the diluted figure under a per-share section header.
+    "QCOM": {"section_scoped_net_income_per_share": True},
+}
+ADAPTER_ALLOWED_TICKERS = {"NVDA", "INTC", "AVGO", "MU", "TXN", "QCOM"}
+ADAPTER_ALLOWED_FIELDS = {"exhibit_name_patterns", "exhibit_exclude_patterns",
+                          "quarter_span_patterns", "section_scoped_net_income_per_share"}
+
+
+def adapter(ticker):
+    return FILER_ADAPTERS.get(ticker, {})
+
+
 # ============================ structural EPS parser ============================
 MONEY = re.compile(r"^\(?\s*[-\u2212]?\s*\$?\s*[\d,]+(?:\.\d+)?\s*\)?$")
 DATE_PATS = [
@@ -229,6 +266,14 @@ DILUTED_FULL = re.compile(r"(?i)dilut\w*.{0,60}per\s+(common\s+)?share|"
                           r"(common\s+)?share.{0,25}dilut")
 DILUTED_BARE = re.compile(r"(?i)^\s*[-\u2022]?\s*dilut(ed|ive)?\s*[:\.]?\s*$")
 CONT_OPS = re.compile(r"(?i)continuing operations|discontinued")
+# A consolidated income-statement caption is affirmative evidence. Filers interleave
+# non-GAAP and outlook tables, whose text bleeds backwards into the preceding-text
+# window of the very next table, so a caption match overrides the context veto.
+STMT_CAPTION = re.compile(r"(?i)(condensed\s+)?consolidated\s+statements?\s+of\s+"
+                          r"(operations|income|earnings)")
+RECON_CAPTION = re.compile(r"(?i)reconcil|non[- ]?gaap|adjusted|outlook|guidance|segment")
+NET_PER_SHARE = re.compile(r"(?i)^(net\s+(income|loss|earnings)\s+per\s+(common\s+)?share|"
+                           r"earnings\s+per\s+(common\s+)?share)\b")
 SHARES_ROW = re.compile(r"(?i)shares|weighted[- ]average|outstanding")
 ADJ_ROW = re.compile(r"(?i)\b(adjusted|non[- ]?gaap|pro\s*forma|excluding|core)\b")
 
@@ -342,9 +387,16 @@ def _col_headers(head, ncol):
     return [" ".join(r[ci] for r in head if ci < len(r)).strip() for ci in range(ncol)]
 
 
-def is_income_statement(tbl, ctx):
+def is_income_statement(tbl, ctx, caption=""):
     """Structural test: revenue row AND net-income row AND a per-share row present."""
-    if NON_GAAP_CTX.search(ctx):
+    # Only the text from the LAST statement title onwards counts. Filers put prose
+    # mentioning non-GAAP reconciliations immediately before the GAAP statement, and a
+    # reconciliation table's own title likewise follows the previous statement's title.
+    last = None
+    for m in STMT_CAPTION.finditer(caption):
+        last = m
+    captioned = last is not None and not RECON_CAPTION.search(caption[last.start():])
+    if not captioned and NON_GAAP_CTX.search(ctx):
         return False, "context_non_gaap_or_segment"
     labels = [_label(r) for r in tbl if r and _label(r)]
     if not any(REV_ROW.match(x) for x in labels):
@@ -357,11 +409,12 @@ def is_income_statement(tbl, ctx):
     return True, "ok"
 
 
-def pick_quarter_column(tbl):
+def pick_quarter_column(tbl, ad=None, not_after=None):
     """Latest-dated three-month column; YTD columns rejected. Returns (idx,label,end)."""
     head, _ = _split_header(tbl)
     ncol = max((len(r) for r in tbl), default=0)
     hdrs = _col_headers(head, ncol)
+    extra = [re.compile(p, re.I) for p in (ad or {}).get("quarter_span_patterns", [])]
     cands = []
     for ci, h in enumerate(hdrs):
         if not h or YTD.search(h):
@@ -369,7 +422,11 @@ def pick_quarter_column(tbl):
         d = _date(h)
         if d is None:
             continue
-        if not QTR_SPAN.search(h):
+        if not (QTR_SPAN.search(h) or any(p.search(h) for p in extra)):
+            continue
+        # a reported quarter cannot end after the release that reports it, so this
+        # removes guidance / outlook columns and stray release-date artifacts
+        if not_after is not None and d > not_after:
             continue
         cands.append((ci, h, d))
     if not cands:
@@ -378,7 +435,7 @@ def pick_quarter_column(tbl):
     return best[0], best[1][:160], best[2]
 
 
-def detect_period_end(html):
+def detect_period_end(html, ad=None, not_after=None):
     """Announced quarter end, derived from spanning three-month header text alone.
 
     Independent of EPS extraction so that event identity - and therefore the
@@ -394,7 +451,7 @@ def detect_period_end(html):
     for ti, tbl in enumerate(p.tables):
         if len(tbl) < 3:
             continue
-        _, _, end = pick_quarter_column(tbl)
+        _, _, end = pick_quarter_column(tbl, ad, not_after)
         if end is None:
             continue
         pre = re.sub(r"\s+", " ", "".join(p.text[max(0, p.anchors[ti] - 400):p.anchors[ti]]))
@@ -408,14 +465,14 @@ def detect_period_end(html):
     return best if best is not None else fallback
 
 
-def extract_diluted_eps(html):
+def extract_diluted_eps(html, ad=None, not_after=None):
     """Return (record|None, diagnostics). Structural, table-scoped, never filing-wide."""
+    ad = ad or {}
     p = Grid()
     try:
         p.feed(html)
     except Exception:
         pass
-    full = re.sub(r"\s+", " ", "".join(p.text))
     diag = {"n_tables": len(p.tables), "income_tables": 0, "reason": None}
     hits = []
     for ti, tbl in enumerate(p.tables):
@@ -423,15 +480,21 @@ def extract_diluted_eps(html):
             continue
         pre = re.sub(r"\s+", " ", "".join(p.text[max(0, p.anchors[ti] - 400):p.anchors[ti]]))
         head, hend = _split_header(tbl)
+        # the statement title may sit in preceding text OR in the table's own
+        # leading header rows (TXN prints "Consolidated Statements of Income" there)
+        caption = pre[-250:] + " " + " ".join(" ".join(r) for r in head[:3])
         ctx = pre[-600:] + " " + " ".join(" ".join(r) for r in head)
-        ok, why = is_income_statement(tbl, ctx)
+        ok, why = is_income_statement(tbl, ctx, caption)
         if not ok:
             continue
         diag["income_tables"] += 1
-        qcol, qlab, qend = pick_quarter_column(tbl)
+        qcol, qlab, qend = pick_quarter_column(tbl, ad, not_after)
         if qcol is None:
             continue
-        section_pershare = False
+        # in_pershare: inside any per-share block. sec: that block's basic/diluted
+        # qualifier, needed where the figure sits on a "Net income per share" row
+        # nested under a "Diluted income per share:" header.
+        in_pershare, sec = False, None
         for ri, row in enumerate(tbl):
             if not row:
                 continue
@@ -439,15 +502,20 @@ def extract_diluted_eps(html):
             if not label:
                 continue
             if PERSHARE_CTX.search(label) and not any(_num(c) is not None for c in row):
-                section_pershare = True
+                in_pershare = True
+                sec = ("diluted" if re.search(r"(?i)dilut", label)
+                       else "basic" if re.search(r"(?i)basic", label) else None)
                 continue
-            if REV_ROW.match(label) or NI_ROW.match(label):
-                section_pershare = False
+            # a per-share row never closes the per-share block it belongs to
+            if (REV_ROW.match(label) or NI_ROW.match(label)) and not PERSHARE_CTX.search(label):
+                in_pershare, sec = False, None
             if ADJ_ROW.search(label) or YTD.search(label) or SHARES_ROW.search(label):
                 continue
             named = bool(DILUTED_FULL.search(label))
-            bare = bool(DILUTED_BARE.match(label)) and section_pershare
-            if not (named or bare):
+            bare = bool(DILUTED_BARE.match(label)) and in_pershare
+            nested = (bool(ad.get("section_scoped_net_income_per_share"))
+                      and sec == "diluted" and bool(NET_PER_SHARE.match(label)))
+            if not (named or bare or nested):
                 continue
             v = None
             if qcol < len(row):
@@ -478,7 +546,7 @@ def extract_diluted_eps(html):
 
 
 # ================================ SEC retrieval ================================
-def find_exhibits(cik, accession):
+def find_exhibits(cik, accession, ticker=None):
     """All earnings-release exhibit files in the 8-K, in deterministic order.
 
     Several filers put the press release in 99.1 and the consolidated financial
@@ -490,13 +558,20 @@ def find_exhibits(cik, accession):
     idx = json.loads(get(f"{base}/index.json", UA, f"ix_{accession}.json"))
     names = [i["name"] for i in idx["directory"]["item"]]
 
+    ad = adapter(ticker)
+    extra = [re.compile(x, re.I) for x in ad.get("exhibit_name_patterns", [])]
+    excl = [re.compile(x, re.I) for x in ad.get("exhibit_exclude_patterns", [])]
+
     def ok(n):
         ln = n.lower()
         if not ln.endswith((".htm", ".html")):
             return False
         if "index" in ln or re.match(r"^r\d+\.htm", ln) or re.match(r"^\d{10}-\d\d-\d{6}", ln):
             return False
-        return bool(re.search(r"99[-_.]?1", ln) or re.search(r"ex[-_]?99", ln))
+        if any(x.search(ln) for x in excl):
+            return False
+        return bool(re.search(r"99[-_.]?1", ln) or re.search(r"ex[-_]?99", ln)
+                    or any(x.search(ln) for x in extra))
 
     c = sorted([n for n in names if ok(n)],
                key=lambda n: (0 if re.search(r"99[-_.]?1", n.lower()) else 1, len(n), n))
@@ -550,27 +625,29 @@ def xbrl_eps_reference(cik, ticker):
                     continue
                 if x.get("segments") or x.get("dim"):
                     continue
-                k = x["end"]
-                prev = out.get(k)
-                if prev is None or pd.Timestamp(x["filed"]) < pd.Timestamp(prev["filed"]):
-                    out[k] = {"val": float(x["val"]), "filed": x["filed"],
-                              "accn": x.get("accn"), "form": x.get("form"), "concept": cn}
+                # keep EVERY fact for the period end. Collapsing to the earliest filing
+                # here would usually retain the 8-K's own fact, which is then discarded
+                # by the filed-after-release test, destroying the reference entirely.
+                out.setdefault(x["end"], []).append(
+                    {"val": float(x["val"]), "filed": x["filed"], "accn": x.get("accn"),
+                     "form": x.get("form"), "concept": cn})
         if out:
             used.append(cn)
             break
     return out, used
 
 
-def extract_event(cik, accession):
+def extract_event(cik, accession, ticker=None, not_after=None):
     """Parse every earnings exhibit in one 8-K. Returns (record|None, meta)."""
     meta = {"exhibit_url": None, "exhibit_name": None, "exhibit_sha256": None,
             "n_exhibits": 0, "period_end": None, "reason": None, "n_tables": 0,
             "income_tables": 0}
     try:
-        cands = find_exhibits(cik, accession)
+        cands = find_exhibits(cik, accession, ticker)
     except Exception as e:                                        # noqa: BLE001
         meta["reason"] = f"index_error:{type(e).__name__}"
         return None, meta
+    ad = adapter(ticker)
     meta["n_exhibits"] = len(cands)
     if not cands:
         meta["reason"] = "no_exhibit"
@@ -584,10 +661,10 @@ def extract_event(cik, accession):
             reasons.append(f"fetch:{type(e).__name__}")
             continue
         html = raw.decode("utf-8", "replace")
-        pe = detect_period_end(html)
+        pe = detect_period_end(html, ad, not_after)
         if pe is not None and (pend is None or pe > pend):
             pend = pe
-        hit, diag = extract_diluted_eps(html)
+        hit, diag = extract_diluted_eps(html, ad, not_after)
         meta["n_tables"] += diag["n_tables"]
         meta["income_tables"] += diag["income_tables"]
         reasons.append(f"{name}:{diag['reason']}")
@@ -633,7 +710,8 @@ def phase1():
     ev, cik = build_events()
     rows = []
     for r in ev.itertuples():
-        hit, meta = extract_event(r.cik, r.accession)
+        acc_day = pd.Timestamp(r.acceptance_utc).tz_convert('UTC').tz_localize(None).normalize()
+        hit, meta = extract_event(r.cik, r.accession, r.ticker, acc_day)
         rec = {"ticker": r.ticker, "cik": r.cik, "accession": r.accession,
                "filing_date": r.filing_date, "acceptance_utc": r.acceptance_utc,
                "exhibit_url": meta["exhibit_url"], "exhibit_name": meta["exhibit_name"],
@@ -677,9 +755,17 @@ def phase1():
         for r in grp.itertuples():
             fpe = pd.Timestamp(r.fiscal_period_end)
             acc = pd.Timestamp(r.acceptance_utc).tz_convert("UTC").tz_localize(None)
-            cands = [(k, v) for k, v in ref.items()
-                     if abs((pd.Timestamp(k) - fpe).days) <= 5
-                     and pd.Timestamp(v["filed"]) > acc.normalize()]
+            def after_release(v):
+                f = pd.Timestamp(v["filed"])
+                if f > acc.normalize():
+                    return True
+                # a periodic report filed the same calendar day under a DIFFERENT
+                # accession still follows the release it reports
+                return (f == acc.normalize() and str(v.get("form", "")).startswith("10-")
+                        and v.get("accn") != r.accession)
+
+            cands = [(k, v) for k, lst in ref.items() for v in lst
+                     if abs((pd.Timestamp(k) - fpe).days) <= 5 and after_release(v)]
             if not cands:
                 status, rv, m = "no_reference", None, None
             else:
@@ -699,6 +785,19 @@ def phase1():
     no_ref = int(vc.get("no_reference", 0))
     ref_cov = (validated + contradicted) / extracted if extracted else 0.0
     prec = validated / (validated + contradicted) if (validated + contradicted) else 0.0
+
+    # development vs held-out split. Adapters were developed on the frozen dev sample
+    # only; every other event is held out, and its precision is reported separately.
+    def split_prec(mask):
+        sub = A[mask]
+        v = int((sub.status == "validated").sum())
+        c = int((sub.status == "contradicted").sum())
+        return {"validated": v, "contradicted": c,
+                "no_reference": int((sub.status == "no_reference").sum()),
+                "conditional_precision": round(v / (v + c), 4) if (v + c) else None}
+    dev_m = A.in_dev_sample if len(A) else pd.Series(dtype=bool)
+    split = {"development": split_prec(dev_m), "held_out": split_prec(~dev_m)}
+    ho_prec = split["held_out"]["conditional_precision"] or 0.0
 
     # usable = validated EPS AND sufficient prior seasonal SUE history (no returns read)
     usable = []
@@ -733,6 +832,9 @@ def phase1():
         "conditional_precision": {"value": round(prec, 4),
                                   "required": EGATE["conditional_precision"],
                                   "passed": prec >= EGATE["conditional_precision"]},
+        "heldout_conditional_precision": {"value": round(ho_prec, 4),
+                                          "required": EGATE["conditional_precision"],
+                                          "passed": ho_prec >= EGATE["conditional_precision"]},
         "usable_event_coverage": {"value": round(use_cov, 4),
                                   "required": EGATE["usable_event_coverage"],
                                   "passed": use_cov >= EGATE["usable_event_coverage"]},
@@ -800,6 +902,7 @@ def phase1():
                                    "accession'; no reference to returns")},
            "extracted_by_ticker": {t: int(X[X.ticker == t].eps.notna().sum())
                                    for t in UNIVERSE},
+           "precision_split": split,
            "usable_events": int(len(U)), "usable_by_year": oos_by_year,
            "tolerance_eps_absolute": EPS_TOL,
            "gates": gates, "extraction_gate_passed": bool(passed),

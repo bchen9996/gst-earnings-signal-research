@@ -1,5 +1,401 @@
 [
  {
+  "ticker": "NVDA",
+  "accession": "0001045810-25-000228",
+  "fiscal_period_end": "2025-10-26",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000228/q3fy26pr.htm",
+  "exhibit_name": "q3fy26pr.htm",
+  "exhibit_sha256": "408054ae1773615a3c86ca80b6d7a62e8faf073ee37358351d7e4ce6ff9f367b",
+  "acceptance_utc": "2025-11-19T21:20:44.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended October 26, 2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-25-000207",
+  "fiscal_period_end": "2025-07-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000207/q2fy26pr.htm",
+  "exhibit_name": "q2fy26pr.htm",
+  "exhibit_sha256": "5a02be022e680567c06a6a64244ae5de7a2775958452041da44fde40b4af34fb",
+  "acceptance_utc": "2025-08-27T20:22:14.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended July 27, 2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-25-000115",
+  "fiscal_period_end": "2025-04-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000115/q1fy26pr.htm",
+  "exhibit_name": "q1fy26pr.htm",
+  "exhibit_sha256": "5c39da3ceec020753fa52b1a72bb11e8915145d74fccec6f1836dac5f6ca6cff",
+  "acceptance_utc": "2025-05-28T20:21:30.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended April 27, 2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-25-000021",
+  "fiscal_period_end": "2025-01-26",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581025000021/q4fy25pr.htm",
+  "exhibit_name": "q4fy25pr.htm",
+  "exhibit_sha256": "0e5e0744ff416c75cf291b852fa0655a2f154c381dcb1d4186e7160449e38d59",
+  "acceptance_utc": "2025-02-26T21:21:32.000Z",
+  "table_index": 5.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended January 26, 2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-24-000315",
+  "fiscal_period_end": "2024-10-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000315/q3fy25pr.htm",
+  "exhibit_name": "q3fy25pr.htm",
+  "exhibit_sha256": "6e8b03e67efa6edf6e81f9c947ddc1d65c4c2ae26207978bd53d04aff2eb2461",
+  "acceptance_utc": "2024-11-20T21:21:20.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended October 27, 2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-24-000262",
+  "fiscal_period_end": "2024-07-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000262/q2fy25pr.htm",
+  "exhibit_name": "q2fy25pr.htm",
+  "exhibit_sha256": "0ab67703a5fb0def7eeb220475bc55e8bb8ab595c5a74103437acda3b1f57dbc",
+  "acceptance_utc": "2024-08-28T20:21:16.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended July 28, 2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-24-000113",
+  "fiscal_period_end": "2024-04-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000113/q1fy25pr.htm",
+  "exhibit_name": "q1fy25pr.htm",
+  "exhibit_sha256": "1e1f8a53abed8898fd6c5519f25189bf4d78521e8da80fdcf5248d194c54a02c",
+  "acceptance_utc": "2024-05-22T20:21:29.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended April 28, 2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-24-000028",
+  "fiscal_period_end": "2024-01-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581024000028/q4fy24pr.htm",
+  "exhibit_name": "q4fy24pr.htm",
+  "exhibit_sha256": "6f2a39eebafe4c8d5c1e1dfafd0c6a868b9dd391c85f031ce7fc05b699be2341",
+  "acceptance_utc": "2024-02-21T21:22:09.000Z",
+  "table_index": 5.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended January 28, 2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-23-000225",
+  "fiscal_period_end": "2023-10-29",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581023000225/q3fy24pr.htm",
+  "exhibit_name": "q3fy24pr.htm",
+  "exhibit_sha256": "9a81c27042ebe11403aaa37b404fcf9447476d949414bdcaaf51795772e9ee45",
+  "acceptance_utc": "2023-11-21T21:22:00.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended October 29, 2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-23-000171",
+  "fiscal_period_end": "2023-07-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581023000171/q2fy24pr.htm",
+  "exhibit_name": "q2fy24pr.htm",
+  "exhibit_sha256": "59d9e891880299bb35bec2618b204503298e6a7e597c4bb8fcff73850e9b70b8",
+  "acceptance_utc": "2023-08-23T20:21:42.000Z",
+  "table_index": 3.0,
+  "row_index": 26.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended July 30, 2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-23-000087",
+  "fiscal_period_end": "2023-04-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581023000087/q1fy24pr.htm",
+  "exhibit_name": "q1fy24pr.htm",
+  "exhibit_sha256": "58170909689e27d334123667174bc3043ea4f3be9b63f95cbe2688d85d9d6dbc",
+  "acceptance_utc": "2023-05-24T20:22:18.000Z",
+  "table_index": 3.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended April 30, 2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-23-000014",
+  "fiscal_period_end": "2023-01-29",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581023000014/q4fy23pr.htm",
+  "exhibit_name": "q4fy23pr.htm",
+  "exhibit_sha256": "d7484a0d86365dc3a9dd0e7a06302c9da9c8106b4ae38ec0044e5f10821dcd53",
+  "acceptance_utc": "2023-02-22T21:52:26.000Z",
+  "table_index": 5.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended January 29, 2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-22-000163",
+  "fiscal_period_end": "2022-10-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581022000163/q3fy23pr.htm",
+  "exhibit_name": "q3fy23pr.htm",
+  "exhibit_sha256": "a90f5ca35f849898483ec134e3a0dc1534d54a3eeaf64ee4a05fc8e166acfde6",
+  "acceptance_utc": "2022-11-16T21:21:18.000Z",
+  "table_index": 3.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended October 30, 2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-22-000136",
+  "fiscal_period_end": "2022-07-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581022000136/q2fy23pr.htm",
+  "exhibit_name": "q2fy23pr.htm",
+  "exhibit_sha256": "879f9f358027a182ca0c398d89806dd308c08220c3b65287e43a347a9fc049d1",
+  "acceptance_utc": "2022-08-24T20:24:34.000Z",
+  "table_index": 3.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended July 31, 2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-22-000073",
+  "fiscal_period_end": "2021-06-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581022000073/q1fy23pr.htm",
+  "exhibit_name": "q1fy23pr.htm",
+  "exhibit_sha256": "9588202857d3edd19b7c1954498846adb6dec762f3c728bbe18dcebffb3a6cb6",
+  "acceptance_utc": "2022-05-25T20:22:25.000Z",
+  "table_index": 3.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 15.0,
+  "column_label": "Three Months Ended May 2, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-22-000008",
+  "fiscal_period_end": "2022-01-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581022000008/q4fy22pr.htm",
+  "exhibit_name": "q4fy22pr.htm",
+  "exhibit_sha256": "ca230566cf50c834fac0b67e7fef25632c46e26b3f600ee190c9f77d81d73b4b",
+  "acceptance_utc": "2022-02-16T21:21:16.000Z",
+  "table_index": 5.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended January 30, 2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-21-000160",
+  "fiscal_period_end": "2021-10-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581021000160/q3fy22pr.htm",
+  "exhibit_name": "q3fy22pr.htm",
+  "exhibit_sha256": "b7c1b6f18de97c0fbdde1236f6e718f4f3020a7303d6d01d01332bc0c22a42c5",
+  "acceptance_utc": "2021-11-17T21:20:59.000Z",
+  "table_index": 3.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended October 31, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-21-000128",
+  "fiscal_period_end": "2021-08-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581021000128/q2fy22pr.htm",
+  "exhibit_name": "q2fy22pr.htm",
+  "exhibit_sha256": "74b737dfeaa56d313353950eb3390ca85547f635050b5e129564b6d8556e4173",
+  "acceptance_utc": "2021-08-18T20:21:07.000Z",
+  "table_index": 3.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended August 1, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-21-000063",
+  "fiscal_period_end": "2020-04-26",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581021000063/q1fy22pr.htm",
+  "exhibit_name": "q1fy22pr.htm",
+  "exhibit_sha256": "847462195142a184b01ca6099ee61745fcfa90619a1717cea9111c3fcb369f43",
+  "acceptance_utc": "2021-05-26T20:20:35.000Z",
+  "table_index": 3.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 15.0,
+  "column_label": "Three Months Ended April 26, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-21-000007",
+  "fiscal_period_end": "2021-01-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581021000007/q4fy21pr.htm",
+  "exhibit_name": "q4fy21pr.htm",
+  "exhibit_sha256": "9853583361d45e68997eb3566f3a70a21ecc581e44ca22260a612cc89e7e2074",
+  "acceptance_utc": "2021-02-24T21:22:27.000Z",
+  "table_index": 5.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended January 31, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-20-000187",
+  "fiscal_period_end": "2020-10-25",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581020000187/q3fy21pr.htm",
+  "exhibit_name": "q3fy21pr.htm",
+  "exhibit_sha256": "e78e3a9645b06cdb43333331fa781ad435491939c4d59fe06779b3abc3de555c",
+  "acceptance_utc": "2020-11-18T21:21:51.000Z",
+  "table_index": 3.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended October 25, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "NVDA",
+  "accession": "0001045810-20-000145",
+  "fiscal_period_end": "2020-07-26",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1045810/000104581020000145/q2fy21pr.htm",
+  "exhibit_name": "q2fy21pr.htm",
+  "exhibit_sha256": "49188d5b986520cf0ed28ba00bac76158f0afa2c7eaaadbcd513b16c9a0bfe75",
+  "acceptance_utc": "2020-08-19T20:21:46.000Z",
+  "table_index": 3.0,
+  "row_index": 23.0,
+  "row_label": "Diluted",
+  "column_index": 9.0,
+  "column_label": "Three Months Ended July 26, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
   "ticker": "AMD",
   "accession": "0000002488-25-000163",
   "fiscal_period_end": "2025-09-27",
@@ -264,6 +660,24 @@
   "row_label": "Diluted",
   "column_index": 6.0,
   "column_label": "Three Months Ended March 26,2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AMD",
+  "accession": "0000002488-22-000014",
+  "fiscal_period_end": "2021-12-25",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/2488/000000248822000014/q421991amd.htm",
+  "exhibit_name": "q421991amd.htm",
+  "exhibit_sha256": "95b6203eb85f2b64318e4c9e7dc2e333892b32498ff93db54d8a8e95e89fdf9b",
+  "acceptance_utc": "2022-02-01T21:17:06.000Z",
+  "table_index": 6.0,
+  "row_index": 22.0,
+  "row_label": "Diluted",
+  "column_index": 6.0,
+  "column_label": "Three Months Ended December 25,2021",
   "xbrl_audit_concepts": [
    "EarningsPerShareDiluted"
   ],
@@ -558,6 +972,294 @@
   "in_dev_sample": false
  },
  {
+  "ticker": "INTC",
+  "accession": "0000050863-25-000070",
+  "fiscal_period_end": "2024-04-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086325000070/q125_earningsrelease.htm",
+  "exhibit_name": "q125_earningsrelease.htm",
+  "exhibit_sha256": "e4e87ee7c6a14624610ec15ac291bb89327a10dc7fbb5e9fb9b24188accb0567",
+  "acceptance_utc": "2025-04-24T20:05:05.000Z",
+  "table_index": 3.0,
+  "row_index": 20.0,
+  "row_label": "Earnings (loss) per share attributable to Intel\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Mar 30, 2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-24-000074",
+  "fiscal_period_end": "2023-05-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086324000074/q124_earningsrelease.htm",
+  "exhibit_name": "q124_earningsrelease.htm",
+  "exhibit_sha256": "73cba81e242c435b0fcb7b699caeb371ffe6fa33c87e6e81d1986bac66d4b9c9",
+  "acceptance_utc": "2024-04-25T20:09:45.000Z",
+  "table_index": 3.0,
+  "row_index": 20.0,
+  "row_label": "Earnings (loss) per share attributable to Intel\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Apr 1, 2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-23-000100",
+  "fiscal_period_end": "2022-11-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086323000100/q323_earningsrelease.htm",
+  "exhibit_name": "q323_earningsrelease.htm",
+  "exhibit_sha256": "b495f783954befbacfacaf41ea24f55c67664d7466b3160d33cd12333ace6236",
+  "acceptance_utc": "2023-10-26T20:09:55.000Z",
+  "table_index": 3.0,
+  "row_index": 20.0,
+  "row_label": "Earnings (loss) per share attributable to Intel\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Oct 1, 2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-23-000068",
+  "fiscal_period_end": "2022-08-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086323000068/q223_earningsrelease.htm",
+  "exhibit_name": "q223_earningsrelease.htm",
+  "exhibit_sha256": "8efdef95f8436249fdace90ea9965ee358f975f2bc04a0af5d2b580e81d7ce5b",
+  "acceptance_utc": "2023-07-27T20:07:40.000Z",
+  "table_index": 3.0,
+  "row_index": 20.0,
+  "row_label": "Earnings (loss) per share attributable to Intel\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Jul 2, 2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-23-000027",
+  "fiscal_period_end": "2022-05-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086323000027/q123_earningsrelease.htm",
+  "exhibit_name": "q123_earningsrelease.htm",
+  "exhibit_sha256": "fa96b6425d09fff59bd55a6112d91dc8353887f1607738a436889f7b75d45a09",
+  "acceptance_utc": "2023-04-27T20:09:04.000Z",
+  "table_index": 3.0,
+  "row_index": 20.0,
+  "row_label": "Earnings (loss) per share attributable to Intel\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Apr 2, 2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-22-000037",
+  "fiscal_period_end": "2021-10-25",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086322000037/q322_earningsrelease.htm",
+  "exhibit_name": "q322_earningsrelease.htm",
+  "exhibit_sha256": "8589924b914a4dac990ee41d0631ed1b570d969a2c31acc580e979c6cbdf18b2",
+  "acceptance_utc": "2022-10-27T20:02:53.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "Earnings per share\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Sep 25, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-22-000029",
+  "fiscal_period_end": "2021-07-26",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086322000029/q222_earningsrelease.htm",
+  "exhibit_name": "q222_earningsrelease.htm",
+  "exhibit_sha256": "78b4e8e5ad8345db8cbb0982f882895e4fde44ed61de9254fd10ac103c2ed63b",
+  "acceptance_utc": "2022-07-28T20:06:34.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "Earnings (loss) per share\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Jun 26, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-22-000019",
+  "fiscal_period_end": "2021-04-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086322000019/q122_earningsrelease.htm",
+  "exhibit_name": "q122_earningsrelease.htm",
+  "exhibit_sha256": "6c81b8e0b863cbc9c1de2c03b82966ca6e18f054ef99ae1e4463b2f00a404edd",
+  "acceptance_utc": "2022-04-28T20:09:32.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "Earnings per share\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Mar 27, 2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-21-000037",
+  "fiscal_period_end": "2020-10-26",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086321000037/q321_earningsrelease.htm",
+  "exhibit_name": "q321_earningsrelease.htm",
+  "exhibit_sha256": "7199b34785cbb5acec99f1d2917c2ffa1a07b24ebdbfc87619d227b45b7a808f",
+  "acceptance_utc": "2021-10-21T20:09:46.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "Earnings per share\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Sep 26, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-21-000029",
+  "fiscal_period_end": "2020-07-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086321000029/q221_earningsrelease.htm",
+  "exhibit_name": "q221_earningsrelease.htm",
+  "exhibit_sha256": "c43601a00d4c9487ba6d4634c251e582819a640eb4df484130df53b0bdea1c00",
+  "acceptance_utc": "2021-07-22T20:05:35.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "Earnings per share\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Jun 27, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-21-000017",
+  "fiscal_period_end": "2020-04-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086321000017/q121_earningsrelease.htm",
+  "exhibit_name": "q121_earningsrelease.htm",
+  "exhibit_sha256": "a112c61f8dfcc3d5db01fe591b6de4ce9b62a435c8c86826054617c755fb7699",
+  "acceptance_utc": "2021-04-22T20:05:36.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "Earnings per share\u2014diluted",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Mar 28, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-20-000042",
+  "fiscal_period_end": "2019-10-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086320000042/q320earningsrelease.htm",
+  "exhibit_name": "q320earningsrelease.htm",
+  "exhibit_sha256": "a51e624e79352ecc0990dd11233e598cd62cb2c68539003418e7bc95225ba34f",
+  "acceptance_utc": "2020-10-22T20:07:11.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "EARNINGS PER SHARE\u2014DILUTED",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Sep 28, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-20-000025",
+  "fiscal_period_end": "2019-07-29",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086320000025/q220earningsrelease.htm",
+  "exhibit_name": "q220earningsrelease.htm",
+  "exhibit_sha256": "b4d374e3876d4bad097111ba2f145bcc4184e363ecaceb4b62f2238562f59589",
+  "acceptance_utc": "2020-07-23T20:07:41.000Z",
+  "table_index": 4.0,
+  "row_index": 19.0,
+  "row_label": "EARNINGS PER SHARE\u2014DILUTED",
+  "column_index": 12.0,
+  "column_label": "Three Months Ended Jun 29, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-20-000016",
+  "fiscal_period_end": "2019-04-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086320000016/q1-2020earningsrelease.htm",
+  "exhibit_name": "q1-2020earningsrelease.htm",
+  "exhibit_sha256": "a503b7007a134ef8066f56be49c8354f9e6313f790793169392484c281d55643",
+  "acceptance_utc": "2020-04-23T20:07:24.000Z",
+  "table_index": 19.0,
+  "row_index": 20.0,
+  "row_label": "EARNINGS PER SHARE\u2014DILUTED",
+  "column_index": 6.0,
+  "column_label": "Three Months Ended Mar 30, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-19-000028",
+  "fiscal_period_end": "2018-10-29",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086319000028/q3-2019earningsrelease.htm",
+  "exhibit_name": "q3-2019earningsrelease.htm",
+  "exhibit_sha256": "a2a3253ebd120c7738f03443cbd9db3d33ce9e97b1faf7d0fda9e78b0cd43383",
+  "acceptance_utc": "2019-10-24T20:08:49.000Z",
+  "table_index": 19.0,
+  "row_index": 21.0,
+  "row_label": "EARNINGS PER SHARE - DILUTED",
+  "column_index": 6.0,
+  "column_label": "Three Months Ended Sep 29, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "INTC",
+  "accession": "0000050863-19-000022",
+  "fiscal_period_end": "2018-07-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086319000022/q2-2019earningsrelease.htm",
+  "exhibit_name": "q2-2019earningsrelease.htm",
+  "exhibit_sha256": "97e64d71e6b0bbd08e273253ae0c185e78f90641b42836ace638a22080a9134c",
+  "acceptance_utc": "2019-07-25T20:10:16.000Z",
+  "table_index": 19.0,
+  "row_index": 21.0,
+  "row_label": "EARNINGS PER SHARE - DILUTED",
+  "column_index": 6.0,
+  "column_label": "Three Months Ended Jun 30, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
   "ticker": "QCOM",
   "accession": "0001728949-20-000056",
   "fiscal_period_end": "2020-06-28",
@@ -714,6 +1416,870 @@
   "row_label": "Diluted earnings (loss) per share attributable to Qualcomm",
   "column_index": 1.0,
   "column_label": "Three Months Ended June 24, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-25-000116",
+  "fiscal_period_end": "2025-11-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000116/avgo-11022025x8kxex99.htm",
+  "exhibit_name": "avgo-11022025x8kxex99.htm",
+  "exhibit_sha256": "5578734ef4db64d5ee523491163e937236368941da3f7d49ec5ad532e4de7702",
+  "acceptance_utc": "2025-12-11T21:17:37.000Z",
+  "table_index": 6.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended November 2,2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-25-000061",
+  "fiscal_period_end": "2025-06-04",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000061/avgo-05042025x8kxex99.htm",
+  "exhibit_name": "avgo-05042025x8kxex99.htm",
+  "exhibit_sha256": "38b50fc22abc647b155b8f05cfc2fbafe533c37899afe4d8ace9765422eddcee",
+  "acceptance_utc": "2025-06-05T20:27:02.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended May 4,2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-25-000009",
+  "fiscal_period_end": "2025-02-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016825000009/avgo-02022025x8kxex99.htm",
+  "exhibit_name": "avgo-02022025x8kxex99.htm",
+  "exhibit_sha256": "e273791af0a227f87b8e17082db6a76bc7ba220fd7818231641004058fba2db9",
+  "acceptance_utc": "2025-03-06T21:19:37.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended February 2,2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-24-000077",
+  "fiscal_period_end": "2024-06-05",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016824000077/avgo-05052024x8kxex99.htm",
+  "exhibit_name": "avgo-05052024x8kxex99.htm",
+  "exhibit_sha256": "029371a4e516b4fce14a337760e075ac9a05b46a582418f4aaeeb6b07388a5c9",
+  "acceptance_utc": "2024-06-12T20:19:05.000Z",
+  "table_index": 3.0,
+  "row_index": 45.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended May 5,2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-24-000012",
+  "fiscal_period_end": "2024-02-04",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016824000012/avgo-02042024x8kxex99.htm",
+  "exhibit_name": "avgo-02042024x8kxex99.htm",
+  "exhibit_sha256": "835b0450d4430261816495632619ada1d2542630f597d686a1edbdea73f9352f",
+  "acceptance_utc": "2024-03-07T21:18:09.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended February 4,2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-21-000121",
+  "fiscal_period_end": "2021-08-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016821000121/avgo-08012021x8kxex99.htm",
+  "exhibit_name": "avgo-08012021x8kxex99.htm",
+  "exhibit_sha256": "cddd4eb7f2d210bf7a6d71f6a50564d5a846261134bb8f20ca00eb3488ca500c",
+  "acceptance_utc": "2021-09-02T20:18:04.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended August 1,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-21-000110",
+  "fiscal_period_end": "2021-06-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016821000110/avgo-05022021x8kxex99.htm",
+  "exhibit_name": "avgo-05022021x8kxex99.htm",
+  "exhibit_sha256": "c12b808a1fbbe38e297b3f90f6c92a9d0878e25f58484d36cf8a33278a961454",
+  "acceptance_utc": "2021-06-03T20:19:10.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended May 2,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-21-000026",
+  "fiscal_period_end": "2021-01-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016821000026/avgo-01312021x8kxex99.htm",
+  "exhibit_name": "avgo-01312021x8kxex99.htm",
+  "exhibit_sha256": "590b4eb01c2dd1cb2918871b3ebbbbdfbd696fcfe8ae6f3cd03920900a5db02d",
+  "acceptance_utc": "2021-03-04T21:18:53.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended January 31,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-20-000201",
+  "fiscal_period_end": "2020-11-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016820000201/avgo-11012020x8kxex99.htm",
+  "exhibit_name": "avgo-11012020x8kxex99.htm",
+  "exhibit_sha256": "bb0426d8e5492d3abcea695fff61762792b7dd2bfb370efca46887ad8741c646",
+  "acceptance_utc": "2020-12-10T21:19:56.000Z",
+  "table_index": 6.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended November 1,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-20-000154",
+  "fiscal_period_end": "2020-08-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016820000154/avgo-08022020x8kxex99.htm",
+  "exhibit_name": "avgo-08022020x8kxex99.htm",
+  "exhibit_sha256": "ecea2330c9575a0d00f2ebc461d91b80de6b9ae36291ac6af63e01127ffc54a1",
+  "acceptance_utc": "2020-09-03T20:17:44.000Z",
+  "table_index": 3.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended August 2,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-20-000099",
+  "fiscal_period_end": "2020-06-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016820000099/avgo-05032020x8kxex99.htm",
+  "exhibit_name": "avgo-05032020x8kxex99.htm",
+  "exhibit_sha256": "e2068e2cb8277a1c685cb1c6699059b00eab049de36be4f6be07f06de3cfcf8a",
+  "acceptance_utc": "2020-06-04T20:29:23.000Z",
+  "table_index": 2.0,
+  "row_index": 54.0,
+  "row_label": "Net income per share",
+  "column_index": 6.0,
+  "column_label": "Fiscal Quarter Ended May 3,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-20-071608",
+  "fiscal_period_end": "2020-02-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312520071608/d859221dex991.htm",
+  "exhibit_name": "d859221dex991.htm",
+  "exhibit_sha256": "b9ba0aba9d4b05a40a64d83d7eeae012cb92abfa475cab8d1efd7a66a004fc3f",
+  "acceptance_utc": "2020-03-12T20:23:24.000Z",
+  "table_index": 13.0,
+  "row_index": 45.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended February 2, 2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-19-312797",
+  "fiscal_period_end": "2019-11-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312519312797/d845915dex991.htm",
+  "exhibit_name": "d845915dex991.htm",
+  "exhibit_sha256": "038f2845ecabcf54cd493e1d4a48b4d680d2d4b59456837985bbcfe29d2c6a9c",
+  "acceptance_utc": "2019-12-12T21:39:14.000Z",
+  "table_index": 15.0,
+  "row_index": 49.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended November 3, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-19-243919",
+  "fiscal_period_end": "2019-08-04",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312519243919/d800073dex991.htm",
+  "exhibit_name": "d800073dex991.htm",
+  "exhibit_sha256": "bbefc275e8600ed9529ec043a09333e1545801fb89468c56599f979a6e46d755",
+  "acceptance_utc": "2019-09-12T20:25:03.000Z",
+  "table_index": 13.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended August 4, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-19-172516",
+  "fiscal_period_end": "2019-06-05",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312519172516/d763344dex991.htm",
+  "exhibit_name": "d763344dex991.htm",
+  "exhibit_sha256": "23f97dc7ec8e425b60d52c0f62d2f31724736ac29ea088812ae14808767cfc86",
+  "acceptance_utc": "2019-06-13T20:23:31.000Z",
+  "table_index": 14.0,
+  "row_index": 46.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended May 5, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-19-074832",
+  "fiscal_period_end": "2019-02-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312519074832/d642515dex991.htm",
+  "exhibit_name": "d642515dex991.htm",
+  "exhibit_sha256": "1c805b57e33161ca64532af78c28c9fa427956188e798f7c1e508b616344c08f",
+  "acceptance_utc": "2019-03-14T20:23:33.000Z",
+  "table_index": 13.0,
+  "row_index": 47.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended February 3,2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-18-343743",
+  "fiscal_period_end": "2018-11-04",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312518343743/d665420dex991.htm",
+  "exhibit_name": "d665420dex991.htm",
+  "exhibit_sha256": "87bde798e00c339911b806a61b7b9062a000413f43a01630649e294902ba3951",
+  "acceptance_utc": "2018-12-06T21:23:11.000Z",
+  "table_index": 20.0,
+  "row_index": 48.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended November 4,2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001730168-18-000036",
+  "fiscal_period_end": "2018-08-05",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000173016818000036/avgo-08052018x8kxex99.htm",
+  "exhibit_name": "avgo-08052018x8kxex99.htm",
+  "exhibit_sha256": "072e40a8be2eb7c7b8b0459a38148a4de7c97a476a8c3520124a378c34a80e1e",
+  "acceptance_utc": "2018-09-06T20:22:12.000Z",
+  "table_index": 18.0,
+  "row_index": 37.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended August 5, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "AVGO",
+  "accession": "0001193125-18-186769",
+  "fiscal_period_end": "2018-06-06",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/1730168/000119312518186769/d589424dex991.htm",
+  "exhibit_name": "d589424dex991.htm",
+  "exhibit_sha256": "b8f729c81431aacfc9903f39498c77ccddcf0242994ac1339d0bf2cdedcde33b",
+  "acceptance_utc": "2018-06-07T20:05:05.000Z",
+  "table_index": 16.0,
+  "row_index": 47.0,
+  "row_label": "Net income per share",
+  "column_index": 2.0,
+  "column_label": "Fiscal Quarter Ended May 6, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-25-000044",
+  "fiscal_period_end": "2025-11-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312525000044/a2026q1ex991-pressrelease.htm",
+  "exhibit_name": "a2026q1ex991-pressrelease.htm",
+  "exhibit_sha256": "a4e510db1e241ee8f2a90a0cafdcefb8cc28a02fc2b105593df810e55064c8b6",
+  "acceptance_utc": "2025-12-17T21:03:26.000Z",
+  "table_index": 4.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. November 27,2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": true
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-25-000024",
+  "fiscal_period_end": "2025-08-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312525000024/a2025q4ex991-pressrelease.htm",
+  "exhibit_name": "a2025q4ex991-pressrelease.htm",
+  "exhibit_sha256": "21cd4bed358903d7e5ee4c695ce08697e25f6f223318a48b0197397f386dfdf8",
+  "acceptance_utc": "2025-09-23T20:02:28.000Z",
+  "table_index": 5.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "4th Qtr. August 28,2025",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-24-000046",
+  "fiscal_period_end": "2024-11-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312524000046/a2025q1ex991-pressrelease.htm",
+  "exhibit_name": "a2025q1ex991-pressrelease.htm",
+  "exhibit_sha256": "2333c710e1d667c062492aa62cf12abead83017f27190cd4c99e7fcc2bbbee43",
+  "acceptance_utc": "2024-12-18T21:00:20.000Z",
+  "table_index": 3.0,
+  "row_index": 24.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. November 28,2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-24-000023",
+  "fiscal_period_end": "2024-08-29",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312524000023/a2024q4ex991-pressrelease.htm",
+  "exhibit_name": "a2024q4ex991-pressrelease.htm",
+  "exhibit_sha256": "85be3c3b23018d955eee4235d69d254da8921b7b92156f3aa1c93ab991755681",
+  "acceptance_utc": "2024-09-25T20:00:27.000Z",
+  "table_index": 4.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "4th Qtr. August 29,2024",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-23-000071",
+  "fiscal_period_end": "2023-11-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312523000071/a2024q1ex991-pressrelease.htm",
+  "exhibit_name": "a2024q1ex991-pressrelease.htm",
+  "exhibit_sha256": "7266a98f9a726d6edf84b74caca6e5b32c7432f005607bf59a70a8d9225dcaa9",
+  "acceptance_utc": "2023-12-20T21:00:33.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. November 30,2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-23-000051",
+  "fiscal_period_end": "2023-08-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312523000051/a2023q4ex991-pressrelease.htm",
+  "exhibit_name": "a2023q4ex991-pressrelease.htm",
+  "exhibit_sha256": "e69133e791f27ebd2d2cdf037129d61fe9b9b3adb5679df12f2797500b8075ed",
+  "acceptance_utc": "2023-09-27T20:00:28.000Z",
+  "table_index": 4.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "4th Qtr. August 31,2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-23-000038",
+  "fiscal_period_end": "2023-06-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312523000038/a2023q3ex991-pressrelease.htm",
+  "exhibit_name": "a2023q3ex991-pressrelease.htm",
+  "exhibit_sha256": "e6640a75a00936597e26717e004a81b7fad790e136d00b396e3ec81736bdc997",
+  "acceptance_utc": "2023-06-28T20:00:29.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "3rd Qtr. June 1,2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-23-000018",
+  "fiscal_period_end": "2023-03-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312523000018/a2023q2ex991-pressrelease.htm",
+  "exhibit_name": "a2023q2ex991-pressrelease.htm",
+  "exhibit_sha256": "9fa6d3110854d4ea3dc374341498d8ea689e2628d9fdd49af2b4f5ae53124fec",
+  "acceptance_utc": "2023-03-28T20:01:45.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "2nd Qtr. March 2,2023",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-22-000070",
+  "fiscal_period_end": "2022-12-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312522000070/a2023q1ex991-pressrelease.htm",
+  "exhibit_name": "a2023q1ex991-pressrelease.htm",
+  "exhibit_sha256": "cf3f317e44981fb1e39f759fa78b85ed76535248804a10c9f80a855fddeab551",
+  "acceptance_utc": "2022-12-21T21:00:43.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. December 1,2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-22-000044",
+  "fiscal_period_end": "2022-09-01",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312522000044/a2022q4ex991-pressrelease.htm",
+  "exhibit_name": "a2022q4ex991-pressrelease.htm",
+  "exhibit_sha256": "8d16d8ff21612f77aeaf6886ab05f166a736bc9ac535fde0855226af28356863",
+  "acceptance_utc": "2022-09-29T20:00:31.000Z",
+  "table_index": 4.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "4th Qtr. September 1,2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-22-000034",
+  "fiscal_period_end": "2022-06-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312522000034/a2022q3ex991-pressrelease.htm",
+  "exhibit_name": "a2022q3ex991-pressrelease.htm",
+  "exhibit_sha256": "8bb402a3242d04713663e441c09d34f637950499ddd8840565065b5f1981a927",
+  "acceptance_utc": "2022-06-30T20:00:27.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "3rd Qtr. June 2,2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-22-000012",
+  "fiscal_period_end": "2022-03-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312522000012/a2022q2ex991-pressrelease.htm",
+  "exhibit_name": "a2022q2ex991-pressrelease.htm",
+  "exhibit_sha256": "9d5e218d6f1a772c24668f8dbc7aec38a9bbf1a6d55a532df04f2094d392a0af",
+  "acceptance_utc": "2022-03-29T20:00:37.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "2nd Qtr. March 3,2022",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-21-000086",
+  "fiscal_period_end": "2021-12-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312521000086/a2022q1ex991-pressrelease.htm",
+  "exhibit_name": "a2022q1ex991-pressrelease.htm",
+  "exhibit_sha256": "0980d0695943ae3e64aaa7e34c8fe5fad47465059e2c646349d0a9f09821c94c",
+  "acceptance_utc": "2021-12-20T21:00:41.000Z",
+  "table_index": 3.0,
+  "row_index": 25.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. December 2,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-21-000060",
+  "fiscal_period_end": "2021-09-02",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312521000060/a2021q4ex991-pressrelease.htm",
+  "exhibit_name": "a2021q4ex991-pressrelease.htm",
+  "exhibit_sha256": "22a67ba7cf521a9b2496cf8a7b684e3103bb6087501af657446fea8053a75395",
+  "acceptance_utc": "2021-09-28T20:01:35.000Z",
+  "table_index": 4.0,
+  "row_index": 28.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "4th Qtr. September 2,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-21-000049",
+  "fiscal_period_end": "2021-06-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312521000049/a2021q3ex991-pressrelease.htm",
+  "exhibit_name": "a2021q3ex991-pressrelease.htm",
+  "exhibit_sha256": "95ec1fc405fdfc7fb749a37d6ad4c1227aea859e673fc434a821ebdad1906b9c",
+  "acceptance_utc": "2021-06-30T20:00:41.000Z",
+  "table_index": 3.0,
+  "row_index": 28.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "3rd Qtr. June 3,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-21-000028",
+  "fiscal_period_end": "2021-03-04",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312521000028/a2021q2ex991-pressrelease.htm",
+  "exhibit_name": "a2021q2ex991-pressrelease.htm",
+  "exhibit_sha256": "e02e1f0c28b9ea9527faad3d2be1c4c0aa5d15aa7baa4fd24d7129f6ab04a9bc",
+  "acceptance_utc": "2021-03-31T20:00:40.000Z",
+  "table_index": 3.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "2nd Qtr. March 4,2021",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-21-000009",
+  "fiscal_period_end": "2020-12-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312521000009/a2021q1ex991-pressrelease.htm",
+  "exhibit_name": "a2021q1ex991-pressrelease.htm",
+  "exhibit_sha256": "1a4cc8e1b533b6f2f07e2fe98d4cd86740b694fc647b0637bc139c3d90fa6e95",
+  "acceptance_utc": "2021-01-07T21:00:45.000Z",
+  "table_index": 3.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. December 3,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-20-000079",
+  "fiscal_period_end": "2020-09-03",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312520000079/a2020q4exhibit991-pres.htm",
+  "exhibit_name": "a2020q4exhibit991-pres.htm",
+  "exhibit_sha256": "f0cbdf6554d8fd3333946b964ca04293a30642181a66f583766ff3354a44e9b0",
+  "acceptance_utc": "2020-09-29T20:00:38.000Z",
+  "table_index": 4.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "4th Qtr. September 3,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-20-000063",
+  "fiscal_period_end": "2020-06-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312520000063/a2020q3exhibit991-pres.htm",
+  "exhibit_name": "a2020q3exhibit991-pres.htm",
+  "exhibit_sha256": "bb10d03eb917776cb9be2ba7e2eabe0ea067094b850fa8988bd548605cb82b78",
+  "acceptance_utc": "2020-06-29T20:02:05.000Z",
+  "table_index": 3.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "3rd Qtr. May 28,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-20-000030",
+  "fiscal_period_end": "2020-02-27",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312520000030/a2020q2exhibit991-pres.htm",
+  "exhibit_name": "a2020q2exhibit991-pres.htm",
+  "exhibit_sha256": "e9ed3fedc9ebc2240fe18c5b5b719ce2c5f5ab8b088452820ae93798524262ca",
+  "acceptance_utc": "2020-03-25T20:00:49.000Z",
+  "table_index": 3.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "2nd Qtr. February 27,2020",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "MU",
+  "accession": "0000723125-19-000172",
+  "fiscal_period_end": "2019-11-28",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/723125/000072312519000172/a2020q1exhibit991-pres.htm",
+  "exhibit_name": "a2020q1exhibit991-pres.htm",
+  "exhibit_sha256": "88e526a250f0ad73084bc1f7cdbe87ca0d28926e34a80e7d3b091d8f176f64dc",
+  "acceptance_utc": "2019-12-18T21:00:40.000Z",
+  "table_index": 3.0,
+  "row_index": 27.0,
+  "row_label": "Diluted",
+  "column_index": 3.0,
+  "column_label": "1st Qtr. November 28,2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0000097476-20-000006",
+  "fiscal_period_end": "2019-12-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000009747620000006/q42019txnex99-8xker.htm",
+  "exhibit_name": "q42019txnex99-8xker.htm",
+  "exhibit_sha256": "4d3804002b5c1ae657917deea55ca1456a36c3aa1c16c4e26cc8d117eb763829",
+  "acceptance_utc": "2020-01-22T21:03:31.000Z",
+  "table_index": 3.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 3.0,
+  "column_label": "For Three Months Ended December 31, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-19-025627",
+  "fiscal_period_end": "2019-06-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459019025627/txn-ex99_6.htm",
+  "exhibit_name": "txn-ex99_6.htm",
+  "exhibit_sha256": "49df2fc10f0a96ae0465b97d7a8c5094454db3e903d1003a7b17e2ad22e90eda",
+  "acceptance_utc": "2019-07-23T20:13:30.000Z",
+  "table_index": 10.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 2.0,
+  "column_label": "For Three Months Ended June 30, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-19-012514",
+  "fiscal_period_end": "2019-03-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459019012514/txn-ex99_6.htm",
+  "exhibit_name": "txn-ex99_6.htm",
+  "exhibit_sha256": "28e2ec27b8429a7ae19a7d883b0a74f9d7189dec8f986af96078fbe6ce8614c6",
+  "acceptance_utc": "2019-04-23T20:18:08.000Z",
+  "table_index": 10.0,
+  "row_index": 16.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 2.0,
+  "column_label": "For Three Months Ended March 31, 2019",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-19-000975",
+  "fiscal_period_end": "2018-12-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459019000975/txn-ex99_6.htm",
+  "exhibit_name": "txn-ex99_6.htm",
+  "exhibit_sha256": "41c15fe10325eae3cd3f019bf16acc4e73e142395d5be38d5d29c4ba6eeeb1a6",
+  "acceptance_utc": "2019-01-23T21:12:50.000Z",
+  "table_index": 10.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 2.0,
+  "column_label": "For Three Months Ended December 31, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-18-024767",
+  "fiscal_period_end": "2018-09-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459018024767/txn-ex99_7.htm",
+  "exhibit_name": "txn-ex99_7.htm",
+  "exhibit_sha256": "8f0d699efd52d2d3de93d2822048d2b499d2019f46b19999b9ed3b6f0047302f",
+  "acceptance_utc": "2018-10-23T20:15:26.000Z",
+  "table_index": 11.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 2.0,
+  "column_label": "For Three Months Ended September 30, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-18-017305",
+  "fiscal_period_end": "2018-06-30",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459018017305/txn-ex99_6.htm",
+  "exhibit_name": "txn-ex99_6.htm",
+  "exhibit_sha256": "5f0d58f819be0bce481b341eac88da8285556e119709b3f9c600b9ed1df3b9bd",
+  "acceptance_utc": "2018-07-24T20:25:09.000Z",
+  "table_index": 9.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 2.0,
+  "column_label": "For Three Months Ended June 30, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-18-008880",
+  "fiscal_period_end": "2018-03-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459018008880/txn-ex99_7.htm",
+  "exhibit_name": "txn-ex99_7.htm",
+  "exhibit_sha256": "2726ee758b6227b9c353c5056c0d4373c472e9a48676d9eb5555f827f04c94c0",
+  "acceptance_utc": "2018-04-24T20:11:15.000Z",
+  "table_index": 10.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 3.0,
+  "column_label": "For Three Months Ended March 31, 2018",
+  "xbrl_audit_concepts": [
+   "EarningsPerShareDiluted"
+  ],
+  "in_dev_sample": false
+ },
+ {
+  "ticker": "TXN",
+  "accession": "0001564590-18-000785",
+  "fiscal_period_end": "2017-12-31",
+  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/97476/000156459018000785/txn-ex99_6.htm",
+  "exhibit_name": "txn-ex99_6.htm",
+  "exhibit_sha256": "28fca93059bc014078c500e707e6d25999900baed661bc487a67d720fccccbe5",
+  "acceptance_utc": "2018-01-23T21:27:25.000Z",
+  "table_index": 12.0,
+  "row_index": 17.0,
+  "row_label": "Diluted earnings per common share",
+  "column_index": 2.0,
+  "column_label": "For Three Months Ended December 31, 2017",
   "xbrl_audit_concepts": [
    "EarningsPerShareDiluted"
   ],
@@ -955,24 +2521,6 @@
  },
  {
   "ticker": "AMAT",
-  "accession": "0000006951-22-000016",
-  "fiscal_period_end": "2022-06-01",
-  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/6951/000000695122000016/exhibit991q22022earningsre.htm",
-  "exhibit_name": "exhibit991q22022earningsre.htm",
-  "exhibit_sha256": "4e96d6ade5a9605be5cf4a75a5409ad9b61b6bc2ed37fac1ccf65b5b178e8266",
-  "acceptance_utc": "2022-05-19T20:04:06.000Z",
-  "table_index": 4.0,
-  "row_index": 24.0,
-  "row_label": "Diluted",
-  "column_index": 3.0,
-  "column_label": "Three Months Ended May 1,2022",
-  "xbrl_audit_concepts": [
-   "EarningsPerShareDiluted"
-  ],
-  "in_dev_sample": true
- },
- {
-  "ticker": "AMAT",
   "accession": "0000006951-22-000005",
   "fiscal_period_end": "2022-01-30",
   "exhibit_url": "https://www.sec.gov/Archives/edgar/data/6951/000000695122000005/exhibit991q12022earningsre.htm",
@@ -1005,7 +2553,7 @@
   "xbrl_audit_concepts": [
    "EarningsPerShareDiluted"
   ],
-  "in_dev_sample": false
+  "in_dev_sample": true
  },
  {
   "ticker": "AMAT",
@@ -1020,24 +2568,6 @@
   "row_label": "Diluted",
   "column_index": 3.0,
   "column_label": "Three Months Ended August 1,2021",
-  "xbrl_audit_concepts": [
-   "EarningsPerShareDiluted"
-  ],
-  "in_dev_sample": false
- },
- {
-  "ticker": "AMAT",
-  "accession": "0000006951-21-000018",
-  "fiscal_period_end": "2021-06-02",
-  "exhibit_url": "https://www.sec.gov/Archives/edgar/data/6951/000000695121000018/exhibit991q22021earningsre.htm",
-  "exhibit_name": "exhibit991q22021earningsre.htm",
-  "exhibit_sha256": "2eaa1588d92cfe7e5391ef3f31f9b622be82f710a2e5573ecf1ce9388fe05cd8",
-  "acceptance_utc": "2021-05-20T20:11:47.000Z",
-  "table_index": 4.0,
-  "row_index": 24.0,
-  "row_label": "Diluted",
-  "column_index": 3.0,
-  "column_label": "Three Months Ended May 2,2021",
   "xbrl_audit_concepts": [
    "EarningsPerShareDiluted"
   ],

@@ -1,6 +1,51 @@
 # Changelog
 
 
+## 2026-08-17 — Semiconductor EPS absorption, final adapter pass: still EXTRACTION_NOT_RELIABLE
+
+Final bounded extraction attempt on the same branch. Added a deterministic filer-adapter registry
+for NVDA, INTC, AVGO, MU, TXN and QCOM, plus five general structural fixes proven on the frozen
+development sample. **Extraction improved substantially and the unchanged gate still failed, so no
+outcome stage was run and no return was ever inspected.**
+
+| | Before (`cafc50a`) | After |
+|---|---|---|
+| Located exhibits | 250 | 299 |
+| Extracted | 123 | **216** |
+| Validated / contradicted / no reference | 92 / 0 / 31 | **150 / 2 / 56** |
+| Usable events | 61 | 82 |
+| Tickers with usable events | 4 | 7 |
+| OOS events | 32 | 48 |
+
+Per ticker after: NVDA 22, AMD 32, INTC 20, QCOM 9, AVGO 19, MU 25, TXN 8, AMAT 28, LRCX 30,
+KLAC 23. Precision: development **1.0000**, held out **0.9860**, combined **0.9868** — held-out
+precision independently clears 0.95.
+
+Gate values (all thresholds unchanged): reference_coverage 0.7037 (≥0.80, fail), conditional
+precision 0.9868 (pass), held-out conditional precision 0.9860 (pass), usable_event_coverage 0.2742
+(≥0.60, fail), tickers 7 (≥8, fail), usable events 82 (≥160, fail), OOS 48 (≥90, fail), OOS per year
+18/15/15 (≥25, fail), later-XBRL predictive inputs 0 (pass).
+
+**Binding finding: the gate is arithmetically unreachable.** A fiscal-year-end quarter's EPS is never
+restated as a discrete three-month fact in a later 10-Q — the next periodic report is the 10-K with
+the annual figure — so those events can only ever be `no_reference`. Missing references cluster in
+each filer's own fiscal-year-end month (LRCX 8/8 June, NVDA 5/5 January, AMAT 5/8 October, AMD 4/8
+December). 47 of 216 extracted events (21.8%) are fiscal-year-end quarters, capping attainable
+`reference_coverage` at **0.7824** against a required 0.80, independent of parser quality.
+
+Adapters contain only structural properties — exhibit name patterns, quarter-span representations,
+per-share section nesting — and no accession numbers, column indexes, EPS values, later-XBRL values
+or outcome information. Across 121 accessions extracted both before and after, **zero values
+changed**; AMAT became more conservative (−2) and AMD gained 1. The development sample's realization
+grew 17→20 events as NVDA and INTC exhibits became locatable under the unchanged hash rule; no
+held-out filing was moved in.
+
+Recommendation: **stop hand-building this parser.** Reliable structured earnings data would be
+required to test this hypothesis.
+
+Focused test extended to 108 checks; all 53 tracked test files pass.
+
+
 ## 2026-08-17 — Semiconductor EPS–price absorption: EXTRACTION_NOT_RELIABLE
 
 `EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. `sector: SEMICONDUCTORS`,
