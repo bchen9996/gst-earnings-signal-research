@@ -1,6 +1,67 @@
 # Changelog
 
 
+## 2026-08-17 — Terminal temporal replication (2010-2017): TEMPORAL_REPLICATION_FAILS
+
+Does vendor-defined earnings surprise improve chronological out-of-sample prediction of the first
+full-session SMH-adjusted price reaction for the same ten semiconductor companies during 2010-2017?
+**Two of four replication gates fail. The research path stops. No third replication is proposed.**
+
+A **retrospective** temporal replication motivated by PR #34's suggestive but gate-failing result —
+**not** a prospectively registered independent replication, **not** preregistered evidence. The
+predictor remains `VENDOR_DEFINED_REPORTED_EPS_SURPRISE` on `surprisePercentage` with
+`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED`. Not a GST test.
+`FROZEN_TEMPORAL_REPLICATION_DESIGN` was committed at `6361111`, before any pre-2018 price or return
+observation was read.
+
+**Sample.** 531 provider records and 522 SEC Item 2.02 events for 2004-2017 → 68 excluded for no
+exact-date match, **1 ambiguous** → **462 uniquely matched**, **283 OOS** across 2010-2017 (34-37
+per year), 0 duplicate identities, 0 train/test identity overlap. Timing: 456 after-close, 6
+before-open, 0 intraday.
+
+**AVGO excluded, never replaced.** Its current CIK carries no pre-2018 filing history and no
+archived submission files; the historical issuer is a predecessor entity unreachable from the
+authoritative ticker→CIK map. Nine tickers still clear the ≥8 gate. 2004 contributes only 10 events
+because SEC Item 2.02 took effect 2004-08-23 — recorded in advance, and entirely inside the training
+window. Split audit: one move ≥40% (AMD 2016-04-22, +52.3%), diagnosed **genuine** and reported, not
+deleted.
+
+**Stage 1, n = 283:** MAE 0.044226 → **0.043246**, **+2.216%**, RMSE 0.068302 → 0.066776, OOS R²
+0.0351, pooled Spearman **+0.2169 (p = 0.000236)**.
+
+| Gate | Result | |
+|---|---|---|
+| improvement ≥ 1.0% | +2.216% | pass |
+| bootstrap 95% CI entirely above zero | **[−0.0000561, +0.0021342]** | **FAIL** |
+| C beats B in ≥ ⌈2×8/3⌉ = 6 of 8 years | **5 of 8** | **FAIL** |
+| expected positive sign | +0.2169 | pass |
+
+Bootstrap: 2,000 draws, 28-day blocks, 92 blocks, seed 20260817, mean +0.000981.
+
+Annual pattern is **front-loaded and unstable** — +3.80/+6.93/+5.87% in 2010-2012, then −1.12/−1.23%
+in 2013-2014, +0.05% 2015, −0.46% 2016, +6.55% 2017. Model C helps only **4 of 9** tickers, though
+**all nine** Spearman correlations are positive.
+
+**Stage 2 and trading did not run.** The gap was never constructed and no strategy was simulated.
+
+**Secondary comparison with PR #34, never pooled:** improvement +2.482% (2023-2025, n=116) vs
++2.216% (2010-2017, n=283); Spearman +0.135 (p=0.148) vs **+0.217 (p=0.000236)**. **Point estimates
+agree in sign in both windows, and both windows fail the same unchanged gate.** The failure was not
+rescued by combining them.
+
+The strongest supporting finding is a genuinely significant monotonic association (+0.217,
+p = 0.000236) across 283 events with every ticker positive. The strongest falsifying finding is that
+it yields no stable predictive improvement: 5 of 8 years, negative in three, helpful for only 4 of 9
+tickers, bootstrap interval including zero.
+
+Two amendments were made **before any outcome was opened** and are recorded in the design block: the
+`FOLDS`/`PRICE_CACHE` rebinding, and a calendar-bounds fix (the repository's XNYS instance begins
+2006-08-17 and raised `DateOutOfBounds` for 2004-2006 dates, so the same package and calendar were
+re-instantiated from 2003-01-01). No repository module was edited and no price cache existed at that
+point. Every model, transform, grid, tie-break, bootstrap and gate was imported and executed
+unmodified from PR #34's runner.
+
+
 ## 2026-08-17 — Semiconductor information-price gap (v3): SURPRISE_DOES_NOT_EXPLAIN_INITIAL_REACTION
 
 Outcome study on the stacked branch `phase3-semiconductor-surprise-absorption-v3`, asking whether

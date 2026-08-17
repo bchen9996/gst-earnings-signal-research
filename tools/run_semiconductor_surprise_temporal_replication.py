@@ -68,6 +68,16 @@ EVENT TIMING -- identical to PR #34, in America/New_York
   acceptance 09:30 ET .. < 16:00 ET      -> EXCLUDED
   Timing is never reinterpreted after a return is viewed.
 
+  CALENDAR-BOUNDS AMENDMENT, recorded openly and made BEFORE any price or return
+  observation was opened. gst_market_response.exchange_calendar instantiates XNYS with
+  the exchange_calendars package default bounds, whose first session is 2006-08-17, so
+  it raises DateOutOfBounds for 2004-2006 acceptance dates. The SAME package and the
+  SAME XNYS calendar are therefore re-instantiated with start="2003-01-01" and bound
+  into that module before any session is assigned. Same calendar, same holiday and
+  early-close data, same rules -- only the lower bound changed. No repository module is
+  edited. When this amendment was made the run had crashed during timing assignment,
+  before fetch_prices was reached, and no price cache directory existed.
+
 PRICES AND RETURNS -- the same Yahoo split- and dividend-adjusted close series and the
   same direct urllib transport already recorded in PR #34. yfinance is NOT retried and
   no other provider is substituted.
@@ -184,6 +194,14 @@ LABELS = ("DATA_INSUFFICIENT_FOR_TEMPORAL_REPLICATION",
 # that the identical model code runs on the replication window.
 V3.FOLDS = REPL_FOLDS
 V3.PRICE_CACHE = PRICE_CACHE
+
+# Same package, same XNYS calendar, wider lower bound -- see the CALENDAR-BOUNDS
+# AMENDMENT in the frozen design. The repository module's source is not edited.
+import exchange_calendars as _xcals                      # noqa: E402
+import gst_market_response.exchange_calendar as _cal     # noqa: E402
+
+CALENDAR_START = "2003-01-01"
+_cal._calendar = _xcals.get_calendar("XNYS", start=CALENDAR_START)
 
 
 def two_thirds(n):
@@ -380,6 +398,14 @@ def main(argv=None):
             "module": "tools/run_semiconductor_surprise_absorption_v3.py",
             "source_edited": False,
             "rebound_globals": ["FOLDS", "PRICE_CACHE"],
+            "calendar_bounds_amendment": {
+                "module": "gst_market_response.exchange_calendar",
+                "source_edited": False,
+                "calendar": _cal.EXCHANGE_CALENDAR_ID,
+                "start": CALENDAR_START,
+                "reason": ("the package default XNYS instance begins 2006-08-17 and "
+                           "raises DateOutOfBounds for 2004-2006 acceptance dates"),
+                "made_before_any_outcome_opened": True},
             "alpha_grid": V3.ALPHAS,
             "bootstrap": {"draws": V3.BOOT_DRAWS, "block_days": V3.BOOT_BLOCK_DAYS,
                           "seed": V3.BOOT_SEED},
