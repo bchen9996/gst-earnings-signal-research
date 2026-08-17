@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -59,7 +60,13 @@ ck("2d. share-count rows rejected so EPS cannot be a weighted-average share figu
    "SHARES_ROW" in TOOL and "weighted[- ]average" in TOOL)
 ck("2e. basic EPS is never matched as diluted",
    "DILUTED_FULL" in TOOL and "DILUTED_BARE" in TOOL and "dilut" in TOOL)
-ck("2f. bare 'Diluted' only accepted inside a per-share section", "section_pershare" in TOOL)
+ck("2f. bare 'Diluted' only accepted inside a per-share section",
+   "in_pershare, sec = False, None" in TOOL
+   and "bare = bool(DILUTED_BARE.match(label)) and in_pershare" in TOOL)
+ck("2m. nested net-income-per-share rows require the diluted section qualifier",
+   'sec == "diluted" and bool(NET_PER_SHARE.match(label))' in TOOL)
+ck("2n. a reported quarter may not end after the release that reports it",
+   "not_after is not None and d > not_after" in TOOL)
 ck("2g. continuing-operations EPS deferred to consolidated when both present",
    "plain = [h for h in hits if not h[\"continuing_ops\"]]" in TOOL
    and "consolidated preferred over continuing-ops" in TOOL)
@@ -86,7 +93,7 @@ ck("4a. reference documented as audit-only", "audit reference only" in V["later_
 ck("4b. primary concept is EarningsPerShareDiluted",
    R["extraction_audit"]["xbrl_concept_used"] == "us-gaap:EarningsPerShareDiluted")
 ck("4f. reference must be filed after the release",
-   'pd.Timestamp(v["filed"]) > acc.normalize()' in TOOL)
+   "def after_release(v):" in TOOL and "f > acc.normalize()" in TOOL)
 ck("4g. reference must match the same fiscal quarter",
    'abs((pd.Timestamp(k) - fpe).days) <= 5' in TOOL)
 ck("4h. tolerance is $0.01 absolute", V["tolerance_eps_absolute"] == 0.01
@@ -146,10 +153,12 @@ ck("8e. folds are chronological and fixed",
 g, rg = V["gates"], R["gates"]
 ck("9a. extracted count recomputes from the panel",
    V["extracted"] == int(P.eps.notna().sum()) == R["coverage"]["extracted_gaap_diluted_eps"])
-ck("9c. validated + contradicted + no_reference equals extracted",
-   V["validated"] + V["contradicted"] + V["no_reference"] == V["extracted"])
+ck("9c. validated + contradicted + no_reference + refused duplicates equals extracted",
+   V["validated"] + V["contradicted"] + V["no_reference"]
+   + V["duplicate_identities_refused"] == V["extracted"])
 ck("9d. reference_coverage recomputes",
-   abs(g["reference_coverage"]["value"] - (V["validated"] + V["contradicted"]) / V["extracted"]) < 1e-4)
+   abs(g["reference_coverage"]["value"]
+       - (V["validated"] + V["contradicted"]) / V["extracted"]) < 1e-4)
 ck("9e. conditional_precision recomputes",
    abs(g["conditional_precision"]["value"]
        - V["validated"] / (V["validated"] + V["contradicted"])) < 1e-4)
@@ -198,10 +207,100 @@ ck("10k. discipline flags recorded", R["discipline"]["gates_loosened_after_seein
    and R["discipline"]["returns_used_to_choose_a_parsing_rule"] is False)
 ck("10l. no post-entry return was inspected",
    R["not_run_because_gate_failed"]["post_entry_returns_inspected"] is False)
-ck("10m. report states the failure is recall rather than accuracy",
-   "The failure is recall, not accuracy" in FLAT)
+ck("10m. report states the binding constraint is the coverage ceiling, not precision",
+   "arithmetically unreachable" in FLAT and "0.7824" in FLAT)
 ck("10o. report avoids the prohibited interpretations",
-   "Nothing in this branch is called an analyst surprise" in FLAT)
+   "Nothing here is called an analyst surprise" in FLAT)
+
+# ---- 11. filer adapter registry discipline ----
+sys.path.insert(0, str(ROOT / "tools"))
+from run_semiconductor_eps_absorption import (  # noqa: E402
+    FILER_ADAPTERS, ADAPTER_ALLOWED_TICKERS, ADAPTER_ALLOWED_FIELDS)
+ck("11a. adapters only for the six approved tickers",
+   set(FILER_ADAPTERS) <= ADAPTER_ALLOWED_TICKERS
+   and set(FILER_ADAPTERS) <= set(UNIVERSE))
+ck("11b. adapters contain only approved structural fields",
+   all(set(v) <= ADAPTER_ALLOWED_FIELDS for v in FILER_ADAPTERS.values()))
+ck("11c. no adapter contains an accession number",
+   not re.search(r"\d{10}-\d{2}-\d{6}", json.dumps(FILER_ADAPTERS)))
+ck("11d. no adapter contains a numeric literal that could be an EPS or column index",
+   not re.search(r":\s*-?\d+\.\d+", json.dumps(FILER_ADAPTERS)))
+ck("11e. the four already-working filers have no adapter",
+   not ({"AMD", "AMAT", "LRCX", "KLAC"} & set(FILER_ADAPTERS)))
+ck("11f. parser source contains no accession-specific exception",
+   not re.search(r"accession\s*==\s*[\"']", TOOL))
+ck("11g. parser source hardcodes no EPS or target-return table",
+   "EXPECTED_EPS" not in TOOL and "KNOWN_EPS" not in TOOL and "EPS_OVERRIDE" not in TOOL)
+ck("11h. adapters are keyed by ticker only",
+   all(isinstance(k, str) and k.isupper() and len(k) <= 5 for k in FILER_ADAPTERS))
+
+# ---- 12. development / held-out separation ----
+SP = V["precision_split"]
+ck("12a. both splits are reported", set(SP) == {"development", "held_out"})
+ck("12b. dev-sample flag partitions the audit rows",
+   SP["development"]["validated"] + SP["held_out"]["validated"] == V["validated"]
+   and SP["development"]["contradicted"] + SP["held_out"]["contradicted"] == V["contradicted"])
+ck("12c. held-out conditional precision recomputes",
+   abs(SP["held_out"]["conditional_precision"]
+       - SP["held_out"]["validated"] / (SP["held_out"]["validated"]
+                                        + SP["held_out"]["contradicted"])) < 1e-4)
+ck("12d. held-out conditional precision independently clears 0.95",
+   V["gates"]["heldout_conditional_precision"]["value"] >= 0.95
+   and V["gates"]["heldout_conditional_precision"]["passed"] is True)
+ck("12e. dev sample size is unchanged from the frozen rule",
+   V["dev_sample"]["per_ticker"] == 2 and V["dev_sample"]["seed"] == "SEMICONDUCTOR_EPS_PARSER_DEV")
+ck("12f. results record that no held-out filing entered the dev set",
+   R["discipline"]["held_out_filing_moved_into_dev_set"] is False)
+ck("12g. results and validation agree on the split", R["precision_split"] == SP)
+
+# ---- 13. gates unchanged and second-attempt accounting ----
+ck("13a. gate thresholds are identical to the first attempt",
+   R["gates_unchanged_from_first_attempt"] is True
+   and V["gates"]["reference_coverage"]["required"] == 0.80
+   and V["gates"]["usable_event_coverage"]["required"] == 0.60
+   and V["gates"]["tickers"]["required"] == 8)
+ck("13b. tolerance unchanged", V["tolerance_eps_absolute"] == 0.01
+   and R["discipline"]["tolerance_loosened"] is False)
+ck("13c. before/after counts recompute against the current run",
+   R["before_after"]["extracted"]["after"] == V["extracted"]
+   and R["before_after"]["validated"]["after"] == V["validated"]
+   and R["before_after"]["located_earnings_exhibits"]["after"] == V["located_exhibits"])
+ck("13d. the first attempt's failed result is preserved",
+   R["attempts"]["first_attempt_commit"].startswith("cafc50a")
+   and R["attempts"]["first_attempt_label"] == "EXTRACTION_NOT_RELIABLE")
+ck("13e. extraction improved but the gate still failed",
+   V["extracted"] > R["before_after"]["extracted"]["before"]
+   and V["extraction_gate_passed"] is False)
+ck("13f. per-ticker after-counts recompute",
+   R["extracted_by_ticker"]["after"] == V["extracted_by_ticker"])
+
+# ---- 14. the reference-coverage ceiling ----
+BF = R["binding_finding"]
+ck("14a. ceiling recomputes from the recorded counts",
+   abs(BF["max_attainable_reference_coverage"]
+       - (V["extracted"] - BF["fy_end_quarter_events"]) / V["extracted"]) < 1e-3)
+ck("14b. the ceiling is below the required threshold",
+   BF["max_attainable_reference_coverage"] < BF["required_reference_coverage"]
+   and BF["reachable"] is False)
+ck("14c. missing references concentrate in the fiscal-year-end quarter",
+   BF["no_reference_among_them"] > BF["no_reference_among_other_events"])
+
+# ---- 15. no target-return access before a frozen-design commit ----
+ck("15a. no outcome stage ran", R["not_run_because_gate_failed"]["post_entry_returns_inspected"] is False
+   and R["attempts"]["outcome_stage_ever_run"] is False)
+ck("15b. no pre-outcome frozen-design commit was created",
+   R["not_run_because_gate_failed"]["frozen_design_outcome_commit"] == "not created")
+ck("15c. the runner refuses to reach phase 2 while the gate fails",
+   "phase 2 runs only after the extraction gate passes" in TOOL)
+ck("15d. no price series is fetched anywhere in the executed path",
+   TOOL.count("def daily(") == 1 and "attach_prices" not in TOOL)
+ck("15e. previously extracted values were not altered",
+   R["unchanged_ticker_value_stability"]["values_changed"] == 0)
+ck("15f. recommendation is to stop hand-building the parser",
+   "Stop hand-building this parser" in FLAT
+   and "no further hand-built parser iteration" in R["recommendation"].lower())
+ck("15g. report states reliable structured data would be required",
+   "reliable structured earnings data" in FLAT)
 
 print()
 if FAIL:
