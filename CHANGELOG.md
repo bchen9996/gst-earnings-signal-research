@@ -1,6 +1,62 @@
 # Changelog
 
 
+## 2026-08-17 — Semiconductor information-price gap (v3): SURPRISE_DOES_NOT_EXPLAIN_INITIAL_REACTION
+
+Outcome study on the stacked branch `phase3-semiconductor-surprise-absorption-v3`, asking whether
+the discrepancy between a vendor-defined earnings surprise and the market's initial abnormal
+reaction predicts subsequent abnormal return. **The study stopped at the first mandatory gate.**
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`, **not preregistered**, not production-ready, not
+investable, and **not a GST test**. The surprise series is `VENDOR_DEFINED_REPORTED_EPS_SURPRISE` —
+never a GAAP or SEC-validated EPS surprise, never a guaranteed contemporaneous-consensus vintage.
+`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED` is recorded. The predecessor structured-source
+crosswalk gate **failed at 0.6719 against 0.90 and remains failed**; it was not re-scored or
+retried. `FROZEN_DESIGN` was committed at `9a9f642`, **before any price or return file was opened**.
+
+`surprisePercentage` is the primary field because proportional split restatements cancel in a ratio.
+**Verified mechanically: 320/320 records agree, largest deviation 0.0000 pp.**
+
+**Sample.** 320 provider records → 22 excluded for no exact-date SEC match, **0 ambiguous** →
+**298 uniquely matched events**, 10 tickers, **116 OOS** (39/38/39), zero duplicate identities.
+Timing: 296 after-close → next session, 2 before-open → same session, **0 intraday** (none
+occurred). Split- and dividend-adjusted closes; the discontinuity audit found **zero** daily moves
+≥40% across 11 series.
+
+**Stage 1 — Model B (intercept + ticker) vs Model C (+ transformed surprise), MAE of the initial
+abnormal reaction, n = 116:** MAE 0.052506 → **0.051203**, **+2.482%** improvement, OOS R² 0.064,
+pooled Spearman **+0.1352** (p = 0.148). Per year: 2023 +2.73%, 2024 +0.56%, 2025 +4.98% — Model C
+better in **3 of 3**.
+
+| Gate | Result | |
+|---|---|---|
+| MAE improvement ≥ 1.0% | +2.482% | pass |
+| bootstrap 95% CI entirely above zero | **[−0.000727, +0.003170]** | **FAIL** |
+| C beats B in ≥2 of 3 years | 3 of 3 | pass |
+| expected positive sign | +0.1352 | pass |
+
+**Three of four gates pass; the bootstrap interval straddles zero.** The finding is *not
+demonstrated*, not *demonstrated absent* — the surprise term has the right sign and helps in every
+OOS year, but at 116 events the gain is not distinguishable from noise. Model C helps only **6 of 10
+tickers** and hurts MU, TXN, LRCX and AVGO.
+
+**Consequently the information-price gap was never constructed, Stage 2 never ran, no CR2 inference
+on a gap was computed, and no trading was simulated.** Sensitivities S1–S4 are all defined on the
+gap and are reported as unavailable rather than approximated; S5 (by ticker and year) is reported.
+
+Transport amendment, made **before any outcome existed** and recorded in the design block:
+`yfinance` cannot complete a TLS handshake in this environment (curl_cffi, "unable to get local
+issuer certificate", with or without an explicit CA bundle) and Alpaca returns HTTP 401 on both
+feeds, so the **same Yahoo adjusted-close series** is retrieved over `urllib` — same provider, same
+adjustment, different HTTP client only. No analytic rule was touched.
+
+The test recomputes Stage 1 end to end from the committed panel — folds, training-fold-only
+transform, ridge alpha selection, MAE, the deterministic bootstrap and every gate — and proves the
+leakage properties with fixtures that must be detected: outcome-as-feature (improvement jumps above
+90%), duplicated identity, shifted folds, shuffled surprise, and relabeling. CR2/BRL and
+Satterthwaite are **imported** from `tools/hyp01_inference_feasibility.py`, not reimplemented.
+
+
 ## 2026-08-17 — Semiconductor EPS absorption: two residual corrections
 
 Closes the two residuals flagged when the extraction interpretation was corrected.
