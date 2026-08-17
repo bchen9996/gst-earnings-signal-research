@@ -20,9 +20,17 @@ Outcome, frozen before fitting: `abs(open(T)/close(T−1) − 1)`. Deduplicated 
 **MAE change B → C: −0.0413%** — marginally worse on the primary metric. Decisive paired test, event
 level, `abs_error(B) − abs_error(C)`, intercept-only design clustered by ticker (26 clusters), CR2/BRL
 with Satterthwaite df: **−0.00152 pp, SE 0.06902, t = −0.022, p = 0.9827, CI [−0.14703, +0.14399]**.
-GST is better on 49.26% of events. The interval is tight and centred on zero — a precisely estimated
-absence of improvement, not an underpowered null; it excludes any gain above ~0.14 pp against a mean
-absolute gap of ~6.1 pp. **Conclusion: `GST_DOES_NOT_IMPROVE_MAGNITUDE_FORECAST`.**
+GST is better on 49.26% of events. For **this fixed ridge specification, this sample, these folds and
+the MAE objective**, and under the stated ticker-clustering assumptions, the interval excludes a mean
+MAE improvement greater than approximately **0.144 pp**. It does **not** rule out tail-ranking value,
+alternative genuinely prespecified models, prospective performance, or usefulness relative to
+options-implied movement. **Conclusion: `GST_DOES_NOT_IMPROVE_MAGNITUDE_FORECAST`.**
+
+**Correction to how PR #22 may be cited.** PR #22's +1.509 pp retrospective association used the
+historical spike classification whose 14-day window overlaps the earnings event in this population.
+It remains a retrospective association but **cannot be cited as evidence that GST was available
+pre-event or predictively caused the larger move.** PR #22's arithmetic is unchanged; this limits
+interpretation, not the numbers.
 
 **The GST feature had to be rebuilt to be point-in-time.** The population's own spike z-score spans a
 14-day window anchored at the spike week while the maximum anchor-to-event lead here is 5 days, so
@@ -32,7 +40,9 @@ only weeks that **close strictly before** the event day: (latest closed week −
 such weeks) / stdev, minimum 20 baseline weeks. The spike z-score is retained for reference only and
 never enters a model.
 
-**Where GST does help, reported as secondary:** C beats B on RMSE and roughly doubles OOS R² (0.0517
+**Secondary descriptive metrics that favor GST** — descriptive only, with no prespecified
+inferential decision rule here; they generate a prospective tail-ranking hypothesis rather than
+establish predictive value: C beats B on RMSE and roughly doubles OOS R² (0.0517
 vs 0.0333), and its top predicted quintile realizes larger moves (7.7118 pp vs 6.9000 pp; lift 1.261×
 vs 1.129× against a 6.1135 pp overall mean). Both gains are squared-error/tail effects — GST helps
 slightly on the largest moves while being neutral-to-worse on the typical one, which is why MAE is
