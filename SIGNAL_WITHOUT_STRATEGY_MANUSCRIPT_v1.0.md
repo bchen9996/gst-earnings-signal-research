@@ -484,8 +484,11 @@ These are material and we state them prominently.
 1. **This is a set of connected exploratory studies, not one preregistered experiment.** Designs
    were frozen before their own designated runs, but the program as a whole evolved.
 2. **This synthesis is not preregistered.** It was written after the results were known.
-3. **Some controls were introduced after defects were discovered** — deduplication and the
-   lag-feature correction most importantly. They are corrective, not prespecified.
+3. **Some controls were reactive, introduced only after defects were discovered** — above all
+   **event-identity deduplication** and the **strictly earlier lag-feature repair**. What was frozen
+   in advance, per designated study, was the model specification, the primary metric, the decision
+   gates and the temporal-replication rules, each committed before that study's designated outcomes
+   were opened. That is narrower than saying the program was prespecified.
 4. **Selected company universes.** Ten semiconductor firms; sector-specific pilots elsewhere.
    Findings need not generalise.
 5. **Vendor-defined, retrospectively restated EPS**, not SEC-validated GAAP EPS.
@@ -532,14 +535,15 @@ is easier to cross accidentally, than intuition suggests.
 1. Ball, R., and Brown, P. (1968). An empirical evaluation of accounting income numbers.
    *Journal of Accounting Research*, 6(2), 159–178. https://doi.org/10.2307/2490232
 2. Bailey, D. H., and López de Prado, M. (2014). The deflated Sharpe ratio: correcting for selection
-   bias, backtest overfitting and non-normality. *Journal of Portfolio Management*, 40(5), 94–107.
-   https://doi.org/10.3905/jpm.2014.40.5.094 (also SSRN 2460551:
-   https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551)
+   bias, backtest overfitting, and non-normality. *The Journal of Portfolio Management*, 40(5),
+   94–107. https://doi.org/10.3905/jpm.2014.40.5.094
 3. Bernard, V. L., and Thomas, J. K. (1989). Post-earnings-announcement drift: delayed price response
-   or risk premium? *Journal of Accounting Research*, 27, 1–36. https://doi.org/10.2307/2491062
+   or risk premium? *Journal of Accounting Research*, 27 (Supplement), 1–36.
+   https://doi.org/10.2307/2491062
 4. Brier, G. W. (1950). Verification of forecasts expressed in terms of probability.
-   *Monthly Weather Review*, 78(1), 1–3.
-   https://doi.org/10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2
+   *Monthly Weather Review*, 78(1), 1–3. DOI (plain text, contains angle brackets):
+   `10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2`. Publisher page:
+   https://journals.ametsoc.org/view/journals/mwre/78/1/1520-0493_1950_078_0001_vofeit_2_0_co_2.xml
 5. Cameron, A. C., Gelbach, J. B., and Miller, D. L. (2008). Bootstrap-based improvements for
    inference with clustered errors. *Review of Economics and Statistics*, 90(3), 414–427.
    https://doi.org/10.1162/rest.90.3.414
@@ -549,7 +553,9 @@ is easier to cross accidentally, than intuition suggests.
    *Journal of Business and Economic Statistics*, 13(3), 253–263.
    https://doi.org/10.1080/07350015.1995.10524599
 8. Foster, G., Olsen, C., and Shevlin, T. (1984). Earnings releases, anomalies, and the behavior of
-   security returns. *The Accounting Review*, 59(4), 574–603. https://www.jstor.org/stable/247321
+   security returns. *The Accounting Review*, 59(4), 574–603. **Stable identifier unresolved** — no
+   DOI or JSTOR stable URL could be independently verified for this item; author names, title, year,
+   journal, volume and page range were confirmed against secondary indexes only.
 9. Harvey, C. R., Liu, Y., and Zhu, H. (2016). ... and the cross-section of expected returns.
    *Review of Financial Studies*, 29(1), 5–68. https://doi.org/10.1093/rfs/hhv059
 10. Kaufman, S., Rosset, S., Perlich, C., and Stitelman, O. (2012). Leakage in data mining:
