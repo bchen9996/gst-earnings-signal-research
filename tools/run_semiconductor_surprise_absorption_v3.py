@@ -58,8 +58,24 @@ EVENT TIMING  SEC acceptance timestamp converted to America/New_York.
   Session calendar: XNYS via exchange_calendars (the repository's validated module).
 
 RETURNS  Split-adjusted daily closes. Provider chain, in this fixed order:
-  (1) yfinance with auto_adjust=True (split AND dividend adjusted);
+  (1) Yahoo Finance daily adjusted closes (split AND dividend adjusted);
   (2) if unavailable, Alpaca daily bars with adjustment=all.
+
+  TRANSPORT AMENDMENT, recorded openly and made BEFORE any outcome was inspected.
+  The chain originally named the `yfinance` package as provider (1). In this
+  environment `yfinance` cannot complete a TLS handshake: its bundled curl_cffi client
+  fails with "curl: (60) SSL certificate problem: unable to get local issuer
+  certificate" for every symbol, with or without CURL_CA_BUNDLE / SSL_CERT_FILE and
+  with or without an explicit certifi bundle. Provider (2), Alpaca, returns HTTP 401
+  Unauthorized on both the sip and iex feeds. Python's own urllib reaches the SAME
+  Yahoo chart endpoint that yfinance wraps, so provider (1) is retrieved over urllib
+  instead, reading `indicators.adjclose`, which is precisely the series yfinance
+  exposes as Close under auto_adjust=True. Same provider, same adjustment, same
+  numbers -- only the HTTP client changed. No analytic rule, gate, horizon, cost or
+  feature was touched, and no outcome had been computed when this amendment was made:
+  the prior run stopped at DATA_INSUFFICIENT during retrieval.
+  Realized splits reported by the provider are recorded per ticker so the adjustment
+  is documented rather than assumed.
   Adjusted closes are used directly; raw discontinuous closes are NEVER used. A
   discontinuity audit records every |daily return| >= 0.40 remaining after adjustment.
   BENCHMARK = SMH.
@@ -390,28 +406,61 @@ def assign_session(acceptance_utc):
 
 # --------------------------------------------------------------------- prices
 
+YAHOO_CHART = "https://query2.finance.yahoo.com/v8/finance/chart/"
+
+
 def fetch_prices(tickers, start="2017-10-01", end="2026-03-01"):
-    """Split-adjusted daily closes, cached repository-external. Network step -- runs
-    BEFORE the CR2 module (which disables sockets on import) is ever imported."""
+    """Split- AND dividend-adjusted daily closes, cached repository-external.
+
+    Network step -- runs BEFORE the CR2 module (which disables sockets on import) is
+    ever imported. Reads Yahoo's `adjclose` series, which is exactly what yfinance
+    exposes as Close under auto_adjust=True; see the TRANSPORT AMENDMENT above.
+    """
+    import urllib.parse
+    import urllib.request
     PRICE_CACHE.mkdir(parents=True, exist_ok=True)
+    p1 = int(pd.Timestamp(start, tz="UTC").timestamp())
+    p2 = int(pd.Timestamp(end, tz="UTC").timestamp())
     meta = []
     for t in tickers:
         f = PRICE_CACHE / f"{t}.csv"
         if f.exists():
-            meta.append({"ticker": t, "source": "cache", "rows": sum(1 for _ in f.open()) - 1})
+            meta.append({"ticker": t, "source": "cache",
+                         "rows": sum(1 for _ in f.open()) - 1})
             continue
-        import yfinance as yf
-        df = yf.download(t, start=start, end=end, auto_adjust=True, progress=False,
-                         actions=False)
-        if df is None or df.empty:
-            meta.append({"ticker": t, "source": "yfinance", "rows": 0, "error": "empty"})
+        q = urllib.parse.urlencode({"period1": p1, "period2": p2, "interval": "1d",
+                                    "events": "div,split"})
+        req = urllib.request.Request(f"{YAHOO_CHART}{t}?{q}",
+                                     headers={"User-Agent": "Mozilla/5.0"})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                payload = json.loads(r.read().decode("utf-8", "replace"))
+        except Exception as e:                        # noqa: BLE001 - recorded, not raised
+            meta.append({"ticker": t, "source": "yahoo_adjclose_urllib", "rows": 0,
+                         "error": f"{type(e).__name__}: {str(e)[:120]}"})
             continue
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
-        out = df[["Close"]].rename(columns={"Close": "close"})
+        try:
+            res = payload["chart"]["result"][0]
+            ts = res["timestamp"]
+            adj = res["indicators"]["adjclose"][0]["adjclose"]
+        except (KeyError, IndexError, TypeError):
+            meta.append({"ticker": t, "source": "yahoo_adjclose_urllib", "rows": 0,
+                         "error": "no adjclose series"})
+            continue
+        idx = pd.to_datetime(pd.Series(ts), unit="s", utc=True).dt.tz_convert(ET).dt.date
+        s = pd.Series(adj, index=idx, dtype="float64").dropna()
+        s = s[~s.index.duplicated(keep="last")].sort_index()
+        out = s.to_frame("close")
         out.index.name = "date"
         out.to_csv(f)
-        meta.append({"ticker": t, "source": "yfinance_auto_adjust", "rows": int(len(out))})
+        splits = (res.get("events", {}) or {}).get("splits", {}) or {}
+        meta.append({"ticker": t, "source": "yahoo_adjclose_urllib",
+                     "adjustment": "split_and_dividend",
+                     "rows": int(len(out)),
+                     "splits_reported": sorted(
+                         str(pd.Timestamp(int(v["date"]), unit="s", tz="UTC")
+                             .tz_convert(ET).date()) + ":" + str(v.get("splitRatio"))
+                         for v in splits.values())})
     return meta
 
 
@@ -709,10 +758,25 @@ def main(argv=None):
                      "model_c": "model B + transformed vendor-defined surprise",
                      **s1sum, "gates": g1}
 
+    res["stage1_breakdown"] = stage1_breakdown(s1)
+
     if not g1["passed"]:
         res["decision_label"] = LABELS[1]
         res["stage2"] = "not run -- Stage 1 failed; the gap was not constructed"
         res["trading"] = "not run -- Stage 1 failed"
+        res["sensitivities"] = {
+            "status": "NOT_COMPUTED",
+            "reason": ("Stage 1 failed, so the information-price gap was never "
+                       "constructed. S1-S4 are all defined on the gap and cannot exist. "
+                       "The raw by-ticker and by-year breakdown required by S5 is "
+                       "reported under stage1_breakdown, computed on the Stage-1 "
+                       "quantities only."),
+            "S1_exclude_fiscal_year_end_quarters": "unavailable -- requires the gap",
+            "S2_sec_validated_overlap_only": "unavailable -- requires the gap",
+            "S3_strict_sec_seasonal_eps_shock": "unavailable -- requires the gap",
+            "S4_twenty_session_horizon": "unavailable -- requires the gap",
+            "S5_by_ticker_and_year": "reported under stage1_breakdown",
+        }
         RESULTS.write_text(json.dumps(res, indent=1, default=str) + "\n",
                            encoding="utf-8", newline="\n")
         print(LABELS[1])
@@ -772,6 +836,37 @@ def main(argv=None):
                        encoding="utf-8", newline="\n")
     print(res["decision_label"])
     return 0
+
+
+def stage1_breakdown(s1):
+    """Raw Stage-1 results by ticker and by year (frozen-design sensitivity S5).
+
+    Descriptive reporting only. It defines no gate, fits no new model, and changes no
+    horizon, cost or feature. Its purpose is to reveal whether one company or one
+    period drives the Stage-1 result.
+    """
+    from scipy import stats
+
+    def cell(g):
+        y = g.ar0.values.astype(float)
+        ma, mb = mae(y, g.pred_a), mae(y, g.pred_b)
+        sp = (float(stats.spearmanr(g.z.values, y).statistic) if len(g) >= 8
+              and g.z.nunique() > 1 else None)
+        return {"n": int(len(g)), "mae_B": round(ma, 6), "mae_C": round(mb, 6),
+                "improvement_pct": (round(100.0 * (ma - mb) / ma, 4) if ma > 0 else None),
+                "c_better": bool(mb < ma),
+                "spearman_surprise_vs_ar0": (None if sp is None else round(sp, 5)),
+                "mean_ar0_pct": round(100.0 * float(y.mean()), 4)}
+
+    return {
+        "note": ("Descriptive only. Defines no gate and changes no model, horizon, "
+                 "cost or feature."),
+        "by_ticker": {t: cell(g) for t, g in s1.groupby("ticker")},
+        "by_year": {int(y): cell(g) for y, g in s1.groupby("year")},
+        "tickers_where_c_better": int(sum(cell(g)["c_better"]
+                                          for _, g in s1.groupby("ticker"))),
+        "tickers_total": int(s1.ticker.nunique()),
+    }
 
 
 def sensitivities(s1, s2):
