@@ -1,6 +1,72 @@
 # Changelog
 
 
+## 2026-08-17 — Synthesis manuscript: "Signal Without Strategy"
+
+Converts the completed research program into a submission-ready paper. **No new financial data was
+retrieved, no model was fitted, no statistical test was run, and no existing result was modified.**
+Every tracked artifact from `6301671` is blob-identical.
+
+**Central argument.** Public information variables can be economically associated with market
+reactions without supplying stable incremental forecasts or implementable trading alpha. Search
+attention occasionally tracked move magnitude but repeatedly failed incremental out-of-sample and
+strategy tests. Vendor-defined earnings surprise showed a real positive association with the initial
+semiconductor price reaction — including a significant temporal-replication correlation — but did
+not deliver stable forecast-error reduction across years and firms. Early apparent successes were
+highly sensitive to leakage, duplicated events, timing, calibration and comparator choice.
+
+The paper does **not** claim markets are perfectly efficient, that Google Trends is universally
+useless, that earnings surprises never matter, or that alternative data cannot work.
+
+**Deliverables.** `SIGNAL_WITHOUT_STRATEGY_MANUSCRIPT_v1.0.md` (**4,455** words excluding references
+and tables, twelve required sections, ten primary academic sources);
+`SIGNAL_WITHOUT_STRATEGY_EXECUTIVE_SUMMARY_v1.0.md` (**900** words under the same counting
+convention, with an empty contribution table for the owner to complete); three deterministic SVG
+figures — evidence ladder, surprise-replication intervals, and leakage correction — built by
+`tools/build_signal_without_strategy_figures.py`; and
+`tools/check_signal_without_strategy_numbers.py`, the executable numerical audit.
+
+**Editorial corrections (final pass).** The executive summary's prespecification claim was too
+broad. It now distinguishes what was frozen per designated study — model specification, primary
+metric, decision gates and temporal-replication rules, each committed before that study's designated
+outcomes were opened — from **reactive** controls introduced only after defects were found,
+specifically **event-identity deduplication** and the **strictly earlier lag-feature repair**, and
+states plainly that the overall program and this synthesis were **not preregistered**. The
+manuscript's limitations section was aligned to the same wording, and the audit now fails if the
+broad claim returns.
+
+The bibliography was independently re-verified against publisher, CrossRef, DOI and journal pages.
+Corrections: the Bailey–López de Prado title now carries its published serial comma and the journal
+its full name; Bernard–Thomas is marked as the volume 27 Supplement; the Brier DOI is given as plain
+text because its angle brackets break markdown links, with the AMS publisher page as the resolvable
+link. **Foster, Olsen and Shevlin (1984) is marked stable-identifier unresolved** — its metadata is
+confirmed but no DOI or JSTOR stable URL could be independently verified, so none is asserted.
+
+**Volatility-artifact dependency.** The audit now prefers the in-tree
+`ATTENTION_ACTIVITY_MISMATCH_RESULTS_v1.0.json` when present, falls back to the pinned
+`ddc8488` copy during stacked review, verifies the resolved source against an expected content hash
+(`8cd711cf…`, blob `48020213…`), and **fails if in-tree and pinned copies both exist and disagree**.
+**PR #30 (`phase2-attention-activity-mismatch`) must merge before PR #36** for main to be
+self-contained; PR #36 alone does not contain that source artifact.
+
+**Numerical audit.** It loads the committed source artifacts and resolves **82** claimed values
+against exact artifact fields, accounting for **all 139** distinct numeric tokens in the manuscript,
+executive summary and figure text (**71** allowlisted as section numbers, years, versions,
+identifiers, clock components or axis ticks). It fails on an unaccounted token, on rounding
+inconsistent with the source, on calling vendor EPS GAAP, on claiming a guaranteed point-in-time
+estimate vintage, on claiming an investable strategy, on calling the temporal replication
+successful, and on denying the significant Spearman association. Negative-tested: perturbing a
+value, inserting a prohibited claim, and introducing an untied number each make it exit non-zero.
+
+One artifact cited by the manuscript — `ATTENTION_ACTIVITY_MISMATCH_RESULTS_v1.0.json`, the weekly
+volatility result — is committed on `phase2-attention-activity-mismatch` rather than on this
+branch's ancestry. The audit resolves it with `git show ddc8488:<path>` rather than copying it, so
+it is verified against the committed blob without duplicating a result file.
+
+Figures are byte-deterministic: two consecutive builds produce identical SHA-256 hashes. Every
+plotted value is read from an artifact rather than hardcoded.
+
+
 ## 2026-08-17 — Terminal temporal replication (2010-2017): TEMPORAL_REPLICATION_FAILS
 
 Does vendor-defined earnings surprise improve chronological out-of-sample prediction of the first
