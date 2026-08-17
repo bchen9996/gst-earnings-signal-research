@@ -241,5 +241,25 @@
   }
  },
  "gst_adds_out_of_sample_predictive_value": false,
- "conclusion": "GST_DOES_NOT_IMPROVE_MAGNITUDE_FORECAST"
+ "conclusion": "GST_DOES_NOT_IMPROVE_MAGNITUDE_FORECAST",
+ "secondary_metrics_status": {
+  "label": "SECONDARY DESCRIPTIVE METRICS THAT FAVOR GST",
+  "prespecified_inferential_decision_rule": false,
+  "interpretation": "descriptive only; generates a prospective tail-ranking hypothesis rather than establishing predictive value",
+  "metrics": [
+   "rmse",
+   "r2_vs_intercept",
+   "top_quintile_lift"
+  ]
+ },
+ "null_scope": {
+  "statement": "for this fixed ridge specification, sample, folds and MAE objective, and under the stated ticker-clustering assumptions, the 95% CI excludes a mean MAE improvement greater than approximately 0.144 pp",
+  "does_not_rule_out": [
+   "tail-ranking value",
+   "alternative genuinely prespecified models",
+   "prospective performance",
+   "usefulness relative to options-implied movement"
+  ]
+ },
+ "correction_to_pr22_citation": "PR #22's +1.509 pp retrospective association used the historical spike classification whose 14-day window overlaps the earnings event in this population. It remains a retrospective association but cannot be cited as evidence that GST was available pre-event or predictively caused the larger move."
 }
