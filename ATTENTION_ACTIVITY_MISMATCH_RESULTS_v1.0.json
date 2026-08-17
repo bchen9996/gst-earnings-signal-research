@@ -1,0 +1,234 @@
+{
+ "artifact": "ATTENTION_ACTIVITY_MISMATCH_RESULTS",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "hyp01_confirmation": false,
+ "prospective_collection": false,
+ "measured_variable": "search-trading-activity mismatch proxy",
+ "interpretation_guard": "'unabsorbed attention' is an interpretation, not a measurement; no absorption or causality is established",
+ "gst_status": "CANDIDATE proxy; F5 construct validity open; not validated investor attention",
+ "point_in_time_caveat": "historical Google Trends downloads are NOT point-in-time vintages and may reflect later revisions or rescaling",
+ "timeline": {
+  "feature_cutoff": "close of Trends week t (Sunday-start, closes Saturday)",
+  "target_week": "t+1, Monday open to Friday close",
+  "return_target": "stock Mon-open->Fri-close minus same-window SPY",
+  "volatility_target": "log realized vol of target-week daily open-to-close returns"
+ },
+ "folds": [
+  {
+   "train_through": "2022",
+   "test_year": "2023"
+  },
+  {
+   "train_through": "2023",
+   "test_year": "2024"
+  },
+  {
+   "train_through": "2024",
+   "test_year": "2025"
+  }
+ ],
+ "sample": {
+  "panel_rows": 4992,
+  "tickers": 24,
+  "weeks": 208,
+  "date_range": [
+   "2022-01-10",
+   "2025-12-29"
+  ],
+  "tickers_skipped": [],
+  "duplicate_rows_removed": 0
+ },
+ "minimum_data_gate": {
+  "tickers": 24,
+  "oos_weeks": 157,
+  "oos_observations": 3768,
+  "required": {
+   "tickers": 18,
+   "oos_weeks": 100,
+   "oos_obs": 1800
+  },
+  "passed": true
+ },
+ "volatility": {
+  "metrics": {
+   "B": {
+    "mae": 0.420367,
+    "rmse": 0.543607,
+    "r2_oos": 0.23945
+   },
+   "C": {
+    "mae": 0.420497,
+    "rmse": 0.5434,
+    "r2_oos": 0.24003
+   }
+  },
+  "mae_improvement_pct": -0.0309,
+  "paired_bootstrap_B_minus_C": {
+   "mean": -0.00013035929025337998,
+   "ci95": [
+    -0.001102259310148593,
+    0.0010839184452481308
+   ],
+   "draws": 2000,
+   "block_weeks": 4,
+   "seed": 20260817,
+   "entirely_above_zero": false
+  },
+  "by_year": {
+   "2023": {
+    "B_mae": 0.408323,
+    "C_mae": 0.406841,
+    "C_better": true
+   },
+   "2024": {
+    "B_mae": 0.401273,
+    "C_mae": 0.401223,
+    "C_better": true
+   },
+   "2025": {
+    "B_mae": 0.451872,
+    "C_mae": 0.453798,
+    "C_better": false
+   }
+  },
+  "n_oos": 3768,
+  "gates": {
+   "improves_1pct": false,
+   "ci_above_zero": false,
+   "beats_in_2of3_years": true
+  },
+  "passes": false
+ },
+ "return_direction": {
+  "metrics": {
+   "B": {
+    "log_loss": 0.704603,
+    "brier": 0.255449,
+    "auc": 0.5032,
+    "accuracy": 0.513
+   },
+   "C": {
+    "log_loss": 0.707252,
+    "brier": 0.256625,
+    "auc": 0.5019,
+    "accuracy": 0.5064
+   },
+   "NULL_prevalence": {
+    "log_loss": 0.694786,
+    "brier": 0.250819,
+    "accuracy": 0.4862
+   }
+  },
+  "training_prevalence": 0.518,
+  "paired_bootstrap_R0_minus_R1": {
+   "mean": -0.002649755372781384,
+   "ci95": [
+    -0.004150734096098279,
+    -0.001368885196966353
+   ],
+   "draws": 2000,
+   "block_weeks": 4,
+   "seed": 20260817,
+   "entirely_above_zero": false
+  },
+  "by_year": {
+   "2023": {
+    "R0_log_loss": 0.723705,
+    "R1_log_loss": 0.72948,
+    "R1_better": false
+   },
+   "2024": {
+    "R0_log_loss": 0.699427,
+    "R1_log_loss": 0.701663,
+    "R1_better": false
+   },
+   "2025": {
+    "R0_log_loss": 0.690776,
+    "R1_log_loss": 0.690722,
+    "R1_better": true
+   }
+  },
+  "n_oos": 3768,
+  "gates": {
+   "beats_on_log_loss": false,
+   "ci_above_zero": false,
+   "auc_above_0_52": false,
+   "beats_in_2of3_years": false
+  },
+  "passes": false
+ },
+ "interaction_coefficients": {
+  "note": "descriptive only; standardized ridge/logit coefficients, no causal interpretation",
+  "volatility_model_C": {
+   "search_z": {
+    "mean_coef": -0.025553,
+    "sign": "negative",
+    "consistent_across_folds": true
+   },
+   "search_x_volume": {
+    "mean_coef": 0.020338,
+    "sign": "positive",
+    "consistent_across_folds": true
+   }
+  },
+  "return_model_R1": {
+   "search_z": {
+    "mean_coef": -0.04362,
+    "sign": "negative",
+    "consistent_across_folds": true
+   },
+   "search_x_ret1w": {
+    "mean_coef": -0.001724,
+    "sign": "negative",
+    "consistent_across_folds": false
+   },
+   "search_x_volume": {
+    "mean_coef": -0.048835,
+    "sign": "negative",
+    "consistent_across_folds": true
+   },
+   "search_x_volume_x_ret1w": {
+    "mean_coef": -0.052388,
+    "sign": "negative",
+    "consistent_across_folds": false
+   }
+  }
+ },
+ "sensitivity_checks": {
+  "exclude_earnings_weeks": {
+   "source": "existing frozen C5_PostEarnings_Population.csv (partial ticker coverage)",
+   "rows_excluded": 121,
+   "n": 3647,
+   "B_mae": 0.418406,
+   "C_mae": 0.418541,
+   "improvement_pct": -0.0323,
+   "C_better": false
+  },
+  "drop_ambiguous_queries": {
+   "dropped": [
+    "BRK-B",
+    "GME",
+    "GOOGL",
+    "BKR",
+    "DELL"
+   ],
+   "n": 2983,
+   "B_mae": 0.421234,
+   "C_mae": 0.422192,
+   "improvement_pct": -0.2274,
+   "C_better": false
+  },
+  "winsorized_predictors": {
+   "n": 3768,
+   "B_mae": 0.417584,
+   "C_mae": 0.417671,
+   "improvement_pct": -0.021,
+   "C_better": false
+  }
+ },
+ "sensitivity_note": "robustness checks only; not alternative primary specifications",
+ "decision_label": "RETIRE_GST_AS_TRADING_SIGNAL",
+ "portfolio_simulation": "not run: the return gate did not pass, and a strategy is not manufactured from the volatility result",
+ "runtime_seconds": 4.8
+}
