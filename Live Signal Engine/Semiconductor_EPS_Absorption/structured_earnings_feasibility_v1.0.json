@@ -1,0 +1,3347 @@
+{
+ "artifact": "STRUCTURED_EARNINGS_FEASIBILITY",
+ "version": "1.0",
+ "study_type": "DATA_AUDIT_NOT_OUTCOME_STUDY",
+ "decision_label": "STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT",
+ "provider": "ALPHA_VANTAGE_EARNINGS",
+ "provider_endpoint_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=<TICKER>&apikey=<REDACTED>",
+ "universe": [
+  "NVDA",
+  "AMD",
+  "INTC",
+  "QCOM",
+  "AVGO",
+  "MU",
+  "TXN",
+  "AMAT",
+  "LRCX",
+  "KLAC"
+ ],
+ "period": {
+  "start": "2018-01-01",
+  "end": "2025-12-31",
+  "applied_to": "reportedDate"
+ },
+ "permitted_fields": [
+  "ticker",
+  "fiscalDateEnding",
+  "reportedDate",
+  "reportedEPS",
+  "estimatedEPS",
+  "surprise",
+  "surprisePercentage"
+ ],
+ "construct_name_if_built": "VENDOR_DEFINED_REPORTED_EPS_SURPRISE",
+ "eps_definition": {
+  "provider_field": "reportedEPS",
+  "provider_represents": "VENDOR_REPORTED_EPS",
+  "is_sec_validated_gaap_diluted_eps": false,
+  "note": "Alpha Vantage reportedEPS is a vendor-reported figure. It is NOT SEC-validated GAAP diluted EPS. Any surprise built on it is VENDOR_DEFINED_REPORTED_EPS_SURPRISE, never a GAAP surprise."
+ },
+ "point_in_time_provenance": {
+  "status": "POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED",
+  "official_guarantee_found": false,
+  "documentation_checked": "https://www.alphavantage.co/documentation/ (EARNINGS)",
+  "note": "No official Alpha Vantage guarantee was found that historical estimatedEPS is the contemporaneous consensus preserved as of the announcement. The documentation describes the fields but makes no point-in-time, as-of-announcement or non-restatement claim for them. The limitation is recorded, not resolved by assumption.",
+  "empirical_counter_evidence": "Historical reportedEPS is demonstrably RESTATED rather than preserved as announced: for every ticker that later executed a 10-for-1 split (NVDA, AVGO, LRCX and KLAC) the provider's historical EPS is carried on the post-split share basis, giving provider/SEC ratios clustered near 0.10 against the as-announced SEC exhibit figures. Restatement of reportedEPS does not by itself prove estimatedEPS is also restated, but it removes any basis for assuming the series is point-in-time.",
+  "consequence": "Any surprise built on this source is VENDOR_DEFINED_REPORTED_EPS_SURPRISE computed from possibly-restated inputs, and must not be described as a point-in-time consensus surprise."
+ },
+ "retrieval": [
+  {
+   "ticker": "NVDA",
+   "retrieved_utc": "2026-08-17T17:50:42Z",
+   "http_status": 200,
+   "byte_count": 35158,
+   "sha256": "d6b0b39de16b859ab6d57e4d13e4ef3c7dcffe5f0519c256bd1c71590d74557c",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=NVDA&apikey=<REDACTED>",
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "AMD",
+   "retrieved_utc": "2026-08-17T17:52:31Z",
+   "http_status": 200,
+   "byte_count": 39274,
+   "sha256": "150a378f9b50cf2482e2751c2ce17c0e1103f291130453309b7b307508270670",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=AMD&apikey=<REDACTED>",
+   "attempts": 1,
+   "throttled": false,
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "INTC",
+   "retrieved_utc": "2026-08-17T17:50:44Z",
+   "http_status": 200,
+   "byte_count": 39218,
+   "sha256": "b5d56b388802d05c9f2a8d4ab6dbb9e8876df444adb7f713caceb852b60a2fa2",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=INTC&apikey=<REDACTED>",
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "QCOM",
+   "retrieved_utc": "2026-08-17T17:52:33Z",
+   "http_status": 200,
+   "byte_count": 39159,
+   "sha256": "4d803c14cdfae180f31113ce14fce8c44451aacc638efadfe19c62c1ce6f7e63",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=QCOM&apikey=<REDACTED>",
+   "attempts": 1,
+   "throttled": false,
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "AVGO",
+   "retrieved_utc": "2026-08-17T17:50:45Z",
+   "http_status": 200,
+   "byte_count": 22150,
+   "sha256": "47c5c5f5e3d142107bd0c8075089931ce0c238a0192bda0f7d2d3d504f8d2b09",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=AVGO&apikey=<REDACTED>",
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "MU",
+   "retrieved_utc": "2026-08-17T17:52:36Z",
+   "http_status": 200,
+   "byte_count": 39371,
+   "sha256": "9b5231da1422114829d4e2050c8fe1761794f46461f2e92643e5536488c872ce",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=MU&apikey=<REDACTED>",
+   "attempts": 1,
+   "throttled": false,
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "TXN",
+   "retrieved_utc": "2026-08-17T17:50:46Z",
+   "http_status": 200,
+   "byte_count": 39182,
+   "sha256": "3c208c095d623c547b18873a5739cfa4997c3555ea6433cdc9a73a4d37b6c1a2",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=TXN&apikey=<REDACTED>",
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "AMAT",
+   "retrieved_utc": "2026-08-17T17:52:38Z",
+   "http_status": 200,
+   "byte_count": 39100,
+   "sha256": "90ef0a9a133bc1255051100064f12a07ac34a8d5e45e8eaf3349b0ff5531806a",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=AMAT&apikey=<REDACTED>",
+   "attempts": 1,
+   "throttled": false,
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "LRCX",
+   "retrieved_utc": "2026-08-17T17:50:48Z",
+   "http_status": 200,
+   "byte_count": 38995,
+   "sha256": "412ecf092145d898b70cd508ad2b0b562a018cf5125dc5eea35770cbaa118c81",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=LRCX&apikey=<REDACTED>",
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  },
+  {
+   "ticker": "KLAC",
+   "retrieved_utc": "2026-08-17T17:52:40Z",
+   "http_status": 200,
+   "byte_count": 38996,
+   "sha256": "810cbdb13258acf28ebd7e6d9fb383abd4929f9775f980c30ae2e808134c03a4",
+   "provider_url_redacted": "https://www.alphavantage.co/query?function=EARNINGS&symbol=KLAC&apikey=<REDACTED>",
+   "attempts": 1,
+   "throttled": false,
+   "from_cache": true,
+   "schema_version": null,
+   "provider_error": null
+  }
+ ],
+ "provider_errors": [],
+ "retrieval_integrity": {
+  "tickers_requested": 10,
+  "tickers_retrieved": 10,
+  "throttled_after_retries": [],
+  "retrieval_complete": true,
+  "note": "A throttle notice is a transport failure, not a data finding. If any ticker remains throttled after retries the run reports DATA_ACCESS_BLOCKED and its coverage counts are NOT a coverage finding."
+ },
+ "counts": {
+  "tickers_requested": 10,
+  "tickers_with_payload": 10,
+  "raw_records": 1153,
+  "rejected_malformed": 0,
+  "duplicate_identities_refused": 0,
+  "records_in_period": 320,
+  "complete_records": 320,
+  "tickers_with_complete_records": 10
+ },
+ "rejections": [],
+ "completeness_by_ticker": {
+  "NVDA": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "AMD": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "INTC": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "QCOM": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "AVGO": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "MU": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "TXN": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "AMAT": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "LRCX": {
+   "records_in_period": 32,
+   "complete": 32
+  },
+  "KLAC": {
+   "records_in_period": 32,
+   "complete": 32
+  }
+ },
+ "completeness_by_year": {
+  "2018": 40,
+  "2019": 40,
+  "2020": 39,
+  "2021": 41,
+  "2022": 40,
+  "2023": 40,
+  "2024": 40,
+  "2025": 40
+ },
+ "surprise_arithmetic": {
+  "tolerance_absolute_usd": 0.01,
+  "checked": 320,
+  "agreed": 320,
+  "agreement_rate": 1.0,
+  "failures": []
+ },
+ "sec_crosswalk": {
+  "target_index": "Live Signal Engine/Semiconductor_EPS_Absorption/event_panel_v1.0.csv",
+  "fiscal_window_days": 5,
+  "report_window_days": 3,
+  "tie_breaker": "smallest |reportedDate - filing_date|; a remaining tie is REFUSED as ambiguous, never guessed",
+  "returns_used": false,
+  "complete_records": 320,
+  "uniquely_crosswalked": 215,
+  "unique_direct": 215,
+  "unique_after_tiebreak": 0,
+  "ambiguous_refused": 0,
+  "unmatched_no_candidate": 105,
+  "crosswalk_rate": 0.6719
+ },
+ "crosswalk_diagnostics": {
+  "IS_A_GATE": false,
+  "note": "Diagnostic only. The frozen g5 crosswalk gate stands exactly as computed; nothing here replaces, relaxes or re-scores it.",
+  "sec_index_events_total": 306,
+  "sec_index_events_with_parsed_fiscal_period": 267,
+  "sec_index_events_without_parsed_fiscal_period": 39,
+  "structural_ceiling_on_frozen_crosswalk_rate": 0.8344,
+  "structural_ceiling_derivation": "267/320 = 0.8344",
+  "frozen_gate_requires": 0.9,
+  "frozen_gate_reachable": false,
+  "binding_constraint": "the SEC index's own parse coverage, not the provider's record coverage",
+  "report_date_only_match": {
+   "window_days": 3,
+   "against": "the full Item 2.02 index",
+   "uniquely_matched": 300,
+   "ambiguous": 0,
+   "no_candidate": 20,
+   "rate": 0.9375
+  }
+ },
+ "provider_vs_sec_eps": {
+  "overlapping_events": 139,
+  "match_within_0_01": 8,
+  "definition_signature": {
+   "split_restated_like_pairs": 28,
+   "split_restated_like_note": "provider/SEC EPS ratio in [0.085, 0.115], the signature of a retroactive 10-for-1 split restatement of historical EPS",
+   "near_parity_pairs": 45,
+   "near_parity_match_within_0_01": 8,
+   "near_parity_match_rate": 0.1778,
+   "near_parity_median_absolute_difference": 0.05,
+   "sign_disagreements": 1,
+   "sign_disagreement_note": "provider and SEC disagree on the sign of EPS; the signature of an adjusted/non-GAAP figure against a GAAP loss",
+   "median_ratio_by_ticker": {
+    "AMAT": 1.0414,
+    "AMD": 1.6364,
+    "AVGO": 0.2877,
+    "KLAC": 0.1074,
+    "LRCX": 0.1033,
+    "MU": 1.0719,
+    "NVDA": 0.1645,
+    "QCOM": 1.3793,
+    "TXN": 1.0357
+   },
+   "consistent_with_gaap_versus_adjusted": true,
+   "consistent_with_retroactive_split_restatement": true,
+   "interpretation": "Differences are NOT random error. They decompose into (a) retroactive split restatement of historical EPS for the tickers that later split, and (b) a GAAP-versus-adjusted definition difference among the remaining near-parity pairs, including outright sign disagreements. Provider EPS is therefore vendor-defined, not SEC-validated GAAP diluted EPS, and its historical values are not preserved as announced."
+  },
+  "match_rate_within_0_01": 0.0576,
+  "median_absolute_difference": 0.26,
+  "largest_discrepancies": [
+   {
+    "ticker": "LRCX",
+    "fiscalDateEnding": "2022-09-30",
+    "reportedDate": "2022-10-19",
+    "provider_reportedEPS": 1.04,
+    "sec_validated_eps": 10.39,
+    "absolute_difference": 9.35,
+    "provider_higher": false
+   },
+   {
+    "ticker": "KLAC",
+    "fiscalDateEnding": "2025-09-30",
+    "reportedDate": "2025-10-29",
+    "provider_reportedEPS": 0.88,
+    "sec_validated_eps": 8.47,
+    "absolute_difference": 7.59,
+    "provider_higher": false
+   },
+   {
+    "ticker": "LRCX",
+    "fiscalDateEnding": "2021-12-31",
+    "reportedDate": "2022-01-26",
+    "provider_reportedEPS": 0.85,
+    "sec_validated_eps": 8.44,
+    "absolute_difference": 7.59,
+    "provider_higher": false
+   },
+   {
+    "ticker": "LRCX",
+    "fiscalDateEnding": "2021-09-30",
+    "reportedDate": "2021-10-20",
+    "provider_reportedEPS": 0.84,
+    "sec_validated_eps": 8.27,
+    "absolute_difference": 7.43,
+    "provider_higher": false
+   },
+   {
+    "ticker": "KLAC",
+    "fiscalDateEnding": "2025-03-31",
+    "reportedDate": "2025-04-30",
+    "provider_reportedEPS": 0.84,
+    "sec_validated_eps": 8.16,
+    "absolute_difference": 7.32,
+    "provider_higher": false
+   },
+   {
+    "ticker": "LRCX",
+    "fiscalDateEnding": "2021-03-31",
+    "reportedDate": "2021-04-21",
+    "provider_reportedEPS": 0.75,
+    "sec_validated_eps": 7.41,
+    "absolute_difference": 6.66,
+    "provider_higher": false
+   },
+   {
+    "ticker": "LRCX",
+    "fiscalDateEnding": "2022-03-31",
+    "reportedDate": "2022-04-20",
+    "provider_reportedEPS": 0.74,
+    "sec_validated_eps": 7.3,
+    "absolute_difference": 6.56,
+    "provider_higher": false
+   },
+   {
+    "ticker": "LRCX",
+    "fiscalDateEnding": "2024-03-31",
+    "reportedDate": "2024-04-24",
+    "provider_reportedEPS": 0.78,
+    "sec_validated_eps": 7.34,
+    "absolute_difference": 6.56,
+    "provider_higher": false
+   },
+   {
+    "ticker": "KLAC",
+    "fiscalDateEnding": "2021-09-30",
+    "reportedDate": "2021-10-27",
+    "provider_reportedEPS": 0.46,
+    "sec_validated_eps": 6.96,
+    "absolute_difference": 6.5,
+    "provider_higher": false
+   },
+   {
+    "ticker": "KLAC",
+    "fiscalDateEnding": "2022-09-30",
+    "reportedDate": "2022-10-26",
+    "provider_reportedEPS": 0.71,
+    "sec_validated_eps": 7.2,
+    "absolute_difference": 6.49,
+    "provider_higher": false
+   }
+  ],
+  "provider_higher_share_among_mismatches": 0.5407
+ },
+ "gates": {
+  "g1_tickers": {
+   "value": 10,
+   "required": 8,
+   "passed": true
+  },
+  "g2_complete_2018_2025": {
+   "value": 320,
+   "required": 200,
+   "passed": true
+  },
+  "g3_complete_2023_2025": {
+   "value": 120,
+   "required": 90,
+   "passed": true
+  },
+  "g4_complete_per_year": {
+   "value": {
+    "2023": 40,
+    "2024": 40,
+    "2025": 40
+   },
+   "required": 25,
+   "passed": true
+  },
+  "g5_crosswalk_rate": {
+   "value": 0.6719,
+   "required": 0.9,
+   "passed": false
+  },
+  "g6_arithmetic_agreement": {
+   "value": 1.0,
+   "required": 0.99,
+   "passed": true
+  },
+  "g7_unresolved_duplicates": {
+   "value": 0,
+   "required": 0,
+   "passed": true
+  },
+  "g8_terminology_distinguishes_vendor_from_gaap": {
+   "value": true,
+   "required": true,
+   "passed": true
+  },
+  "all_passed": false
+ },
+ "sanitized_panel": [
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2018-01-31",
+   "reportedDate": "2018-02-14",
+   "reportedEPS": 1.06,
+   "estimatedEPS": 0.98,
+   "surprise": 0.08,
+   "surprisePercentage": 8.1633
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2018-04-30",
+   "reportedDate": "2018-05-17",
+   "reportedEPS": 1.22,
+   "estimatedEPS": 1.15,
+   "surprise": 0.07,
+   "surprisePercentage": 6.087
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2018-07-31",
+   "reportedDate": "2018-08-16",
+   "reportedEPS": 1.2,
+   "estimatedEPS": 1.16,
+   "surprise": 0.04,
+   "surprisePercentage": 3.4483
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2018-10-31",
+   "reportedDate": "2018-11-15",
+   "reportedEPS": 0.97,
+   "estimatedEPS": 0.97,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2019-01-31",
+   "reportedDate": "2019-02-14",
+   "reportedEPS": 0.81,
+   "estimatedEPS": 0.79,
+   "surprise": 0.02,
+   "surprisePercentage": 2.5316
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2019-04-30",
+   "reportedDate": "2019-05-16",
+   "reportedEPS": 0.7,
+   "estimatedEPS": 0.66,
+   "surprise": 0.04,
+   "surprisePercentage": 6.0606
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2019-07-31",
+   "reportedDate": "2019-08-15",
+   "reportedEPS": 0.74,
+   "estimatedEPS": 0.7,
+   "surprise": 0.04,
+   "surprisePercentage": 5.7143
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2019-10-31",
+   "reportedDate": "2019-11-14",
+   "reportedEPS": 0.8,
+   "estimatedEPS": 0.76,
+   "surprise": 0.04,
+   "surprisePercentage": 5.2632
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2020-01-31",
+   "reportedDate": "2020-02-12",
+   "reportedEPS": 0.98,
+   "estimatedEPS": 0.93,
+   "surprise": 0.05,
+   "surprisePercentage": 5.3763
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2020-04-30",
+   "reportedDate": "2020-05-14",
+   "reportedEPS": 0.89,
+   "estimatedEPS": 0.89,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2020-07-31",
+   "reportedDate": "2020-08-13",
+   "reportedEPS": 1.06,
+   "estimatedEPS": 0.95,
+   "surprise": 0.11,
+   "surprisePercentage": 11.5789
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2020-10-31",
+   "reportedDate": "2020-11-12",
+   "reportedEPS": 1.25,
+   "estimatedEPS": 1.17,
+   "surprise": 0.08,
+   "surprisePercentage": 6.8376
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2021-01-31",
+   "reportedDate": "2021-02-18",
+   "reportedEPS": 1.39,
+   "estimatedEPS": 1.28,
+   "surprise": 0.11,
+   "surprisePercentage": 8.5937
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2021-04-30",
+   "reportedDate": "2021-05-20",
+   "reportedEPS": 1.63,
+   "estimatedEPS": 1.51,
+   "surprise": 0.12,
+   "surprisePercentage": 7.947
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2021-07-31",
+   "reportedDate": "2021-08-19",
+   "reportedEPS": 1.9,
+   "estimatedEPS": 1.78,
+   "surprise": 0.12,
+   "surprisePercentage": 6.7416
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2021-10-31",
+   "reportedDate": "2021-11-18",
+   "reportedEPS": 1.94,
+   "estimatedEPS": 1.96,
+   "surprise": -0.02,
+   "surprisePercentage": -1.0204
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2022-01-31",
+   "reportedDate": "2022-02-16",
+   "reportedEPS": 1.89,
+   "estimatedEPS": 1.85,
+   "surprise": 0.04,
+   "surprisePercentage": 2.1622
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2022-04-30",
+   "reportedDate": "2022-05-19",
+   "reportedEPS": 1.85,
+   "estimatedEPS": 1.9,
+   "surprise": -0.05,
+   "surprisePercentage": -2.6316
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2022-07-31",
+   "reportedDate": "2022-08-18",
+   "reportedEPS": 1.94,
+   "estimatedEPS": 1.78,
+   "surprise": 0.16,
+   "surprisePercentage": 8.9888
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2022-10-31",
+   "reportedDate": "2022-11-17",
+   "reportedEPS": 2.03,
+   "estimatedEPS": 1.74,
+   "surprise": 0.29,
+   "surprisePercentage": 16.6667
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2023-01-31",
+   "reportedDate": "2023-02-16",
+   "reportedEPS": 2.03,
+   "estimatedEPS": 1.92,
+   "surprise": 0.11,
+   "surprisePercentage": 5.7292
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2023-04-30",
+   "reportedDate": "2023-05-18",
+   "reportedEPS": 2.0,
+   "estimatedEPS": 1.83,
+   "surprise": 0.17,
+   "surprisePercentage": 9.2896
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2023-07-31",
+   "reportedDate": "2023-08-17",
+   "reportedEPS": 1.9,
+   "estimatedEPS": 1.75,
+   "surprise": 0.15,
+   "surprisePercentage": 8.5714
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2023-10-31",
+   "reportedDate": "2023-11-16",
+   "reportedEPS": 2.12,
+   "estimatedEPS": 1.99,
+   "surprise": 0.13,
+   "surprisePercentage": 6.5327
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2024-01-31",
+   "reportedDate": "2024-02-15",
+   "reportedEPS": 2.13,
+   "estimatedEPS": 1.91,
+   "surprise": 0.22,
+   "surprisePercentage": 11.5183
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2024-04-30",
+   "reportedDate": "2024-05-16",
+   "reportedEPS": 2.09,
+   "estimatedEPS": 1.99,
+   "surprise": 0.1,
+   "surprisePercentage": 5.0251
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2024-07-31",
+   "reportedDate": "2024-08-15",
+   "reportedEPS": 2.12,
+   "estimatedEPS": 2.03,
+   "surprise": 0.09,
+   "surprisePercentage": 4.4335
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2024-10-31",
+   "reportedDate": "2024-11-14",
+   "reportedEPS": 2.32,
+   "estimatedEPS": 2.19,
+   "surprise": 0.13,
+   "surprisePercentage": 5.9361
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2025-01-31",
+   "reportedDate": "2025-02-13",
+   "reportedEPS": 2.38,
+   "estimatedEPS": 2.3,
+   "surprise": 0.08,
+   "surprisePercentage": 3.4783
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2025-04-30",
+   "reportedDate": "2025-05-15",
+   "reportedEPS": 2.39,
+   "estimatedEPS": 2.31,
+   "surprise": 0.08,
+   "surprisePercentage": 3.4632
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2025-07-31",
+   "reportedDate": "2025-08-14",
+   "reportedEPS": 2.48,
+   "estimatedEPS": 2.36,
+   "surprise": 0.12,
+   "surprisePercentage": 5.0847
+  },
+  {
+   "ticker": "AMAT",
+   "fiscalDateEnding": "2025-10-31",
+   "reportedDate": "2025-12-12",
+   "reportedEPS": 2.17,
+   "estimatedEPS": 2.09,
+   "surprise": 0.08,
+   "surprisePercentage": 3.8278
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2017-12-31",
+   "reportedDate": "2018-01-30",
+   "reportedEPS": 0.08,
+   "estimatedEPS": 0.05,
+   "surprise": 0.03,
+   "surprisePercentage": 60.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2018-03-31",
+   "reportedDate": "2018-04-25",
+   "reportedEPS": 0.11,
+   "estimatedEPS": 0.09,
+   "surprise": 0.02,
+   "surprisePercentage": 22.2222
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2018-06-30",
+   "reportedDate": "2018-07-25",
+   "reportedEPS": 0.14,
+   "estimatedEPS": 0.13,
+   "surprise": 0.01,
+   "surprisePercentage": 7.6923
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2018-09-30",
+   "reportedDate": "2018-10-24",
+   "reportedEPS": 0.13,
+   "estimatedEPS": 0.12,
+   "surprise": 0.01,
+   "surprisePercentage": 8.3333
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2018-12-31",
+   "reportedDate": "2019-01-29",
+   "reportedEPS": 0.08,
+   "estimatedEPS": 0.08,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2019-03-31",
+   "reportedDate": "2019-04-30",
+   "reportedEPS": 0.06,
+   "estimatedEPS": 0.06,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2019-06-30",
+   "reportedDate": "2019-07-30",
+   "reportedEPS": 0.08,
+   "estimatedEPS": 0.08,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2019-09-30",
+   "reportedDate": "2019-10-29",
+   "reportedEPS": 0.18,
+   "estimatedEPS": 0.18,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2019-12-31",
+   "reportedDate": "2020-01-28",
+   "reportedEPS": 0.32,
+   "estimatedEPS": 0.31,
+   "surprise": 0.01,
+   "surprisePercentage": 3.2258
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2020-03-31",
+   "reportedDate": "2020-04-28",
+   "reportedEPS": 0.18,
+   "estimatedEPS": 0.18,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2020-06-30",
+   "reportedDate": "2020-07-28",
+   "reportedEPS": 0.18,
+   "estimatedEPS": 0.17,
+   "surprise": 0.01,
+   "surprisePercentage": 5.8824
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2020-09-30",
+   "reportedDate": "2020-10-27",
+   "reportedEPS": 0.41,
+   "estimatedEPS": 0.36,
+   "surprise": 0.05,
+   "surprisePercentage": 13.8889
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2020-12-31",
+   "reportedDate": "2021-01-26",
+   "reportedEPS": 0.52,
+   "estimatedEPS": 0.48,
+   "surprise": 0.04,
+   "surprisePercentage": 8.3333
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2021-03-31",
+   "reportedDate": "2021-04-27",
+   "reportedEPS": 0.52,
+   "estimatedEPS": 0.44,
+   "surprise": 0.08,
+   "surprisePercentage": 18.1818
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2021-06-30",
+   "reportedDate": "2021-07-27",
+   "reportedEPS": 0.63,
+   "estimatedEPS": 0.54,
+   "surprise": 0.09,
+   "surprisePercentage": 16.6667
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2021-09-30",
+   "reportedDate": "2021-10-26",
+   "reportedEPS": 0.73,
+   "estimatedEPS": 0.66,
+   "surprise": 0.07,
+   "surprisePercentage": 10.6061
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2021-12-31",
+   "reportedDate": "2022-02-01",
+   "reportedEPS": 0.92,
+   "estimatedEPS": 0.76,
+   "surprise": 0.16,
+   "surprisePercentage": 21.0526
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2022-03-31",
+   "reportedDate": "2022-05-03",
+   "reportedEPS": 1.13,
+   "estimatedEPS": 0.92,
+   "surprise": 0.21,
+   "surprisePercentage": 22.8261
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2022-06-30",
+   "reportedDate": "2022-08-02",
+   "reportedEPS": 1.05,
+   "estimatedEPS": 1.04,
+   "surprise": 0.01,
+   "surprisePercentage": 0.9615
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2022-09-30",
+   "reportedDate": "2022-11-01",
+   "reportedEPS": 0.67,
+   "estimatedEPS": 0.7,
+   "surprise": -0.03,
+   "surprisePercentage": -4.2857
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2022-12-31",
+   "reportedDate": "2023-01-31",
+   "reportedEPS": 0.69,
+   "estimatedEPS": 0.67,
+   "surprise": 0.02,
+   "surprisePercentage": 2.9851
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2023-03-31",
+   "reportedDate": "2023-05-02",
+   "reportedEPS": 0.6,
+   "estimatedEPS": 0.56,
+   "surprise": 0.04,
+   "surprisePercentage": 7.1429
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2023-06-30",
+   "reportedDate": "2023-08-01",
+   "reportedEPS": 0.58,
+   "estimatedEPS": 0.57,
+   "surprise": 0.01,
+   "surprisePercentage": 1.7544
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2023-09-30",
+   "reportedDate": "2023-10-31",
+   "reportedEPS": 0.7,
+   "estimatedEPS": 0.68,
+   "surprise": 0.02,
+   "surprisePercentage": 2.9412
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2023-12-31",
+   "reportedDate": "2024-01-30",
+   "reportedEPS": 0.77,
+   "estimatedEPS": 0.77,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2024-03-31",
+   "reportedDate": "2024-04-30",
+   "reportedEPS": 0.62,
+   "estimatedEPS": 0.61,
+   "surprise": 0.01,
+   "surprisePercentage": 1.6393
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2024-06-30",
+   "reportedDate": "2024-07-30",
+   "reportedEPS": 0.69,
+   "estimatedEPS": 0.68,
+   "surprise": 0.01,
+   "surprisePercentage": 1.4706
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2024-09-30",
+   "reportedDate": "2024-10-29",
+   "reportedEPS": 0.92,
+   "estimatedEPS": 0.92,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2024-12-31",
+   "reportedDate": "2025-02-04",
+   "reportedEPS": 1.09,
+   "estimatedEPS": 1.09,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2025-03-31",
+   "reportedDate": "2025-05-06",
+   "reportedEPS": 0.96,
+   "estimatedEPS": 0.93,
+   "surprise": 0.03,
+   "surprisePercentage": 3.2258
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2025-06-30",
+   "reportedDate": "2025-08-05",
+   "reportedEPS": 0.48,
+   "estimatedEPS": 0.48,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AMD",
+   "fiscalDateEnding": "2025-09-30",
+   "reportedDate": "2025-11-04",
+   "reportedEPS": 1.2,
+   "estimatedEPS": 1.17,
+   "surprise": 0.03,
+   "surprisePercentage": 2.5641
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2018-01-31",
+   "reportedDate": "2018-03-15",
+   "reportedEPS": 0.512,
+   "estimatedEPS": 0.505,
+   "surprise": 0.007,
+   "surprisePercentage": 1.3861
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2018-04-30",
+   "reportedDate": "2018-06-07",
+   "reportedEPS": 0.488,
+   "estimatedEPS": 0.476,
+   "surprise": 0.012,
+   "surprisePercentage": 2.521
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2018-07-31",
+   "reportedDate": "2018-09-06",
+   "reportedEPS": 0.498,
+   "estimatedEPS": 0.483,
+   "surprise": 0.015,
+   "surprisePercentage": 3.1056
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2018-10-31",
+   "reportedDate": "2018-12-06",
+   "reportedEPS": 0.585,
+   "estimatedEPS": 0.558,
+   "surprise": 0.027,
+   "surprisePercentage": 4.8387
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2019-01-31",
+   "reportedDate": "2019-03-14",
+   "reportedEPS": 0.555,
+   "estimatedEPS": 0.523,
+   "surprise": 0.032,
+   "surprisePercentage": 6.1185
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2019-04-30",
+   "reportedDate": "2019-06-13",
+   "reportedEPS": 0.521,
+   "estimatedEPS": 0.516,
+   "surprise": 0.005,
+   "surprisePercentage": 0.969
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2019-07-31",
+   "reportedDate": "2019-09-12",
+   "reportedEPS": 0.516,
+   "estimatedEPS": 0.513,
+   "surprise": 0.003,
+   "surprisePercentage": 0.5848
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2019-10-31",
+   "reportedDate": "2019-12-12",
+   "reportedEPS": 0.539,
+   "estimatedEPS": 0.535,
+   "surprise": 0.004,
+   "surprisePercentage": 0.7477
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2020-01-31",
+   "reportedDate": "2020-03-12",
+   "reportedEPS": 0.525,
+   "estimatedEPS": 0.533,
+   "surprise": -0.008,
+   "surprisePercentage": -1.5009
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2020-04-30",
+   "reportedDate": "2020-06-04",
+   "reportedEPS": 0.514,
+   "estimatedEPS": 0.514,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2020-07-31",
+   "reportedDate": "2020-09-03",
+   "reportedEPS": 0.54,
+   "estimatedEPS": 0.524,
+   "surprise": 0.016,
+   "surprisePercentage": 3.0534
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2020-10-31",
+   "reportedDate": "2020-12-10",
+   "reportedEPS": 0.635,
+   "estimatedEPS": 0.625,
+   "surprise": 0.01,
+   "surprisePercentage": 1.6
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2021-01-31",
+   "reportedDate": "2021-03-04",
+   "reportedEPS": 0.661,
+   "estimatedEPS": 0.656,
+   "surprise": 0.005,
+   "surprisePercentage": 0.7622
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2021-04-30",
+   "reportedDate": "2021-06-03",
+   "reportedEPS": 0.662,
+   "estimatedEPS": 0.643,
+   "surprise": 0.019,
+   "surprisePercentage": 2.9549
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2021-07-31",
+   "reportedDate": "2021-09-02",
+   "reportedEPS": 0.696,
+   "estimatedEPS": 0.688,
+   "surprise": 0.008,
+   "surprisePercentage": 1.1628
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2021-10-31",
+   "reportedDate": "2021-12-09",
+   "reportedEPS": 0.781,
+   "estimatedEPS": 0.774,
+   "surprise": 0.007,
+   "surprisePercentage": 0.9044
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2022-01-31",
+   "reportedDate": "2022-03-03",
+   "reportedEPS": 0.839,
+   "estimatedEPS": 0.808,
+   "surprise": 0.031,
+   "surprisePercentage": 3.8366
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2022-04-30",
+   "reportedDate": "2022-05-26",
+   "reportedEPS": 0.907,
+   "estimatedEPS": 0.871,
+   "surprise": 0.036,
+   "surprisePercentage": 4.1332
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2022-07-31",
+   "reportedDate": "2022-09-01",
+   "reportedEPS": 0.973,
+   "estimatedEPS": 0.956,
+   "surprise": 0.017,
+   "surprisePercentage": 1.7782
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2022-10-31",
+   "reportedDate": "2022-12-08",
+   "reportedEPS": 1.045,
+   "estimatedEPS": 1.028,
+   "surprise": 0.017,
+   "surprisePercentage": 1.6537
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2023-01-31",
+   "reportedDate": "2023-03-02",
+   "reportedEPS": 1.033,
+   "estimatedEPS": 1.01,
+   "surprise": 0.023,
+   "surprisePercentage": 2.2772
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2023-04-30",
+   "reportedDate": "2023-06-01",
+   "reportedEPS": 1.032,
+   "estimatedEPS": 1.008,
+   "surprise": 0.024,
+   "surprisePercentage": 2.381
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2023-07-31",
+   "reportedDate": "2023-08-31",
+   "reportedEPS": 1.054,
+   "estimatedEPS": 1.042,
+   "surprise": 0.012,
+   "surprisePercentage": 1.1516
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2023-10-31",
+   "reportedDate": "2023-12-07",
+   "reportedEPS": 1.106,
+   "estimatedEPS": 1.098,
+   "surprise": 0.008,
+   "surprisePercentage": 0.7286
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2024-01-31",
+   "reportedDate": "2024-03-07",
+   "reportedEPS": 1.099,
+   "estimatedEPS": 1.029,
+   "surprise": 0.07,
+   "surprisePercentage": 6.8027
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2024-04-30",
+   "reportedDate": "2024-06-12",
+   "reportedEPS": 1.096,
+   "estimatedEPS": 1.084,
+   "surprise": 0.012,
+   "surprisePercentage": 1.107
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2024-07-31",
+   "reportedDate": "2024-09-05",
+   "reportedEPS": 1.24,
+   "estimatedEPS": 1.21,
+   "surprise": 0.03,
+   "surprisePercentage": 2.4793
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2024-10-31",
+   "reportedDate": "2024-12-12",
+   "reportedEPS": 1.42,
+   "estimatedEPS": 1.39,
+   "surprise": 0.03,
+   "surprisePercentage": 2.1583
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2025-01-31",
+   "reportedDate": "2025-03-06",
+   "reportedEPS": 1.6,
+   "estimatedEPS": 1.51,
+   "surprise": 0.09,
+   "surprisePercentage": 5.9603
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2025-04-30",
+   "reportedDate": "2025-06-05",
+   "reportedEPS": 1.58,
+   "estimatedEPS": 1.57,
+   "surprise": 0.01,
+   "surprisePercentage": 0.6369
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2025-07-31",
+   "reportedDate": "2025-09-04",
+   "reportedEPS": 1.69,
+   "estimatedEPS": 1.66,
+   "surprise": 0.03,
+   "surprisePercentage": 1.8072
+  },
+  {
+   "ticker": "AVGO",
+   "fiscalDateEnding": "2025-10-31",
+   "reportedDate": "2025-12-11",
+   "reportedEPS": 1.95,
+   "estimatedEPS": 1.87,
+   "surprise": 0.08,
+   "surprisePercentage": 4.2781
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2017-12-31",
+   "reportedDate": "2018-01-25",
+   "reportedEPS": 1.08,
+   "estimatedEPS": 0.87,
+   "surprise": 0.21,
+   "surprisePercentage": 24.1379
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2018-03-31",
+   "reportedDate": "2018-04-26",
+   "reportedEPS": 0.87,
+   "estimatedEPS": 0.72,
+   "surprise": 0.15,
+   "surprisePercentage": 20.8333
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2018-06-30",
+   "reportedDate": "2018-07-26",
+   "reportedEPS": 1.04,
+   "estimatedEPS": 0.97,
+   "surprise": 0.07,
+   "surprisePercentage": 7.2165
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2018-09-30",
+   "reportedDate": "2018-10-25",
+   "reportedEPS": 1.4,
+   "estimatedEPS": 1.15,
+   "surprise": 0.25,
+   "surprisePercentage": 21.7391
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2018-12-31",
+   "reportedDate": "2019-01-24",
+   "reportedEPS": 1.28,
+   "estimatedEPS": 1.22,
+   "surprise": 0.06,
+   "surprisePercentage": 4.918
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2019-03-31",
+   "reportedDate": "2019-04-25",
+   "reportedEPS": 0.89,
+   "estimatedEPS": 0.87,
+   "surprise": 0.02,
+   "surprisePercentage": 2.2989
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2019-06-30",
+   "reportedDate": "2019-07-25",
+   "reportedEPS": 1.06,
+   "estimatedEPS": 0.9,
+   "surprise": 0.16,
+   "surprisePercentage": 17.7778
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2019-09-30",
+   "reportedDate": "2019-10-24",
+   "reportedEPS": 1.42,
+   "estimatedEPS": 1.24,
+   "surprise": 0.18,
+   "surprisePercentage": 14.5161
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2019-12-31",
+   "reportedDate": "2020-01-23",
+   "reportedEPS": 1.52,
+   "estimatedEPS": 1.25,
+   "surprise": 0.27,
+   "surprisePercentage": 21.6
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2020-03-31",
+   "reportedDate": "2020-04-23",
+   "reportedEPS": 1.45,
+   "estimatedEPS": 1.26,
+   "surprise": 0.19,
+   "surprisePercentage": 15.0794
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2020-06-30",
+   "reportedDate": "2020-07-23",
+   "reportedEPS": 1.23,
+   "estimatedEPS": 1.11,
+   "surprise": 0.12,
+   "surprisePercentage": 10.8108
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2020-09-30",
+   "reportedDate": "2020-10-22",
+   "reportedEPS": 1.11,
+   "estimatedEPS": 1.11,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2020-12-31",
+   "reportedDate": "2021-01-21",
+   "reportedEPS": 1.52,
+   "estimatedEPS": 1.11,
+   "surprise": 0.41,
+   "surprisePercentage": 36.9369
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2021-03-31",
+   "reportedDate": "2021-04-22",
+   "reportedEPS": 1.39,
+   "estimatedEPS": 1.14,
+   "surprise": 0.25,
+   "surprisePercentage": 21.9298
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2021-06-30",
+   "reportedDate": "2021-07-22",
+   "reportedEPS": 1.28,
+   "estimatedEPS": 1.07,
+   "surprise": 0.21,
+   "surprisePercentage": 19.6262
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2021-09-30",
+   "reportedDate": "2021-10-21",
+   "reportedEPS": 1.71,
+   "estimatedEPS": 1.11,
+   "surprise": 0.6,
+   "surprisePercentage": 54.0541
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2021-12-31",
+   "reportedDate": "2022-01-26",
+   "reportedEPS": 1.09,
+   "estimatedEPS": 0.91,
+   "surprise": 0.18,
+   "surprisePercentage": 19.7802
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2022-03-31",
+   "reportedDate": "2022-04-28",
+   "reportedEPS": 0.87,
+   "estimatedEPS": 0.8,
+   "surprise": 0.07,
+   "surprisePercentage": 8.75
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2022-06-30",
+   "reportedDate": "2022-07-28",
+   "reportedEPS": 0.29,
+   "estimatedEPS": 0.7,
+   "surprise": -0.41,
+   "surprisePercentage": -58.5714
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2022-09-30",
+   "reportedDate": "2022-10-27",
+   "reportedEPS": 0.59,
+   "estimatedEPS": 0.33,
+   "surprise": 0.26,
+   "surprisePercentage": 78.7879
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2022-12-31",
+   "reportedDate": "2023-01-26",
+   "reportedEPS": 0.1,
+   "estimatedEPS": 0.2,
+   "surprise": -0.1,
+   "surprisePercentage": -50.0
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2023-03-31",
+   "reportedDate": "2023-04-27",
+   "reportedEPS": -0.04,
+   "estimatedEPS": -0.14,
+   "surprise": 0.1,
+   "surprisePercentage": 71.4286
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2023-06-30",
+   "reportedDate": "2023-07-27",
+   "reportedEPS": 0.13,
+   "estimatedEPS": -0.03,
+   "surprise": 0.16,
+   "surprisePercentage": 533.3333
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2023-09-30",
+   "reportedDate": "2023-10-26",
+   "reportedEPS": 0.41,
+   "estimatedEPS": 0.22,
+   "surprise": 0.19,
+   "surprisePercentage": 86.3636
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2023-12-31",
+   "reportedDate": "2024-01-25",
+   "reportedEPS": 0.54,
+   "estimatedEPS": 0.45,
+   "surprise": 0.09,
+   "surprisePercentage": 20.0
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2024-03-31",
+   "reportedDate": "2024-04-25",
+   "reportedEPS": 0.18,
+   "estimatedEPS": 0.13,
+   "surprise": 0.05,
+   "surprisePercentage": 38.4615
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2024-06-30",
+   "reportedDate": "2024-08-01",
+   "reportedEPS": 0.02,
+   "estimatedEPS": 0.1,
+   "surprise": -0.08,
+   "surprisePercentage": -80.0
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2024-09-30",
+   "reportedDate": "2024-10-31",
+   "reportedEPS": -0.46,
+   "estimatedEPS": -0.03,
+   "surprise": -0.43,
+   "surprisePercentage": -1433.3333
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2024-12-31",
+   "reportedDate": "2025-01-30",
+   "reportedEPS": 0.13,
+   "estimatedEPS": 0.12,
+   "surprise": 0.01,
+   "surprisePercentage": 8.3333
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2025-03-31",
+   "reportedDate": "2025-04-24",
+   "reportedEPS": 0.13,
+   "estimatedEPS": 0.01,
+   "surprise": 0.12,
+   "surprisePercentage": 1200.0
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2025-06-30",
+   "reportedDate": "2025-07-24",
+   "reportedEPS": -0.1,
+   "estimatedEPS": 0.01,
+   "surprise": -0.11,
+   "surprisePercentage": -1100.0
+  },
+  {
+   "ticker": "INTC",
+   "fiscalDateEnding": "2025-09-30",
+   "reportedDate": "2025-10-23",
+   "reportedEPS": 0.23,
+   "estimatedEPS": 0.01,
+   "surprise": 0.22,
+   "surprisePercentage": 2200.0
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2017-12-31",
+   "reportedDate": "2018-01-25",
+   "reportedEPS": 0.2,
+   "estimatedEPS": 0.17,
+   "surprise": 0.03,
+   "surprisePercentage": 17.6471
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2018-03-31",
+   "reportedDate": "2018-04-26",
+   "reportedEPS": 0.2,
+   "estimatedEPS": 0.2,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2018-06-30",
+   "reportedDate": "2018-07-30",
+   "reportedEPS": 0.22,
+   "estimatedEPS": 0.21,
+   "surprise": 0.01,
+   "surprisePercentage": 4.7619
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2018-09-30",
+   "reportedDate": "2018-10-29",
+   "reportedEPS": 0.25,
+   "estimatedEPS": 0.22,
+   "surprise": 0.03,
+   "surprisePercentage": 13.6364
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2018-12-31",
+   "reportedDate": "2019-01-29",
+   "reportedEPS": 0.24,
+   "estimatedEPS": 0.22,
+   "surprise": 0.02,
+   "surprisePercentage": 9.0909
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2019-03-31",
+   "reportedDate": "2019-05-06",
+   "reportedEPS": 0.18,
+   "estimatedEPS": 0.17,
+   "surprise": 0.01,
+   "surprisePercentage": 5.8824
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2019-06-30",
+   "reportedDate": "2019-08-05",
+   "reportedEPS": 0.18,
+   "estimatedEPS": 0.17,
+   "surprise": 0.01,
+   "surprisePercentage": 5.8824
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2019-09-30",
+   "reportedDate": "2019-10-30",
+   "reportedEPS": 0.25,
+   "estimatedEPS": 0.22,
+   "surprise": 0.03,
+   "surprisePercentage": 13.6364
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2019-12-31",
+   "reportedDate": "2020-02-04",
+   "reportedEPS": 0.27,
+   "estimatedEPS": 0.26,
+   "surprise": 0.01,
+   "surprisePercentage": 3.8462
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2020-03-31",
+   "reportedDate": "2020-05-05",
+   "reportedEPS": 0.25,
+   "estimatedEPS": 0.24,
+   "surprise": 0.01,
+   "surprisePercentage": 4.1667
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2020-06-30",
+   "reportedDate": "2020-08-03",
+   "reportedEPS": 0.27,
+   "estimatedEPS": 0.24,
+   "surprise": 0.03,
+   "surprisePercentage": 12.5
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2020-09-30",
+   "reportedDate": "2020-10-28",
+   "reportedEPS": 0.3,
+   "estimatedEPS": 0.28,
+   "surprise": 0.02,
+   "surprisePercentage": 7.1429
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2020-12-31",
+   "reportedDate": "2021-02-03",
+   "reportedEPS": 0.32,
+   "estimatedEPS": 0.32,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2021-03-31",
+   "reportedDate": "2021-04-29",
+   "reportedEPS": 0.39,
+   "estimatedEPS": 0.36,
+   "surprise": 0.03,
+   "surprisePercentage": 8.3333
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2021-06-30",
+   "reportedDate": "2021-07-29",
+   "reportedEPS": 0.44,
+   "estimatedEPS": 0.4,
+   "surprise": 0.04,
+   "surprisePercentage": 10.0
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2021-09-30",
+   "reportedDate": "2021-10-27",
+   "reportedEPS": 0.46,
+   "estimatedEPS": 0.45,
+   "surprise": 0.01,
+   "surprisePercentage": 2.2222
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2021-12-31",
+   "reportedDate": "2022-01-27",
+   "reportedEPS": 0.56,
+   "estimatedEPS": 0.55,
+   "surprise": 0.01,
+   "surprisePercentage": 1.8182
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2022-03-31",
+   "reportedDate": "2022-04-28",
+   "reportedEPS": 0.51,
+   "estimatedEPS": 0.48,
+   "surprise": 0.03,
+   "surprisePercentage": 6.25
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2022-06-30",
+   "reportedDate": "2022-07-28",
+   "reportedEPS": 0.58,
+   "estimatedEPS": 0.55,
+   "surprise": 0.03,
+   "surprisePercentage": 5.4545
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2022-09-30",
+   "reportedDate": "2022-10-26",
+   "reportedEPS": 0.71,
+   "estimatedEPS": 0.62,
+   "surprise": 0.09,
+   "surprisePercentage": 14.5161
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2022-12-31",
+   "reportedDate": "2023-01-26",
+   "reportedEPS": 0.74,
+   "estimatedEPS": 0.71,
+   "surprise": 0.03,
+   "surprisePercentage": 4.2254
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2023-03-31",
+   "reportedDate": "2023-04-26",
+   "reportedEPS": 0.55,
+   "estimatedEPS": 0.53,
+   "surprise": 0.02,
+   "surprisePercentage": 3.7736
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2023-06-30",
+   "reportedDate": "2023-07-26",
+   "reportedEPS": 0.54,
+   "estimatedEPS": 0.49,
+   "surprise": 0.05,
+   "surprisePercentage": 10.2041
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2023-09-30",
+   "reportedDate": "2023-10-25",
+   "reportedEPS": 0.57,
+   "estimatedEPS": 0.54,
+   "surprise": 0.03,
+   "surprisePercentage": 5.5556
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2023-12-31",
+   "reportedDate": "2024-01-24",
+   "reportedEPS": 0.62,
+   "estimatedEPS": 0.59,
+   "surprise": 0.03,
+   "surprisePercentage": 5.0847
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2024-03-31",
+   "reportedDate": "2024-04-25",
+   "reportedEPS": 0.53,
+   "estimatedEPS": 0.51,
+   "surprise": 0.02,
+   "surprisePercentage": 3.9216
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2024-06-30",
+   "reportedDate": "2024-07-24",
+   "reportedEPS": 0.66,
+   "estimatedEPS": 0.61,
+   "surprise": 0.05,
+   "surprisePercentage": 8.1967
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2024-09-30",
+   "reportedDate": "2024-10-30",
+   "reportedEPS": 0.73,
+   "estimatedEPS": 0.7,
+   "surprise": 0.03,
+   "surprisePercentage": 4.2857
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2024-12-31",
+   "reportedDate": "2025-01-30",
+   "reportedEPS": 0.82,
+   "estimatedEPS": 0.78,
+   "surprise": 0.04,
+   "surprisePercentage": 5.1282
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2025-03-31",
+   "reportedDate": "2025-04-30",
+   "reportedEPS": 0.84,
+   "estimatedEPS": 0.81,
+   "surprise": 0.03,
+   "surprisePercentage": 3.7037
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2025-06-30",
+   "reportedDate": "2025-07-31",
+   "reportedEPS": 0.94,
+   "estimatedEPS": 0.86,
+   "surprise": 0.08,
+   "surprisePercentage": 9.3023
+  },
+  {
+   "ticker": "KLAC",
+   "fiscalDateEnding": "2025-09-30",
+   "reportedDate": "2025-10-29",
+   "reportedEPS": 0.88,
+   "estimatedEPS": 0.86,
+   "surprise": 0.02,
+   "surprisePercentage": 2.3256
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2017-12-31",
+   "reportedDate": "2018-01-24",
+   "reportedEPS": 0.43,
+   "estimatedEPS": 0.37,
+   "surprise": 0.06,
+   "surprisePercentage": 16.2162
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2018-03-31",
+   "reportedDate": "2018-04-17",
+   "reportedEPS": 0.48,
+   "estimatedEPS": 0.44,
+   "surprise": 0.04,
+   "surprisePercentage": 9.0909
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2018-06-30",
+   "reportedDate": "2018-07-26",
+   "reportedEPS": 0.53,
+   "estimatedEPS": 0.49,
+   "surprise": 0.04,
+   "surprisePercentage": 8.1633
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2018-09-30",
+   "reportedDate": "2018-10-16",
+   "reportedEPS": 0.34,
+   "estimatedEPS": 0.32,
+   "surprise": 0.02,
+   "surprisePercentage": 6.25
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2018-12-31",
+   "reportedDate": "2019-01-23",
+   "reportedEPS": 0.39,
+   "estimatedEPS": 0.37,
+   "surprise": 0.02,
+   "surprisePercentage": 5.4054
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2019-03-31",
+   "reportedDate": "2019-04-24",
+   "reportedEPS": 0.37,
+   "estimatedEPS": 0.34,
+   "surprise": 0.03,
+   "surprisePercentage": 8.8235
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2019-06-30",
+   "reportedDate": "2019-07-31",
+   "reportedEPS": 0.36,
+   "estimatedEPS": 0.34,
+   "surprise": 0.02,
+   "surprisePercentage": 5.8824
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2019-09-30",
+   "reportedDate": "2019-10-23",
+   "reportedEPS": 0.32,
+   "estimatedEPS": 0.3,
+   "surprise": 0.02,
+   "surprisePercentage": 6.6667
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2019-12-31",
+   "reportedDate": "2020-01-29",
+   "reportedEPS": 0.4,
+   "estimatedEPS": 0.39,
+   "surprise": 0.01,
+   "surprisePercentage": 2.5641
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2020-03-31",
+   "reportedDate": "2020-04-22",
+   "reportedEPS": 0.4,
+   "estimatedEPS": 0.38,
+   "surprise": 0.02,
+   "surprisePercentage": 5.2632
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2020-06-30",
+   "reportedDate": "2020-07-29",
+   "reportedEPS": 0.48,
+   "estimatedEPS": 0.41,
+   "surprise": 0.07,
+   "surprisePercentage": 17.0732
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2020-09-30",
+   "reportedDate": "2020-10-21",
+   "reportedEPS": 0.57,
+   "estimatedEPS": 0.52,
+   "surprise": 0.05,
+   "surprisePercentage": 9.6154
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2020-12-31",
+   "reportedDate": "2021-01-27",
+   "reportedEPS": 0.6,
+   "estimatedEPS": 0.57,
+   "surprise": 0.03,
+   "surprisePercentage": 5.2632
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2021-03-31",
+   "reportedDate": "2021-04-21",
+   "reportedEPS": 0.75,
+   "estimatedEPS": 0.66,
+   "surprise": 0.09,
+   "surprisePercentage": 13.6364
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2021-06-30",
+   "reportedDate": "2021-07-28",
+   "reportedEPS": 0.81,
+   "estimatedEPS": 0.76,
+   "surprise": 0.05,
+   "surprisePercentage": 6.5789
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2021-09-30",
+   "reportedDate": "2021-10-20",
+   "reportedEPS": 0.84,
+   "estimatedEPS": 0.82,
+   "surprise": 0.02,
+   "surprisePercentage": 2.439
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2021-12-31",
+   "reportedDate": "2022-01-26",
+   "reportedEPS": 0.85,
+   "estimatedEPS": 0.85,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2022-03-31",
+   "reportedDate": "2022-04-20",
+   "reportedEPS": 0.74,
+   "estimatedEPS": 0.75,
+   "surprise": -0.01,
+   "surprisePercentage": -1.3333
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2022-06-30",
+   "reportedDate": "2022-07-27",
+   "reportedEPS": 0.88,
+   "estimatedEPS": 0.73,
+   "surprise": 0.15,
+   "surprisePercentage": 20.5479
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2022-09-30",
+   "reportedDate": "2022-10-19",
+   "reportedEPS": 1.04,
+   "estimatedEPS": 0.95,
+   "surprise": 0.09,
+   "surprisePercentage": 9.4737
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2022-12-31",
+   "reportedDate": "2023-01-25",
+   "reportedEPS": 1.07,
+   "estimatedEPS": 1.0,
+   "surprise": 0.07,
+   "surprisePercentage": 7.0
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2023-03-31",
+   "reportedDate": "2023-04-19",
+   "reportedEPS": 0.7,
+   "estimatedEPS": 0.65,
+   "surprise": 0.05,
+   "surprisePercentage": 7.6923
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2023-06-30",
+   "reportedDate": "2023-07-26",
+   "reportedEPS": 0.6,
+   "estimatedEPS": 0.51,
+   "surprise": 0.09,
+   "surprisePercentage": 17.6471
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2023-09-30",
+   "reportedDate": "2023-10-18",
+   "reportedEPS": 0.69,
+   "estimatedEPS": 0.61,
+   "surprise": 0.08,
+   "surprisePercentage": 13.1148
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2023-12-31",
+   "reportedDate": "2024-01-24",
+   "reportedEPS": 0.75,
+   "estimatedEPS": 0.71,
+   "surprise": 0.04,
+   "surprisePercentage": 5.6338
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2024-03-31",
+   "reportedDate": "2024-04-24",
+   "reportedEPS": 0.78,
+   "estimatedEPS": 0.73,
+   "surprise": 0.05,
+   "surprisePercentage": 6.8493
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2024-06-30",
+   "reportedDate": "2024-07-31",
+   "reportedEPS": 0.81,
+   "estimatedEPS": 0.76,
+   "surprise": 0.05,
+   "surprisePercentage": 6.5789
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2024-09-30",
+   "reportedDate": "2024-10-23",
+   "reportedEPS": 0.86,
+   "estimatedEPS": 0.81,
+   "surprise": 0.05,
+   "surprisePercentage": 6.1728
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2024-12-31",
+   "reportedDate": "2025-01-29",
+   "reportedEPS": 0.91,
+   "estimatedEPS": 0.88,
+   "surprise": 0.03,
+   "surprisePercentage": 3.4091
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2025-03-31",
+   "reportedDate": "2025-04-23",
+   "reportedEPS": 1.04,
+   "estimatedEPS": 1.0,
+   "surprise": 0.04,
+   "surprisePercentage": 4.0
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2025-06-30",
+   "reportedDate": "2025-07-30",
+   "reportedEPS": 1.33,
+   "estimatedEPS": 1.21,
+   "surprise": 0.12,
+   "surprisePercentage": 9.9174
+  },
+  {
+   "ticker": "LRCX",
+   "fiscalDateEnding": "2025-09-30",
+   "reportedDate": "2025-10-22",
+   "reportedEPS": 1.26,
+   "estimatedEPS": 1.22,
+   "surprise": 0.04,
+   "surprisePercentage": 3.2787
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2018-02-28",
+   "reportedDate": "2018-03-22",
+   "reportedEPS": 2.82,
+   "estimatedEPS": 2.74,
+   "surprise": 0.08,
+   "surprisePercentage": 2.9197
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2018-05-31",
+   "reportedDate": "2018-06-20",
+   "reportedEPS": 3.15,
+   "estimatedEPS": 3.14,
+   "surprise": 0.01,
+   "surprisePercentage": 0.3185
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2018-08-31",
+   "reportedDate": "2018-09-20",
+   "reportedEPS": 3.53,
+   "estimatedEPS": 3.32,
+   "surprise": 0.21,
+   "surprisePercentage": 6.3253
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2018-11-30",
+   "reportedDate": "2018-12-18",
+   "reportedEPS": 2.97,
+   "estimatedEPS": 2.97,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2019-02-28",
+   "reportedDate": "2019-03-20",
+   "reportedEPS": 1.71,
+   "estimatedEPS": 1.66,
+   "surprise": 0.05,
+   "surprisePercentage": 3.012
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2019-05-31",
+   "reportedDate": "2019-06-25",
+   "reportedEPS": 1.05,
+   "estimatedEPS": 0.79,
+   "surprise": 0.26,
+   "surprisePercentage": 32.9114
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2019-08-31",
+   "reportedDate": "2019-09-26",
+   "reportedEPS": 0.56,
+   "estimatedEPS": 0.48,
+   "surprise": 0.08,
+   "surprisePercentage": 16.6667
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2019-11-30",
+   "reportedDate": "2019-12-18",
+   "reportedEPS": 0.48,
+   "estimatedEPS": 0.47,
+   "surprise": 0.01,
+   "surprisePercentage": 2.1277
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2020-02-29",
+   "reportedDate": "2020-03-25",
+   "reportedEPS": 0.45,
+   "estimatedEPS": 0.37,
+   "surprise": 0.08,
+   "surprisePercentage": 21.6216
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2020-05-31",
+   "reportedDate": "2020-06-29",
+   "reportedEPS": 0.82,
+   "estimatedEPS": 0.76,
+   "surprise": 0.06,
+   "surprisePercentage": 7.8947
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2020-08-31",
+   "reportedDate": "2020-09-29",
+   "reportedEPS": 1.08,
+   "estimatedEPS": 0.97,
+   "surprise": 0.11,
+   "surprisePercentage": 11.3402
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2020-11-30",
+   "reportedDate": "2021-01-07",
+   "reportedEPS": 0.78,
+   "estimatedEPS": 0.69,
+   "surprise": 0.09,
+   "surprisePercentage": 13.0435
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2021-02-28",
+   "reportedDate": "2021-03-31",
+   "reportedEPS": 0.98,
+   "estimatedEPS": 0.95,
+   "surprise": 0.03,
+   "surprisePercentage": 3.1579
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2021-05-31",
+   "reportedDate": "2021-06-30",
+   "reportedEPS": 1.88,
+   "estimatedEPS": 1.72,
+   "surprise": 0.16,
+   "surprisePercentage": 9.3023
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2021-08-31",
+   "reportedDate": "2021-09-28",
+   "reportedEPS": 2.42,
+   "estimatedEPS": 2.34,
+   "surprise": 0.08,
+   "surprisePercentage": 3.4188
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2021-11-30",
+   "reportedDate": "2021-12-20",
+   "reportedEPS": 2.16,
+   "estimatedEPS": 2.11,
+   "surprise": 0.05,
+   "surprisePercentage": 2.3697
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2022-02-28",
+   "reportedDate": "2022-03-29",
+   "reportedEPS": 2.14,
+   "estimatedEPS": 1.98,
+   "surprise": 0.16,
+   "surprisePercentage": 8.0808
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2022-05-31",
+   "reportedDate": "2022-06-30",
+   "reportedEPS": 2.59,
+   "estimatedEPS": 2.44,
+   "surprise": 0.15,
+   "surprisePercentage": 6.1475
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2022-08-31",
+   "reportedDate": "2022-09-29",
+   "reportedEPS": 1.45,
+   "estimatedEPS": 1.37,
+   "surprise": 0.08,
+   "surprisePercentage": 5.8394
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2022-11-30",
+   "reportedDate": "2022-12-21",
+   "reportedEPS": -0.04,
+   "estimatedEPS": -0.02,
+   "surprise": -0.02,
+   "surprisePercentage": -100.0
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2023-02-28",
+   "reportedDate": "2023-03-28",
+   "reportedEPS": -1.91,
+   "estimatedEPS": -0.88,
+   "surprise": -1.03,
+   "surprisePercentage": -117.0455
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2023-05-31",
+   "reportedDate": "2023-06-28",
+   "reportedEPS": -1.43,
+   "estimatedEPS": -1.57,
+   "surprise": 0.14,
+   "surprisePercentage": 8.9172
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2023-08-31",
+   "reportedDate": "2023-09-27",
+   "reportedEPS": -1.07,
+   "estimatedEPS": -1.18,
+   "surprise": 0.11,
+   "surprisePercentage": 9.322
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2023-11-30",
+   "reportedDate": "2023-12-20",
+   "reportedEPS": -0.95,
+   "estimatedEPS": -1.01,
+   "surprise": 0.06,
+   "surprisePercentage": 5.9406
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2024-02-29",
+   "reportedDate": "2024-03-20",
+   "reportedEPS": 0.42,
+   "estimatedEPS": -0.25,
+   "surprise": 0.67,
+   "surprisePercentage": 268.0
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2024-05-31",
+   "reportedDate": "2024-06-26",
+   "reportedEPS": 0.62,
+   "estimatedEPS": 0.53,
+   "surprise": 0.09,
+   "surprisePercentage": 16.9811
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2024-08-31",
+   "reportedDate": "2024-09-25",
+   "reportedEPS": 1.18,
+   "estimatedEPS": 1.14,
+   "surprise": 0.04,
+   "surprisePercentage": 3.5088
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2024-11-30",
+   "reportedDate": "2024-12-18",
+   "reportedEPS": 1.79,
+   "estimatedEPS": 1.77,
+   "surprise": 0.02,
+   "surprisePercentage": 1.1299
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2025-02-28",
+   "reportedDate": "2025-03-20",
+   "reportedEPS": 1.56,
+   "estimatedEPS": 1.28,
+   "surprise": 0.28,
+   "surprisePercentage": 21.875
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2025-05-31",
+   "reportedDate": "2025-06-25",
+   "reportedEPS": 1.91,
+   "estimatedEPS": 1.59,
+   "surprise": 0.32,
+   "surprisePercentage": 20.1258
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2025-08-31",
+   "reportedDate": "2025-09-23",
+   "reportedEPS": 3.03,
+   "estimatedEPS": 2.86,
+   "surprise": 0.17,
+   "surprisePercentage": 5.9441
+  },
+  {
+   "ticker": "MU",
+   "fiscalDateEnding": "2025-11-30",
+   "reportedDate": "2025-12-17",
+   "reportedEPS": 4.78,
+   "estimatedEPS": 3.94,
+   "surprise": 0.84,
+   "surprisePercentage": 21.3198
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2018-01-31",
+   "reportedDate": "2018-02-08",
+   "reportedEPS": 0.039,
+   "estimatedEPS": 0.029,
+   "surprise": 0.01,
+   "surprisePercentage": 34.4828
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2018-04-30",
+   "reportedDate": "2018-05-10",
+   "reportedEPS": 0.051,
+   "estimatedEPS": 0.04,
+   "surprise": 0.011,
+   "surprisePercentage": 27.5
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2018-07-31",
+   "reportedDate": "2018-08-16",
+   "reportedEPS": 0.049,
+   "estimatedEPS": 0.044,
+   "surprise": 0.005,
+   "surprisePercentage": 11.3636
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2018-10-31",
+   "reportedDate": "2018-11-15",
+   "reportedEPS": 0.046,
+   "estimatedEPS": 0.047,
+   "surprise": -0.001,
+   "surprisePercentage": -2.1277
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2019-01-31",
+   "reportedDate": "2019-02-14",
+   "reportedEPS": 0.02,
+   "estimatedEPS": 0.019,
+   "surprise": 0.001,
+   "surprisePercentage": 5.2632
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2019-04-30",
+   "reportedDate": "2019-05-16",
+   "reportedEPS": 0.022,
+   "estimatedEPS": 0.02,
+   "surprise": 0.002,
+   "surprisePercentage": 10.0
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2019-07-31",
+   "reportedDate": "2019-08-15",
+   "reportedEPS": 0.031,
+   "estimatedEPS": 0.029,
+   "surprise": 0.002,
+   "surprisePercentage": 6.8966
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2019-10-31",
+   "reportedDate": "2019-11-14",
+   "reportedEPS": 0.045,
+   "estimatedEPS": 0.039,
+   "surprise": 0.006,
+   "surprisePercentage": 15.3846
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2020-01-31",
+   "reportedDate": "2020-02-13",
+   "reportedEPS": 0.0473,
+   "estimatedEPS": 0.05,
+   "surprise": -0.0027,
+   "surprisePercentage": -5.4
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2020-04-30",
+   "reportedDate": "2020-05-21",
+   "reportedEPS": 0.045,
+   "estimatedEPS": 0.042,
+   "surprise": 0.003,
+   "surprisePercentage": 7.1429
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2020-07-31",
+   "reportedDate": "2020-08-19",
+   "reportedEPS": 0.055,
+   "estimatedEPS": 0.049,
+   "surprise": 0.006,
+   "surprisePercentage": 12.2449
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2020-10-31",
+   "reportedDate": "2020-11-18",
+   "reportedEPS": 0.073,
+   "estimatedEPS": 0.064,
+   "surprise": 0.009,
+   "surprisePercentage": 14.0625
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2021-01-31",
+   "reportedDate": "2021-02-24",
+   "reportedEPS": 0.0775,
+   "estimatedEPS": 0.08,
+   "surprise": -0.0025,
+   "surprisePercentage": -3.125
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2021-04-30",
+   "reportedDate": "2021-05-26",
+   "reportedEPS": 0.0915,
+   "estimatedEPS": 0.0822,
+   "surprise": 0.0093,
+   "surprisePercentage": 11.3139
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2021-07-31",
+   "reportedDate": "2021-08-18",
+   "reportedEPS": 0.104,
+   "estimatedEPS": 0.102,
+   "surprise": 0.002,
+   "surprisePercentage": 1.9608
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2021-10-31",
+   "reportedDate": "2021-11-17",
+   "reportedEPS": 0.117,
+   "estimatedEPS": 0.111,
+   "surprise": 0.006,
+   "surprisePercentage": 5.4054
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2022-01-31",
+   "reportedDate": "2022-02-16",
+   "reportedEPS": 0.132,
+   "estimatedEPS": 0.123,
+   "surprise": 0.009,
+   "surprisePercentage": 7.3171
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2022-04-30",
+   "reportedDate": "2022-05-25",
+   "reportedEPS": 0.136,
+   "estimatedEPS": 0.13,
+   "surprise": 0.006,
+   "surprisePercentage": 4.6154
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2022-07-31",
+   "reportedDate": "2022-08-24",
+   "reportedEPS": 0.051,
+   "estimatedEPS": 0.0499,
+   "surprise": 0.0011,
+   "surprisePercentage": 2.2044
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2022-10-31",
+   "reportedDate": "2022-11-16",
+   "reportedEPS": 0.058,
+   "estimatedEPS": 0.071,
+   "surprise": -0.013,
+   "surprisePercentage": -18.3099
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2023-01-31",
+   "reportedDate": "2023-02-22",
+   "reportedEPS": 0.088,
+   "estimatedEPS": 0.081,
+   "surprise": 0.007,
+   "surprisePercentage": 8.642
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2023-04-30",
+   "reportedDate": "2023-05-24",
+   "reportedEPS": 0.109,
+   "estimatedEPS": 0.092,
+   "surprise": 0.017,
+   "surprisePercentage": 18.4783
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2023-07-31",
+   "reportedDate": "2023-08-23",
+   "reportedEPS": 0.27,
+   "estimatedEPS": 0.207,
+   "surprise": 0.063,
+   "surprisePercentage": 30.4348
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2023-10-31",
+   "reportedDate": "2023-11-21",
+   "reportedEPS": 0.402,
+   "estimatedEPS": 0.336,
+   "surprise": 0.066,
+   "surprisePercentage": 19.6429
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2024-01-31",
+   "reportedDate": "2024-02-21",
+   "reportedEPS": 0.516,
+   "estimatedEPS": 0.461,
+   "surprise": 0.055,
+   "surprisePercentage": 11.9306
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2024-04-30",
+   "reportedDate": "2024-05-22",
+   "reportedEPS": 0.612,
+   "estimatedEPS": 0.559,
+   "surprise": 0.053,
+   "surprisePercentage": 9.4812
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2024-07-31",
+   "reportedDate": "2024-08-28",
+   "reportedEPS": 0.68,
+   "estimatedEPS": 0.63,
+   "surprise": 0.05,
+   "surprisePercentage": 7.9365
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2024-10-31",
+   "reportedDate": "2024-11-20",
+   "reportedEPS": 0.81,
+   "estimatedEPS": 0.75,
+   "surprise": 0.06,
+   "surprisePercentage": 8.0
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2025-01-31",
+   "reportedDate": "2025-02-26",
+   "reportedEPS": 0.89,
+   "estimatedEPS": 0.85,
+   "surprise": 0.04,
+   "surprisePercentage": 4.7059
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2025-04-30",
+   "reportedDate": "2025-05-28",
+   "reportedEPS": 0.81,
+   "estimatedEPS": 0.75,
+   "surprise": 0.06,
+   "surprisePercentage": 8.0
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2025-07-31",
+   "reportedDate": "2025-08-27",
+   "reportedEPS": 1.05,
+   "estimatedEPS": 1.01,
+   "surprise": 0.04,
+   "surprisePercentage": 3.9604
+  },
+  {
+   "ticker": "NVDA",
+   "fiscalDateEnding": "2025-10-31",
+   "reportedDate": "2025-11-19",
+   "reportedEPS": 1.3,
+   "estimatedEPS": 1.26,
+   "surprise": 0.04,
+   "surprisePercentage": 3.1746
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2017-12-31",
+   "reportedDate": "2018-01-31",
+   "reportedEPS": 0.98,
+   "estimatedEPS": 0.91,
+   "surprise": 0.07,
+   "surprisePercentage": 7.6923
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2018-03-31",
+   "reportedDate": "2018-04-25",
+   "reportedEPS": 0.8,
+   "estimatedEPS": 0.7,
+   "surprise": 0.1,
+   "surprisePercentage": 14.2857
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2018-06-30",
+   "reportedDate": "2018-07-25",
+   "reportedEPS": 0.75,
+   "estimatedEPS": 0.71,
+   "surprise": 0.04,
+   "surprisePercentage": 5.6338
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2018-09-30",
+   "reportedDate": "2018-11-07",
+   "reportedEPS": 0.9,
+   "estimatedEPS": 0.83,
+   "surprise": 0.07,
+   "surprisePercentage": 8.4337
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2018-12-31",
+   "reportedDate": "2019-01-30",
+   "reportedEPS": 1.2,
+   "estimatedEPS": 1.09,
+   "surprise": 0.11,
+   "surprisePercentage": 10.0917
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2019-03-31",
+   "reportedDate": "2019-05-01",
+   "reportedEPS": 0.77,
+   "estimatedEPS": 0.71,
+   "surprise": 0.06,
+   "surprisePercentage": 8.4507
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2019-06-30",
+   "reportedDate": "2019-07-31",
+   "reportedEPS": 0.8,
+   "estimatedEPS": 0.77,
+   "surprise": 0.03,
+   "surprisePercentage": 3.8961
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2019-09-30",
+   "reportedDate": "2019-11-06",
+   "reportedEPS": 0.78,
+   "estimatedEPS": 0.71,
+   "surprise": 0.07,
+   "surprisePercentage": 9.8592
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2019-12-31",
+   "reportedDate": "2020-02-05",
+   "reportedEPS": 0.99,
+   "estimatedEPS": 0.85,
+   "surprise": 0.14,
+   "surprisePercentage": 16.4706
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2020-03-31",
+   "reportedDate": "2020-04-29",
+   "reportedEPS": 0.88,
+   "estimatedEPS": 0.8,
+   "surprise": 0.08,
+   "surprisePercentage": 10.0
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2020-06-30",
+   "reportedDate": "2020-07-29",
+   "reportedEPS": 0.86,
+   "estimatedEPS": 0.71,
+   "surprise": 0.15,
+   "surprisePercentage": 21.1268
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2020-09-30",
+   "reportedDate": "2020-11-04",
+   "reportedEPS": 1.45,
+   "estimatedEPS": 1.18,
+   "surprise": 0.27,
+   "surprisePercentage": 22.8814
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2020-12-31",
+   "reportedDate": "2021-02-03",
+   "reportedEPS": 2.17,
+   "estimatedEPS": 2.1,
+   "surprise": 0.07,
+   "surprisePercentage": 3.3333
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2021-03-31",
+   "reportedDate": "2021-04-28",
+   "reportedEPS": 1.9,
+   "estimatedEPS": 1.67,
+   "surprise": 0.23,
+   "surprisePercentage": 13.7725
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2021-06-30",
+   "reportedDate": "2021-07-28",
+   "reportedEPS": 1.92,
+   "estimatedEPS": 1.68,
+   "surprise": 0.24,
+   "surprisePercentage": 14.2857
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2021-09-30",
+   "reportedDate": "2021-11-03",
+   "reportedEPS": 2.55,
+   "estimatedEPS": 2.26,
+   "surprise": 0.29,
+   "surprisePercentage": 12.8319
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2021-12-31",
+   "reportedDate": "2022-02-02",
+   "reportedEPS": 3.23,
+   "estimatedEPS": 3.0,
+   "surprise": 0.23,
+   "surprisePercentage": 7.6667
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2022-03-31",
+   "reportedDate": "2022-04-27",
+   "reportedEPS": 3.21,
+   "estimatedEPS": 2.92,
+   "surprise": 0.29,
+   "surprisePercentage": 9.9315
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2022-06-30",
+   "reportedDate": "2022-07-27",
+   "reportedEPS": 2.96,
+   "estimatedEPS": 2.87,
+   "surprise": 0.09,
+   "surprisePercentage": 3.1359
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2022-09-30",
+   "reportedDate": "2022-11-02",
+   "reportedEPS": 3.13,
+   "estimatedEPS": 3.13,
+   "surprise": 0.0,
+   "surprisePercentage": 0.0
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2022-12-31",
+   "reportedDate": "2023-02-02",
+   "reportedEPS": 2.37,
+   "estimatedEPS": 2.35,
+   "surprise": 0.02,
+   "surprisePercentage": 0.8511
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2023-03-31",
+   "reportedDate": "2023-05-03",
+   "reportedEPS": 2.15,
+   "estimatedEPS": 2.16,
+   "surprise": -0.01,
+   "surprisePercentage": -0.463
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2023-06-30",
+   "reportedDate": "2023-08-02",
+   "reportedEPS": 1.87,
+   "estimatedEPS": 1.81,
+   "surprise": 0.06,
+   "surprisePercentage": 3.3149
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2023-09-30",
+   "reportedDate": "2023-11-01",
+   "reportedEPS": 2.02,
+   "estimatedEPS": 1.91,
+   "surprise": 0.11,
+   "surprisePercentage": 5.7592
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2023-12-31",
+   "reportedDate": "2024-01-31",
+   "reportedEPS": 2.75,
+   "estimatedEPS": 2.37,
+   "surprise": 0.38,
+   "surprisePercentage": 16.0338
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2024-03-31",
+   "reportedDate": "2024-05-01",
+   "reportedEPS": 2.44,
+   "estimatedEPS": 2.32,
+   "surprise": 0.12,
+   "surprisePercentage": 5.1724
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2024-06-30",
+   "reportedDate": "2024-07-31",
+   "reportedEPS": 2.33,
+   "estimatedEPS": 2.26,
+   "surprise": 0.07,
+   "surprisePercentage": 3.0973
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2024-09-30",
+   "reportedDate": "2024-11-06",
+   "reportedEPS": 2.69,
+   "estimatedEPS": 2.57,
+   "surprise": 0.12,
+   "surprisePercentage": 4.6693
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2024-12-31",
+   "reportedDate": "2025-02-05",
+   "reportedEPS": 3.41,
+   "estimatedEPS": 2.99,
+   "surprise": 0.42,
+   "surprisePercentage": 14.0468
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2025-03-31",
+   "reportedDate": "2025-04-30",
+   "reportedEPS": 2.85,
+   "estimatedEPS": 2.82,
+   "surprise": 0.03,
+   "surprisePercentage": 1.0638
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2025-06-30",
+   "reportedDate": "2025-07-30",
+   "reportedEPS": 2.77,
+   "estimatedEPS": 2.71,
+   "surprise": 0.06,
+   "surprisePercentage": 2.214
+  },
+  {
+   "ticker": "QCOM",
+   "fiscalDateEnding": "2025-09-30",
+   "reportedDate": "2025-11-05",
+   "reportedEPS": 2.56,
+   "estimatedEPS": 2.34,
+   "surprise": 0.22,
+   "surprisePercentage": 9.4017
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2017-12-31",
+   "reportedDate": "2018-01-23",
+   "reportedEPS": 1.11,
+   "estimatedEPS": 1.12,
+   "surprise": -0.01,
+   "surprisePercentage": -0.8929
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2018-03-31",
+   "reportedDate": "2018-04-24",
+   "reportedEPS": 1.29,
+   "estimatedEPS": 1.15,
+   "surprise": 0.14,
+   "surprisePercentage": 12.1739
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2018-06-30",
+   "reportedDate": "2018-07-24",
+   "reportedEPS": 1.45,
+   "estimatedEPS": 1.35,
+   "surprise": 0.1,
+   "surprisePercentage": 7.4074
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2018-09-30",
+   "reportedDate": "2018-10-23",
+   "reportedEPS": 1.65,
+   "estimatedEPS": 1.58,
+   "surprise": 0.07,
+   "surprisePercentage": 4.4304
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2018-12-31",
+   "reportedDate": "2019-01-23",
+   "reportedEPS": 1.33,
+   "estimatedEPS": 1.27,
+   "surprise": 0.06,
+   "surprisePercentage": 4.7244
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2019-03-31",
+   "reportedDate": "2019-04-23",
+   "reportedEPS": 1.29,
+   "estimatedEPS": 1.17,
+   "surprise": 0.12,
+   "surprisePercentage": 10.2564
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2019-06-30",
+   "reportedDate": "2019-07-23",
+   "reportedEPS": 1.36,
+   "estimatedEPS": 1.22,
+   "surprise": 0.14,
+   "surprisePercentage": 11.4754
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2019-09-30",
+   "reportedDate": "2019-10-22",
+   "reportedEPS": 1.49,
+   "estimatedEPS": 1.42,
+   "surprise": 0.07,
+   "surprisePercentage": 4.9296
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2019-12-31",
+   "reportedDate": "2020-01-22",
+   "reportedEPS": 1.17,
+   "estimatedEPS": 1.04,
+   "surprise": 0.13,
+   "surprisePercentage": 12.5
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2020-03-31",
+   "reportedDate": "2020-04-21",
+   "reportedEPS": 1.3,
+   "estimatedEPS": 1.02,
+   "surprise": 0.28,
+   "surprisePercentage": 27.451
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2020-06-30",
+   "reportedDate": "2020-07-21",
+   "reportedEPS": 1.57,
+   "estimatedEPS": 0.92,
+   "surprise": 0.65,
+   "surprisePercentage": 70.6522
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2020-09-30",
+   "reportedDate": "2020-10-20",
+   "reportedEPS": 1.5,
+   "estimatedEPS": 1.29,
+   "surprise": 0.21,
+   "surprisePercentage": 16.2791
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2020-12-31",
+   "reportedDate": "2021-01-26",
+   "reportedEPS": 1.86,
+   "estimatedEPS": 1.34,
+   "surprise": 0.52,
+   "surprisePercentage": 38.806
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2021-03-31",
+   "reportedDate": "2021-04-27",
+   "reportedEPS": 1.92,
+   "estimatedEPS": 1.61,
+   "surprise": 0.31,
+   "surprisePercentage": 19.2547
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2021-06-30",
+   "reportedDate": "2021-07-21",
+   "reportedEPS": 2.1,
+   "estimatedEPS": 1.85,
+   "surprise": 0.25,
+   "surprisePercentage": 13.5135
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2021-09-30",
+   "reportedDate": "2021-10-26",
+   "reportedEPS": 2.12,
+   "estimatedEPS": 2.09,
+   "surprise": 0.03,
+   "surprisePercentage": 1.4354
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2021-12-31",
+   "reportedDate": "2022-01-25",
+   "reportedEPS": 2.33,
+   "estimatedEPS": 1.96,
+   "surprise": 0.37,
+   "surprisePercentage": 18.8776
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2022-03-31",
+   "reportedDate": "2022-04-26",
+   "reportedEPS": 2.35,
+   "estimatedEPS": 2.17,
+   "surprise": 0.18,
+   "surprisePercentage": 8.2949
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2022-06-30",
+   "reportedDate": "2022-07-26",
+   "reportedEPS": 2.52,
+   "estimatedEPS": 2.15,
+   "surprise": 0.37,
+   "surprisePercentage": 17.2093
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2022-09-30",
+   "reportedDate": "2022-10-25",
+   "reportedEPS": 2.56,
+   "estimatedEPS": 2.42,
+   "surprise": 0.14,
+   "surprisePercentage": 5.7851
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2022-12-31",
+   "reportedDate": "2023-01-24",
+   "reportedEPS": 2.19,
+   "estimatedEPS": 2.03,
+   "surprise": 0.16,
+   "surprisePercentage": 7.8818
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2023-03-31",
+   "reportedDate": "2023-04-25",
+   "reportedEPS": 1.85,
+   "estimatedEPS": 1.8,
+   "surprise": 0.05,
+   "surprisePercentage": 2.7778
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2023-06-30",
+   "reportedDate": "2023-07-25",
+   "reportedEPS": 1.87,
+   "estimatedEPS": 1.77,
+   "surprise": 0.1,
+   "surprisePercentage": 5.6497
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2023-09-30",
+   "reportedDate": "2023-10-24",
+   "reportedEPS": 1.85,
+   "estimatedEPS": 1.84,
+   "surprise": 0.01,
+   "surprisePercentage": 0.5435
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2023-12-31",
+   "reportedDate": "2024-01-23",
+   "reportedEPS": 1.49,
+   "estimatedEPS": 1.47,
+   "surprise": 0.02,
+   "surprisePercentage": 1.3605
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2024-03-31",
+   "reportedDate": "2024-04-23",
+   "reportedEPS": 1.2,
+   "estimatedEPS": 1.07,
+   "surprise": 0.13,
+   "surprisePercentage": 12.1495
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2024-06-30",
+   "reportedDate": "2024-07-23",
+   "reportedEPS": 1.17,
+   "estimatedEPS": 1.19,
+   "surprise": -0.02,
+   "surprisePercentage": -1.6807
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2024-09-30",
+   "reportedDate": "2024-10-22",
+   "reportedEPS": 1.44,
+   "estimatedEPS": 1.41,
+   "surprise": 0.03,
+   "surprisePercentage": 2.1277
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2024-12-31",
+   "reportedDate": "2025-01-23",
+   "reportedEPS": 1.3,
+   "estimatedEPS": 1.2,
+   "surprise": 0.1,
+   "surprisePercentage": 8.3333
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2025-03-31",
+   "reportedDate": "2025-04-23",
+   "reportedEPS": 1.28,
+   "estimatedEPS": 1.1,
+   "surprise": 0.18,
+   "surprisePercentage": 16.3636
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2025-06-30",
+   "reportedDate": "2025-07-22",
+   "reportedEPS": 1.41,
+   "estimatedEPS": 1.33,
+   "surprise": 0.08,
+   "surprisePercentage": 6.015
+  },
+  {
+   "ticker": "TXN",
+   "fiscalDateEnding": "2025-09-30",
+   "reportedDate": "2025-10-21",
+   "reportedEPS": 1.57,
+   "estimatedEPS": 1.49,
+   "surprise": 0.08,
+   "surprisePercentage": 5.3691
+  }
+ ],
+ "modeling_authorized": false,
+ "not_computed": {
+  "sue": false,
+  "information_price_gap": false,
+  "post_earnings_drift": false,
+  "bootstrap": false,
+  "coefficients": false,
+  "portfolio_returns": false,
+  "trades": false
+ },
+ "returns_or_prices_touched": false,
+ "later_xbrl_used_to_overwrite_either_source": false
+}
