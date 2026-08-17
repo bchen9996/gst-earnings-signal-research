@@ -7,5 +7,3 @@ __pycache__/
 
 # Local Claude Code session config (permission allowlist etc.), not project content.
 .claude/
-
-Live Signal Engine/Attention_Activity_Mismatch/spy_daily_v1.0.csv
