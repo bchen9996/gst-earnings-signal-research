@@ -1,0 +1,9 @@
+ticker,investor_query,geo,gprop,category,frequency,consumer_query_source,consumer_query_as_used,task_spec_consumer_query,query_string_differs_from_task_spec
+SBUX,SBUX stock,US,web,0,weekly,REUSED_FROM_PR27,Starbucks,Starbucks,False
+MCD,MCD stock,US,web,0,weekly,REUSED_FROM_PR27,McDonald's,McDonald's,False
+CMG,CMG stock,US,web,0,weekly,REUSED_FROM_PR27,Chipotle Mexican Grill,Chipotle,True
+DPZ,DPZ stock,US,web,0,weekly,REUSED_FROM_PR27,Domino's Pizza,Domino's Pizza,False
+WING,WING stock,US,web,0,weekly,REUSED_FROM_PR27,Wingstop,Wingstop,False
+TXRH,TXRH stock,US,web,0,weekly,REUSED_FROM_PR27,Texas Roadhouse,Texas Roadhouse,False
+BROS,BROS stock,US,web,0,weekly,REUSED_FROM_PR27,Dutch Bros Coffee,Dutch Bros,True
+CAVA,CAVA stock,US,web,0,weekly,REUSED_FROM_PR27,CAVA restaurant,CAVA restaurant,False

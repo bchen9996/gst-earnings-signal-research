@@ -1,0 +1,278 @@
+{
+ "artifact": "RESTAURANT_SEARCH_PILOT_RESULTS",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "hyp01_confirmation": false,
+ "prospective_collection": false,
+ "targets_direction": false,
+ "target": "magnitude (large-move indicator)",
+ "frozen_queries": [
+  {
+   "ticker": "SBUX",
+   "investor_query": "SBUX stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "Starbucks",
+   "task_spec_consumer_query": "Starbucks",
+   "query_string_differs_from_task_spec": false
+  },
+  {
+   "ticker": "MCD",
+   "investor_query": "MCD stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "McDonald's",
+   "task_spec_consumer_query": "McDonald's",
+   "query_string_differs_from_task_spec": false
+  },
+  {
+   "ticker": "CMG",
+   "investor_query": "CMG stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "Chipotle Mexican Grill",
+   "task_spec_consumer_query": "Chipotle",
+   "query_string_differs_from_task_spec": true
+  },
+  {
+   "ticker": "DPZ",
+   "investor_query": "DPZ stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "Domino's Pizza",
+   "task_spec_consumer_query": "Domino's Pizza",
+   "query_string_differs_from_task_spec": false
+  },
+  {
+   "ticker": "WING",
+   "investor_query": "WING stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "Wingstop",
+   "task_spec_consumer_query": "Wingstop",
+   "query_string_differs_from_task_spec": false
+  },
+  {
+   "ticker": "TXRH",
+   "investor_query": "TXRH stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "Texas Roadhouse",
+   "task_spec_consumer_query": "Texas Roadhouse",
+   "query_string_differs_from_task_spec": false
+  },
+  {
+   "ticker": "BROS",
+   "investor_query": "BROS stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "Dutch Bros Coffee",
+   "task_spec_consumer_query": "Dutch Bros",
+   "query_string_differs_from_task_spec": true
+  },
+  {
+   "ticker": "CAVA",
+   "investor_query": "CAVA stock",
+   "geo": "US",
+   "gprop": "web",
+   "category": 0,
+   "frequency": "weekly",
+   "consumer_query_source": "REUSED_FROM_PR27",
+   "consumer_query_as_used": "CAVA restaurant",
+   "task_spec_consumer_query": "CAVA restaurant",
+   "query_string_differs_from_task_spec": false
+  }
+ ],
+ "unavailable_tickers": [],
+ "overlapping_gst_spike_window_used": false,
+ "search_transformation": "robust z: (x - median52) / (1.4826 * MAD52); one fixed transformation",
+ "stitching_note": "weekly resolution requires windows under ~5 years; two overlapping sub-5-year pulls were stitched on the overlap median ratio, a fixed procedure declared before outcomes",
+ "regularization_grid": {
+  "logistic_C": [
+   0.1,
+   1.0,
+   10.0
+  ],
+  "ridge_alpha": [
+   0.1,
+   1.0,
+   10.0
+  ],
+  "selected": "inside each training fold only"
+ },
+ "options_history": "OPTIONS_HISTORY_UNAVAILABLE",
+ "options_history_detail": "no per-event pre-announcement implied move exists for these tickers in the repository (the committed IV files cover one ticker and are keyed on the forbidden GST spike window), and no authenticated options provider is configured. Current options data was NOT substituted and no implied move was reconstructed from realized returns.",
+ "leakage_assertion": {
+  "checks": 353,
+  "violations": 0,
+  "passed": true
+ },
+ "sample": {
+  "tickers_usable": [
+   "BROS",
+   "CAVA",
+   "CMG",
+   "DPZ",
+   "MCD",
+   "SBUX",
+   "TXRH",
+   "WING"
+  ],
+  "events_built": 210,
+  "events_complete": 122,
+  "by_ticker": {
+   "SBUX": 19,
+   "WING": 19,
+   "DPZ": 18,
+   "CMG": 18,
+   "MCD": 18,
+   "BROS": 17,
+   "TXRH": 7,
+   "CAVA": 6
+  },
+  "date_range": [
+   "2021-07-20",
+   "2025-11-06"
+  ],
+  "timing_counts": {
+   "AMC": 63,
+   "BMO": 59
+  },
+  "dropped": 0,
+  "drop_reasons": {}
+ },
+ "out_of_sample": {
+  "n_events": 82,
+  "large_move_rate": 0.2439,
+  "tickers": 8
+ },
+ "models": {
+  "A": {
+   "n": 82,
+   "brier": 0.18454,
+   "log_loss": 0.55588,
+   "auc": 0.4665,
+   "accuracy_at_0.5": 0.7561
+  },
+  "B": {
+   "n": 82,
+   "brier": 0.20211,
+   "log_loss": 0.6269,
+   "auc": 0.646,
+   "accuracy_at_0.5": 0.6951
+  },
+  "C": {
+   "n": 82,
+   "brier": 0.23665,
+   "log_loss": 0.81574,
+   "auc": 0.6177,
+   "accuracy_at_0.5": 0.6951
+  },
+  "D": {
+   "n": 82,
+   "brier": 0.24739,
+   "log_loss": 0.90235,
+   "auc": 0.6427,
+   "accuracy_at_0.5": 0.6463
+  }
+ },
+ "continuous_mae_abs_move_pp": {
+  "B": 5.4534,
+  "C": 5.679,
+  "D": 5.8543
+ },
+ "top_quintile_large_move_rate": {
+  "B": {
+   "n": 17,
+   "rate": 0.3529,
+   "lift_vs_base": 1.4471
+  },
+  "C": {
+   "n": 17,
+   "rate": 0.2941,
+   "lift_vs_base": 1.2059
+  },
+  "D": {
+   "n": 17,
+   "rate": 0.2353,
+   "lift_vs_base": 0.9647
+  }
+ },
+ "calibration_D": [
+  {
+   "bin": 1,
+   "n": 21,
+   "mean_predicted": 0.0032,
+   "observed_rate": 0.0952
+  },
+  {
+   "bin": 2,
+   "n": 20,
+   "mean_predicted": 0.0594,
+   "observed_rate": 0.2
+  },
+  {
+   "bin": 3,
+   "n": 20,
+   "mean_predicted": 0.2614,
+   "observed_rate": 0.45
+  },
+  {
+   "bin": 4,
+   "n": 21,
+   "mean_predicted": 0.7549,
+   "observed_rate": 0.2381
+  }
+ ],
+ "incremental_C_vs_D": {
+  "definition": "Brier loss(C) - Brier loss(D); positive means product demand helped",
+  "raw_mean": -0.010745,
+  "raw_ci95": [
+   -0.041115,
+   0.019625
+  ],
+  "pct_events_D_beats_C": 59.76,
+  "clustered": {
+   "vcov": "CR2 (BRL)",
+   "cluster_unit": "ticker",
+   "n_clusters": 8,
+   "mean": -0.010745,
+   "cr2_se": 0.02501,
+   "satterthwaite_df": 6.543,
+   "t_stat": -0.43,
+   "p_value": 0.68126,
+   "ci95": [
+    -0.070734,
+    0.049243
+   ]
+  }
+ },
+ "decision_label": "NO_INCREMENTAL_SEARCH_VALUE",
+ "label_basis": {
+  "D_beats_C_on_pooled_brier": false,
+  "clustered_interval_supports_positive": false,
+  "C_beats_B_on_pooled_brier": false,
+  "note": "secondary metrics alone cannot trigger the positive label"
+ }
+}
