@@ -1,0 +1,874 @@
+{
+ "artifact": "SEMICONDUCTOR_SURPRISE_TEMPORAL_REPLICATION_RESULTS",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "test_nature": "RETROSPECTIVE TEMPORAL REPLICATION motivated by PR #34's suggestive but gate-failing result. NOT a prospectively registered independent replication.",
+ "terminal_replication": true,
+ "third_replication_proposed": false,
+ "is_gst_test": false,
+ "surprise_construct": "VENDOR_DEFINED_REPORTED_EPS_SURPRISE",
+ "primary_surprise_field": "surprisePercentage",
+ "point_in_time_provenance": "POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED",
+ "not_claimed": [
+  "GAAP surprise",
+  "SEC-validated surprise",
+  "guaranteed contemporaneous consensus",
+  "preregistered evidence",
+  "investable signal"
+ ],
+ "universe": [
+  "NVDA",
+  "AMD",
+  "INTC",
+  "QCOM",
+  "AVGO",
+  "MU",
+  "TXN",
+  "AMAT",
+  "LRCX",
+  "KLAC"
+ ],
+ "benchmark": "SMH",
+ "train_start": "2004-01-01",
+ "oos_window": [
+  "2010-01-01",
+  "2017-12-31"
+ ],
+ "folds": [
+  [
+   [
+    2004,
+    2009
+   ],
+   2010
+  ],
+  [
+   [
+    2004,
+    2010
+   ],
+   2011
+  ],
+  [
+   [
+    2004,
+    2011
+   ],
+   2012
+  ],
+  [
+   [
+    2004,
+    2012
+   ],
+   2013
+  ],
+  [
+   [
+    2004,
+    2013
+   ],
+   2014
+  ],
+  [
+   [
+    2004,
+    2014
+   ],
+   2015
+  ],
+  [
+   [
+    2004,
+    2015
+   ],
+   2016
+  ],
+  [
+   [
+    2004,
+    2016
+   ],
+   2017
+  ]
+ ],
+ "reused_from_pr34": {
+  "module": "tools/run_semiconductor_surprise_absorption_v3.py",
+  "source_edited": false,
+  "rebound_globals": [
+   "FOLDS",
+   "PRICE_CACHE"
+  ],
+  "calendar_bounds_amendment": {
+   "module": "gst_market_response.exchange_calendar",
+   "source_edited": false,
+   "calendar": "XNYS_exchange_calendars_v4.13.2",
+   "start": "2003-01-01",
+   "reason": "the package default XNYS instance begins 2006-08-17 and raises DateOutOfBounds for 2004-2006 acceptance dates",
+   "made_before_any_outcome_opened": true
+  },
+  "alpha_grid": [
+   0.0,
+   0.1,
+   1.0,
+   10.0
+  ],
+  "bootstrap": {
+   "draws": 2000,
+   "block_days": 28,
+   "seed": 20260817
+  },
+  "horizons": [
+   5,
+   20
+  ],
+  "cost_bps_round_trip": 10.0
+ },
+ "sec_identity": {
+  "NVDA": {
+   "cik": 1045810,
+   "entity_name": "NVIDIA CORP",
+   "former_names": [
+    "NVIDIA CORP/CA"
+   ],
+   "archived_submission_files": [
+    "CIK0001045810-submissions-001.json"
+   ],
+   "earliest_filing_under_this_cik": "1998-03-06",
+   "filings_before_2018_under_this_cik": 1221,
+   "resolved": true,
+   "reason": null
+  },
+  "AMD": {
+   "cik": 2488,
+   "entity_name": "ADVANCED MICRO DEVICES INC",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000002488-submissions-001.json",
+    "CIK0000002488-submissions-002.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-01-27",
+   "filings_before_2018_under_this_cik": 2334,
+   "resolved": true,
+   "reason": null
+  },
+  "INTC": {
+   "cik": 50863,
+   "entity_name": "INTEL CORP",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000050863-submissions-001.json",
+    "CIK0000050863-submissions-002.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-02-10",
+   "filings_before_2018_under_this_cik": 2728,
+   "resolved": true,
+   "reason": null
+  },
+  "QCOM": {
+   "cik": 804328,
+   "entity_name": "QUALCOMM INC/DE",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000804328-submissions-001.json",
+    "CIK0000804328-submissions-002.json",
+    "CIK0000804328-submissions-003.json"
+   ],
+   "earliest_filing_under_this_cik": "1995-02-08",
+   "filings_before_2018_under_this_cik": 3894,
+   "resolved": true,
+   "reason": null
+  },
+  "AVGO": {
+   "cik": 1730168,
+   "entity_name": "Broadcom Inc.",
+   "former_names": [
+    "Broadcom Ltd"
+   ],
+   "archived_submission_files": [],
+   "earliest_filing_under_this_cik": "2018-02-06",
+   "filings_before_2018_under_this_cik": 0,
+   "resolved": false,
+   "reason": "current CIK carries no pre-2018 filing history; the historical issuer is a predecessor entity not reachable from the authoritative ticker->CIK map. Records EXCLUDED, never replaced."
+  },
+  "MU": {
+   "cik": 723125,
+   "entity_name": "MICRON TECHNOLOGY INC",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000723125-submissions-001.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-01-06",
+   "filings_before_2018_under_this_cik": 1830,
+   "resolved": true,
+   "reason": null
+  },
+  "TXN": {
+   "cik": 97476,
+   "entity_name": "TEXAS INSTRUMENTS INC",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000097476-submissions-001.json",
+    "CIK0000097476-submissions-002.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-01-10",
+   "filings_before_2018_under_this_cik": 2320,
+   "resolved": true,
+   "reason": null
+  },
+  "AMAT": {
+   "cik": 6951,
+   "entity_name": "APPLIED MATERIALS INC /DE",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000006951-submissions-001.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-01-06",
+   "filings_before_2018_under_this_cik": 1537,
+   "resolved": true,
+   "reason": null
+  },
+  "LRCX": {
+   "cik": 707549,
+   "entity_name": "LAM RESEARCH CORP",
+   "former_names": [],
+   "archived_submission_files": [
+    "CIK0000707549-submissions-001.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-05-06",
+   "filings_before_2018_under_this_cik": 1299,
+   "resolved": true,
+   "reason": null
+  },
+  "KLAC": {
+   "cik": 319201,
+   "entity_name": "KLA CORP",
+   "former_names": [
+    "KLA TENCOR CORP",
+    "KLA INSTRUMENTS CORP"
+   ],
+   "archived_submission_files": [
+    "CIK0000319201-submissions-001.json"
+   ],
+   "earliest_filing_under_this_cik": "1994-01-06",
+   "filings_before_2018_under_this_cik": 1669,
+   "resolved": true,
+   "reason": null
+  }
+ },
+ "unresolved_historical_identity": [
+  "AVGO"
+ ],
+ "item_202_effective_date": "2004-08-23",
+ "item_202_note": "SEC Item 2.02 came into force with the 8-K restructuring effective 2004-08-23. Earlier earnings releases carry a different item number and cannot match under the unchanged crosswalk. Those events fall entirely inside the training window and are excluded by the existing rule, not a new one.",
+ "provider_records": [
+  {
+   "ticker": "NVDA",
+   "records_2004_2017": 55
+  },
+  {
+   "ticker": "AMD",
+   "records_2004_2017": 56
+  },
+  {
+   "ticker": "INTC",
+   "records_2004_2017": 56
+  },
+  {
+   "ticker": "QCOM",
+   "records_2004_2017": 56
+  },
+  {
+   "ticker": "AVGO",
+   "records_2004_2017": 33
+  },
+  {
+   "ticker": "MU",
+   "records_2004_2017": 56
+  },
+  {
+   "ticker": "TXN",
+   "records_2004_2017": 56
+  },
+  {
+   "ticker": "AMAT",
+   "records_2004_2017": 55
+  },
+  {
+   "ticker": "LRCX",
+   "records_2004_2017": 54
+  },
+  {
+   "ticker": "KLAC",
+   "records_2004_2017": 54
+  }
+ ],
+ "provider_records_2004_2017": 531,
+ "sec_item_202_events_2004_2017": 522,
+ "crosswalk_excluded": {
+  "no_match": 68,
+  "ambiguous": 1
+ },
+ "uniquely_matched": 462,
+ "timing_categories": {
+  "after_close_next_session": 456,
+  "before_open_same_session": 6
+ },
+ "price_fetch": [
+  {
+   "ticker": "NVDA",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": [
+    "2006-04-07:2:1",
+    "2007-09-11:3:2"
+   ]
+  },
+  {
+   "ticker": "AMD",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "INTC",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "QCOM",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": [
+    "2004-08-16:2:1"
+   ]
+  },
+  {
+   "ticker": "AVGO",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 2220,
+   "splits_reported": []
+  },
+  {
+   "ticker": "MU",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "TXN",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "AMAT",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "LRCX",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "KLAC",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  },
+  {
+   "ticker": "SMH",
+   "source": "yahoo_adjclose_urllib",
+   "adjustment": "split_and_dividend",
+   "rows": 3880,
+   "splits_reported": []
+  }
+ ],
+ "price_audit": [
+  {
+   "ticker": "NVDA",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "AMD",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 1
+  },
+  {
+   "ticker": "INTC",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "QCOM",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "AVGO",
+   "rows": 2220,
+   "first": "2009-08-06",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "MU",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "TXN",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "AMAT",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "LRCX",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "KLAC",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "SMH",
+   "rows": 3880,
+   "first": "2003-01-02",
+   "last": "2018-05-31",
+   "abs_daily_return_ge_0_40": 0
+  }
+ ],
+ "price_discontinuities": [
+  {
+   "ticker": "AMD",
+   "date": "2016-04-22",
+   "daily_return": 0.5229,
+   "next_day_return": -0.1353,
+   "diagnosis": "genuine move: no offsetting reversal",
+   "action": "reported, not deleted"
+  }
+ ],
+ "dropped": {
+  "missing_prices": 0
+ },
+ "sample_gate": {
+  "tickers": {
+   "value": 9,
+   "required": 8,
+   "passed": true
+  },
+  "events_2004_2017": {
+   "value": 462,
+   "required": 200,
+   "passed": true
+  },
+  "oos_events": {
+   "value": 283,
+   "required": 160,
+   "passed": true
+  },
+  "oos_per_year": {
+   "value": {
+    "2010": 35,
+    "2011": 35,
+    "2012": 36,
+    "2013": 34,
+    "2014": 35,
+    "2015": 37,
+    "2016": 35,
+    "2017": 36
+   },
+   "required": 15,
+   "passed": true
+  },
+  "duplicate_identities": {
+   "value": 0,
+   "required": 0,
+   "passed": true
+  },
+  "train_test_identity_overlap": {
+   "value": 0,
+   "required": 0,
+   "passed": true
+  },
+  "passed": true
+ },
+ "events_by_ticker": {
+  "NVDA": 51,
+  "AMD": 52,
+  "INTC": 51,
+  "QCOM": 52,
+  "AVGO": 0,
+  "MU": 53,
+  "TXN": 53,
+  "AMAT": 51,
+  "LRCX": 49,
+  "KLAC": 50
+ },
+ "events_by_year": {
+  "2004": 10,
+  "2005": 36,
+  "2006": 33,
+  "2007": 33,
+  "2008": 33,
+  "2009": 34,
+  "2010": 35,
+  "2011": 35,
+  "2012": 36,
+  "2013": 34,
+  "2014": 35,
+  "2015": 37,
+  "2016": 35,
+  "2017": 36
+ },
+ "stage1_replication": {
+  "model_b": "intercept + ticker indicators",
+  "model_c": "model B + transformed vendor-defined surprise",
+  "n_oos": 283,
+  "mae_B": 0.044226,
+  "mae_C": 0.043246,
+  "mae_improvement_pct": 2.216,
+  "rmse_B": 0.068302,
+  "rmse_C": 0.066776,
+  "oos_r2_augmented": 0.035095,
+  "per_year": {
+   "2010": {
+    "n": 35,
+    "mae_B": 0.033309,
+    "mae_C": 0.032044,
+    "improvement_pct": 3.7999,
+    "augmented_better": true
+   },
+   "2011": {
+    "n": 35,
+    "mae_B": 0.045103,
+    "mae_C": 0.041977,
+    "improvement_pct": 6.9311,
+    "augmented_better": true
+   },
+   "2012": {
+    "n": 36,
+    "mae_B": 0.02854,
+    "mae_C": 0.026866,
+    "improvement_pct": 5.867,
+    "augmented_better": true
+   },
+   "2013": {
+    "n": 34,
+    "mae_B": 0.038273,
+    "mae_C": 0.038701,
+    "improvement_pct": -1.1181,
+    "augmented_better": false
+   },
+   "2014": {
+    "n": 35,
+    "mae_B": 0.048191,
+    "mae_C": 0.048786,
+    "improvement_pct": -1.2347,
+    "augmented_better": false
+   },
+   "2015": {
+    "n": 37,
+    "mae_B": 0.04935,
+    "mae_C": 0.049325,
+    "improvement_pct": 0.0504,
+    "augmented_better": true
+   },
+   "2016": {
+    "n": 35,
+    "mae_B": 0.06508,
+    "mae_C": 0.065377,
+    "improvement_pct": -0.4551,
+    "augmented_better": false
+   },
+   "2017": {
+    "n": 36,
+    "mae_B": 0.0459,
+    "mae_C": 0.042895,
+    "improvement_pct": 6.5471,
+    "augmented_better": true
+   }
+  },
+  "years_augmented_better": 5,
+  "alphas_selected": {
+   "B": [
+    0.0,
+    10.0
+   ],
+   "C": [
+    0.0,
+    1.0,
+    10.0
+   ]
+  },
+  "bootstrap_mae_diff": {
+   "draws": 2000,
+   "block_days": 28,
+   "seed": 20260817,
+   "blocks": 92,
+   "mean": 0.000981137316655823,
+   "ci95": [
+    -5.6078208258370815e-05,
+    0.002134179939098787
+   ],
+   "entirely_above_zero": false
+  },
+  "oos_spearman_surprise_vs_initial_reaction": 0.21692,
+  "oos_spearman_p": 0.000236,
+  "mean_coef_on_transformed_surprise": 0.012161,
+  "evaluable_years": 8,
+  "years_required_two_thirds": 6,
+  "gates": {
+   "mae_improvement_at_least_1pct": true,
+   "bootstrap_ci_entirely_above_zero": false,
+   "c_beats_b_in_two_thirds_of_years": false,
+   "expected_positive_sign": true,
+   "passed": false
+  }
+ },
+ "secondary_reporting": {
+  "note": "Descriptive. Defines no gate and replaces no primary result.",
+  "by_ticker": {
+   "AMAT": {
+    "n": 32,
+    "mae_B": 0.025028,
+    "mae_C": 0.025896,
+    "improvement_pct": -3.4682,
+    "c_better": false,
+    "spearman": 0.00202,
+    "mean_ar0_pct": 1.1443
+   },
+   "AMD": {
+    "n": 31,
+    "mae_B": 0.097718,
+    "mae_C": 0.092872,
+    "improvement_pct": 4.9593,
+    "c_better": true,
+    "spearman": 0.2875,
+    "mean_ar0_pct": -0.6226
+   },
+   "INTC": {
+    "n": 31,
+    "mae_B": 0.022547,
+    "mae_C": 0.022637,
+    "improvement_pct": -0.4019,
+    "c_better": false,
+    "spearman": 0.11815,
+    "mean_ar0_pct": -0.0783
+   },
+   "KLAC": {
+    "n": 32,
+    "mae_B": 0.03177,
+    "mae_C": 0.032207,
+    "improvement_pct": -1.3734,
+    "c_better": false,
+    "spearman": 0.02989,
+    "mean_ar0_pct": 0.1575
+   },
+   "LRCX": {
+    "n": 31,
+    "mae_B": 0.032575,
+    "mae_C": 0.031048,
+    "improvement_pct": 4.6871,
+    "c_better": true,
+    "spearman": 0.35298,
+    "mean_ar0_pct": 1.1458
+   },
+   "MU": {
+    "n": 31,
+    "mae_B": 0.059593,
+    "mae_C": 0.055977,
+    "improvement_pct": 6.0678,
+    "c_better": true,
+    "spearman": 0.40911,
+    "mean_ar0_pct": -0.6249
+   },
+   "NVDA": {
+    "n": 31,
+    "mae_B": 0.06555,
+    "mae_C": 0.06576,
+    "improvement_pct": -0.3198,
+    "c_better": false,
+    "spearman": 0.14964,
+    "mean_ar0_pct": 3.0219
+   },
+   "QCOM": {
+    "n": 32,
+    "mae_B": 0.047961,
+    "mae_C": 0.047304,
+    "improvement_pct": 1.3693,
+    "c_better": true,
+    "spearman": 0.2711,
+    "mean_ar0_pct": -1.6678
+   },
+   "TXN": {
+    "n": 32,
+    "mae_B": 0.01707,
+    "mae_C": 0.017141,
+    "improvement_pct": -0.4152,
+    "c_better": false,
+    "spearman": 0.15086,
+    "mean_ar0_pct": 0.3296
+   }
+  },
+  "by_year": {
+   "2010": {
+    "n": 35,
+    "mae_B": 0.033309,
+    "mae_C": 0.032044,
+    "improvement_pct": 3.7999,
+    "c_better": true,
+    "spearman": 0.08408,
+    "mean_ar0_pct": -0.9873
+   },
+   "2011": {
+    "n": 35,
+    "mae_B": 0.045103,
+    "mae_C": 0.041977,
+    "improvement_pct": 6.9311,
+    "c_better": true,
+    "spearman": 0.35903,
+    "mean_ar0_pct": 0.0082
+   },
+   "2012": {
+    "n": 36,
+    "mae_B": 0.02854,
+    "mae_C": 0.026866,
+    "improvement_pct": 5.867,
+    "c_better": true,
+    "spearman": 0.29069,
+    "mean_ar0_pct": -1.1441
+   },
+   "2013": {
+    "n": 34,
+    "mae_B": 0.038273,
+    "mae_C": 0.038701,
+    "improvement_pct": -1.1181,
+    "c_better": false,
+    "spearman": 0.03776,
+    "mean_ar0_pct": -0.0459
+   },
+   "2014": {
+    "n": 35,
+    "mae_B": 0.048191,
+    "mae_C": 0.048786,
+    "improvement_pct": -1.2347,
+    "c_better": false,
+    "spearman": 0.25363,
+    "mean_ar0_pct": 0.865
+   },
+   "2015": {
+    "n": 37,
+    "mae_B": 0.04935,
+    "mae_C": 0.049325,
+    "improvement_pct": 0.0504,
+    "c_better": true,
+    "spearman": 0.42841,
+    "mean_ar0_pct": 0.0575
+   },
+   "2016": {
+    "n": 35,
+    "mae_B": 0.06508,
+    "mae_C": 0.065377,
+    "improvement_pct": -0.4551,
+    "c_better": false,
+    "spearman": -0.06143,
+    "mean_ar0_pct": 3.7193
+   },
+   "2017": {
+    "n": 36,
+    "mae_B": 0.0459,
+    "mae_C": 0.042895,
+    "improvement_pct": 6.5471,
+    "c_better": true,
+    "spearman": 0.39333,
+    "mean_ar0_pct": 0.0381
+   }
+  },
+  "excluding_fiscal_year_end_quarters": {
+   "n": 211,
+   "mae_B": 0.044631,
+   "mae_C": 0.043581,
+   "improvement_pct": 2.3529,
+   "c_better": true,
+   "spearman": 0.25993,
+   "mean_ar0_pct": 0.3458
+  },
+  "fiscal_year_end_quarters_excluded": 72,
+  "sec_validated_overlap_only": {
+   "status": "NOT_APPLICABLE",
+   "reason": "the SEC-validated parser values exist only for the 2018-2025 extraction sample; none overlaps the 2010-2017 replication window"
+  },
+  "twenty_session_return": {
+   "status": "NOT_REPORTED",
+   "reason": "Stage 2 is not permitted unless the replication gate passes"
+  }
+ },
+ "pr34_comparison": {
+  "note": "Secondary comparison, produced AFTER the replication result was finalized. The two samples are NEVER pooled and this comparison cannot rescue or alter the replication gate.",
+  "pr34_window": "2023-2025",
+  "pr34_n_oos": 116,
+  "pr34_mae_improvement_pct": 2.482,
+  "pr34_spearman": 0.13515,
+  "pr34_bootstrap_ci": [
+   -0.0007271998959694952,
+   0.0031700017619433383
+  ],
+  "pr34_stage1_passed": false,
+  "replication_window": "2010-2017",
+  "replication_n_oos": 283,
+  "replication_mae_improvement_pct": 2.216,
+  "replication_spearman": 0.21692,
+  "replication_bootstrap_ci": [
+   -5.6078208258370815e-05,
+   0.002134179939098787
+  ],
+  "replication_stage1_passed": false,
+  "point_estimates_agree_in_sign": true,
+  "spearman_agrees_in_sign": true,
+  "pooled_to_change_decision": false
+ },
+ "decision_label": "TEMPORAL_REPLICATION_FAILS",
+ "stage2": "not run -- the temporal replication failed",
+ "trading": "not run -- the temporal replication failed",
+ "path_status": "STOPPED. No information-price gap, no Stage 2, no trading, no new specification, and NO THIRD REPLICATION IS PROPOSED."
+}
