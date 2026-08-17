@@ -1,6 +1,39 @@
 # Changelog
 
 
+## 2026-08-17 — Semiconductor EPS absorption: two residual corrections
+
+Closes the two residuals flagged when the extraction interpretation was corrected.
+
+**1. The runner no longer emits the superseded label.**
+`tools/run_semiconductor_eps_absorption.py` gained a `classify()` function that recomputes the two
+current classification fields from the already-computed gate values and writes them into
+`extraction_validation_v1.0.json`:
+
+- `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+- `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
+
+`EXTRACTION_NOT_RELIABLE` is never emitted as a current classification. It survives only as the
+`SUPERSEDED_LABEL` constant and in clearly-marked historical notes inside the frozen-design block.
+`classify()` loosens, reinterprets and re-scores nothing — it reports what the gates already say.
+
+The runner was **re-run** to regenerate its artifacts. `event_panel_v1.0.csv` and
+`provenance_v1.0.json` came back **byte-identical**, and `extraction_validation_v1.0.json` differs by
+exactly the two added fields. Every number is unchanged: 306 events, 299 located, 216 extracted,
+150 validated / 2 contradicted / 56 no-reference, reference_coverage 0.7037, conditional_precision
+0.9868, usable_event_coverage 0.2742, 82 usable events, 7 tickers, OOS 18/15/15.
+
+**2. The SEC response cache is now gitignored.**
+`Live Signal Engine/Semiconductor_EPS_Absorption/_cache/` was untracked but not ignored — the hazard
+that swept it into a commit before. It is now in `.gitignore`. The 548 cached files remain untracked
+and unstaged, and a repo-wide `git add -A` would now sweep in **zero** of them.
+
+Tests gained sections 17 and 18: a rerun reproduces the corrected classification, `classify()`
+returns the superseded label under no gate configuration, every mention of it in the runner is
+marked historical, no emitted field is assigned it, git genuinely ignores the cache path, no cache
+file is tracked or staged, and the committed artifacts in that directory are still tracked.
+
+
 ## 2026-08-17 — Structured earnings feasibility probe: STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT
 
 Outcome-blind data audit of the official Alpha Vantage `EARNINGS` endpoint, asking whether the

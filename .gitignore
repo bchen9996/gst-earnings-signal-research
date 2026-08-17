@@ -7,3 +7,7 @@ __pycache__/
 
 # Local Claude Code session config (permission allowlist etc.), not project content.
 .claude/
+
+# Raw SEC HTTP response cache for the semiconductor EPS work. Provider bodies only --
+# never project content, and previously swept into a commit by accident.
+Live Signal Engine/Semiconductor_EPS_Absorption/_cache/

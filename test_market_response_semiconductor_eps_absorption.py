@@ -378,6 +378,90 @@ ck("16n. prior numerical artifacts were not altered by the correction",
    and R["before_after"]["oos_events"]["after"] == 48
    and R["gates"]["tickers"]["value"] == 7)
 
+# ---- 17. the runner reproduces the corrected classification on a rerun ----
+import subprocess  # noqa: E402
+from run_semiconductor_eps_absorption import (  # noqa: E402
+    classify, GATE_DECISIONS, CHARACTERIZATIONS, SUPERSEDED_LABEL)
+
+GD, CH = classify(V["gates"], V["validated"], V["contradicted"])
+ck("17a. a rerun recomputes the corrected gate decision from the committed gates",
+   GD == "FAILED_EXTRACTION_QUALITY_GATE" == R["frozen_gate_decision"])
+ck("17b. a rerun recomputes the corrected characterization",
+   CH == "HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE"
+   == R["extraction_characterization"])
+ck("17c. the superseded label is not in either current vocabulary",
+   SUPERSEDED_LABEL not in GATE_DECISIONS and SUPERSEDED_LABEL not in CHARACTERIZATIONS)
+ck("17d. classify never returns the superseded label, on any gate configuration",
+   all(SUPERSEDED_LABEL not in classify(g, v, c)
+       for g in (V["gates"],
+                 {k: {**d, "passed": True} for k, d in V["gates"].items()},
+                 {k: {**d, "passed": False} for k, d in V["gates"].items()})
+       for v, c in ((150, 2), (0, 0), (10, 90))))
+ck("17e. a failing precision gate is characterised as low precision, not as coverage",
+   classify({**V["gates"],
+             "conditional_precision": {**V["gates"]["conditional_precision"],
+                                       "passed": False}}, 150, 2)[1]
+   == "LOW_CONDITIONAL_PRECISION")
+ck("17f. an all-passing configuration reports the passed gate decision",
+   classify({k: {**d, "passed": True} for k, d in V["gates"].items()}, 150, 2)
+   == ("PASSED_EXTRACTION_QUALITY_GATE",
+       "HIGH_CONDITIONAL_PRECISION_AND_SUFFICIENT_VERIFIED_COVERAGE"))
+ck("17g. no reference at all is characterised as data unavailable, not as low precision",
+   classify(V["gates"], 0, 0)[1] == "DATA_UNAVAILABLE")
+ck("17h. the emitted validation artifact carries both current fields",
+   V.get("frozen_gate_decision") in GATE_DECISIONS
+   and V.get("extraction_characterization") in CHARACTERIZATIONS)
+ck("17i. the runner emits both fields into the validation artifact",
+   '"frozen_gate_decision": gate_decision' in TOOL
+   and '"extraction_characterization": characterization' in TOOL)
+ck("17j. the runner no longer prints the superseded label as a current classification",
+   'print("STOP: EXTRACTION_NOT_RELIABLE' not in TOOL
+   and 'print("STOP: frozen_gate_decision:' in TOOL)
+LEAKED = [m.start() for m in re.finditer(SUPERSEDED_LABEL, TOOL)
+          if not re.search(r"HISTORICAL|SUPERSEDED|superseded|historical only",
+                           TOOL[max(0, m.start() - 220):m.end() + 220])]
+ck("17k. every mention of the superseded label in the runner is marked historical",
+   not LEAKED, f"unmarked at offsets {LEAKED}")
+ck("17l. the runner assigns the superseded label to no emitted field",
+   not re.search(r"(decision|label|classification|characterization)\s*[=:]\s*[\"']"
+                 + SUPERSEDED_LABEL, TOOL))
+
+# ---- 18. the SEC response cache cannot be swept into git ----
+GI = (ROOT / ".gitignore").read_text(encoding="utf-8")
+CACHE_PAT = "Live Signal Engine/Semiconductor_EPS_Absorption/_cache/"
+ck("18a. the cache path is listed in .gitignore",
+   CACHE_PAT in GI.replace("\\", "/"))
+
+
+def git(*a):
+    try:
+        r = subprocess.run(("git",) + a, cwd=ROOT, capture_output=True, text=True, timeout=60)
+        return r.returncode, r.stdout
+    except (OSError, subprocess.SubprocessError):
+        return None, ""
+
+
+rc, _ = git("rev-parse", "--is-inside-work-tree")
+if rc == 0:
+    code, _out = git("check-ignore", "-q", CACHE_PAT + "probe.json")
+    ck("18b. git actually ignores a file under the cache path", code == 0)
+    _rc, tracked = git("ls-files", "--", CACHE_PAT)
+    ck("18c. no cache file is tracked", tracked.strip() == "")
+    _rc, staged = git("diff", "--cached", "--name-only")
+    ck("18d. no cache file is staged",
+       not any("_cache/" in ln for ln in staged.splitlines()))
+    _rc, dry = git("add", "-An", "--", ".")
+    ck("18e. even a repo-wide add would sweep in zero cache files",
+       not any("_cache/" in ln for ln in dry.splitlines()))
+else:
+    ck("18b. git available for cache-ignore verification", False, "git unavailable")
+ck("18f. the ignore rule is scoped to the cache, not to project content",
+   CACHE_PAT.endswith("_cache/")
+   and "Semiconductor_EPS_Absorption/event_panel_v1.0.csv" not in GI)
+ck("18g. the committed artifacts under that directory are still tracked",
+   (OUT / "event_panel_v1.0.csv").exists()
+   and (OUT / "extraction_validation_v1.0.json").exists())
+
 print()
 if FAIL:
     print(f"{len(FAIL)} FAILURE(S): {FAIL}")

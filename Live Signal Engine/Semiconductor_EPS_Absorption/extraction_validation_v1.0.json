@@ -3,6 +3,8 @@
  "version": "1.0",
  "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
  "sector": "SEMICONDUCTORS",
+ "frozen_gate_decision": "FAILED_EXTRACTION_QUALITY_GATE",
+ "extraction_characterization": "HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE",
  "google_trends_used": false,
  "analyst_consensus_used": false,
  "later_xbrl_used_for_prediction": false,
