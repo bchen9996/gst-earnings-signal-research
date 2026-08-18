@@ -274,6 +274,100 @@ def test_6b_aggregate_disclosures_are_not_edges() -> None:
           f"got {len(edges)}")
 
 
+def test_6c_non_customer_percentages_are_rejected() -> None:
+    """VERBATIM false positives from the 2026-08-18 full-universe run.
+
+    Every one is a real "X% of revenue" sentence that has nothing to do with
+    a counterparty. The 5-ticker canary was too small to surface any of them;
+    the 27-ticker run produced six. Sub-threshold values were the tell --
+    ASC 280 only requires disclosure at ~10% or more, so a 1.3% or 4%
+    "concentration" cannot be one.
+    """
+    false_positives = {
+        "NFLX currency mix": (
+            "Currencies denominated in other than the U.S. dollar accounted "
+            "for 56% of revenue and 31% of operating expenses for the year "
+            "ended December 31, 2025."),
+        "ALB geography": (
+            "In 2025, net sales shipped to or within China represented 39% of "
+            "our total net sales."),
+        "CCL product mix": (
+            "Consolidated Passenger ticket revenues made up 65% of our 2025 "
+            "total revenues."),
+        "AVB segment mix": (
+            "Gross rental revenue provided by leased commercial space in our "
+            "portfolio represented 1.3% of our total revenue in 2025."),
+        "MCK foreign ops": (
+            "Our foreign operations represented approximately 4% of our "
+            "consolidated revenues in each of fiscal 2026 and fiscal 2025."),
+        "ROP functional currency": (
+            "Sales by our operating companies whose functional currency is not "
+            "the U.S. dollar represented 9% of our total net revenues."),
+    }
+    for label, text in false_positives.items():
+        edges, _ = _extract(text)
+        check(f"6c. no edge from the non-customer statistic: {label}", not edges,
+              f"got {[(e.named_counterparty, e.concentration_pct) for e in edges]}")
+
+    # 'China' must never be recorded as a counterparty -- it is a country.
+    edges, _ = _extract(false_positives["ALB geography"])
+    check("6c2. a country is never recorded as a named counterparty",
+          not any((e.named_counterparty or "") == "China" for e in edges))
+
+
+def test_6d_appositive_names_are_captured() -> None:
+    """VERBATIM from MCK's 2026 10-K. CVS was in the text and read as UNNAMED.
+
+    The name follows the role phrase rather than preceding it, so a purely
+    backward-looking scan matched 'our largest customer' as an unnamed
+    disclosure and discarded the name sitting right beside it.
+    """
+    text = ('Sales to our largest customer, CVS Health Corporation ("CVS"), '
+            "accounted for approximately 24% of our total consolidated "
+            "revenues in fiscal 2026.")
+    edges, _ = _extract(text)
+    named = [e for e in edges if e.counterparty_is_named]
+    check("6d. the appositive counterparty is captured", bool(named),
+          f"got {[(e.named_counterparty, e.concentration_pct) for e in edges]}")
+    if named:
+        check("6d2. and it is CVS, not the role phrase",
+              "CVS" in (named[0].named_counterparty or ""),
+              repr(named[0].named_counterparty))
+        check("6d3. with the right percentage", named[0].concentration_pct == 24.0)
+
+    # The aggregate in the SAME filing must still be rejected, including its
+    # parenthetical aside, which previously broke the tail match.
+    agg = ("During fiscal 2026, sales to our ten largest customers, including "
+           'group purchasing organizations ("GPOs") accounted for '
+           "approximately 73% of our total consolidated revenues.")
+    edges2, _ = _extract(agg)
+    check("6d4. the parenthetical-laden aggregate is still rejected", not edges2,
+          f"got {[(e.named_counterparty, e.concentration_pct) for e in edges2]}")
+
+    # The hardest real case, verbatim from MCK: an aggregate sentence with a
+    # TRAILING clause, immediately followed by a genuine named disclosure.
+    # The trailing 43% belongs to the ten largest customers, and CVS begins
+    # the NEXT sentence -- attributing 43% to CVS was a bug introduced by the
+    # appositive fix reaching forward across the boundary.
+    both = ("Sales to our ten largest customers, including group purchasing "
+            'organizations ("GPOs"), accounted for approximately 73% of total '
+            "consolidated revenues in fiscal 2026 and comprised approximately "
+            "43% of total trade accounts receivable at March 31, 2026. Sales "
+            'to our largest customer, CVS Health Corporation ("CVS"), '
+            "accounted for approximately 24% of our total consolidated revenues.")
+    edges3, _ = _extract(both)
+    pcts = sorted(e.concentration_pct for e in edges3)
+    check("6d5. the aggregate's 73% is rejected", 73.0 not in pcts, str(pcts))
+    check("6d6. the aggregate's TRAILING 43% clause is also rejected",
+          43.0 not in pcts, f"{pcts} -- 43% belongs to the ten largest, not to CVS")
+    check("6d7. only the genuine single-customer 24% survives", pcts == [24.0],
+          str(pcts))
+    named3 = [e for e in edges3 if e.counterparty_is_named]
+    check("6d8. and it is attributed to CVS",
+          len(named3) == 1 and "CVS" in (named3[0].named_counterparty or ""),
+          str([(e.named_counterparty, e.concentration_pct) for e in edges3]))
+
+
 def test_7_direction_inference() -> None:
     check("7a. supplier language infers supplier direction",
           infer_direction("our primary contract manufacturer and supplier of wafers")
@@ -291,8 +385,20 @@ def test_7_direction_inference() -> None:
 
 # ===================== 8. markup handling ================================
 def test_8_strip_markup() -> None:
+    """Markup normalisation only.
+
+    The fixture carries explicit counterparty role language because that is
+    what a real ASC 280 disclosure looks like. An earlier version used a bare
+    "Apple Inc. accounted for 22% of net revenues", which the extractor now
+    correctly REJECTS: a named entity plus a percentage, with no role framing
+    and no directed-trade construction, is genuinely ambiguous, and after the
+    2026-08-18 false-positive findings the conservative reading is the right
+    one. That made this test silently depend on the context rule rather than
+    on the markup handling it claims to exercise.
+    """
     raw = ("<html><head><style>.x{color:red}</style></head><body>"
-           "<p>Apple&nbsp;Inc. accounted for <b>22%</b> of net&nbsp;revenues.</p>"
+           "<p>Sales to our largest customer, Apple&nbsp;Inc., accounted for "
+           "<b>22%</b> of net&nbsp;revenues.</p>"
            "<script>var x=1;</script></body></html>")
     txt = strip_markup(raw)
     check("8a. tags are removed", "<p>" not in txt and "<b>" not in txt)
@@ -301,6 +407,13 @@ def test_8_strip_markup() -> None:
     check("8c. entities are unescaped and nbsp normalised", "Apple Inc." in txt)
     check("8d. the disclosure survives normalisation and still extracts",
           bool([e for e in _extract(txt)[0] if e.counterparty_is_named]))
+
+    # And the conservative rejection is itself asserted, so it cannot regress
+    # into over-matching without a test noticing.
+    bare = "Apple Inc. accounted for 22% of net revenues."
+    check("8e. a bare entity with NO role language is rejected as ambiguous",
+          not _extract(bare)[0],
+          "after the false-positive findings, ambiguity resolves to no-edge")
 
 
 # ===================== 9. coverage reporting =============================
@@ -375,6 +488,8 @@ if __name__ == "__main__":
     test_5_explicit_no_concentration_is_information()
     test_6_near_miss_text_produces_no_edge()
     test_6b_aggregate_disclosures_are_not_edges()
+    test_6c_non_customer_percentages_are_rejected()
+    test_6d_appositive_names_are_captured()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()

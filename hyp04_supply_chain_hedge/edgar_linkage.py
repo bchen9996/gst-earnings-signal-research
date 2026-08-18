@@ -163,7 +163,21 @@ AGGREGATE_TAIL = re.compile(
     r"(?:\d{1,3}\s+)?"
     r"(?:largest\s+|major\s+|significant\s+|principal\s+|key\s+)?"
     r"(?:customer|client|distributor|reseller)s"      # PLURAL only
+    r"(?:\s*,?\s*(?:including|such as|comprising)[^,]{0,60})?"  # parenthetical aside
     r"[,\s]*$", re.I)
+
+# APPOSITIVE naming: "our largest customer, CVS Health Corporation ("CVS"),"
+# The counterparty IS named, but it follows the role phrase rather than
+# preceding it, so a purely backward-looking scan reads "our largest customer"
+# as an unnamed disclosure and discards the name sitting right beside it.
+# Found on MCK in the 2026-08-18 run, where CVS was in the filing text and
+# recorded as UNNAMED.
+APPOSITIVE_NAME = re.compile(
+    r"(?:our|the|its)\s+(?:single\s+)?(?:largest|principal|primary|biggest|"
+    r"major|top)\s+(?:customer|client|distributor)\s*,\s*"
+    r"(?P<party>[A-Z][A-Za-z0-9.&'\-]*(?:\s+[A-Z][A-Za-z0-9.&'\-]*){0,5}"
+    r"(?:\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
+    r"\s*(?:\(|,)", re.I)
 
 # A disclosure explicitly stating there is NO concentration. Recorded, because
 # "we checked and there is nothing above 10%" is genuine information -- it is
@@ -196,6 +210,34 @@ _ABBREV = re.compile(
     r"Mr|Mrs|Ms|Dr|Jr|Sr|St|No|Nos|U\.S|Fig|Approx|[A-Z])\.$")
 
 
+# How far to look for a sentence boundary in either direction.
+SENTENCE_SPAN_CHARS = 400
+
+# An aggregate SUBJECT anywhere earlier in the same sentence governs every
+# clause in it. Unlike AGGREGATE_TAIL this is not anchored to the end, so it
+# catches trailing clauses: "...ten largest customers accounted for 73% ...
+# and comprised 43% of receivables" -- the 43% is equally aggregate.
+AGGREGATE_SUBJECT = re.compile(
+    r"\b(?:\d{1,3}|two|three|four|five|six|seven|eight|nine|ten|"
+    r"several|multiple|various|top|combined)\s+"
+    r"(?:\d{1,3}\s+)?"
+    r"(?:largest\s+|major\s+|significant\s+|principal\s+|key\s+)?"
+    r"(?:customer|client|distributor|reseller)s\b", re.I)
+
+
+def _first_sentence_break(window: str) -> int:
+    """Index of the first REAL sentence break, or -1. Mirror of the reverse scan."""
+    for i in range(len(window) - 1):
+        if window[i] not in ".;":
+            continue
+        if window[i + 1] not in " \t":
+            continue
+        if window[i] == "." and _ABBREV.search(window[:i + 1]):
+            continue
+        return i + 1
+    return -1
+
+
 def _last_sentence_break(window: str) -> int:
     """Index just past the last REAL sentence break, or -1 if there is none.
 
@@ -212,6 +254,53 @@ def _last_sentence_break(window: str) -> int:
         return i + 2
     return -1
 
+
+# POSITIVE requirement: the disclosure must actually be about a customer.
+#
+# Without this the extractor matched any "X% of revenue" sentence, and the
+# overwhelming majority of those in a 10-K are not customer concentrations at
+# all. The 2026-08-18 full-universe run produced these false positives, none
+# of which involve a counterparty:
+#
+#   NFLX 56%  "Currencies denominated in other than the U.S. dollar
+#              accounted for 56% of revenue"              -> currency mix
+#   ALB  39%  "net sales shipped to or within China
+#              represented 39% of our total net sales"    -> geography
+#   CCL  65%  "Passenger ticket revenues made up 65%"     -> product mix
+#   AVB  1.3% "leased commercial space ... 1.3%"          -> segment mix
+#   ROP  9%   "operating companies whose functional
+#              currency is not the U.S. dollar ... 9%"    -> currency mix
+#
+# Sub-threshold values were the tell: ASC 280 requires disclosure only at
+# ~10% or more, so a 1.3% or 4% "concentration" cannot be one.
+# Satisfied by EITHER counterparty ROLE language, OR a directed
+# sales-to / purchases-from construction naming an entity. Requiring the
+# literal word "customer" was too strict: "Sales to Dell Technologies Inc.
+# represented 13% of total revenues" is unambiguously a counterparty
+# disclosure and never uses it.
+COUNTERPARTY_ROLE = re.compile(
+    r"\b(?:customer|customers|client|clients|distributor|distributors|"
+    r"reseller|resellers|purchaser|purchasers|licensee|licensees|"
+    r"supplier|suppliers|vendor|vendors|foundry|contract manufacturer)\b", re.I)
+
+DIRECTED_TRADE = re.compile(
+    r"\b(?:sales|revenues?|shipments|purchases|orders)\s+(?:to|from)\s+"
+    r"(?!or within\b)(?:our\s+|the\s+|its\s+)?[A-Z]", re.I)
+
+
+def _has_counterparty_context(sentence: str) -> bool:
+    return bool(COUNTERPARTY_ROLE.search(sentence)
+                or DIRECTED_TRADE.search(sentence))
+
+# Statistics that are ABOUT something other than a counterparty. Presence of
+# any of these in the sentence disqualifies it even if customer language also
+# appears somewhere nearby.
+NON_CUSTOMER_SUBJECT = re.compile(
+    r"\b(?:currenc(?:y|ies)|foreign exchange|exchange rate|"
+    r"denominated|functional currency|foreign operations|"
+    r"shipped to or within|geograph|region|regional|country|countries|"
+    r"segment revenue|product line|passenger ticket|onboard|"
+    r"commercial space|square feet|square foot)\b", re.I)
 
 DIRECTION_CUSTOMER = "customer"       # counterparty BUYS from the filer
 DIRECTION_SUPPLIER = "supplier"       # counterparty SELLS to the filer
@@ -345,15 +434,65 @@ def extract_edges_from_text(
             if sentence_break != -1:
                 window = window[sentence_break:]
 
+            # The sentence this claim sits in. Both ends are bounded by REAL
+            # sentence breaks, not by a fixed character count.
+            #
+            # A fixed forward window let the appositive scan reach into the
+            # NEXT sentence: on MCK, the 43%-of-receivables clause belongs to
+            # "our ten largest customers", but "Sales to our largest customer,
+            # CVS Health Corporation" began the following sentence and landed
+            # inside the window, attributing an aggregate to CVS.
+            lookback_start = max(0, m.start() - SENTENCE_SPAN_CHARS)
+            pre = text[lookback_start:m.start()]
+            sb = _last_sentence_break(pre)
+            sent_start = lookback_start + (sb if sb != -1 else 0)
+
+            post = text[m.end():min(len(text), m.end() + SENTENCE_SPAN_CHARS)]
+            fb = _first_sentence_break(post)
+            sent_end = m.end() + (fb if fb != -1 else len(post))
+            sentence = text[sent_start:sent_end]
+
+            # The aggregate subject is established once at the START of a
+            # sentence and governs every clause in it, so it is checked
+            # against the whole preceding span, not the short tail window.
+            # "...ten largest customers ... accounted for 73% ... and
+            # comprised 43% ..." -- the 43% is just as aggregate as the 73%.
+            subject_span = text[sent_start:m.start()]
+
+            # POSITIVE requirement: this must be a disclosure ABOUT a
+            # counterparty. Most "X% of revenue" sentences in a 10-K are
+            # currency, geographic, segment or product mix, and matching them
+            # produced six false edges in the 2026-08-18 full-universe run.
+            # TOPIC context may legitimately come from neighbouring sentences
+            # -- a concentration footnote reads "Concentration of credit risk.
+            # ... Apple Inc. accounted for 22% ... No other customer ..." and
+            # the role word can sit in any of them. ATTRIBUTION (which name,
+            # which subject) must stay sentence-bounded, and does: `sentence`
+            # and `subject_span` below are used for that and are not widened.
+            topic_window = text[max(0, m.start() - SENTENCE_SPAN_CHARS):
+                                min(len(text), m.end() + SENTENCE_SPAN_CHARS)]
+            if not _has_counterparty_context(topic_window):
+                continue
+            # The disqualifier is checked on the SENTENCE, not the wider
+            # window: a neighbouring sentence about currency mix must not veto
+            # a genuine customer disclosure, and vice versa.
+            if NON_CUSTOMER_SUBJECT.search(sentence):
+                continue
+
             # An AGGREGATE disclosure describes a portfolio of counterparties,
             # not a relationship with any one of them. Dropped outright --
             # recording it even as an "unnamed edge" would assert that a
             # single relationship of that size exists, which is false.
-            if AGGREGATE_TAIL.search(window):
+            if AGGREGATE_TAIL.search(window) or AGGREGATE_SUBJECT.search(subject_span):
                 continue
 
             party = None
-            if not UNNAMED_TAIL.search(window):
+            # Appositive form first: the name follows the role phrase, so a
+            # backward-only scan would classify it as unnamed.
+            am = APPOSITIVE_NAME.search(sentence)
+            if am:
+                party = clean_party(am.group("party"))
+            if party is None and not UNNAMED_TAIL.search(window):
                 pm = PARTY_TAIL.search(window)
                 if pm:
                     party = clean_party(pm.group("party"))
@@ -561,6 +700,103 @@ def reconcile(edgar_edges: list[LinkageEdge],
     }
 
 
+def concentration_feature_candidate(res: ExtractionResult) -> dict[str, Any]:
+    """Per-company customer-concentration magnitude, as a PROVISIONAL feature.
+
+    This is the one thing the EDGAR source produces reliably even when it
+    yields no linkage edges at all: a dated, per-company concentration
+    magnitude with filing-date provenance.
+
+    IT IS NOT THE COVERAGE/THINNESS PROXY. Those measure different things and
+    must not be conflated:
+
+      coverage/thinness  -- how much ATTENTION a peer receives (search volume,
+                            analyst count, news volume). A proxy for whether
+                            the market is likely already pricing a link.
+      concentration      -- how much of the peer's OWN REVENUE depends on its
+                            largest customer. A property of its business, not
+                            of the market's attention to it.
+
+    A thinly-covered peer may have no customer concentration; a heavily
+    covered one may have 90%. Folding this into the existing proxy would
+    silently change what that proxy means after the fact.
+
+    NOT ADOPTED. This is recorded as a candidate for the Phase 2 feature-list
+    lock, where including it is a real decision made before results are seen --
+    not something that accretes into the feature set because the data happened
+    to be lying around.
+    """
+    by_company: dict[str, dict[str, Any]] = {}
+    for e in res.edges:
+        rec = by_company.setdefault(e.reporting_company, {
+            "ticker": e.reporting_company,
+            "as_of_date": e.as_of_date,
+            "accession": e.accession,
+            "disclosed_concentrations_pct": [],
+            "max_disclosed_pct": None,
+            "n_disclosures": 0,
+            "any_named_counterparty": False,
+        })
+        if e.concentration_pct is not None:
+            rec["disclosed_concentrations_pct"].append(e.concentration_pct)
+        rec["n_disclosures"] += 1
+        rec["any_named_counterparty"] |= e.counterparty_is_named
+
+    for rec in by_company.values():
+        pcts = rec["disclosed_concentrations_pct"]
+        rec["max_disclosed_pct"] = max(pcts) if pcts else None
+
+    # Companies that affirmatively stated NO customer reached the threshold
+    # are informative and distinct from companies where nothing was found.
+    for t in res.companies_with_explicit_no_concentration:
+        by_company.setdefault(t, {
+            "ticker": t, "as_of_date": None, "accession": None,
+            "disclosed_concentrations_pct": [], "max_disclosed_pct": None,
+            "n_disclosures": 0, "any_named_counterparty": False,
+        })["explicit_no_concentration"] = True
+
+    silent = [t for t in res.companies_with_10k
+              if t not in by_company
+              and t not in res.companies_with_explicit_no_concentration]
+
+    return {
+        "feature_name": "edgar_customer_concentration_pct",
+        "status": "PROVISIONAL_CANDIDATE_NOT_ADOPTED",
+        "adopted": False,
+        "decision_point": (
+            "Phase 2 feature-list lock. Including this is a preregistered "
+            "decision to be made BEFORE results are seen, not an adoption that "
+            "happens because the data exists."),
+        "is_the_coverage_thinness_proxy": False,
+        "why_distinct_from_coverage_thinness": (
+            "coverage/thinness measures ATTENTION paid to a peer (search "
+            "volume, analyst count, news volume) as a proxy for whether the "
+            "market already prices a link. This measures how much of the "
+            "peer's OWN REVENUE depends on its largest customer -- a property "
+            "of its business, not of attention to it. A thinly-covered peer "
+            "may have no concentration; a heavily-covered one may have 90%. "
+            "Merging them would silently redefine the existing proxy."),
+        "provenance": (
+            "Each value carries the filing date of the 10-K that disclosed it, "
+            "so it is point-in-time by construction."),
+        "known_limitations": [
+            "ASC 280 discloses only concentrations at or above ~10% of "
+            "revenue, so a null is 'nothing above the threshold', never zero.",
+            "Aggregate disclosures ('our 10 largest customers') are excluded "
+            "and contribute nothing to this feature.",
+            "Values are as-reported and are not normalised across differing "
+            "revenue bases or fiscal calendars.",
+            "One filing per company (most recent 10-K); this is not a panel.",
+        ],
+        "per_company": sorted(by_company.values(), key=lambda r: r["ticker"]),
+        "companies_silent_no_disclosure_found": sorted(silent),
+        "n_with_a_disclosed_concentration":
+            sum(1 for r in by_company.values() if r["max_disclosed_pct"] is not None),
+        "n_explicit_no_concentration": len(res.companies_with_explicit_no_concentration),
+        "n_silent": len(silent),
+    }
+
+
 def write_report(res: ExtractionResult, path: Path,
                  reconciliation: Optional[dict] = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -587,6 +823,7 @@ def write_report(res: ExtractionResult, path: Path,
         "edges": [e.as_dict() for e in res.edges],
         "errors": res.errors,
         "reconciliation": reconciliation or {"status": "NOT_RUN"},
+        "provisional_feature_candidate": concentration_feature_candidate(res),
     }, indent=1), encoding="utf-8")
 
 
