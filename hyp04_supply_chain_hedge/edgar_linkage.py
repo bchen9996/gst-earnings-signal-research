@@ -136,12 +136,34 @@ PARTY_TAIL = re.compile(
     r"(?:\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
     r"[,\s]*$")
 
-# The unnamed-disclosure forms, which are complete and compliant but carry no
-# counterparty. Matched on the same lookback window.
+# The unnamed-disclosure forms: a SINGLE real counterparty whose identity is
+# withheld. "One customer accounted for 22%" means a genuine bilateral
+# relationship exists and we simply do not know who it is with -- worth
+# recording as an unnamed edge.
 UNNAMED_TAIL = re.compile(
-    r"(?:one|a single|our largest|two|three|another|the largest|certain|no)\s+"
-    r"(?:customer|customers|client|clients|distributor|distributors|reseller)s?"
+    r"(?:one|a single|another|the largest|our largest|a major|a second|"
+    r"a third|certain|no)\s+"
+    r"(?:direct\s+|major\s+|significant\s+|key\s+)?"
+    r"(?:customer|client|distributor|reseller)s?"
     r"[,\s]*$|customer\s+[A-Z1-9][,\s]*$", re.I)
+
+# AGGREGATE disclosures span MULTIPLE counterparties and are not a
+# relationship with anyone. "Our 10 largest customers represented 26%" and
+# "87 customers accounted for 90%" describe a portfolio, not an edge.
+#
+# These are dropped entirely rather than recorded as unnamed edges, because
+# an unnamed edge still asserts that ONE relationship of that size exists --
+# which an aggregate does not. Found in the 2026-08-18 canary, where this
+# pattern produced three false edges out of nine, including one from a
+# passage whose very next sentence read "No single customer represented 10%
+# or more of our total Net revenues."
+AGGREGATE_TAIL = re.compile(
+    r"(?:\d{1,3}|two|three|four|five|six|seven|eight|nine|ten|"
+    r"several|multiple|various|top|our top|largest|combined|aggregate)\s+"
+    r"(?:\d{1,3}\s+)?"
+    r"(?:largest\s+|major\s+|significant\s+|principal\s+|key\s+)?"
+    r"(?:customer|client|distributor|reseller)s"      # PLURAL only
+    r"[,\s]*$", re.I)
 
 # A disclosure explicitly stating there is NO concentration. Recorded, because
 # "we checked and there is nothing above 10%" is genuine information -- it is
@@ -322,6 +344,13 @@ def extract_edges_from_text(
             sentence_break = _last_sentence_break(window)
             if sentence_break != -1:
                 window = window[sentence_break:]
+
+            # An AGGREGATE disclosure describes a portfolio of counterparties,
+            # not a relationship with any one of them. Dropped outright --
+            # recording it even as an "unnamed edge" would assert that a
+            # single relationship of that size exists, which is false.
+            if AGGREGATE_TAIL.search(window):
+                continue
 
             party = None
             if not UNNAMED_TAIL.search(window):

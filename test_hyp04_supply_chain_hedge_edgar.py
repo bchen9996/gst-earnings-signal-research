@@ -223,6 +223,57 @@ def test_6_near_miss_text_produces_no_edge() -> None:
           not any((e.concentration_pct or 0) > 100 for e in edges))
 
 
+def test_6b_aggregate_disclosures_are_not_edges() -> None:
+    """VERBATIM text from the 2026-08-18 live canary.
+
+    An aggregate concentration spans MANY counterparties and is a portfolio
+    statistic, not a relationship with anyone. The first canary run emitted
+    three false edges from these exact passages -- including the ALLE one,
+    whose very next sentence states no single customer reached 10%.
+
+    Dropped entirely rather than recorded as unnamed edges: an unnamed edge
+    still asserts ONE relationship of that size exists, which an aggregate
+    does not.
+    """
+    aggregates = {
+        "ALLE 10 largest": (
+            "Our 10 largest customers represented approximately 26% of our total "
+            "Net revenues in 2025. No single customer represented 10% or more of "
+            "our total Net revenues in 2025."),
+        "JBL five largest": (
+            "In fiscal year 2025, our five largest customers accounted for "
+            "approximately 36% of our net revenue and 87 customers accounted for "
+            "approximately 90% of our net revenue."),
+        "top 10": "Our top 10 customers accounted for 45% of revenues.",
+        "several": "Several customers accounted for 30% of net sales.",
+        "combined": "These combined customers accounted for 55% of total revenue.",
+    }
+    for label, text in aggregates.items():
+        edges, _ = _extract(text)
+        check(f"6b. no edge from the aggregate disclosure: {label}", not edges,
+              f"got {[(e.named_counterparty, e.concentration_pct) for e in edges]}")
+
+    # CONTROL: a genuine SINGLE-counterparty disclosure must still produce an
+    # unnamed edge, or the aggregate filter has simply suppressed everything.
+    single = ("A second major customer accounted for 12% of consolidated revenue "
+              "during fiscal 2026.")
+    edges, _ = _extract(single)
+    check("6b2. CONTROL -- a single unnamed customer still yields an edge",
+          len(edges) == 1 and not edges[0].counterparty_is_named,
+          f"got {len(edges)} edge(s)")
+    check("6b3. and its percentage is captured",
+          bool(edges) and edges[0].concentration_pct == 12.0)
+
+    nvda = ("For fiscal year 2026, sales to one direct customer represented 22% "
+            "of total revenue and sales to another direct customer represented "
+            "14% of total revenue.")
+    edges, _ = _extract(nvda)
+    check("6b4. CONTROL -- 'one direct customer' / 'another direct customer' "
+          "yield unnamed edges", len(edges) == 2
+          and not any(e.counterparty_is_named for e in edges),
+          f"got {len(edges)}")
+
+
 def test_7_direction_inference() -> None:
     check("7a. supplier language infers supplier direction",
           infer_direction("our primary contract manufacturer and supplier of wafers")
@@ -323,6 +374,7 @@ if __name__ == "__main__":
     test_4_unnamed_customer_is_not_an_edge()
     test_5_explicit_no_concentration_is_information()
     test_6_near_miss_text_produces_no_edge()
+    test_6b_aggregate_disclosures_are_not_edges()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()
