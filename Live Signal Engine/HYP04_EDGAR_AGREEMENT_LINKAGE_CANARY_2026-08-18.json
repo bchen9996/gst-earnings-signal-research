@@ -1,0 +1,33 @@
+{
+ "artifact": "HYP-04 EDGAR material-agreement CANDIDATE linkage (SOURCE B)",
+ "source": "SEC EDGAR full-text search over 8-K material-agreement items",
+ "is_production_linkage_map": false,
+ "status": "CANDIDATE_SOURCE_FOR_RECONCILIATION",
+ "generated_at_utc": "2026-08-18T23:06:04.655896+00:00",
+ "independent_of": "HYP04_EDGAR_CANDIDATE_LINKAGE_FULL (source A, ASC 280 concentration). Different trigger, form, method, vocabulary and failure modes, so the two can serve as a genuine cross-check rather than a correlated duplicate.",
+ "relationship_currency": {
+  "ACTIVE_AS_DISCLOSED": "An Item 1.01 entry exists and no matching Item 1.02 termination was found. This is NOT proof the relationship is current -- agreements expire on their own terms, are superseded, or end without a separate 8-K. Absence of a termination filing is absence of evidence.",
+  "TERMINATED_DISCLOSED": "A termination was disclosed. Positive evidence the relationship ended; must not be used as a current linkage.",
+  "UNKNOWN": "Found outside the 1.01/1.02 taxonomy, so no lifecycle signal exists at all."
+ },
+ "coverage": {
+  "companies_attempted": 5,
+  "companies_with_search_hits": 5,
+  "companies_with_extracted_edges": 0,
+  "pct_with_edges": 0.0,
+  "total_edges": 0,
+  "edges_by_relationship_status": {},
+  "rejected_by_reason": {},
+  "errors": 0,
+  "requests_made": 41
+ },
+ "edges": [],
+ "errors": {},
+ "reconciliation": {
+  "status": "TEAMMATE_MAP_UNAVAILABLE",
+  "reconciled": false,
+  "note": "The teammate's supply-chain map does not exist yet, so there is nothing to reconcile against. The EDGAR source stands alone as a candidate and does NOT become the production map by default.",
+  "edgar_named_edges": 0
+ },
+ "reconciliation_note": "Routed through the existing reconcile() path unchanged. Its merge logic is deliberately NOT extended: there is nothing to reconcile against until the teammate's map exists."
+}
