@@ -1,0 +1,330 @@
+<!-- generated 2026-08-18 19:33 UTC -->
+<style>
+  :root {
+    --bg:#f6f7f9; --card:#fff; --ink:#16181d; --muted:#6b7280; --line:#e5e7eb;
+    --pass:#0f7b3f; --pass-bg:#e7f5ec; --fail:#a3341f; --fail-bg:#fdecea;
+    --idle:#5b6270; --idle-bg:#eef0f3; --accent:#1f4e79; --warn-bg:#fff8e6; --warn-line:#e0b34d;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px; background:var(--bg); color:var(--ink);
+         font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  header { margin-bottom:20px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em;
+        color:var(--muted); margin:28px 0 10px; }
+  h3 { font-size:16px; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:10px;
+            padding:18px 20px; margin-bottom:14px; }
+  .panel.locked { background:#fbfbfc; border-style:dashed; }
+  .lock { font-size:15px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  table.mt { margin-top:14px; }
+  th { text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.04em;
+        color:var(--muted); border-bottom:1px solid var(--line); padding:6px 8px; }
+  td { padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+  .small { font-size:13px; }
+  .muted { color:var(--muted); }
+  .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px;
+            font-weight:600; letter-spacing:.03em; }
+  .badge.pass { background:var(--pass-bg); color:var(--pass); }
+  .badge.fail, .badge.closed { background:var(--fail-bg); color:var(--fail); }
+  .badge.idle { background:var(--idle-bg); color:var(--idle); }
+  .kpis { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  .kpi { flex:1 1 130px; background:var(--bg); border:1px solid var(--line);
+          border-radius:8px; padding:12px; }
+  .kpi .v { font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .kpi .l { font-size:12px; color:var(--muted); margin-top:2px; }
+  .caveat { margin-top:14px; padding:11px 13px; background:var(--warn-bg);
+             border-left:3px solid var(--warn-line); border-radius:0 6px 6px 0; font-size:13.5px; }
+  .caveat.blocker { background:var(--fail-bg); border-left-color:var(--fail); }
+  .cond { display:inline-block; padding:2px 8px; margin:0 5px 5px 0; border-radius:5px;
+           font-size:11.5px; font-family:ui-monospace,monospace; }
+  .cond.ok { background:var(--pass-bg); color:var(--pass); }
+  .cond.no { background:var(--fail-bg); color:var(--fail); }
+  .conds { margin:8px 0; }
+  details { margin-top:8px; font-size:13.5px; }
+  summary { cursor:pointer; color:var(--accent); }
+  ul { margin:8px 0; padding-left:20px; }
+  li { margin-bottom:4px; font-size:13.5px; }
+  .banner { background:#eef3f8; border:1px solid #c9dcef; border-left:3px solid var(--accent);
+             border-radius:0 8px 8px 0; padding:13px 16px; margin-bottom:18px; font-size:14px; }
+</style>
+
+<div class="wrap">
+<header>
+  <h1>HYP-04 Phase 0 &mdash; Build &amp; Process Status</h1>
+  <p class="muted small">Infrastructure and process metrics. Generated 2026-08-18 19:33 UTC.
+     Reads committed artifacts; computes no new statistics.</p>
+</header>
+
+<div class="banner">
+  <strong>Placeholder linkage. No findings shown.</strong>
+  Peers are same-sector tickers, not a real supply-chain map &mdash; the same
+  limitation as <span class="mono">GST_Task2_PeerDivergence.py</span>. Nothing on
+  this page is a finding about supply-chain transmission, and no hedging edge is
+  claimed. Progress is public; findings are gated.
+</div>
+
+<h2>Build &amp; test status</h2>
+
+        <section class="panel" id="build_test_status">
+          <h3>Governance and package suites</h3>
+          
+          <div class="kpis">
+            <div class="kpi"><div class="v">482</div><div class="l">checks passed</div></div>
+            <div class="kpi"><div class="v">0</div><div class="l">skipped</div></div>
+            <div class="kpi"><div class="v">ALL GREEN</div><div class="l">suite status</div></div>
+          </div>
+          <table><thead><tr><th>Suite</th><th>Status</th><th>Passed</th><th>Skipped</th></tr></thead>
+          <tbody><tr><td class='mono'>test_hyp04_supply_chain_hedge_target.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>32</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_inference.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>85</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_smoke.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>42</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_display_gate.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>234</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_market_response_hypothesis_registry_v1_1.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>89</td><td class='num'>&mdash;</td></tr></tbody></table>
+          <p class="muted small">Skips are counted separately and never as passes.
+             The full repository governance suite stands at 3,227 checks / 1 skip
+             (the skip is the R cross-check, which needs Rscript installed).</p>
+        </section>
+
+<h2>Data availability</h2>
+
+        <section class="panel" id="audit_coverage">
+          <h3>Options-coverage audit (27 placeholder peers)</h3>
+          
+          <div class="kpis">
+            <div class="kpi"><div class="v">27</div><div class="l">peers checked</div></div>
+            <div class="kpi"><div class="v">100%</div><div class="l">chain coverage</div></div>
+            <div class="kpi"><div class="v">54</div><div class="l">provider calls</div></div>
+            <div class="kpi"><div class="v">0</div><div class="l">transport failures</div></div>
+          </div>
+          <table><thead><tr><th>Stage</th><th>Tickers</th><th>Calls / cap</th><th>OK</th><th>Fails</th><th>Pacing</th></tr></thead>
+          <tbody><tr><td>canary</td><td class='num'>10</td><td class='num'>20 / 20</td><td class='num'>10</td><td class='num'>0</td><td class='num'>0.0s</td></tr><tr><td>full</td><td class='num'>17</td><td class='num'>34 / 34</td><td class='num'>17</td><td class='num'>0</td><td class='num'>1.0s</td></tr></tbody></table>
+          <table class="mt"><thead><tr><th>Distribution</th><th>min</th><th>median</th><th>max</th></tr></thead>
+          <tbody>
+            <tr><td>Expirations per peer</td><td class="num">4</td>
+                <td class="num">12</td><td class="num">21</td></tr>
+            <tr><td>Contracts per peer</td><td class="num">9</td>
+                <td class="num">82</td><td class="num">368</td></tr>
+          </tbody></table>
+          <p class="muted small">Thinnest: REG (9), PNW (13), CTVA (17). Deepest: NFLX (368), COHR (232), JBL (121).
+             Calls per ticker constant: True.
+             Provider: yfinance (unauthenticated) via GST_Option_Chain_Core path &mdash; none -- unauthenticated public endpoint.</p>
+          <div class="caveat"><strong>This is data availability, not a hypothesis claim.</strong>
+             100% coverage means option chains exist for these peers. It says nothing
+             about transmission. The provider serves <em>current</em> chains only and has
+             no historical endpoint, so this does <em>not</em> establish that implied
+             volatility is usable as a Stage&nbsp;1 target &mdash; realized volatility
+             remains the default.</div>
+        </section>
+
+<h2>Instrument calibration</h2>
+
+        <section class="panel" id="instrument_calibration">
+          <h3>How the 193-event floor was derived</h3>
+          
+          <p>How the <strong>193</strong> floor was derived. This is
+             <em>instrument calibration</em> &mdash; a property of the measuring
+             apparatus, fixed before any real data exists. It is not a result.</p>
+          <table><thead><tr><th>Step</th><th>Value</th><th>Meaning</th></tr></thead><tbody>
+            <tr><td>Naive single-test N</td><td class="num">126</td>
+                <td>Labelled baseline only. Never the operative floor.</td></tr>
+            <tr><td>Horizons tested</td><td class="num">20</td>
+                <td>h = 1&hellip;20, one grid for target and lag detection.</td></tr>
+            <tr><td>Effective independent tests</td><td class="num">6.05 - 6.34</td>
+                <td>Measured by max-T permutation on synthetic fixtures &mdash; not assumed.
+                    Far below 20 because an expanding-window target makes adjacent
+                    horizons correlated by construction.</td></tr>
+            <tr><td><strong>Operative floor</strong></td><td class="num"><strong>193</strong></td>
+                <td>Šidák-corrected at the measured k. Stated in <strong>anchor events</strong>,
+                    the same unit as HYP-01/02/03's 60/60/40.</td></tr>
+            <tr><td>Provisional placeholder</td><td class="num">190 - 240</td>
+                <td>Superseded by the measured figure above.</td></tr>
+          </tbody></table>
+          <p class="mono small">DEFF = 1 + (m̄ − 1) · ICC &nbsp;&nbsp; N_eff = N_pairs / DEFF
+             &nbsp;&nbsp; ICC floored at 0 for DEFF only; the raw value is still reported.</p>
+          <div class="caveat"><strong>A governance floor, not a power guarantee.</strong>
+             Inputs were a hypothetical d&nbsp;=&nbsp;0.5 chosen before any data,
+             &alpha;&nbsp;=&nbsp;0.05, power&nbsp;=&nbsp;0.8, on synthetic
+             fixtures with known injected ground truth. No observed project result entered it.
+             Reaching a threshold licenses <em>looking</em>, not <em>concluding</em>.</div>
+        </section>
+
+<h2>Registry</h2>
+
+        <section class="panel" id="registry_status">
+          <h3>Hypothesis registry v1.1</h3>
+          
+          <div class="kpis">
+            <div class="kpi"><div class="v">v1.1</div><div class="l">registry version</div></div>
+            <div class="kpi"><div class="v">4</div><div class="l">registered hypotheses</div></div>
+            <div class="kpi"><div class="v">193</div><div class="l">HYP-04 floor (eligible anchor events)</div></div>
+          </div>
+          <p><strong>HYP-04</strong> &mdash; preregistered_exploratory,
+             status <span class="mono">PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED</span>.
+             Registered 2026-08-18 in a new dated version;
+             GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0.json is unedited.</p>
+          <table><thead><tr><th>Hypothesis</th><th>Eligible events</th></tr></thead>
+          <tbody><tr><td class='mono'>HYP-01</td><td class='num'>0</td></tr><tr><td class='mono'>HYP-02</td><td class='num'>0</td></tr><tr><td class='mono'>HYP-03</td><td class='num'>0</td></tr><tr><td class='mono'>HYP-04</td><td class='num'>0</td></tr></tbody></table>
+          <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
+             display gate independently):</p>
+          <ul><li>two-way clustering (anchor event x calendar period) -- Phase 0 ships one-way (anchor event) clustering only, because no multiway CR2/Satterthwaite implementation exists in this repository, validated or otherwise</li><li>whether implied volatility is ever promoted from a secondary/robustness target to a primary one -- unresolved because the Phase 0 coverage audit measured CURRENT option chains only and no historical options source has been obtained</li><li>the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is late-biased by construction under an expanding-window target, and is reported with that caveat rather than as an exact point estimate</li><li>ticker-cluster estimator</li></ul>
+          <p class="muted small">Options classes: <span class="mono">DENY_NO_REGISTERED_HYPOTHESIS</span>
+             &mdash; unchanged; HYP-04 is not registered against an options class.</p>
+        </section>
+
+<h2>Roadmap</h2>
+
+        <section class="panel" id="phase_roadmap">
+          <h3>Phase 0 &amp;rarr; 4</h3>
+          
+          <table><thead><tr><th>Phase</th><th>What</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody><tr><td><strong>Phase 0</strong></td><td>Feasibility on placeholder linkage</td><td><span class='badge pass'>COMPLETE</span></td><td class='small'>Pipeline runs end-to-end; estimator recovers a known injected lag on synthetic fixtures and correctly finds nothing when nothing is there.</td></tr><tr><td><strong>Phase 1</strong></td><td>Exploratory, non-binding</td><td><span class='badge fail'>BLOCKED</span></td><td class='small'>Requires the real supply-chain linkage map, including a first-known/established-as-of date per pair. Does not exist.</td></tr><tr><td><strong>Phase 2</strong></td><td>Preregistration lock</td><td><span class='badge idle'>NOT STARTED</span></td><td class='small'>Freeze target, features, model spec and validation split in a dated lock before touching any holdout.</td></tr><tr><td><strong>Phase 3</strong></td><td>Out-of-sample test</td><td><span class='badge idle'>NOT STARTED</span></td><td class='small'>Run the locked model against the holdout once; report regardless of outcome.</td></tr><tr><td><strong>Phase 4</strong></td><td>Paper-trading gate</td><td><span class='badge idle'>NOT STARTED</span></td><td class='small'>Only if Phase 3 clears its preregistered bar. Also where formal options eligibility would have to be resolved.</td></tr></tbody></table>
+          <div class="caveat blocker"><strong>Phase 1 is blocked on one thing:</strong>
+             the real supply-chain / competitor linkage map &mdash; ticker pairs,
+             relationship type, confidence, <strong>and a first-known /
+             established-as-of date per pair</strong>. The date column is required,
+             not optional: a map built today encodes relationships known today, and
+             applying it to historical anchor events without it is look-ahead bias.
+             A map delivered without that column is a blocking data-quality failure,
+             not a partial delivery.</div>
+        </section>
+
+<h2>Findings &mdash; gate CLOSED</h2>
+<div class="panel">
+  <h3>Result-display gate <span class="badge closed">CLOSED</span></h3>
+  <p class="small">Mirrors <span class="mono">GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md</span>,
+     the same document governing HYP-01. Every condition must hold simultaneously;
+     absence of a rule is never read as permission.</p>
+  <table><thead><tr><th>Condition</th><th>State</th></tr></thead><tbody><tr><td class='mono'>C1_status</td><td><span class='badge fail'>NOT MET</span></td></tr><tr><td class='mono'>C2_threshold</td><td><span class='badge fail'>NOT MET</span></td></tr><tr><td class='mono'>C3_frozen</td><td><span class='badge fail'>NOT MET</span></td></tr><tr><td class='mono'>C4_decisions_resolved</td><td><span class='badge fail'>NOT MET</span></td></tr><tr><td class='mono'>C5_not_placeholder</td><td><span class='badge fail'>NOT MET</span></td></tr></tbody></table>
+  <p class="muted small" style="margin-top:10px">The panels below are locked
+     <strong>in code</strong>. Rendering routes through
+     <span class="mono">display_gate.assert_display_allowed</span>, which raises rather
+     than returning a value &mdash; and an unclassified panel is treated as a finding
+     and denied, so forgetting to classify one fails closed.</p>
+</div>
+
+        <section class="panel locked" id="lag_scores">
+          <h3><span class="lock">&#128274;</span> Lag Scores
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="onset_horizon">
+          <h3><span class="lock">&#128274;</span> Onset Horizon
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="peak_horizon">
+          <h3><span class="lock">&#128274;</span> Peak Horizon
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="beta_h_coefficients">
+          <h3><span class="lock">&#128274;</span> Beta H Coefficients
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="impulse_response_profile">
+          <h3><span class="lock">&#128274;</span> Impulse Response Profile
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="direction_of_effect">
+          <h3><span class="lock">&#128274;</span> Direction Of Effect
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="link_strength_scores">
+          <h3><span class="lock">&#128274;</span> Link Strength Scores
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="ccf_cross_check_result">
+          <h3><span class="lock">&#128274;</span> Ccf Cross Check Result
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="placebo_test_result">
+          <h3><span class="lock">&#128274;</span> Placebo Test Result
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+        <section class="panel locked" id="stage2_recommendations">
+          <h3><span class="lock">&#128274;</span> Stage2 Recommendations
+              <span class="badge closed">GATE CLOSED</span></h3>
+          <p class="muted">This panel is locked in code, not omitted by convention.
+             It shows no value, direction or magnitude.</p>
+          <div class="conds"><span class="cond no">C1_status</span><span class="cond no">C2_threshold</span><span class="cond no">C3_frozen</span><span class="cond no">C4_decisions_resolved</span><span class="cond no">C5_not_placeholder</span></div>
+          <details><summary>Why it is locked (5 independent reasons)</summary>
+            <ul><li>C1 FAILED: status is &#x27;PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED&#x27;, not &#x27;ACTIVE_COLLECTING&#x27;. A hypothesis whose measurement has no production capture path cannot display a finding.</li><li>C2 FAILED: 0 eligible events is below the registered threshold of 193.</li><li>C3 FAILED: no freeze record supplied. An absent freeze denies.</li><li>C4 FAILED: 4 analysis decision(s) still marked PENDING_SEPARATE_ANALYSIS_LOCK. Each must be resolved in a dated analysis lock written before the freeze. Unresolved: two-way clustering (anchor event x calendar period) -- Phase 0 ships o; whether implied volatility is ever promoted from a secondary/robustnes; the reported lag quantity&#x27;s uncertainty treatment -- onset_horizon is ; ticker-cluster estimator</li><li>C5 FAILED: the underlying linkage is the Phase 0 same-sector placeholder. Registry v1.1 bars displaying placeholder-linkage results as HYP-04 findings under any circumstances, at any event count. A real supply-chain linkage map is required.</li></ul>
+            <p class="muted"><strong>Unlocks when:</strong> All conditions true simultaneously: status ACTIVE_COLLECTING; eligible real anchor events &gt;= 193; event-ID set frozen with its analysis-code commit before any result was computed; every PENDING_SEPARATE_ANALYSIS_LOCK decision resolved in a dated lock; and a real (non-placeholder) linkage map.</p>
+          </details>
+          <p class="muted small">Reaching a threshold licenses LOOKING, not CONCLUDING. This panel shows no value, direction, or magnitude while locked.</p>
+        </section>
+
+<p class="muted small" style="margin-top:24px">
+  Nothing in this dashboard constitutes investment advice, a solicitation, or a
+  representation that any approach is profitable.
+</p>
+</div>
