@@ -1,0 +1,98 @@
+name: HYP-04 Supply-Chain Hedge Tests
+
+# Deterministic, offline-only CI for the HYP-04 Phase 0 package.
+#
+# This job discovers and runs EVERY test_hyp04_supply_chain_hedge*.py file at
+# the repository root, so a new test file is picked up without a workflow edit,
+# and it fails loudly if discovery finds nothing -- a silently empty suite
+# would otherwise report success.
+#
+# It never touches live market data, an options provider, GST, Wikipedia, SEC
+# filings, or news sources, and consumes no credential of any kind. Two
+# structural facts make that true rather than merely intended:
+#
+#   1. Every discovered test file replaces socket.connect / connect_ex /
+#      create_connection / getaddrinfo before importing any numerical library,
+#      and asserts that the block is live.
+#   2. The options-coverage audit is exercised only through an INJECTED FAKE
+#      PROVIDER in the smoke test. The real runners
+#      (hyp04_supply_chain_hedge/run_canary_audit.py, run_full_audit.py) are
+#      deliberately named off the test_* pattern, so no discovery convention
+#      can reach them, and they are never invoked here. Those runners make
+#      real billable calls and require the repo owner's staged go-ahead --
+#      CI must never be able to spend that budget.
+on:
+  pull_request:
+    paths:
+      - "hyp04_supply_chain_hedge/**"
+      - "test_hyp04_supply_chain_hedge*.py"
+      - "Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md"
+      - "Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md"
+      - "requirements-hyp04.txt"
+      - ".github/workflows/hyp04-supply-chain-hedge-tests.yml"
+  workflow_dispatch: {}
+
+# Least privilege: this job only reads the repository and runs tests. It never
+# writes to the repo, never opens issues/PRs, and consumes no repository or
+# organisation credential.
+permissions:
+  contents: read
+
+jobs:
+  hyp04-tests:
+    name: Deterministic HYP-04 Phase 0 tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        # Scoped to this package only. requirements.txt is documented as
+        # covering gst_market_response/ ONLY, so HYP-04's dependencies live in
+        # their own file rather than contradicting that file's stated scope --
+        # the same reasoning tools/requirements-hyp01-feasibility.txt gives.
+        #
+        # yfinance is deliberately NOT installed: the only code path that would
+        # use it is the audit's live runner, which CI never invokes, and the
+        # smoke test injects a fake provider instead. Leaving it out means a
+        # future accidental live call fails at import in CI rather than
+        # succeeding quietly against a real endpoint.
+        run: |
+          set -e
+          pip install -r requirements-hyp04.txt
+
+      - name: Discover and run every deterministic HYP-04 test file
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          set -e
+          files=$(ls test_hyp04_supply_chain_hedge*.py)
+          if [ -z "$files" ]; then
+            echo "No test_hyp04_supply_chain_hedge*.py files discovered -- failing rather than reporting a vacuous success."
+            exit 1
+          fi
+          count=$(echo "$files" | wc -l)
+          echo "Discovered $count test file(s):"
+          echo "$files"
+          for f in $files; do
+            echo "=== Running $f ==="
+            python "$f"
+          done
+
+      - name: Confirm the live audit runners were never invoked
+        # A structural check, not a comment: the live runners must not be
+        # reachable from the discovered test suite. If either is ever renamed
+        # onto the test_* pattern, this step fails before it can spend budget.
+        run: |
+          set -e
+          if ls test_hyp04*run_canary* test_hyp04*run_full* 2>/dev/null; then
+            echo "A live audit runner matches the test discovery pattern. Refusing."
+            exit 1
+          fi
+          echo "OK: no live audit runner is reachable by test discovery."
