@@ -1,0 +1,28 @@
+{
+  "//": "HYP-04 Phase 0 workspace settings. The interpreter points at the project-local venv created per hyp04_supply_chain_hedge/README.md; .venv/ is gitignored.",
+
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+
+  "//testing": "This repository uses NO pytest. Every test file is a hand-rolled check()/skip() harness executed directly (python test_*.py), and CI discovers them by glob and runs them the same way. Both discovery frameworks are therefore disabled on purpose -- enabling pytest here would show an empty or misleading test tree. Run tests from the Run and Debug panel instead; see .vscode/launch.json.",
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": false,
+
+  "//path": "The package is not pip-installed, so the repo root must be on PYTHONPATH for both the language server and any terminal.",
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  "terminal.integrated.env.linux": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+  "terminal.integrated.env.osx": {
+    "PYTHONPATH": "${workspaceFolder}"
+  },
+
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true
+  },
+
+  "python.analysis.typeCheckingMode": "basic"
+}

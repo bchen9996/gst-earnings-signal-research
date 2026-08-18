@@ -5,5 +5,10 @@ streetview_vlm/
 __pycache__/
 *.pyc
 
+# Local virtualenv created for HYP-04 Phase 0 development. Machine-specific
+# and large; never part of repo content. Recreate with the commands in
+# HYP04_PHASE0_SESSION_HANDOFF.md.
+.venv/
+
 # Local Claude Code session config (permission allowlist etc.), not project content.
 .claude/

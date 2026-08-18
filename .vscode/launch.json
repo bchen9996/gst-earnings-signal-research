@@ -1,0 +1,74 @@
+{
+  "version": "0.2.0",
+  "//": "HYP-04 Phase 0 debug configurations. Every entry sets PYTHONPATH to the repo root because the package is not pip-installed. NOTE the two live audit runners at the bottom: they make REAL provider calls and require the repo owner's staged go-ahead (Patch 13). They are included so an authorized run is debuggable, NOT so they can be launched casually.",
+  "configurations": [
+    {
+      "name": "HYP-04: target tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test_hyp04_supply_chain_hedge_target.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    },
+    {
+      "name": "HYP-04: inference / gate / Stage-2 tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test_hyp04_supply_chain_hedge_inference.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    },
+    {
+      "name": "HYP-04: end-to-end smoke test",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test_hyp04_supply_chain_hedge_smoke.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    },
+    {
+      "name": "HYP-04: generate synthetic fixtures",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "hyp04_supply_chain_hedge.fixtures",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false
+    },
+    {
+      "name": "HYP-04: LIVE audit -- CANARY (real calls, owner consent required)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "hyp04_supply_chain_hedge.run_canary_audit",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false,
+      "presentation": {
+        "group": "live-billable",
+        "order": 90
+      }
+    },
+    {
+      "name": "HYP-04: LIVE audit -- FULL (real calls, owner consent required)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "hyp04_supply_chain_hedge.run_full_audit",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "${workspaceFolder}" },
+      "justMyCode": false,
+      "presentation": {
+        "group": "live-billable",
+        "order": 91
+      }
+    }
+  ]
+}

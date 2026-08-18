@@ -1,0 +1,48 @@
+# Dependencies for hyp04_supply_chain_hedge/ (the HYP-04 Supply-Chain
+# Hedge-Lag Model, Phase 0 feasibility) and its test suite.
+#
+# Why this file exists separately: requirements.txt is documented as covering
+# gst_market_response/ ONLY, and this package is not part of that module.
+# Adding dependencies there would contradict that file's own stated scope --
+# the same reasoning tools/requirements-hyp01-feasibility.txt gives for its
+# own split.
+#
+# numpy/pandas: panel construction and the feature table.
+# scipy:        normal/t tails for the power calculation and the Sidak
+#               conversion behind the multiplicity target. Carries a floor
+#               rather than an exact pin for the same reason the HYP-01
+#               feasibility file gives -- it supplies distribution tails used
+#               under stated tolerances, not a bitwise comparison, and pinning
+#               a build with no wheel for CI's interpreter would break CI for
+#               no correctness gain.
+numpy>=2.0.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# DELIBERATELY ABSENT -- yfinance.
+#
+# The only code path that imports it is the options-coverage audit's live
+# runner (hyp04_supply_chain_hedge/run_canary_audit.py, run_full_audit.py),
+# which makes REAL provider calls and requires the repo owner's staged
+# go-ahead (Patch 13). CI never invokes those runners, and the smoke test
+# exercises the audit through an injected fake provider instead.
+#
+# Leaving yfinance out is a safety property, not an oversight: if a future
+# change accidentally reaches a live audit path from CI, it fails at import
+# rather than succeeding quietly against a real endpoint. Install it locally
+# when actually running an authorized audit:
+#     pip install yfinance
+#
+# DELIBERATELY ABSENT -- scikit-learn.
+#
+# The Link-Strength model is ridge regression, which is a closed form
+# implemented directly in inference.py::ridge_fit. This repository does not
+# otherwise depend on sklearn, and adding it for a two-line solve would not
+# match its conventions.
+#
+# DELIBERATELY ABSENT -- pytest.
+#
+# This repository uses no pytest anywhere. Every test file uses a hand-rolled
+# check()/skip() harness with a FAILURES list and sys.exit(1), run directly as
+# `python test_*.py`, and CI discovers them by glob and executes them the same
+# way. See test_market_response_*.py for the established pattern.
