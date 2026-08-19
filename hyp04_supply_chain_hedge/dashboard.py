@@ -223,7 +223,10 @@ PHASES = [
      "synthetic fixtures and correctly finds nothing when nothing is there."),
     ("Phase 1", "Exploratory, non-binding", "BLOCKED",
      "Requires the real supply-chain linkage map, including a "
-     "first-known/established-as-of date per pair. Does not exist."),
+     "first-known/established-as-of date per pair. Does not exist. Source "
+     "switched 2026-08-18 from the deprioritised automated teammate mapping "
+     "to hand curation; the ingestion path is built and tested, but zero rows "
+     "are curated, so the blocker is unchanged."),
     ("Phase 2", "Preregistration lock", "NOT STARTED",
      "Freeze target, features, model spec and validation split in a dated "
      "lock before touching any holdout."),
@@ -409,7 +412,16 @@ def render(tests: dict, audit: dict, registry: dict,
              not optional: a map built today encodes relationships known today, and
              applying it to historical anchor events without it is look-ahead bias.
              A map delivered without that column is a blocking data-quality failure,
-             not a partial delivery.</div>"""
+             not a partial delivery.
+             <br><br>
+             <strong>Source changed 2026-08-18.</strong> The automated teammate
+             mapping is deprioritised; the project switched to hand curation
+             against a 15-column template. A validating ingestion path is built and
+             tested (<span class="mono">curated_linkage.py</span>), but
+             <strong>zero rows are curated</strong> &mdash; a loader is not a map,
+             and the blocker is unchanged. One scope question is open and belongs
+             to the repo owner: whether the curated map targets HYP-01's frozen
+             24-ticker universe or a smaller first pass.</div>"""
 
     findings = "".join(
         _panel(p, p.replace("_", " ").title(), "", decision) for p in FINDINGS_PANELS)
@@ -483,10 +495,13 @@ def render(tests: dict, audit: dict, registry: dict,
 
 <div class="banner">
   <strong>Placeholder linkage. No findings shown.</strong>
-  Peers are same-sector tickers, not a real supply-chain map &mdash; the same
-  limitation as <span class="mono">GST_Task2_PeerDivergence.py</span>. Nothing on
-  this page is a finding about supply-chain transmission, and no hedging edge is
-  claimed. Progress is public; findings are gated.
+  Peers are the non-anchor tickers from the sector file, assigned to anchors by
+  <em>list position</em> &mdash; the sector column is not used for pairing, so this
+  is positional-synthetic, not same-sector. The real supply-chain map does not
+  exist: as of 2026-08-18 the automated teammate mapping is deprioritised in
+  favour of hand curation, and an ingestion path exists while <em>zero rows are
+  curated</em>. Nothing on this page is a finding about supply-chain transmission,
+  and no hedging edge is claimed. Progress is public; findings are gated.
 </div>
 
 <h2>Build &amp; test status</h2>

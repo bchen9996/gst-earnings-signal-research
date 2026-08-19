@@ -504,8 +504,14 @@ def placebo_test(
     pairing, the model has nothing to learn regardless of algorithm.
 
     Peers are reassigned ACROSS anchor events, which is exactly the linkage
-    claim under test -- the placeholder same-sector linkage asserts these peers
-    belong to this anchor.
+    claim under test -- the placeholder linkage asserts these peers belong to
+    this anchor.
+
+    Note what that claim actually is under Phase 0: the placeholder assigns
+    peers to anchors by LIST POSITION, not by sector or by any real
+    relationship. So the placebo here tests whether the estimator can tell a
+    stated pairing from a shuffled one; it says nothing about whether the
+    stated pairing is meaningful, because under the placeholder it is not.
     """
     mask = table["horizon"] == horizon
     y = table["target"][mask]

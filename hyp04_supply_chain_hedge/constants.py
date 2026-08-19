@@ -150,10 +150,40 @@ AUDIT_NO_BUDGET_MESSAGE = (
 ASSUMED_PEER_EQUITY_NOTIONAL_USD = 100_000.0
 
 # --- Placeholder-linkage banner -------------------------------------------
+# CORRECTED 2026-08-18. The previous wording claimed "same-sector peers",
+# describing what the placeholder was originally meant to be rather than what
+# the code does. Two separate mechanisms are involved and NEITHER is
+# sector-based pairing:
+#
+#   universe  run_canary_audit.candidate_peer_universe() returns every ticker
+#             in AllTickers_Sectors.csv that is not a locked anchor. It reads
+#             the `ticker` column only -- the `sector` column is never read.
+#   pairing   fixtures.make_panel() slices that list POSITIONALLY:
+#             anchor i receives peers[i*n : (i+1)*n]. Sector is not consulted.
+#
+# So the Phase 0 linkage is POSITIONAL-SYNTHETIC, not same-sector. That is
+# adequate for what Phase 0 did -- estimator mechanics on fixtures with
+# injected ground truth, where the pairing is arbitrary by design -- but it is
+# weaker than "same-sector" implies, and the description now says what the
+# code does. (GST_Task2_PeerDivergence.py IS genuinely sector-based; this
+# package is not, and previously borrowed its description.)
 PLACEHOLDER_LINKAGE_WARNING = (
-    "PLACEHOLDER LINKAGE (same-sector peers) -- the real supply-chain map does "
-    "not exist yet. Same limitation as GST_Task2_PeerDivergence.py. No result "
-    "from this pipeline is a finding about supply-chain transmission."
+    "PLACEHOLDER LINKAGE (positional-synthetic pairing) -- the real "
+    "supply-chain map does not exist yet. Peers come from the non-anchor "
+    "tickers in AllTickers_Sectors.csv and are assigned to anchors by list "
+    "position; the sector column is NOT used for pairing. No result from this "
+    "pipeline is a finding about supply-chain transmission."
+)
+
+# The linkage source as of 2026-08-18: the teammate's automated map was
+# deprioritised in favour of hand curation. See
+# Live Signal Engine/HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md.
+# An ingestion path exists (curated_linkage.py); NO curated data does.
+LINKAGE_SOURCE_STATUS = (
+    "Hand-curated map adopted 2026-08-18, replacing the deprioritised "
+    "automated teammate mapping. Ingestion path built and tested; ZERO rows "
+    "curated. Registry v1.1 still records the required linkage measurement as "
+    "does_not_exist, and Phase 1 remains blocked on it."
 )
 
 NO_EDGE_CLAIM = (
