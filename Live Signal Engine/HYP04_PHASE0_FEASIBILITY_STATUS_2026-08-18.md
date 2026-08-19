@@ -227,7 +227,11 @@ Two real defects were caught by tests rather than by review:
 
 ## 10. Blockers and open decisions
 
-**Hard blocker on Phase 1:** the real supply-chain linkage map (ticker pairs + relationship type + confidence) — **plus a first-known/established-as-of date per pair**. A map built today encodes relationships known today; applying it to historical anchor events without as-of dates is look-ahead bias, the same class of problem this project's own forensic audit already found in the GST z-score history. Retrofitting the date column after the map is built is far more expensive than requesting it now. **Get this to the teammate before the map is finalized.**
+**Hard blocker on Phase 1:** the real supply-chain linkage map (ticker pairs + relationship type + confidence) — **plus a first-known/established-as-of date per pair**. A map built today encodes relationships known today; applying it to historical anchor events without as-of dates is look-ahead bias, the same class of problem this project's own forensic audit already found in the GST z-score history.
+
+> **Source changed 2026-08-18 — the blocker is unchanged.** The automated teammate mapping was deprioritised; the project switched to **hand curation** against a fixed 15-column template that carries the as-of date natively, so the retrofit risk above is resolved by construction. A validating ingestion path is built and tested (`hyp04_supply_chain_hedge/curated_linkage.py`), but **zero rows are curated**. A loader is not a map. Registry v1.1 still records the required linkage measurement as `does_not_exist`. See [`HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md`](HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md).
+>
+> **Open, and the repo owner's call:** whether the curated map targets HYP-01's frozen 24-ticker universe or a smaller first-pass scope. This drives how long Phase 1 stays blocked and what `N_events` can eventually reach against the 193-event floor.
 
 **Open decisions requiring the repo owner:**
 

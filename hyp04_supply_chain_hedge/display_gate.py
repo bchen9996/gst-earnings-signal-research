@@ -44,7 +44,7 @@ public; findings are gated.
 
 Registry v1.1's display_rule for HYP-04 bars placeholder-linkage results "under
 any circumstances, at any event count". Phase 0's synthetic-fixture and
-same-sector-placeholder output is therefore permanently ineligible for display
+positional-synthetic-placeholder output is therefore permanently ineligible for display
 as a HYP-04 finding, independent of the four conditions above. This module
 enforces that as its own condition rather than trusting callers to remember it.
 
@@ -304,10 +304,13 @@ def evaluate_gate(
     conditions["C5_not_placeholder"] = c5
     if not c5:
         denials.append(
-            "C5 FAILED: the underlying linkage is the Phase 0 same-sector "
-            "placeholder. Registry v1.1 bars displaying placeholder-linkage "
-            "results as HYP-04 findings under any circumstances, at any event "
-            "count. A real supply-chain linkage map is required."
+            "C5 FAILED: the underlying linkage is the Phase 0 "
+            "positional-synthetic placeholder (peers assigned to anchors by "
+            "list position, not by sector or by any real relationship). "
+            "Registry v1.1 bars displaying placeholder-linkage results as "
+            "HYP-04 findings under any circumstances, at any event count. A "
+            "real linkage map is required -- as of 2026-08-18 that means a "
+            "hand-curated one, and zero rows are curated."
         )
 
     return GateDecision(open=not denials, denials=denials,

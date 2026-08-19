@@ -45,11 +45,26 @@ CANARY_HARD_CAP_CALLS = CANARY_N_TICKERS * EXPECTED_CALLS_PER_TICKER   # 20
 
 
 def candidate_peer_universe() -> list[str]:
-    """Placeholder linkage: same-sector peers = sector file minus the anchors.
+    """The Phase 0 placeholder peer UNIVERSE: sector file minus the anchors.
 
-    Same limitation as GST_Task2_PeerDivergence.py -- this is NOT a real
-    supply-chain map, and no result derived from it is a finding about
-    supply-chain transmission.
+    Reads the `ticker` column only. The `sector` column is NOT read -- this
+    returns every non-anchor ticker in the file, regardless of industry, so
+    the result is a flat universe and not a sector grouping. (Corrected
+    2026-08-18: this docstring previously said "same-sector peers", describing
+    GST_Task2_PeerDivergence.py's genuinely sector-based approach rather than
+    what this function does.)
+
+    It defines WHO the candidate peers are. It does not pair them with
+    anchors -- fixtures.make_panel() does that positionally, by list slice.
+
+    UNCHANGED BY THE 2026-08-18 HAND-CURATION SWITCH, deliberately (Option A).
+    The committed EDGAR coverage findings were measured against exactly this
+    27-peer universe, so rewiring it to a curated map would silently make
+    those artifacts non-reproducible. The curated loader lives alongside it in
+    curated_linkage.py; the two answer different questions.
+
+    This is NOT a real supply-chain map, and no result derived from it is a
+    finding about supply-chain transmission.
     """
     peers: list[str] = []
     with SECTOR_CSV.open(encoding="utf-8-sig", newline="") as fh:
