@@ -288,12 +288,27 @@ def test_4_generated_v1_2_clears_c4_in_the_real_gate() -> None:
 
 # ================= 5. the real registries are never written ================
 def test_5_real_registry_files_are_not_touched() -> None:
-    before = V1_1.read_bytes()
+    """build_v1_2() is PURE -- it returns a document and writes nothing.
+
+    5b used to assert `not V1_2.exists()`. That was the right intent expressed
+    the wrong way: "v1.2 does not exist" was equivalent to "build wrote nothing"
+    only while v1.2 had not been authored yet. Once it was authored on
+    2026-08-20 the check failed for a reason with nothing to do with purity.
+    It now compares bytes before and after, exactly as 5a does for v1.1, and
+    holds whether or not v1.2 exists on disk.
+    """
+    before_v1_1 = V1_1.read_bytes()
+    before_v1_2 = V1_2.read_bytes() if V1_2.exists() else None
+
     with tempfile.TemporaryDirectory() as t:
         build_v1_2(v1_1=V1_1, signed_lock=_write_lock(Path(t)))
+
     check("5a. building does not modify registry v1.1 on disk",
-          V1_1.read_bytes() == before)
-    check("5b. building does not create registry v1.2", not V1_2.exists())
+          V1_1.read_bytes() == before_v1_1)
+    after_v1_2 = V1_2.read_bytes() if V1_2.exists() else None
+    check("5b. building neither creates nor modifies registry v1.2 on disk",
+          after_v1_2 == before_v1_2,
+          "build_v1_2 must be pure; only main(--write) may write")
 
     v1_0 = V1_1.parent / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0.json"
     if v1_0.is_file():

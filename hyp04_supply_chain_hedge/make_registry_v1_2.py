@@ -66,6 +66,11 @@ LSE = REPO_ROOT / "Live Signal Engine"
 V1_1 = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.1.json"
 V1_2 = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.2.json"
 
+# The companion markdown v1.2 names as its own. The `_DRAFT` suffix matches the
+# convention v1.0 and v1.1 already use for their companions -- the JSON is the
+# authority in every case and the markdown is the human copy.
+V1_2_MARKDOWN = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.2_DRAFT.md"
+
 SIGNED_LOCK = LSE / "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
 DRAFT_LOCK = LSE / "GST_HYP04_ANALYSIS_LOCK_v1.0_DRAFT.json"
 
@@ -74,12 +79,20 @@ DRAFT_STATUSES = {"DRAFT", "DRAFT_UNSIGNED", "UNSIGNED", "PROPOSED"}
 # Code that pins the v1.1 filename. Repointing these is a separate act, and
 # skipping it means the gate keeps reading v1.1 and C4 never clears.
 PINS_V1_1 = (
-    "hyp04_supply_chain_hedge/display_gate.py  (REGISTRY_V1_1 constant)",
+    "hyp04_supply_chain_hedge/display_gate.py  (REGISTRY_CURRENT constant)",
     "hyp04_supply_chain_hedge/dashboard.py     (REGISTRY constant)",
-    "test_hyp04_supply_chain_hedge_display_gate.py",
-    "test_hyp04_supply_chain_hedge_quantum_provenance.py",
-    "test_market_response_hypothesis_registry_v1_1.py  (keep pointing at v1.1)",
+    "test_hyp04_supply_chain_hedge_display_gate.py     (imports REGISTRY_CURRENT)",
+    "test_hyp04_supply_chain_hedge_quantum_provenance.py  (imports REGISTRY_CURRENT)",
+    "test_market_response_hypothesis_registry_v1_1.py  (KEEP pointing at v1.1)",
 )
+
+# Note for a future bump: as of the v1.2 repoint, display_gate's constant is
+# named REGISTRY_CURRENT rather than REGISTRY_V1_1, and the two HYP-04 test
+# suites import that name rather than a version-specific one. A future version
+# bump should therefore change the path on ONE line in display_gate.py plus the
+# dashboard's own constant -- not rename a symbol across four files. The last
+# entry above stays pinned to v1.1 deliberately: it is v1.1's own governance
+# suite, and v1.1 is never edited in place.
 
 
 class RefusedError(RuntimeError):
@@ -184,6 +197,14 @@ def build_v1_2(
         "clears display-gate condition C4 only."
     )
     doc["supersedes_sha256"] = _sha256(v1_1)
+
+    # Every registry version names its OWN companion markdown. Inheriting this
+    # field from v1.1 made v1.2 claim v1.1's companion as its own -- a false
+    # pointer in a governance artifact, and the exact class of silently-carried
+    # field this generator exists to prevent. Set explicitly, never copied.
+    doc["companion_markdown"] = f"{LSE.name}/{V1_2_MARKDOWN.name}"
+    changes.append(f"companion_markdown -> {V1_2_MARKDOWN.name}")
+
     changes.append(f"registry_version 1.1 -> 1.2, authored_at_utc {date}")
 
     entry = next(
