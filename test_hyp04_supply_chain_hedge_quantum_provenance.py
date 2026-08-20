@@ -65,6 +65,8 @@ from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
     FINDINGS_PANELS,
     PROGRESS_PANELS,
     REGISTRY_V1_1,
+    RESOLVED_BY_FIELD,
+    RESOLVED_TOKEN,
     FreezeRecord,
     GateError,
     assert_display_allowed,
@@ -125,9 +127,13 @@ def _registry_variant(tmpdir: Path, *, status: str, pending: bool,
         if h["hypothesis_id"] == "HYP-04":
             h["status"] = status
             h["minimum_eligible_events"] = threshold
-            h["unresolved_analysis_decisions"] = (
-                h["unresolved_analysis_decisions"] if pending else []
-            )
+            if not pending:
+                # A real resolution: every decision stays in the ledger, marked
+                # resolved and citing the lock. Emptying the ledger is a
+                # deletion, not a resolution, and C4 denies it.
+                for d in h["unresolved_analysis_decisions"]:
+                    d["state"] = RESOLVED_TOKEN
+                    d[RESOLVED_BY_FIELD] = "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
     p = tmpdir / "registry_variant.json"
     p.write_text(json.dumps(doc), encoding="utf-8")
     return p

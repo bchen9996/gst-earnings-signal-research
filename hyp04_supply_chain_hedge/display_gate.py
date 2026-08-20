@@ -91,7 +91,24 @@ GATES_DOC = LSE / "GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md"
 
 HYPOTHESIS_ID = "HYP-04"
 REQUIRED_STATUS = "ACTIVE_COLLECTING"
+
+# --- Analysis-decision state vocabulary -----------------------------------
+# A CLOSED vocabulary, deliberately. C4 requires every decision to carry one of
+# these exact tokens; anything else -- a typo, a made-up string, an absent
+# field -- is an unknown and denies. See the C4 block in evaluate_gate for why
+# this is checked positively rather than as "not PENDING".
 PENDING_TOKEN = "PENDING_SEPARATE_ANALYSIS_LOCK"
+RESOLVED_TOKEN = "RESOLVED_IN_DATED_ANALYSIS_LOCK"
+DECISION_STATES: frozenset[str] = frozenset({PENDING_TOKEN, RESOLVED_TOKEN})
+
+# A decision marked resolved must name the dated lock that resolved it. The
+# decision state's own name says the resolution happens in a separate analysis
+# lock; a resolution that cannot cite one has not shown that lock exists.
+RESOLVED_BY_FIELD = "resolved_by_lock"
+
+# Sentinel distinguishing "key absent" from "key present and set to None".
+# `dict.get(k)` collapses those two, and they are not the same claim.
+_MISSING = object()
 
 # Panel identifiers that carry FINDINGS. Every one of these is gated.
 # Listed explicitly so a new findings panel must be added here consciously
@@ -311,21 +328,86 @@ def evaluate_gate(
         if problems:
             denials.append("C3 FAILED: " + "; ".join(problems) + ".")
 
-    # ---- C4: every PENDING decision must be resolved -------------------
-    pending = [
-        d.get("decision", "<unnamed>")
-        for d in entry.get("unresolved_analysis_decisions", [])
-        if d.get("state") == PENDING_TOKEN
-    ]
-    evidence["pending_analysis_decisions"] = len(pending)
-    c4 = not pending
-    conditions["C4_decisions_resolved"] = c4
-    if not c4:
+    # ---- C4: every decision must be EXPLICITLY resolved ----------------
+    #
+    # This asks "is every decision explicitly RESOLVED?", never "is any
+    # decision still PENDING?". The difference is not cosmetic. A
+    # not-PENDING test passes on a deleted ledger, a missing state field, an
+    # unrecognised token and a one-character typo -- all five were verified to
+    # open this gate before this was rewritten. In a module whose stated rule
+    # is "absence of a rule is never read as permission", the burden belongs on
+    # the resolution to prove itself, not on the denial to survive a typo.
+    #
+    # Resolution is recorded by MARKING each decision, never by removing it.
+    # That mirrors the registry's own append-only discipline -- "no registered
+    # event is ever deleted" -- and is why an emptied ledger denies.
+    c4_problems: list[str] = []
+    raw_decisions = entry.get("unresolved_analysis_decisions", _MISSING)
+
+    if raw_decisions is _MISSING:
+        c4_problems.append(
+            "the 'unresolved_analysis_decisions' key is absent -- an absent "
+            "decision ledger is not an empty one, and its absence proves nothing"
+        )
+    elif not isinstance(raw_decisions, list):
+        c4_problems.append(
+            f"'unresolved_analysis_decisions' is {type(raw_decisions).__name__}, "
+            "not a list"
+        )
+    elif not raw_decisions:
+        c4_problems.append(
+            "the decision ledger is empty. Resolution is recorded by marking "
+            "each decision resolved, never by removing it -- an emptied ledger "
+            "is a deletion, not a resolution"
+        )
+    else:
+        for i, d in enumerate(raw_decisions):
+            if not isinstance(d, dict):
+                c4_problems.append(f"entry {i} is {type(d).__name__}, not an object")
+                continue
+            label = str(d.get("decision", f"<unnamed entry {i}>"))[:70]
+            state = d.get("state", _MISSING)
+            if state is _MISSING:
+                c4_problems.append(f"{label!r} carries no 'state' field")
+            elif state not in DECISION_STATES:
+                # Catches typos. An unrecognised token is an unknown, and an
+                # unknown denies -- it is never read as "probably resolved".
+                c4_problems.append(
+                    f"{label!r} has unrecognised state {str(state)[:40]!r}; "
+                    f"permitted states are {sorted(DECISION_STATES)}"
+                )
+            elif state == PENDING_TOKEN:
+                c4_problems.append(f"{label!r} is still {PENDING_TOKEN}")
+            elif not str(d.get(RESOLVED_BY_FIELD, "") or "").strip():
+                # The decision's own name says resolution happens in a
+                # SEPARATE ANALYSIS LOCK. A resolution that cannot name that
+                # lock has not demonstrated one exists.
+                c4_problems.append(
+                    f"{label!r} is marked {RESOLVED_TOKEN} but names no "
+                    f"{RESOLVED_BY_FIELD!r} -- resolution must cite the dated "
+                    "analysis lock that performed it"
+                )
+
+    # Two distinct counts, reported separately because they answer different
+    # questions: how many decisions are still openly pending, versus how many
+    # things are wrong with the ledger (which includes tampering, typos and
+    # absent fields that are not "pending" in any meaningful sense).
+    evidence["decision_ledger_entries"] = (
+        len(raw_decisions) if isinstance(raw_decisions, list) else None
+    )
+    evidence["pending_analysis_decisions"] = sum(
+        1 for d in raw_decisions
+        if isinstance(raw_decisions, list) and isinstance(d, dict)
+        and d.get("state") == PENDING_TOKEN
+    ) if isinstance(raw_decisions, list) else 0
+    evidence["c4_problem_count"] = len(c4_problems)
+    conditions["C4_decisions_resolved"] = not c4_problems
+    if c4_problems:
         denials.append(
-            f"C4 FAILED: {len(pending)} analysis decision(s) still marked "
-            f"{PENDING_TOKEN}. Each must be resolved in a dated analysis lock "
-            "written before the freeze. Unresolved: "
-            + "; ".join(str(p)[:70] for p in pending)
+            f"C4 FAILED: {len(c4_problems)} decision problem(s). Every decision "
+            "must be explicitly marked "
+            f"{RESOLVED_TOKEN} and cite the dated analysis lock that resolved "
+            "it, written before the freeze. " + "; ".join(c4_problems)
         )
 
     # ---- C5: placeholder linkage is never displayable ------------------
