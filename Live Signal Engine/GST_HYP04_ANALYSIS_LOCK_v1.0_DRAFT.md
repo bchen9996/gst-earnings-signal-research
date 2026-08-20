@@ -1,13 +1,16 @@
 # HYP-04 Analysis Lock — v1.0 (DRAFT, UNSIGNED)
 
 > **DRAFT. NOT IN FORCE. COMPLETE BUT UNSIGNED.** Every decision value is
-> filled; no authorizer has signed. Until the signature block in §11 is
-> completed **and registry v1.1's four `PENDING_SEPARATE_ANALYSIS_LOCK` entries
-> are updated to reflect it**, this document resolves nothing. The registry, not
-> this file, is what gate condition C4 reads — so drafting cannot open anything,
-> by construction.
+> filled; no authorizer has signed.
+>
+> Two separate acts are required before this resolves anything: the signature
+> block in **§12** must be completed, **and registry v1.2 must be authored**
+> per **§11** — v1.1 is never edited in place. The registry, not this file, is
+> what gate condition C4 reads, so drafting cannot open anything, by
+> construction. Even after both, the gate stays CLOSED on C1, C2, C3 and C5.
 
-**Drafted:** 2026-08-19 · **Operative date:** set at signing, not at drafting
+**Drafted:** 2026-08-19 (D1–D10) · **§11 added:** 2026-08-20
+**Operative date:** set at signing, not at drafting
 **Hypothesis:** HYP-04 — supply-chain hedge lag (exploratory, registry v1.1)
 **Governing plan:** [`HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md`](HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md)
 
@@ -46,7 +49,7 @@ Resolving all four decisions clears gate condition **C4 only**.
 | C1 | status `ACTIVE_COLLECTING` | **NOT MET** — status is `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED` |
 | C2 | eligible events ≥ 193 | **NOT MET** — zero real eligible events |
 | C3 | event set frozen before any result | **NOT MET** — no freeze record exists |
-| C4 | every PENDING decision resolved | **MET, on signature** |
+| C4 | every decision explicitly resolved | **MET only after signature *and* registry v1.2 (§11)** |
 | C5 | real (non-placeholder) linkage | **NOT MET** — positional-synthetic placeholder; zero curated rows |
 
 **The gate remains CLOSED.** This lock unblocks a step, not a result.
@@ -61,7 +64,11 @@ rules, since the mapping is not one-to-one.
 | two-way clustering (anchor event × calendar period) | **D1**, **D2** |
 | ticker-cluster estimator | **D3**, **D4**, **D5**, **D6** |
 | the reported lag quantity's uncertainty treatment | **D7**, **D8** |
-| whether implied volatility is promoted to primary | **D9** — ***OPEN*** |
+| whether implied volatility is promoted to primary | **D9** |
+
+**D10** is not a registry decision. It arose from D3 while drafting — HYP-01
+designates R as authoritative and HYP-04 has no R path — and is recorded here
+because leaving it implicit would have let the weakest reading stand by default.
 
 ---
 
@@ -345,7 +352,93 @@ Append-only. It rewrites, deletes, renames and activates nothing.
 - **The linkage-map blocker** — unchanged. Zero rows curated.
 - **Universe scope** — recorded separately; not fixed by this document.
 
-## 11. Authorization
+## 11. What registry v1.2 must contain
+
+Signing this lock does not clear C4. **The gate reads the registry**, so a
+second, separate act is required — and the registry's own supersession rule
+forbids doing it the obvious way.
+
+**Do not edit v1.1.** Its rule is explicit: *"v1.0 is NOT edited in place. It
+remains on disk, unchanged, byte-for-byte, and its own governance tests continue
+to run against it."* Resolution therefore means authoring
+`GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.2.json`, additive, superseding v1.1,
+with v1.1 left byte-for-byte intact.
+
+**Do not hand-author it either.** v1.1 carries ~26 top-level keys and four
+hypotheses, of which this change touches four nested fields. Copying the rest by
+hand invites a silently dropped key — the exact failure the registry's own
+governance tests exist to catch. Use the generator:
+
+```bash
+python -m hyp04_supply_chain_hedge.make_registry_v1_2            # dry run
+python -m hyp04_supply_chain_hedge.make_registry_v1_2 --write
+```
+
+It refuses unless the lock is genuinely signed — the signed file must exist
+(not the `_DRAFT` one), with a non-draft status, `in_force: true`, an
+authorizer, an operative date, and the no-outcome attestation. It will not
+overwrite an existing v1.2, it records v1.1's SHA-256 into v1.2 so later drift
+is detectable, and it verifies v1.1 is byte-identical after writing. Dry run is
+the default.
+
+**Required shape per decision.** C4 enforces this positively — it asks whether
+every decision is explicitly resolved, never whether any is still pending — so
+the shape is not advisory:
+
+```json
+{
+  "decision": "<unchanged text from v1.1>",
+  "state": "RESOLVED_IN_DATED_ANALYSIS_LOCK",
+  "resolved_by_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
+}
+```
+
+Every one of these denies, and each was verified against the implementation:
+
+- deleting the `unresolved_analysis_decisions` key
+- emptying the ledger — **resolution is recorded by marking a decision, never
+  by removing it**, mirroring the registry's own append-only discipline
+- omitting `state`, or using any token outside
+  `{PENDING_SEPARATE_ANALYSIS_LOCK, RESOLVED_IN_DATED_ANALYSIS_LOCK}` — a
+  one-character typo denies rather than passing
+- marking a decision resolved without citing the lock in `resolved_by_lock`
+
+All four decisions stay in the ledger after resolution; the ledger still holds
+four entries.
+
+**Code that pins the registry filename** and must be repointed in the same
+change, or the gate will keep reading v1.1 and C4 will never clear:
+
+| File | What |
+|---|---|
+| `hyp04_supply_chain_hedge/display_gate.py` | the `REGISTRY_V1_1` constant |
+| `hyp04_supply_chain_hedge/dashboard.py` | its `REGISTRY` constant |
+| `test_hyp04_supply_chain_hedge_display_gate.py` | imports and reads it |
+| `test_hyp04_supply_chain_hedge_quantum_provenance.py` | imports and reads it |
+| `test_market_response_hypothesis_registry_v1_1.py` | v1.1 governance suite |
+
+A v1.2 governance suite should be added alongside the v1.1 one rather than
+replacing it — v1.1's tests keep running against v1.1, which is the point of
+not editing it in place. Note this is **distinct from**
+`test_hyp04_supply_chain_hedge_registry_v1_2.py`, which already exists and
+tests the *generator*, including an end-to-end check that its output clears C4
+in the real gate and only C4. What is still owed is a suite validating the
+v1.2 *artifact* once one exists.
+
+## 11a. Order of operations
+
+1. Complete the authorization record (template in
+   `GST_HYP04_METHOD_AUTHORIZATION_TEMPLATE.md`) and verify mechanically that
+   the gate reads CLOSED on all five before signing.
+2. Complete §12 below; rename this file and its JSON off `_DRAFT`; set
+   `status` and `in_force`.
+3. Run the generator dry, then with `--write`.
+4. Repoint the five files above and add the v1.2 artifact suite.
+5. Re-run the HYP-04 suites and regenerate the dashboard.
+
+Step 3 refuses if step 2 was skipped, by design.
+
+## 12. Authorization
 
 A human authors and signs this lock. It is not self-executing, and drafting is
 not authorization.
