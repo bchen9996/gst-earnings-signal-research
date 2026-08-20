@@ -11,12 +11,18 @@
 
 | Order | File | Why |
 |---|---|---|
-| 1 | `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md` | The plan |
-| 2 | `Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md` | **Authoritative** wherever it disagrees with the plan |
-| 3 | `Live Signal Engine/CLAUDE_CODE_BUILD_PROMPT_HYP04_v6.md` | The build spec being executed |
-| 4 | This file | What actually happened |
+| 1 | `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md` | **The plan.** Self-contained and authoritative on its own |
+| 2 | `Live Signal Engine/CLAUDE_CODE_BUILD_PROMPT_HYP04_v6.md` | The build spec being executed |
+| 3 | This file | What actually happened |
 
-In doc 2, patches carrying a **"Round 2 correction"** / **"Round 3 correction"** marker or a struck-through **"Superseded by"** note are authoritative; earlier wording in the same patch is kept visible for traceability and must **not** be implemented. Patch 6's first bullet is struck through and superseded by Patch 10.
+**Updated 2026-08-19 — the two-document rule is retired.** This list previously
+put the plan first and `HYP04_PLAN_ROUND2_EDITS.md` second as "authoritative
+wherever it disagrees," which required holding both docs in your head and
+applying a marker convention to know which text governed. All 16 patches are now
+merged into **plan v0.2**, which needs no companion doc. `MODEL_PLAN_v0.1_DRAFT.md`
+and `HYP04_PLAN_ROUND2_EDITS.md` are **superseded historical records — do not
+implement from either.** v0.2 §0 maps every patch to where it landed, so patch
+numbers cited elsewhere in this file still resolve.
 
 ---
 
@@ -240,6 +246,8 @@ Beyond the h-trend regression test (§5) and the two split negative-control fixt
 
 ## 9. Process note carried forward
 
-`HYP04_PLAN_ROUND2_EDITS.md` currently **overrides** the plan doc. That is fine for a build, but a Phase 2 lock referencing two mutually-amending documents is precisely the drift risk this project's tamper tests exist to catch. **Before Phase 2**, merge the patches into a plan v0.2 and demote the edits doc to a dated amendment record.
+~~`HYP04_PLAN_ROUND2_EDITS.md` currently **overrides** the plan doc. That is fine for a build, but a Phase 2 lock referencing two mutually-amending documents is precisely the drift risk this project's tamper tests exist to catch. **Before Phase 2**, merge the patches into a plan v0.2 and demote the edits doc to a dated amendment record.~~
+
+**DONE 2026-08-19.** All 16 patches are merged into `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md`, which is self-contained; the edits doc and v0.1 both carry superseded banners and are historical records. Where a patch had a "Round N correction," only the corrected text was merged. Two items were stale at merge time and v0.2 carries current facts instead: the N-gate floor is the measured **193**, not the provisional "190–240," and HYP-04 **is** now registered (registry v1.1, exploratory). Left struck through rather than deleted so the request and its resolution stay visible together.
 
 Separately, `CLAUDE_CODE_BUILD_PROMPT_HYP02_1.md` at the repo root is an **older, unrelated** file that predates this work. It was left untouched and should not be used.

@@ -70,7 +70,7 @@ Inputs, recorded so the number can be audited rather than trusted:
 
 **Why this does not violate the `power_statement`.** That statement forbids a power calculation performed *using observed project results*. This derivation used a hypothetical effect size chosen before any data, on synthetic fixtures with known injected ground truth. No project data entered it. The output is recorded as a governance floor, not a power guarantee.
 
-Full derivation: `HYP04_PLAN_ROUND2_EDITS.md` (Patch 2) · `HYP04_PHASE0_FEASIBILITY_STATUS_2026-08-18.md` (§5).
+Full derivation: `HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md` (§6) · `HYP04_PHASE0_FEASIBILITY_STATUS_2026-08-18.md` (§5). *(Pointer updated 2026-08-19: the derivation was originally specified in `HYP04_PLAN_ROUND2_EDITS.md` Patch 2, which has since been merged into plan v0.2 and demoted to a historical record. The registered threshold of 193 is unchanged — this updates where the derivation is documented, not the value.)*
 
 **Revisable only** by a further dated registry version written *before* the results that would motivate the revision are seen — the same discipline the promotion rule imposes.
 

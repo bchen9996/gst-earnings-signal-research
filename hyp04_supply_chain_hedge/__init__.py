@@ -14,10 +14,10 @@
 # No real capital logic. No claim anywhere in this package that a hedging edge
 # has been found.
 #
-# See Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md
-# and Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md (the second doc's
-# "Round 2 correction" / "Round 3 correction" markers and struck-through
-# "Superseded by" notes are authoritative wherever the two disagree).
+# See Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md -- the
+# single authoritative build plan as of 2026-08-19. It is self-contained: v0.1
+# and HYP04_PLAN_ROUND2_EDITS.md are superseded historical records, and the
+# marker convention that used to be needed to reconcile them no longer applies.
 #
 # Importing this package performs no network calls and no filesystem writes.
 from __future__ import annotations

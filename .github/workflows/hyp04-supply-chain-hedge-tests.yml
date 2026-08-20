@@ -26,6 +26,10 @@ on:
     paths:
       - "hyp04_supply_chain_hedge/**"
       - "test_hyp04_supply_chain_hedge*.py"
+      # v0.2 is the live plan; v0.1 and the round-2 edits doc are superseded
+      # historical records, kept on this trigger so an edit to either -- which
+      # should not happen -- still runs the suite rather than landing silently.
+      - "Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md"
       - "Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md"
       - "Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md"
       - "requirements-hyp04.txt"
