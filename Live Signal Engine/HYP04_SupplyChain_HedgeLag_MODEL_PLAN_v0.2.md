@@ -284,7 +284,11 @@ N_eff = N_pairs / DEFF
 
 > **Source changed 2026-08-18; the blocker is unchanged.** The automated teammate mapping was deprioritised in favour of **hand curation** against a fixed 15-column template that carries the as-of date natively, so the retrofit risk is resolved by construction. A validating ingestion path is built and tested (`curated_linkage.py`); **zero rows are curated.** Registry v1.1 still records the required linkage measurement as `does_not_exist`.
 >
-> **Open, and the repo owner's call:** whether the curated map targets HYP-01's frozen 24-ticker universe or a smaller first pass. This drives how long Phase 1 stays blocked and what `N_events` can reach against the 193 floor.
+> **Scope, decided by the repo owner 2026-08-19:** the curated map targets **HYP-01's frozen 24-ticker universe** as its primary scope, and **extension beyond those 24 is permitted** — it does not require a dated amendment.
+>
+> **This does not create unbounded drift, and the reason is worth stating.** The display gate's condition C3 requires the eligible event-ID set to be *enumerated* and frozen, together with the analysis-code commit, before any result is computed. Whatever universe is in play is therefore pinned at freeze time by the freeze record itself. Permissive scope widens what may be curated; it does not weaken what must be recorded.
+>
+> Two consequences carry forward regardless. At 24 quarterly anchors the 193-event floor implies roughly **8 quarters** of observation window, which is what the analysis lock's D9.4 lookback constraint is set against. And under the lock's D1 (`calendar_period` clustering) **adding tickers adds no clusters at all** — cluster count is set by how long the window is, not how wide the universe is. Extension raises `N_events` toward the floor without improving degrees of freedom, so it buys reach, not precision.
 
 From the data-validation teammate: nothing blocking, but thin-ticker calibration work would directly improve the coverage/thinness feature.
 
