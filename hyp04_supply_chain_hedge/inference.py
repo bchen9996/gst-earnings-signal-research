@@ -41,6 +41,7 @@ from .clustered_se import (
     satterthwaite_df,
 )
 from .constants import HORIZON_GRID, N_PERMUTATIONS, RANDOM_SEED
+from .quantum_provenance import assert_may_influence_link_strength
 
 
 # ==========================================================================
@@ -431,6 +432,21 @@ def prewhitened_ccf(
 
 # ==========================================================================
 # Link-Strength model: ridge, leave-one-anchor-out CV, placebo
+#
+# PROVENANCE. Everything below is classical by construction -- a closed-form
+# ridge solve and a leave-one-anchor-out split, both in numpy. Nothing quantum
+# is computed here and no quantum library is imported anywhere in this package
+# (checked structurally, not assumed, by
+# test_hyp04_supply_chain_hedge_quantum_provenance.py).
+#
+# `feature_provenance` exists so that stays true if a non-classical feature is
+# ever proposed: it declares what produced the columns being fitted, and
+# quantum_provenance refuses the fit outright rather than letting an
+# unvalidated input contribute a coefficient. The plan scopes the quantum
+# autocorrelation function as tertiary and non-load-bearing -- "it should not
+# be permitted to affect any lock, gate, or hedge decision until it's been
+# validated against the classical result on known cases" -- and the
+# Link-Strength score is precisely such a decision input.
 # ==========================================================================
 def ridge_fit(X: np.ndarray, y: np.ndarray, alpha: float) -> np.ndarray:
     """Closed-form ridge. Intercept (column 0) is NOT penalized.
@@ -450,12 +466,25 @@ def leave_one_anchor_out_cv(
     *,
     horizon: int,
     alpha: float = 1.0,
+    feature_provenance: Optional[Any] = None,
 ) -> dict[str, Any]:
     """Leave-one-ANCHOR-out CV, never random k-fold.
 
     Anchor events cluster in time and by sector, so random folds would leak
     information across correlated events and report an optimistic error.
+
+    `feature_provenance` declares what produced the fitted columns -- one
+    entry, or one per feature. A declared quantum-derived feature without a
+    classical-validation attestation raises before the first solve, so it
+    cannot contribute a coefficient to the Link-Strength score. Today's
+    features are the intercept, the anchor shock and days-to-peer-earnings,
+    all classical, so callers pass nothing.
     """
+    assert_may_influence_link_strength(
+        feature_provenance,
+        context=f"the Link-Strength ridge fit at horizon {horizon}",
+    )
+
     mask = table["horizon"] == horizon
     anchors = table["anchor"][mask]
     y = table["target"][mask]
