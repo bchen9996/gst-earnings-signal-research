@@ -164,8 +164,9 @@ def test_3_required_fields_and_enum_validation() -> None:
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         for f in ("anchor_ticker", "peer_ticker", "relationship_type",
-                  "confidence", "source_type", "as_of_date", "as_of_date_basis",
-                  "date_confidence", "curated_by", "curated_date", "review_status"):
+                  "confidence", "source_type", "source_citation", "as_of_date",
+                  "as_of_date_basis", "date_confidence", "curated_by",
+                  "curated_date", "review_status"):
             res = load_curated_linkage(_write(tmp, mutate(f, "")))
             check(f"3a. blank required field {f!r} rejects the row",
                   res.rows_rejected == 1 and not res.edges)
@@ -185,13 +186,72 @@ def test_3_required_fields_and_enum_validation() -> None:
             check(f"3c. malformed as_of_date {bad_date!r} rejects the row",
                   res.rows_rejected == 1 and not res.edges)
 
-        # Optional fields may be blank.
-        row = mutate("source_citation", "")
+        # Optional fields may be blank. This check used to blank BOTH
+        # source_citation and source_url and assert the row was accepted, which
+        # encoded the gap fixed on 2026-08-20: source_type is required and names
+        # a specific filing, so a row could cite a 10-K without saying which.
+        # source_url stays optional; the citation does not.
         row = ",".join([c if i != idx["source_url"] else ""
-                        for i, c in enumerate(row.split(","))])
+                        for i, c in enumerate(base)])
         res = load_curated_linkage(_write(tmp, row))
         check("3d. optional fields may be blank", len(res.edges) == 1,
               str([(i.field, i.message) for i in res.errors]))
+
+
+# ============ 3e-3h. a source claim must carry its citation ===============
+def test_3_source_claims_must_be_auditable() -> None:
+    """source_type names a filing; source_citation says WHICH filing.
+
+    Both directions. A rule that only rejected would be satisfied by a loader
+    that rejects everything, so the accept case carries equal weight -- and the
+    source_url case proves the rule targets the citation specifically rather
+    than "any provenance field".
+    """
+    base = GOOD_SUPPLIER.split(",")
+    idx = {h: i for i, h in enumerate(EXPECTED_HEADERS)}
+
+    def mutate(field: str, value: str) -> str:
+        row = list(base)
+        row[idx[field]] = value
+        return ",".join(row)
+
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+
+        # A filing is named, nothing identifies it.
+        res = load_curated_linkage(_write(tmp, mutate("source_citation", "")))
+        check("3e. a blank citation REJECTS the row",
+              res.rows_rejected == 1 and not res.edges)
+        check("3e. and the failure is an error naming source_citation",
+              any(i.field == "source_citation" and i.severity == "error"
+                  for i in res.errors),
+              str([(i.field, i.severity, i.message) for i in res.issues]))
+        check("3e. so the file as a whole is not ok", res.ok is False)
+
+        # Whitespace is not a citation.
+        res = load_curated_linkage(_write(tmp, mutate("source_citation", "   ")))
+        check("3f. a whitespace-only citation REJECTS the row",
+              res.rows_rejected == 1 and not res.edges)
+
+        # The other direction: with a citation the row is accepted, and the
+        # citation survives onto the edge rather than being dropped.
+        res = load_curated_linkage(_write(tmp, GOOD_SUPPLIER))
+        check("3g. a row WITH a citation is accepted",
+              len(res.edges) == 1 and res.ok is True,
+              str([(i.field, i.message) for i in res.errors]))
+        check("3g. and the citation reaches the edge",
+              bool(res.edges and res.edges[0].source_citation.strip()))
+
+        # source_url is deliberately still optional -- URLs rot, and requiring
+        # one would push curators toward pasting a fragile link to satisfy the
+        # validator. GOOD_COMPETITOR ships with a blank url for this reason.
+        res = load_curated_linkage(_write(tmp, mutate("source_url", "")))
+        check("3h. a blank source_url is still ACCEPTED when a citation exists",
+              len(res.edges) == 1 and res.ok is True,
+              str([(i.field, i.message) for i in res.errors]))
+        res = load_curated_linkage(_write(tmp, GOOD_COMPETITOR))
+        check("3h. the blank-url fixture row still loads",
+              len(res.edges) == 1, str([(i.field, i.message) for i in res.errors]))
 
 
 # ===================== 4. duplicates and self-pairs =======================
@@ -337,6 +397,7 @@ if __name__ == "__main__":
     test_1_smoke_good_rows_accepted_bad_row_rejected()
     test_2_direction_comes_from_the_lookup_not_from_notes()
     test_3_required_fields_and_enum_validation()
+    test_3_source_claims_must_be_auditable()
     test_4_duplicate_pairs_are_flagged()
     test_5_unknown_tickers_warn_but_are_kept()
     test_6_header_mismatch_is_reported_not_absorbed()

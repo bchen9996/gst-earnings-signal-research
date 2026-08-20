@@ -114,17 +114,38 @@ RELATIONSHIP_TYPE_TO_DIRECTION: dict[str, str] = {
 }
 
 # Fields that must be non-empty on every row.
+#
+# `source_citation` was moved from OPTIONAL to REQUIRED on 2026-08-20, narrowing
+# the semantics of the owner-supplied schema above. The COLUMN SET AND ITS ORDER
+# ARE UNCHANGED -- EXPECTED_HEADERS is byte-identical, so no template is
+# invalidated and the header-drift check is not triggered. Only the
+# blank-allowed rule tightens.
+#
+# Why: `source_type` is required and drawn from a closed vocabulary naming
+# specific SEC filing sections ("10-K Customer Concentration Note", "8-K
+# Material Agreement", ...). With the citation optional, a row could assert that
+# a named filing establishes a supply-chain edge without identifying WHICH
+# filing -- an unverifiable provenance claim that passed validation and reached
+# res.edges. A linkage map is only as good as the ability to audit one edge
+# back to its source, and that ability is exactly what a blank citation removes.
+#
+# Zero rows were curated when this changed, so it invalidates no existing data.
 REQUIRED_FIELDS: tuple[str, ...] = (
     "anchor_ticker", "peer_ticker", "relationship_type", "confidence",
-    "source_type", "as_of_date", "as_of_date_basis", "date_confidence",
-    "curated_by", "curated_date", "review_status",
+    "source_type", "source_citation", "as_of_date", "as_of_date_basis",
+    "date_confidence", "curated_by", "curated_date", "review_status",
 )
 
 # Fields allowed to be blank. relationship_direction_notes is optional AND
 # never read programmatically.
+#
+# `source_url` stays optional DELIBERATELY, not by oversight. URLs rot, and
+# several source types (an analyst report, a paper filing) may have no stable
+# public URL at all. The citation string is the durable artifact; requiring a
+# URL too would push curators toward pasting a fragile link to satisfy the
+# validator. Requiring the citation is what makes an edge auditable.
 OPTIONAL_FIELDS: tuple[str, ...] = (
-    "relationship_direction_notes", "source_citation", "source_url",
-    "notes_caveats",
+    "relationship_direction_notes", "source_url", "notes_caveats",
 )
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
