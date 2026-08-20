@@ -231,7 +231,7 @@ Two real defects were caught by tests rather than by review:
 
 > **Source changed 2026-08-18 — the blocker is unchanged.** The automated teammate mapping was deprioritised; the project switched to **hand curation** against a fixed 15-column template that carries the as-of date natively, so the retrofit risk above is resolved by construction. A validating ingestion path is built and tested (`hyp04_supply_chain_hedge/curated_linkage.py`), but **zero rows are curated**. A loader is not a map. Registry v1.1 still records the required linkage measurement as `does_not_exist`. See [`HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md`](HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md).
 >
-> **Open, and the repo owner's call:** whether the curated map targets HYP-01's frozen 24-ticker universe or a smaller first-pass scope. This drives how long Phase 1 stays blocked and what `N_events` can eventually reach against the 193-event floor.
+> ~~**Open, and the repo owner's call:** whether the curated map targets HYP-01's frozen 24-ticker universe or a smaller first-pass scope. This drives how long Phase 1 stays blocked and what `N_events` can eventually reach against the 193-event floor.~~ **Decided 2026-08-19: HYP-01's frozen 24-ticker universe** is the primary scope, with **extension beyond it permitted** and not requiring a dated amendment. Scope is still pinned at freeze time by C3's enumerated event-ID set, so this widens what may be curated without weakening what must be recorded. See plan v0.2 §8. Struck through rather than deleted so the question and its answer stay visible together.
 
 **Open decisions requiring the repo owner:**
 
