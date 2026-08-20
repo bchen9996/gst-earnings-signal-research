@@ -48,6 +48,22 @@ positional-synthetic-placeholder output is therefore permanently ineligible for 
 as a HYP-04 finding, independent of the four conditions above. This module
 enforces that as its own condition rather than trusting callers to remember it.
 
+=== QUANTUM-DERIVED RESULTS ARE BLOCKED SEPARATELY, AND HARDER ===
+
+The five conditions above describe the state of the HYPOTHESIS. They say
+nothing about HOW a number was computed, so they cannot stop a result from a
+method this project has never validated -- and an OPEN gate would let one
+straight through.
+
+`quantum_provenance.py` is the control for that, and it composes with this one
+rather than being folded into it: a quantum-derived result is refused
+regardless of gate state and regardless of source (this project's own tertiary
+cross-check module, or a result supplied from outside the repository), unless
+it carries a complete attestation that it was validated against the classical
+reference on known cases. Nothing has such an attestation; nothing is claimed
+to. Both controls must pass -- clearing the quantum control does not open this
+gate, and opening this gate does not clear the quantum control.
+
 === FAIL-CLOSED DISCIPLINE ===
 
 Every unknown resolves to DENY. A missing file, an unparseable artifact, an
@@ -60,6 +76,12 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
+
+from .quantum_provenance import (
+    MethodProvenance,
+    ProvenanceError,
+    assert_may_display,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LSE = REPO_ROOT / "Live Signal Engine"
@@ -98,6 +120,18 @@ PROGRESS_PANELS: tuple[str, ...] = (
     "eligible_event_count",
     "unresolved_decisions",
 )
+
+
+def _is_real_int(x: Any) -> bool:
+    """int, and not a bool wearing an int's clothes.
+
+    `isinstance(True, int)` is True in Python, so a plain isinstance check
+    would silently read `eligible_event_count=True` as a count of 1 and
+    `minimum_eligible_events=True` as a threshold of 1. Neither is a count.
+    On a fail-closed control an input that means nothing must deny, not be
+    quietly coerced into the smallest passing value.
+    """
+    return isinstance(x, int) and not isinstance(x, bool)
 
 
 class GateError(RuntimeError):
@@ -219,7 +253,7 @@ def evaluate_gate(
     threshold = entry.get("minimum_eligible_events")
     evidence["registered_threshold"] = threshold
     evidence["eligible_event_count"] = eligible_event_count
-    if not isinstance(threshold, int):
+    if not _is_real_int(threshold):
         conditions["C2_threshold"] = False
         denials.append("C2 FAILED: registered threshold is missing or not an integer.")
     elif eligible_event_count is None:
@@ -229,7 +263,7 @@ def evaluate_gate(
             "derivable. An unknown count denies -- it never defaults to zero "
             "or to pass."
         )
-    elif not isinstance(eligible_event_count, int) or eligible_event_count < 0:
+    elif not _is_real_int(eligible_event_count) or eligible_event_count < 0:
         conditions["C2_threshold"] = False
         denials.append(
             f"C2 FAILED: eligible event count {eligible_event_count!r} is not a "
@@ -265,7 +299,7 @@ def evaluate_gate(
             )
         # A frozen set whose size contradicts the reported count is not
         # mechanically derivable, and section 4 denies on exactly that.
-        if (freeze.eligible_event_ids and isinstance(eligible_event_count, int)
+        if (freeze.eligible_event_ids and _is_real_int(eligible_event_count)
                 and len(freeze.eligible_event_ids) != eligible_event_count):
             problems.append(
                 f"the frozen set holds {len(freeze.eligible_event_ids)} ids but the "
@@ -329,16 +363,52 @@ def is_findings_panel(panel_id: str) -> bool:
     return True
 
 
-def assert_display_allowed(panel_id: str, decision: GateDecision) -> None:
+def assert_display_allowed(
+    panel_id: str,
+    decision: GateDecision,
+    provenance: Optional[MethodProvenance] = None,
+) -> None:
     """Raise unless this panel may be displayed under this decision.
 
     Progress panels always pass. Findings panels pass only through an OPEN
     gate. This is the single chokepoint the dashboard calls -- rendering code
     never inspects the conditions itself and never decides for itself.
+
+    TWO INDEPENDENT CONTROLS, EVALUATED IN THIS ORDER:
+
+    1. The quantum-provenance control, first and for EVERY panel including
+       progress panels. A declared quantum-derived result without a complete
+       classical-validation attestation raises `QuantumProvenanceError` here
+       even when the gate is wide open, because an open gate licenses showing a
+       CLASSICAL finding and nothing more. Checking it first also means the
+       caller is told the real reason rather than a generic gate denial.
+
+    2. The five-condition gate, as before.
+
+    `provenance=None` means the caller declared nothing. That is tolerated
+    while the gate is CLOSED -- the panel is refused anyway and the gate's own
+    denial is the honest reason -- but it is refused once the gate is OPEN,
+    where an undeclared method family is exactly the "unknown resolves to DENY"
+    case. Concretely: the day this gate opens, every findings panel must state
+    what produced its number or it will not render. That is deliberate, and it
+    is why the dashboard's findings loop currently passes nothing: today it
+    fails on the gate, and later it will fail loudly on the missing
+    declaration rather than quietly publishing an unattributed figure.
     """
+    assert_may_display(panel_id, provenance)
+
     if not is_findings_panel(panel_id):
         return
     if decision.open:
+        if provenance is None:
+            raise ProvenanceError(
+                f"Display DENIED for findings panel {panel_id!r}. The gate is "
+                "OPEN, but no method provenance was declared for this result. "
+                "An undeclared method family cannot be shown to be classical, "
+                "and absence of a declaration is not permission. Pass a "
+                "MethodProvenance (quantum_provenance.CLASSICAL_INTERNAL for "
+                "this package's own classical estimators)."
+            )
         return
     raise GateError(
         f"Display DENIED for findings panel {panel_id!r}. Gate is "
@@ -372,6 +442,14 @@ def locked_panel_placeholder(panel_id: str, decision: GateDecision) -> dict[str,
         "note": (
             "Reaching a threshold licenses LOOKING, not CONCLUDING. This panel "
             "shows no value, direction, or magnitude while locked."
+        ),
+        "separately_blocked": (
+            "Independently of the conditions above, any quantum-derived result "
+            "-- from this project's own tertiary cross-check module or supplied "
+            "from outside the repository -- is refused in this panel unless it "
+            "has been validated against the classical reference on known cases. "
+            "No such validation exists and none is claimed. Opening the gate "
+            "does not lift this; it is a separate control."
         ),
     }
 

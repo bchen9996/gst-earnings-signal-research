@@ -61,6 +61,10 @@ from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
     is_findings_panel,
     locked_panel_placeholder,
 )
+from hyp04_supply_chain_hedge.quantum_provenance import (  # noqa: E402
+    CLASSICAL_INTERNAL,
+    ProvenanceError,
+)
 
 FAILURES: list[str] = []
 SKIPS: list[str] = []
@@ -308,11 +312,14 @@ def test_9_all_conditions_true_opens_the_gate() -> None:
         check("9b. and it records no denials", d.denials == [])
         check("9c. every condition is individually true",
               all(d.conditions.values()), str(d.conditions))
-        # and a findings panel is then permitted
+        # and a findings panel is then permitted -- with its method provenance
+        # declared. Through an OPEN gate a declaration is required: see
+        # test_hyp04_supply_chain_hedge_quantum_provenance.py, which owns that
+        # rule and asserts both directions of it.
         try:
-            assert_display_allowed("onset_horizon", d)
+            assert_display_allowed("onset_horizon", d, CLASSICAL_INTERNAL)
             check("9d. a findings panel is permitted through an OPEN gate", True)
-        except GateError:
+        except (GateError, ProvenanceError):
             check("9d. a findings panel is permitted through an OPEN gate", False)
         # exceeding the threshold is also fine
         d2 = evaluate_gate(eligible_event_count=500, freeze=_good_freeze(500),
@@ -346,12 +353,28 @@ def test_10_tampered_freeze_records_are_rejected() -> None:
               "documents that registry integrity is enforced by the registry's own "
               "governance tests, not by this gate")
 
-        # negative / non-integer counts
-        for bad in (-1, "193", 193.0):
+        # negative / non-integer counts. True and False are included because
+        # isinstance(True, int) is True in Python: without an explicit bool
+        # check, a count of True would be read as 1 and a threshold of True as
+        # a threshold of 1. Neither is a count, and on a fail-closed control an
+        # input that means nothing must deny rather than be coerced into the
+        # smallest passing value.
+        for bad in (-1, "193", 193.0, True, False):
             db = evaluate_gate(eligible_event_count=bad, freeze=_good_freeze(),
                                registry_path=reg)
             check(f"10d. a non-negative-integer count {bad!r} is rejected",
                   db.open is False)
+            check(f"10d2. ... and C2 is the condition that rejects {bad!r}",
+                  db.conditions["C2_threshold"] is False)
+
+        # The same coercion on the THRESHOLD side: a doctored registry whose
+        # minimum_eligible_events is True must not become a threshold of 1.
+        bool_thr = _registry_variant(Path(td), status="ACTIVE_COLLECTING",
+                                     pending=False, threshold=True)
+        dbt = evaluate_gate(eligible_event_count=1, freeze=_good_freeze(1),
+                            registry_path=bool_thr)
+        check("10e. a boolean registry threshold is rejected, not read as 1",
+              dbt.open is False and dbt.conditions["C2_threshold"] is False)
 
 
 # ===================== 11. panel classification ==========================

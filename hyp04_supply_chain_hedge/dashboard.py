@@ -30,6 +30,13 @@ Those panels are not omitted by editorial choice -- they route through
 render one by accident, and an unclassified panel is treated as a finding and
 denied rather than shown.
 
+A SECOND, INDEPENDENT CONTROL runs through the same chokepoint: any
+quantum-derived model output is refused from EVERY panel -- findings and
+progress alike -- unless it has been validated against the classical reference
+on known cases, regardless of whether it came from this project's own tertiary
+cross-check module or from outside the repository. See quantum_provenance.py.
+That control is not the gate and the gate is not that control; both must pass.
+
 THE AUDIT NUMBERS ARE DATA AVAILABILITY, NOT A HYPOTHESIS CLAIM. 100% option
 chain coverage says option chains exist. It says nothing about transmission,
 and yfinance serves current chains only, so it does not establish that implied
@@ -57,6 +64,8 @@ from .display_gate import (
     current_decision,
     locked_panel_placeholder,
 )
+from .quantum_provenance import MethodProvenance
+from .quantum_provenance import current_status as quantum_control_status
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LSE = REPO_ROOT / "Live Signal Engine"
@@ -70,6 +79,7 @@ TEST_SUITES = (
     "test_hyp04_supply_chain_hedge_inference.py",
     "test_hyp04_supply_chain_hedge_smoke.py",
     "test_hyp04_supply_chain_hedge_display_gate.py",
+    "test_hyp04_supply_chain_hedge_quantum_provenance.py",
     "test_market_response_hypothesis_registry_v1_1.py",
 )
 
@@ -77,6 +87,18 @@ TEST_SUITES = (
 # ==========================================================================
 # Readers -- each returns what is on disk, or an explicit "unavailable".
 # ==========================================================================
+def _n_root_test_files() -> int:
+    """How many test files the repository root carries.
+
+    A count of files on disk, not a count of checks. The distinction matters:
+    this page runs five suites and reports what they printed, so it can state
+    their check counts honestly. It cannot state a repo-wide check total
+    without running everything, and a hand-maintained one goes stale -- which
+    is exactly what happened to the figure this replaced.
+    """
+    return len(list(REPO_ROOT.glob("test_*.py")))
+
+
 def _read_json(p: Path) -> Optional[dict]:
     if not p.is_file():
         return None
@@ -245,10 +267,23 @@ def _e(x: Any) -> str:
     return html.escape(str(x))
 
 
-def _panel(panel_id: str, title: str, body: str, decision: GateDecision) -> str:
-    """Render a panel THROUGH the gate. Findings panels cannot bypass this."""
+def _panel(panel_id: str, title: str, body: str, decision: GateDecision,
+           provenance: Optional[MethodProvenance] = None) -> str:
+    """Render a panel THROUGH the gate. Findings panels cannot bypass this.
+
+    `provenance` declares what produced the numbers in `body`, and is forwarded
+    unchanged to the shared enforcement function. The renderer never inspects
+    it and never decides on it -- a declared quantum-derived result without a
+    classical-validation attestation is refused there, for every panel,
+    whatever the gate says.
+
+    Findings panels below pass nothing, because none of them has a number: the
+    gate is closed on five independent grounds. If it ever opens, an
+    undeclared provenance raises rather than renders, which is the intended
+    behaviour -- an unattributed figure should stop the page, not appear on it.
+    """
     try:
-        assert_display_allowed(panel_id, decision)
+        assert_display_allowed(panel_id, decision, provenance)
     except Exception:
         ph = locked_panel_placeholder(panel_id, decision)
         reasons = "".join(f"<li>{_e(r)}</li>" for r in ph["why"])
@@ -278,6 +313,7 @@ def _panel(panel_id: str, title: str, body: str, decision: GateDecision) -> str:
 def render(tests: dict, audit: dict, registry: dict,
            decision: GateDecision) -> str:
     gen = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    quantum = quantum_control_status()
 
     # --- build/test ---
     if tests.get("available"):
@@ -297,8 +333,14 @@ def render(tests: dict, audit: dict, registry: dict,
           <table><thead><tr><th>Suite</th><th>Status</th><th>Passed</th><th>Skipped</th></tr></thead>
           <tbody>{rows}</tbody></table>
           <p class="muted small">Skips are counted separately and never as passes.
-             The full repository governance suite stands at 3,227 checks / 1 skip
-             (the skip is the R cross-check, which needs Rscript installed).</p>"""
+             The counts above are what these {len(TEST_SUITES)} suites reported when this
+             page was generated &mdash; read from their own output, not recorded by hand.
+             The repository as a whole carries {_n_root_test_files()} test files; this page
+             does not run them, so it states no total for them. A hand-maintained
+             repo-wide figure previously sat here and had gone stale, which is the
+             failure mode this page's own rule exists to prevent: if a number is not
+             read from disk, counted from test output, or established calibration, it
+             does not appear.</p>"""
     else:
         tests_body = f"<p class='muted'>{_e(tests.get('why','unavailable'))}</p>"
 
@@ -531,6 +573,22 @@ def render(tests: dict, audit: dict, registry: dict,
      <span class="mono">display_gate.assert_display_allowed</span>, which raises rather
      than returning a value &mdash; and an unclassified panel is treated as a finding
      and denied, so forgetting to classify one fails closed.</p>
+  <div class="caveat"><strong>Second, independent control: quantum-derived results.</strong>
+     The five conditions above describe the state of the <em>hypothesis</em>. They say
+     nothing about <em>how</em> a number was computed, so on their own they would let a
+     result from an unvalidated method through an open gate.
+     <span class="mono">quantum_provenance.py</span> blocks that separately: any
+     quantum-derived model output is refused from every panel and from the Stage&nbsp;1
+     Link-Strength score unless it carries a complete attestation that it was validated
+     against the classical reference on known cases &mdash; and
+     <strong>{_e(quantum['validated_results_on_file'])} such validations and
+     {_e(quantum['agreement_logs_on_file'])} agreement logs are on file</strong>.
+     The block applies <strong>regardless of source</strong>: a result from this
+     project's own tertiary cross-check module and one supplied from outside the
+     repository are treated identically. Opening the gate does not lift it, and clearing
+     it does not open the gate. Per the model plan, the quantum autocorrelation function
+     is tertiary, non-load-bearing, and feeds no decision; it was skipped because no
+     citable construction exists for applying it to classical return series.</div>
 </div>
 {findings}
 

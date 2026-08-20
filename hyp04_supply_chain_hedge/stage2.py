@@ -38,9 +38,13 @@ long and arrives after the move has already started.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, Union
 
 from .constants import ASSUMED_PEER_EQUITY_NOTIONAL_USD, NO_EDGE_CLAIM
+from .quantum_provenance import (
+    MethodProvenance,
+    assert_may_influence_link_strength,
+)
 
 
 class Structure:
@@ -80,7 +84,21 @@ class PeerOptionsConditions:
 
 @dataclass
 class Stage1Score:
-    """What Stage 1 hands Stage 2."""
+    """What Stage 1 hands Stage 2.
+
+    `link_strength_provenance` declares what produced the score -- and, where a
+    score has several contributing inputs, a sequence with one entry per input.
+    `select_hedge_structure` refuses the whole score if any declared
+    contributor is quantum-derived and unvalidated, because "influencing the
+    Link-Strength score" covers a single feature just as much as the score
+    itself. One unvalidated input is enough to refuse everything downstream
+    of it.
+
+    Left as None it declares nothing, which is what every existing caller does
+    and is accurate today: no quantum computation exists anywhere in this
+    package, which the provenance test suite checks structurally rather than
+    assumes. Declare it as soon as a score has a non-classical contributor.
+    """
 
     peer: str
     link_strength: float
@@ -89,6 +107,9 @@ class Stage1Score:
     lag_ci_width_days: Optional[float] = None
     significant: bool = False
     coverage_thinness: Optional[float] = None
+    link_strength_provenance: Optional[
+        Union[MethodProvenance, Sequence[Optional[MethodProvenance]]]
+    ] = None
 
 
 @dataclass
@@ -144,7 +165,21 @@ def select_hedge_structure(
     Rules are evaluated in order; the first match wins. Ordering is itself a
     preregistered decision: viability gates come before structure selection so
     a structure is never recommended into a market that cannot support it.
+
+    The provenance control runs BEFORE rule R1, ahead of every threshold. A
+    quantum-derived Link-Strength score that has not been validated against the
+    classical reference does not get evaluated and returned as
+    `NO_POSITION` -- returning a recommendation, even a null one, would mean
+    the score had been read and acted on. It raises instead. The plan's rule is
+    that such a result "should not be permitted to affect any lock, gate, or
+    hedge decision", and declining to act because of what the number said is
+    still the number affecting the decision.
     """
+    assert_may_influence_link_strength(
+        score.link_strength_provenance,
+        context=f"the Stage 1 Link-Strength score for peer {score.peer!r}",
+    )
+
     budget = notional_usd * cost_budget_pct
     inputs = {
         "link_strength": score.link_strength,

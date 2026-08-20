@@ -1,4 +1,4 @@
-<!-- generated 2026-08-19 04:50 UTC -->
+<!-- generated 2026-08-19 21:52 UTC -->
 <style>
   :root {
     --bg:#f6f7f9; --card:#fff; --ink:#16181d; --muted:#6b7280; --line:#e5e7eb;
@@ -56,7 +56,7 @@
 <div class="wrap">
 <header>
   <h1>HYP-04 Phase 0 &mdash; Build &amp; Process Status</h1>
-  <p class="muted small">Infrastructure and process metrics. Generated 2026-08-19 04:50 UTC.
+  <p class="muted small">Infrastructure and process metrics. Generated 2026-08-19 21:52 UTC.
      Reads committed artifacts; computes no new statistics.</p>
 </header>
 
@@ -75,7 +75,23 @@
 
         <section class="panel" id="build_test_status">
           <h3>Governance and package suites</h3>
-          <p class='muted'>suite execution skipped (--no-run)</p>
+          
+          <div class="kpis">
+            <div class="kpi"><div class="v">580</div><div class="l">checks passed</div></div>
+            <div class="kpi"><div class="v">0</div><div class="l">skipped</div></div>
+            <div class="kpi"><div class="v">ALL GREEN</div><div class="l">suite status</div></div>
+          </div>
+          <table><thead><tr><th>Suite</th><th>Status</th><th>Passed</th><th>Skipped</th></tr></thead>
+          <tbody><tr><td class='mono'>test_hyp04_supply_chain_hedge_target.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>32</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_inference.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>85</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_smoke.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>42</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_display_gate.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>249</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_hyp04_supply_chain_hedge_quantum_provenance.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>83</td><td class='num'>&mdash;</td></tr><tr><td class='mono'>test_market_response_hypothesis_registry_v1_1.py</td><td><span class='badge pass'>PASS</span></td><td class='num'>89</td><td class='num'>&mdash;</td></tr></tbody></table>
+          <p class="muted small">Skips are counted separately and never as passes.
+             The counts above are what these 6 suites reported when this
+             page was generated &mdash; read from their own output, not recorded by hand.
+             The repository as a whole carries 55 test files; this page
+             does not run them, so it states no total for them. A hand-maintained
+             repo-wide figure previously sat here and had gone stale, which is the
+             failure mode this page's own rule exists to prevent: if a number is not
+             read from disk, counted from test output, or established calibration, it
+             does not appear.</p>
         </section>
 
 <h2>Data availability</h2>
@@ -202,6 +218,22 @@
      <span class="mono">display_gate.assert_display_allowed</span>, which raises rather
      than returning a value &mdash; and an unclassified panel is treated as a finding
      and denied, so forgetting to classify one fails closed.</p>
+  <div class="caveat"><strong>Second, independent control: quantum-derived results.</strong>
+     The five conditions above describe the state of the <em>hypothesis</em>. They say
+     nothing about <em>how</em> a number was computed, so on their own they would let a
+     result from an unvalidated method through an open gate.
+     <span class="mono">quantum_provenance.py</span> blocks that separately: any
+     quantum-derived model output is refused from every panel and from the Stage&nbsp;1
+     Link-Strength score unless it carries a complete attestation that it was validated
+     against the classical reference on known cases &mdash; and
+     <strong>0 such validations and
+     0 agreement logs are on file</strong>.
+     The block applies <strong>regardless of source</strong>: a result from this
+     project's own tertiary cross-check module and one supplied from outside the
+     repository are treated identically. Opening the gate does not lift it, and clearing
+     it does not open the gate. Per the model plan, the quantum autocorrelation function
+     is tertiary, non-load-bearing, and feeds no decision; it was skipped because no
+     citable construction exists for applying it to classical return series.</div>
 </div>
 
         <section class="panel locked" id="lag_scores">
