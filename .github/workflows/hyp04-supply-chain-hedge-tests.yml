@@ -89,14 +89,19 @@ jobs:
             python "$f"
           done
 
-      - name: Confirm the live audit runners were never invoked
-        # A structural check, not a comment: the live runners must not be
-        # reachable from the discovered test suite. If either is ever renamed
-        # onto the test_* pattern, this step fails before it can spend budget.
+      - name: Confirm no side-effecting runner is reachable by test discovery
+        # A structural check, not a comment. Two classes of script must never be
+        # reachable from the discovered suite:
+        #   * the live audit runners, which make real billable provider calls
+        #   * make_registry_v1_2.py, which writes a governance artifact and must
+        #     only ever run when a human decides it should
+        # If any is renamed onto the test_* pattern, this fails before it can
+        # spend budget or author a registry version.
         run: |
           set -e
-          if ls test_hyp04*run_canary* test_hyp04*run_full* 2>/dev/null; then
-            echo "A live audit runner matches the test discovery pattern. Refusing."
+          if ls test_hyp04*run_canary* test_hyp04*run_full* \
+                test_hyp04*make_registry* 2>/dev/null; then
+            echo "A side-effecting runner matches the test discovery pattern. Refusing."
             exit 1
           fi
-          echo "OK: no live audit runner is reachable by test discovery."
+          echo "OK: no side-effecting runner is reachable by test discovery."
