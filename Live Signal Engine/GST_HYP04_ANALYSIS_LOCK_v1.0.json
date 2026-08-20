@@ -1,24 +1,39 @@
 {
   "schema": "gst.analysis_lock.v1",
-  "artifact": "GST_HYP04_ANALYSIS_LOCK_v1.0_DRAFT.json",
+  "artifact": "GST_HYP04_ANALYSIS_LOCK_v1.0.json",
   "lock_id": "GST_HYP04_ANALYSIS_LOCK_v1.0",
   "lock_version": "1.0",
   "hypothesis_id": "HYP-04",
 
-  "status": "DRAFT_UNSIGNED",
-  "in_force": false,
-  "why_not_in_force": [
-    "No authorizer has signed. Drafting is not authorization.",
-    "Registry v1.1 still records all four HYP-04 decisions as PENDING_SEPARATE_ANALYSIS_LOCK. Gate condition C4 reads the REGISTRY, not this file, so the existence of this artifact cannot open anything.",
-    "The filename carries the _DRAFT suffix deliberately. The signed artifact is GST_HYP04_ANALYSIS_LOCK_v1.0.json, which does not exist yet."
+  "status": "IN_FORCE",
+  "in_force": true,
+  "what_being_in_force_does_not_mean": [
+    "It does not open the display gate. Gate condition C4 reads the REGISTRY, not this file, so signing this artifact opens nothing by itself.",
+    "Clearing C4 additionally requires authoring registry v1.2 (v1.1 is never edited in place) and repointing the code that pins the v1.1 filename.",
+    "Even after both acts the gate remains CLOSED: C4 clears; C1, C2, C3 and C5 do not. No HYP-04 finding becomes displayable.",
+    "It does not approve a method. D3 and D10 record method_approved false, inherited from HYP-01, and nothing here upgrades that.",
+    "It does not create the linkage map, which remains the binding Phase 1 blocker at zero curated rows."
   ],
-  "human_companion": "GST_HYP04_ANALYSIS_LOCK_v1.0_DRAFT.md",
-  "authority_note": "On signing, the non-DRAFT JSON becomes the machine-readable authority and the Markdown becomes its human companion, mirroring HYP-01's convention. While this file carries status DRAFT_UNSIGNED it is a record of intent and nothing more.",
+  "human_companion": "GST_HYP04_ANALYSIS_LOCK_v1.0.md",
+  "authorization_record": "GST_HYP04_METHOD_AUTHORIZATION_2026-08-20.md",
+  "authority_note": "This non-DRAFT JSON is the machine-readable authority and the Markdown is its human companion, mirroring HYP-01's convention. Signed 2026-08-20; the superseded draft filenames carried a _DRAFT suffix and no longer exist.",
 
   "drafted_utc_date": "2026-08-19",
-  "operative_date": null,
-  "authorizer": null,
-  "no_outcome_inspected_before_signing_attested": false,
+  "operative_date": "2026-08-20",
+  "operative_date_note": "A UTC calendar date supplied by the authorizer. This record does not assert that the authorization occurred on 2026-08-20 in America/Chicago or any other local timezone. The git commit and push timestamps, preserved separately by version control, record when it entered history.",
+  "authorizer": "Project authorizer / repository owner",
+  "authorizer_note": "A role, not an independent statistician or methodologist. No external peer review, methodological review, institutional approval or reviewer sign-off has occurred, and none is claimed. No handwritten signature exists. No reviewer identity is recorded, because there is no reviewer.",
+  "no_outcome_inspected_before_signing_attested": true,
+  "no_outcome_inspected_evidence": {
+    "verified_mechanically_before_signing": true,
+    "gate_status": "CLOSED",
+    "conditions_all_not_met": ["C1_status", "C2_threshold", "C3_frozen", "C4_decisions_resolved", "C5_not_placeholder"],
+    "registry_results": null,
+    "eligible_event_counts": {"HYP-01": 0, "HYP-02": 0, "HYP-03": 0, "HYP-04": 0},
+    "freeze_record_exists": false,
+    "curated_linkage_rows": 0,
+    "note": "Five of the six attestation conditions are machine-checkable and were checked, not asserted. The sixth -- that no effect estimate, direction, p-value, interim result or plot was inspected -- is the authorizer's own attestation, and is the only clause here that rests on a person's word. It is also close to trivially satisfiable in this instance: no such artifact existed to inspect."
+  },
 
   "append_only": true,
   "supersedes_nothing_by_deletion": "Rewrites, deletes, renames and activates nothing. Registry v1.0 and v1.1, HYP-01/02/03 artifacts, the Phase 2 preregistration lock, and the quantum-provenance control are all untouched.",

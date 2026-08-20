@@ -1,23 +1,28 @@
-# HYP-04 Analysis Lock — v1.0 (DRAFT, UNSIGNED)
+# HYP-04 Analysis Lock — v1.0 (SIGNED, IN FORCE)
 
-> **DRAFT. NOT IN FORCE. COMPLETE BUT UNSIGNED.** Every decision value is
-> filled; no authorizer has signed.
+> **SIGNED 2026-08-20. IN FORCE. AND IT OPENS NOTHING.**
 >
-> Two separate acts are required before this resolves anything: the signature
-> block in **§12** must be completed, **and registry v1.2 must be authored**
-> per **§11** — v1.1 is never edited in place. The registry, not this file, is
-> what gate condition C4 reads, so drafting cannot open anything, by
-> construction. Even after both, the gate stays CLOSED on C1, C2, C3 and C5.
+> Being in force means the four analysis decisions are settled and may no
+> longer be chosen after seeing an outcome. It does not mean a result may be
+> displayed. Gate condition C4 reads the **registry**, not this file, so
+> signing resolves nothing on its own: registry **v1.2** must additionally be
+> authored per **§11** — v1.1 is never edited in place — and the code that pins
+> the v1.1 filename must be repointed.
+>
+> Even after both acts the gate stays **CLOSED**. C4 clears; C1, C2, C3 and C5
+> do not. No HYP-04 finding becomes displayable, `method_approved` remains
+> false, and the linkage map still does not exist at zero curated rows.
 
-**Drafted:** 2026-08-19 (D1–D10) · **§11 added:** 2026-08-20
-**Operative date:** set at signing, not at drafting
+**Drafted:** 2026-08-19 (D1–D10) · **§11 added:** 2026-08-20 · **Signed:** 2026-08-20
+**Operative date:** 2026-08-20 (UTC calendar date supplied by the authorizer)
+**Authorizer:** Project authorizer / repository owner — see §12
 **Hypothesis:** HYP-04 — supply-chain hedge lag (exploratory, registry v1.1)
 **Governing plan:** [`HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md`](HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md)
+**Authorization record:** [`GST_HYP04_METHOD_AUTHORIZATION_2026-08-20.md`](GST_HYP04_METHOD_AUTHORIZATION_2026-08-20.md)
 
-At signing, a machine-readable `GST_HYP04_ANALYSIS_LOCK_v1.0.json` becomes the
-authority and this document its human companion, mirroring HYP-01's convention.
-**The JSON is deliberately not written yet** — an incomplete machine-readable
-artifact is worse than none, because it can be mistaken for authority.
+The machine-readable [`GST_HYP04_ANALYSIS_LOCK_v1.0.json`](GST_HYP04_ANALYSIS_LOCK_v1.0.json)
+is the authority and this document is its human companion, mirroring HYP-01's
+convention. Where the two are read together and disagree, the JSON governs.
 
 ---
 
@@ -469,10 +474,24 @@ not authorization.
 | D9.4 lookback depth | 8 quarters — repo owner, 2026-08-19 |
 | Universe scope | frozen 24-ticker primary, extension permitted — repo owner, 2026-08-19 |
 | D10 CR2 authority | Python for Phases 0–1; R cross-check required before Phase 3 — repo owner, 2026-08-19 |
-| Authorizer | *(unsigned)* |
-| Operative date | *(set at signing)* |
-| JSON companion authored | *(not yet — see header)* |
-| No outcome inspected before signing | *(attest at signing)* |
+| Authorizer | Project authorizer / repository owner — 2026-08-20 |
+| Operative date | 2026-08-20 (UTC calendar date supplied by the authorizer) |
+| JSON companion authored | `GST_HYP04_ANALYSIS_LOCK_v1.0.json`, `status: IN_FORCE`, `in_force: true` |
+| Authorization record | `GST_HYP04_METHOD_AUTHORIZATION_2026-08-20.md` |
+| No outcome inspected before signing | **Attested.** Five of six conditions verified mechanically before signing, not asserted — gate CLOSED on all five, `results: null`, zero eligible events for every hypothesis, no freeze record, zero curated linkage rows. |
+
+**What this signature does not do.** It opens nothing. C4 reads registry v1.1,
+not this file, so clearing C4 additionally requires authoring registry v1.2 and
+repointing the code that pins the v1.1 filename. Even after both, the gate stays
+**CLOSED** — C4 clears; C1, C2, C3 and C5 do not. No finding becomes
+displayable, `method_approved` remains false for D3 and D10, and the linkage map
+still does not exist at zero curated rows.
+
+**On the authorizer.** A role, not an independent statistician or
+methodologist. No external peer review, methodological review, institutional
+approval or reviewer sign-off has occurred, and none is claimed. No handwritten
+signature exists, and no reviewer identity is recorded because there is no
+reviewer.
 
 ---
 
