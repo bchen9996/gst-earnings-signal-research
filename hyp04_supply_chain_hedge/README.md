@@ -16,9 +16,10 @@ Peers are **same-sector** tickers, not a real supply-chain map — the same limi
 
 Read these before changing anything here:
 
-1. `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md`
-2. `Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md` — **authoritative** wherever it disagrees with the plan. Patches carrying a "Round N correction" marker or a struck-through "Superseded by" note govern; earlier wording in the same patch is kept for traceability and must not be implemented.
-3. `Live Signal Engine/CLAUDE_CODE_BUILD_PROMPT_HYP04_v8.md`
+1. `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md` — **the plan.** Self-contained and authoritative on its own as of 2026-08-19. Read this one.
+2. `Live Signal Engine/CLAUDE_CODE_BUILD_PROMPT_HYP04_v8.md`
+
+Superseded, retained as historical records — **do not implement from either**: `HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md` and `HYP04_PLAN_ROUND2_EDITS.md`. Their 16 patches are merged into v0.2, whose §0 maps each patch to where it landed. The old "read both and apply the marker convention" rule is retired: v0.2 needs no companion doc.
 
 ## Setup
 

@@ -2,10 +2,13 @@
 # event is touched, so an implementer cannot infer them and a reviewer can
 # diff them against the plan documents.
 #
-# Every value below traces to a numbered patch in
-# Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md. Where that doc marks a value
-# DEFAULT (confirm or override), it is NOT locked in the preregistration sense
-# -- Phase 0 is a feasibility check, not the Phase 2 lock.
+# Every value below traces to a numbered patch, now merged into
+# Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md -- the
+# single authoritative plan as of 2026-08-19. Its section 0 maps each patch
+# number to where it landed, so the "(Patch N)" tags below still resolve.
+# HYP04_PLAN_ROUND2_EDITS.md is retained as a superseded historical record.
+# Values v0.2 section 10 lists as defaults are NOT locked in the
+# preregistration sense -- Phase 0 is a feasibility check, not the Phase 2 lock.
 from __future__ import annotations
 
 # --- Horizon grid (Patch 3) -----------------------------------------------

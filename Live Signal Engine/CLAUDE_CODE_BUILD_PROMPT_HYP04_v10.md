@@ -14,7 +14,7 @@ Changes from v4 (carried forward from v5), per the round-3 corrections in `HYP04
 
 ## Usage note
 
-1. Drop `HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md` and `HYP04_PLAN_ROUND2_EDITS.md` into the repo at `Live Signal Engine/`.
+1. Drop `HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md` into the repo at `Live Signal Engine/`. (Superseded as of 2026-08-19: this step previously installed `MODEL_PLAN_v0.1_DRAFT.md` *and* `HYP04_PLAN_ROUND2_EDITS.md`. v0.2 merges both and is self-contained; the other two are historical records and are not needed to build.)
 2. Open Claude Code with working directory set to the local clone of `gst-earnings-signal-research`.
 3. Paste the prompt below as the first message.
 4. Scoped to Phase 0 only — placeholder linkage, no real capital logic, no result claims.
@@ -23,7 +23,7 @@ Changes from v4 (carried forward from v5), per the round-3 corrections in `HYP04
 
 ## The prompt
 
-You're working inside the `gst-earnings-signal-research` repo. Before doing anything, read `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.1_DRAFT.md` AND `Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md` in full. The round-2 doc has been corrected in three passes — where a patch has a "Round 2 correction" or "Round 3 correction/addition" marker, or a struck-through "Superseded by" note, that corrected text is authoritative; earlier wording in the same doc is kept visible for traceability but should not be implemented. Also skim `gst_market_response/` (package/CLI conventions), a `Live Signal Engine/` HYP-01 lock doc (documentation/locking style), and 2-3 root `test_market_response_*.py` files (testing conventions). Match this project's existing rigor and naming style.
+You're working inside the `gst-earnings-signal-research` repo. Before doing anything, read `Live Signal Engine/HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md` in full. **That one document is the whole plan** — as of 2026-08-19 it is self-contained and authoritative on its own. `MODEL_PLAN_v0.1_DRAFT.md` and `HYP04_PLAN_ROUND2_EDITS.md` are **superseded historical records; do not implement from either.** All 16 patches are merged into v0.2, whose §0 maps each patch number to where it landed. The old instruction — read both docs and apply a "Round N correction" marker convention to work out which text governs — is retired, along with the drift risk it carried. Also skim `gst_market_response/` (package/CLI conventions), a `Live Signal Engine/` HYP-01 lock doc (documentation/locking style), and 2-3 root `test_market_response_*.py` files (testing conventions). Match this project's existing rigor and naming style.
 
 ### Scope: Phase 0 only
 
@@ -54,7 +54,7 @@ This build is large enough that a single session may run into its usage/context 
 - Test status: passing, failing, not-yet-written.
 - Any open decisions still awaiting the repo owner's sign-off — in particular, don't let a pending audit go-ahead (canary or full-run stage) get silently dropped across a session boundary.
 - The single next concrete action for whoever picks this up.
-- A pointer back to the three authoritative docs (plan, `HYP04_PLAN_ROUND2_EDITS.md`, this build prompt) rather than re-summarizing their content.
+- A pointer back to the two authoritative docs (plan v0.2 and this build prompt) rather than re-summarizing their content. (Was three; the edits doc was merged into v0.2 on 2026-08-19.)
 
 This is distinct from item 5's dated Phase 0 feasibility status doc below — that one reports methodological results once the pipeline runs end-to-end. This handoff doc is about build-process continuity and should exist even mid-build, before Phase 0 is finished.
 

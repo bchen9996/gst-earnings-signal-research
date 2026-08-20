@@ -1,8 +1,35 @@
 # HYP-04 Plan — Round 2 Edits (v1.1, post two Claude-Code implementation-review passes)
 
+> # ⚠ SUPERSEDED — HISTORICAL AMENDMENT RECORD, NOT A LIVE OVERRIDE
+>
+> **As of 2026-08-19 this document no longer governs anything.** All 16 patches
+> below were merged into **`HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md`**,
+> which is self-contained and is the single authoritative build plan.
+>
+> **Do not implement from this document.** Read v0.2 instead. It needs no
+> companion doc and no marker convention: where a patch here carried a
+> "Round 2 / 3 / 5 correction" or a struck-through "Superseded by" note, only
+> the corrected text was merged, and the superseded wording was deliberately
+> left behind.
+>
+> This file is retained, unedited below this banner, so the *reasoning* behind
+> each decision stays inspectable — several patches document a specific bug and
+> why an alternative was rejected, which v0.2 states as conclusions. v0.2 §0
+> maps every patch to where it landed.
+>
+> Two items were **already stale when the merge happened**, and v0.2 carries the
+> current facts rather than these:
+> - **Patch 2's "~190–240"** was a provisional placeholder awaiting an empirical
+>   run. That run happened; the operative floor is **193 anchor events**.
+> - **Patch 16's registry action** has been taken — registry v1.1 registers
+>   HYP-04 as exploratory.
+>
+> The process note below asked for exactly this merge. It is now done, and the
+> note is left in place as the record of the request.
+
 Source of these edits: two rounds of Claude Code review against `CLAUDE_CODE_BUILD_PROMPT_HYP04.md`. Round 1 produced Patches 1–8. Round 2 reviewed the result and produced corrections to Patches 1 and 2 (both updated in place below, superseding the original wording) plus new Patches 9–11. Each item patches the **plan**, not just the prompt, because each is a methodological decision the plan left ambiguous or got wrong, and this project's convention is to preregister decisions rather than let an implementer infer them. Judgment calls are marked explicitly as **DEFAULT (confirm or override)** — same convention Section 6 already uses for the effect-size assumption.
 
-**Process note (flagged in round 2, not yet actioned):** this doc currently overrides the original plan doc for Phase 0 purposes, which is fine for a build but not for a Phase 2 lock — a lock referencing two mutually-amending documents is the drift risk this project's tamper tests exist to catch. Before Phase 2, merge this into a plan v0.2 and let this doc become a dated amendment record rather than a live override.
+**Process note (flagged in round 2, ACTIONED 2026-08-19 — see the banner above):** this doc currently overrides the original plan doc for Phase 0 purposes, which is fine for a build but not for a Phase 2 lock — a lock referencing two mutually-amending documents is the drift risk this project's tamper tests exist to catch. Before Phase 2, merge this into a plan v0.2 and let this doc become a dated amendment record rather than a live override.
 
 ---
 
