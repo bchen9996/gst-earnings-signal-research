@@ -50,6 +50,7 @@ from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
     evaluate_gate,
 )
 from hyp04_supply_chain_hedge.make_registry_v1_2 import (  # noqa: E402
+    SIGNED_LOCK,
     V1_1,
     V1_2,
     build_v1_2,
@@ -93,17 +94,50 @@ def _absent(td: Path) -> Path:
     return td / "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
 
 
-# ================= 1. the live repo state refuses =========================
-def test_1_unsigned_today_refuses() -> None:
-    """No signed lock exists in the repo right now, so this must refuse."""
+# ================= 1. the live repo state ================================
+def test_1_live_repo_state() -> None:
+    """What the REAL repo permits right now, and why.
+
+    This test used to assert "no signed lock exists, so generation is refused".
+    That was true when written and became false on 2026-08-20 when the lock was
+    signed -- a legitimate change in the world, not a regression. Asserting a
+    transient state was the defect: the test had to be rewritten the moment the
+    thing it described stopped being true.
+
+    It now asserts invariants that survive the transition. Generation is
+    permitted exactly while a signed lock exists AND v1.2 does not; once v1.2
+    is authored the only remaining refusal must be the no-overwrite guard. Both
+    sides are checked, so this test does not need rewriting again after the
+    registry is bumped.
+    """
     refusals = check_preconditions()
-    check("1a. generation is refused in the repo's current state",
-          bool(refusals), "a signed lock must not exist yet")
-    check("1b. the refusal names the missing signed lock",
-          any("signed lock not found" in r for r in refusals), str(refusals))
-    check("1c. and distinguishes the draft from a signed lock",
-          any("_DRAFT" in r or "not the same thing" in r for r in refusals))
-    check("1d. registry v1.2 does not exist", not V1_2.exists())
+
+    check("1a. a signed lock exists (not the _DRAFT)", SIGNED_LOCK.is_file(),
+          f"expected {SIGNED_LOCK.name}")
+    if not SIGNED_LOCK.is_file():
+        skip("1b-1f. signed-lock content", "no signed lock to inspect")
+        return
+
+    lock = json.loads(SIGNED_LOCK.read_text(encoding="utf-8-sig"))
+    check("1b. it declares in_force", lock.get("in_force") is True)
+    check("1c. its status is not a draft status",
+          str(lock.get("status", "")).upper() not in
+          {"DRAFT", "DRAFT_UNSIGNED", "UNSIGNED", "PROPOSED"},
+          str(lock.get("status")))
+    check("1d. it names an authorizer and an operative date",
+          bool(str(lock.get("authorizer") or "").strip())
+          and bool(str(lock.get("operative_date") or "").strip()))
+    check("1e. it attests no outcome was inspected before signing",
+          lock.get("no_outcome_inspected_before_signing_attested") is True)
+
+    # The permitted/refused state is a function of whether v1.2 exists yet.
+    if V1_2.exists():
+        check("1f. with v1.2 present, the ONLY refusal is the no-overwrite guard",
+              bool(refusals) and all("already exists" in r for r in refusals),
+              str(refusals))
+    else:
+        check("1f. with v1.2 absent and the lock signed, generation is permitted",
+              refusals == [], str(refusals))
 
 
 # ================= 2. each precondition falsified ALONE ====================
@@ -279,7 +313,7 @@ def test_6_offline() -> None:
 
 
 if __name__ == "__main__":
-    test_1_unsigned_today_refuses()
+    test_1_live_repo_state()
     test_2_each_precondition_refuses_on_its_own()
     test_3_a_signed_lock_produces_a_correct_v1_2()
     test_4_generated_v1_2_clears_c4_in_the_real_gate()

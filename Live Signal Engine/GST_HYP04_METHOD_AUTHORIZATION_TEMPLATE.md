@@ -7,8 +7,9 @@
 > template itself is retained unsigned so the next authorization has a pattern
 > to follow.
 
-Companion to [`GST_HYP04_ANALYSIS_LOCK_v1.0_DRAFT.md`](GST_HYP04_ANALYSIS_LOCK_v1.0_DRAFT.md)
-and its JSON. Modelled on
+Companion to the analysis lock and its JSON — for v1.0 that is
+[`GST_HYP04_ANALYSIS_LOCK_v1.0.md`](GST_HYP04_ANALYSIS_LOCK_v1.0.md), signed
+2026-08-20; a future lock would name its own. Modelled on
 [`GST_HYP01_METHOD_AUTHORIZATION_2026-08-16.md`](GST_HYP01_METHOD_AUTHORIZATION_2026-08-16.md),
 which is the pattern this project already uses for exactly this act.
 
