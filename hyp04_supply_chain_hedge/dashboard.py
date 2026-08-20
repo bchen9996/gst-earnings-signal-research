@@ -59,6 +59,7 @@ from typing import Any, Optional
 
 from .display_gate import (
     FINDINGS_PANELS,
+    PENDING_TOKEN,
     GateDecision,
     assert_display_allowed,
     current_decision,
@@ -74,14 +75,37 @@ CANARY = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_CANARY_2026-08-17.json"
 FULL = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_FULL_2026-08-17.json"
 REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.1.json"
 
-TEST_SUITES = (
-    "test_hyp04_supply_chain_hedge_target.py",
-    "test_hyp04_supply_chain_hedge_inference.py",
-    "test_hyp04_supply_chain_hedge_smoke.py",
-    "test_hyp04_supply_chain_hedge_display_gate.py",
-    "test_hyp04_supply_chain_hedge_quantum_provenance.py",
+# Suites this page runs.
+#
+# HYP-04's own suites are DISCOVERED, not enumerated. A hand-maintained tuple
+# stood here and silently omitted three of them -- agreements, curated_linkage
+# and edgar -- so a page titled "HYP-04 Phase 0" reported 641 checks when the
+# package actually carried 768. The suites were passing the whole time; the
+# page just wasn't looking at them. That is the same failure the docstring
+# below warns about, one scope down, so the list is now derived from disk.
+#
+# The glob matches the one in .github/workflows/hyp04-supply-chain-hedge-tests.yml,
+# so CI and this page cover the same set by construction rather than by two
+# lists being edited in step. The CI guard that keeps side-effecting runners
+# (the live audit runners, make_registry_v1_2.py) off the test_* pattern is
+# what makes discovery safe here too.
+HYP04_SUITE_GLOB = "test_hyp04_supply_chain_hedge*.py"
+
+# Not HYP-04's own, but governs the registry this page's gate reads, so a
+# regression there would invalidate the gate state shown above. Named
+# explicitly because it does not match the glob.
+EXTRA_SUITES = (
     "test_market_response_hypothesis_registry_v1_1.py",
 )
+
+
+def _discover_suites() -> tuple[str, ...]:
+    found = sorted(p.name for p in REPO_ROOT.glob(HYP04_SUITE_GLOB))
+    return tuple(found) + tuple(
+        n for n in EXTRA_SUITES if (REPO_ROOT / n).is_file())
+
+
+TEST_SUITES = _discover_suites()
 
 
 # ==========================================================================
@@ -91,10 +115,14 @@ def _n_root_test_files() -> int:
     """How many test files the repository root carries.
 
     A count of files on disk, not a count of checks. The distinction matters:
-    this page runs five suites and reports what they printed, so it can state
-    their check counts honestly. It cannot state a repo-wide check total
-    without running everything, and a hand-maintained one goes stale -- which
-    is exactly what happened to the figure this replaced.
+    this page runs the suites in TEST_SUITES and reports what they printed, so
+    it can state their check counts honestly. It cannot state a repo-wide check
+    total without running everything, and a hand-maintained one goes stale --
+    which is exactly what happened to the figure this replaced.
+
+    No count of suites is written here either, for the same reason: TEST_SUITES
+    is discovered, and a number in this sentence would be one more thing that
+    silently stops being true.
     """
     return len(list(REPO_ROOT.glob("test_*.py")))
 
@@ -181,8 +209,14 @@ def read_registry() -> dict[str, Any]:
         "hyp04_threshold": entry["minimum_eligible_events"] if entry else None,
         "hyp04_unit": entry.get("minimum_eligible_events_unit") if entry else None,
         "eligible_counts": doc["eligible_event_counts"],
-        "pending_decisions": [d["decision"] for d in
-                              (entry.get("unresolved_analysis_decisions", []) if entry else [])],
+        # Filter on STATE, not mere presence. Resolution is recorded by marking
+        # a decision resolved and leaving it in the ledger, so listing every
+        # entry would keep reporting resolved decisions as pending forever.
+        "pending_decisions": [
+            d["decision"]
+            for d in (entry.get("unresolved_analysis_decisions", []) if entry else [])
+            if isinstance(d, dict) and d.get("state") == PENDING_TOKEN
+        ],
         "options_status": doc["options_related_classes"]["result_display_status"],
     }
 
@@ -195,6 +229,16 @@ def run_test_suites(skip_run: bool = False) -> dict[str, Any]:
     """
     if skip_run:
         return {"available": False, "why": "suite execution skipped (--no-run)"}
+
+    # Discovery finding nothing must not render as success. all([]) is True, so
+    # without this an empty TEST_SUITES would report ALL GREEN over zero checks
+    # -- the same vacuous pass the CI workflow guards against, and a live risk
+    # now that the list is globbed rather than hardcoded.
+    if not TEST_SUITES:
+        return {"available": False,
+                "why": f"no suite matched {HYP04_SUITE_GLOB!r} in {REPO_ROOT} "
+                       "-- refusing to report a vacuous pass over zero suites"}
+
     results = []
     env_root = str(REPO_ROOT)
     for name in TEST_SUITES:
