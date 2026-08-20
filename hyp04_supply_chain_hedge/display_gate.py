@@ -22,11 +22,18 @@ are implemented:
   C4  every PENDING_SEPARATE_ANALYSIS_LOCK decision is resolved in a dated
       analysis lock written BEFORE the freeze
 
-Under registry v1.1, HYP-04 fails C1 (status is
-PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED) and fails C4 (four decisions are
-still PENDING). So even a hypothetical 193 frozen real events would leave this
-gate CLOSED, and that is correct, not a bug: a frozen sample measured through
-an unresolved estimator is not a licensed result.
+Under registry v1.2 (2026-08-20), HYP-04 CLEARS C4: the four analysis decisions
+are recorded as resolved in the signed, dated analysis lock. It still fails C1
+(status is PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED). So even a hypothetical
+193 frozen real events would leave this gate CLOSED, and that is correct, not a
+bug: resolving how a thing will be measured is not the same as being ready to
+measure it.
+
+C4 is the first of the five conditions to have ever cleared in this project.
+That is worth stating precisely, because it is the kind of change that invites
+over-reading: it removed a governance blocker and moved nothing else. No result
+exists, none is closer to existing, and the binding Phase 1 blocker remains a
+linkage map with zero curated rows.
 
 === WHAT COUNTS AS A DISPLAY ===
 
@@ -86,7 +93,17 @@ from .quantum_provenance import (
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LSE = REPO_ROOT / "Live Signal Engine"
 
-REGISTRY_V1_1 = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.1.json"
+# The registry version the gate READS. Deliberately named for its role rather
+# than its version: the previous constant was REGISTRY_V1_1, so bumping the
+# registry meant renaming a constant across four files and a version number
+# stayed embedded in code that does not care which version it is. The next bump
+# should touch this one line.
+#
+# v1.2 (2026-08-20) records HYP-04's four analysis decisions as resolved in the
+# signed analysis lock. v1.1 is NOT edited in place and is still governed by its
+# own suite -- test_market_response_hypothesis_registry_v1_1.py keeps pointing
+# at v1.1 on purpose, and must not be repointed here.
+REGISTRY_CURRENT = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.2.json"
 GATES_DOC = LSE / "GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md"
 
 HYPOTHESIS_ID = "HYP-04"
@@ -199,7 +216,7 @@ class FreezeRecord:
     uses_placeholder_linkage: bool = True
 
 
-def _load_registry(path: Path = REGISTRY_V1_1) -> tuple[Optional[dict], list[str]]:
+def _load_registry(path: Path = REGISTRY_CURRENT) -> tuple[Optional[dict], list[str]]:
     """Load the registry, or explain why it could not be loaded.
 
     A missing or malformed registry DENIES. It never falls back to a default,
@@ -224,7 +241,7 @@ def evaluate_gate(
     *,
     eligible_event_count: Optional[int] = None,
     freeze: Optional[FreezeRecord] = None,
-    registry_path: Path = REGISTRY_V1_1,
+    registry_path: Path = REGISTRY_CURRENT,
 ) -> GateDecision:
     """Evaluate all four conditions. Returns OPEN only if every one holds.
 

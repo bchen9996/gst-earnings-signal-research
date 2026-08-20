@@ -54,7 +54,7 @@ from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
     FINDINGS_PANELS,
     PENDING_TOKEN,
     PROGRESS_PANELS,
-    REGISTRY_V1_1,
+    REGISTRY_CURRENT,
     RESOLVED_BY_FIELD,
     RESOLVED_TOKEN,
     FreezeRecord,
@@ -93,7 +93,7 @@ def skip(label: str, why: str) -> None:
 # written to the real registry, because the point is to test the gate, not to
 # advance the hypothesis.
 # --------------------------------------------------------------------------
-_REAL = json.loads(REGISTRY_V1_1.read_text(encoding="utf-8-sig"))
+_REAL = json.loads(REGISTRY_CURRENT.read_text(encoding="utf-8-sig"))
 
 
 def _registry_variant(tmpdir: Path, *, status: str, pending: bool,
@@ -105,14 +105,26 @@ def _registry_variant(tmpdir: Path, *, status: str, pending: bool,
     to model resolution by emptying the ledger, which is a deletion rather than
     a resolution -- and which C4 now correctly denies. Resolution is recorded by
     marking, never by removing, mirroring the registry's own append-only rule.
+
+    BOTH branches set the state explicitly. The `pending=True` branch used to
+    set nothing at all, silently inheriting whatever the real registry happened
+    to carry. That worked only while the source was v1.1, where every decision
+    was PENDING. When the gate was repointed at v1.2 -- where every decision is
+    RESOLVED -- the "pending" fixture would have quietly produced a resolved
+    ledger, and every C4-denial test would have been asserting against a
+    registry that no longer denied. A fixture whose meaning depends on ambient
+    state is not a fixture.
     """
     doc = json.loads(json.dumps(_REAL))
     for h in doc["hypotheses"]:
         if h["hypothesis_id"] == "HYP-04":
             h["status"] = status
             h["minimum_eligible_events"] = threshold
-            if not pending:
-                for d in h["unresolved_analysis_decisions"]:
+            for d in h["unresolved_analysis_decisions"]:
+                if pending:
+                    d["state"] = PENDING_TOKEN
+                    d.pop(RESOLVED_BY_FIELD, None)
+                else:
                     d["state"] = RESOLVED_TOKEN
                     d[RESOLVED_BY_FIELD] = "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
     p = tmpdir / "registry_variant.json"
@@ -144,8 +156,23 @@ def test_1_the_live_gate_is_closed_right_now() -> None:
           d.conditions["C2_threshold"] is False)
     check("1e. C3 fails: no freeze record exists",
           d.conditions["C3_frozen"] is False)
-    check("1f. C4 fails: analysis decisions are still PENDING",
-          d.conditions["C4_decisions_resolved"] is False)
+    # C4 CLEARS as of registry v1.2 (2026-08-20) -- the first display-gate
+    # condition ever to clear in this project. This check previously asserted
+    # C4 was False because the decisions were still PENDING, which was true
+    # under v1.1 and became false when the signed lock's resolutions were
+    # recorded in v1.2. A legitimate change in the world, not a regression.
+    #
+    # The surrounding checks are what keep this honest: 1a still requires the
+    # gate CLOSED and 1b still requires at least two independent denials. C4
+    # clearing removed a governance blocker and moved nothing else.
+    check("1f. C4 CLEARS: the decisions are resolved in a signed dated lock",
+          d.conditions["C4_decisions_resolved"] is True, str(d.denials))
+    check("1f2. and no decision remains pending",
+          d.evidence["pending_analysis_decisions"] == 0)
+    check("1f3. while the ledger still carries all four entries -- resolution "
+          "is recorded by marking, never by removing",
+          d.evidence["decision_ledger_entries"] == 4)
+    check("1f4. C4 clearing did NOT open the gate", d.open is False)
     check("1g. C5 fails: the linkage is the Phase 0 placeholder",
           d.conditions["C5_not_placeholder"] is False)
     check("1h. the registry threshold it read is 193",
@@ -303,8 +330,16 @@ def test_6b_c4_requires_explicit_resolution_not_merely_absent_pending() -> None:
             "entry is not an object":
                 lambda h: h.__setitem__("unresolved_analysis_decisions",
                                         ["just a string"]),
+            # The pop is load-bearing. This tamper used to only set the state,
+            # relying on the source registry carrying no resolved_by_lock --
+            # true of v1.1, false of v1.2, where every decision cites the
+            # signed lock. Repointing the gate at v1.2 therefore turned this
+            # case into a LEGITIMATELY resolved ledger, and it silently stopped
+            # testing the thing its own name describes. The sibling case below
+            # always set its field explicitly and was never affected.
             "resolved but cites no lock":
-                lambda h: [d.__setitem__("state", RESOLVED_TOKEN)
+                lambda h: [(d.__setitem__("state", RESOLVED_TOKEN),
+                            d.pop(RESOLVED_BY_FIELD, None))
                            for d in h["unresolved_analysis_decisions"]],
             "resolved but the cited lock is blank":
                 lambda h: [(d.__setitem__("state", RESOLVED_TOKEN),

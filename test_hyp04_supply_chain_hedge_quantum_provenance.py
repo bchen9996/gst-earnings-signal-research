@@ -63,8 +63,9 @@ socket.getaddrinfo = _no_net
 
 from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
     FINDINGS_PANELS,
+    PENDING_TOKEN,
     PROGRESS_PANELS,
-    REGISTRY_V1_1,
+    REGISTRY_CURRENT,
     RESOLVED_BY_FIELD,
     RESOLVED_TOKEN,
     FreezeRecord,
@@ -111,7 +112,7 @@ def skip(label: str, why: str) -> None:
 # --------------------------------------------------------------------------
 # Fixtures
 # --------------------------------------------------------------------------
-_REAL = json.loads(REGISTRY_V1_1.read_text(encoding="utf-8-sig"))
+_REAL = json.loads(REGISTRY_CURRENT.read_text(encoding="utf-8-sig"))
 
 
 def _registry_variant(tmpdir: Path, *, status: str, pending: bool,
@@ -121,17 +122,26 @@ def _registry_variant(tmpdir: Path, *, status: str, pending: bool,
     Same device the gate suite uses: to test what happens through an OPEN gate
     we need a registry where HYP-04 is ACTIVE_COLLECTING with nothing pending.
     That state does not exist today and is never written to the real registry.
+
+    BOTH branches set the state explicitly, for the reason the gate suite's
+    copy of this function records: the `pending=True` branch used to set
+    nothing and inherit whatever the real registry carried, which silently
+    stopped meaning "pending" the moment the gate was repointed from v1.1 to
+    v1.2.
     """
     doc = json.loads(json.dumps(_REAL))
     for h in doc["hypotheses"]:
         if h["hypothesis_id"] == "HYP-04":
             h["status"] = status
             h["minimum_eligible_events"] = threshold
-            if not pending:
-                # A real resolution: every decision stays in the ledger, marked
-                # resolved and citing the lock. Emptying the ledger is a
-                # deletion, not a resolution, and C4 denies it.
-                for d in h["unresolved_analysis_decisions"]:
+            # A real resolution: every decision stays in the ledger, marked
+            # resolved and citing the lock. Emptying the ledger is a deletion,
+            # not a resolution, and C4 denies it.
+            for d in h["unresolved_analysis_decisions"]:
+                if pending:
+                    d["state"] = PENDING_TOKEN
+                    d.pop(RESOLVED_BY_FIELD, None)
+                else:
                     d["state"] = RESOLVED_TOKEN
                     d[RESOLVED_BY_FIELD] = "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
     p = tmpdir / "registry_variant.json"
