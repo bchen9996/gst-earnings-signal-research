@@ -50,9 +50,13 @@ socket.create_connection = _no_net
 socket.getaddrinfo = _no_net
 
 from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
+    DECISION_STATES,
     FINDINGS_PANELS,
+    PENDING_TOKEN,
     PROGRESS_PANELS,
     REGISTRY_V1_1,
+    RESOLVED_BY_FIELD,
+    RESOLVED_TOKEN,
     FreezeRecord,
     GateError,
     assert_display_allowed,
@@ -94,14 +98,23 @@ _REAL = json.loads(REGISTRY_V1_1.read_text(encoding="utf-8-sig"))
 
 def _registry_variant(tmpdir: Path, *, status: str, pending: bool,
                       threshold: int = 193) -> Path:
+    """A hypothetical FUTURE registry state, synthesised in a temp file.
+
+    `pending=False` models a REAL resolution: every decision stays in the
+    ledger, marked RESOLVED and citing the dated lock that resolved it. It used
+    to model resolution by emptying the ledger, which is a deletion rather than
+    a resolution -- and which C4 now correctly denies. Resolution is recorded by
+    marking, never by removing, mirroring the registry's own append-only rule.
+    """
     doc = json.loads(json.dumps(_REAL))
     for h in doc["hypotheses"]:
         if h["hypothesis_id"] == "HYP-04":
             h["status"] = status
             h["minimum_eligible_events"] = threshold
-            h["unresolved_analysis_decisions"] = (
-                h["unresolved_analysis_decisions"] if pending else []
-            )
+            if not pending:
+                for d in h["unresolved_analysis_decisions"]:
+                    d["state"] = RESOLVED_TOKEN
+                    d[RESOLVED_BY_FIELD] = "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
     p = tmpdir / "registry_variant.json"
     p.write_text(json.dumps(doc), encoding="utf-8")
     return p
@@ -244,6 +257,88 @@ def test_6_c4_alone_closes_the_gate() -> None:
                                             "C3_frozen", "C5_not_placeholder")))
         check("6d. the denial counts the outstanding decisions",
               d.evidence["pending_analysis_decisions"] >= 1)
+
+
+def test_6b_c4_requires_explicit_resolution_not_merely_absent_pending() -> None:
+    """C4 must ask "is every decision RESOLVED?", never "is any PENDING?".
+
+    A not-PENDING test passes on a deleted ledger, a missing state field, an
+    unrecognised token and a one-character typo. All five were verified to OPEN
+    this gate before C4 was rewritten -- a fail-OPEN hole in a fail-closed
+    control, and the exact structure a registry edit touches by hand.
+
+    Both directions are asserted, because a C4 hardcoded to deny would pass
+    every case below and be useless: the final block builds a properly resolved
+    ledger and requires the gate to OPEN through it.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        tdp = Path(td)
+
+        def _mutated(mutate, name: str) -> Path:
+            doc = json.loads(json.dumps(_REAL))
+            for h in doc["hypotheses"]:
+                if h["hypothesis_id"] == "HYP-04":
+                    h["status"] = "ACTIVE_COLLECTING"
+                    mutate(h)
+            p = tdp / f"{name}.json"
+            p.write_text(json.dumps(doc), encoding="utf-8")
+            return p
+
+        tampers = {
+            "ledger key deleted":
+                lambda h: h.pop("unresolved_analysis_decisions", None),
+            "ledger emptied":
+                lambda h: h.__setitem__("unresolved_analysis_decisions", []),
+            "ledger is not a list":
+                lambda h: h.__setitem__("unresolved_analysis_decisions", {}),
+            "state field removed":
+                lambda h: [d.pop("state", None)
+                           for d in h["unresolved_analysis_decisions"]],
+            "state token typo'd":
+                lambda h: [d.__setitem__("state", "PENDING_SEPARATE_ANALYSIS_LOK")
+                           for d in h["unresolved_analysis_decisions"]],
+            "state set to a made-up token":
+                lambda h: [d.__setitem__("state", "probably_fine")
+                           for d in h["unresolved_analysis_decisions"]],
+            "entry is not an object":
+                lambda h: h.__setitem__("unresolved_analysis_decisions",
+                                        ["just a string"]),
+            "resolved but cites no lock":
+                lambda h: [d.__setitem__("state", RESOLVED_TOKEN)
+                           for d in h["unresolved_analysis_decisions"]],
+            "resolved but the cited lock is blank":
+                lambda h: [(d.__setitem__("state", RESOLVED_TOKEN),
+                            d.__setitem__(RESOLVED_BY_FIELD, "   "))
+                           for d in h["unresolved_analysis_decisions"]],
+        }
+        for label, mut in tampers.items():
+            reg = _mutated(mut, label.replace(" ", "_").replace("'", ""))
+            d = evaluate_gate(eligible_event_count=193, freeze=_good_freeze(),
+                              registry_path=reg)
+            check(f"6b. '{label}' denies C4",
+                  d.conditions["C4_decisions_resolved"] is False)
+            check(f"6b2. '{label}' leaves the gate CLOSED", d.open is False)
+
+        # THE OTHER DIRECTION. Without this a C4 hardcoded to deny would pass
+        # every case above.
+        good = _mutated(
+            lambda h: [(d.__setitem__("state", RESOLVED_TOKEN),
+                        d.__setitem__(RESOLVED_BY_FIELD,
+                                      "GST_HYP04_ANALYSIS_LOCK_v1.0.json"))
+                       for d in h["unresolved_analysis_decisions"]],
+            "properly_resolved")
+        d = evaluate_gate(eligible_event_count=193, freeze=_good_freeze(),
+                          registry_path=good)
+        check("6b3. a properly resolved ledger CLEARS C4",
+              d.conditions["C4_decisions_resolved"] is True, str(d.denials))
+        check("6b4. and with all else true the gate OPENS", d.open is True,
+              "if this fails, C4 is hardcoded closed and the cases above prove nothing")
+        check("6b5. the decision ledger is still fully populated after resolution",
+              d.evidence["decision_ledger_entries"] == 4,
+              "resolution marks decisions; it never removes them")
+
+    check("6b6. the state vocabulary is closed and holds exactly two tokens",
+          DECISION_STATES == frozenset({PENDING_TOKEN, RESOLVED_TOKEN}))
 
 
 def test_7_c5_alone_closes_the_gate() -> None:
@@ -506,6 +601,7 @@ if __name__ == "__main__":
     test_4_c2_alone_closes_the_gate()
     test_5_c3_alone_closes_the_gate()
     test_6_c4_alone_closes_the_gate()
+    test_6b_c4_requires_explicit_resolution_not_merely_absent_pending()
     test_7_c5_alone_closes_the_gate()
     test_8_partial_combinations_never_open()
     test_9_all_conditions_true_opens_the_gate()
