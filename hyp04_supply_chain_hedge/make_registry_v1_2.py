@@ -270,8 +270,9 @@ def main(argv: list[str] | None = None) -> int:
     print("\nSTILL REQUIRED -- C4 will not clear until these are repointed:")
     for p in PINS_V1_1:
         print(f"  * {p}")
-    print("\nAlso add a v1.2 governance suite alongside the v1.1 one rather "
-          "than replacing it.")
+    print("\nThen re-run test_hyp04_supply_chain_hedge_registry_v1_2_artifact.py:"
+          "\n  its two SKIPs must become passes. If they still skip, this file "
+          "was not written where that suite looks for it.")
     print("\nThe gate stays CLOSED regardless: C4 clears, C1/C2/C3/C5 do not.")
     return 0
 

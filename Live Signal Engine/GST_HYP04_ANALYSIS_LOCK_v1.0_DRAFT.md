@@ -417,13 +417,26 @@ change, or the gate will keep reading v1.1 and C4 will never clear:
 | `test_hyp04_supply_chain_hedge_quantum_provenance.py` | imports and reads it |
 | `test_market_response_hypothesis_registry_v1_1.py` | v1.1 governance suite |
 
-A v1.2 governance suite should be added alongside the v1.1 one rather than
-replacing it — v1.1's tests keep running against v1.1, which is the point of
-not editing it in place. Note this is **distinct from**
-`test_hyp04_supply_chain_hedge_registry_v1_2.py`, which already exists and
-tests the *generator*, including an end-to-end check that its output clears C4
-in the real gate and only C4. What is still owed is a suite validating the
-v1.2 *artifact* once one exists.
+Two separate suites govern v1.2, and both already exist:
+
+| Suite | Governs |
+|---|---|
+| `test_hyp04_supply_chain_hedge_registry_v1_2.py` | the **generator** — that it refuses without a signed lock, and builds correctly with one |
+| `test_hyp04_supply_chain_hedge_registry_v1_2_artifact.py` | the **artifact** — the document on disk, however it was authored |
+
+Both are added alongside the v1.1 suite rather than replacing it. v1.1's tests
+keep running against v1.1, which is the entire point of not editing it in
+place.
+
+The artifact suite runs today, before v1.2 exists, against a synthetic v1.2
+generated in a temp directory — so it is not a file that reports SKIP for
+months and is first trusted at the moment it is first exercised. It also
+carries 23 negative controls, because a checker that asserts nothing passes
+every positive test. Writing them caught a dead assertion in this project's own
+tests: both suites had compared `hypotheses` filtered to "not HYP-04" against
+itself, which is `[] == []` — v1.1's list carries only HYP-04, since
+HYP-01/02/03 live in v1.0 by reference. It passed against any document at all.
+When v1.2 lands, the two skips become live checks against the real file.
 
 ## 11a. Order of operations
 
@@ -433,8 +446,11 @@ v1.2 *artifact* once one exists.
 2. Complete §12 below; rename this file and its JSON off `_DRAFT`; set
    `status` and `in_force`.
 3. Run the generator dry, then with `--write`.
-4. Repoint the five files above and add the v1.2 artifact suite.
-5. Re-run the HYP-04 suites and regenerate the dashboard.
+4. Repoint the five files above. Both v1.2 suites already exist; no new suite
+   is owed.
+5. Re-run the HYP-04 suites and regenerate the dashboard. The artifact suite's
+   two skips must turn into passes — if they still skip, step 3 did not
+   actually produce a file.
 
 Step 3 refuses if step 2 was skipped, by design.
 

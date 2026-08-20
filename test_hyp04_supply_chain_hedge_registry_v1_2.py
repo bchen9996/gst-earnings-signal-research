@@ -190,12 +190,20 @@ def test_3_a_signed_lock_produces_a_correct_v1_2() -> None:
               entry["status"] == next(
                   h for h in src["hypotheses"]
                   if h["hypothesis_id"] == "HYP-04")["status"])
-        check("3l. the other three hypotheses are untouched",
-              [h for h in doc["hypotheses"] if h["hypothesis_id"] != "HYP-04"]
-              == [h for h in src["hypotheses"] if h["hypothesis_id"] != "HYP-04"])
-        check("3m. options-eligibility position is unchanged",
+        # v1.1's `hypotheses` list carries ONLY HYP-04 -- HYP-01/02/03 live in
+        # v1.0 and are incorporated by reference so there are never two mutable
+        # copies of the same governed text. This check used to diff the list
+        # filtered to "not HYP-04", which compares [] to [] and passes against
+        # any document whatsoever. It is checked where the guarantee actually
+        # lives instead.
+        check("3l. the hypotheses list still carries ONLY HYP-04",
+              [h.get("hypothesis_id") for h in doc["hypotheses"]] == ["HYP-04"])
+        check("3m. the carried-forward reference block is untouched",
+              doc.get("hypotheses_carried_forward_unchanged")
+              == src.get("hypotheses_carried_forward_unchanged"))
+        check("3n. options-eligibility position is unchanged",
               doc["options_related_classes"] == src["options_related_classes"])
-        check("3n. no top-level key was dropped",
+        check("3o. no top-level key was dropped",
               set(src).issubset(set(doc)),
               f"missing: {sorted(set(src) - set(doc))}")
 
