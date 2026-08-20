@@ -81,15 +81,18 @@ NKE   QCOM  SBUX  STZ   SYK   TSLA   TTWO  UAL
 
 ## Registered hypotheses
 
-Three named hypotheses are registered. **Eligibility classes are not hypotheses** — a class says which evidence modules an event carries; a hypothesis is a dated question with its own threshold and display gate.
+Four named hypotheses are registered. **Eligibility classes are not hypotheses** — a class says which evidence modules an event carries; a hypothesis is a dated question with its own threshold and display gate.
 
-| ID | Question | n ≥ | Status |
-|---|---|---|---|
-| **HYP-01** | Pre-earnings attention and market repricing | 60 | `ACTIVE_COLLECTING` |
-| **HYP-02** | Cross-source attention divergence vs. earnings surprise | 60 | `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED` |
-| **HYP-03** | Post-earnings attention decay and continued repricing | 40 | `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED` |
+| ID | Question | n ≥ | Status | Registered in |
+|---|---|---|---|---|
+| **HYP-01** | Pre-earnings attention and market repricing | 60 | `ACTIVE_COLLECTING` | registry v1.0 |
+| **HYP-02** | Cross-source attention divergence vs. earnings surprise | 60 | `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED` | registry v1.0 |
+| **HYP-03** | Post-earnings attention decay and continued repricing | 40 | `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED` | registry v1.0 |
+| **HYP-04** | Supply-chain hedge lag — does an anchor's earnings shock move a linked peer's volatility, and after how many sessions | 193 | `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED` | registry v1.1 |
 
-No options hypothesis is registered; both options eligibility classes carry `DENY_NO_REGISTERED_HYPOTHESIS`.
+**HYP-04 is exploratory**, added in a new dated registry version ([v1.1](Live%20Signal%20Engine/GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.1.json)); v1.0 is unedited. Its threshold is stated in **anchor events**, the same unit as the other three, and was derived by max-T permutation on synthetic fixtures rather than assumed — see the [Phase 0 feasibility status](Live%20Signal%20Engine/HYP04_PHASE0_FEASIBILITY_STATUS_2026-08-18.md). Phase 1 is blocked on a real supply-chain linkage map, which does not exist; Phase 0 ran on placeholder linkage and established nothing about transmission. Four analysis decisions remain `PENDING_SEPARATE_ANALYSIS_LOCK`, each of which independently holds its display gate closed.
+
+No options hypothesis is registered; both options eligibility classes carry `DENY_NO_REGISTERED_HYPOTHESIS`. HYP-04 is not registered against an options class.
 
 ### HYP-01, reproduced from its lock
 

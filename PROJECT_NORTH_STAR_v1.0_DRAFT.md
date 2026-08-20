@@ -47,6 +47,7 @@ This ordering is not stylistic. The project already learned it the expensive way
 - **Prospective confirmation.** Zero prospective outcomes analyzed. Zero frozen event IDs. `results: null`.
 - **Surprise measurement.** HYP-02's fields exist in the dossier schema; no production path populates them and no join reaches a market-response event.
 - **Attention decay.** HYP-03's measurement does not exist in any form.
+- **Supply-chain linkage.** HYP-04's required linkage map — ticker pairs, relationship type, confidence, and a first-known/established-as-of date per pair — does not exist. A validating ingestion path is built and tested; zero rows are curated. A loader is not a map.
 - **Options data.** No cleared, timestamped, executable quote source.
 - **Several preregistration elements.** Unresolved by design rather than by oversight — see the gap audit.
 
@@ -56,7 +57,7 @@ This ordering is not stylistic. The project already learned it the expensive way
 |---|---|---|---|
 | **Confirmatory** | HYP-01 | HYP-01 analysis lock | — it *is* the conclusion |
 | **Secondary** | HYP-02; adjusted sensitivity models | hypothesis registry; lock §6 | **No** |
-| **Exploratory** | HYP-03; localization; rank/sector variants | hypothesis registry; lock §7 | **No** |
+| **Exploratory** | HYP-03; HYP-04; localization; rank/sector variants | hypothesis registry; lock §7 | **No** |
 | **Future product** | dashboards, radar, showcase repo | this document, §11 | **No** |
 | **Future strategy** | any instrument, rule, or execution | **out of scope entirely** | **No** |
 
