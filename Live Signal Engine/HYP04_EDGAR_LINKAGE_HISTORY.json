@@ -1,0 +1,538 @@
+{
+  "artifact": "HYP04_EDGAR_LINKAGE_HISTORY.json",
+  "source": "EDGAR 10-K history walk (ASC 280 concentration disclosures)",
+  "is_production_linkage_map": false,
+  "status": "CANDIDATE_REVIEW_QUEUE",
+  "not_a_replacement": "A review queue for a human, not a linkage map. No row here is curated, and none is promoted automatically. Every claim carries an accession number so it can be checked against the filing.",
+  "what_the_earliest_date_means": "The earliest filing that DISCLOSES the relationship, which is the claim as_of_date makes. It is not evidence the relationship began then -- only that it was publicly known by then. An earlier start date requires a different source.",
+  "why_earliest_matters": "Peer eligibility counts an edge only for anchor events strictly after its as_of_date. The earliest disclosing filing therefore maximises the events an edge can serve; the newest one, which the candidate extractor records, minimises it.",
+  "contact_supplied": true,
+  "requests_made": 59,
+  "tickers": [
+    {
+      "ticker": "MCK",
+      "cik": "0000927653",
+      "filings_on_record": 29,
+      "filings_examined": 26,
+      "stopped_early_reason": "HTTPError: 404 Client Error: Not Found for url: https://www.sec.gov/Archives/edgar/data/927653/000092962400000832/0001.txt",
+      "error": null,
+      "named_counterparties": [
+        {
+          "counterparty": "CVS Health Corporation",
+          "earliest_filing_date": "2020-05-22",
+          "earliest_accession": "0000927653-20-000033",
+          "latest_filing_date": "2026-05-08",
+          "latest_accession": "0000927653-26-000069",
+          "filings_naming_it": 7
+        },
+        {
+          "counterparty": "CVS Health",
+          "earliest_filing_date": "2016-05-05",
+          "earliest_accession": "0000927653-16-000020",
+          "latest_filing_date": "2019-05-15",
+          "latest_accession": "0000927653-19-000009",
+          "filings_naming_it": 4
+        },
+        {
+          "counterparty": "CVS Caremark Corporation",
+          "earliest_filing_date": "2013-05-07",
+          "earliest_accession": "0001561787-13-000010",
+          "latest_filing_date": "2015-05-12",
+          "latest_accession": "0001628280-15-004098",
+          "filings_naming_it": 3
+        },
+        {
+          "counterparty": "CVS",
+          "earliest_filing_date": "2013-05-07",
+          "earliest_accession": "0001561787-13-000010",
+          "latest_filing_date": "2014-05-14",
+          "latest_accession": "0001445305-14-002132",
+          "filings_naming_it": 2
+        },
+        {
+          "counterparty": "Caremark RX",
+          "earliest_filing_date": "2006-05-16",
+          "earliest_accession": "0000950149-06-000282",
+          "latest_filing_date": "2007-05-09",
+          "latest_accession": "0000950134-07-010894",
+          "filings_naming_it": 2
+        },
+        {
+          "counterparty": "Rite Aid Corporation",
+          "earliest_filing_date": "2001-06-01",
+          "earliest_accession": "0000950149-01-500834",
+          "latest_filing_date": "2005-05-13",
+          "latest_accession": "0000950134-05-009971",
+          "filings_naming_it": 5
+        }
+      ],
+      "per_filing": [
+        {
+          "filing_date": "2026-05-08",
+          "accession": "0000927653-26-000069",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2025-05-09",
+          "accession": "0000927653-25-000036",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2024-05-08",
+          "accession": "0000927653-24-000035",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2023-05-09",
+          "accession": "0000927653-23-000038",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2022-05-09",
+          "accession": "0000927653-22-000051",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2021-05-12",
+          "accession": "0000927653-21-000039",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2020-05-22",
+          "accession": "0000927653-20-000033",
+          "edges_found": 4,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2019-05-15",
+          "accession": "0000927653-19-000009",
+          "edges_found": 1,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2018-05-24",
+          "accession": "0000927653-18-000010",
+          "edges_found": 1,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2017-05-22",
+          "accession": "0000927653-17-000007",
+          "edges_found": 2,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2016-05-05",
+          "accession": "0000927653-16-000020",
+          "edges_found": 2,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2015-05-12",
+          "accession": "0001628280-15-004098",
+          "edges_found": 1,
+          "named_counterparties": [
+            "CVS Caremark Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2014-05-14",
+          "accession": "0001445305-14-002132",
+          "edges_found": 2,
+          "named_counterparties": [
+            "CVS",
+            "CVS Caremark Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2013-05-07",
+          "accession": "0001561787-13-000010",
+          "edges_found": 3,
+          "named_counterparties": [
+            "CVS",
+            "CVS Caremark Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2012-05-02",
+          "accession": "0001193125-12-204736",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2011-05-05",
+          "accession": "0000950123-11-045634",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2010-05-04",
+          "accession": "0000950123-10-043581",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2009-05-05",
+          "accession": "0000950134-09-009477",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2008-05-07",
+          "accession": "0000950149-08-000067",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2007-05-09",
+          "accession": "0000950134-07-010894",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Caremark RX"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2006-05-16",
+          "accession": "0000950149-06-000282",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Caremark RX"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2005-05-13",
+          "accession": "0000950134-05-009971",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2004-06-10",
+          "accession": "0000950149-04-001115",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2003-06-06",
+          "accession": "0000950149-03-001297",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2002-06-12",
+          "accession": "0000950149-02-001196",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2001-06-01",
+          "accession": "0000950149-01-500834",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false
+        }
+      ]
+    },
+    {
+      "ticker": "PKG",
+      "cik": "0000075677",
+      "filings_on_record": 27,
+      "filings_examined": 27,
+      "stopped_early_reason": null,
+      "error": null,
+      "named_counterparties": [
+        {
+          "counterparty": "ODP",
+          "earliest_filing_date": "2023-02-23",
+          "earliest_accession": "0000950170-23-003990",
+          "latest_filing_date": "2026-02-26",
+          "latest_accession": "0001193125-26-074129",
+          "filings_naming_it": 4
+        },
+        {
+          "counterparty": "Office Depot",
+          "earliest_filing_date": "2016-02-26",
+          "earliest_accession": "0000075677-16-000030",
+          "latest_filing_date": "2022-02-24",
+          "latest_accession": "0000950170-22-001913",
+          "filings_naming_it": 7
+        }
+      ],
+      "per_filing": [
+        {
+          "filing_date": "2026-02-26",
+          "accession": "0001193125-26-074129",
+          "edges_found": 1,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2025-02-27",
+          "accession": "0000950170-25-028533",
+          "edges_found": 1,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2024-02-29",
+          "accession": "0000950170-24-022794",
+          "edges_found": 1,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2023-02-23",
+          "accession": "0000950170-23-003990",
+          "edges_found": 2,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2022-02-24",
+          "accession": "0000950170-22-001913",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2021-02-24",
+          "accession": "0001564590-21-008051",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2020-02-26",
+          "accession": "0001564590-20-006774",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2019-02-28",
+          "accession": "0001564590-19-005284",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2018-02-28",
+          "accession": "0001564590-18-003690",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2017-02-28",
+          "accession": "0000075677-17-000004",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2016-02-26",
+          "accession": "0000075677-16-000030",
+          "edges_found": 3,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2015-02-27",
+          "accession": "0000075677-15-000007",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2014-02-28",
+          "accession": "0000075677-14-000009",
+          "edges_found": 3,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2013-02-28",
+          "accession": "0001193125-13-083569",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2012-02-21",
+          "accession": "0001193125-12-070269",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2011-02-22",
+          "accession": "0000950123-11-016543",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2010-02-17",
+          "accession": "0000950123-10-013747",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2009-02-27",
+          "accession": "0000950137-09-001376",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2008-02-20",
+          "accession": "0001047469-08-001511",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2007-03-01",
+          "accession": "0001104659-07-015513",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2006-02-21",
+          "accession": "0001104659-06-010794",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2005-03-09",
+          "accession": "0001104659-05-010147",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2004-03-12",
+          "accession": "0001104659-04-007269",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2003-03-19",
+          "accession": "0001047469-03-009199",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2002-03-20",
+          "accession": "0000912057-02-010616",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2001-03-27",
+          "accession": "0000912057-01-008509",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        },
+        {
+          "filing_date": "2000-03-10",
+          "accession": "0000912057-00-010890",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false
+        }
+      ]
+    }
+  ]
+}
