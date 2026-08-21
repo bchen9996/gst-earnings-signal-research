@@ -372,17 +372,59 @@ def test_7_placeholder_universe_is_untouched() -> None:
           "is_production_linkage_map" in cl_src)
 
 
-def test_8_no_curated_data_is_shipped() -> None:
-    """The repo must contain no curated linkage rows -- only the template."""
-    from hyp04_supply_chain_hedge.curated_linkage import LSE
+def test_8_template_is_blank_and_any_curated_map_validates() -> None:
+    """Two DIFFERENT properties, one per kind of file.
 
-    csvs = list(LSE.glob("HYP04_Linkage_Map*.csv"))
-    for p in csvs:
-        lines = [l for l in p.read_text(encoding="utf-8-sig").splitlines() if l.strip()]
-        check(f"8a. {p.name} contains headers only, no data rows",
+    This began as a single blanket rule -- every HYP04_Linkage_Map*.csv must
+    contain headers only -- which was correct while zero rows were curated and
+    the repo carried nothing but a schema. It also forbade a real curated map
+    from ever living in the repo, which is untenable: the display gate's C3
+    requires the eligible event set to be frozen together with the analysis
+    code, and a map that is not committed makes any later result
+    irreproducible and the freeze record unverifiable.
+
+    So the rule is split by what each file IS:
+
+      * the TEMPLATE must stay headers-only. It is the blank schema, and a
+        stray data row in it is how half-finished content ships by accident.
+      * a CURATED MAP must LOAD CLEAN. Committing rows is expected; committing
+        rows that do not validate is not, because an invalid map is worse than
+        no map -- it looks like data.
+
+    A curated map that fails to load is a FAILURE here, not a skip. Rows whose
+    judgement fields are still blank belong in a draft file named outside this
+    glob, which is where they currently are.
+    """
+    from hyp04_supply_chain_hedge.curated_linkage import (
+        TEMPLATE_HEADERS_CSV, LSE)
+
+    # --- the template -------------------------------------------------
+    if TEMPLATE_HEADERS_CSV.is_file():
+        lines = [l for l in TEMPLATE_HEADERS_CSV.read_text(encoding="utf-8-sig")
+                 .splitlines() if l.strip()]
+        check(f"8a. {TEMPLATE_HEADERS_CSV.name} contains headers only",
               len(lines) <= 1, f"{len(lines)} non-blank lines")
-    if not csvs:
-        skip("8a. template CSV present", "no HYP04_Linkage_Map*.csv in Live Signal Engine")
+        res = load_curated_linkage(TEMPLATE_HEADERS_CSV)
+        check("8b. the template's header row matches the schema",
+              res.header_matched, str(res.header_diff))
+    else:
+        skip("8a. template CSV present",
+             f"{TEMPLATE_HEADERS_CSV.name} not in Live Signal Engine")
+
+    # --- any curated map ----------------------------------------------
+    maps = [p for p in LSE.glob("HYP04_Linkage_Map*.csv")
+            if p != TEMPLATE_HEADERS_CSV]
+    if not maps:
+        skip("8c. curated linkage map present", "no curated map exists yet")
+        return
+
+    for p in maps:
+        res = load_curated_linkage(p)
+        check(f"8c. {p.name} loads clean", res.ok,
+              f"{len(res.errors)} error(s): "
+              + "; ".join(f"row {i.row_number} {i.field}" for i in res.errors[:6]))
+        check(f"8d. {p.name} carries at least one edge",
+              bool(res.edges), "a committed map with zero usable rows is not a map")
 
 
 def test_9_offline() -> None:
@@ -402,7 +444,7 @@ if __name__ == "__main__":
     test_5_unknown_tickers_warn_but_are_kept()
     test_6_header_mismatch_is_reported_not_absorbed()
     test_7_placeholder_universe_is_untouched()
-    test_8_no_curated_data_is_shipped()
+    test_8_template_is_blank_and_any_curated_map_validates()
     test_9_offline()
 
     print()
