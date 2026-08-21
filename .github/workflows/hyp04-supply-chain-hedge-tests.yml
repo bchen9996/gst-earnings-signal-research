@@ -95,12 +95,15 @@ jobs:
         #   * the live audit runners, which make real billable provider calls
         #   * make_registry_v1_2.py, which writes a governance artifact and must
         #     only ever run when a human decides it should
+        #   * run_linkage_history.py, which walks 10-K history and makes real
+        #     SEC requests under an owner-supplied fair-access contact
         # If any is renamed onto the test_* pattern, this fails before it can
         # spend budget or author a registry version.
         run: |
           set -e
           if ls test_hyp04*run_canary* test_hyp04*run_full* \
-                test_hyp04*make_registry* 2>/dev/null; then
+                test_hyp04*make_registry* test_hyp04*run_linkage_history* \
+                2>/dev/null; then
             echo "A side-effecting runner matches the test discovery pattern. Refusing."
             exit 1
           fi

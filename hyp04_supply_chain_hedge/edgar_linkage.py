@@ -79,6 +79,8 @@ LSE = REPO_ROOT / "Live Signal Engine"
 # --- SEC endpoints ---------------------------------------------------------
 TICKER_MAP_URL = "https://www.sec.gov/files/company_tickers.json"
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
+# Older filings live in separate paginated files named by `filings.files[].name`.
+SUBMISSIONS_EXTRA_URL = "https://data.sec.gov/submissions/{name}"
 ARCHIVE_DOC_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
 FULL_TEXT_SEARCH_URL = "https://efts.sec.gov/LATEST/search-index"
 
@@ -595,6 +597,53 @@ class EdgarClient:
                         "primary_document": rec["primaryDocument"][i],
                         "form": form}
         return None
+
+    def all_10ks(self, cik: str) -> list[dict[str, str]]:
+        """EVERY 10-K on record, newest first.
+
+        `latest_10k` above answers "what does this company disclose now?".
+        That is the wrong question for a linkage map. An edge's as_of_date is
+        the filing date that disclosed it, and under the peer-eligibility rule
+        an edge only counts for anchor events STRICTLY AFTER that date -- so an
+        edge sourced from the newest 10-K covers almost no history, even when
+        the underlying relationship is a decade old. The useful question is
+        "what is the EARLIEST filing that discloses this relationship?", and
+        answering it requires every 10-K, not the first one found.
+
+        SEC splits the submissions record: `filings.recent` holds roughly the
+        last thousand filings, and anything older lives in separate paginated
+        JSON files listed under `filings.files`. A walk that reads only
+        `recent` silently truncates at whatever depth that block happens to
+        reach -- which for a frequent filer can be well short of its earliest
+        10-K, and would look identical to "no earlier disclosure exists".
+        Those extra files are fetched, and each costs a request.
+        """
+        data = self._get(SUBMISSIONS_URL.format(cik=cik)).json()
+        filings = data.get("filings", {})
+        blocks = [filings.get("recent", {})]
+
+        for extra in filings.get("files", []) or []:
+            name = extra.get("name")
+            if not name:
+                continue
+            blocks.append(self._get(SUBMISSIONS_EXTRA_URL.format(name=name)).json())
+
+        out: list[dict[str, str]] = []
+        for blk in blocks:
+            forms = blk.get("form") or []
+            for i, form in enumerate(forms):
+                if form != "10-K":
+                    continue
+                out.append({
+                    "accession": blk["accessionNumber"][i],
+                    "filing_date": blk["filingDate"][i],
+                    "primary_document": blk["primaryDocument"][i],
+                    "form": form,
+                })
+        # Newest first, so a caller can stop early and still know it has seen
+        # every filing more recent than where it stopped.
+        out.sort(key=lambda f: f["filing_date"], reverse=True)
+        return out
 
     def filing_text(self, cik: str, accession: str, document: str) -> str:
         url = ARCHIVE_DOC_URL.format(cik=int(cik), acc=accession.replace("-", ""),
