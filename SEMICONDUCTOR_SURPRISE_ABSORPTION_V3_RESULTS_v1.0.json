@@ -1,0 +1,463 @@
+{
+ "artifact": "SEMICONDUCTOR_SURPRISE_ABSORPTION_V3_RESULTS",
+ "version": "1.0",
+ "status": "EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "is_gst_test": false,
+ "surprise_construct": "VENDOR_DEFINED_REPORTED_EPS_SURPRISE",
+ "point_in_time_provenance": "POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED",
+ "not_claimed": [
+  "GAAP earnings surprise",
+  "SEC-validated EPS surprise",
+  "guaranteed contemporaneous-consensus vintage",
+  "preregistered evidence",
+  "production-ready",
+  "investable"
+ ],
+ "predecessor_gate": {
+  "structured_source_crosswalk_gate": "FAILED",
+  "value": 0.6719,
+  "required": 0.9,
+  "still_failed": true,
+  "note": "The structured-source feasibility crosswalk gate failed and remains failed. It was not re-scored, relaxed or retried."
+ },
+ "successor_design_disclosure": "Successor design created AFTER inspecting identity and coverage information and BEFORE inspecting any outcome. The exact-date crosswalk was motivated by the already-recorded identity-only diagnostic, which used no outcome. The outcome synthesis is exploratory retrospective development, not preregistered confirmation.",
+ "universe": [
+  "NVDA",
+  "AMD",
+  "INTC",
+  "QCOM",
+  "AVGO",
+  "MU",
+  "TXN",
+  "AMAT",
+  "LRCX",
+  "KLAC"
+ ],
+ "benchmark": "SMH",
+ "period": {
+  "start": "2018-01-01",
+  "end": "2025-12-31"
+ },
+ "primary_surprise_field": "surprisePercentage",
+ "primary_horizon_sessions": 5,
+ "secondary_horizon_sessions": 20,
+ "provenance": {
+  "crosswalk_excluded": {
+   "no_match": 22,
+   "ambiguous": 0,
+   "outside_period": 0
+  },
+  "timing_categories": {
+   "after_close_next_session": 296,
+   "before_open_same_session": 2
+  },
+  "surprise_percentage_invariance": {
+   "checked": 320,
+   "agree_within_0_5pp": 320,
+   "agreement_rate": 1.0,
+   "largest_absolute_deviation_pp": 0.0,
+   "proportional_split_invariance_holds": true,
+   "note": "surprisePercentage is a ratio of two EPS quantities, so a proportional split restatement cancels exactly. Verified mechanically, not assumed."
+  },
+  "av_records_considered": 320,
+  "uniquely_matched": 298
+ },
+ "price_fetch": [
+  {
+   "ticker": "NVDA",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "AMD",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "INTC",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "QCOM",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "AVGO",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "MU",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "TXN",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "AMAT",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "LRCX",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "KLAC",
+   "source": "cache",
+   "rows": 2113
+  },
+  {
+   "ticker": "SMH",
+   "source": "cache",
+   "rows": 2113
+  }
+ ],
+ "price_audit": [
+  {
+   "ticker": "NVDA",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "AMD",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "INTC",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "QCOM",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "AVGO",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "MU",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "TXN",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "AMAT",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "LRCX",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "KLAC",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  },
+  {
+   "ticker": "SMH",
+   "rows": 2113,
+   "first": "2017-10-02",
+   "last": "2026-02-27",
+   "abs_daily_return_ge_0_40": 0
+  }
+ ],
+ "return_provenance": {
+  "dropped_for_missing_prices": 0
+ },
+ "sample_gate": {
+  "tickers": {
+   "value": 10,
+   "required": 8,
+   "passed": true
+  },
+  "events": {
+   "value": 298,
+   "required": 240,
+   "passed": true
+  },
+  "oos_events": {
+   "value": 116,
+   "required": 90,
+   "passed": true
+  },
+  "oos_per_year": {
+   "value": {
+    "2023": 39,
+    "2024": 38,
+    "2025": 39
+   },
+   "required": 25,
+   "passed": true
+  },
+  "duplicate_identities": {
+   "value": 0,
+   "required": 0,
+   "passed": true
+  },
+  "passed": true
+ },
+ "events_by_ticker": {
+  "NVDA": 22,
+  "AMD": 32,
+  "INTC": 27,
+  "QCOM": 30,
+  "AVGO": 31,
+  "MU": 32,
+  "TXN": 32,
+  "AMAT": 30,
+  "LRCX": 32,
+  "KLAC": 30
+ },
+ "events_by_year": {
+  "2018": 29,
+  "2019": 35,
+  "2020": 37,
+  "2021": 41,
+  "2022": 40,
+  "2023": 39,
+  "2024": 38,
+  "2025": 39
+ },
+ "stage1": {
+  "model_b": "intercept + ticker indicators",
+  "model_c": "model B + transformed vendor-defined surprise",
+  "n_oos": 116,
+  "mae_B": 0.052506,
+  "mae_C": 0.051203,
+  "mae_improvement_pct": 2.482,
+  "rmse_B": 0.065017,
+  "rmse_C": 0.063565,
+  "oos_r2_augmented": 0.064246,
+  "per_year": {
+   "2023": {
+    "n": 39,
+    "mae_B": 0.047902,
+    "mae_C": 0.046594,
+    "improvement_pct": 2.7314,
+    "augmented_better": true
+   },
+   "2024": {
+    "n": 38,
+    "mae_B": 0.065591,
+    "mae_C": 0.065225,
+    "improvement_pct": 0.5582,
+    "augmented_better": true
+   },
+   "2025": {
+    "n": 39,
+    "mae_B": 0.044361,
+    "mae_C": 0.04215,
+    "improvement_pct": 4.9841,
+    "augmented_better": true
+   }
+  },
+  "years_augmented_better": 3,
+  "alphas_selected": {
+   "B": [
+    0.0,
+    10.0
+   ],
+   "C": [
+    0.0,
+    10.0
+   ]
+  },
+  "bootstrap_mae_diff": {
+   "draws": 2000,
+   "block_days": 28,
+   "seed": 20260817,
+   "blocks": 36,
+   "mean": 0.0012706898819729823,
+   "ci95": [
+    -0.0007271998959694952,
+    0.0031700017619433383
+   ],
+   "entirely_above_zero": false
+  },
+  "oos_spearman_surprise_vs_initial_reaction": 0.13515,
+  "oos_spearman_p": 0.148026,
+  "mean_coef_on_transformed_surprise": 0.011373,
+  "gates": {
+   "mae_improvement_at_least_1pct": true,
+   "bootstrap_ci_entirely_above_zero": false,
+   "c_beats_b_in_at_least_2_years": true,
+   "expected_positive_sign": true,
+   "passed": false
+  }
+ },
+ "stage1_breakdown": {
+  "note": "Descriptive only. Defines no gate and changes no model, horizon, cost or feature.",
+  "by_ticker": {
+   "AMAT": {
+    "n": 10,
+    "mae_B": 0.050245,
+    "mae_C": 0.049765,
+    "improvement_pct": 0.9547,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.67273,
+    "mean_ar0_pct": -2.8056
+   },
+   "AMD": {
+    "n": 12,
+    "mae_B": 0.054368,
+    "mae_C": 0.049435,
+    "improvement_pct": 9.0739,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.36491,
+    "mean_ar0_pct": -2.4613
+   },
+   "AVGO": {
+    "n": 12,
+    "mae_B": 0.067736,
+    "mae_C": 0.068322,
+    "improvement_pct": -0.8641,
+    "c_better": false,
+    "spearman_surprise_vs_ar0": -0.04895,
+    "mean_ar0_pct": 2.3973
+   },
+   "INTC": {
+    "n": 12,
+    "mae_B": 0.07027,
+    "mae_C": 0.062031,
+    "improvement_pct": 11.7252,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.49119,
+    "mean_ar0_pct": -3.8366
+   },
+   "KLAC": {
+    "n": 10,
+    "mae_B": 0.02759,
+    "mae_C": 0.026137,
+    "improvement_pct": 5.2642,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.27273,
+    "mean_ar0_pct": 0.5144
+   },
+   "LRCX": {
+    "n": 12,
+    "mae_B": 0.032151,
+    "mae_C": 0.032773,
+    "improvement_pct": -1.9332,
+    "c_better": false,
+    "spearman_surprise_vs_ar0": -0.16783,
+    "mean_ar0_pct": 1.6207
+   },
+   "MU": {
+    "n": 12,
+    "mae_B": 0.07046,
+    "mae_C": 0.0745,
+    "improvement_pct": -5.7347,
+    "c_better": false,
+    "spearman_surprise_vs_ar0": 0.09091,
+    "mean_ar0_pct": -0.0654
+   },
+   "NVDA": {
+    "n": 12,
+    "mae_B": 0.053229,
+    "mae_C": 0.050158,
+    "improvement_pct": 5.7695,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.5035,
+    "mean_ar0_pct": 3.1865
+   },
+   "QCOM": {
+    "n": 12,
+    "mae_B": 0.049908,
+    "mae_C": 0.048484,
+    "improvement_pct": 2.852,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.18881,
+    "mean_ar0_pct": -2.6898
+   },
+   "TXN": {
+    "n": 12,
+    "mae_B": 0.044575,
+    "mae_C": 0.046007,
+    "improvement_pct": -3.213,
+    "c_better": false,
+    "spearman_surprise_vs_ar0": -0.0979,
+    "mean_ar0_pct": -1.5357
+   }
+  },
+  "by_year": {
+   "2023": {
+    "n": 39,
+    "mae_B": 0.047902,
+    "mae_C": 0.046594,
+    "improvement_pct": 2.7314,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.21959,
+    "mean_ar0_pct": 0.9275
+   },
+   "2024": {
+    "n": 38,
+    "mae_B": 0.065591,
+    "mae_C": 0.065225,
+    "improvement_pct": 0.5582,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.05625,
+    "mean_ar0_pct": -0.0391
+   },
+   "2025": {
+    "n": 39,
+    "mae_B": 0.044361,
+    "mae_C": 0.04215,
+    "improvement_pct": 4.9841,
+    "c_better": true,
+    "spearman_surprise_vs_ar0": 0.14111,
+    "mean_ar0_pct": -2.5182
+   }
+  },
+  "tickers_where_c_better": 6,
+  "tickers_total": 10
+ },
+ "decision_label": "SURPRISE_DOES_NOT_EXPLAIN_INITIAL_REACTION",
+ "stage2": "not run -- Stage 1 failed; the gap was not constructed",
+ "trading": "not run -- Stage 1 failed",
+ "sensitivities": {
+  "status": "NOT_COMPUTED",
+  "reason": "Stage 1 failed, so the information-price gap was never constructed. S1-S4 are all defined on the gap and cannot exist. The raw by-ticker and by-year breakdown required by S5 is reported under stage1_breakdown, computed on the Stage-1 quantities only.",
+  "S1_exclude_fiscal_year_end_quarters": "unavailable -- requires the gap",
+  "S2_sec_validated_overlap_only": "unavailable -- requires the gap",
+  "S3_strict_sec_seasonal_eps_shock": "unavailable -- requires the gap",
+  "S4_twenty_session_horizon": "unavailable -- requires the gap",
+  "S5_by_ticker_and_year": "reported under stage1_breakdown"
+ }
+}

@@ -1,0 +1,25 @@
+# Dependencies for the retrospective direction-signal runner
+# (tools/run_retrospective_direction_signal.py) and its computational test,
+# test_market_response_direction_signal.py.
+#
+# Why this file exists separately: requirements.txt is documented as covering
+# gst_market_response/ ONLY, and these retrospective development studies are not
+# part of that module. Adding modelling packages there would contradict that
+# file's own stated scope. This mirrors tools/requirements-hyp01-feasibility.txt.
+#
+# Why CI needs it: the test file is discovered by the market-response workflow's
+# glob (it is named test_market_response*.py), it imports the runner, and the
+# runner imports scikit-learn at module level. Without it the test aborts at
+# import with ModuleNotFoundError before a single assertion runs -- which is
+# exactly how the run on d14570e failed.
+#
+# scikit-learn carries a floor rather than an exact pin. It supplies the fixed
+# logistic and shallow gradient-boosting implementations; both are used with
+# fixed hyperparameters and a fixed random_state, and the study's conclusion is
+# that neither beats an intercept-only null. That conclusion is not sensitive to
+# a patch-level implementation difference, and pinning a build with no wheel for
+# CI's interpreter would break CI for no correctness gain.
+#
+# numpy and pandas arrive via requirements.txt; scipy via
+# tools/requirements-hyp01-feasibility.txt, which CI already installs.
+scikit-learn>=1.4.0

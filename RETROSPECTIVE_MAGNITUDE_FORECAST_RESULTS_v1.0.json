@@ -1,0 +1,265 @@
+{
+ "artifact": "RETROSPECTIVE_MAGNITUDE_FORECAST_RESULTS",
+ "version": "1.0",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "confirms_hyp01": false,
+ "evaluates_directional_trading_or_profitability": false,
+ "outcome": "abs(open(T)/close(T-1) - 1)",
+ "baseline_features": [
+  "prior_mean_abs_gap",
+  "realized_vol_20d",
+  "abs_ret_5d",
+  "spy_vol_20d",
+  "is_amc"
+ ],
+ "gst_feature": "gst_z_pre",
+ "model": "ridge(alpha=1.0), fixed; no model, threshold or hyperparameter search",
+ "validation": "chronological expanding window; 2023/2024/2025 folds, as PR #23",
+ "primary_metric": "out-of-sample MAE",
+ "gst_feature_definition": "z of the latest weekly GST observation whose week CLOSES strictly before the event day, against the prior 52 such weeks (minimum 20)",
+ "why_not_population_spike_zscore": "the population's spike z-score spans a 14-day window anchored at the spike week while the maximum anchor-to-event lead here is 5 days, so its window always overlaps the announcement; 9 of 217 anchors fall on or after the event day. It would be lookahead, so it is kept for reference only and never enters a model.",
+ "sample": {
+  "rows_in_source": 285,
+  "unique_event_identities": 217,
+  "duplicate_rows_removed": 68,
+  "built": 217,
+  "usable_after_feature_completeness": 189,
+  "dropped_incomplete_features": 28,
+  "drop_reasons": {}
+ },
+ "folds": [
+  {
+   "test_year": "2023",
+   "n_train": 53,
+   "n_test": 41,
+   "train_mean_abs_gap_pp": 6.9653,
+   "A": {
+    "n": 41,
+    "mae_pp": 3.5772,
+    "rmse_pp": 4.8136,
+    "r2_vs_intercept": 0.0
+   },
+   "B": {
+    "n": 41,
+    "mae_pp": 3.6851,
+    "rmse_pp": 4.819,
+    "r2_vs_intercept": -0.00223
+   },
+   "C": {
+    "n": 41,
+    "mae_pp": 3.72,
+    "rmse_pp": 4.8762,
+    "r2_vs_intercept": -0.02617
+   }
+  },
+  {
+   "test_year": "2024",
+   "n_train": 94,
+   "n_test": 48,
+   "train_mean_abs_gap_pp": 6.5874,
+   "A": {
+    "n": 48,
+    "mae_pp": 4.0701,
+    "rmse_pp": 5.1766,
+    "r2_vs_intercept": 0.0
+   },
+   "B": {
+    "n": 48,
+    "mae_pp": 3.8086,
+    "rmse_pp": 4.9115,
+    "r2_vs_intercept": 0.09982
+   },
+   "C": {
+    "n": 48,
+    "mae_pp": 3.8765,
+    "rmse_pp": 4.8893,
+    "r2_vs_intercept": 0.10792
+   }
+  },
+  {
+   "test_year": "2025",
+   "n_train": 142,
+   "n_test": 47,
+   "train_mean_abs_gap_pp": 6.5045,
+   "A": {
+    "n": 47,
+    "mae_pp": 3.3347,
+    "rmse_pp": 4.2544,
+    "r2_vs_intercept": 0.0
+   },
+   "B": {
+    "n": 47,
+    "mae_pp": 3.3949,
+    "rmse_pp": 4.3131,
+    "r2_vs_intercept": -0.02778
+   },
+   "C": {
+    "n": 47,
+    "mae_pp": 3.2995,
+    "rmse_pp": 4.1389,
+    "r2_vs_intercept": 0.05356
+   }
+  }
+ ],
+ "pooled_out_of_sample": {
+  "A_intercept_only": {
+   "n": 136,
+   "mae_pp": 3.6673,
+   "rmse_pp": 4.7643,
+   "r2_vs_intercept": 0.0
+  },
+  "B_baseline_no_gst": {
+   "n": 136,
+   "mae_pp": 3.6284,
+   "rmse_pp": 4.6844,
+   "r2_vs_intercept": 0.03325
+  },
+  "C_baseline_plus_gst": {
+   "n": 136,
+   "mae_pp": 3.6299,
+   "rmse_pp": 4.6395,
+   "r2_vs_intercept": 0.05167
+  }
+ },
+ "mae_improvement_pct": -0.0413,
+ "decisive_paired_loss_difference": {
+  "definition": "abs_error(B, no GST) - abs_error(C, with GST); positive = GST helps",
+  "mean_pp": -0.00152,
+  "median_pp": -0.00624,
+  "share_events_gst_better_pct": 49.26,
+  "clustered": {
+   "n": 136,
+   "n_clusters": 26,
+   "vcov": "CR2 (BRL)",
+   "df_method": "coefficient-specific Satterthwaite",
+   "cluster_unit": "ticker",
+   "mean_loss_difference_pp": -0.00152,
+   "cr2_se_pp": 0.06902,
+   "satterthwaite_df": 17.178,
+   "t_stat": -0.022,
+   "p_value": 0.9827,
+   "ci95_pp": [
+    -0.14703,
+    0.14399
+   ],
+   "positive_means_gst_reduces_error": true
+  }
+ },
+ "calibration_by_predicted_quintile": {
+  "B_baseline_no_gst": [
+   {
+    "quintile": 1,
+    "n": 28,
+    "mean_predicted_pp": 5.6049,
+    "mean_realized_pp": 3.7202
+   },
+   {
+    "quintile": 2,
+    "n": 27,
+    "mean_predicted_pp": 6.2575,
+    "mean_realized_pp": 4.7347
+   },
+   {
+    "quintile": 3,
+    "n": 27,
+    "mean_predicted_pp": 6.6953,
+    "mean_realized_pp": 7.4185
+   },
+   {
+    "quintile": 4,
+    "n": 27,
+    "mean_predicted_pp": 7.2848,
+    "mean_realized_pp": 7.8829
+   },
+   {
+    "quintile": 5,
+    "n": 27,
+    "mean_predicted_pp": 9.231,
+    "mean_realized_pp": 6.9
+   }
+  ],
+  "C_baseline_plus_gst": [
+   {
+    "quintile": 1,
+    "n": 28,
+    "mean_predicted_pp": 5.0723,
+    "mean_realized_pp": 4.1554
+   },
+   {
+    "quintile": 2,
+    "n": 27,
+    "mean_predicted_pp": 6.1828,
+    "mean_realized_pp": 4.4938
+   },
+   {
+    "quintile": 3,
+    "n": 27,
+    "mean_predicted_pp": 6.7599,
+    "mean_realized_pp": 7.3236
+   },
+   {
+    "quintile": 4,
+    "n": 27,
+    "mean_predicted_pp": 7.4142,
+    "mean_realized_pp": 6.9557
+   },
+   {
+    "quintile": 5,
+    "n": 27,
+    "mean_predicted_pp": 9.264,
+    "mean_realized_pp": 7.7118
+   }
+  ]
+ },
+ "top_quintile_lift": {
+  "B_baseline_no_gst": {
+   "top_quintile_mean_realized_pp": 6.9,
+   "overall_mean_realized_pp": 6.1135,
+   "lift_ratio": 1.1286
+  },
+  "C_baseline_plus_gst": {
+   "top_quintile_mean_realized_pp": 7.7118,
+   "overall_mean_realized_pp": 6.1135,
+   "lift_ratio": 1.2614
+  }
+ },
+ "yearly_stability": {
+  "2023": {
+   "A_mae": 3.5772,
+   "B_mae": 3.6851,
+   "C_mae": 3.72
+  },
+  "2024": {
+   "A_mae": 4.0701,
+   "B_mae": 3.8086,
+   "C_mae": 3.8765
+  },
+  "2025": {
+   "A_mae": 3.3347,
+   "B_mae": 3.3949,
+   "C_mae": 3.2995
+  }
+ },
+ "gst_adds_out_of_sample_predictive_value": false,
+ "conclusion": "GST_DOES_NOT_IMPROVE_MAGNITUDE_FORECAST",
+ "secondary_metrics_status": {
+  "label": "SECONDARY DESCRIPTIVE METRICS THAT FAVOR GST",
+  "prespecified_inferential_decision_rule": false,
+  "interpretation": "descriptive only; generates a prospective tail-ranking hypothesis rather than establishing predictive value",
+  "metrics": [
+   "rmse",
+   "r2_vs_intercept",
+   "top_quintile_lift"
+  ]
+ },
+ "null_scope": {
+  "statement": "for this fixed ridge specification, sample, folds and MAE objective, and under the stated ticker-clustering assumptions, the 95% CI excludes a mean MAE improvement greater than approximately 0.144 pp",
+  "does_not_rule_out": [
+   "tail-ranking value",
+   "alternative genuinely prespecified models",
+   "prospective performance",
+   "usefulness relative to options-implied movement"
+  ]
+ },
+ "correction_to_pr22_citation": "PR #22's +1.509 pp retrospective association used the historical spike classification whose 14-day window overlaps the earnings event in this population. It remains a retrospective association but cannot be cited as evidence that GST was available pre-event or predictively caused the larger move."
+}

@@ -1,6 +1,715 @@
 # Changelog
 
 
+## 2026-08-17 — Synthesis manuscript: "Signal Without Strategy"
+
+Converts the completed research program into a submission-ready paper. **No new financial data was
+retrieved, no model was fitted, no statistical test was run, and no existing result was modified.**
+Every tracked artifact from `6301671` is blob-identical.
+
+**Central argument.** Public information variables can be economically associated with market
+reactions without supplying stable incremental forecasts or implementable trading alpha. Search
+attention occasionally tracked move magnitude but repeatedly failed incremental out-of-sample and
+strategy tests. Vendor-defined earnings surprise showed a real positive association with the initial
+semiconductor price reaction — including a significant temporal-replication correlation — but did
+not deliver stable forecast-error reduction across years and firms. Early apparent successes were
+highly sensitive to leakage, duplicated events, timing, calibration and comparator choice.
+
+The paper does **not** claim markets are perfectly efficient, that Google Trends is universally
+useless, that earnings surprises never matter, or that alternative data cannot work.
+
+**Deliverables.** `SIGNAL_WITHOUT_STRATEGY_MANUSCRIPT_v1.0.md` (**4,455** words excluding references
+and tables, twelve required sections, ten primary academic sources);
+`SIGNAL_WITHOUT_STRATEGY_EXECUTIVE_SUMMARY_v1.0.md` (**900** words under the same counting
+convention, with an empty contribution table for the owner to complete); three deterministic SVG
+figures — evidence ladder, surprise-replication intervals, and leakage correction — built by
+`tools/build_signal_without_strategy_figures.py`; and
+`tools/check_signal_without_strategy_numbers.py`, the executable numerical audit.
+
+**Editorial corrections (final pass).** The executive summary's prespecification claim was too
+broad. It now distinguishes what was frozen per designated study — model specification, primary
+metric, decision gates and temporal-replication rules, each committed before that study's designated
+outcomes were opened — from **reactive** controls introduced only after defects were found,
+specifically **event-identity deduplication** and the **strictly earlier lag-feature repair**, and
+states plainly that the overall program and this synthesis were **not preregistered**. The
+manuscript's limitations section was aligned to the same wording, and the audit now fails if the
+broad claim returns.
+
+The bibliography was independently re-verified against publisher, CrossRef, DOI and journal pages.
+Corrections: the Bailey–López de Prado title now carries its published serial comma and the journal
+its full name; Bernard–Thomas is marked as the volume 27 Supplement; the Brier DOI is given as plain
+text because its angle brackets break markdown links, with the AMS publisher page as the resolvable
+link. **Foster, Olsen and Shevlin (1984) is marked stable-identifier unresolved** — its metadata is
+confirmed but no DOI or JSTOR stable URL could be independently verified, so none is asserted.
+
+**Volatility-artifact dependency.** The audit now prefers the in-tree
+`ATTENTION_ACTIVITY_MISMATCH_RESULTS_v1.0.json` when present, falls back to the pinned
+`ddc8488` copy during stacked review, verifies the resolved source against an expected content hash
+(`8cd711cf…`, blob `48020213…`), and **fails if in-tree and pinned copies both exist and disagree**.
+**PR #30 (`phase2-attention-activity-mismatch`) must merge before PR #36** for main to be
+self-contained; PR #36 alone does not contain that source artifact.
+
+**Numerical audit.** It loads the committed source artifacts and resolves **82** claimed values
+against exact artifact fields, accounting for **all 139** distinct numeric tokens in the manuscript,
+executive summary and figure text (**71** allowlisted as section numbers, years, versions,
+identifiers, clock components or axis ticks). It fails on an unaccounted token, on rounding
+inconsistent with the source, on calling vendor EPS GAAP, on claiming a guaranteed point-in-time
+estimate vintage, on claiming an investable strategy, on calling the temporal replication
+successful, and on denying the significant Spearman association. Negative-tested: perturbing a
+value, inserting a prohibited claim, and introducing an untied number each make it exit non-zero.
+
+One artifact cited by the manuscript — `ATTENTION_ACTIVITY_MISMATCH_RESULTS_v1.0.json`, the weekly
+volatility result — is committed on `phase2-attention-activity-mismatch` rather than on this
+branch's ancestry. The audit resolves it with `git show ddc8488:<path>` rather than copying it, so
+it is verified against the committed blob without duplicating a result file.
+
+Figures are byte-deterministic: two consecutive builds produce identical SHA-256 hashes. Every
+plotted value is read from an artifact rather than hardcoded.
+
+
+## 2026-08-17 — Terminal temporal replication (2010-2017): TEMPORAL_REPLICATION_FAILS
+
+Does vendor-defined earnings surprise improve chronological out-of-sample prediction of the first
+full-session SMH-adjusted price reaction for the same ten semiconductor companies during 2010-2017?
+**Two of four replication gates fail. The research path stops. No third replication is proposed.**
+
+A **retrospective** temporal replication motivated by PR #34's suggestive but gate-failing result —
+**not** a prospectively registered independent replication, **not** preregistered evidence. The
+predictor remains `VENDOR_DEFINED_REPORTED_EPS_SURPRISE` on `surprisePercentage` with
+`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED`. Not a GST test.
+`FROZEN_TEMPORAL_REPLICATION_DESIGN` was committed at `6361111`, before any pre-2018 price or return
+observation was read.
+
+**Sample.** 531 provider records and 522 SEC Item 2.02 events for 2004-2017 → 68 excluded for no
+exact-date match, **1 ambiguous** → **462 uniquely matched**, **283 OOS** across 2010-2017 (34-37
+per year), 0 duplicate identities, 0 train/test identity overlap. Timing: 456 after-close, 6
+before-open, 0 intraday.
+
+**AVGO excluded, never replaced.** Its current CIK carries no pre-2018 filing history and no
+archived submission files; the historical issuer is a predecessor entity unreachable from the
+authoritative ticker→CIK map. Nine tickers still clear the ≥8 gate. 2004 contributes only 10 events
+because SEC Item 2.02 took effect 2004-08-23 — recorded in advance, and entirely inside the training
+window. Split audit: one move ≥40% (AMD 2016-04-22, +52.3%), diagnosed **genuine** and reported, not
+deleted.
+
+**Stage 1, n = 283:** MAE 0.044226 → **0.043246**, **+2.216%**, RMSE 0.068302 → 0.066776, OOS R²
+0.0351, pooled Spearman **+0.2169 (p = 0.000236)**.
+
+| Gate | Result | |
+|---|---|---|
+| improvement ≥ 1.0% | +2.216% | pass |
+| bootstrap 95% CI entirely above zero | **[−0.0000561, +0.0021342]** | **FAIL** |
+| C beats B in ≥ ⌈2×8/3⌉ = 6 of 8 years | **5 of 8** | **FAIL** |
+| expected positive sign | +0.2169 | pass |
+
+Bootstrap: 2,000 draws, 28-day blocks, 92 blocks, seed 20260817, mean +0.000981.
+
+Annual pattern is **front-loaded and unstable** — +3.80/+6.93/+5.87% in 2010-2012, then −1.12/−1.23%
+in 2013-2014, +0.05% 2015, −0.46% 2016, +6.55% 2017. Model C helps only **4 of 9** tickers, though
+**all nine** Spearman correlations are positive.
+
+**Stage 2 and trading did not run.** The gap was never constructed and no strategy was simulated.
+
+**Secondary comparison with PR #34, never pooled:** improvement +2.482% (2023-2025, n=116) vs
++2.216% (2010-2017, n=283); Spearman +0.135 (p=0.148) vs **+0.217 (p=0.000236)**. **Point estimates
+agree in sign in both windows, and both windows fail the same unchanged gate.** The failure was not
+rescued by combining them.
+
+The strongest supporting finding is a genuinely significant monotonic association (+0.217,
+p = 0.000236) across 283 events with every ticker positive. The strongest falsifying finding is that
+it yields no stable predictive improvement: 5 of 8 years, negative in three, helpful for only 4 of 9
+tickers, bootstrap interval including zero.
+
+Two amendments were made **before any outcome was opened** and are recorded in the design block: the
+`FOLDS`/`PRICE_CACHE` rebinding, and a calendar-bounds fix (the repository's XNYS instance begins
+2006-08-17 and raised `DateOutOfBounds` for 2004-2006 dates, so the same package and calendar were
+re-instantiated from 2003-01-01). No repository module was edited and no price cache existed at that
+point. Every model, transform, grid, tie-break, bootstrap and gate was imported and executed
+unmodified from PR #34's runner.
+
+
+## 2026-08-17 — Semiconductor information-price gap (v3): SURPRISE_DOES_NOT_EXPLAIN_INITIAL_REACTION
+
+Outcome study on the stacked branch `phase3-semiconductor-surprise-absorption-v3`, asking whether
+the discrepancy between a vendor-defined earnings surprise and the market's initial abnormal
+reaction predicts subsequent abnormal return. **The study stopped at the first mandatory gate.**
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`, **not preregistered**, not production-ready, not
+investable, and **not a GST test**. The surprise series is `VENDOR_DEFINED_REPORTED_EPS_SURPRISE` —
+never a GAAP or SEC-validated EPS surprise, never a guaranteed contemporaneous-consensus vintage.
+`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED` is recorded. The predecessor structured-source
+crosswalk gate **failed at 0.6719 against 0.90 and remains failed**; it was not re-scored or
+retried. `FROZEN_DESIGN` was committed at `9a9f642`, **before any price or return file was opened**.
+
+`surprisePercentage` is the primary field because proportional split restatements cancel in a ratio.
+**Verified mechanically: 320/320 records agree, largest deviation 0.0000 pp.**
+
+**Sample.** 320 provider records → 22 excluded for no exact-date SEC match, **0 ambiguous** →
+**298 uniquely matched events**, 10 tickers, **116 OOS** (39/38/39), zero duplicate identities.
+Timing: 296 after-close → next session, 2 before-open → same session, **0 intraday** (none
+occurred). Split- and dividend-adjusted closes; the discontinuity audit found **zero** daily moves
+≥40% across 11 series.
+
+**Stage 1 — Model B (intercept + ticker) vs Model C (+ transformed surprise), MAE of the initial
+abnormal reaction, n = 116:** MAE 0.052506 → **0.051203**, **+2.482%** improvement, OOS R² 0.064,
+pooled Spearman **+0.1352** (p = 0.148). Per year: 2023 +2.73%, 2024 +0.56%, 2025 +4.98% — Model C
+better in **3 of 3**.
+
+| Gate | Result | |
+|---|---|---|
+| MAE improvement ≥ 1.0% | +2.482% | pass |
+| bootstrap 95% CI entirely above zero | **[−0.000727, +0.003170]** | **FAIL** |
+| C beats B in ≥2 of 3 years | 3 of 3 | pass |
+| expected positive sign | +0.1352 | pass |
+
+**Three of four gates pass; the bootstrap interval straddles zero.** The finding is *not
+demonstrated*, not *demonstrated absent* — the surprise term has the right sign and helps in every
+OOS year, but at 116 events the gain is not distinguishable from noise. Model C helps only **6 of 10
+tickers** and hurts MU, TXN, LRCX and AVGO.
+
+**Consequently the information-price gap was never constructed, Stage 2 never ran, no CR2 inference
+on a gap was computed, and no trading was simulated.** Sensitivities S1–S4 are all defined on the
+gap and are reported as unavailable rather than approximated; S5 (by ticker and year) is reported.
+
+Transport amendment, made **before any outcome existed** and recorded in the design block:
+`yfinance` cannot complete a TLS handshake in this environment (curl_cffi, "unable to get local
+issuer certificate", with or without an explicit CA bundle) and Alpaca returns HTTP 401 on both
+feeds, so the **same Yahoo adjusted-close series** is retrieved over `urllib` — same provider, same
+adjustment, different HTTP client only. No analytic rule was touched.
+
+The test recomputes Stage 1 end to end from the committed panel — folds, training-fold-only
+transform, ridge alpha selection, MAE, the deterministic bootstrap and every gate — and proves the
+leakage properties with fixtures that must be detected: outcome-as-feature (improvement jumps above
+90%), duplicated identity, shifted folds, shuffled surprise, and relabeling. CR2/BRL and
+Satterthwaite are **imported** from `tools/hyp01_inference_feasibility.py`, not reimplemented.
+
+
+## 2026-08-17 — Semiconductor EPS absorption: two residual corrections
+
+Closes the two residuals flagged when the extraction interpretation was corrected.
+
+**1. The runner no longer emits the superseded label.**
+`tools/run_semiconductor_eps_absorption.py` gained a `classify()` function that recomputes the two
+current classification fields from the already-computed gate values and writes them into
+`extraction_validation_v1.0.json`:
+
+- `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+- `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
+
+`EXTRACTION_NOT_RELIABLE` is never emitted as a current classification. It survives only as the
+`SUPERSEDED_LABEL` constant and in clearly-marked historical notes inside the frozen-design block.
+`classify()` loosens, reinterprets and re-scores nothing — it reports what the gates already say.
+
+The runner was **re-run** to regenerate its artifacts. `event_panel_v1.0.csv` and
+`provenance_v1.0.json` came back **byte-identical**, and `extraction_validation_v1.0.json` differs by
+exactly the two added fields. Every number is unchanged: 306 events, 299 located, 216 extracted,
+150 validated / 2 contradicted / 56 no-reference, reference_coverage 0.7037, conditional_precision
+0.9868, usable_event_coverage 0.2742, 82 usable events, 7 tickers, OOS 18/15/15.
+
+**2. The SEC response cache is now gitignored.**
+`Live Signal Engine/Semiconductor_EPS_Absorption/_cache/` was untracked but not ignored — the hazard
+that swept it into a commit before. It is now in `.gitignore`. The 548 cached files remain untracked
+and unstaged, and a repo-wide `git add -A` would now sweep in **zero** of them.
+
+Tests gained sections 17 and 18: a rerun reproduces the corrected classification, `classify()`
+returns the superseded label under no gate configuration, every mention of it in the runner is
+marked historical, no emitted field is assigned it, git genuinely ignores the cache path, no cache
+file is tracked or staged, and the committed artifacts in that directory are still tracked.
+
+
+## 2026-08-17 — Structured earnings feasibility probe: STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT
+
+Outcome-blind data audit of the official Alpha Vantage `EARNINGS` endpoint, asking whether the
+semiconductor earnings-surprise study can be run credibly without further hand-built parser work.
+**This is a data audit, not an outcome study. No return, price, price reaction, volume, option,
+model or trading result was read or computed.** `FROZEN_STRUCTURED_EARNINGS_FEASIBILITY_DESIGN` was
+committed at `088dc8e`, before the first provider request.
+
+Decision: **`STRUCTURED_EARNINGS_COVERAGE_INSUFFICIENT`**. Seven of eight gates pass; the crosswalk
+gate fails.
+
+| Gate | Value | Required | |
+|---|---|---|---|
+| g1 tickers with complete records | 10 | ≥ 8 | pass |
+| g2 complete records 2018–2025 | 320 | ≥ 200 | pass |
+| g3 complete records 2023–2025 | 120 | ≥ 90 | pass |
+| g4 complete per year 2023/24/25 | 40 / 40 / 40 | ≥ 25 | pass |
+| **g5 unique SEC crosswalk rate** | **0.6719** | **≥ 0.90** | **fail** |
+| g6 surprise-arithmetic agreement | 1.0000 (320/320) | ≥ 0.99 | pass |
+| g7 unresolved duplicate identities | 0 | 0 | pass |
+| g8 vendor-vs-GAAP terminology | true | true | pass |
+
+All ten tickers retrieved; 1153 raw records, 320 in period, 320 complete, 32 per ticker, 40 per
+year, 0 malformed, 0 duplicates. The first attempt returned 369-byte **rate-limit notices** for 5
+tickers; a throttle is a transport failure, not a coverage finding, so retrieval now retries with
+backoff, never caches a body that fails the provider-error check, and reports `DATA_ACCESS_BLOCKED`
+rather than a coverage verdict if any ticker stays throttled.
+
+**The failing gate is not a provider defect.** The frozen crosswalk requires a fiscal-period match,
+and `fiscal_period_end` exists for only 267 of the 306 SEC Item 2.02 events — it is populated only
+where the hand-built parser dated the filing. The structural ceiling is therefore **267/320 =
+0.8344**, already below 0.90 before any provider record was examined: the same class of defect the
+extraction phase found in its own reference design. A report-date-only match against the full
+306-event index reaches **300/320 = 0.9375 with zero ambiguity**; that is recorded as a
+**diagnostic and was not substituted for the gate**.
+
+Alpha Vantage vs the 150 SEC-validated parser values, on 139 overlapping events: **8 match within
+$0.01 (5.76%)**, median absolute difference **$0.26**. The differences are not random — they
+decompose into (a) **retroactive 10-for-1 split restatement** for LRCX 0.1033, KLAC 0.1074,
+NVDA 0.1645 and AVGO 0.2877 median provider/SEC ratio, and (b) a **GAAP-versus-adjusted** difference
+among the 45 near-parity pairs (8 within $0.01, median $0.05, one outright sign disagreement).
+EPS agreement was never a gate and neither source was corrected by the other.
+
+Provider EPS is therefore **vendor-defined and restated, not SEC-validated GAAP diluted EPS**; any
+eventual construct is named `VENDOR_DEFINED_REPORTED_EPS_SURPRISE`. Alpha Vantage publishes no
+guarantee that historical `estimatedEPS` is the contemporaneous consensus preserved as of the
+announcement, so **`POINT_IN_TIME_ESTIMATE_PROVENANCE_NOT_GUARANTEED`** is recorded — reinforced by
+the split-restatement evidence and not resolved by assumption.
+
+The key is read only from `ALPHAVANTAGE_API_KEY` and never printed, logged, serialized, committed or
+placed in a recorded URL. Raw bodies are cached repository-external with timestamp, byte count,
+SHA-256, HTTP status and redacted URL. **Passing feasibility would not authorize modeling, and this
+pass did not pass.**
+
+
+## 2026-08-17 — Semiconductor EPS absorption: extraction interpretation corrected
+
+**Semantic correction only. No extraction count, gate threshold or prior numerical artifact was
+altered, and the frozen gate's FAILED outcome stands exactly as recorded.**
+
+The two commits on this branch recorded a single label, `EXTRACTION_NOT_RELIABLE`. That label was
+overly broad: it reads as a verdict on extraction *accuracy*, which the evidence contradicts. It is
+replaced by two separate fields:
+
+- `frozen_gate_decision: FAILED_EXTRACTION_QUALITY_GATE`
+- `extraction_characterization: HIGH_CONDITIONAL_PRECISION_BUT_INSUFFICIENT_VERIFIED_COVERAGE`
+
+The evidence: held-out conditional precision **0.9860**, combined conditional precision **0.9868**,
+`reference_coverage` **0.7037**, `usable_event_coverage` **0.2742**, **82** usable events across
+**7** usable tickers with **48** OOS events. **47 of 216** extractions are fiscal-year-end quarters
+that lack the selected later-10-Q reference, so under this reference design the observed maximum
+attainable `reference_coverage` is **1 − 47/216 = 0.7824**, below the frozen **0.80** gate.
+
+Stated explicitly in the report and results artifact:
+
+1. The frozen study **stopped correctly and remains untested**.
+2. High conditional precision applies **only** to extractions for which the selected audit reference
+   exists — it is precision conditional on referenceability.
+3. It **does not validate** the unreferenced fiscal-year-end extractions; those are unverified, not
+   verified-wrong.
+4. The failure **combines** inadequate verified coverage with a reference design that cannot label
+   many fiscal-year-end quarters.
+5. **No return was inspected.**
+6. **Further hand-built parser iteration is not recommended.**
+
+`failure_mode_classification` changed from `inadequate_extraction` to `insufficient_verified_coverage`.
+The extraction test gained section 16, which recomputes the 0.7824 ceiling as `1 − 47/216` rather
+than reading it, and asserts the gate was not retroactively lowered or marked passed.
+
+Known residual: `tools/run_semiconductor_eps_absorption.py` still emits the superseded single label
+if re-run. The instruction for this pass scoped edits to the report, results classification fields,
+test assertions and changelog, so the runner was deliberately left untouched.
+
+
+## 2026-08-17 — Semiconductor EPS absorption, final adapter pass: still EXTRACTION_NOT_RELIABLE
+
+Final bounded extraction attempt on the same branch. Added a deterministic filer-adapter registry
+for NVDA, INTC, AVGO, MU, TXN and QCOM, plus five general structural fixes proven on the frozen
+development sample. **Extraction improved substantially and the unchanged gate still failed, so no
+outcome stage was run and no return was ever inspected.**
+
+| | Before (`cafc50a`) | After |
+|---|---|---|
+| Located exhibits | 250 | 299 |
+| Extracted | 123 | **216** |
+| Validated / contradicted / no reference | 92 / 0 / 31 | **150 / 2 / 56** |
+| Usable events | 61 | 82 |
+| Tickers with usable events | 4 | 7 |
+| OOS events | 32 | 48 |
+
+Per ticker after: NVDA 22, AMD 32, INTC 20, QCOM 9, AVGO 19, MU 25, TXN 8, AMAT 28, LRCX 30,
+KLAC 23. Precision: development **1.0000**, held out **0.9860**, combined **0.9868** — held-out
+precision independently clears 0.95.
+
+Gate values (all thresholds unchanged): reference_coverage 0.7037 (≥0.80, fail), conditional
+precision 0.9868 (pass), held-out conditional precision 0.9860 (pass), usable_event_coverage 0.2742
+(≥0.60, fail), tickers 7 (≥8, fail), usable events 82 (≥160, fail), OOS 48 (≥90, fail), OOS per year
+18/15/15 (≥25, fail), later-XBRL predictive inputs 0 (pass).
+
+**Binding finding: the gate is arithmetically unreachable.** A fiscal-year-end quarter's EPS is never
+restated as a discrete three-month fact in a later 10-Q — the next periodic report is the 10-K with
+the annual figure — so those events can only ever be `no_reference`. Missing references cluster in
+each filer's own fiscal-year-end month (LRCX 8/8 June, NVDA 5/5 January, AMAT 5/8 October, AMD 4/8
+December). 47 of 216 extracted events (21.8%) are fiscal-year-end quarters, capping attainable
+`reference_coverage` at **0.7824** against a required 0.80, independent of parser quality.
+
+Adapters contain only structural properties — exhibit name patterns, quarter-span representations,
+per-share section nesting — and no accession numbers, column indexes, EPS values, later-XBRL values
+or outcome information. Across 121 accessions extracted both before and after, **zero values
+changed**; AMAT became more conservative (−2) and AMD gained 1. The development sample's realization
+grew 17→20 events as NVDA and INTC exhibits became locatable under the unchanged hash rule; no
+held-out filing was moved in.
+
+Recommendation: **stop hand-building this parser.** Reliable structured earnings data would be
+required to test this hypothesis.
+
+Focused test extended to 108 checks; all 53 tracked test files pass.
+
+
+## 2026-08-17 — Semiconductor EPS–price absorption: EXTRACTION_NOT_RELIABLE
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. `sector: SEMICONDUCTORS`,
+`google_trends_used: false`, `analyst_consensus_used: false`,
+`later_xbrl_used_for_prediction: false`.
+
+Tested whether a mismatch between standardized unexpected GAAP diluted EPS and the market's first
+full-session reaction predicts subsequent semiconductor drift. Frozen universe NVDA, AMD, INTC,
+QCOM, AVGO, MU, TXN, AMAT, LRCX, KLAC; benchmark SMH; 8-K Item 2.02 events 2018–2025; outer test
+years 2023–2025. **The extraction gate failed, so the question was not tested** — no return was
+inspected, no SUE, no gap, no model, no bootstrap, no trade.
+
+306 Item 2.02 events → 250 located earnings exhibits → **123 GAAP diluted EPS extracted**.
+Later-10-Q XBRL `us-gaap:EarningsPerShareDiluted` as an audit reference only: **92 validated, 0
+contradicted, 31 without a reference in window**.
+
+| Gate | Value | Required | |
+|---|---|---|---|
+| reference_coverage | 0.7480 | ≥ 0.80 | fail |
+| conditional_precision | **1.0000** | ≥ 0.95 | pass |
+| usable_event_coverage | 0.2440 | ≥ 0.60 | fail |
+| tickers | 4 | ≥ 8 | fail |
+| usable events | 61 | ≥ 160 | fail |
+| OOS events | 32 | ≥ 90 | fail |
+| OOS per year (2023/24/25) | 12 / 10 / 10 | ≥ 25 each | fail |
+| later-XBRL predictive inputs | 0 | 0 | pass |
+
+**The failure is recall, not accuracy.** Every extracted value with a reference matched it, and five
+of ten filers (NVDA, INTC, AVGO, MU, TXN) yield nothing at all. Three structural defects were found
+and fixed on the fixed outcome-blind development sample (17 events / 9 tickers), lifting extraction
+from 33 to 123: a date regex that could not read `June 29,2024`; year-only header rows misclassified
+as data, which stripped the year from every column heading; and financial statements filed in a
+sibling exhibit rather than 99.1. The remaining five filers use a statement layout the structural
+acceptance test still refuses.
+
+Gates were not loosened after the rates were seen, no value was hand-corrected, and no return was
+used to choose a parsing rule. The later XBRL never selected, replaced or altered an Exhibit value
+and never entered a feature. SUE is defined as a seasonal historical-expectation surprise; nothing
+is called an analyst surprise, consensus miss, fair value, intrinsic value, proven mispricing or
+causal underreaction.
+
+Artifacts: `SEMICONDUCTOR_EPS_ABSORPTION_RESULTS_v1.0.json`,
+`SEMICONDUCTOR_EPS_ABSORPTION_REPORT_v1.0.md`,
+`Live Signal Engine/Semiconductor_EPS_Absorption/`,
+`tools/run_semiconductor_eps_absorption.py`,
+`test_market_response_semiconductor_eps_absorption.py` (71 checks).
+
+
+## 2026-08-17 — Attention–Activity Mismatch: RETIRE_GST_AS_TRADING_SIGNAL
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Measured variable is a **search–trading-activity
+mismatch proxy**; "unabsorbed attention" is an interpretation, not a measurement. GST remains a
+**candidate** proxy (F5 open). Historical Trends downloads are **not point-in-time vintages**.
+
+Locked 24-ticker universe, 208 panel weeks (2022-01-10 → 2025-12-29), 4,992 rows; out-of-sample
+**157 weeks / 3,768 ticker-weeks**, zero duplicate `(ticker, target_week)`. Folds: train ≤2022→test
+2023, ≤2023→2024, ≤2024→2025. Features close with Trends week t (Sunday-start, closes Saturday);
+targets are week t+1 Monday open→Friday close.
+
+**Volatility (primary).** MAE **B 0.420367 vs C 0.420497** — **−0.0309%**, i.e. worse. Block bootstrap
+(2,000 draws, 4-week blocks, all tickers kept per sampled week) on `loss_B − loss_C`: mean −0.00013,
+**95% CI [−0.001102, +0.001084]** straddling zero. C wins 2 of 3 years by fourth-decimal margins.
+Gates: 1% improvement FAIL, CI-above-zero FAIL, 2-of-3 years PASS → **does not pass**.
+
+**Return direction (secondary).** Log loss **R0 0.704603 vs R1 0.707252**; both worse than the
+intercept-only null (**0.694786**). AUC **0.5019**. Bootstrap CI **[−0.004151, −0.001369]** entirely
+below zero — adding search reliably hurt. All four gates FAIL. **No portfolio simulation was run.**
+
+**Interaction signs (descriptive).** `search_z × volume_z` is positive and sign-stable in the
+volatility model (+0.020338) — the direction the hypothesis anticipated — but produced no
+out-of-sample gain. The two return interactions carrying the mismatch idea most directly are not
+sign-stable.
+
+**Sensitivity (robustness only).** Excluding known earnings weeks (−0.032%), dropping the five most
+lexically ambiguous queries per the existing construct audit — BRK-B, GME, GOOGL, BKR, DELL
+(−0.227%) — and winsorizing at training 1st/99th percentiles (−0.021%) all agree with the primary
+result. Earnings coverage is partial (existing frozen C5 population).
+
+**Decision: `RETIRE_GST_AS_TRADING_SIGNAL`.** This was the final conditional GST trading test. The
+recommendation is to retire GST as a trading signal rather than launch another adjacent pilot. No
+causality, market absorption, investability, or universal uselessness of Google Trends is claimed.
+
+
+## 2026-08-16 — Restaurant search pilot: NO_INCREMENTAL_SEARCH_VALUE
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. Not HYP-01 confirmation, not prospective collection.
+Targets **magnitude**, never direction.
+
+8 usable tickers, 210 candidate events → **122 complete** → **82 out-of-sample** (2021-07-20 →
+2025-11-06; 63 AMC / 59 BMO from SEC 8-K item 2.02 acceptance timestamps). Large-move base rate 24.39%.
+
+| Model | Brier | Log loss | AUC |
+|---|---|---|---|
+| A. Intercept-only training prevalence | **0.18454** | **0.55588** | 0.4665 |
+| B. Baseline | 0.20211 | 0.62690 | 0.6460 |
+| C. B + investor attention (`[TICKER] stock`) | 0.23665 | 0.81574 | 0.6177 |
+| D. C + product demand (brand) | 0.24739 | 0.90235 | 0.6427 |
+
+**Brier degrades monotonically as features are added; the intercept-only null wins outright.**
+
+Central test `Brier loss(C) − Brier loss(D)`: raw mean **−0.010745**, CI [−0.041115, +0.019625];
+CR2/BRL clustered by ticker (8 clusters, Satterthwaite df 6.543) **−0.010745, SE 0.02501, t = −0.430,
+p = 0.68126, CI [−0.070734, +0.049243]**. **D beats C on 59.76% of events yet the mean is negative** —
+product demand wins slightly more often but loses far more heavily; counting wins would invert the
+conclusion. Tail lift moves the wrong way too: top-quintile realized large-move rate B 35.29%
+(1.447×), C 29.41% (1.206×), D 23.53% (0.965×). Continuous MAE: B 5.4534, C 5.6790, D 5.8543 pp.
+Model D is badly miscalibrated — its top bin predicts 0.7549 against a realized 0.2381.
+
+**Leakage assertion: 353 checks, 0 violations** — every search week closes strictly before its
+announcement timestamp, asserted mechanically per event and independently rechecked in the test.
+
+**Options: `OPTIONS_HISTORY_UNAVAILABLE`** — no per-event pre-announcement implied move exists for
+these tickers (committed IV files cover one ticker and are keyed on the forbidden GST spike window),
+and no authenticated provider is configured. Current options data was not substituted and no implied
+move was reconstructed from realized returns.
+
+**Relationship to PR #27.** That revenue-nowcasting null is untouched — not reinterpreted, retuned or
+rerun. This pilot reuses PR #27's exact frozen query map and weekly consumer series. **Success here
+would not have overturned PR #27's null**: different targets, neither substitutes for the other. Two
+disclosures from the reuse: the executed consumer queries are `Chipotle Mexican Grill` and `Dutch Bros
+Coffee` (this task's spec froze `Chipotle` and `Dutch Bros`), and PR #27's series starts 2020-12-27,
+so with the 52-week baseline the panel begins 2021-07-20 rather than 2019. The investor series was
+fetched here (2018-12-30 →) since PR #27 had none.
+
+Universe and queries frozen before retrieval; one fixed robust transformation
+`(x − median₅₂)/(1.4826·MAD₅₂)` for both families; tail threshold recomputed from the training fold
+only at each step; regularization chosen inside each training fold from a grid fixed in advance;
+expanding chronological folds, never shuffled; identical folds and observations across A/B/C/D.
+
+A baseline-feature defect was found and fixed during the run: quarterly revenue facts are re-filed
+under multiple accessions, so a naive "exactly one year-ago match" silently dropped every established
+company (122 events → 3). Deduplicating to the earliest-filed value per period end fixed it — a
+point-in-time-preserving dedup, not an outcome-driven choice.
+## 2026-08-16 — Brand search demand and revenue nowcasting: INSUFFICIENT_DATA
+
+`EXPLORATORY_RETROSPECTIVE_DEVELOPMENT_ONLY`. A **fundamentals-nowcasting** study — no stock return,
+option, analyst estimate or prospective HYP-01 outcome retrieved or used. **Ticker GST is not used**;
+only the eight frozen brand queries enter.
+
+**Point-in-time limitation.** Google Trends series retrieved today are a **retrospective
+reconstruction**: Google rescales to the requested window's maximum and may revise sampling, so the
+identical series was not necessarily available when each quarter closed. This MVP can generate a
+prospective hypothesis; it cannot establish contemporaneous availability. Every figure inherits that.
+
+**Decision: `INSUFFICIENT_DATA`** — the minimum-sample rule fails at **38 out-of-sample observations
+against a required 40** (eligible company-quarters 66 ≥ 60 ✓; out-of-sample companies 7 ≥ 6 ✓). The
+label is set by the gate, not by the numbers.
+
+The numbers were computed anyway and point the same way:
+
+| Model | MAE (pp) | RMSE (pp) | OOS R² vs A |
+|---|---|---|---|
+| A. Expanding company historical mean | 6.3795 | 8.5120 | 0.000 |
+| B. Fundamental ridge | **6.3679** | 8.0876 | 0.09724 |
+| C. Fundamental + search demand | 6.8735 | 8.1836 | 0.07568 |
+
+**MAE change B → C: −7.94%** — search made the primary metric worse. Decisive paired comparison
+`abs_error(B) − abs_error(C)`: mean **−0.5056 pp**, C wins only **44.74%** of events; ticker-clustered
+(CR2/BRL, 7 clusters) **−0.5056 pp, SE 0.97855, t = −0.517, p = 0.62525, CI [−2.946, +1.935]**. The
+interval is wide — 38 observations cannot resolve a small effect either way, which is why the gate
+exists. Not stable across years: 2024 **+0.72 pp**, 2025 **−1.61 pp**, a sign flip across the only two
+evaluable folds.
+
+By company, strongest **WING +3.2599 pp** (the company B forecasts worst), weakest **CAVA −3.7141 pp**
+(only 2 observations); three of seven improve, four worsen.
+
+A secondary metric does favour C — acceleration-sign accuracy **60.53% vs 55.26%** — while RMSE and
+OOS R² do not. **The fixed primary MAE comparison fails, so this is not reinterpreted as success.**
+
+**Why only 38 out-of-sample:** the 2023 fold could not run (9 training observations). Google serves
+weekly resolution only for windows up to ~5 years — an 8-year request silently returns *monthly*
+points, which cannot fill a fiscal-quarter average — so usable weekly history starts in 2021 and the
+first two years are consumed by the year-ago revenue base and the four-quarter search baseline.
+
+292 raw quarterly revenue facts → 251 company-quarters after deduplication by ticker, fiscal period
+and accession → 66 eligible. All eight frozen queries returned usable data (none marked unavailable);
+TXRH dropped at the feature-completeness stage, not the query stage. Exactly two search features, both
+normalized on earlier quarters only; the search window is the company's own fiscal quarter and ends
+strictly before the earnings release. One fixed ridge (alpha 1.0) for both B and C; chronological
+expanding window with fold-local scaling; no model search, alpha tuning, feature selection, trees,
+neural networks or quantum models; universe and query strings frozen before retrieval and unchanged.
+
+**The next-stage rule is not triggered** — search demand did not improve the fixed primary metric, so
+no later project may proceed to earnings-gap direction on this basis. No stock return was tested.
+
+
+## 2026-08-16 — GST does not improve out-of-sample magnitude forecasting
+
+`RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01. **No directional trading or
+profitability is evaluated in this study.** Additive files only; HYP-01 locks, registry, F5
+artifacts, universe constants and frozen methodology untouched.
+
+Outcome, frozen before fitting: `abs(open(T)/close(T−1) − 1)`. Deduplicated to 217 unique
+`(ticker, event_day)` identities, 189 with complete features, **136 out-of-sample** across the same
+2023/2024/2025 chronological folds as PR #23.
+
+| Model | MAE | RMSE | OOS R² vs intercept |
+|---|---|---|---|
+| A. Intercept-only historical mean | 3.6673 pp | 4.7643 pp | 0.000 |
+| B. Baseline, no GST | **3.6284 pp** | 4.6844 pp | 0.03325 |
+| C. Baseline + pre-event GST z | 3.6299 pp | **4.6395 pp** | **0.05167** |
+
+**MAE change B → C: −0.0413%** — marginally worse on the primary metric. Decisive paired test, event
+level, `abs_error(B) − abs_error(C)`, intercept-only design clustered by ticker (26 clusters), CR2/BRL
+with Satterthwaite df: **−0.00152 pp, SE 0.06902, t = −0.022, p = 0.9827, CI [−0.14703, +0.14399]**.
+GST is better on 49.26% of events. For **this fixed ridge specification, this sample, these folds and
+the MAE objective**, and under the stated ticker-clustering assumptions, the interval excludes a mean
+MAE improvement greater than approximately **0.144 pp**. It does **not** rule out tail-ranking value,
+alternative genuinely prespecified models, prospective performance, or usefulness relative to
+options-implied movement. **Conclusion: `GST_DOES_NOT_IMPROVE_MAGNITUDE_FORECAST`.**
+
+**Correction to how PR #22 may be cited.** PR #22's +1.509 pp retrospective association used the
+historical spike classification whose 14-day window overlaps the earnings event in this population.
+It remains a retrospective association but **cannot be cited as evidence that GST was available
+pre-event or predictively caused the larger move.** PR #22's arithmetic is unchanged; this limits
+interpretation, not the numbers.
+
+**The GST feature had to be rebuilt to be point-in-time.** The population's own spike z-score spans a
+14-day window anchored at the spike week while the maximum anchor-to-event lead here is 5 days, so
+its window always overlaps the announcement — and **9 of 217 anchors fall on or after the event day**.
+Using it as a predictor would be lookahead. `gst_z_pre` is therefore built from raw weekly GST using
+only weeks that **close strictly before** the event day: (latest closed week − mean of the prior 52
+such weeks) / stdev, minimum 20 baseline weeks. The spike z-score is retained for reference only and
+never enters a model.
+
+**Secondary descriptive metrics that favor GST** — descriptive only, with no prespecified
+inferential decision rule here; they generate a prospective tail-ranking hypothesis rather than
+establish predictive value: C beats B on RMSE and roughly doubles OOS R² (0.0517
+vs 0.0333), and its top predicted quintile realizes larger moves (7.7118 pp vs 6.9000 pp; lift 1.261×
+vs 1.129× against a 6.1135 pp overall mean). Both gains are squared-error/tail effects — GST helps
+slightly on the largest moves while being neutral-to-worse on the typical one, which is why MAE is
+flat. Yearly MAE shows no consistent winner: the intercept-only baseline wins 2023 outright, C wins
+only 2025.
+
+One fixed ridge (alpha 1.0) for both B and C, standardization and fitting inside each training fold
+only. No model search, no threshold search, no hyperparameter tuning; the primary metric was fixed as
+MAE before any result was seen.
+
+A design error was caught during development: the paired clustered test initially used ticker fixed
+effects alongside the intercept, which saturates the model at cluster level — within-cluster residuals
+vanish and the CR2 adjustment degenerated to a zero standard error with an infinite t. The paired mean
+test now uses an intercept-only design clustered by ticker, and the focused test asserts the standard
+error is finite and positive.
+
+
+## 2026-08-16 — Correction: proper probabilistic null added; the null wins
+
+Narrow correction to PR #23. No feature was added, no other strategy tried, nothing searched.
+
+**The Brier baseline was wrong.** Always-positive predicts a hard 1.0, so its Brier (0.46528) and log
+loss (12.86) are terrible by construction — beating it proves nothing probabilistic. The proper null
+is **`INTERCEPT_ONLY_PREVALENCE`**: within each expanding-window fold, the positive-gap prevalence is
+estimated from **training data only** and assigned to every test observation.
+
+| Model | Accuracy | AUC | **Brier** | Log loss |
+|---|---|---|---|---|
+| **INTERCEPT_ONLY_PREVALENCE** *(selected)* | 0.4653 | 0.5042 | **0.25600** | **0.70522** |
+| Logistic L2 | 0.4792 | 0.4654 | 0.27110 | 0.73762 |
+| Shallow GBT | 0.4931 | 0.4757 | 0.28710 | 0.78249 |
+| Momentum-sign | 0.4792 | 0.4752 | 0.32292 | 0.85988 |
+| Always-positive *(classification benchmark only)* | 0.5347 | n/a | 0.46528 | 12.85611 |
+
+**The null beats every learned model on both Brier and log loss.** The frozen selection rule — lowest
+pooled out-of-sample Brier, AUC secondary — was reapplied **unchanged** with the null as a candidate,
+and it now selects the null. A null model is an acceptable winner. The logistic model's earlier Brier
+edge came from predicting near 0.5; against a null that is unconfident by construction, that edge
+disappears. Always-positive is kept as a classification benchmark (53.47% accuracy is the bar a
+classifier must clear) but is no longer treated as the probabilistic comparator.
+
+**Main conclusion: `TESTED_DIRECTION_MODELS_HAVE_NO_SKILL`** — the tested pre-earnings price-based
+direction models have no out-of-sample directional skill, and applying GST as a magnitude filter does
+not rescue those models. The earlier line "Neither leg of the two-stage design works on this sample"
+was too broad and is removed. `NEITHER_ADDS_VALUE` is retained only as a narrow secondary label for
+the tested logistic-direction strategy and its GST combination — not for the two-stage concept.
+
+Because the selected model is the null, **no directional trading strategy is presented as
+investable**; a constant-prevalence null emits no directional signal and trading it would be a
+disguised always-long rule. The logistic strategy figures (direction-only −0.7027% net; +GST
+−0.8865%; incremental GST −1.0404 pp, p=0.5858) are retained explicitly as **secondary evidence about
+the failed learned model**.
+
+**Stated explicitly:** this does not invalidate the separate GST magnitude hypothesis; it does not
+test GST combined with a direction signal that independently possesses directional skill; it does not
+test analyst revisions, point-in-time news, options skew, fundamental expectations or
+network-diffusion features; and a failed direction model cannot determine whether GST would improve a
+genuinely informative direction model.
+
+**The leakage finding is unchanged and remains prominent:** 68 duplicate rows out of 285 (one event 7
+times) meant a duplicate's `prior_gap_dir` read its own gap sign. Before correction the logistic model
+showed **63.6% accuracy and +0.60% net**; after deduplication to 217 unique identities and a strictly
+lagging `prior_gap_dir`, **47.9% and −0.70% net**.
+
+
+## 2026-08-16 — Independent pre-earnings direction model (superseded by the correction above)
+
+`RETROSPECTIVE_DEVELOPMENT_ONLY`. Confirms nothing about HYP-01, uses no gated prospective outcome.
+Additive files only; HYP-01 locks, registry, F5 artifacts, universe constants and frozen methodology
+untouched.
+
+Stage 2 of the two-stage design: an independent model predicts the sign of the overnight earnings
+gap, and **GST is applied only afterwards** as a magnitude/event-selection filter. GST is never an
+input to the direction model.
+
+**A leak was found and removed, and it changed the answer.** The event population reuses matched
+controls, so the same `(ticker, event_day)` identity appears several times — **68 duplicate rows out
+of 285, one event 7 times**. Left in place this double-counted the evaluation sample and leaked the
+outcome: a duplicate's `prior_gap_dir` feature read *the same event's* gap sign. With duplicates
+present the logistic model scored **63.6% accuracy, AUC 0.6395, Brier 0.23824** and the strategy
+returned **+0.60% net**. After deduplicating to **217 unique identities** and requiring
+`prior_gap_dir` to use a strictly earlier date, the same model scores **47.9% accuracy, AUC 0.4654**
+and the strategy returns **−0.70% net**. The apparent skill was the leak.
+
+**Out-of-sample (144 events, chronological expanding window: train ≤2022 → test 2023, ≤2023 → 2024,
+≤2024 → 2025):**
+
+| Model | Accuracy | AUC | Brier |
+|---|---|---|---|
+| Always-positive | 0.5347 | 0.500 | 0.46528 |
+| Momentum-sign | 0.4792 | 0.4752 | 0.32292 |
+| Logistic L2 *(selected on Brier)* | 0.4792 | **0.4654** | **0.27110** |
+| Shallow GBT | 0.4931 | 0.4757 | 0.28710 |
+
+Selection was by pooled out-of-sample Brier, fixed before fitting and never based on returns. It
+picks the logistic model, but the choice is hollow: accuracy is **below** the always-positive
+baseline and AUC is **below 0.5**. The Brier edge comes from predicting near 0.5, not from
+discrimination. Calibration is inverted at both ends — in the most-confident-up bin the observed
+positive rate is 0.364. Two of three test years are below chance.
+
+**Combined strategy** (enter close(T−1), exit open(T), 10 bps round trip):
+
+| | Direction only | Direction + GST filter | Low-GST comparator |
+|---|---:|---:|---:|
+| Trades | 144 | 90 | 54 |
+| Mean net | −0.7027% | −0.8865% | −0.3962% |
+| Hit rate | 47.92% | 47.78% | 48.15% |
+| Max drawdown | −81.66% | −78.90% | −26.27% |
+| Worst year | 2023: −2.3316% | 2023: −2.5048% | 2023: −1.8785% |
+
+The GST filter selects the *worse* half. Decisive statistic — incremental GST effect,
+`strategy_return ~ high_GST + ticker FE`, ticker-clustered CR2/BRL with Satterthwaite df (27
+clusters): **−1.0404 pp, SE 1.8752, t=−0.555, p=0.5858, CI [−4.978, +2.897]**. Secondary confidence
+filter (one fixed threshold at 0.60, not searched): 63 trades, −1.8891% net.
+
+**Conclusion (superseded — the correction entry above replaces this with
+`TESTED_DIRECTION_MODELS_HAVE_NO_SKILL` after adding the proper probabilistic null):** the tested
+pre-earnings price-based direction models have no out-of-sample directional skill, and applying GST
+as a magnitude filter does not rescue those models. This does not establish that earnings-gap
+direction is unpredictable in general.
+
+Verified: one focused test confirms GST never enters the model, that no feature reads an index at or
+after T, deduplication of event identities, chronological-only validation with fold-local
+standardization, and that every reported metric and strategy figure recomputes.
+
+
 ## 2026-08-16 — Clustered-inference correction to the retrospective decomposition
 
 Narrow statistical review of PR #22. The descriptive results and strategy definitions are unchanged;

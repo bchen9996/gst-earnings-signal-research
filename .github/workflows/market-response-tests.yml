@@ -91,11 +91,16 @@ jobs:
         #     which imports the feasibility runner and recomputes its results
         #     rather than reading its declarations. Before this line the test
         #     aborted at import with ModuleNotFoundError and no assertion ran.
+        #   tools/requirements-retrospective-models.txt -> scikit-learn, needed by
+        #     test_market_response_direction_signal.py, which imports the
+        #     retrospective direction runner. Same failure mode, same fix: the run
+        #     on d14570e aborted at import with "No module named 'sklearn'".
         run: |
           set -e
           pip install -r requirements.txt
           pip install -r Event_Dossier_Protocol/validator/requirements.txt
           pip install -r tools/requirements-hyp01-feasibility.txt
+          pip install -r tools/requirements-retrospective-models.txt
 
       - name: Discover and run every deterministic market-response test file
         run: |
