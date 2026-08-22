@@ -437,13 +437,15 @@ def evaluate_gate(
     conditions["C5_not_placeholder"] = c5
     if not c5:
         denials.append(
-            "C5 FAILED: the underlying linkage is the Phase 0 "
-            "positional-synthetic placeholder (peers assigned to anchors by "
-            "list position, not by sector or by any real relationship). "
-            "Registry v1.1 bars displaying placeholder-linkage results as "
-            "HYP-04 findings under any circumstances, at any event count. A "
-            "real linkage map is required -- as of 2026-08-18 that means a "
-            "hand-curated one, and zero rows are curated."
+            "C5 FAILED: this freeze record declares the Phase 0 "
+            "positional-synthetic placeholder linkage (peers assigned to "
+            "anchors by list position, not by sector or by any real "
+            "relationship). The registry bars displaying placeholder-linkage "
+            "results as HYP-04 findings under any circumstances, at any event "
+            "count. To clear this, build the freeze from a curated map via "
+            "linkage_resolution.resolve_from_curated_map(), which DERIVES "
+            "uses_placeholder_linkage from what was actually read rather than "
+            "letting a caller assert it."
         )
 
     return GateDecision(open=not denials, denials=denials,
