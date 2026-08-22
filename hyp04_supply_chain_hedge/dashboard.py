@@ -193,6 +193,35 @@ def read_audit() -> dict[str, Any]:
     }
 
 
+def read_curated_linkage() -> dict[str, Any]:
+    """How many linkage edges are actually curated, READ FROM DISK.
+
+    This replaces the sentence "zero rows are curated", which was hardcoded
+    into the page and into the display gate's C5 denial. It was true when
+    written and stopped being true on 2026-08-22, which is the same failure
+    this file's own suite-discovery comment describes: a number asserted in
+    prose goes stale silently, and a governance page asserting a stale zero is
+    worse than one asserting nothing.
+    """
+    from .curated_linkage import load_curated_linkage
+
+    maps = sorted(p for p in LSE.glob("HYP04_Linkage_Map*.csv")
+                  if "TEMPLATE" not in p.name.upper())
+    if not maps:
+        return {"available": True, "map_present": False, "edges": 0,
+                "rows_rejected": 0, "source": None}
+    res = load_curated_linkage(maps[0])
+    return {
+        "available": True,
+        "map_present": True,
+        "source": maps[0].name,
+        "edges": len(res.edges),
+        "rows_seen": res.rows_seen,
+        "rows_rejected": res.rows_rejected,
+        "loads_clean": res.ok,
+    }
+
+
 def read_registry() -> dict[str, Any]:
     doc = _read_json(REGISTRY)
     if doc is None:
@@ -355,9 +384,10 @@ def _panel(panel_id: str, title: str, body: str, decision: GateDecision,
 
 
 def render(tests: dict, audit: dict, registry: dict,
-           decision: GateDecision) -> str:
+           decision: GateDecision, linkage: Optional[dict] = None) -> str:
     gen = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     quantum = quantum_control_status()
+    linkage = linkage if linkage is not None else read_curated_linkage()
 
     # --- build/test ---
     if tests.get("available"):
@@ -483,6 +513,25 @@ def render(tests: dict, audit: dict, registry: dict,
         reg_body = "<p class='muted'>registry unavailable</p>"
 
     # --- roadmap ---
+    # Describe the curated map in Python, not inside the f-string. Only the
+    # filename is untrusted and gets escaped; the em-dash entity must NOT go
+    # through _e() or it renders as the literal text "&mdash;".
+    if not linkage.get("map_present"):
+        linkage_where = "&mdash; no curated map on disk"
+    else:
+        linkage_where = "from <span class='mono'>%s</span>" % _e(str(linkage.get("source")))
+    # A map that exists but fails validation must never read the same as an
+    # absent one. Both yield 0 usable edges; only one of them is a defect.
+    rejected = int(linkage.get("rows_rejected", 0) or 0)
+    if linkage.get("map_present") and (rejected or not linkage.get("loads_clean", True)):
+        linkage_health = (
+            " <strong>That map does not load clean: %d of %d row(s) "
+            "rejected.</strong> Rejected rows are not curated linkage; the usable "
+            "count above already excludes them."
+            % (rejected, int(linkage.get("rows_seen", 0) or 0)))
+    else:
+        linkage_health = ""
+
     phase_rows = "".join(
         f"<tr><td><strong>{_e(n)}</strong></td><td>{_e(t)}</td>"
         f"<td><span class='badge {'pass' if s=='COMPLETE' else ('fail' if s=='BLOCKED' else 'idle')}'>{_e(s)}</span></td>"
@@ -502,12 +551,19 @@ def render(tests: dict, audit: dict, registry: dict,
              <br><br>
              <strong>Source changed 2026-08-18.</strong> The automated teammate
              mapping is deprioritised; the project switched to hand curation
-             against a 15-column template. A validating ingestion path is built and
-             tested (<span class="mono">curated_linkage.py</span>), but
-             <strong>zero rows are curated</strong> &mdash; a loader is not a map,
-             and the blocker is unchanged. One scope question is open and belongs
-             to the repo owner: whether the curated map targets HYP-01's frozen
-             24-ticker universe or a smaller first pass.</div>"""
+             against a 15-column template, validated by
+             <span class="mono">curated_linkage.py</span>.
+             <br><br>
+             <strong>Curated to date: {_e(str(linkage.get('edges', 0)))} usable edge(s)</strong>
+             {linkage_where}.{linkage_health}
+             Read from disk at render time, not asserted: this sentence previously
+             hardcoded &ldquo;zero rows are curated&rdquo;, which was true when written
+             and later was not.
+             <br><br>
+             The count is <em>not</em> the blocker it once was, but the threshold
+             is: condition C2 requires <strong>193 eligible anchor events</strong>,
+             a unit the registry fixes deliberately. Curating more edges does not
+             move it &mdash; only observed anchor events do.</div>"""
 
     findings = "".join(
         _panel(p, p.replace("_", " ").title(), "", decision) for p in FINDINGS_PANELS)
@@ -648,10 +704,12 @@ def build(out_path: Path, skip_run: bool = False) -> dict[str, Any]:
     tests = run_test_suites(skip_run=skip_run)
     audit = read_audit()
     registry = read_registry()
+    linkage = read_curated_linkage()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(render(tests, audit, registry, decision), encoding="utf-8")
+    out_path.write_text(render(tests, audit, registry, decision, linkage),
+                        encoding="utf-8")
     return {"gate": decision.status, "tests": tests, "audit_available": audit.get("available"),
-            "out": str(out_path)}
+            "curated_edges": linkage.get("edges", 0), "out": str(out_path)}
 
 
 def main(argv: list[str] | None = None) -> int:
