@@ -170,9 +170,14 @@ ASSUMED_PEER_EQUITY_NOTIONAL_USD = 100_000.0
 # weaker than "same-sector" implies, and the description now says what the
 # code does. (GST_Task2_PeerDivergence.py IS genuinely sector-based; this
 # package is not, and previously borrowed its description.)
+# This warning describes what THIS PIPELINE USES, not the state of curation
+# elsewhere in the repo. That distinction is deliberate: an earlier wording
+# said "the real supply-chain map does not exist yet", which became imprecise
+# the moment curation began on 2026-08-22 even though nothing about the
+# pipeline changed. A warning about an output should describe that output.
 PLACEHOLDER_LINKAGE_WARNING = (
-    "PLACEHOLDER LINKAGE (positional-synthetic pairing) -- the real "
-    "supply-chain map does not exist yet. Peers come from the non-anchor "
+    "PLACEHOLDER LINKAGE (positional-synthetic pairing) -- this pipeline does "
+    "NOT run on the curated linkage map. Peers come from the non-anchor "
     "tickers in AllTickers_Sectors.csv and are assigned to anchors by list "
     "position; the sector column is NOT used for pairing. No result from this "
     "pipeline is a finding about supply-chain transmission."
@@ -181,12 +186,20 @@ PLACEHOLDER_LINKAGE_WARNING = (
 # The linkage source as of 2026-08-18: the teammate's automated map was
 # deprioritised in favour of hand curation. See
 # Live Signal Engine/HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md.
-# An ingestion path exists (curated_linkage.py); NO curated data does.
+#
+# Curation BEGAN 2026-08-22. This string deliberately states no row count:
+# a count baked into prose goes stale silently, which is exactly what happened
+# to the wording it replaces. Read the live count from
+# curated_linkage.load_curated_linkage(); do not assert one here.
+# test_hyp04_supply_chain_hedge_curated_linkage.py enforces the no-count rule.
 LINKAGE_SOURCE_STATUS = (
     "Hand-curated map adopted 2026-08-18, replacing the deprioritised "
-    "automated teammate mapping. Ingestion path built and tested; ZERO rows "
-    "curated. Registry v1.1 still records the required linkage measurement as "
-    "does_not_exist, and Phase 1 remains blocked on it."
+    "automated teammate mapping. Ingestion path built and tested, and curation "
+    "began 2026-08-22, so the map is no longer empty. THE BLOCKER IS UNCHANGED: "
+    "the registry still records the required linkage measurement as "
+    "does_not_exist -- correcting that is a governed registry act, not a "
+    "consequence of rows appearing -- and the display gate's event-count "
+    "threshold counts anchor EVENTS, which curating edges does not move."
 )
 
 NO_EDGE_CLAIM = (

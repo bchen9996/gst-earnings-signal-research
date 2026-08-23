@@ -435,6 +435,67 @@ def test_9_offline() -> None:
         check("9a. network blocked", type(e).__name__ == "NetworkBlocked")
 
 
+def test_10_no_prose_asserts_a_row_count() -> None:
+    """Governance prose must not bake in a number that goes stale silently.
+
+    This is the failure this repository keeps repeating: a sentence states a
+    count, the count changes, and the sentence keeps asserting the old one.
+    "Zero rows are curated" was true when written and false from 2026-08-22.
+    It sat in the display gate's C5 denial and on the dashboard until someone
+    happened to read it.
+
+    Grepping prose for the stale PHRASE does not work -- past-tense records of
+    what used to be true, and statements about the teammate's separate map, are
+    both legitimate and both match. So the rule is STRUCTURAL instead:
+
+      * LINKAGE_SOURCE_STATUS carries no digits at all
+      * the dashboard's edge count comes from disk, so changing what is on disk
+        changes the rendered page
+
+    The second is what actually protects the reader, and it is asserted by
+    rendering two different states and requiring the output to differ.
+    """
+    from hyp04_supply_chain_hedge import dashboard as dash
+    from hyp04_supply_chain_hedge.constants import LINKAGE_SOURCE_STATUS
+
+    # Dates are allowed; a ROW COUNT is not. Strip ISO-ish dates first.
+    import re as _re
+    stripped = _re.sub(r"\d{4}-\d{2}-\d{2}", "", LINKAGE_SOURCE_STATUS)
+    check("10a. LINKAGE_SOURCE_STATUS asserts no row count",
+          not any(c.isdigit() for c in stripped),
+          f"digits remain: {[c for c in stripped if c.isdigit()]}")
+
+    # --- the count on the page tracks the count on disk ------------------
+    dec = dash.current_decision()
+    tests = {"available": False}
+    audit = {"available": False}
+    reg = dash.read_registry()
+
+    def _page(edges: int, present: bool = True) -> str:
+        return dash.render(tests, audit, reg, dec, {
+            "available": True, "map_present": present, "source": "X.csv",
+            "edges": edges, "rows_seen": edges, "rows_rejected": 0,
+            "loads_clean": True})
+
+    p_zero, p_two, p_none = _page(0), _page(2), _page(0, present=False)
+    check("10b. a different edge count renders a different page",
+          p_zero != p_two, "the count is not being read from the data")
+    check("10c. the rendered count is the count supplied",
+          "2 usable edge(s)" in p_two and "0 usable edge(s)" in p_zero)
+    check("10d. an absent map renders differently from an empty one",
+          p_none != p_zero,
+          "no map and a map with no usable rows are different states")
+
+    # The live page must agree with the live map -- the actual regression.
+    live = dash.read_curated_linkage()
+    check("10e. the live page reports the live edge count",
+          f"{live.get('edges', 0)} usable edge(s)" in
+          dash.render(tests, audit, reg, dec), str(live))
+
+    # And the gate must not have moved because of any of this.
+    check("10f. rendering never opens the gate", not dec.open)
+
+
 if __name__ == "__main__":
     test_1_smoke_good_rows_accepted_bad_row_rejected()
     test_2_direction_comes_from_the_lookup_not_from_notes()
@@ -446,6 +507,7 @@ if __name__ == "__main__":
     test_7_placeholder_universe_is_untouched()
     test_8_template_is_blank_and_any_curated_map_validates()
     test_9_offline()
+    test_10_no_prose_asserts_a_row_count()
 
     print()
     if SKIPS:
