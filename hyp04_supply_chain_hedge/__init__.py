@@ -6,9 +6,13 @@
 # pairing. (Corrected 2026-08-18: the earlier "same-sector peers" wording
 # described GST_Task2_PeerDivergence.py's approach, not this package's.)
 #
-# The real supply-chain linkage map does not exist. As of 2026-08-18 the
-# automated teammate mapping is deprioritised in favour of hand curation; an
-# ingestion path exists in curated_linkage.py but NO curated data does. See
+# As of 2026-08-18 the automated teammate mapping is deprioritised in favour
+# of hand curation (curated_linkage.py is the reader). Curation began
+# 2026-08-22, so the map is no longer empty -- but it is nowhere near
+# sufficient, the registry still records the linkage measurement as
+# does_not_exist pending a governed correction, and NOTHING in this package
+# runs on curated data yet. The placeholder described above is still what the
+# analysis path uses. See
 # Live Signal Engine/HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md.
 #
 # No real capital logic. No claim anywhere in this package that a hedging edge

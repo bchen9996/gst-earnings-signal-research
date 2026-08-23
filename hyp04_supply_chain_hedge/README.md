@@ -10,7 +10,11 @@ Phase 0 answers only *can this be computed at all, and is the sample large enoug
 
 ### Placeholder linkage
 
-Peers are **same-sector** tickers, not a real supply-chain map — the same limitation as `GST_Task2_PeerDivergence.py`. The real linkage map does not exist yet and is the one hard blocker on Phase 1. **No output from this package is evidence about supply-chain transmission.**
+Peers are assigned to anchors by **list position** — `peers[i*k:(i+1)*k]` in `fixtures.py`. The sector column is never read for pairing, so the placeholder is **positional-synthetic**, which is weaker than same-sector.
+
+*(This paragraph previously said "same-sector tickers". That wording described `GST_Task2_PeerDivergence.py`'s approach, not this package's; the correction was made in `__init__.py` on 2026-08-18 and missed here until 2026-08-22.)*
+
+Hand curation of a real map began 2026-08-22, so the map is no longer empty — but it is nowhere near sufficient, **no analysis path in this package runs on curated data**, and Phase 1 remains blocked. **No output from this package is evidence about supply-chain transmission.**
 
 ## Authoritative documents
 

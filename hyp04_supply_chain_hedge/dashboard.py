@@ -318,10 +318,11 @@ PHASES = [
      "synthetic fixtures and correctly finds nothing when nothing is there."),
     ("Phase 1", "Exploratory, non-binding", "BLOCKED",
      "Requires the real supply-chain linkage map, including a "
-     "first-known/established-as-of date per pair. Does not exist. Source "
-     "switched 2026-08-18 from the deprioritised automated teammate mapping "
-     "to hand curation; the ingestion path is built and tested, but zero rows "
-     "are curated, so the blocker is unchanged."),
+     "first-known/established-as-of date per pair. Source switched 2026-08-18 "
+     "from the deprioritised automated teammate mapping to hand curation, and "
+     "curation began 2026-08-22 -- see the live edge count below. The blocker "
+     "is unchanged: the gate's threshold counts anchor EVENTS, and the "
+     "registry still records the linkage measurement as does_not_exist."),
     ("Phase 2", "Preregistration lock", "NOT STARTED",
      "Freeze target, features, model spec and validation split in a dated "
      "lock before touching any holdout."),
@@ -639,11 +640,11 @@ def render(tests: dict, audit: dict, registry: dict,
   <strong>Placeholder linkage. No findings shown.</strong>
   Peers are the non-anchor tickers from the sector file, assigned to anchors by
   <em>list position</em> &mdash; the sector column is not used for pairing, so this
-  is positional-synthetic, not same-sector. The real supply-chain map does not
-  exist: as of 2026-08-18 the automated teammate mapping is deprioritised in
-  favour of hand curation, and an ingestion path exists while <em>zero rows are
-  curated</em>. Nothing on this page is a finding about supply-chain transmission,
-  and no hedging edge is claimed. Progress is public; findings are gated.
+  is positional-synthetic, not same-sector. Hand curation of a real map began
+  2026-08-22 (count below), but <em>every analysis path on this page still runs
+  on the placeholder</em>, and the gate treats it accordingly. Nothing on this
+  page is a finding about supply-chain transmission, and no hedging edge is
+  claimed. Progress is public; findings are gated.
 </div>
 
 <h2>Build &amp; test status</h2>

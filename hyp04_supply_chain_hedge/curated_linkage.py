@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Hand-curated linkage-map loader and validator -- HYP-04.
 
-=== INGESTION PATH ONLY. NO CURATED MAP EXISTS YET. ===
+=== THIS IS THE READER. IT IS NOT THE MAP, AND IT VALIDATES NOTHING ABOUT TRUTH. ===
 
-This module can READ a hand-curated linkage map. It does not contain one, and
-its existence does not mean one exists. Registry v1.1's required external
-measurement stays `does_not_exist` until a real curated file is delivered,
-validated, and accepted by the repo owner.
+This module READS a hand-curated linkage map. Curation began 2026-08-22, so a
+map now exists -- but this module's existence never implied one, and its
+success on a file never means the file's CLAIMS are correct. It checks schema,
+vocabulary and dates; it cannot check that a stated relationship is real.
+
+The registry's required external measurement stays `does_not_exist` until the
+repo owner supersedes that record. Rows appearing on disk does not change a
+registry field -- only a governed version bump does.
 
 Nothing here fabricates rows. The only CSVs this module ships alongside are
 synthetic test fixtures under test_hyp04_supply_chain_hedge_curated_linkage.py,
