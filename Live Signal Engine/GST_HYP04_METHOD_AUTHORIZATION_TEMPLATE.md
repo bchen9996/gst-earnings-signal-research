@@ -47,7 +47,8 @@ entered history.
 ## What is being authorized
 
 The ten decisions in `GST_HYP04_ANALYSIS_LOCK_v1.0`, resolving the four
-`PENDING_SEPARATE_ANALYSIS_LOCK` entries registry v1.1 records against HYP-04.
+`PENDING_SEPARATE_ANALYSIS_LOCK` entries the registry in force records against
+HYP-04.
 
 | Decision | Substance |
 |---|---|
@@ -90,10 +91,19 @@ At the moment of authorization, attest that each of the following holds:
 - [ ] `results` is null for HYP-04
 - [ ] zero real eligible anchor events exist
 - [ ] no event-set freeze record exists
-- [ ] the linkage map does not exist; zero rows are curated
-- [ ] the result-display gate is CLOSED on all five conditions
+- [ ] curated linkage edges at signing: **______** (record the number; any value
+      is compatible with signing — the gate does not read it)
+- [ ] display-gate status at signing: **______** with **____** denial(s), and
+      the conditions reading MET are: **______________**
 - [ ] no effect estimate, direction, p-value, interim result or plot existed to
       inspect, and none was inspected
+
+> Two of these were previously fixed assertions — "the linkage map does not
+> exist; zero rows are curated" and "the gate is CLOSED on all five
+> conditions". Both became false (curation began 2026-08-22; C4 has read MET
+> since registry v1.2), which would have had a signer attest to something
+> untrue. They are now blanks the signer fills in, so this instrument records
+> the state at signing instead of asserting a state that expires.
 
 **Verify mechanically before signing**, rather than asserting it:
 
@@ -108,16 +118,29 @@ for k, v in d.conditions.items():
 "
 ```
 
-Every condition must read `NOT MET` and the gate must read `CLOSED`. If any
-condition reads `MET`, stop — something changed, and this authorization's
-premise no longer holds.
+**The gate must read `CLOSED`.** Record the denial count and which conditions
+read `MET`; copy them into the blanks above.
+
+Do NOT treat a `MET` condition as a reason to stop by itself. C4 has read `MET`
+since registry v1.2 was authored, which is the intended outcome of the work
+described in "What signing does not do" below — an earlier version of this
+template said to stop on any `MET` condition, which would have aborted signing
+on exactly the state the project set out to reach.
+
+**Stop only if the gate reads `OPEN`.** That, and not the state of any single
+condition, is what would mean this authorization's premise no longer holds.
 
 ## What signing does not do
 
-Signing resolves nothing on its own. **Gate condition C4 reads registry v1.1,
-not this file or the lock.** Clearing C4 additionally requires authoring
-registry **v1.2** per the lock's §11 — v1.1 is never edited in place — and
-repointing the five code locations that pin the v1.1 filename.
+Signing resolves nothing on its own. **Gate condition C4 reads the registry
+named by `display_gate.REGISTRY_CURRENT`, not this file and not the lock.**
+Clearing C4 additionally requires authoring the next registry version per the
+lock's §11 — a registry version is never edited in place.
+
+*(Historical note: when this template was written that meant authoring v1.2 and
+repointing five code locations that pinned the v1.1 filename. Both were done.
+The version-named constant is what made the bump a five-file chore, so it is now
+`REGISTRY_CURRENT`; do not reintroduce a version number here.)*
 
 Even after both acts, the gate remains **CLOSED**: C4 clears; C1, C2, C3 and C5
 do not. No HYP-04 finding becomes displayable.
@@ -130,8 +153,8 @@ do not. No HYP-04 finding becomes displayable.
 | Declared date | `<YYYY-MM-DD>` |
 | Lock artifact authorized | `GST_HYP04_ANALYSIS_LOCK_v1.0.json` |
 | Lock artifact SHA-256 at signing | `<hash>` |
-| Registry version in force at signing | `v1.1` |
-| Registry version that will record resolution | `v1.2` (not yet authored) |
+| Registry version in force at signing | `<vX.Y>` |
+| Registry version that will record resolution | `<vX.Y>` |
 
 Recording the lock's hash at signing is what makes later drift detectable,
 matching how HYP-01's amendment records the hashes of the artifacts it leaves
