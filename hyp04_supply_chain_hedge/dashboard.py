@@ -247,6 +247,13 @@ def read_registry() -> dict[str, Any]:
             if isinstance(d, dict) and d.get("state") == PENDING_TOKEN
         ],
         "options_status": doc["options_related_classes"]["result_display_status"],
+        # v1.3 fields. Read with .get() and rendered only when present, so
+        # this page keeps working against v1.2 and earlier rather than
+        # crashing on a registry that predates them.
+        "linkage_availability": (
+            (entry.get("required_external_measurement") or {}).get("availability")
+            if entry else None),
+        "capture_paths": (entry.get("capture_path_modules") or {}) if entry else {},
     }
 
 
@@ -488,6 +495,42 @@ def render(tests: dict, audit: dict, registry: dict,
              fixtures with known injected ground truth. No observed project result entered it.
              Reaching a threshold licenses <em>looking</em>, not <em>concluding</em>.</div>"""
 
+    # --- capture paths (registry v1.3 and later) -------------------------
+    # Built in Python rather than inside the f-string, and omitted entirely
+    # when the registry predates these fields -- an empty section reads as
+    # "nothing here", which is a different claim from "not recorded".
+    avail = registry.get("linkage_availability")
+    paths = registry.get("capture_paths") or {}
+    if not avail and not paths:
+        capture_block = ""
+    else:
+        rows = []
+        for key, val in sorted(paths.items()):
+            if not isinstance(val, dict):
+                continue
+            captured = val.get("data_captured")
+            rows.append(
+                "<tr><td><span class='mono'>%s</span></td>"
+                "<td class='small'>%s</td>"
+                "<td><span class='badge %s'>%s</span></td></tr>"
+                % (_e(str(val.get("module", key))),
+                   _e(str(val.get("note", ""))),
+                   "fail" if captured is False else "idle",
+                   "no data captured" if captured is False else _e(str(captured))))
+        table = ("<table><thead><tr><th>Capture path</th><th>Note</th>"
+                 "<th>Data</th></tr></thead><tbody>%s</tbody></table>"
+                 % "".join(rows)) if rows else ""
+        capture_block = f"""
+          <p class="mt"><strong>Required external measurement</strong> &mdash;
+             linkage availability
+             <span class="mono">{_e(str(avail or 'not recorded'))}</span>.</p>
+          {table}
+          <div class="caveat"><strong>A module that can ingest is not ingested
+             data.</strong> The rows above report that a capture path EXISTS.
+             Every one reports no data captured, which is why HYP-04's status
+             does not move. Availability is read from the registry, which is the
+             authority &mdash; this page does not restate it from memory.</div>"""
+
     # --- registry ---
     if registry.get("available"):
         pend = "".join(f"<li>{_e(d)}</li>" for d in registry["pending_decisions"])
@@ -508,6 +551,7 @@ def render(tests: dict, audit: dict, registry: dict,
           <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
              display gate independently):</p>
           <ul>{pend}</ul>
+          {capture_block}
           <p class="muted small">Options classes: <span class="mono">{_e(registry['options_status'])}</span>
              &mdash; unchanged; HYP-04 is not registered against an options class.</p>"""
     else:
