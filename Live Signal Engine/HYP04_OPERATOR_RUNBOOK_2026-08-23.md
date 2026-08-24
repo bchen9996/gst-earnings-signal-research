@@ -53,6 +53,18 @@ response_session = compute_expected_next_full_trading_session_xnys(
 
 ## 2. Ask what closes you need
 
+> **The event dates below are INVENTED, and exist only to show the CLI's output
+> shape.** `MCK-2020Q3:MCK:2020-02-05` and `PKG-2020:PKG:2020-02-24` are not
+> sourced earnings dates, were never verified against a filing or a calendar,
+> and have not been through the §1 response-session resolution. **No real HYP-04
+> anchor event exists** -- `eligible_event_counts` is zero for every hypothesis
+> in registry v1.4. Do not collect closes for these windows; they are a
+> demonstration, not a work order.
+>
+> This warning exists because the illustrative dates originally appeared here
+> unlabelled, immediately after §1 warns that an unresolved date silently
+> corrupts every AMC event -- the exact trap this document describes.
+
 ```
 PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_requirements \
     --event MCK-2020Q3:MCK:2020-02-05 \
