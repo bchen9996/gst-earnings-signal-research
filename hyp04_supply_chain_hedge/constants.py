@@ -196,10 +196,10 @@ LINKAGE_SOURCE_STATUS = (
     "Hand-curated map adopted 2026-08-18, replacing the deprioritised "
     "automated teammate mapping. Ingestion path built and tested, and curation "
     "began 2026-08-22, so the map is no longer empty. THE BLOCKER IS UNCHANGED: "
-    "the registry still records the required linkage measurement as "
-    "does_not_exist -- correcting that is a governed registry act, not a "
-    "consequence of rows appearing -- and the display gate's event-count "
-    "threshold counts anchor EVENTS, which curating edges does not move."
+    "rows appearing on disk never change a registry field -- only a governed "
+    "version bump does -- and the display gate's event-count threshold counts "
+    "anchor EVENTS, which curating edges does not move. For the registry's "
+    "current position, read the registry."
 )
 
 NO_EDGE_CLAIM = (

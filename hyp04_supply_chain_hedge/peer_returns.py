@@ -74,6 +74,24 @@ DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 CLOSES_HEADERS: tuple[str, ...] = ("ticker", "session_date", "close")
 
+# The blank schema an operator fills in, mirroring the linkage map's template.
+# Headers only, always: a stray data row in a template is how half-finished
+# content ships by accident, and the suite asserts it stays empty.
+#
+# One row per (ticker, session). `close` must be finite and strictly positive --
+# a non-positive price makes log(p_t / p_{t-1}) undefined, and substituting
+# anything would manufacture a return no trade produced. Dates must be sessions
+# in the index the caller supplies; rows off that calendar are reported, not
+# dropped. Gaps are never filled.
+#
+# Deliberately provider-agnostic. Which vendor the closes come from is an open
+# decision, and it carries the same point-in-time exposure the linkage as-of
+# dates do -- a vendor's "history" is not automatically survivorship-free or
+# free of retroactive adjustment. This schema does not depend on that choice.
+TEMPLATE_HEADERS_CSV = (
+    Path(__file__).resolve().parent.parent / "Live Signal Engine"
+    / "HYP04_Peer_Closes_TEMPLATE_headers.csv")
+
 SOURCE_OPERATOR_CSV = "operator_csv"
 SOURCE_IN_MEMORY = "in_memory"
 

@@ -462,6 +462,33 @@ def test_10_derived_availability_actually_satisfies_p5():
           "P5" in res2.denial_reasons(), str(res2.denial_reasons()))
 
 
+def test_11_the_operator_template() -> None:
+    """The blank schema stays blank, and matches what the loader accepts."""
+    from hyp04_supply_chain_hedge.peer_returns import TEMPLATE_HEADERS_CSV
+
+    if not TEMPLATE_HEADERS_CSV.is_file():
+        skip("11. closes template present", f"{TEMPLATE_HEADERS_CSV.name} missing")
+        return
+
+    lines = [l for l in TEMPLATE_HEADERS_CSV.read_text(encoding="utf-8-sig")
+             .splitlines() if l.strip()]
+    check("11a. the template contains headers only", len(lines) == 1,
+          f"{len(lines)} non-blank lines -- a data row in a template is how "
+          "half-finished content ships by accident")
+    check("11b. its header row is exactly the loader's schema",
+          tuple(h.strip() for h in lines[0].split(",")) == CLOSES_HEADERS,
+          f"{lines[0]!r} vs {CLOSES_HEADERS}")
+
+    # It must round-trip: the loader accepts the template as a valid, empty file
+    # rather than rejecting its own schema.
+    panel = load_panel(TEMPLATE_HEADERS_CSV, sessions=SESSIONS)
+    check("11c. the loader accepts the template's header row",
+          panel.provenance.rows_rejected == 0, str(panel.provenance.as_dict()))
+    check("11d. and an empty template yields an unusable panel, not a crash",
+          not panel.provenance.usable and panel.series == {},
+          "a schema is not data")
+
+
 if __name__ == "__main__":
     test_1_parsing_rejects_every_bad_row_kind()
     test_2_gaps_are_never_bridged()
@@ -473,6 +500,7 @@ if __name__ == "__main__":
     test_8_import_boundary_and_offline()
     test_9_nothing_here_opens_the_gate()
     test_10_derived_availability_actually_satisfies_p5()
+    test_11_the_operator_template()
 
     print()
     if SKIPS:

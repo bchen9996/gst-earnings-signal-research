@@ -9,9 +9,13 @@ into it automatically. Two independently-derived maps that agree raise
 confidence; where they disagree, that disagreement is the finding, and it goes
 to a human. `reconcile()` below flags and never merges.
 
-Registry v1.1 lists the linkage map as a required external measurement whose
-availability is `does_not_exist`. Output from this module does NOT change that
-status. Only the teammate's map, or a human decision to promote this one, can.
+The registry lists the linkage map as a required external measurement with a
+recorded availability. Output from this module does NOT change it, whatever it
+currently reads -- only a governed registry version does. The value is
+deliberately not restated here; read the registry.
+
+Only a human decision to promote this source, or the teammate's map, changes
+what is curated.
 
 === WHY IT EXISTS: THE AS-OF DATE COMES FREE ===
 
@@ -857,8 +861,9 @@ def write_report(res: ExtractionResult, path: Path,
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "not_a_replacement": (
             "This does NOT replace the supply-chain teammate's map and does not "
-            "change registry v1.1's required-external-measurement availability, "
-            "which remains does_not_exist. It is a parallel candidate source."),
+            "change the registry's required-external-measurement availability, "
+            "whatever it currently records -- only a governed registry version "
+            "does. It is a parallel candidate source."),
         "coverage_is_a_floor": (
             "ASC 280 requires naming a customer only at >=10% of revenue. This "
             "source systematically misses smaller-but-real relationships, most "

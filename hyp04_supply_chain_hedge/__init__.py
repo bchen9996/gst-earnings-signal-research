@@ -9,9 +9,10 @@
 # As of 2026-08-18 the automated teammate mapping is deprioritised in favour
 # of hand curation (curated_linkage.py is the reader). Curation began
 # 2026-08-22, so the map is no longer empty -- but it is nowhere near
-# sufficient, the registry still records the linkage measurement as
-# does_not_exist pending a governed correction, and NOTHING in this package
-# runs on curated data yet. The placeholder described above is still what the
+# sufficient, and NOTHING in this package runs on curated data yet. For the
+# registry's own position, READ the registry -- do not restate its value here;
+# a value copied into a comment is a value that goes stale the next time it is
+# corrected, which is exactly what happened to the wording this replaces. The placeholder described above is still what the
 # analysis path uses. See
 # Live Signal Engine/HYP04_LINKAGE_SOURCE_DECISION_2026-08-18.md.
 #

@@ -321,8 +321,8 @@ PHASES = [
      "first-known/established-as-of date per pair. Source switched 2026-08-18 "
      "from the deprioritised automated teammate mapping to hand curation, and "
      "curation began 2026-08-22 -- see the live edge count below. The blocker "
-     "is unchanged: the gate's threshold counts anchor EVENTS, and the "
-     "registry still records the linkage measurement as does_not_exist."),
+     "is unchanged: the gate's threshold counts anchor EVENTS, which curating "
+     "edges does not move, and rows on disk never change a registry field."),
     ("Phase 2", "Preregistration lock", "NOT STARTED",
      "Freeze target, features, model spec and validation split in a dated "
      "lock before touching any holdout."),

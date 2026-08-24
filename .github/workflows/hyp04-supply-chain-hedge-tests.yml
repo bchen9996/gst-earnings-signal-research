@@ -93,8 +93,11 @@ jobs:
         # A structural check, not a comment. Two classes of script must never be
         # reachable from the discovered suite:
         #   * the live audit runners, which make real billable provider calls
-        #   * make_registry_v1_2.py, which writes a governance artifact and must
-        #     only ever run when a human decides it should
+        #   * ANY make_registry_v*.py, which writes a governance artifact and
+        #     must only ever run when a human decides it should. The glob below
+        #     is deliberately version-agnostic: v1.2 and v1.3 both exist, and a
+        #     v1.4 must be covered the day it is written, not the day someone
+        #     remembers to extend a list.
         #   * run_linkage_history.py, which walks 10-K history and makes real
         #     SEC requests under an owner-supplied fair-access contact
         # If any is renamed onto the test_* pattern, this fails before it can
