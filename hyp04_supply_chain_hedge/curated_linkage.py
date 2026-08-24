@@ -8,9 +8,10 @@ map now exists -- but this module's existence never implied one, and its
 success on a file never means the file's CLAIMS are correct. It checks schema,
 vocabulary and dates; it cannot check that a stated relationship is real.
 
-The registry's required external measurement stays `does_not_exist` until the
-repo owner supersedes that record. Rows appearing on disk does not change a
-registry field -- only a governed version bump does.
+Rows appearing on disk never change the registry's recorded availability --
+only a governed version bump does. This module therefore does NOT restate that
+value: read it from the registry, which is the authority. A value copied into a
+docstring goes stale the next time it is corrected.
 
 Nothing here fabricates rows. The only CSVs this module ships alongside are
 synthetic test fixtures under test_hyp04_supply_chain_hedge_curated_linkage.py,

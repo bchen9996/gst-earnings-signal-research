@@ -496,6 +496,66 @@ def test_10_no_prose_asserts_a_row_count() -> None:
     check("10f. rendering never opens the gate", not dec.open)
 
 
+def test_11_no_module_restates_a_registry_availability_value() -> None:
+    """The package must not copy a registry field's VALUE into its prose.
+
+    This failure has now happened twice with the same shape. First "zero rows
+    are curated" outlived curation. Then registry v1.3 changed HYP-04's linkage
+    availability from `does_not_exist` to `exists_partial`, and SIX live files
+    were still asserting the old value -- created by the very commit that made
+    them wrong.
+
+    The durable fix is not to update the copies. It is to stop making them: a
+    module can say "this does not change the registry's availability" without
+    naming what that availability currently is, and that claim stays true
+    across every future correction.
+
+    The generators are exempt. make_registry_v1_*.py must name the values --
+    one defines the vocabulary and the other performs the transform between two
+    specific states. Naming a value is their job; restating one is the defect.
+    """
+    import json
+    from pathlib import Path
+
+    from hyp04_supply_chain_hedge.display_gate import REGISTRY_CURRENT
+
+    pkg = Path(__file__).resolve().parent / "hyp04_supply_chain_hedge"
+    known_values = ("does_not_exist", "exists_partial")
+
+    offenders: list[str] = []
+    scanned = 0
+    for f in sorted(pkg.glob("*.py")):
+        if f.name.startswith("make_registry_v1_"):
+            continue                      # exempt: see docstring
+        scanned += 1
+        text = f.read_text(encoding="utf-8")
+        for line_no, line in enumerate(text.splitlines(), start=1):
+            for v in known_values:
+                if v in line:
+                    offenders.append(f"{f.name}:{line_no} {v}")
+
+    check("11a. the scan actually covered the package", scanned >= 10,
+          f"only {scanned} module(s) scanned")
+    check("11b. no module restates a registry availability value",
+          not offenders, "; ".join(offenders[:6]))
+
+    # The value really does live in the registry, so "read it there" is
+    # actionable advice rather than a deflection.
+    doc = json.loads(REGISTRY_CURRENT.read_text(encoding="utf-8-sig"))
+    ext = next(h for h in doc["hypotheses"]
+               if h["hypothesis_id"] == "HYP-04")["required_external_measurement"]
+    check("11c. the registry does carry the value the modules defer to",
+          ext.get("availability") in known_values, str(ext.get("availability")))
+
+    # And the generators, which ARE allowed to name values, still do -- so the
+    # exemption is not quietly hiding an empty set.
+    gens = sorted(pkg.glob("make_registry_v1_*.py"))
+    check("11d. the exempt generators exist and do name values",
+          bool(gens) and any(v in g.read_text(encoding="utf-8")
+                             for g in gens for v in known_values),
+          str([g.name for g in gens]))
+
+
 if __name__ == "__main__":
     test_1_smoke_good_rows_accepted_bad_row_rejected()
     test_2_direction_comes_from_the_lookup_not_from_notes()
@@ -508,6 +568,7 @@ if __name__ == "__main__":
     test_8_template_is_blank_and_any_curated_map_validates()
     test_9_offline()
     test_10_no_prose_asserts_a_row_count()
+    test_11_no_module_restates_a_registry_availability_value()
 
     print()
     if SKIPS:
