@@ -170,7 +170,7 @@ def make_panel(
             anchor_peers = peers[a_i * n_peers_per_anchor:(a_i + 1) * n_peers_per_anchor]
             anchor_events.append({
                 "anchor": anchor,
-                "day": int(day),
+                "anchor_day": int(day),
                 "shock": float(abs(rng.normal(0.0, 1.0))),
                 "peers": list(anchor_peers),
                 "calendar_period": int(q),
@@ -187,7 +187,7 @@ def make_panel(
     # sessions, scaled by that event's shock magnitude.
     if injected_lag is not None and injected_effect != 0.0:
         for ev in anchor_events:
-            start = ev["day"] + injected_lag
+            start = ev["anchor_day"] + injected_lag
             stop = min(start + injected_effect_window, n_trading_days)
             if start >= n_trading_days:
                 continue

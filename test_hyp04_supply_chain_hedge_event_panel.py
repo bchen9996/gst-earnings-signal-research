@@ -22,9 +22,11 @@ Four modules were built to feed each other and had never been run together:
                 -> peer_returns (coverage/P5) -> target
 
 Every one is unit-tested in isolation, and isolation is exactly where an
-interface mismatch survives. Writing this suite found one: three different key
-names -- `day`, `anchor_day`, `event_date` -- for the same concept, with
-nothing converting between the calendar half and the positional half.
+interface mismatch survives. Writing this suite found one: the calendar half
+and the positional half had nothing converting between them, and the
+positional index went by two names -- `day` in fixtures and target,
+`anchor_day` in peer_returns. The names were unified onto `anchor_day` on
+2026-08-23; `1f2` asserts the alias is gone, so one concept keeps one name.
 
 test_6 runs the whole chain on synthetic data and asserts a real target value
 comes out the far end. It is a WIRING check on synthetic input: it proves the
@@ -61,8 +63,7 @@ from hyp04_supply_chain_hedge.constants import (  # noqa: E402
     REFERENCE_WINDOW_TRADING_DAYS,
 )
 from hyp04_supply_chain_hedge.event_panel import (  # noqa: E402
-    KEY_PEER_DAY,
-    KEY_TARGET_DAY,
+    KEY_ANCHOR_DAY,
     EventPanelError,
     assert_sessions_resolved,
     normalize_sessions,
@@ -133,9 +134,10 @@ def test_1_basic_resolution() -> None:
     check("1e. sessions_in_index is reported", p.sessions_in_index == N)
 
     ev = r.as_analysis_event()
-    check("1f. both day keys are emitted with the same value",
-          ev[KEY_TARGET_DAY] == ev[KEY_PEER_DAY] == 40,
-          f"{ev[KEY_TARGET_DAY]} vs {ev[KEY_PEER_DAY]}")
+    check("1f. the canonical day key carries the index",
+          ev[KEY_ANCHOR_DAY] == 40, str(ev.get(KEY_ANCHOR_DAY)))
+    check("1f2. the legacy alias is gone -- exactly one name for one concept",
+          "day" not in ev, str(sorted(ev)))
     check("1g. event_date is the RESPONSE session, not a raw earnings date",
           ev["event_date"] == SESSIONS[40].isoformat() == ev["response_session_date"])
     check("1h. a date object is accepted as well as a string",
