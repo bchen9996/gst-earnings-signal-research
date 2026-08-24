@@ -64,12 +64,14 @@ from typing import Any, Iterable, Optional, Sequence
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
-# `day` is what target.py reads; `anchor_day` is what peer_returns reads. They
-# carry the SAME value. The alias is deliberate and temporary: unifying the two
-# names changes signatures that are currently in flight, so this bridge feeds
-# both rather than forcing a rename it has no standing to make.
-KEY_TARGET_DAY = "day"
-KEY_PEER_DAY = "anchor_day"
+# THE canonical name for an event's position in the session index.
+#
+# It was briefly two names: `day` (fixtures and target) and `anchor_day`
+# (peer_returns), emitted as aliases of one value. They were unified onto
+# `anchor_day` on 2026-08-23. `day` does not say WHICH day, and target.py was
+# already WRITING its output column as "anchor_day" while READING ev["day"],
+# so the canonical name was settled everywhere except the input key.
+KEY_ANCHOR_DAY = "anchor_day"
 
 
 class EventPanelError(ValueError):
@@ -97,8 +99,8 @@ class ResolvedEvent:
     def as_analysis_event(self) -> dict[str, Any]:
         """The dict shape the existing consumers accept.
 
-        Carries both day keys (see KEY_TARGET_DAY / KEY_PEER_DAY) and keeps
-        `event_date` as the ISO response-session date so `pair_eligibility`'s
+        `anchor_day` is the position in the session index (KEY_ANCHOR_DAY).
+        `event_date` is the ISO RESPONSE-session date, so `pair_eligibility`'s
         P3 compares against the session the response is measured from -- not
         against a raw earnings date that may fall on a non-session.
         """
@@ -108,8 +110,7 @@ class ResolvedEvent:
             "anchor": self.anchor,
             "event_date": iso,
             "response_session_date": iso,
-            KEY_TARGET_DAY: self.day_index,
-            KEY_PEER_DAY: self.day_index,
+            KEY_ANCHOR_DAY: self.day_index,
             "peers": list(self.peers),
         }
 

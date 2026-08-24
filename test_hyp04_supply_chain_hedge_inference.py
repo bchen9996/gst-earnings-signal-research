@@ -214,7 +214,7 @@ def test_6_ccf_filter_is_fit_to_peer_vol_not_anchor_shock() -> None:
     shock = np.zeros(panel.n_trading_days)
     for ev in panel.anchor_events:
         if peer in ev["peers"]:
-            shock[ev["day"]] = ev["shock"]
+            shock[ev["anchor_day"]] = ev["shock"]
 
     phi_vol = fit_ar(vol, 5)
     phi_shock = fit_ar(shock, 5)

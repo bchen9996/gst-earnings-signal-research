@@ -258,7 +258,7 @@ def build_feature_table(
     anchor_days_by_peer: dict[str, list[int]] = {}
     for ev in panel.anchor_events:
         for p in ev["peers"]:
-            anchor_days_by_peer.setdefault(p, []).append(ev["day"])
+            anchor_days_by_peer.setdefault(p, []).append(ev["anchor_day"])
 
     baselines: dict[tuple[str, int], EarningsCycleBaseline] = {}
     if residualize:
@@ -287,11 +287,11 @@ def build_feature_table(
         for peer in ev["peers"]:
             returns = panel.returns[peer]
             for h in horizons:
-                raw = raw_log_ratio_target(returns, ev["day"], h)
+                raw = raw_log_ratio_target(returns, ev["anchor_day"], h)
                 if not np.isfinite(raw):
                     continue
                 n_candidate_obs += 1
-                dte_val = float(dte_cache[peer][ev["day"]])
+                dte_val = float(dte_cache[peer][ev["anchor_day"]])
                 if residualize:
                     baseline = baselines[(peer, h)]
                     # Patch 12, accept-and-report: an observation whose
@@ -311,7 +311,7 @@ def build_feature_table(
                 rows["horizon"].append(h)
                 rows["shock"].append(ev["shock"])
                 rows["calendar_period"].append(ev["calendar_period"])
-                rows["anchor_day"].append(ev["day"])
+                rows["anchor_day"].append(ev["anchor_day"])
                 rows["days_to_peer_earnings"].append(dte_val)
                 rows["raw_target"].append(raw)
                 rows["target"].append(target)

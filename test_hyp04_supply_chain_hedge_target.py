@@ -136,7 +136,7 @@ def test_3_no_systematic_h_trend_under_constant_vol() -> None:
             for ev in panel.anchor_events:
                 for p in ev["peers"]:
                     ret = panel.returns[p]
-                    d = ev["day"]
+                    d = ev["anchor_day"]
                     if d + 1 + h > ret.size:
                         continue
                     rs = max(0, d - REFERENCE_WINDOW_TRADING_DAYS + 1)
@@ -190,7 +190,7 @@ def test_5_residualization_excludes_anchor_adjacent_windows() -> None:
     anchor_days_by_peer: dict[str, list[int]] = {}
     for ev in panel.anchor_events:
         for p in ev["peers"]:
-            anchor_days_by_peer.setdefault(p, []).append(ev["day"])
+            anchor_days_by_peer.setdefault(p, []).append(ev["anchor_day"])
 
     peer = sorted(panel.returns)[0]
     anchors = anchor_days_by_peer[peer]
