@@ -556,6 +556,70 @@ def test_11_no_module_restates_a_registry_availability_value() -> None:
           str([g.name for g in gens]))
 
 
+def test_12_the_page_shows_the_capture_state_from_the_registry() -> None:
+    """Registry v1.3 records capture paths. The page must show them, from it.
+
+    Two failure modes, opposite directions:
+
+      * OMISSION -- v1.3 says linkage availability is exists_partial and that
+        two capture modules exist with no data captured. A governance page that
+        does not surface that is stale by leaving something out, which is
+        harder to notice than a stale sentence.
+      * OVERSTATEMENT -- showing "capture path exists" without "no data
+        captured" would read as progress toward a finding. It is not.
+
+    The values are read from the registry rather than restated, so this also
+    guards the rule test_11 enforces on the modules.
+    """
+    from hyp04_supply_chain_hedge import dashboard as dash
+
+    reg = dash.read_registry()
+    dec = dash.current_decision()
+    blank = {"available": False}
+
+    check("12a. the registry read exposes linkage availability",
+          reg.get("linkage_availability") is not None,
+          "the page cannot show what read_registry does not extract")
+    paths = {k: v for k, v in (reg.get("capture_paths") or {}).items()
+             if isinstance(v, dict)}
+    check("12b. and the capture-path entries", len(paths) == 2, str(sorted(paths)))
+
+    html = dash.render(blank, blank, reg, dec)
+    check("12c. the page shows the availability the registry records",
+          f">{reg['linkage_availability']}<" in html,
+          str(reg.get("linkage_availability")))
+
+    for val in paths.values():
+        check(f"12d. {val['module']} is listed", val["module"] in html)
+    # Count the BADGES, not the phrase: the caveat prose below the table uses
+    # the same words, so a raw substring count conflates the two.
+    badges = html.count(">no data captured<")
+    check("12e. every capture path carries a no-data badge",
+          badges == len(paths), f"{badges} badge(s) vs {len(paths)} path(s)")
+
+    # Normalise whitespace before matching prose. The HTML wraps this sentence
+    # across a line break, so a contiguous substring check fails against a
+    # perfectly correct page -- the same matcher defect the v1.1 suite records.
+    flat = " ".join(html.split())
+    check("12f. and the page states the distinction in words",
+          "is not ingested data" in flat,
+          flat[flat.find("A module that can ingest"):][:90])
+
+    # The page must never claim data exists while the registry says it does not.
+    check("12g. no capture path claims data_captured true",
+          all(v.get("data_captured") is False for v in paths.values()),
+          str({k: v.get("data_captured") for k, v in paths.items()}))
+
+    # Degrade cleanly: a registry predating these fields omits the section
+    # ENTIRELY. An empty section reads as "nothing here", which is a different
+    # claim from "not recorded".
+    older = dict(reg, linkage_availability=None, capture_paths={})
+    check("12h. a pre-v1.3 registry omits the section rather than emptying it",
+          "Required external measurement" not in dash.render(blank, blank, older, dec))
+
+    check("12i. rendering it opens no gate", not dec.open)
+
+
 if __name__ == "__main__":
     test_1_smoke_good_rows_accepted_bad_row_rejected()
     test_2_direction_comes_from_the_lookup_not_from_notes()
@@ -569,6 +633,7 @@ if __name__ == "__main__":
     test_9_offline()
     test_10_no_prose_asserts_a_row_count()
     test_11_no_module_restates_a_registry_availability_value()
+    test_12_the_page_shows_the_capture_state_from_the_registry()
 
     print()
     if SKIPS:
