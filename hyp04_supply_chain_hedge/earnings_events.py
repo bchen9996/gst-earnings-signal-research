@@ -125,11 +125,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import sys
 from dataclasses import dataclass, asdict
 from datetime import datetime, time
 from pathlib import Path
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Mapping, Optional, Sequence
 from zoneinfo import ZoneInfo
 
 from .edgar_linkage import (
@@ -152,12 +153,34 @@ SESSION_BMO = "BMO"
 SESSION_AMC = "AMC"
 SESSION_UNKNOWN = "UNKNOWN"
 
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
 MARKET_OPEN_ET = time(9, 30)
 MARKET_CLOSE_ET = time(16, 0)
 
 FLAG_NON_STANDARD_ITEMS = "non_standard_items"
 FLAG_SESSION_UNRESOLVED = "release_session_unresolved"
 FLAG_REPORT_BEFORE_FILING = "report_date_precedes_filing_date"
+
+# How an event got here. A curated row must never be mistaken for a derived
+# one: derived rows are reproducible by re-running the walk, curated rows are
+# somebody's reading of a filing and carry a citation instead.
+PROVENANCE_DERIVED = "derived_8k_item_2_02"
+PROVENANCE_CURATED = "curated_addendum"
+
+ADDENDA_CSV = LSE / "HYP04_ANCHOR_EVENT_ADDENDA.csv"
+
+ADDENDA_FIELDS = ("event_id", "anchor_ticker", "release_date",
+                  "release_session", "supersedes_event_id", "source_accession",
+                  "source_citation", "curated_by", "curated_date",
+                  "review_status", "notes_caveats")
+
+# Provenance a curated row must carry to be accepted. An addendum without a
+# citation is an assertion, and this file exists precisely so that anchor
+# events are not assertions.
+ADDENDA_REQUIRED = ("event_id", "anchor_ticker", "release_date",
+                    "release_session", "source_accession", "source_citation",
+                    "curated_by", "curated_date")
 
 
 @dataclass(frozen=True)
@@ -174,6 +197,7 @@ class CandidateEvent:
     items: str
     accession: str
     flags: tuple[str, ...]
+    provenance: str = PROVENANCE_DERIVED
 
     def as_row(self) -> dict[str, Any]:
         d = asdict(self)
@@ -183,7 +207,7 @@ class CandidateEvent:
 
 CSV_FIELDS = ("event_id", "anchor_ticker", "release_date", "release_session",
               "session_basis", "filing_date", "acceptance_utc", "acceptance_et",
-              "items", "accession", "flags")
+              "items", "accession", "flags", "provenance")
 
 
 def classify_release_session(release_date: str,
@@ -317,6 +341,141 @@ def candidates_for_ticker(client: EdgarClient, ticker: str,
     return events
 
 
+class AddendaError(ValueError):
+    """An addendum file that cannot be trusted. Never downgraded to a warning."""
+
+
+def load_addenda(path: Path
+                 ) -> tuple[list[CandidateEvent], dict[str, str], list[str]]:
+    """Read curated anchor events. Returns (events, supersedes, rejections).
+
+    Every row must carry ADDENDA_REQUIRED provenance. A row without a citation
+    is rejected rather than accepted quietly: this file exists so that an
+    anchor event the walk cannot derive is still traceable to a filing, and a
+    row that skips the citation defeats the entire point of having it.
+
+    `release_session` must be BMO or AMC -- curating UNKNOWN would be curating
+    an absence, and the merged event would then be dropped downstream anyway.
+
+    `supersedes_event_id` names the DERIVED row this curated one replaces, for
+    the case where the walk found the release but mis-dated it. It is verified
+    against the derived set at merge time, not here.
+    """
+    import csv as _csv
+
+    events: list[CandidateEvent] = []
+    supersedes: dict[str, str] = {}
+    rejections: list[str] = []
+    seen: set[str] = set()
+
+    if not path.is_file():
+        return events, supersedes, rejections
+
+    with path.open(encoding="utf-8", newline="") as fh:
+        reader = _csv.DictReader(fh)
+        missing_cols = [c for c in ADDENDA_REQUIRED
+                        if c not in (reader.fieldnames or [])]
+        if missing_cols:
+            raise AddendaError(
+                f"{path.name} is missing required column(s): "
+                f"{', '.join(missing_cols)}. Refusing to read it -- a column "
+                "absent from the header is absent from every row.")
+
+        for n, row in enumerate(reader, start=2):
+            eid = (row.get("event_id") or "").strip()
+            blank = [c for c in ADDENDA_REQUIRED if not (row.get(c) or "").strip()]
+            if blank:
+                rejections.append(
+                    f"row {n} ({eid or '<no event_id>'}): missing required "
+                    f"provenance {', '.join(blank)}")
+                continue
+            if eid in seen:
+                rejections.append(f"row {n}: duplicate event_id {eid!r}")
+                continue
+
+            rd = (row.get("release_date") or "").strip()
+            if not DATE_RE.match(rd):
+                rejections.append(f"row {n} ({eid}): release_date {rd!r} is "
+                                  "not YYYY-MM-DD")
+                continue
+            sess = (row.get("release_session") or "").strip().upper()
+            if sess not in (SESSION_BMO, SESSION_AMC):
+                rejections.append(
+                    f"row {n} ({eid}): release_session {sess!r} must be "
+                    f"{SESSION_BMO} or {SESSION_AMC}; curating "
+                    f"{SESSION_UNKNOWN} curates an absence")
+                continue
+
+            seen.add(eid)
+            sup = (row.get("supersedes_event_id") or "").strip()
+            if sup:
+                supersedes[eid] = sup
+            cite = (row.get("source_citation") or "").strip()
+            events.append(CandidateEvent(
+                event_id=eid,
+                anchor_ticker=(row["anchor_ticker"] or "").strip().upper(),
+                release_date=rd,
+                release_session=sess,
+                session_basis=f"CURATED: {cite}",
+                filing_date="", acceptance_utc="", acceptance_et="",
+                items="", accession=(row.get("source_accession") or "").strip(),
+                flags=(), provenance=PROVENANCE_CURATED))
+    return events, supersedes, rejections
+
+
+def merge_addenda(derived: Sequence[CandidateEvent],
+                  curated: Sequence[CandidateEvent],
+                  supersedes: Mapping[str, str],
+                  ) -> tuple[list[CandidateEvent], list[str]]:
+    """Combine derived and curated events, applying supersession.
+
+    `supersedes` maps a curated event_id to the DERIVED event_id it replaces.
+    This exists because a curated row and the derived row it corrects do NOT
+    collide on event_id -- the id embeds the date, and the date is the thing
+    being corrected. MCK-2023-11-01 and MCK-2023-10-27 are the same earnings
+    release; merging both would count one release twice, silently, and
+    double-counting is invisible in a total.
+
+    Refuses, rather than warning, when:
+      * a curated id collides with a derived id (ambiguous -- correct it or
+        supersede it, not both)
+      * `supersedes` names an event that is not in the derived set. That means
+        the addendum is stale: the walk no longer produces the row it claims
+        to replace, so the correction may no longer apply.
+
+    Returns (merged, notes) with notes recording each supersession applied.
+    """
+    by_id = {e.event_id: e for e in derived}
+    notes: list[str] = []
+
+    for c in curated:
+        if c.event_id in by_id:
+            raise AddendaError(
+                f"curated event {c.event_id!r} collides with a derived event "
+                "of the same id. A curated row either ADDS an event the walk "
+                "cannot see or SUPERSEDES a mis-dated one; it never shadows "
+                "an identical id.")
+
+    dropped: set[str] = set()
+    for c in curated:
+        target = (supersedes.get(c.event_id) or "").strip()
+        if not target:
+            continue
+        if target not in by_id:
+            raise AddendaError(
+                f"curated event {c.event_id!r} claims to supersede "
+                f"{target!r}, which the derived walk did not produce. The "
+                "addendum is stale -- re-check it against the current walk "
+                "rather than merging a correction to something absent.")
+        dropped.add(target)
+        notes.append(f"{c.event_id} supersedes {target}")
+
+    merged = [e for e in derived if e.event_id not in dropped]
+    merged.extend(curated)
+    merged.sort(key=lambda e: (e.anchor_ticker, e.release_date))
+    return merged, notes
+
+
 MAX_EXPECTED_GAP_DAYS = 130
 
 
@@ -386,6 +545,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--contact", default=None,
                     help='SEC User-Agent, e.g. "Name email@realdomain.com"')
     ap.add_argument("--out", default=None, help="write a CSV here")
+    ap.add_argument("--addenda", type=Path, default=ADDENDA_CSV,
+                    help="curated anchor events the walk cannot derive "
+                         "(default: the committed addenda file). Each row "
+                         "carries a citation; rows may supersede a mis-dated "
+                         "derived event.")
+    ap.add_argument("--no-addenda", action="store_true",
+                    help="derived events only -- shows exactly what the walk "
+                         "produces on its own")
     ap.add_argument("--max-requests", type=int, default=40)
     a = ap.parse_args(argv)
 
@@ -418,12 +585,33 @@ def main(argv: list[str] | None = None) -> int:
             if e.flags:
                 print(f"    FLAG {e.release_date} [{','.join(e.flags)}] "
                       f"items={e.items}")
-        for a, b, days in find_cadence_gaps(evs):
-            print(f"    GAP  {a} -> {b} ({days} days) -- a release is probably "
-                  f"MISSING here; the filer may not have tagged Item 2.02")
+        for gap_from, gap_to, days in find_cadence_gaps(evs):
+            print(f"    GAP  {gap_from} -> {gap_to} ({days} days) -- a release "
+                  "is probably MISSING here; the filer may not have tagged "
+                  "Item 2.02")
         all_events.extend(evs)
 
+    if not a.no_addenda:
+        curated, supersedes, rejections = load_addenda(a.addenda)
+        for why in rejections:
+            print(f"    ADDENDA REJECTED {why}", file=sys.stderr)
+        if curated:
+            all_events, notes = merge_addenda(all_events, curated, supersedes)
+            print(f"\nADDENDA: {len(curated)} curated event(s) from "
+                  f"{a.addenda.name}")
+            for n in notes:
+                print(f"    {n}")
+            for c in curated:
+                if c.event_id not in supersedes:
+                    print(f"    {c.event_id} added (supersedes nothing)")
+        if rejections:
+            print(f"    {len(rejections)} addenda row(s) rejected -- see stderr",
+                  file=sys.stderr)
+
     print(f"\nTOTAL CANDIDATES: {len(all_events)}")
+    n_cur = sum(1 for e in all_events if e.provenance == PROVENANCE_CURATED)
+    if n_cur:
+        print(f"  {len(all_events) - n_cur} derived + {n_cur} curated")
     print("These are CANDIDATES. They are not eligible events, they have not "
           "been screened, and they move no display-gate condition.")
 
