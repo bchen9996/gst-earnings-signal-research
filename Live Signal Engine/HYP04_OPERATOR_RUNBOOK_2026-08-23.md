@@ -14,7 +14,10 @@
   curated linkage map        HYP04_Linkage_Map_v1.0.csv
         |                    (curated_linkage.py validates it)
         v
-  anchor events  --------->  event_panel.py       calendar date -> session index
+  anchor events  <---------  earnings_events.py   8-K Item 2.02 -> release date
+        |                    (candidates_for_ticker)   + BMO/AMC
+        v
+  session index  --------->  event_panel.py       calendar date -> session index
         |                    (resolve_events)
         v
   closes request  -------->  closes_requirements.py   which closes to collect
@@ -51,19 +54,93 @@ response_session = compute_expected_next_full_trading_session_xnys(
 
 `event_panel.assert_sessions_resolved()` will flag dates that are not sessions at all — the signature of unresolved input, since weekends and holidays cannot survive resolution. It cannot catch a BMO release that legitimately lands on its own earnings date, so it is a smoke alarm, not a proof.
 
+## 1a. Get the anchor events in the first place
+
+`earnings_events.py` derives them from 8-K **Item 2.02** filings, with the
+release session already classified:
+
+```
+PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.earnings_events \
+    --ticker MCK --since MCK:2013-05-07 \
+    --ticker PKG --since PKG:2016-02-26 \
+    --contact "Your Name you@realdomain.com" \
+    --out "Live Signal Engine/HYP04_ANCHOR_EVENT_CANDIDATES_2026-08-23.csv"
+```
+
+`--since` takes each curated edge's `as_of_date`, so P3 does not later discard
+what you collect. The result is 97 candidates: MCK 55, PKG 42.
+
+Three things that module knows and you should not re-derive by hand:
+
+- **`reportDate`, never `filingDate`.** SEC stamps anything accepted after
+  17:30 ET with the *next business day* as its filing date. PKG files
+  ~18:00 ET, so its two dates disagree on 37 of 42 events; MCK files ~16:06 ET
+  and they agree on 54 of 55. Using `filingDate` is invisible on MCK and one
+  session late on nearly every PKG event.
+- **BMO/AMC is derived from the acceptance timestamp**, converted to
+  America/New_York. `UNKNOWN` is a refusal, not a placeholder — 2 of 97.
+- **Item 2.02 is a floor, not a census.** A filer can omit the tag. MCK's
+  Q3 FY2020 release (2020-02-04, BMO) is tagged `9.01` only and is *missing*
+  from the candidate list. `find_cadence_gaps()` reports the resulting hole; it
+  never fills it.
+
+Full write-up: `HYP04_ANCHOR_EVENT_SOURCE_2026-08-23.md`.
+
+**These are candidates, not eligible events.** Nothing here is screened, and no
+gate condition moves.
+
 ## 2. Ask what closes you need
 
-> **The event dates below are INVENTED, and exist only to show the CLI's output
-> shape.** `MCK-2020Q3:MCK:2020-02-05` and `PKG-2020:PKG:2020-02-24` are not
-> sourced earnings dates, were never verified against a filing or a calendar,
-> and have not been through the §1 response-session resolution. **No real HYP-04
-> anchor event exists** -- `eligible_event_counts` is zero for every hypothesis
-> in registry v1.4. Do not collect closes for these windows; they are a
-> demonstration, not a work order.
->
-> This warning exists because the illustrative dates originally appeared here
-> unlabelled, immediately after §1 warns that an unresolved date silently
-> corrupts every AMC event -- the exact trap this document describes.
+**Use `--events-csv`.** It takes the candidate file from §1a, resolves BMO/AMC
+to the response session for you, and skips anything it cannot resolve:
+
+```
+PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_requirements \
+    --events-csv "Live Signal Engine/HYP04_ANCHOR_EVENT_CANDIDATES_2026-08-23.csv"
+```
+
+Against the real 97 candidates (2026-08-24):
+
+```
+SKIPPED MCK-2023-10-27: release_session is UNKNOWN; ... guessing is not an option
+SKIPPED PKG-2020-07-24: release_session is UNKNOWN; ... guessing is not an option
+
+CVS: 2111 session(s) 2013-06-27 .. 2026-06-08   for 53 event(s)
+ODP: 1681 session(s) 2016-03-23 .. 2026-08-20   for 41 event(s)
+
+TOTAL ROWS TO PRODUCE: 3792
+
+TRUNCATED -- 1 pair(s) ...
+  MCK -> CVS @ MCK-2026-08-05: needs sessions [3648..3688] but the index holds [0..3680]
+```
+
+**That is the real size of the job: ~3,800 closes, not 82.** Overlap dedupe
+saves only 62 rows (1%) — quarterly events sit about 63 sessions apart and the
+window is 41, so windows rarely touch. Do not plan on dedupe helping.
+
+The total is **as-of dated and drifts upward**: `--as-of` defaults to today, and
+the truncated event above joins the request once its horizon finishes trading.
+Re-run the command; do not quote the number.
+
+### `--as-of` and why a request never runs into the future
+
+The index ends at `--as-of` (default today). A close that has not happened
+cannot be collected, so an event whose horizon runs past it is reported as
+**truncated**, not listed as sessions to go find.
+
+This was a real defect, fixed 2026-08-24. The CLI used to pad the index to
+`max(event year) + pad_years`; measured on 2026-08-24, an event with response
+session 2026-08-06 produced a clean 41-session request running to **2026-09-03
+— ten days into the future** — with no warning. With the default pad it instead
+raised an unhandled `DateOutOfBounds` from the calendar. Both are gone.
+
+A right-edge truncation means *wait for the sessions to trade*. Only a
+left-edge one is fixed by raising `--pad-years`.
+
+### The manual form
+
+For a handful of events, `--event ID:TICKER:DATE` still works — but the DATE
+must already be the **response session**, resolved per §1:
 
 ```
 PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_requirements \
@@ -71,7 +148,13 @@ PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_require
     --event PKG-2020:PKG:2020-02-24
 ```
 
-Output names the exact sessions:
+> **Those two dates are INVENTED** — kept only to show the output shape. MCK
+> never reported on 2020-02-05; its real Q3 FY2020 release was **2020-02-04,
+> BMO**. Do not collect these windows.
+>
+> The warning is here because the dates originally appeared unlabelled,
+> immediately after §1 warns that an unresolved date silently corrupts every
+> AMC event — the exact trap this document describes.
 
 ```
 CVS: 41 session(s) 2020-01-07 .. 2020-03-05  for event(s) MCK-2020Q3
@@ -178,4 +261,6 @@ The gate's conditions are unchanged by everything above:
 - **`peer_history_map` is per-peer, and coverage is really per-pair.** A peer is marked available only if it covers **every** event it appears in, which undercounts. Use `coverage_for_event` for the precise per-pair answer. Decision of 2026-08-23: keep the conservative form for now.
 - **Two curated edges is not a linkage map.** Registry v1.3 records `exists_partial` precisely so this is not mistaken for sufficiency.
 - **No peer price data has ever been captured.** The registry records `data_captured: false` for both capture paths. A module that can ingest is not ingested data.
-- **No real anchor events exist.** `eligible_event_counts` is zero across the board; that is HYP-01's registry, not HYP-04's to fill.
+- **97 candidate anchor events now exist; zero ELIGIBLE ones do.** `eligible_event_counts` is still zero across the board. Candidates are unscreened — screening is HYP-01's registry, not HYP-04's to fill — and C2's floor is 193 *eligible* events, which two anchors cannot reach.
+- **Item 2.02 is a coverage floor.** A filer can release earnings without the tag; MCK 2020-02-04 is a confirmed instance. An absent candidate is not evidence the company did not report. `find_cadence_gaps()` detects the resulting holes and deliberately does not fill them.
+- **Two candidates have an unresolved release session** (MCK 2023-10-27, PKG 2020-07-24). Both bundle earnings with an unrelated earlier item, so `reportDate` belongs to that item. They are skipped, not guessed.
