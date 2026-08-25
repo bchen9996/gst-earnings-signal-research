@@ -60,7 +60,7 @@ Item 2.02 the two are close — Reg FD pushes companies to furnish at release �
 but *close* is not *equal*, so the bands are wide and the middle of the day
 refuses rather than guesses. Every verdict carries the timestamp it came from.
 
-**Result: 78 AMC, 17 BMO, 2 UNKNOWN.**
+**Result, from the walk alone: 78 AMC, 17 BMO, 2 UNKNOWN.** Both UNKNOWNs are resolved by the addenda in §5, so the merged set has none.
 
 MCK's split is genuine, not noise. Its BMO releases were all accepted
 **07:04–08:11 ET** and cluster in 2013–2021; it settled into AMC around 2022.
@@ -107,8 +107,7 @@ acceptance timestamp alone could not distinguish "released that evening" from
 "filed days late", which is exactly why the classifier refuses the different-day
 case rather than inferring through it.
 
-**Not written into the CSV** — see §5 on why generated files do not take
-hand-added rows.
+Both now live in `HYP04_ANCHOR_EVENT_ADDENDA.csv` with these citations, each **superseding** the mis-dated derived row rather than sitting alongside it. See §8.
 
 ## 5. Item 2.02 is a floor, not a census — one confirmed miss
 
@@ -143,20 +142,17 @@ as an anchor event. Detect, and route to a human.
 An empty gap list means the cadence is unbroken, **not** that coverage is
 complete — a miss at either end of the range leaves no gap to find.
 
-**Action required:** MCK 2020-02-04 (BMO) is verified and can be added by hand.
-It is not written into the CSV here, because that file is generated and a
-hand-inserted row would be indistinguishable from a derived one on the next
-regeneration.
+MCK 2020-02-04 (BMO) is verified and now lives in `HYP04_ANCHOR_EVENT_ADDENDA.csv`, where it **adds** an event rather than superseding one. It is not pasted into the generated CSV, because a hand-inserted row there would be indistinguishable from a derived one and would not survive regeneration. With it merged, MCK's cadence has **no remaining gaps**.
 
 ## 6. What this does and does not get you
 
 | | |
 |---|---|
-| Candidate releases | **97** — MCK 55 (2013-07-25 … 2026-08-05), PKG 42 (2016-04-20 … 2026-07-22) |
+| Candidate releases | **98** merged — MCK 56, PKG 42, 2013-07-25 … 2026-08-05 |
 | C2's floor | **193 eligible anchor events** |
 
 Even if every candidate screened as eligible — and none has been screened —
-**97 is about half the floor**, from the only two anchors the curated map
+**98 is about half the floor**, from the only two anchors the curated map
 contains. Closing C2 is a HYP-01 collection problem across a wider universe,
 not something two anchors can reach.
 
@@ -167,10 +163,10 @@ on 2026-08-24:
 
 | | |
 |---|---|
-| Candidates | 97 |
-| Session-resolved | **95** (2 UNKNOWN dropped) |
-| Pinned onto the session index | **95, zero rejected** |
-| **Rows to collect** | **3,792** — CVS 2,111 · ODP 1,681 |
+| Candidates (merged, incl. addenda) | 98 |
+| Session-resolved | **98** — the addenda resolve both former UNKNOWNs |
+| Pinned onto the session index | **98, zero rejected** |
+| **Rows to collect** | **3,915** — CVS 2,193 · ODP 1,722 |
 | Truncated | 1 — `MCK-2026-08-05`, horizon runs past today |
 | P3-skipped | 0 (the `--since` filter already excluded them) |
 
@@ -181,7 +177,7 @@ get materially smaller by batching it.
 **This total is as-of dated and will drift upward.** `--as-of` defaults to
 today, and `MCK-2026-08-05` is truncated only because its horizon has not
 finished trading; once it has, it contributes ~41 more rows. Re-run the command
-rather than quoting 3,792 — the number is a measurement, not a constant.
+rather than quoting 3,915 — the number is a measurement, not a constant.
 
 Reproduce with:
 
@@ -207,11 +203,41 @@ reappears as a discrepancy the next time anyone re-runs the walk. That is the
 same class of defect as a fact corrected in one place while copies survive
 elsewhere — the failure this project has spent most of its guards on.
 
-**The decision this needs** is where curated anchor events live: a separate
-addendum file carrying the same provenance discipline as the linkage map
-(`source_citation`, `curated_by`, `curated_date`, `review_status`), merged at
-read time — or a widened walk that does not rely on the Item 2.02 tag. The
-first is precedented here; the second risks mis-tagging arbitrary exhibit
-filings as anchor events. **Not decided; no code assumes either.**
+**Decided 2026-08-24: the addendum file.** They live in
+`HYP04_ANCHOR_EVENT_ADDENDA.csv`, with linkage-map provenance
+(`source_accession`, `source_citation`, `curated_by`, `curated_date`,
+`review_status`), merged at read time and marked
+`provenance: curated_addendum` so a curated row is never mistaken for a derived
+one. The alternative — widening the walk past the Item 2.02 tag — was rejected:
+the only signal separating a 9.01-only earnings release from any other exhibit
+filing is the filer's document-naming convention, and a false positive there is
+a fabricated anchor event.
+
+### Supersession, and why it is not optional
+
+A curated row and the derived row it corrects do **not** collide on `event_id` —
+the id embeds the date, and the date is exactly what is being corrected.
+`MCK-2023-11-01` and `MCK-2023-10-27` are one earnings release. Merging both
+would count it twice, and a double-count is invisible in a total.
+
+So a curated row names the derived row it replaces, and `merge_addenda` raises
+rather than warns when:
+
+- the superseded event **is not in the derived set** — the addendum is stale,
+  so the correction may no longer apply
+- a curated id **collides** with a derived id — ambiguous; a row either adds an
+  event or supersedes one, never shadows
+
+### Effect
+
+| | |
+|---|---|
+| Derived | 97 |
+| Superseded | −2 |
+| Curated | +3 |
+| **Total** | **98** |
+| UNKNOWN release sessions | **0** (was 2) |
+| Cadence gaps | **none** (was 1 × 203 days) |
+| Rows to collect | 3,792 → **3,915** |
 
 Nothing here is evidence about supply-chain transmission.

@@ -482,6 +482,92 @@ def test_11_events_csv_resolves_bmo_amc_and_refuses_unknown():
           not (ids & set(by)), str(ids & set(by)))
 
 
+def test_12_emitted_request_files_round_trip():
+    """The emitted file, filled in, must satisfy coverage.
+
+    A request file is only useful if supplying exactly it -- through the real
+    loader, not a fixture -- makes the pair resolvable. This fills the emitted
+    CSV and runs it back through peer_returns.load_panel and
+    coverage_for_event, so the format, the column names and the session list
+    are all checked by the code that will actually consume them.
+    """
+    import csv as _csv
+    import tempfile
+    from pathlib import Path as _Path
+
+    from hyp04_supply_chain_hedge.closes_requirements import (
+        REQUEST_CSV_SUFFIX, request_csv_header, write_request_csvs)
+    from hyp04_supply_chain_hedge.peer_returns import (
+        TEMPLATE_HEADERS_CSV, load_panel)
+
+    day = 120
+    ev = _event("E1", "MCK", day)
+    rep = requirements_for([ev], [_edge("MCK", "CVS", "2013-05-07")],
+                           sessions=SESSIONS)
+
+    header = request_csv_header()
+    check("12a. the header is READ from the template, not restated",
+          header == ["ticker", "session_date", "close"], str(header))
+    if TEMPLATE_HEADERS_CSV.is_file():
+        tmpl = TEMPLATE_HEADERS_CSV.read_text(encoding="utf-8").splitlines()[0]
+        check("12b. and matches the template byte for byte",
+              [c.strip() for c in tmpl.split(",")] == header, tmpl)
+    else:
+        skip("12b. template match", "template CSV absent")
+
+    with tempfile.TemporaryDirectory() as td:
+        out = _Path(td)
+        written = write_request_csvs(rep, out)
+        check("12c. one file per peer", len(written) == 1, str(written))
+        path, n = written[0]
+        check("12d. named for the peer", path.name == "CVS" + REQUEST_CSV_SUFFIX,
+              path.name)
+        check("12e. row count equals the sessions requested",
+              n == rep.requirements[0].n_sessions == closes_per_event(), str(n))
+
+        rows = list(_csv.DictReader(path.open(encoding="utf-8", newline="")))
+        check("12f. every row carries the peer and a session",
+              all(r["ticker"] == "CVS" and r["session_date"] for r in rows),
+              str(rows[:2]))
+        check("12g. the close column is EMPTY, never 0",
+              all(r["close"] == "" for r in rows),
+              "a zero is a real observation; blank is the absence of one")
+        check("12h. the sessions are exactly what was requested",
+              [r["session_date"] for r in rows]
+              == [d.isoformat() for d in rep.requirements[0].sessions])
+
+        # Fill it in and run it back through the real loader.
+        filled = out / "filled.csv"
+        with filled.open("w", encoding="utf-8", newline="") as fh:
+            w = _csv.writer(fh)
+            w.writerow(header)
+            for i, r in enumerate(rows):
+                w.writerow([r["ticker"], r["session_date"],
+                            f"{100.0 * (1.001 ** i):.4f}"])
+
+        panel = load_panel(filled, sessions=SESSIONS)
+        check("12i. the filled request loads clean",
+              panel.provenance.loads_clean, str(panel.provenance.as_dict()))
+        cov = coverage_for_event(panel.series["CVS"], event_id="E1",
+                                 anchor_day=day)
+        check("12j. and satisfies coverage", cov.sufficient, str(cov.reasons))
+
+        # HARDCODED-OPEN: drop one row and it must STOP satisfying coverage,
+        # or 12j would pass for a request that asked for too much.
+        short = out / "short.csv"
+        with short.open("w", encoding="utf-8", newline="") as fh:
+            w = _csv.writer(fh)
+            w.writerow(header)
+            for i, r in enumerate(rows[:-1]):
+                w.writerow([r["ticker"], r["session_date"],
+                            f"{100.0 * (1.001 ** i):.4f}"])
+        p2 = load_panel(short, sessions=SESSIONS)
+        cov2 = coverage_for_event(p2.series["CVS"], event_id="E1",
+                                  anchor_day=day)
+        check("12k. dropping one requested row breaks coverage",
+              not cov2.sufficient, "every emitted row is load-bearing")
+
+
 if __name__ == "__main__":
     test_1_the_41st_close()
     test_2_the_request_is_exactly_what_coverage_needs()
@@ -494,6 +580,7 @@ if __name__ == "__main__":
     test_9_the_cli_defers_the_calendar()
     test_10_the_index_never_reaches_past_what_can_be_collected()
     test_11_events_csv_resolves_bmo_amc_and_refuses_unknown()
+    test_12_emitted_request_files_round_trip()
 
     print()
     if SKIPS:

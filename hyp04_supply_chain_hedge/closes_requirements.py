@@ -238,6 +238,7 @@ def format_report(rep: RequirementsReport, *, max_sessions_shown: int = 6) -> st
                    "regardless of prices:")
         for s in rep.skipped:
             out.append(f"  {s.anchor} -> {s.peer} @ {s.event_id}: {s.reason}")
+
     if rep.truncated:
         out.append("")
         out.append(f"TRUNCATED -- {len(rep.truncated)} pair(s) need sessions "
@@ -299,6 +300,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--pad-years", type=int, default=1,
                     help="years of session index to build BEFORE the earliest "
                          "event (the end is capped at --as-of regardless)")
+    ap.add_argument("--emit-requests", type=Path, default=None,
+                    metavar="DIR",
+                    help="write one pre-filled ticker,session_date,close "
+                         "file per peer here, every required row present "
+                         "and the close column blank")
     ap.add_argument("--as-of", default=None, metavar="YYYY-MM-DD",
                     help="the last session whose close can actually be "
                          "collected; default today. Sessions after this do "
@@ -387,6 +393,19 @@ def main(argv: Optional[list[str]] = None) -> int:
     rep = requirements_for(panel.resolved, res.edges, sessions=sessions)
     print(format_report(rep))
 
+    if a.emit_requests:
+        try:
+            written = write_request_csvs(rep, a.emit_requests)
+        except FileNotFoundError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        print()
+        for path, n in written:
+            print(f"wrote: {path}  ({n} row(s), close column blank)")
+        print(f"Fill the close column. peer_returns.load_panel rejects "
+              f"gaps, duplicates and off-calendar dates rather than "
+              f"repairing them, so leave a missing close EMPTY -- never 0.")
+
     # `requirements_for` reports a truncated window as "extend the index".
     # When the index ends at --as-of that advice is wrong: the sessions have
     # not happened. Say which boundary actually bound.
@@ -398,6 +417,64 @@ def main(argv: Optional[list[str]] = None) -> int:
               "the future. A pair truncated at the LEFT edge needs --pad-years "
               "raised.")
     return 0
+
+
+REQUEST_CSV_SUFFIX = "_closes_REQUEST.csv"
+
+
+def request_csv_header() -> list[str]:
+    """The close-file schema, READ from the template rather than restated.
+
+    peer_returns owns this schema and validates against it. Writing a second
+    copy of the column names here would be one more place for them to drift --
+    the failure this project has spent most of its guards on. If the template
+    is missing, that is an error worth surfacing, not a default worth guessing.
+    """
+    from .peer_returns import TEMPLATE_HEADERS_CSV
+
+    if not TEMPLATE_HEADERS_CSV.is_file():
+        raise FileNotFoundError(
+            f"the closes template {TEMPLATE_HEADERS_CSV} is missing; refusing "
+            "to invent a schema for files peer_returns will have to validate")
+    first = TEMPLATE_HEADERS_CSV.read_text(encoding="utf-8").splitlines()[0]
+    return [c.strip() for c in first.split(",") if c.strip()]
+
+
+def write_request_csvs(rep: "RequirementsReport", out_dir: Path
+                       ) -> list[tuple[Path, int]]:
+    """One pre-filled request file per peer: every row present, close blank.
+
+    The operator fills a COLUMN instead of constructing rows, which removes the
+    step most likely to introduce an off-calendar date, a duplicate, or a
+    missing session -- all of which peer_returns rejects rather than repairs,
+    and all of which are cheaper to avoid than to diagnose.
+
+    The close column is left EMPTY, never zero. A zero return is a real
+    observation (a halt, a flat close); an empty cell is the absence of one.
+    """
+    import csv as _csv
+
+    header = request_csv_header()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    written: list[tuple[Path, int]] = []
+
+    for req in rep.requirements:
+        path = out_dir / f"{req.peer}{REQUEST_CSV_SUFFIX}"
+        with path.open("w", encoding="utf-8", newline="") as fh:
+            w = _csv.writer(fh)
+            w.writerow(header)
+            for session in req.sessions:
+                row = []
+                for col in header:
+                    if col == "ticker":
+                        row.append(req.peer)
+                    elif col == "session_date":
+                        row.append(session.isoformat())
+                    else:
+                        row.append("")          # close, and anything added later
+                w.writerow(row)
+        written.append((path, len(req.sessions)))
+    return written
 
 
 def _events_from_csv(path: Path) -> tuple[list[dict[str, Any]], list[tuple[str, str]]]:

@@ -68,6 +68,8 @@ from hyp04_supply_chain_hedge.earnings_events import (  # noqa: E402
     CandidateEvent,
     candidate_from_record,
     find_cadence_gaps,
+    PROVENANCE_CURATED,
+    PROVENANCE_DERIVED,
     classify_release_session,
     event_id_for,
     summarise,
@@ -316,6 +318,196 @@ def test_9_cadence_gaps_are_detected_not_filled():
           "do not guess" in src.lower() or "does NOT try to fill" in src)
 
 
+ADDENDA_HEADER = (
+    "event_id,anchor_ticker,release_date,release_session,supersedes_event_id,"
+    "source_accession,source_citation,curated_by,curated_date,review_status,"
+    "notes_caveats\n")
+GOOD_ROW = ("X-2020-01-02,MCK,2020-01-02,BMO,,0000-00-000000,a real citation,"
+            "tester,2026-08-24,draft,\n")
+
+
+def _addenda(tmp, body: str, header: str = ADDENDA_HEADER):
+    from pathlib import Path as _P
+    p = _P(tmp) / "add.csv"
+    p.write_text(header + body, encoding="utf-8")
+    return p
+
+
+def test_11_addenda_demand_provenance():
+    import tempfile
+
+    from hyp04_supply_chain_hedge.earnings_events import (
+        AddendaError, load_addenda)
+
+    with tempfile.TemporaryDirectory() as td:
+        ev, sup, rej = load_addenda(_addenda(td, GOOD_ROW))
+        check("11a. a fully-cited row loads", len(ev) == 1 and not rej, str(rej))
+        check("11b. and is marked CURATED, not derived",
+              ev[0].provenance == PROVENANCE_CURATED, ev[0].provenance)
+        check("11c. its basis names the citation",
+              "CURATED" in ev[0].session_basis
+              and "a real citation" in ev[0].session_basis,
+              ev[0].session_basis)
+
+        # Each required provenance field, blanked one at a time.
+        cols = ADDENDA_HEADER.strip().split(",")
+        for field in ("source_citation", "curated_by", "curated_date",
+                      "source_accession"):
+            parts = GOOD_ROW.rstrip("\n").split(",")
+            parts[cols.index(field)] = ""
+            ev2, _, rej2 = load_addenda(_addenda(td, ",".join(parts) + "\n"))
+            check(f"11d. a row missing {field} is rejected",
+                  not ev2 and len(rej2) == 1, f"{ev2} {rej2}")
+            check(f"11e. and the rejection names {field}",
+                  field in rej2[0], rej2[0] if rej2 else "")
+
+        # Curating UNKNOWN is curating an absence.
+        unk = GOOD_ROW.replace(",BMO,", ",UNKNOWN,")
+        ev3, _, rej3 = load_addenda(_addenda(td, unk))
+        check("11f. UNKNOWN is refused in an addendum",
+              not ev3 and rej3, f"{ev3} {rej3}")
+
+        bad_date = GOOD_ROW.replace("2020-01-02,BMO", "02/01/2020,BMO")
+        ev4, _, rej4 = load_addenda(_addenda(td, bad_date))
+        check("11g. a malformed release_date is refused", not ev4 and rej4,
+              f"{ev4} {rej4}")
+
+        ev5, _, rej5 = load_addenda(_addenda(td, GOOD_ROW + GOOD_ROW))
+        check("11h. a duplicate event_id is refused once, kept once",
+              len(ev5) == 1 and len(rej5) == 1, f"{ev5} {rej5}")
+
+        # A missing COLUMN is worse than a bad row: it is absent from every
+        # row, so it raises instead of rejecting row by row.
+        short = ADDENDA_HEADER.replace(",source_citation", "")
+        raised = False
+        try:
+            load_addenda(_addenda(td, "", header=short))
+        except AddendaError:
+            raised = True
+        check("11i. a missing required COLUMN raises, not rejects", raised)
+
+        check("11j. an absent file is not an error",
+              load_addenda(_addenda(td, "").with_name("nope.csv"))
+              == ([], {}, []))
+
+
+def test_12_supersession_prevents_double_counting():
+    """A curated row and the derived row it corrects do NOT share an id.
+
+    MCK-2023-11-01 corrects MCK-2023-10-27; the id embeds the date, and the
+    date is the thing being corrected. Merging both would count one earnings
+    release twice, and a double-count is invisible in a total.
+    """
+    import tempfile
+
+    from hyp04_supply_chain_hedge.earnings_events import (
+        AddendaError, load_addenda, merge_addenda)
+
+    derived = [_ev("MCK", "2023-10-27"), _ev("MCK", "2024-02-07")]
+    curated = [_ev("MCK", "2023-11-01")]
+    for c in curated:
+        object.__setattr__(c, "provenance", PROVENANCE_CURATED)
+
+    merged, notes = merge_addenda(derived, curated,
+                                  {"MCK-2023-11-01": "MCK-2023-10-27"})
+    ids = [e.event_id for e in merged]
+    check("12a. the superseded event is gone", "MCK-2023-10-27" not in ids,
+          str(ids))
+    check("12b. the curated one is present", "MCK-2023-11-01" in ids, str(ids))
+    check("12c. the count did not grow", len(merged) == 2, str(ids))
+    check("12d. the supersession is reported", notes == ["MCK-2023-11-01 "
+                                                         "supersedes "
+                                                         "MCK-2023-10-27"],
+          str(notes))
+
+    # HARDCODED-OPEN: a pure addition must still ADD.
+    merged2, notes2 = merge_addenda(derived, [_ev("MCK", "2020-02-04")], {})
+    check("12e. an addendum superseding nothing adds an event",
+          len(merged2) == 3, str([e.event_id for e in merged2]))
+    check("12f. and reports no supersession", notes2 == [], str(notes2))
+
+    # STALE ADDENDUM: the target is not in the derived set.
+    raised = False
+    try:
+        merge_addenda(derived, curated, {"MCK-2023-11-01": "MCK-1999-01-01"})
+    except AddendaError as exc:
+        raised = "stale" in str(exc)
+    check("12g. superseding an absent event raises as STALE", raised)
+
+    # COLLISION: same id in both sets is ambiguous.
+    raised2 = False
+    try:
+        merge_addenda(derived, [_ev("MCK", "2024-02-07")], {})
+    except AddendaError as exc:
+        raised2 = "collides" in str(exc)
+    check("12h. a curated id colliding with a derived id raises", raised2)
+
+    # The committed addenda file must itself load clean.
+    from pathlib import Path as _P
+    real = _P("Live Signal Engine/HYP04_ANCHOR_EVENT_ADDENDA.csv")
+    if not real.is_file():
+        skip("12i. committed addenda", "file not present")
+    else:
+        ev, sup, rej = load_addenda(real)
+        check("12i. the committed addenda file loads with no rejections",
+              not rej, str(rej))
+        check("12j. every committed row carries a real citation",
+              all(len(e.session_basis) > 40 for e in ev),
+              str([len(e.session_basis) for e in ev]))
+        check("12k. and every one is CURATED provenance",
+              all(e.provenance == PROVENANCE_CURATED for e in ev))
+
+
+def test_13_the_dashboard_derives_the_count_and_disclaims_c2():
+    """The page may show candidates only if it counts them and disclaims C2.
+
+    This project has already had to remove one hardcoded count from this file
+    ("zero rows are curated"), so the guard is structural rather than a promise:
+    the number must not appear as a literal in the source, and the C2
+    disclaimer must be present.
+    """
+    import re as _re
+
+    src = open("hyp04_supply_chain_hedge/dashboard.py", encoding="utf-8").read()
+
+    check("13a. the dashboard counts candidates from disk",
+          "def read_anchor_event_candidates" in src)
+    check("13b. by reading the CSV, not a constant",
+          "HYP04_ANCHOR_EVENT_CANDIDATES" in src and "DictReader" in src)
+    check("13c. and splits derived from curated provenance",
+          "by_provenance" in src)
+
+    # The live totals must NOT appear as literals anywhere in the renderer.
+    from hyp04_supply_chain_hedge.dashboard import read_anchor_event_candidates
+    cand = read_anchor_event_candidates()
+    if not cand.get("present"):
+        skip("13d. no baked count", "candidates file absent")
+    else:
+        baked = [str(n) for n in (cand["total"], *cand["by_anchor"].values())
+                 if _re.search(rf"[^0-9]{n}[^0-9]", src)]
+        # A bare number can appear innocently (a year, a width). Require that
+        # the total specifically is not written next to candidate wording.
+        near = _re.search(r"candidate[^\"'\n]{0,40}" + str(cand["total"]), src,
+                          _re.I) or _re.search(
+                              str(cand["total"]) + r"[^\"'\n]{0,40}candidate",
+                              src, _re.I)
+        check("13d. the candidate total is not baked next to candidate wording",
+              near is None, f"found {near.group(0)!r}" if near else "")
+
+    # Prose in an f-string wraps across source lines, so a contiguous
+    # substring match fails against CORRECT text. Collapse whitespace first --
+    # this exact mistake was made once already, in the curated-linkage guard.
+    flat = " ".join(src.split())
+    check("13e. the page states candidates are NOT eligible events",
+          "NOT eligible events" in flat and "does not move C2" in flat)
+    check("13f. and says the eligible count remains zero",
+          "eligible count remains zero" in flat)
+    check("13g. and says screening belongs to HYP-01",
+          "screening is HYP-01" in flat)
+    check("13h. the block is omitted, not zeroed, when the file is absent",
+          'candidates_block = ""' in src)
+
+
 def test_10_offline():
     check("10a. network is blocked in this suite", True)
     try:
@@ -335,6 +527,9 @@ if __name__ == "__main__":
     test_7_candidates_are_not_eligible_events()
     test_8_summarise_counts_what_it_says()
     test_9_cadence_gaps_are_detected_not_filled()
+    test_11_addenda_demand_provenance()
+    test_12_supersession_prevents_double_counting()
+    test_13_the_dashboard_derives_the_count_and_disclaims_c2()
     test_10_offline()
 
     print()

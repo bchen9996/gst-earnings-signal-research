@@ -86,6 +86,30 @@ Three things that module knows and you should not re-derive by hand:
 
 Full write-up: `HYP04_ANCHOR_EVENT_SOURCE_2026-08-23.md`.
 
+### Curated addenda — events the walk cannot derive
+
+`HYP04_ANCHOR_EVENT_ADDENDA.csv` holds anchor events established by reading a
+filing rather than by the walk. It is merged automatically (`--no-addenda`
+turns it off). Every row carries linkage-map-style provenance —
+`source_accession`, `source_citation`, `curated_by`, `curated_date` — and a row
+missing any of them is **rejected, not accepted quietly**.
+
+A curated row may `supersede` a derived one. This matters because the two do
+**not** collide on `event_id`: the id embeds the date, and the date is what is
+being corrected. `MCK-2023-11-01` and `MCK-2023-10-27` are the same earnings
+release, and merging both would count it twice — invisibly, since a
+double-count does not look wrong in a total.
+
+Two guards, both raising rather than warning:
+
+- superseding an event the walk **did not produce** means the addendum is
+  stale, so the correction may no longer apply
+- a curated id **colliding** with a derived id is ambiguous — a row either adds
+  or supersedes, never shadows
+
+Current effect: 97 derived − 2 superseded + 3 curated = **98 events, zero
+UNKNOWN sessions, and no cadence gaps.**
+
 **These are candidates, not eligible events.** Nothing here is screened, and no
 gate condition moves.
 
@@ -169,6 +193,35 @@ The tool **requires the authoritative XNYS calendar** and refuses without it (`p
 Pairs that condition **P3** would deny — the edge was disclosed on or after the event — are reported as `SKIPPED` with the reason. That is not a bug: collecting them would waste effort on observations the analysis must discard.
 
 ## 3. Produce the CSV
+
+**Let the tool write the rows.** `--emit-requests DIR` writes one file per peer
+with every required row already present and the close column blank, so you fill
+a column instead of constructing rows:
+
+```
+PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_requirements \
+    --events-csv "Live Signal Engine/HYP04_ANCHOR_EVENT_CANDIDATES_2026-08-23.csv" \
+    --emit-requests ./closes_requests
+```
+
+```
+wrote: closes_requests/CVS_closes_REQUEST.csv  (2193 row(s), close column blank)
+wrote: closes_requests/ODP_closes_REQUEST.csv  (1722 row(s), close column blank)
+```
+
+```csv
+ticker,session_date,close
+CVS,2013-06-27,
+CVS,2013-06-28,
+```
+
+This removes the step most likely to introduce an off-calendar date, a
+duplicate, or a missing session — each of which the loader rejects rather than
+repairs. The header is **read from the template**, not restated, so it cannot
+drift from what `peer_returns` validates.
+
+**Leave a missing close EMPTY, never `0`.** A zero return is a real observation
+(a halt, a flat close); an empty cell is the absence of one.
 
 Schema: `HYP04_Peer_Closes_TEMPLATE_headers.csv`
 

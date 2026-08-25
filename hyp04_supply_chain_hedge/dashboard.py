@@ -222,6 +222,48 @@ def read_curated_linkage() -> dict[str, Any]:
     }
 
 
+def read_anchor_event_candidates() -> dict[str, Any]:
+    """Candidate anchor events, COUNTED FROM DISK at render time.
+
+    Never bake these numbers into the page. The count changes every time the
+    walk is re-run or the addenda file gains a row, and a hardcoded total is
+    the same defect as the "zero rows are curated" sentence this file already
+    had to remove once.
+
+    Counted separately by provenance, because a derived row is reproducible by
+    re-running the walk and a curated row is somebody's reading of a filing.
+    Collapsing them would hide which is which.
+    """
+    import csv as _csv
+
+    files = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CANDIDATES*.csv"))
+    if not files:
+        return {"present": False}
+
+    rows = list(_csv.DictReader(files[0].open(encoding="utf-8", newline="")))
+    by_anchor: dict[str, int] = {}
+    by_session: dict[str, int] = {}
+    by_prov: dict[str, int] = {}
+    for r in rows:
+        by_anchor[r.get("anchor_ticker", "?")] = \
+            by_anchor.get(r.get("anchor_ticker", "?"), 0) + 1
+        by_session[r.get("release_session", "?")] = \
+            by_session.get(r.get("release_session", "?"), 0) + 1
+        by_prov[r.get("provenance", "unrecorded")] = \
+            by_prov.get(r.get("provenance", "unrecorded"), 0) + 1
+    dates = sorted(r.get("release_date", "") for r in rows if r.get("release_date"))
+    return {
+        "present": True,
+        "source": files[0].name,
+        "total": len(rows),
+        "by_anchor": by_anchor,
+        "by_session": by_session,
+        "by_provenance": by_prov,
+        "earliest": dates[0] if dates else None,
+        "latest": dates[-1] if dates else None,
+    }
+
+
 def read_registry() -> dict[str, Any]:
     doc = _read_json(REGISTRY)
     if doc is None:
@@ -531,6 +573,41 @@ def render(tests: dict, audit: dict, registry: dict,
              does not move. Availability is read from the registry, which is the
              authority &mdash; this page does not restate it from memory.</div>"""
 
+    # --- candidate anchor events -----------------------------------------
+    # Every number here is COUNTED FROM THE FILE at render time. If the file
+    # is absent the block is omitted entirely rather than rendered as zero:
+    # "no file" and "a file saying zero" are different claims.
+    cand = read_anchor_event_candidates()
+    if not cand.get("present"):
+        candidates_block = ""
+    else:
+        anchors = " &middot; ".join(
+            f"{_e(k)} {v}" for k, v in sorted(cand["by_anchor"].items()))
+        sess = " &middot; ".join(
+            f"{_e(k)} {v}" for k, v in sorted(cand["by_session"].items()))
+        prov = " &middot; ".join(
+            f"{_e(k)} {v}" for k, v in sorted(cand["by_provenance"].items()))
+        floor = registry.get("hyp04_threshold")
+        shortfall = ("" if not isinstance(floor, int) else
+                     f" That is {cand['total']} against a floor of {floor}.")
+        candidates_block = f"""
+          <div class="kpis">
+            <div class="kpi"><div class="v">{cand['total']}</div><div class="l">candidate anchor events</div></div>
+            <div class="kpi"><div class="v">0</div><div class="l">ELIGIBLE anchor events</div></div>
+          </div>
+          <p class="small">{anchors} &mdash; {_e(str(cand['earliest']))} to
+             {_e(str(cand['latest']))}. Release session: {sess}.
+             Provenance: {prov}. Source
+             <span class="mono">{_e(cand['source'])}</span>.</p>
+          <div class="caveat blocker"><strong>Candidates are NOT eligible
+             events, and this number does not move C2.</strong> Nothing here
+             has been screened against HYP-01's eligibility rules; the eligible
+             count remains zero.{shortfall} C2 counts ELIGIBLE anchor events,
+             so deriving release dates does not advance it &mdash; only
+             screening does, and screening is HYP-01's, not HYP-04's.
+             These counts are read from the file at render time; this page does
+             not carry a copy of them.</div>"""
+
     # --- registry ---
     if registry.get("available"):
         pend = "".join(f"<li>{_e(d)}</li>" for d in registry["pending_decisions"])
@@ -548,6 +625,7 @@ def render(tests: dict, audit: dict, registry: dict,
              {_e(registry['supersedes'])} is unedited.</p>
           <table><thead><tr><th>Hypothesis</th><th>Eligible events</th></tr></thead>
           <tbody>{counts}</tbody></table>
+          {candidates_block}
           <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
              display gate independently):</p>
           <ul>{pend}</ul>
