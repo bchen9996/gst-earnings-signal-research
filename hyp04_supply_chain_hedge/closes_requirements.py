@@ -289,14 +289,31 @@ def main(argv: Optional[list[str]] = None) -> int:
                          "the RESPONSE session (resolve BMO/AMC first via "
                          "exchange_calendar."
                          "compute_expected_next_full_trading_session_xnys)")
+    ap.add_argument("--events-csv", type=Path, default=None, metavar="CSV",
+                    help="candidate events from earnings_events. Resolves "
+                         "BMO/AMC to the response session for you; rows whose "
+                         "release_session is UNKNOWN are reported and skipped. "
+                         "Use this instead of --event for more than a handful.")
     ap.add_argument("--map", type=Path, default=None,
                     help="curated linkage CSV (default: the committed map)")
     ap.add_argument("--pad-years", type=int, default=1,
-                    help="years of session index to build either side")
+                    help="years of session index to build BEFORE the earliest "
+                         "event (the end is capped at --as-of regardless)")
+    ap.add_argument("--as-of", default=None, metavar="YYYY-MM-DD",
+                    help="the last session whose close can actually be "
+                         "collected; default today. Sessions after this do "
+                         "not exist yet and are never requested -- an event "
+                         "whose horizon runs past it is reported as truncated.")
     a = ap.parse_args(argv)
 
-    if not a.event:
-        print("No --event supplied. Nothing to compute.", file=sys.stderr)
+    if not a.event and not a.events_csv:
+        print("No --event or --events-csv supplied. Nothing to compute.",
+              file=sys.stderr)
+        return 2
+
+    as_of = date.today() if a.as_of is None else _parse_iso(a.as_of)
+    if as_of is None:
+        print(f"--as-of must be YYYY-MM-DD, got {a.as_of!r}", file=sys.stderr)
         return 2
 
     from .curated_linkage import LSE, load_curated_linkage
@@ -323,29 +340,115 @@ def main(argv: Optional[list[str]] = None) -> int:
         raw.append({"event_id": parts[0], "anchor": parts[1],
                     "response_session_date": parts[2]})
 
+    if a.events_csv:
+        loaded, unresolved = _events_from_csv(a.events_csv)
+        for eid, why in unresolved:
+            print(f"SKIPPED {eid}: {why}", file=sys.stderr)
+        if not loaded and not raw:
+            print(f"No usable events in {a.events_csv}", file=sys.stderr)
+            return 2
+        raw.extend(loaded)
+
     dates = [d for d in (_parse_iso(e["response_session_date"]) for e in raw) if d]
     if len(dates) != len(raw):
-        print("Every --event date must be YYYY-MM-DD.", file=sys.stderr)
+        print("Every event date must be YYYY-MM-DD.", file=sys.stderr)
         return 2
 
+    # The index ENDS at as_of. A close that has not happened cannot be
+    # collected, and a request that includes one sends the operator looking
+    # for prices that do not exist. Capping here rather than padding forward
+    # means requirements_for reports those events as `truncated`, with the
+    # reason, instead of listing future sessions as though they were data.
     try:
         sessions = _load_sessions(
-            date(min(dates).year - a.pad_years, 1, 1),
-            date(max(dates).year + a.pad_years, 12, 31))
+            date(min(dates).year - a.pad_years, 1, 1), as_of)
     except ImportError:
         print("The authoritative XNYS calendar is unavailable "
               "(`pip install exchange_calendars`). REFUSING rather than "
               "approximating with weekdays -- an approximate calendar would "
               "put market holidays into the request.", file=sys.stderr)
         return 3
+    except Exception as exc:                       # calendar bounds, etc.
+        print(f"The XNYS calendar refused the requested range "
+              f"({min(dates).year - a.pad_years} .. {as_of}): {exc}",
+              file=sys.stderr)
+        return 3
+
+    if not sessions:
+        print(f"No trading sessions between "
+              f"{date(min(dates).year - a.pad_years, 1, 1)} and {as_of}.",
+              file=sys.stderr)
+        return 2
 
     panel = resolve_events(raw, sessions=sessions)
     for r in panel.rejected:
         print(f"REJECTED {r.event_id}: {r.reason} {r.detail}", file=sys.stderr)
 
-    print(format_report(requirements_for(panel.resolved, res.edges,
-                                         sessions=sessions)))
+    rep = requirements_for(panel.resolved, res.edges, sessions=sessions)
+    print(format_report(rep))
+
+    # `requirements_for` reports a truncated window as "extend the index".
+    # When the index ends at --as-of that advice is wrong: the sessions have
+    # not happened. Say which boundary actually bound.
+    if rep.truncated:
+        print(f"\nNOTE: the session index ends at --as-of {as_of.isoformat()} "
+              f"(last session {sessions[-1].isoformat()}). A pair truncated at "
+              "the RIGHT edge is waiting on sessions that do not exist yet -- "
+              "collect it after they trade; the index cannot be extended into "
+              "the future. A pair truncated at the LEFT edge needs --pad-years "
+              "raised.")
     return 0
+
+
+def _events_from_csv(path: Path) -> tuple[list[dict[str, Any]], list[tuple[str, str]]]:
+    """Read an earnings_events candidate CSV into resolved-session events.
+
+    Returns (events, unresolved) where `unresolved` names every row that could
+    NOT be turned into a request, with the reason. Nothing is dropped quietly:
+    a candidate that vanishes without explanation is indistinguishable from
+    one that was never in the file.
+
+    BMO/AMC is resolved to the response session HERE, via the authoritative
+    calendar, so the caller never hand-converts. An UNKNOWN release session is
+    skipped rather than assumed -- guessing it would put every mis-guessed AMC
+    event one session early, which is the look-ahead direction.
+    """
+    import csv
+
+    from gst_market_response.exchange_calendar import (
+        compute_expected_next_full_trading_session_xnys as _resolve)
+    from .earnings_events import SESSION_AMC, SESSION_BMO
+
+    events: list[dict[str, Any]] = []
+    unresolved: list[tuple[str, str]] = []
+
+    with path.open(encoding="utf-8", newline="") as fh:
+        for row in csv.DictReader(fh):
+            eid = (row.get("event_id") or "").strip()
+            anchor = (row.get("anchor_ticker") or "").strip().upper()
+            rel_raw = (row.get("release_date") or "").strip()
+            sess = (row.get("release_session") or "").strip().upper()
+
+            if not eid or not anchor:
+                unresolved.append((eid or "<no event_id>",
+                                   "missing event_id or anchor_ticker"))
+                continue
+            if sess not in (SESSION_BMO, SESSION_AMC):
+                unresolved.append(
+                    (eid, f"release_session is {sess or '<blank>'}; only "
+                          f"{SESSION_BMO}/{SESSION_AMC} can be resolved to a "
+                          "response session, and guessing is not an option"))
+                continue
+            rel = _parse_iso(rel_raw)
+            if rel is None:
+                unresolved.append((eid, f"release_date {rel_raw!r} is not "
+                                        "YYYY-MM-DD"))
+                continue
+
+            events.append({"event_id": eid, "anchor": anchor,
+                           "response_session_date": _resolve(rel, sess)
+                           .isoformat()})
+    return events, unresolved
 
 
 def _parse_iso(value: str) -> Optional[date]:

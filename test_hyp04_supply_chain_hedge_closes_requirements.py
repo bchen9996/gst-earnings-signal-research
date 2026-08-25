@@ -368,6 +368,120 @@ def test_9_the_cli_defers_the_calendar() -> None:
           "REFUSING rather than" in src and "holidays" in src)
 
 
+def test_10_the_index_never_reaches_past_what_can_be_collected():
+    """A close that has not happened must never appear in a request.
+
+    The committed CLI padded the index to `max(event year) + pad_years`, which
+    is in the FUTURE for any recent event. Measured 2026-08-24: an event with
+    response session 2026-08-06 produced a clean 41-session request running to
+    2026-09-03 -- ten days ahead -- with no warning, sending an operator after
+    prices that do not exist. (With the default pad it instead raised an
+    unhandled DateOutOfBounds from the calendar.)
+
+    The fix caps the index at --as-of, so requirements_for reports the pair as
+    TRUNCATED with a reason. This checks both directions: past the edge is
+    refused, inside it is still served.
+    """
+    idx = SESSIONS[:200]
+    as_of_day = len(idx) - 1
+
+    def _ev_on(eid: str, day: int):
+        return resolve_events(
+            [{"event_id": eid, "anchor": "MCK",
+              "response_session_date": idx[day]}], sessions=idx).resolved[0]
+
+    # An event whose horizon runs off the right edge.
+    late = _ev_on("E-LATE", as_of_day - 2)
+    rep = requirements_for([late], [_edge("MCK", "CVS", "2010-01-01")],
+                           sessions=idx)
+    check("10a. an event whose horizon runs past the last session is truncated",
+          len(rep.truncated) == 1 and not rep.requirements,
+          f"truncated={len(rep.truncated)} reqs={len(rep.requirements)}")
+    check("10b. and no session is requested at all",
+          sum(len(r.sessions) for r in rep.requirements) == 0)
+    check("10c. the reason names the index bounds",
+          "index holds" in rep.truncated[0].reason, rep.truncated[0].reason)
+
+    # HARDCODED-OPEN: an event comfortably inside the index must still work,
+    # or a function that truncates everything would pass 10a-10c.
+    ok = _ev_on("E-OK", as_of_day - (H + 5))
+    rep2 = requirements_for([ok], [_edge("MCK", "CVS", "2010-01-01")],
+                            sessions=idx)
+    check("10d. an event inside the index is still served",
+          len(rep2.truncated) == 0 and len(rep2.requirements) == 1,
+          f"truncated={len(rep2.truncated)} reqs={len(rep2.requirements)}")
+    check("10e. and it asks for exactly the 41 closes",
+          len(rep2.requirements[0].sessions) == closes_per_event(),
+          str(len(rep2.requirements[0].sessions)))
+
+    src = open("hyp04_supply_chain_hedge/closes_requirements.py",
+               encoding="utf-8").read()
+    check("10f. the CLI caps the index at as_of rather than padding forward",
+          "date(min(dates).year - a.pad_years, 1, 1), as_of)" in src)
+    check("10g. and no longer pads the END by pad_years",
+          "max(dates).year + a.pad_years" not in src,
+          "the forward pad is the defect; it must be gone")
+    check("10h. and explains that a right-edge truncation cannot be extended",
+          "do not exist yet" in src)
+
+
+def test_11_events_csv_resolves_bmo_amc_and_refuses_unknown():
+    import csv as _csv
+    import tempfile
+    from pathlib import Path as _Path
+
+    from hyp04_supply_chain_hedge.closes_requirements import _events_from_csv
+
+    rows = [
+        # BMO -> the SAME session; AMC -> the NEXT one. 2020-01-29/30 are both
+        # XNYS sessions, so the two must resolve differently.
+        {"event_id": "A-BMO", "anchor_ticker": "MCK",
+         "release_date": "2020-01-29", "release_session": "BMO"},
+        {"event_id": "B-AMC", "anchor_ticker": "PKG",
+         "release_date": "2020-01-29", "release_session": "AMC"},
+        {"event_id": "C-UNK", "anchor_ticker": "MCK",
+         "release_date": "2020-01-29", "release_session": "UNKNOWN"},
+        {"event_id": "D-BAD", "anchor_ticker": "MCK",
+         "release_date": "not-a-date", "release_session": "AMC"},
+        {"event_id": "", "anchor_ticker": "MCK",
+         "release_date": "2020-01-29", "release_session": "AMC"},
+    ]
+    with tempfile.TemporaryDirectory() as td:
+        p = _Path(td) / "cand.csv"
+        with p.open("w", encoding="utf-8", newline="") as fh:
+            w = _csv.DictWriter(fh, fieldnames=list(rows[0]))
+            w.writeheader()
+            for r in rows:
+                w.writerow(r)
+        try:
+            events, unresolved = _events_from_csv(p)
+        except ImportError:
+            skip("11. events-csv", "exchange_calendars unavailable")
+            return
+
+    by = {e["event_id"]: e["response_session_date"] for e in events}
+    check("11a. two rows resolve", len(events) == 2, str(by))
+    check("11b. BMO resolves to the SAME session",
+          by.get("A-BMO") == "2020-01-29", str(by))
+    check("11c. AMC resolves to the NEXT session",
+          by.get("B-AMC") == "2020-01-30", str(by))
+    check("11d. BMO and AMC on the same date differ",
+          by.get("A-BMO") != by.get("B-AMC"), str(by))
+
+    ids = {eid for eid, _ in unresolved}
+    check("11e. three rows are unresolved", len(unresolved) == 3, str(unresolved))
+    check("11f. UNKNOWN is skipped, not guessed", "C-UNK" in ids, str(ids))
+    check("11g. and the reason says guessing is not an option",
+          any("guessing is not an option" in why
+              for eid, why in unresolved if eid == "C-UNK"), str(unresolved))
+    check("11h. a malformed date is skipped", "D-BAD" in ids, str(ids))
+    check("11i. a row with no event_id is reported, not dropped silently",
+          len(unresolved) == 3 and any("event_id" in why
+                                       for _, why in unresolved), str(unresolved))
+    check("11j. no unresolved row leaked into events",
+          not (ids & set(by)), str(ids & set(by)))
+
+
 if __name__ == "__main__":
     test_1_the_41st_close()
     test_2_the_request_is_exactly_what_coverage_needs()
@@ -378,6 +492,8 @@ if __name__ == "__main__":
     test_7_against_the_committed_map()
     test_8_offline()
     test_9_the_cli_defers_the_calendar()
+    test_10_the_index_never_reaches_past_what_can_be_collected()
+    test_11_events_csv_resolves_bmo_amc_and_refuses_unknown()
 
     print()
     if SKIPS:

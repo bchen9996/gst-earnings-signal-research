@@ -85,8 +85,30 @@ to a human. Deciding which of several bundled items a `reportDate` refers to is
 not something the module can do correctly, and a wrong guess is a mis-dated
 anchor event — the exact failure it exists to prevent.
 
-**Action required:** resolve these two by hand, or drop them. 95 of 97 need
-nothing.
+### Both resolved by hand, 2026-08-24
+
+Reading the press-release exhibits settles both. In each case the release is
+the **acceptance date**, and both are **AMC**:
+
+**MCK → 2023-11-01, AMC.** Exhibit `mck_exhibit991x9302023.htm` (quarter ending
+2023-09-30) is headed *"McKESSON CORPORATION REPORTS FISCAL 2024 SECOND QUARTER
+RESULTS"* and says *"a conference call for today, Wednesday, November 1st at
+4:30 PM ET"*. Accepted 16:05 ET; the call follows at 16:30. `reportDate`
+2023-10-27 belongs to the Item 5.02 officer departure.
+
+**PKG → 2020-07-28, AMC.** Exhibit `pkg-ex991_6.htm` opens *"Lake Forest, IL,
+July 28, 2020 — Packaging Corporation of America today reported second quarter
+2020 net income"*, with the call *"Wednesday, July 29, 2020 at 9:00 a.m."* —
+the next morning, PKG's usual AMC pattern. Accepted 17:29 ET. `reportDate`
+2020-07-24 belongs to the Item 2.06 impairment.
+
+Note what this cost: the answer required **reading the press release**. The
+acceptance timestamp alone could not distinguish "released that evening" from
+"filed days late", which is exactly why the classifier refuses the different-day
+case rather than inferring through it.
+
+**Not written into the CSV** — see §5 on why generated files do not take
+hand-added rows.
 
 ## 5. Item 2.02 is a floor, not a census — one confirmed miss
 
@@ -137,5 +159,59 @@ Even if every candidate screened as eligible — and none has been screened —
 **97 is about half the floor**, from the only two anchors the curated map
 contains. Closing C2 is a HYP-01 collection problem across a wider universe,
 not something two anchors can reach.
+
+## 7. What collecting these actually costs
+
+Run end-to-end through response-session resolution and `closes_requirements`
+on 2026-08-24:
+
+| | |
+|---|---|
+| Candidates | 97 |
+| Session-resolved | **95** (2 UNKNOWN dropped) |
+| Pinned onto the session index | **95, zero rejected** |
+| **Rows to collect** | **3,792** — CVS 2,111 · ODP 1,681 |
+| Truncated | 1 — `MCK-2026-08-05`, horizon runs past today |
+| P3-skipped | 0 (the `--since` filter already excluded them) |
+
+**Overlap dedupe saves 62 rows — 1%.** Quarterly releases sit roughly 63
+sessions apart and the window is 41, so windows rarely touch. The job does not
+get materially smaller by batching it.
+
+**This total is as-of dated and will drift upward.** `--as-of` defaults to
+today, and `MCK-2026-08-05` is truncated only because its horizon has not
+finished trading; once it has, it contributes ~41 more rows. Re-run the command
+rather than quoting 3,792 — the number is a measurement, not a constant.
+
+Reproduce with:
+
+```
+PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_requirements \
+    --events-csv "Live Signal Engine/HYP04_ANCHOR_EVENT_CANDIDATES_2026-08-23.csv"
+```
+
+## 8. Three verified events the generated CSV does not contain
+
+All three are confirmed against their filings. None is in
+`HYP04_ANCHOR_EVENT_CANDIDATES_2026-08-23.csv`, and none should be pasted in.
+
+| Event | Session | Why the walk misses it | Evidence |
+|---|---|---|---|
+| MCK **2020-02-04** | BMO | filed with items `9.01` only — no Item 2.02 tag | `0000927653-20-000013`, doc `mck8-k12312019.htm`, accepted 07:10 ET |
+| MCK **2023-11-01** | AMC | `reportDate` 2023-10-27 belongs to the Item 5.02 officer departure | `0000927653-23-000081`, press release dated Nov 1, call 16:30 ET |
+| PKG **2020-07-28** | AMC | `reportDate` 2020-07-24 belongs to the Item 2.06 impairment | `0001564590-20-033955`, press release dated Jul 28, call 09:00 ET next day |
+
+**Why they are not appended.** The CSV is generated. A hand-inserted row is
+indistinguishable from a derived one, survives no regeneration, and silently
+reappears as a discrepancy the next time anyone re-runs the walk. That is the
+same class of defect as a fact corrected in one place while copies survive
+elsewhere — the failure this project has spent most of its guards on.
+
+**The decision this needs** is where curated anchor events live: a separate
+addendum file carrying the same provenance discipline as the linkage map
+(`source_citation`, `curated_by`, `curated_date`, `review_status`), merged at
+read time — or a widened walk that does not rely on the Item 2.02 tag. The
+first is precedented here; the second risks mis-tagging arbitrary exhibit
+filings as anchor events. **Not decided; no code assumes either.**
 
 Nothing here is evidence about supply-chain transmission.
