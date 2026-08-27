@@ -34,6 +34,18 @@ Importing it would break that job at import time. So **the session index is inje
 
 This is enforced, not documented: the suite parses the module's own AST and asserts its only non-stdlib import is in-package, and separately asserts no heavy dependency appears in `sys.modules`. That second check passes **while `exchange_calendars` is installed in the local venv**, so it is testing the module's behaviour rather than the environment's contents.
 
+> **Amendment 2026-08-24 — the premise above changed; the decision did not.**
+>
+> `requirements-hyp04.txt` now **does** install `exchange_calendars`. It was added so CI could run `test_hyp04_supply_chain_hedge_real_calendar.py`, which drives real sessions through the whole chain to a target value. So the sentence *"importing it would break that job at import time"* is no longer true.
+>
+> **The injection decision stands, on stronger reasoning than the one it was made for.** The original argument was environmental — a dependency happened to be absent. These do not depend on the requirements file:
+>
+> - the module's functions are pure and need no calendar; a module-scope import would couple every caller to a dependency none of them uses
+> - the AST check and the `sys.modules` check were *already* written to test behaviour rather than environment, and the paragraph above says so explicitly. That is precisely why they keep working now that the environment changed
+> - injecting the index is what lets the suite index sessions synthetically and lets production index them authoritatively, from one code path
+>
+> Recorded here rather than by editing the text above: this document is dated, and what it asserted was true when written. See `requirements-hyp04.txt` for the current reasoning.
+
 ### 3. Coverage is derived, never asserted
 
 This is the same safety property `LinkageProvenance` applies to `uses_placeholder_linkage`, applied to the other end of the pair.

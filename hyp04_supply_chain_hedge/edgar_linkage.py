@@ -207,6 +207,29 @@ CORP_SUFFIX = re.compile(
     r"\b(inc|corp|corporation|company|co|ltd|limited|plc|llc|lp|holdings|"
     r"group|technologies|systems|international|nv|ag|sa)\b\.?", re.I)
 
+# A LEGAL entity marker, as opposed to a descriptive word that merely appears
+# in company names. The distinction matters: "Systems", "Technologies",
+# "Group" and "International" are also how filers name their own operating
+# SEGMENTS -- Leidos's "Defense Systems" is a segment, not a counterparty --
+# so CORP_SUFFIX above cannot be used to establish that a name is a company.
+LEGAL_ENTITY_SUFFIX = re.compile(
+    r"\b(inc|corp|corporation|incorporated|ltd|limited|plc|llc|llp|lp|"
+    r"nv|ag|sa|se|ab|as|oyj|kgaa|gmbh|pte|bhd)\b\.?", re.I)
+
+# Places are not counterparties. Measured on the 2026-08-26 51-ticker run:
+# Intel's "sales outside the U.S. accounted for 70% of our revenue" and Nike's
+# "sales in the United States accounted for approximately 44% of total
+# revenues" were both extracted as named customers. NON_CUSTOMER_SUBJECT
+# already covers the WORDS "geographic", "region" and "country", but neither
+# sentence contains one -- the geography is the bare place name itself.
+GEOGRAPHIC_PARTY = re.compile(
+    r"^(?:the\s+)?(?:u\.?\s?s\.?(?:a\.?)?|united\s+states(?:\s+of\s+america)?|"
+    r"u\.?k\.?|united\s+kingdom|e\.?u\.?|europe|european\s+union|"
+    r"emea|apac|latam|asia(?:\s*[-/]?\s*pacific)?|greater\s+china|china|"
+    r"japan|korea|india|canada|mexico|brazil|germany|france|taiwan|"
+    r"north\s+america|south\s+america|latin\s+america|"
+    r"international|domestic|foreign|abroad|overseas)\.?$", re.I)
+
 # Abbreviations whose trailing period is NOT a sentence boundary. Without
 # this, "Apple Inc. accounted for 22%..." has its lookback window truncated at
 # the period in "Inc.", leaving nothing to match -- the naive splitter destroys
@@ -502,6 +525,33 @@ def extract_edges_from_text(
                 pm = PARTY_TAIL.search(window)
                 if pm:
                     party = clean_party(pm.group("party"))
+
+            # ATTRIBUTION GATES. Both added 2026-08-26 after the 51-ticker run
+            # produced four false named edges -- two geographies and two of
+            # the filer's own segments. Each would have asserted a
+            # supply-chain relationship that does not exist, which is the one
+            # failure this source must not have.
+            if party is not None and GEOGRAPHIC_PARTY.match(party):
+                party = None
+
+            # The topic window above is deliberately WIDE, so a role word in a
+            # neighbouring footnote sentence still counts. That is right for
+            # "Concentration of credit risk. ... Apple Inc. accounted for
+            # 22% ...", and wrong for "...services to Intelligence Community
+            # customers. National Security & Digital represented 44% of total
+            # revenues.", where the role word leaks across a sentence boundary
+            # onto a segment name.
+            #
+            # So a NAME is kept only if the SENTENCE itself establishes a
+            # counterparty -- or the name carries a legal entity suffix, which
+            # preserves the footnote case the wide window exists for.
+            # Measured: MCK ("Sales to our largest customer, CVS Health
+            # Corporation") and PKG ("our sales revenue to ODP represented
+            # 58%") both pass; all four false positives fail.
+            if (party is not None
+                    and not _has_counterparty_context(sentence)
+                    and not LEGAL_ENTITY_SUFFIX.search(party)):
+                party = None
 
             start, end = max(0, m.start() - 200), min(len(text), m.end() + 200)
             ctx = text[start:end].strip()

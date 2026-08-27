@@ -332,8 +332,11 @@ def test_9_the_cli_defers_the_calendar() -> None:
     The CLI needs the AUTHORITATIVE XNYS sessions -- a weekday approximation
     would put market holidays into the request, and the operator would collect
     closes that do not exist. But `gst_market_response.exchange_calendar`
-    imports `exchange_calendars`, which requirements-hyp04.txt deliberately
-    omits, so importing it at module scope would break HYP-04's CI job.
+    imports `exchange_calendars`. That was once absent from
+    requirements-hyp04.txt; it was added 2026-08-24 so CI could exercise
+    the real calendar. The lazy import stays anyway: the pure functions
+    here need no calendar, and peer_returns asserts `exchange_calendars`
+    is not in sys.modules -- a module-scope import would leak it there.
 
     It is therefore imported lazily inside main(), and the CLI REFUSES when it
     is unavailable rather than approximating. This asserts the boundary rather

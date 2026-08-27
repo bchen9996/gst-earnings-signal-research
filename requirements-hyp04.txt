@@ -19,6 +19,26 @@ numpy>=2.0.0
 pandas>=2.0.0
 scipy>=1.11.0
 
+# exchange_calendars: the authoritative XNYS session calendar.
+#
+# Added 2026-08-24, deliberately, after test_hyp04_supply_chain_hedge_real_calendar.py
+# was written -- that suite drives real sessions through the whole chain to a
+# target value, and without this it skips entirely, so CI would never exercise
+# the calendar at all.
+#
+# This does NOT weaken the yfinance exclusion below. The two are different in
+# the way that matters: exchange_calendars ships its session data locally and
+# resolves with sockets blocked (asserted by that suite's test_5c), so
+# installing it reaches no endpoint. yfinance is excluded precisely BECAUSE it
+# makes live provider calls.
+#
+# What it buys: market holidays and unscheduled closures are verified in CI
+# rather than only locally. closes_requirements REFUSES to approximate the
+# calendar with weekdays, and this is what keeps that refusal honest -- a
+# weekday approximation over one real 41-session window differs by exactly the
+# holidays inside it.
+exchange_calendars>=4.2.0
+
 # DELIBERATELY ABSENT -- yfinance.
 #
 # The only code path that imports it is the options-coverage audit's live

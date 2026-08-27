@@ -258,11 +258,23 @@ def format_report(rep: RequirementsReport, *, max_sessions_shown: int = 6) -> st
 # do not exist, and the mismatch would surface later as off_calendar_dates --
 # a long way from the CLI that caused it.
 #
-# `gst_market_response.exchange_calendar` imports `exchange_calendars`, which
-# requirements-hyp04.txt deliberately does not install. So it is imported
-# LAZILY, inside main() only. Importing this module never pulls it, HYP-04's CI
-# job stays clean, and running the CLI without the dependency REFUSES with an
-# actionable message rather than falling back to something approximate.
+# `gst_market_response.exchange_calendar` imports `exchange_calendars`, and it
+# is imported LAZILY here, inside main() and _events_from_csv() only.
+#
+# The original reason was that requirements-hyp04.txt did not install it. That
+# stopped being true on 2026-08-24, when it was added so CI could exercise the
+# real calendar. The laziness stays, for reasons that do not depend on the
+# requirements file:
+#
+#   * requirements_for(), session_span() and closes_per_event() are pure and
+#     need no calendar. A module-scope import would couple every caller of
+#     those to a dependency none of them uses.
+#   * peer_returns' import-boundary test asserts `exchange_calendars` is not
+#     in sys.modules. A module-scope import here would leak it there through
+#     an ordinary import chain.
+#   * running the CLI without the dependency REFUSES with an actionable
+#     message rather than falling back to something approximate -- which only
+#     works if the import is at the point of use.
 #
 # This mirrors how edgar_linkage defers `requests`.
 
