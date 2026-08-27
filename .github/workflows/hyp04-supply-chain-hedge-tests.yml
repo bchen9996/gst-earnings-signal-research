@@ -100,12 +100,17 @@ jobs:
         #     remembers to extend a list.
         #   * run_linkage_history.py, which walks 10-K history and makes real
         #     SEC requests under an owner-supplied fair-access contact
+        #   * run_peer_closes_fetch.py, which calls Yahoo through yfinance --
+        #     a dependency requirements-hyp04.txt deliberately omits, so this
+        #     guard and that omission are two independent locks on the same
+        #     door
         # If any is renamed onto the test_* pattern, this fails before it can
         # spend budget or author a registry version.
         run: |
           set -e
           if ls test_hyp04*run_canary* test_hyp04*run_full* \
                 test_hyp04*make_registry* test_hyp04*run_linkage_history* \
+                test_hyp04*run_peer_closes* \
                 2>/dev/null; then
             echo "A side-effecting runner matches the test discovery pattern. Refusing."
             exit 1

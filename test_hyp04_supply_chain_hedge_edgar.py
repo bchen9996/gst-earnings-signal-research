@@ -472,6 +472,81 @@ def test_10_reconcile_flags_and_never_merges() -> None:
           and "does NOT become the production map" in r2["note"])
 
 
+def test_6e_geographies_and_own_segments_are_not_counterparties() -> None:
+    """REGRESSION. Four false named edges from the real 2026-08-26 run.
+
+    Extraction over the 51-ticker universe reported five companies with a
+    named counterparty. Three were not counterparties at all:
+
+        INTC -> "U.S"             "sales outside the U.S. accounted for 70%"
+        NKE  -> "United States"   "sales in the United States accounted for 44%"
+        LDOS -> "Digital"         "National Security & Digital represented 44%"
+        LDOS -> "Defense Systems" "Defense Systems represented 13%"
+
+    The first two are geographies; the last two are the filer's OWN operating
+    segments. Each would have asserted a supply-chain relationship that does
+    not exist. Curating any of them would have been fabrication, which is the
+    one thing this candidate source must never enable.
+
+    Sentences are verbatim from the filings, so this is a regression fixture
+    against the actual defect rather than against a reconstruction of it.
+    """
+    REAL_POSITIVES = [
+        ("MCK", "CVS Health Corporation",
+         "Sales to our largest customer, CVS Health Corporation (CVS), "
+         "accounted for approximately 24% of our total consolidated revenues "
+         "in fiscal 2026."),
+        ("PKG", "ODP",
+         "In 2025, our sales revenue to ODP represented 58% of our Paper "
+         "segment sales revenue and 4% of our consolidated sales revenue."),
+    ]
+    FALSE_POSITIVES = [
+        ("INTC", "geography (bare place name, no 'geographic' word present)",
+         "Moreover, sales outside the U.S. accounted for 70% of our revenue "
+         "for the fiscal year ended December 27, 2025, with revenue from "
+         "billings to China contributing 24% of our total revenue."),
+        ("NKE", "geography",
+         "For fiscal 2026, NIKE Brand and Converse sales in the United States "
+         "accounted for approximately 44% of total revenues, compared to 43%."),
+        ("LDOS", "own segment; role word leaks from the previous sentence",
+         "We provide services to Intelligence Community customers. National "
+         "Security & Digital represented 44% of total revenues for both "
+         "fiscal 2025."),
+        ("LDOS", "own segment; 'Systems' is a descriptive word, not a legal "
+                 "entity suffix",
+         "Defense Systems represented 13% of total revenues for fiscal 2025, "
+         "and 12% of total revenues for both fiscal 2024 and 2023."),
+    ]
+
+    for tk, expected, text in REAL_POSITIVES:
+        edges, _ = extract_edges_from_text(
+            text, ticker=tk, cik="0", filing_date="2026-01-01",
+            accession="x", form="10-K")
+        named = [e.named_counterparty for e in edges if e.counterparty_is_named]
+        check(f"6e. {tk}: the real counterparty survives",
+              expected in named, f"got {named}")
+
+    for tk, why, text in FALSE_POSITIVES:
+        edges, _ = extract_edges_from_text(
+            text, ticker=tk, cik="0", filing_date="2026-01-01",
+            accession="x", form="10-K")
+        named = [e.named_counterparty for e in edges if e.counterparty_is_named]
+        check(f"6e. {tk}: rejected -- {why}", not named, f"got {named}")
+
+    # HARDCODED-OPEN: the fix must not be "reject every name". The footnote
+    # shape the wide topic window exists for -- role word in a NEIGHBOURING
+    # sentence, name carrying a legal suffix -- must still be captured.
+    foot = ("Concentration of credit risk. The Company sells to a limited "
+            "number of customers. Apple Inc. accounted for 22% of net "
+            "revenues in fiscal 2025. No other customer exceeded 10%.")
+    edges, _ = extract_edges_from_text(
+        foot, ticker="FOOT", cik="0", filing_date="2026-01-01",
+        accession="x", form="10-K")
+    named = [e.named_counterparty for e in edges if e.counterparty_is_named]
+    check("6e. the cross-sentence footnote case is still captured",
+          any("Apple" in (n or "") for n in named), f"got {named}")
+
+
 def test_11_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -490,6 +565,7 @@ if __name__ == "__main__":
     test_6b_aggregate_disclosures_are_not_edges()
     test_6c_non_customer_percentages_are_rejected()
     test_6d_appositive_names_are_captured()
+    test_6e_geographies_and_own_segments_are_not_counterparties()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()

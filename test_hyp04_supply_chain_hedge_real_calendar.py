@@ -14,8 +14,10 @@ suite asserts `exchange_calendars` is NOT in `sys.modules` (test_7c): the
 bridge takes an already-resolved session date precisely so it never imports a
 calendar. Importing one there would break a correct assertion.
 
-So: a separate suite, skipped whole when the calendar is unavailable --
-`requirements-hyp04.txt` deliberately omits it, so that is CI's normal state.
+So: a separate suite, skipped whole when the calendar is unavailable.
+`requirements-hyp04.txt` gained `exchange_calendars` on 2026-08-24 FOR
+this suite, so CI does run it; the skip guard remains for anyone whose
+environment lacks it.
 
 === WHAT IT PROVES, AND WHAT IT DOES NOT ===
 
@@ -270,9 +272,10 @@ def test_5_offline():
 
 if __name__ == "__main__":
     if not CALENDAR_AVAILABLE:
-        print("SKIP: whole suite   (exchange_calendars unavailable -- "
-              "deliberately absent from requirements-hyp04.txt, so this is "
-              "CI's normal state)")
+        print("SKIP: whole suite   (exchange_calendars unavailable. It IS "
+              "declared in requirements-hyp04.txt as of 2026-08-24, so in "
+              "CI this should not happen -- install it: "
+              "pip install exchange_calendars)")
     test_1_bmo_resolves_to_the_same_session()
     test_2_the_span_skips_real_holidays()
     test_3_the_request_is_exactly_41_real_sessions()
