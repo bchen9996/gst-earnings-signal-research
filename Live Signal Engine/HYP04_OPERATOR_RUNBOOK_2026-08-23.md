@@ -68,7 +68,7 @@ PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.earnings_event
 ```
 
 `--since` takes each curated edge's `as_of_date`, so P3 does not later discard
-what you collect. The result is 97 candidates: MCK 55, PKG 42.
+what you collect. The walk alone yields 97; with the addenda below merged, **98** — MCK 56, PKG 42.
 
 Three things that module knows and you should not re-derive by hand:
 
@@ -78,11 +78,13 @@ Three things that module knows and you should not re-derive by hand:
   and they agree on 54 of 55. Using `filingDate` is invisible on MCK and one
   session late on nearly every PKG event.
 - **BMO/AMC is derived from the acceptance timestamp**, converted to
-  America/New_York. `UNKNOWN` is a refusal, not a placeholder — 2 of 97.
+  America/New_York. `UNKNOWN` is a refusal, not a placeholder — 2 of the 97
+  derived rows, both resolved by the addenda below.
 - **Item 2.02 is a floor, not a census.** A filer can omit the tag. MCK's
-  Q3 FY2020 release (2020-02-04, BMO) is tagged `9.01` only and is *missing*
-  from the candidate list. `find_cadence_gaps()` reports the resulting hole; it
-  never fills it.
+  Q3 FY2020 release (2020-02-04, BMO) is tagged `9.01` only, so the walk
+  cannot see it; `find_cadence_gaps()` reports the resulting 203-day hole and
+  deliberately never fills it. It reaches the candidate set only as a curated
+  addendum, which is why that file exists.
 
 Full write-up: `HYP04_ANCHOR_EVENT_SOURCE_2026-08-23.md`.
 
@@ -123,22 +125,23 @@ PYTHONPATH=. .venv/Scripts/python.exe -m hyp04_supply_chain_hedge.closes_require
     --events-csv "Live Signal Engine/HYP04_ANCHOR_EVENT_CANDIDATES_2026-08-23.csv"
 ```
 
-Against the real 97 candidates (2026-08-24):
+Against the real 98 merged candidates (2026-08-24):
 
 ```
-SKIPPED MCK-2023-10-27: release_session is UNKNOWN; ... guessing is not an option
-SKIPPED PKG-2020-07-24: release_session is UNKNOWN; ... guessing is not an option
+CVS: 2193 session(s)   for 55 event(s)
+ODP: 1722 session(s)   for 42 event(s)
 
-CVS: 2111 session(s) 2013-06-27 .. 2026-06-08   for 53 event(s)
-ODP: 1681 session(s) 2016-03-23 .. 2026-08-20   for 41 event(s)
-
-TOTAL ROWS TO PRODUCE: 3792
+TOTAL ROWS TO PRODUCE: 3915
 
 TRUNCATED -- 1 pair(s) ...
   MCK -> CVS @ MCK-2026-08-05: needs sessions [3648..3688] but the index holds [0..3680]
 ```
 
-**That is the real size of the job: ~3,800 closes, not 82.** Overlap dedupe
+No `SKIPPED ... UNKNOWN` lines appear any more: the addenda resolve both
+formerly-unresolved events. Before they existed the run skipped two and
+produced 3,792 rows.
+
+**That is the real size of the job: ~3,900 closes, not 82.** Overlap dedupe
 saves only 62 rows (1%) — quarterly events sit about 63 sessions apart and the
 window is 41, so windows rarely touch. Do not plan on dedupe helping.
 
@@ -314,6 +317,6 @@ The gate's conditions are unchanged by everything above:
 - **`peer_history_map` is per-peer, and coverage is really per-pair.** A peer is marked available only if it covers **every** event it appears in, which undercounts. Use `coverage_for_event` for the precise per-pair answer. Decision of 2026-08-23: keep the conservative form for now.
 - **Two curated edges is not a linkage map.** Registry v1.3 records `exists_partial` precisely so this is not mistaken for sufficiency.
 - **No peer price data has ever been captured.** The registry records `data_captured: false` for both capture paths. A module that can ingest is not ingested data.
-- **97 candidate anchor events now exist; zero ELIGIBLE ones do.** `eligible_event_counts` is still zero across the board. Candidates are unscreened — screening is HYP-01's registry, not HYP-04's to fill — and C2's floor is 193 *eligible* events, which two anchors cannot reach.
+- **98 candidate anchor events now exist; zero ELIGIBLE ones do.** `eligible_event_counts` is still zero across the board. Candidates are unscreened — screening is HYP-01's registry, not HYP-04's to fill — and C2's floor is 193 *eligible* events, which two anchors cannot reach.
 - **Item 2.02 is a coverage floor.** A filer can release earnings without the tag; MCK 2020-02-04 is a confirmed instance. An absent candidate is not evidence the company did not report. `find_cadence_gaps()` detects the resulting holes and deliberately does not fill them.
 - **Two candidates have an unresolved release session** (MCK 2023-10-27, PKG 2020-07-24). Both bundle earnings with an unrelated earlier item, so `reportDate` belongs to that item. They are skipped, not guessed.

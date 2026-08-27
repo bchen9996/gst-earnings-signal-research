@@ -78,13 +78,18 @@ occurrences in the real MCK/PKG walk (2026-08-23) have this shape:
 the earnings release is the ACCEPTANCE date and `reportDate` belongs to the
 other item.
 
-These are not repaired here. Both already resolve to UNKNOWN -- the acceptance
-falls on a different day than `reportDate`, which is exactly the condition the
-classifier refuses to infer through -- and both carry `non_standard_items`. So
-the shape routes itself to a human. Guessing which of several bundled items a
-`reportDate` refers to is not something this module can do correctly, and a
-wrong guess here is a mis-dated anchor event, which is the failure the whole
-module exists to prevent.
+These are not repaired by the CLASSIFIER. Both resolve to UNKNOWN -- the
+acceptance falls on a different day than `reportDate`, which is exactly the
+condition it refuses to infer through -- and both carry `non_standard_items`,
+so the shape routes itself to a human. Guessing which of several bundled items
+a `reportDate` refers to is not something this module can do from the metadata,
+and a wrong guess is a mis-dated anchor event: the failure it exists to prevent.
+
+They are repaired by a HUMAN, through the addenda file (see `load_addenda`).
+Both were settled on 2026-08-24 by reading the press-release exhibits -- MCK to
+2023-11-01 AMC, PKG to 2020-07-28 AMC -- and each SUPERSEDES its mis-dated
+derived row rather than sitting alongside it. That division is the point: the
+metadata cannot decide, the filing can, and the answer carries a citation.
 
 === ITEM 2.02 IS A FLOOR, NOT A CENSUS ===
 
