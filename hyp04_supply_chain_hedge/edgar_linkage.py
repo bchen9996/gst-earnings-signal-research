@@ -851,6 +851,23 @@ class _CachedHTTPError(Exception):
         self.response = type("_R", (), {"status_code": status})()
 
 
+
+def _parallel_field(block: dict, name: str, i: int) -> Optional[str]:
+    """One value out of SEC's parallel-array submissions block, or None.
+
+    The arrays are index-aligned and SEC does not guarantee every one is
+    present in every block -- the paginated older-filing files are thinner than
+    `filings.recent`. Reading them positionally with [] turns a missing array
+    into a KeyError and a short array into an IndexError, either of which would
+    abort a whole ticker's walk over a field nothing is required to have.
+    """
+    arr = block.get(name)
+    if not isinstance(arr, list) or i >= len(arr):
+        return None
+    v = arr[i]
+    return v if v else None
+
+
 class OfflineCacheMiss(RuntimeError):
     """An offline client was asked for something the cache does not hold.
 
@@ -1072,6 +1089,7 @@ class EdgarClient:
             if form == "10-K":
                 return {"accession": rec["accessionNumber"][i],
                         "filing_date": rec["filingDate"][i],
+                        "report_date": _parallel_field(rec, "reportDate", i),
                         "primary_document": rec["primaryDocument"][i],
                         "form": form}
         return None
@@ -1116,6 +1134,16 @@ class EdgarClient:
                 out.append({
                     "accession": blk["accessionNumber"][i],
                     "filing_date": blk["filingDate"][i],
+                    # The PERIOD the filing covers, not the day it was filed.
+                    # For a calendar-year filer these differ by about a year --
+                    # a FY2004 10-K filed 2005-02-22 -- which is exactly the
+                    # error in the stale-comparative gate, recorded as a
+                    # limitation in registry v1.6. Captured now, read by
+                    # nothing: using it would change what the extractor
+                    # accepts, and that is a derivation change needing a
+                    # re-walk and a new registry version. Capturing it early
+                    # means that fix costs one walk instead of two.
+                    "report_date": _parallel_field(blk, "reportDate", i),
                     "primary_document": blk["primaryDocument"][i],
                     "form": form,
                 })
