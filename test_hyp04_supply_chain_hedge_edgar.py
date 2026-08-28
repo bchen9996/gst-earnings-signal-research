@@ -41,6 +41,12 @@ socket.create_connection = _no_net
 socket.getaddrinfo = _no_net
 
 from hyp04_supply_chain_hedge.edgar_linkage import (  # noqa: E402
+    BASIS_CONSOLIDATED_REVENUE,
+    BASIS_DEFERRED_REVENUE,
+    BASIS_RECEIVABLES,
+    BASIS_SEGMENT_REVENUE,
+    BASIS_UNKNOWN,
+    CONCENTRATION_BASES,
     CONTACT_REQUIRED_MESSAGE,
     DIRECTION_CUSTOMER,
     DIRECTION_SUPPLIER,
@@ -48,6 +54,7 @@ from hyp04_supply_chain_hedge.edgar_linkage import (  # noqa: E402
     EdgarContactError,
     ExtractionResult,
     LinkageEdge,
+    classify_concentration_basis,
     clean_party,
     extract_edges_from_text,
     infer_direction,
@@ -547,6 +554,118 @@ def test_6e_geographies_and_own_segments_are_not_counterparties() -> None:
           any("Apple" in (n or "") for n in named), f"got {named}")
 
 
+# Verbatim from PKG's 10-K filed 2026-02-26, accession 0001193125-26-074129,
+# document pkg-20251231.htm. Fetched and read 2026-08-26.
+PKG_ODP_VERBATIM = (
+    "ODP Corporation (ODP), formerly Office Depot, Inc., along with its "
+    "subsidiaries and affiliates, is our largest customer in the Paper "
+    "segment. In 2025, our sales revenue to ODP represented 58% of our Paper "
+    "segment sales revenue and 4% of our consolidated sales revenue."
+)
+
+# Verbatim from MCK's 10-K filed 2026-05-08, accession 0000927653-26-000069.
+MCK_CVS_VERBATIM = (
+    "Our ten largest customers, including group purchasing organizations, "
+    "accounted for approximately 73% of our total consolidated revenues. "
+    "Sales to our largest customer, CVS Health Corporation (CVS), accounted "
+    "for approximately 24% of our total consolidated revenues in fiscal 2026 "
+    "and comprised approximately 21% of total trade accounts receivable."
+)
+
+
+def test_6f_the_concentration_denominator_is_recorded() -> None:
+    """A percentage without its denominator is not a comparable quantity.
+
+    Read as a bare 58%, PKG's ODP disclosure is the largest concentration in
+    the whole 51-ticker screen. Read WITH its denominator it is a segment
+    share -- and the same sentence puts the entity-wide figure at 4%.
+
+    Until 2026-08-26 the concentration anchors captured that denominator in a
+    `basis` group that nothing read, so anything selecting on ">= 10%" across
+    these edges was comparing three different quantities: a share of
+    consolidated revenue, a share of one segment, and a share of accounts
+    receivable. ASC 280-10-50-42 states its threshold against the ENTITY's
+    revenues, so only the first is the quantity the standard is about.
+    """
+    pkg, _ = extract_edges_from_text(
+        PKG_ODP_VERBATIM, ticker="PKG", cik="0000075677",
+        filing_date="2026-02-26", accession="0001193125-26-074129")
+    named = [e for e in pkg if e.counterparty_is_named]
+    check("6f-a. the PKG/ODP edge is still extracted", len(named) == 1,
+          str([e.named_counterparty for e in pkg]))
+    if named:
+        e = named[0]
+        check("6f-b. and its denominator is the SEGMENT, not the entity",
+              e.concentration_basis == BASIS_SEGMENT_REVENUE,
+              f"{e.concentration_pct}% of {e.concentration_basis_text!r} "
+              f"-> {e.concentration_basis}")
+        check("6f-c. the filing's own words are kept alongside the label",
+              "paper segment" in e.concentration_basis_text.lower(),
+              repr(e.concentration_basis_text))
+
+    mck, _ = extract_edges_from_text(
+        MCK_CVS_VERBATIM, ticker="MCK", cik="0000927653",
+        filing_date="2026-05-08", accession="0000927653-26-000069")
+    named = [e for e in mck if e.counterparty_is_named]
+    by_pct = {e.concentration_pct: e for e in named}
+
+    # HARDCODED-OPEN CONTROL. Both figures describe the same counterparty in
+    # the same sentence of the same filing. A classifier that collapsed the
+    # denominator would make them indistinguishable, and 21% of RECEIVABLES
+    # would count toward a revenue-concentration rule.
+    check("6f-d. both MCK figures survive as separate edges",
+          set(by_pct) == {24.0, 21.0}, str(sorted(by_pct)))
+    if 24.0 in by_pct:
+        check("6f-e. 24% is against consolidated revenue",
+              by_pct[24.0].concentration_basis == BASIS_CONSOLIDATED_REVENUE,
+              by_pct[24.0].concentration_basis_text)
+    if 21.0 in by_pct:
+        check("6f-f. 21% is against RECEIVABLES, not revenue",
+              by_pct[21.0].concentration_basis == BASIS_RECEIVABLES,
+              by_pct[21.0].concentration_basis_text)
+
+    check("6f-g. every emitted basis is in the closed vocabulary",
+          all(e.concentration_basis in CONCENTRATION_BASES for e in pkg + mck),
+          str({e.concentration_basis for e in pkg + mck}))
+
+
+def test_6g_the_basis_classifier_fails_closed() -> None:
+    """An unrecognised denominator must never be read as entity-wide.
+
+    The failure that matters is one-directional: calling a narrowed
+    denominator "consolidated" admits a company to a revenue-concentration
+    universe it does not belong in. Calling a consolidated denominator
+    "unknown" only excludes, which is recoverable and visible.
+    """
+    entity_wide = ("total revenues", "our total consolidated revenues",
+                   "total net sales", "our revenue", "net revenues",
+                   "our consolidated sales revenue")
+    for t in entity_wide:
+        check(f"6g. entity-wide: {t!r}",
+              classify_concentration_basis(t) == BASIS_CONSOLIDATED_REVENUE,
+              classify_concentration_basis(t))
+
+    narrowed = {
+        "our Paper segment sales revenue": BASIS_SEGMENT_REVENUE,
+        "the Data Center division revenue": BASIS_SEGMENT_REVENUE,
+        "total trade accounts receivable": BASIS_RECEIVABLES,
+        "the total deferred revenue": BASIS_DEFERRED_REVENUE,
+        # Not a segment WORD and not entity-wide either -- fail closed.
+        "North America sales": BASIS_UNKNOWN,
+        "Data Center revenue": BASIS_UNKNOWN,
+        "": BASIS_UNKNOWN,
+    }
+    for t, expected in narrowed.items():
+        got = classify_concentration_basis(t)
+        check(f"6g. not entity-wide: {t!r} -> {expected}", got == expected, got)
+
+    check("6g. None is unknown, not consolidated",
+          classify_concentration_basis(None) == BASIS_UNKNOWN)
+    check("6g. nothing outside the closed vocabulary is ever returned",
+          all(classify_concentration_basis(t) in CONCENTRATION_BASES
+              for t in list(entity_wide) + list(narrowed) + [None, "  "]))
+
+
 def test_11_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -566,6 +685,8 @@ if __name__ == "__main__":
     test_6c_non_customer_percentages_are_rejected()
     test_6d_appositive_names_are_captured()
     test_6e_geographies_and_own_segments_are_not_counterparties()
+    test_6f_the_concentration_denominator_is_recorded()
+    test_6g_the_basis_classifier_fails_closed()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()
