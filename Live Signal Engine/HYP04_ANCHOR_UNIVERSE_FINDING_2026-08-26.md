@@ -128,3 +128,56 @@ that case: *"Concentration of credit risk. … Apple Inc. accounted for 22% … 
 other customer exceeded 10%"* is still captured.
 
 Nothing in this document is evidence about supply-chain transmission.
+
+---
+
+## AMENDMENT — 2026-08-27: option 3 was taken
+
+**Section 5 above says "Options, none taken". That is no longer true**, and this
+amendment records what changed rather than editing the sentence that has since
+been superseded.
+
+**Option 3 was taken.** Registry
+[`v1.5`](GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.5.json) records that HYP-04's
+anchor universe differs from HYP-01's, deliberately, under a stated
+HYP-04-specific rule. Options 1, 2 and 4 remain untaken: the locked 24-ticker
+universe is unmodified, no linkage edge was curated among the locked 24, and
+the question is no longer left open.
+
+Not as a list, though. The finding's own framing of option 3 — "making the 98
+candidates meaningful" — would have amounted to naming MCK and PKG into a
+universe *because they are the tickers that turned out to have edges*. What
+v1.5 registers instead is a **rule** (`HYP04-ANCHOR-UNIVERSE-RULE-v1`,
+implemented in `hyp04_supply_chain_hedge/anchor_universe.py`), evaluated over
+the 51-ticker frame that already existed, with its threshold and denominator
+taken from ASC 280-10-50-42 rather than chosen.
+
+**Applying it yields one member: MCK.**
+
+| | |
+|---|---|
+| MCK | qualifies — CVS Health Corporation, **24% of consolidated revenue**, 10-K filed 2026-05-08 |
+| PKG | **does not qualify** — its 58% is of the **Paper segment**, and the same sentence puts the entity-wide figure at 4% |
+
+That PKG is excluded is the point, not a defect. PKG is one of only two
+companies in the screen with a named counterparty and one of the two curated
+edges; a rule fitted to the observed set would have kept it. The
+segment-inclusive variant that would have retained PKG is recorded in v1.5 as
+considered and rejected, with its reason.
+
+### What this amendment does not change
+
+Section 4's measurement stands unaltered: the screen still finds **zero** named
+counterparties among the locked 24, and the four false positives are still
+rejected by the two attribution gates. Section 3's disclaimer also stands —
+this was never asserted to be a bug, and v1.5 does not treat it as one.
+
+**No gate moved.** The display gate reads **CLOSED, C4 MET, 4 denials** before
+and after, and C2 still counts zero eligible anchor events: declaring who may
+be an anchor creates no eligible anchor event for anybody.
+
+One extractor change was required to make the rule mechanically applicable.
+`edgar_linkage` now records each concentration percentage's **denominator**,
+verbatim and classified — the anchors had always captured it in a `basis` group
+that nothing read. Without it, "58%" and "24%" and "21%" were three different
+quantities being compared as if they were one.

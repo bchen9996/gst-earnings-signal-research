@@ -108,3 +108,40 @@ The fetched CVS closes are **not committed to this repository.** They are
 Yahoo-derived market data, redistribution of which is restricted by that
 provider's terms, and they are reproducible by re-running the fetcher. They
 live outside the repo; only the code that produces them is version-controlled.
+
+---
+
+## AMENDMENT — 2026-08-27: the argument is now registry policy; no option taken
+
+**Section 6's "None taken" still holds.** No survivorship-bias-free price
+source has been selected, nothing was collected from one, and the CVS closes
+remain uncommitted.
+
+What changed is that section 4's argument is no longer only recorded in this
+document. Registry
+[`v1.5`](GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.5.json) adds a top-level
+`peer_price_data_policy` stating the separation as a governing rule:
+
+> Peer-side price data availability is a **measurability** question, reported
+> per pair. It is never a **membership** question, and it never decides which
+> anchors or peers are in scope.
+
+The same version registers a rule-based HYP-04 anchor universe, and four
+conditions are recorded there as **deliberately rejected** — among them
+"counterparty still exists" and "price history obtainable", each with the
+reason. A test (`test_hyp04_supply_chain_hedge_anchor_universe.py`, test_6)
+attaches every availability signal an implementer might reach for to a
+qualifying disclosure and requires the outcome to be unchanged, so adding such
+a condition later fails a test rather than passing unnoticed.
+
+**This buys something concrete here.** PKG is excluded from the anchor universe
+by the *denominator* of its disclosure — 58% of the Paper segment, 4% of
+consolidated revenue — and not by ODP's disappearance. Had membership
+conditioned on obtainable prices, PKG would have been dropped for a reason that
+is pure survivorship, which is the outcome section 4 warns about.
+
+Section 5 also stands: the two curated edges remain correct and the 42 PKG
+anchor events remain correctly dated. They are still not measurable against ODP
+from this source.
+
+**No gate moved:** CLOSED, C4 MET, 4 denials.

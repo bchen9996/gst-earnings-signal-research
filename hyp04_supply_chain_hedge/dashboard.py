@@ -73,7 +73,7 @@ LSE = REPO_ROOT / "Live Signal Engine"
 
 CANARY = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_CANARY_2026-08-17.json"
 FULL = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_FULL_2026-08-17.json"
-REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.4.json"
+REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.5.json"
 
 # Suites this page runs.
 #
@@ -264,6 +264,17 @@ def read_anchor_event_candidates() -> dict[str, Any]:
     }
 
 
+def _registry_title(registry: dict[str, Any]) -> str:
+    """Title read from the artifact.
+
+    This was the literal string "Hypothesis registry v1.1" through three
+    version bumps -- a copy of a fact that had moved. Deriving it means the
+    next bump cannot leave it behind.
+    """
+    v = registry.get("registry_version")
+    return f"Hypothesis registry v{v}" if v else "Hypothesis registry"
+
+
 def read_registry() -> dict[str, Any]:
     doc = _read_json(REGISTRY)
     if doc is None:
@@ -296,6 +307,10 @@ def read_registry() -> dict[str, Any]:
             (entry.get("required_external_measurement") or {}).get("availability")
             if entry else None),
         "capture_paths": (entry.get("capture_path_modules") or {}) if entry else {},
+        # v1.5 field. Read with .get() and rendered only when present, so this
+        # page keeps working against v1.4 and earlier rather than crashing on
+        # a registry that predates the declaration.
+        "anchor_universe": (entry.get("anchor_universe") or {}) if entry else {},
     }
 
 
@@ -608,6 +623,69 @@ def render(tests: dict, audit: dict, registry: dict,
              These counts are read from the file at render time; this page does
              not carry a copy of them.</div>"""
 
+    # --- anchor universe (registry v1.5 and later) -----------------------
+    # The candidate counts above are a floor on RELEASES, not on usable
+    # anchors. Showing a candidate total without showing how much of it belongs
+    # to a ticker outside the registered universe would let this page imply the
+    # whole total is available -- the same defect as a hardcoded count.
+    #
+    # Every number below is computed from the registry and the candidates file
+    # at render time. None may be written here as a literal, in code OR in a
+    # comment: test_13d greps this source for the live total near the word
+    # "candidate", and an out-of-date comment is exactly what it is guarding.
+    au = registry.get("anchor_universe") or {}
+    universe_block = ""
+    if au:
+        members = list(au.get("derived_members", []))
+        prov = au.get("derived_members_provenance", {}) or {}
+        rows = "".join(
+            f"<tr><td class='mono'>{_e(str(t))}</td>"
+            f"<td>{_e(str(e.get('counterparty')))}</td>"
+            f"<td class='num'>{_e(str(e.get('concentration_pct')))}%</td>"
+            f"<td class='mono'>{_e(str(e.get('concentration_basis')))}</td>"
+            f"<td class='mono'>{_e(str(e.get('as_of_date')))}</td></tr>"
+            for t in members for e in (prov.get(t) or []))
+        excluded = "".join(
+            f"<li><span class='mono'>{_e(str(r.get('ticker')))}</span> &rarr; "
+            f"{_e(str(r.get('counterparty')))} &mdash; "
+            f"{_e(str(r.get('concentration_pct')))}% of "
+            f"<span class='mono'>{_e(str(r.get('concentration_basis')))}</span></li>"
+            for r in au.get("screened_but_not_qualifying", [])
+            if r.get("counterparty"))
+        by_anchor = cand.get("by_anchor", {}) if cand.get("present") else {}
+        split = ""
+        if by_anchor:
+            inside = sum(n for t, n in by_anchor.items() if t in members)
+            outside = sum(n for t, n in by_anchor.items() if t not in members)
+            outs = ", ".join(sorted(t for t in by_anchor if t not in members))
+            if outside:
+                split = (
+                    "<div class='caveat blocker'><strong>"
+                    f"{outside} of the {inside + outside} candidate anchor "
+                    "events belong to tickers OUTSIDE the registered anchor "
+                    f"universe</strong> ({_e(outs)}). They are correctly dated "
+                    "releases and are not deleted; they simply cannot become "
+                    "HYP-04 anchor events under the rule this registry "
+                    "declares.</div>")
+        universe_block = f"""
+          <p class="mt"><strong>Anchor universe</strong> &mdash; a RULE
+             (<span class="mono">{_e(str(au.get('rule_id')))}</span>), evaluated
+             over {_e(str((au.get('screening_frame') or {}).get('size')))} tickers
+             at cutoff {_e(str(au.get('cutoff_date')))}. Members qualify by
+             meeting a criterion fixed in advance; none is named in.
+             Threshold {_e(str(au.get('threshold_pct')))}% of
+             <span class="mono">{_e(str(au.get('required_denominator')))}</span>,
+             both taken from ASC 280-10-50-42.</p>
+          <table><thead><tr><th>Anchor</th><th>Counterparty</th>
+            <th>Concentration</th><th>Denominator</th><th>As of</th></tr></thead>
+          <tbody>{rows}</tbody></table>
+          <p class="muted small">Screened and NOT qualifying:</p>
+          <ul class="small">{excluded}</ul>
+          {split}
+          <div class="caveat"><strong>Membership is not eligibility.</strong>
+             Declaring who may be an anchor creates no eligible anchor event.
+             C2 counts eligible anchor events and still reads zero.</div>"""
+
     # --- registry ---
     if registry.get("available"):
         pend = "".join(f"<li>{_e(d)}</li>" for d in registry["pending_decisions"])
@@ -626,6 +704,7 @@ def render(tests: dict, audit: dict, registry: dict,
           <table><thead><tr><th>Hypothesis</th><th>Eligible events</th></tr></thead>
           <tbody>{counts}</tbody></table>
           {candidates_block}
+          {universe_block}
           <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
              display gate independently):</p>
           <ul>{pend}</ul>
@@ -779,7 +858,7 @@ def render(tests: dict, audit: dict, registry: dict,
 {_panel("instrument_calibration", "How the 193-event floor was derived", calib_body, decision)}
 
 <h2>Registry</h2>
-{_panel("registry_status", "Hypothesis registry v1.1", reg_body, decision)}
+{_panel("registry_status", _registry_title(registry), reg_body, decision)}
 
 <h2>Roadmap</h2>
 {_panel("phase_roadmap", "Phase 0 &rarr; 4", roadmap_body, decision)}

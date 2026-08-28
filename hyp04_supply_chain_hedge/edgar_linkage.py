@@ -134,6 +134,72 @@ CONCENTRATION_ANCHORS: tuple[tuple[str, str], ...] = (
 # Bounded, and never across a sentence boundary.
 PARTY_LOOKBACK_CHARS = 120
 
+# ==========================================================================
+# The DENOMINATOR of a concentration percentage
+# ==========================================================================
+# "58% of our Paper segment sales revenue" and "24% of our total consolidated
+# revenues" are not the same disclosure. Until 2026-08-26 this module recorded
+# both as a bare `concentration_pct` and threw the denominator away -- the
+# anchors above already captured it in a `basis` group that nothing read.
+#
+# It matters because ASC 280-10-50-42 states its threshold against the
+# ENTITY's revenues. Any rule that selects on ">= 10%" without fixing the
+# denominator silently treats a segment share, an accounts-receivable share
+# and a deferred-revenue share as the same quantity. PKG's ODP disclosure is
+# the worked example, verbatim from the 2026-02-26 10-K: "our sales revenue to
+# ODP represented 58% of our Paper segment sales revenue and 4% of our
+# consolidated sales revenue."
+#
+# Classification is FAIL-CLOSED: a denominator this cannot confidently place
+# is `other_or_unknown`, never the entity-wide reading.
+BASIS_CONSOLIDATED_REVENUE = "consolidated_revenue"
+BASIS_SEGMENT_REVENUE = "segment_revenue"
+BASIS_RECEIVABLES = "receivables"
+BASIS_DEFERRED_REVENUE = "deferred_revenue"
+BASIS_UNKNOWN = "other_or_unknown"
+
+CONCENTRATION_BASES: tuple[str, ...] = (
+    BASIS_CONSOLIDATED_REVENUE, BASIS_SEGMENT_REVENUE, BASIS_RECEIVABLES,
+    BASIS_DEFERRED_REVENUE, BASIS_UNKNOWN,
+)
+
+# Words that may qualify a revenue denominator while leaving it ENTITY-WIDE.
+# Anything outside this set ("Paper", "North America", "Data Center") narrows
+# the denominator to something smaller than the entity, so the basis is not
+# consolidated.
+_ENTITY_WIDE_QUALIFIER = re.compile(
+    r"^(?:our|the|its|their|a|an|all|total|consolidated|combined|aggregate|"
+    r"company|companys|net|gross|worldwide|global|overall|annual|fiscal|"
+    r"year|years|ended|reported|sales|\d{2,4})$", re.I)
+_REVENUE_HEAD = re.compile(r"^(?:revenue|revenues|sales)$", re.I)
+_NARROWER_THAN_ENTITY = re.compile(
+    r"\b(?:segment|segments|division|divisions|business\s+unit|product\s+line)\b",
+    re.I)
+
+
+def classify_concentration_basis(basis_text: Optional[str]) -> str:
+    """Which denominator a concentration percentage was stated against.
+
+    Reads only the words the filing used. Returns a member of
+    CONCENTRATION_BASES; unrecognised denominators return BASIS_UNKNOWN rather
+    than being assumed entity-wide.
+    """
+    if not basis_text:
+        return BASIS_UNKNOWN
+    low = " ".join(basis_text.split()).lower().replace("’", "").replace("'", "")
+    if re.search(r"\breceivables?\b", low):
+        return BASIS_RECEIVABLES
+    if re.search(r"\bdeferred\b", low):
+        return BASIS_DEFERRED_REVENUE
+    if _NARROWER_THAN_ENTITY.search(low):
+        return BASIS_SEGMENT_REVENUE
+    tokens = low.split()
+    if not tokens or not _REVENUE_HEAD.match(tokens[-1]):
+        return BASIS_UNKNOWN
+    if all(_ENTITY_WIDE_QUALIFIER.match(t) for t in tokens[:-1]):
+        return BASIS_CONSOLIDATED_REVENUE
+    return BASIS_UNKNOWN
+
 # The counterparty phrase immediately preceding the claim. Anchored to the
 # END of the lookback window so it is the NEAREST candidate, not the first.
 PARTY_TAIL = re.compile(
@@ -353,6 +419,11 @@ class LinkageEdge:
     source: str = "EDGAR_10K_ASC280"
     pattern: str = ""
     context: str = ""
+    # The DENOMINATOR the percentage was stated against. Recorded verbatim as
+    # well as classified, so a reader can check the classification against the
+    # filing's own words rather than trusting this module's vocabulary.
+    concentration_basis: str = BASIS_UNKNOWN
+    concentration_basis_text: str = ""
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -450,6 +521,8 @@ def extract_edges_from_text(
                 pct = float(m.group("pct"))
             except (TypeError, ValueError):
                 continue
+            basis_text = " ".join((m.groupdict().get("basis") or "").split())
+            basis = classify_concentration_basis(basis_text)
             # A "concentration" above 100% is a parse error, not a disclosure.
             if not (0.0 < pct <= 100.0):
                 continue
@@ -556,7 +629,10 @@ def extract_edges_from_text(
             start, end = max(0, m.start() - 200), min(len(text), m.end() + 200)
             ctx = text[start:end].strip()
 
-            key = (party, pct, label)
+            # The basis is part of the identity of a disclosure: "58% of the
+            # Paper segment" and "58% of consolidated revenue" are different
+            # claims and must not collapse into one edge.
+            key = (party, pct, label, basis)
             if key in seen:
                 continue
             seen.add(key)
@@ -573,6 +649,8 @@ def extract_edges_from_text(
                 form=form,
                 pattern=label,
                 context=ctx[:400],
+                concentration_basis=basis,
+                concentration_basis_text=basis_text,
             ))
 
     return edges, bool(NEGATIVE_PATTERN.search(text))
