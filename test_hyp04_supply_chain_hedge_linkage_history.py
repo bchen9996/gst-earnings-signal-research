@@ -41,6 +41,7 @@ socket.getaddrinfo = _no_net
 from hyp04_supply_chain_hedge.edgar_linkage import (  # noqa: E402
     EdgarClient,
     EdgarContactError,
+    extract_edges_from_text,
 )
 from hyp04_supply_chain_hedge.run_linkage_history import (  # noqa: E402
     TickerHistory,
@@ -245,6 +246,94 @@ def test_6_refuses_without_contact() -> None:
               f"{type(e).__name__}: {e}")
 
 
+
+def test_8_report_date_is_captured_but_not_used() -> None:
+    """The period of report is recorded. NOTHING reads it, and that is the test.
+
+    The stale-comparative gate compares a stated year against the FILING date.
+    For a calendar-year filer those differ by about a year -- a FY2004 10-K
+    filed 2005-02-22 -- so the gate's window is off by one for most of the
+    corpus. Registry v1.6 records that as a stated limitation.
+
+    Correcting it changes what the extractor accepts, which changes membership,
+    which needs a re-walk and a new dated registry version. So this captures
+    the field and stops there. Capturing it now means that fix costs ONE
+    authorized walk instead of two -- the walk is the expensive part, not the
+    regex.
+
+    The final check is the load-bearing one: capturing a field must not move
+    any extraction outcome. If it ever does, the "not used" half of this is
+    false and v1.6's published universe is no longer what the code produces.
+    """
+    recent = {
+        "form": ["10-K", "10-K"],
+        "accessionNumber": ["A-2005", "A-2004"],
+        "filingDate": ["2005-02-22", "2004-02-20"],
+        # A calendar-year filer: the period ENDS the year before the filing.
+        "reportDate": ["2004-12-31", "2003-12-31"],
+        "primaryDocument": ["a05.htm", "a04.htm"],
+    }
+    c = FakeClient({"CIK0000050863.json": {"filings": {"recent": recent}}})
+    got = c.all_10ks("0000050863")
+
+    check("8a. report_date is captured",
+          [f.get("report_date") for f in got] == ["2004-12-31", "2003-12-31"],
+          str([f.get("report_date") for f in got]))
+    check("8b. and is NOT the filing date -- the whole reason to capture it",
+          all(f["report_date"][:4] != f["filing_date"][:4] for f in got),
+          str([(f["filing_date"], f["report_date"]) for f in got]))
+
+    # The older paginated blocks are thinner than filings.recent and are not
+    # required to carry every array. Reading positionally would abort the
+    # whole ticker over a field nothing has to supply.
+    thin = {
+        "form": ["10-K"],
+        "accessionNumber": ["A-1998"],
+        "filingDate": ["1998-03-30"],
+        "primaryDocument": ["a98.htm"],
+    }
+    c2 = FakeClient({"CIK0000050863.json": {"filings": {"recent": thin}}})
+    got2 = c2.all_10ks("0000050863")
+    check("8c. a block with no reportDate array yields None, not a crash",
+          len(got2) == 1 and got2[0].get("report_date") is None,
+          str(got2))
+
+    # A SHORT array is the nastier shape: present, so a .get() guard passes,
+    # but too short for this index.
+    short = dict(recent)
+    short["reportDate"] = ["2004-12-31"]          # one value, two filings
+    c3 = FakeClient({"CIK0000050863.json": {"filings": {"recent": short}}})
+    got3 = c3.all_10ks("0000050863")
+    check("8d. a SHORT reportDate array yields None for the missing index",
+          [f.get("report_date") for f in got3] == ["2004-12-31", None],
+          str([f.get("report_date") for f in got3]))
+
+    # An empty string is SEC's way of saying "no period", and must not be
+    # carried through as a falsy date that later code compares against.
+    blank = dict(recent)
+    blank["reportDate"] = ["", "2003-12-31"]
+    c4 = FakeClient({"CIK0000050863.json": {"filings": {"recent": blank}}})
+    got4 = c4.all_10ks("0000050863")
+    check("8e. an empty reportDate becomes None, not an empty string",
+          got4[0].get("report_date") is None, str(got4[0].get("report_date")))
+
+    # THE LOAD-BEARING CHECK. Same prose, same filing date, report_date varied
+    # across a decade: the extraction must be identical. The moment this fails,
+    # report_date is being READ, and the published v1.6 universe no longer
+    # matches what the code derives.
+    prose = ("Sales to Rite Aid Corporation represented approximately 15% of "
+             "consolidated sales in fiscal 2004.")
+    outs = []
+    for _rd in ("2004-12-31", "1996-01-31", None):
+        edges, _ = extract_edges_from_text(
+            prose, ticker="MCK", cik="0", filing_date="2005-02-22",
+            accession="a")
+        outs.append(sorted(e.named_counterparty for e in edges
+                           if e.counterparty_is_named))
+    check("8f. capturing report_date moves NO extraction outcome",
+          outs[0] == outs[1] == outs[2] == ["Rite Aid Corporation"], str(outs))
+
+
 def test_7_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -260,6 +349,7 @@ if __name__ == "__main__":
     test_4_empty_history()
     test_5_report_shape()
     test_6_refuses_without_contact()
+    test_8_report_date_is_captured_but_not_used()
     test_7_offline()
 
     print()

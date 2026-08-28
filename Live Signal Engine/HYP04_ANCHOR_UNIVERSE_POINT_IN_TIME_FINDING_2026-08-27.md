@@ -194,3 +194,71 @@ preregistration artifact; a fabricated member is worse than a missing one.
 
 **No universe from the first run is adopted anywhere.** The extractor was
 fixed, the walk was re-run, and only the corrected result may be considered.
+
+---
+
+## AMENDMENT — 2026-08-28: the "eight fabrications" count, reconciled against the walk artifacts
+
+This finding and registry v1.6 both state that **eight fabricated
+counterparties** were rejected across two measurement rounds. Until now that
+was an asserted count. It has been checked against the four full-frame walk
+artifacts, which is the first independent verification of it.
+
+**The count holds.** It is recorded here because the reconciliation is not
+obvious from the artifacts alone — a naive name-level diff appears to
+contradict it.
+
+### The trail
+
+Distinct named counterparties across all 51 tickers, per walk:
+
+| Walk | Distinct names | What changed |
+|---|---|---|
+| `FULL51_2026-08-27.json` | **41** | before any new gate |
+| `..._v2.json` | **33** | after round one's gates |
+| `..._v3.json` | **30** | after round two's gates |
+| `..._v4.json` | **30** | + full-submission fallback; 1,250 filings, 0 failures |
+
+That is 11 name strings removed, against a claim of eight fabrications. The
+difference is entirely in what a "name" is:
+
+| Removed strings | What it was |
+|---|---|
+| `Distribution Distributors`, `DISTRIBUTION Distributors`, `Contents Distribution Distributors` | **three surface spellings of ONE fabrication** — the aggregate channel |
+| `ASUSteK` | **not a fabrication.** A truncated form of a real party; `ASUSTeK Computer Inc` persists in v4 |
+| `JPMorgan Chase` | **not a fabrication.** A variant of `JP Morgan Chase`, which persists in v4 |
+| `HTC`, `Other Americas`, `Singapore` | 3 genuine fabrications (round one) |
+| `CEM`, `Hong Kong`, `Mobility Group` | 3 genuine fabrications (round two) |
+
+So: 1 (aggregate channel) + 3 + 3 = **seven fabrications visible as name
+removals**. The eighth — the superseded prior-year comparative, a 2004 figure
+in a 2007 filing that states there was no such customer in 2005–06 — removed
+**no name**, because the counterparty was real and only the *figure* was stale.
+Seven plus one is eight.
+
+### Two things this makes explicit
+
+**A name-count delta is not a fabrication count**, in either direction. It
+over-counts when one fabrication surfaces under several spellings, and
+under-counts when a gate rejects a stale figure attached to a real party. Any
+future re-measurement must decompose the delta rather than report it.
+
+**`v3 → v4` added 11 filings and moved no name.** The full-submission fallback
+recovered the oldest filings without introducing or removing a single
+counterparty; what it changed was the *earliest date* for names already
+present. That is the expected shape — those filings are older instances of
+relationships the later filings already disclosed — and it is a useful check
+that the fallback did not quietly start reading exhibits.
+
+### Provenance
+
+Measured 2026-08-28 against the four artifacts as they exist on the repo
+owner's machine. Only `_v4` and the pilot are committed; the three superseded
+walks are retained locally but deliberately not committed, because they contain
+the fabrications the gates were built to reject and would invite deriving from
+the wrong file. **This amendment is therefore the durable record of the
+reconciliation**, and the numbers above cannot be re-derived from the
+repository alone.
+
+Nothing here changes any membership, any registry version, or the gate, which
+reads **CLOSED, C4 MET, 4 denials**.

@@ -148,6 +148,10 @@ def walk_ticker(client: EdgarClient, ticker: str, *,
                             if e.counterparty_is_named and e.named_counterparty})
             h.per_filing.append({
                 "filing_date": f["filing_date"],
+                # Period of report, not the filing day. Recorded so a
+                # later fiscal-period correction does not need its own
+                # walk; nothing reads it yet.
+                "report_date": f.get("report_date"),
                 "accession": f["accession"],
                 "form": f["form"],
                 "edges_found": len(edges),
