@@ -916,139 +916,216 @@ def test_6j_the_denominator_classifier_does_not_silently_under_include() -> None
 
 
 
-def test_6k_possessive_denominators_are_a_known_blind_spot() -> None:
-    """A KNOWN GAP, pinned deliberately so fixing it is a visible decision.
+def test_6k_possessive_denominators_are_read_layer_by_layer() -> None:
+    """Was a pinned GAP until 2026-08-28; now pins the fix.
 
-    The anchor's denominator group does not admit an apostrophe-s possessive,
-    so a disclosure written "15% of the Company's revenues" produces NO EDGE
-    AT ALL -- the anchor never matches, and classify_concentration_basis is
-    never reached. It is not an unclassified denominator; it is an invisible
-    disclosure.
+    The anchor's denominator group admits an apostrophe, so "15% of the
+    Company's revenues" is matched rather than invisible. This test flipped
+    when that landed, which is what it existed to do -- the gap was asserted,
+    not described, so closing it had to be a deliberate act.
 
-    This is asserted rather than described because prose limitations do not
-    fail. When the anchor is widened, this test FLIPS, and flipping it forces
-    the reader to the finding -- which says what else must happen at the same
-    time: a re-walk, a fresh exhaustive fabrication check over everything
-    newly admitted, and registry v1.7 if membership moves.
-
-    Recorded in HYP04_EXTRACTOR_POSSESSIVE_DENOMINATOR_FINDING_2026-08-27.md,
-    which also corrects registry v1.6's under-inclusion claim: that
-    measurement enumerated the walk artifact, which records only anchors that
-    MATCHED, so it was structurally unable to see this class.
-
-    The direction is one-way and that is why it is tolerable to leave open: a
-    missed anchor can only OMIT a real disclosure, never invent one. No
-    published member is at risk; the risk is that members are missing.
+    THE TWO LAYERS REMAIN DISTINCT, and that is what is pinned now. Matching
+    is not accepting: the classifier still decides the denominator, and it
+    still fails closed. "the Company's ..." is entity-wide; a possessive built
+    on the filer's NAME or on Corporation/Registrant is not in the qualifier
+    set, so those match the anchor and are then rejected as
+    other_or_unknown -- visible to the extractor, excluded from the universe.
     """
     S = "Sales to Rite Aid Corporation represented approximately 15% of {d}."
 
-    def named(d):
-        edges, _ = extract_edges_from_text(
+    def edges(d):
+        e, _ = extract_edges_from_text(
             S.format(d=d), ticker="X", cik="0",
             filing_date="2005-01-01", accession="a")
-        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+        return e
 
-    # THE GAP HAS TWO LAYERS, and they need different fixes.
-    #
-    # Layer 1 -- the anchor -- rejects every apostrophe-s possessive, so all
-    # seven below are invisible regardless of what they mean.
-    #
-    # Layer 2 -- the classifier -- would place only SOME of them if the anchor
-    # did match. "the Company's ..." is recognised as entity-wide; a possessive
-    # built on the filer's NAME or on "Corporation"/"Registrant" is not, and
-    # fails closed to other_or_unknown. So widening the anchor alone recovers
-    # four of these seven and leaves three still dropped, one layer further
-    # down. An earlier draft of the finding asserted all seven would classify;
-    # that was checked for two and generalised, and it was wrong.
-    blind_but_classifiable = ("the Company's revenues", "the Company's net sales",
-                              "the Company's consolidated revenues",
-                              "the Company's total revenues")
-    blind_and_unclassified = ("McKesson's revenues", "the Corporation's revenues",
-                              "the Registrant's revenues")
+    def named(d):
+        return {e.named_counterparty for e in edges(d) if e.counterparty_is_named}
 
-    for d in blind_but_classifiable + blind_and_unclassified:
-        check(f"6k. KNOWN GAP -- possessive denominator is invisible: {d!r}",
-              named(d) == set(), str(named(d)))
+    def basis(d):
+        got = [e.concentration_basis for e in edges(d)]
+        return got[0] if got else None
 
-    for d in blind_but_classifiable:
-        check(f"6k. layer 2 WOULD have placed this one: {d!r}",
-              classify_concentration_basis(d) == BASIS_CONSOLIDATED_REVENUE,
+    # Layer 1: all of these now MATCH, where previously none did.
+    entity_possessive = ("the Company's revenues", "the Company's net sales",
+                         "the Company's consolidated revenues",
+                         "the Company's total revenues")
+    for d in entity_possessive:
+        check(f"6k. possessive denominator is now matched: {d!r}",
+              named(d) == {"Rite Aid Corporation"}, str(named(d)))
+        check(f"6k. and layer 2 places it as entity-wide: {d!r}",
+              basis(d) == BASIS_CONSOLIDATED_REVENUE, str(basis(d)))
+
+    # Layer 2 still fails closed on a self-reference the qualifier set does
+    # not carry. These are MATCHED but NOT usable, and the distinction is the
+    # point: an unrecognised denominator is never read as entity-wide.
+    unclassified_possessive = ("McKesson's revenues", "the Corporation's revenues",
+                               "the Registrant's revenues")
+    for d in unclassified_possessive:
+        check(f"6k. matched, but the denominator stays unrecognised: {d!r}",
+              basis(d) == BASIS_UNKNOWN, str(basis(d)))
+        check(f"6k. so it is NOT entity-wide: {d!r}",
+              classify_concentration_basis(d) != BASIS_CONSOLIDATED_REVENUE,
               classify_concentration_basis(d))
 
-    for d in blind_and_unclassified:
-        check(f"6k. but this one fails closed at layer 2 as well: {d!r}",
-              classify_concentration_basis(d) == BASIS_UNKNOWN,
-              classify_concentration_basis(d))
-
-    # CONTROLS. Without these the block above would pass for an extractor that
-    # is simply broken, and the finding's claim that the split is EXACTLY the
-    # apostrophe would be unsupported.
+    # CONTROLS -- the non-possessive forms must be untouched by the widening.
     seen = ("revenues", "net sales", "total revenues", "consolidated revenues",
             "consolidated sales", "our revenues", "our net sales",
             "our total revenues", "our consolidated revenues",
             "total company revenues", "company revenues", "its revenues",
             "their revenues")
     for d in seen:
-        check(f"6k. CONTROL -- non-possessive is seen: {d!r}",
+        check(f"6k. CONTROL -- non-possessive unchanged: {d!r}",
               named(d) == {"Rite Aid Corporation"}, str(named(d)))
 
 
+def test_6l_the_verb_set_admits_equivalence_but_not_contribution() -> None:
+    """Was a pinned GAP until 2026-08-28; now pins the fix and its boundary.
 
-def test_6l_the_accepted_verb_set_is_closed_and_misses_the_copula() -> None:
-    """A SECOND known gap, same shape as 6k and pinned the same way.
+    Copular and equivalence phrasings state the same relation the original
+    five lemmas state, and are ordinary 10-K prose, so they are accepted.
 
-    The anchor recognises a closed set of five verb lemmas -- represent,
-    account for, comprise, constitute, make up. A concentration stated with a
-    COPULA ("sales to X were 15% of net sales") or an equivalence verb
-    ("totaled", "equaled", "approximated") expresses the identical relation and
-    is not matched at all.
-
-    "were approximately N% of" is not exotic phrasing; it is ordinary 10-K
-    prose. As with 6k the direction is one-way -- an unmatched verb can only
-    OMIT a real disclosure, never invent one -- so no published member is at
-    risk, and as with 6k the fix is a derivation change that needs a re-walk
-    and a new registry version rather than a quiet regex edit.
-
-    Recorded in HYP04_EXTRACTOR_POSSESSIVE_DENOMINATOR_FINDING_2026-08-27.md.
+    THE BOUNDARY IS THE POINT OF THIS TEST. generated / provided / contributed
+    describe what a counterparty CONTRIBUTED rather than asserting the share
+    IS the figure. Admitting them would be a semantic widening, not a phrasing
+    fix, and it is still refused. This half must not quietly flip the way the
+    first half just did.
     """
     S = "Sales to Rite Aid Corporation {v} consolidated sales."
 
     def named(v):
-        edges, _ = extract_edges_from_text(
+        e, _ = extract_edges_from_text(
             S.format(v=v), ticker="X", cik="0",
             filing_date="2005-01-01", accession="a")
-        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+        return {x.named_counterparty for x in e if x.counterparty_is_named}
 
-    # THE GAP PROPER. Each states the same relation the accepted verbs do.
-    equivalence = ("were approximately 15% of", "was approximately 15% of",
-                   "totaled 15% of", "equaled 15% of", "approximated 15% of")
-    for v in equivalence:
-        check(f"6l. KNOWN GAP -- equivalence phrasing is unmatched: {v!r}",
-              named(v) == set(), str(named(v)))
-
-    # ALSO UNMATCHED, but deliberately NOT claimed as a gap. These describe
-    # what the counterparty contributed rather than asserting the share IS the
-    # figure, and reading them as concentration statements would be a
-    # semantic widening, not a phrasing fix. Pinned so that a future change
-    # admitting them is a visible decision rather than a side effect of
-    # loosening the verb list.
-    not_equivalence = ("generated 15% of", "provided 15% of",
-                       "contributed 15% of", "is 15% of", "are 15% of")
-    for v in not_equivalence:
-        check(f"6l. unmatched, and NOT claimed as a gap: {v!r}",
-              named(v) == set(), str(named(v)))
-
-    # CONTROLS -- the closed accepted set. Without these, everything above
-    # would pass for an extractor that matches no verb at all.
     accepted = ("represented approximately 15% of",
                 "accounted for approximately 15% of",
                 "comprised approximately 15% of",
                 "constituted approximately 15% of",
                 "made up approximately 15% of",
-                "represented 15% of", "accounted for 15% of")
+                "represented 15% of", "accounted for 15% of",
+                # newly accepted 2026-08-28
+                "were approximately 15% of", "was approximately 15% of",
+                "totaled 15% of", "equaled 15% of", "approximated 15% of")
     for v in accepted:
-        check(f"6l. CONTROL -- accepted verb still matches: {v!r}",
+        check(f"6l. accepted verb form: {v!r}",
               named(v) == {"Rite Aid Corporation"}, str(named(v)))
+
+    still_refused = ("generated 15% of", "provided 15% of",
+                     "contributed 15% of", "is 15% of", "are 15% of")
+    for v in still_refused:
+        check(f"6l. STILL REFUSED -- contribution is not equivalence: {v!r}",
+              named(v) == set(), str(named(v)))
+
+
+
+def test_6m_the_widening_and_the_four_gates_it_required() -> None:
+    """Verbatim fixtures for 2026-08-28. Every one is real filing text.
+
+    The widening (possessive denominators, copular verbs) reached prose no gate
+    had been tested against, and measuring it over the cached corpus surfaced
+    four separate defects. Three of them were LATENT IN THE OLD CODE, not
+    introduced by the widening -- with an accepted verb the old extractor
+    produced the same fabrications. The corpus was clean by accident, because
+    the filings carrying those constructions happen to use verbs the anchor
+    did not match.
+
+    Net effect on the anchor universe: NONE. Six members, nine intervals,
+    unchanged. What changed is that three counterparties stopped being
+    mis-parsed and four fabrication routes were closed.
+    """
+    def named(text, filing_date, ticker="X"):
+        edges, _ = extract_edges_from_text(
+            text, ticker=ticker, cik="0", filing_date=filing_date,
+            accession="a")
+        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+
+    # ---- 1. THE COMMA BEFORE THE LEGAL SUFFIX -------------------------
+    # "Foot Locker, Inc." captured as "Inc" -- a fabricated counterparty
+    # standing in for a real one. Corpus-wide this mis-parsed three real
+    # names: Ingram Micro (AAPL), Caremark RX (MCK), Hyundai (QCOM).
+    nke = ("Major Customers. Revenues derived from Foot Locker, Inc. "
+           "represented 11% of the Company's consolidated revenues.")
+    check("6m-a. a comma before the legal suffix no longer truncates the name",
+          named(nke, "2002-08-14", "NKE") == {"Foot Locker, Inc"},
+          str(named(nke, "2002-08-14", "NKE")))
+
+    aapl = ("The Company distributes its products through wholesalers and "
+            "resellers. During 2000, a single distributor, Ingram Micro, Inc., "
+            "accounted for approximately 11.5% of net sales.")
+    check("6m-b. and the appositive path gets the same fix",
+          named(aapl, "2000-12-14", "AAPL") == {"Ingram Micro, Inc"},
+          str(named(aapl, "2000-12-14", "AAPL")))
+
+    # ---- 2. THE FILER'S OWN BUSINESS UNIT, BY HEAD NOUN ---------------
+    # Genuine Parts 2001-03-12. No "of the Company" appositive in the claim's
+    # own sentence -- the heading two sentences earlier says "SEGMENT DATA."
+    # and nothing nearer does. Only the name's SHAPE gives it away. Ungated,
+    # this made GPC an anchor whose counterparty is GPC's own segment at 50%
+    # of consolidated revenue.
+    gpc = ("SEGMENT DATA. In the year ended December 31, 2000, sales from the "
+           "Automotive Parts Group approximated 50% of the Company's net "
+           "sales as compared to 51% in 1999 and 49% in 1998.")
+    check("6m-c. a unit head noun is not an entity",
+          named(gpc, "2001-03-12", "GPC") == set(),
+          str(named(gpc, "2001-03-12", "GPC")))
+
+    # THE CONTROL THAT MAKES 6m-c SAFE. A real counterparty carrying "Group"
+    # inside its name keeps it; only the HEAD is a unit noun.
+    intc = ("Major customers. Sales to Lenovo Group Limited accounted for "
+            "12% of our net revenue.")
+    check("6m-d. CONTROL -- 'Group' inside a real name is untouched",
+          named(intc, "2015-02-17", "INTC") == {"Lenovo Group Limited"},
+          str(named(intc, "2015-02-17", "INTC")))
+
+    # ---- 3. "including X" MAKES X AN INSTANCE, NOT A PARTY ------------
+    # NVIDIA 2019-02-21. A share attributed to a set is not a bilateral
+    # relationship with one member of it.
+    nvda = ("Major customers. Revenue from billings to China, including Hong "
+            "Kong, was 24% of total revenue.")
+    check("6m-e. 'including <X>' is an instance of the measured category",
+          named(nvda, "2019-02-21", "NVDA") == set(),
+          str(named(nvda, "2019-02-21", "NVDA")))
+    # and it is NOT verb-specific: the old accepted verb produced the same
+    # fabrication, which is why this is a gate and not a widening artefact.
+    check("6m-f. and the same construction with an ACCEPTED verb is also "
+          "rejected -- the fabrication was latent, not introduced",
+          named(nvda.replace("was 24%", "accounted for 24%"),
+                "2019-02-21", "NVDA") == set(),
+          str(named(nvda.replace("was 24%", "accounted for 24%"),
+                    "2019-02-21", "NVDA")))
+
+    # ---- 4. "year ended <Month> <day>, <year>" IS A STATED YEAR -------
+    # NIKE 2004-07-30, in the very filing that says 2004 and 2003 had no
+    # customer above 10%. Without this the sentence yields NO stated year, the
+    # stale-comparative gate cannot fire, and the disclosure is stamped with
+    # the 2004 FILING date -- opening an interval on the filing that denies
+    # one.
+    nke_stale = ("In 2004 and 2003 the Company did not have a significant "
+                 "customer that accounted for more than 10% of consolidated "
+                 "revenues. During the year ended May 31, 2002, revenues "
+                 "derived from Foot Locker, Inc. represented 11% of the "
+                 "Company's consolidated revenues.")
+    check("6m-g. a comparative dated by 'year ended <date>' is stale",
+          named(nke_stale, "2004-07-30", "NKE") == set(),
+          str(named(nke_stale, "2004-07-30", "NKE")))
+
+    # THE CONTROL. One year of lag is NORMAL -- an annual report reports the
+    # year that just ended. This must not be rejected, or the gate would empty
+    # the universe.
+    intc_lag = ("Major customers. For the year ended December 31, 2004, sales "
+                "to Dell Inc. were 19% of consolidated revenues.")
+    check("6m-h. CONTROL -- the reporting year itself is not stale",
+          named(intc_lag, "2005-02-22", "INTC") == {"Dell Inc"},
+          str(named(intc_lag, "2005-02-22", "INTC")))
+
+    # ---- 5. THE WIDENING ITSELF STILL WORKS ---------------------------
+    mck = ("Sales to the Company's largest customer, Rite Aid Corporation, "
+           "were approximately 15% of the Company's consolidated revenues.")
+    check("6m-i. copular verb AND possessive denominator together",
+          named(mck, "2000-06-13", "MCK") == {"Rite Aid Corporation"},
+          str(named(mck, "2000-06-13", "MCK")))
 
 
 def test_11_offline() -> None:
@@ -1075,8 +1152,9 @@ if __name__ == "__main__":
     test_6h_older_filing_prose_does_not_manufacture_counterparties()
     test_6i_exhaustive_enumeration_round_two()
     test_6j_the_denominator_classifier_does_not_silently_under_include()
-    test_6k_possessive_denominators_are_a_known_blind_spot()
-    test_6l_the_accepted_verb_set_is_closed_and_misses_the_copula()
+    test_6k_possessive_denominators_are_read_layer_by_layer()
+    test_6l_the_verb_set_admits_equivalence_but_not_contribution()
+    test_6m_the_widening_and_the_four_gates_it_required()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()
