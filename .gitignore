@@ -16,3 +16,8 @@ __pycache__/
 # Raw SEC HTTP response cache for the semiconductor EPS work. Provider bodies only --
 # never project content, and previously swept into a commit by accident.
 Live Signal Engine/Semiconductor_EPS_Absorption/_cache/
+
+# EDGAR response cache (hyp04_supply_chain_hedge). Raw SEC filing bodies,
+# reproducible by re-running the walk, and large. The code that produces and
+# reads it is version-controlled; the corpus itself is not.
+.edgar_cache/

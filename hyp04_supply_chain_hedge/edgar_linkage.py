@@ -67,6 +67,8 @@ project whose entire premise is data provenance.
 """
 from __future__ import annotations
 
+import gzip
+import hashlib
 import html as _html
 import json
 import re
@@ -97,6 +99,14 @@ SOURCE_FULL_SUBMISSION = "full_submission_text"
 # it is a statement about the layout, not about load.
 TRANSIENT_STATUSES: tuple[int, ...] = (429, 500, 502, 503, 504)
 TRANSIENT_RETRY_SECONDS = 1.0
+
+# The on-disk response cache. Format is versioned because a stored body is
+# only interchangeable with a live fetch if the reader agrees with the writer
+# about what was stored; a reader that finds an older version ignores the
+# entry rather than guessing.
+CACHE_FORMAT_VERSION = 1
+CACHE_KIND_TEXT = "text"
+CACHE_KIND_JSON = "json"
 FULL_TEXT_SEARCH_URL = "https://efts.sec.gov/LATEST/search-index"
 
 # SEC asks for <10 req/sec. 0.15s between requests is ~6.7/sec, the same
@@ -829,12 +839,123 @@ def extract_edges_from_text(
 # ==========================================================================
 # Live EDGAR client -- refuses to run without an owner-supplied contact
 # ==========================================================================
+class _CachedHTTPError(Exception):
+    """A stored non-200, raised so a replay takes the SAME branch as the live
+    run did. `filing_text_with_source` decides between the full-submission
+    fallback and a hard failure on `status_code`, so a replayed 404 must carry
+    one; without this the fallback would not fire offline and the walk would
+    lose exactly the 2000-2001 filings the fallback exists to recover."""
+
+    def __init__(self, status, url):
+        super().__init__(f"cached HTTP {status} for {url}")
+        self.response = type("_R", (), {"status_code": status})()
+
+
+class OfflineCacheMiss(RuntimeError):
+    """An offline client was asked for something the cache does not hold.
+
+    Deliberately fatal. The alternative -- quietly reaching the network from a
+    run the caller asked to be offline -- is how a "no requests made" claim
+    becomes false without anyone noticing.
+    """
+
+
+class FilingCache:
+    """An on-disk cache of raw EDGAR responses, keyed by URL.
+
+    WHY THIS EXISTS. Every change to the extractor has to be MEASURED against
+    the whole corpus, because the 2026-08-27 walk established that widening
+    the corpus raises the false-positive rate with no code change -- the gates
+    did not regress, the corpus outgrew them. Without a cache each such
+    measurement costs ~1,250 live SEC requests, which needs the repo owner's
+    staged go-ahead, so in practice the measurement does not get done and the
+    recorded limitations stay open. One authorized walk populates this; every
+    later re-measurement is free and reaches no endpoint.
+
+    IT STORES WHAT THE TRANSPORT RETURNED, not what the parser made of it --
+    before strip_markup and before first_document_of_submission. Caching the
+    cleaned text would freeze both of those, and they are exactly the code a
+    re-measurement most needs to vary. The cost is disk; bodies are gzipped.
+
+    NEGATIVE RESULTS ARE CACHED TOO. 10 of the 11 filings the full-frame walk
+    could not retrieve were 2000-2001 filings returning 404, which is what
+    drives the full-submission fallback. A cache that stored only successes
+    would replay those as cache misses and take a different path offline than
+    it took live, which would make an offline re-run quietly non-equivalent.
+
+    Keyed by URL because that is the only key the SEC guarantees is stable:
+    accession plus document is not sufficient (the same filing is reachable at
+    two different URLs, and which one answered is the thing being recorded).
+    """
+
+    def __init__(self, root, *, readonly: bool = False) -> None:
+        self.root = Path(root)
+        self.readonly = readonly
+        self.hits = 0
+        self.misses = 0
+        self.writes = 0
+
+    def _path(self, url: str) -> Path:
+        h = hashlib.sha256(url.encode("utf-8")).hexdigest()
+        return self.root / h[:2] / f"{h}.json.gz"
+
+    def get(self, url: str, kind: str) -> Optional[dict]:
+        """The stored entry, or None. A shape or version mismatch is a miss."""
+        f = self._path(url)
+        if not f.is_file():
+            self.misses += 1
+            return None
+        try:
+            with gzip.open(f, "rt", encoding="utf-8") as fh:
+                rec = json.load(fh)
+        except (OSError, ValueError, EOFError):
+            # A truncated or corrupt entry is a miss, never a crash and never
+            # a partial body handed to the parser as though it were complete.
+            #
+            # EOFError is listed explicitly because it is the one that actually
+            # happens: a gzip stream cut short -- an interrupted walk, a full
+            # disk -- raises EOFError, not OSError, and the first draft of this
+            # method crashed on precisely the corruption it was written to
+            # tolerate. gzip.BadGzipFile does subclass OSError; EOFError does
+            # not subclass anything useful here.
+            self.misses += 1
+            return None
+        if rec.get("v") != CACHE_FORMAT_VERSION or rec.get("kind") != kind:
+            self.misses += 1
+            return None
+        self.hits += 1
+        return rec
+
+    def put(self, url: str, kind: str, status: int, body) -> None:
+        if self.readonly:
+            return
+        f = self._path(url)
+        f.parent.mkdir(parents=True, exist_ok=True)
+        rec = {"v": CACHE_FORMAT_VERSION, "url": url, "kind": kind,
+               "status": status, "body": body,
+               "stored_at_utc": datetime.now(timezone.utc)
+               .strftime("%Y-%m-%dT%H:%M:%SZ")}
+        # Write-then-rename, so an interrupted walk cannot leave a half-written
+        # body that a later run would read as a complete filing.
+        tmp = f.with_suffix(".tmp")
+        with gzip.open(tmp, "wt", encoding="utf-8") as fh:
+            json.dump(rec, fh)
+        tmp.replace(f)
+        self.writes += 1
+
+    def stats(self) -> dict:
+        return {"hits": self.hits, "misses": self.misses,
+                "writes": self.writes, "root": str(self.root)}
+
+
 class EdgarClient:
     """Minimal SEC client. Verifies TLS. Paces requests. Caches per process."""
 
     def __init__(self, contact: Optional[str], *,
                  spacing: float = REQUEST_SPACING_SECONDS,
-                 max_requests: Optional[int] = None):
+                 max_requests: Optional[int] = None,
+                 cache: Optional["FilingCache"] = None,
+                 offline: bool = False):
         if not contact or "@" not in contact or contact.strip().endswith("@"):
             raise EdgarContactError(CONTACT_REQUIRED_MESSAGE)
         if re.search(r"@(?:example|test|invalid|localhost)\.", contact, re.I):
@@ -869,6 +990,16 @@ class EdgarClient:
             "Accept-Encoding": "gzip, deflate",
         })
         self._cik_map: Optional[dict[str, str]] = None
+        # A cache is passed in, never discovered from the environment. A test
+        # or a CI run that silently picked up a developer's cache directory
+        # would stop being hermetic, and its "no network" claim would depend
+        # on which machine it ran on.
+        self.cache = cache
+        self.offline = offline
+        if offline and cache is None:
+            raise ValueError(
+                "offline=True requires a cache; there is nothing else to read "
+                "from. Refusing rather than reaching the network.")
 
     def _get(self, url: str, timeout: int = 30):
         if self.max_requests is not None and self.requests_made >= self.max_requests:
@@ -882,15 +1013,60 @@ class EdgarClient:
         r.raise_for_status()
         return r
 
+    def _cached(self, url: str, kind: str, timeout: int):
+        """Serve `url` from the cache when possible, else fetch and store it.
+
+        Sits ABOVE `_get`, which stays the transport seam the offline suites
+        replace. A client with no cache is byte-for-byte the old path: this
+        returns whatever `_get` returned, untouched.
+
+        A cache hit is not a request and is not counted as one -- the walk's
+        `requests_made` is a claim about what was asked of the SEC, and
+        inflating it with reads from local disk would make that claim false in
+        the direction that matters (it would overstate our load on a
+        fair-access endpoint, and understate how much of a run was replayed).
+        """
+        if self.cache is not None:
+            rec = self.cache.get(url, kind)
+            if rec is not None:
+                if rec.get("status") != 200:
+                    raise _CachedHTTPError(rec.get("status"), url)
+                return rec.get("body")
+        if self.offline:
+            raise OfflineCacheMiss(
+                f"offline client has no cached entry for {url}. Populate the "
+                "cache with an authorized walk before replaying it.")
+
+        try:
+            resp = self._get(url, timeout=timeout)
+        except Exception as exc:
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            # Only a definitive answer from the server is worth storing. A
+            # timeout or a connection reset says nothing about the filing, and
+            # caching it would turn a transient failure into a permanent one.
+            if status is not None and self.cache is not None:
+                self.cache.put(url, kind, status, None)
+            raise
+        body = resp.json() if kind == CACHE_KIND_JSON else resp.text
+        if self.cache is not None:
+            self.cache.put(url, kind, 200, body)
+        return body
+
+    def _get_json(self, url: str, timeout: int = 30):
+        return self._cached(url, CACHE_KIND_JSON, timeout)
+
+    def _get_text(self, url: str, timeout: int = 30) -> str:
+        return self._cached(url, CACHE_KIND_TEXT, timeout)
+
     def cik_for(self, ticker: str) -> Optional[str]:
         if self._cik_map is None:
-            data = self._get(TICKER_MAP_URL).json()
+            data = self._get_json(TICKER_MAP_URL)
             self._cik_map = {v["ticker"].upper(): str(v["cik_str"]).zfill(10)
                              for v in data.values()}
         return self._cik_map.get(ticker.upper())
 
     def latest_10k(self, cik: str) -> Optional[dict[str, str]]:
-        data = self._get(SUBMISSIONS_URL.format(cik=cik)).json()
+        data = self._get_json(SUBMISSIONS_URL.format(cik=cik))
         rec = data["filings"]["recent"]
         for i, form in enumerate(rec["form"]):
             if form == "10-K":
@@ -920,7 +1096,7 @@ class EdgarClient:
         10-K, and would look identical to "no earlier disclosure exists".
         Those extra files are fetched, and each costs a request.
         """
-        data = self._get(SUBMISSIONS_URL.format(cik=cik)).json()
+        data = self._get_json(SUBMISSIONS_URL.format(cik=cik))
         filings = data.get("filings", {})
         blocks = [filings.get("recent", {})]
 
@@ -928,7 +1104,8 @@ class EdgarClient:
             name = extra.get("name")
             if not name:
                 continue
-            blocks.append(self._get(SUBMISSIONS_EXTRA_URL.format(name=name)).json())
+            blocks.append(self._get_json(
+                SUBMISSIONS_EXTRA_URL.format(name=name)))
 
         out: list[dict[str, str]] = []
         for blk in blocks:
@@ -971,9 +1148,9 @@ class EdgarClient:
         status = None
         for attempt in (1, 2):
             try:
-                return (strip_markup(self._get(url, timeout=60).text),
+                return (strip_markup(self._get_text(url, timeout=60)),
                         SOURCE_PRIMARY_DOCUMENT)
-            except requests.HTTPError as exc:
+            except (requests.HTTPError, _CachedHTTPError) as exc:
                 status = getattr(exc.response, "status_code", None)
                 if status in TRANSIENT_STATUSES and attempt == 1:
                     time.sleep(TRANSIENT_RETRY_SECONDS)
@@ -982,8 +1159,9 @@ class EdgarClient:
         if status != 404:
             raise RuntimeError(
                 f"{accession}: primary document unavailable (HTTP {status})")
-        raw = self._get(FULL_SUBMISSION_URL.format(cik=int(cik), acc=accession),
-                        timeout=120).text
+        raw = self._get_text(
+            FULL_SUBMISSION_URL.format(cik=int(cik), acc=accession),
+            timeout=120)
         return (strip_markup(first_document_of_submission(raw)),
                 SOURCE_FULL_SUBMISSION)
 

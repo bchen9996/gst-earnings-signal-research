@@ -915,6 +915,84 @@ def test_6j_the_denominator_classifier_does_not_silently_under_include() -> None
               classify_concentration_basis(phrase))
 
 
+
+def test_6k_possessive_denominators_are_a_known_blind_spot() -> None:
+    """A KNOWN GAP, pinned deliberately so fixing it is a visible decision.
+
+    The anchor's denominator group does not admit an apostrophe-s possessive,
+    so a disclosure written "15% of the Company's revenues" produces NO EDGE
+    AT ALL -- the anchor never matches, and classify_concentration_basis is
+    never reached. It is not an unclassified denominator; it is an invisible
+    disclosure.
+
+    This is asserted rather than described because prose limitations do not
+    fail. When the anchor is widened, this test FLIPS, and flipping it forces
+    the reader to the finding -- which says what else must happen at the same
+    time: a re-walk, a fresh exhaustive fabrication check over everything
+    newly admitted, and registry v1.7 if membership moves.
+
+    Recorded in HYP04_EXTRACTOR_POSSESSIVE_DENOMINATOR_FINDING_2026-08-27.md,
+    which also corrects registry v1.6's under-inclusion claim: that
+    measurement enumerated the walk artifact, which records only anchors that
+    MATCHED, so it was structurally unable to see this class.
+
+    The direction is one-way and that is why it is tolerable to leave open: a
+    missed anchor can only OMIT a real disclosure, never invent one. No
+    published member is at risk; the risk is that members are missing.
+    """
+    S = "Sales to Rite Aid Corporation represented approximately 15% of {d}."
+
+    def named(d):
+        edges, _ = extract_edges_from_text(
+            S.format(d=d), ticker="X", cik="0",
+            filing_date="2005-01-01", accession="a")
+        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+
+    # THE GAP HAS TWO LAYERS, and they need different fixes.
+    #
+    # Layer 1 -- the anchor -- rejects every apostrophe-s possessive, so all
+    # seven below are invisible regardless of what they mean.
+    #
+    # Layer 2 -- the classifier -- would place only SOME of them if the anchor
+    # did match. "the Company's ..." is recognised as entity-wide; a possessive
+    # built on the filer's NAME or on "Corporation"/"Registrant" is not, and
+    # fails closed to other_or_unknown. So widening the anchor alone recovers
+    # four of these seven and leaves three still dropped, one layer further
+    # down. An earlier draft of the finding asserted all seven would classify;
+    # that was checked for two and generalised, and it was wrong.
+    blind_but_classifiable = ("the Company's revenues", "the Company's net sales",
+                              "the Company's consolidated revenues",
+                              "the Company's total revenues")
+    blind_and_unclassified = ("McKesson's revenues", "the Corporation's revenues",
+                              "the Registrant's revenues")
+
+    for d in blind_but_classifiable + blind_and_unclassified:
+        check(f"6k. KNOWN GAP -- possessive denominator is invisible: {d!r}",
+              named(d) == set(), str(named(d)))
+
+    for d in blind_but_classifiable:
+        check(f"6k. layer 2 WOULD have placed this one: {d!r}",
+              classify_concentration_basis(d) == BASIS_CONSOLIDATED_REVENUE,
+              classify_concentration_basis(d))
+
+    for d in blind_and_unclassified:
+        check(f"6k. but this one fails closed at layer 2 as well: {d!r}",
+              classify_concentration_basis(d) == BASIS_UNKNOWN,
+              classify_concentration_basis(d))
+
+    # CONTROLS. Without these the block above would pass for an extractor that
+    # is simply broken, and the finding's claim that the split is EXACTLY the
+    # apostrophe would be unsupported.
+    seen = ("revenues", "net sales", "total revenues", "consolidated revenues",
+            "consolidated sales", "our revenues", "our net sales",
+            "our total revenues", "our consolidated revenues",
+            "total company revenues", "company revenues", "its revenues",
+            "their revenues")
+    for d in seen:
+        check(f"6k. CONTROL -- non-possessive is seen: {d!r}",
+              named(d) == {"Rite Aid Corporation"}, str(named(d)))
+
+
 def test_11_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -939,6 +1017,7 @@ if __name__ == "__main__":
     test_6h_older_filing_prose_does_not_manufacture_counterparties()
     test_6i_exhaustive_enumeration_round_two()
     test_6j_the_denominator_classifier_does_not_silently_under_include()
+    test_6k_possessive_denominators_are_a_known_blind_spot()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()
