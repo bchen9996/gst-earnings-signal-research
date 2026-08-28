@@ -139,14 +139,43 @@ full-submission fallback takes the same branch on replay as it did live.
    possessives, *and* the classifier's entity-wide qualifier set to cover
    filer-name, "Corporation" and "Registrant" possessives. Fixing only the
    anchor converts three of these from invisible to `other_or_unknown`, which
-   is still a drop — just a differently-shaped one. Also the
-   `were approximately N%` verb form, observed to fail in the same grid.
+   is still a drop — just a differently-shaped one. And the verb set, per
+   §7 below.
 3. Re-measure over the cached corpus — **free, offline, repeatable** — for both
    directions: new named disclosures found, and a fresh exhaustive fabrication
    check over everything newly admitted. A wider anchor admits more prose, and
    the eight fabrications already found came from exactly that.
 4. Only if membership moves, author registry v1.7 with the re-derived
    intervals.
+
+
+## 7. A second, independent gap: the accepted verb set is closed
+
+Measured the same way, denominator held constant and the verb varied:
+
+| | |
+|---|---|
+| **ACCEPTED — 7 forms, 5 lemmas** | represented · accounted for · comprised · constituted · made up (with or without "approximately") |
+| **REJECTED — equivalence phrasings** | were approximately · was approximately · totaled · equaled · approximated |
+| **REJECTED — not claimed as a gap** | generated · provided · contributed · is · are |
+
+The middle row is a genuine gap: *"sales to X **were** approximately 15% of net
+sales"* states exactly the relation the accepted verbs state, and is ordinary
+10-K prose rather than exotic phrasing.
+
+The bottom row is **deliberately not claimed as a gap.** Those verbs describe
+what the counterparty *contributed* rather than asserting the share **is** the
+figure; admitting them would be a semantic widening, not a phrasing fix. They
+are pinned in `test_6l` anyway, so that a future change admitting them is a
+visible decision rather than a side effect of loosening the verb list.
+
+This gap is independent of §1's. A filing can miss on the denominator, on the
+verb, or on both, so the two do not compose into a single count — and neither
+was visible to v1.6's under-inclusion measurement, for the same structural
+reason given in §2.
+
+Both are one-way: an unmatched verb, like an unmatched denominator, can only
+omit a real disclosure and never invent one.
 
 ---
 
