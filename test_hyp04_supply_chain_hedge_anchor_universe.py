@@ -39,6 +39,7 @@ import copy
 import json
 import socket
 import sys
+from datetime import date
 from pathlib import Path
 
 
@@ -57,6 +58,8 @@ socket.getaddrinfo = _no_net
 
 from hyp04_supply_chain_hedge.anchor_universe import (  # noqa: E402
     ANNUAL_REPORT_FORM_PREFIX,
+    derive_universe_point_in_time,
+    format_point_in_time_report,
     CONCENTRATION_THRESHOLD_PCT,
     CONDITIONS,
     LSE,
@@ -428,6 +431,219 @@ def test_10_the_rule_declares_what_it_is() -> None:
           "NOTHING HERE IS EVIDENCE ABOUT SUPPLY-CHAIN TRANSMISSION" in flat)
 
 
+
+# ==========================================================================
+# POINT-IN-TIME evaluation
+# ==========================================================================
+def _filing(date_, *, disclosures=None, acc=None):
+    # extract_edges_from_text stamps every edge with the filing date it was
+    # given, so an edge's as_of_date IS its filing's date. The fixture has to
+    # do the same or AU-6 denies every historical filing for carrying a
+    # future-dated disclosure -- which is the rule working, not a bug.
+    disclosures = [{**d, "as_of_date": date_} for d in (disclosures or [])]
+    return {"filing_date": date_, "accession": acc or ("acc-" + date_),
+            "form": "10-K", "edges_found": len(disclosures or []),
+            "named_counterparties": sorted(
+                {d["named_counterparty"] for d in (disclosures or [])
+                 if d.get("counterparty_is_named")}),
+            "explicit_no_concentration": False,
+            "disclosures": list(disclosures or [])}
+
+
+def _history(records):
+    return {"artifact": "test", "per_filing_carries_disclosures": True,
+            "tickers": list(records)}
+
+
+def _tickrec(ticker, filings, **over):
+    rec = {"ticker": ticker, "cik": "0000000001",
+           "filings_on_record": len(filings), "filings_examined": len(filings),
+           "filings_failed": [], "stopped_early_reason": None, "error": None,
+           "per_filing": list(filings)}
+    rec.update(over)
+    return rec
+
+
+def _no_disclosures(f):
+    return {k: v for k, v in f.items() if k != "disclosures"}
+
+
+def test_13_the_rule_is_evaluated_against_the_filing_in_force() -> None:
+    """THE CASE THE ONE-SHOT SCREEN CANNOT PRODUCE.
+
+    A company that disclosed a qualifying concentration from 2015 to 2019 and
+    then stopped is invisible to `derive_universe`, which reads only the newest
+    10-K. It must be visible here -- otherwise membership is filtered by
+    whether the relationship survived to the present day, which is the same
+    selection the peer-data policy forbids one level down.
+    """
+    good = _edge(ticker="AAA")
+    hist = _history([_tickrec("AAA", [
+        _filing("2014-03-01"),                       # nothing disclosed
+        _filing("2015-03-01", disclosures=[good]),   # qualifies
+        _filing("2016-03-01", disclosures=[good]),
+        _filing("2017-03-01"),                       # stopped
+        _filing("2018-03-01"),
+    ])])
+    u = derive_universe_point_in_time(hist, frame=("AAA",))
+    check("13a. the derivation is not refused", u.derived, str(u.refusals))
+    check("13b. the ticker IS a member although the NEWEST filing does not "
+          "qualify", u.members_ever == ("AAA",), str(u.members_ever))
+    check("13c. exactly one interval", len(u.intervals) == 1,
+          str([(i.start_date, i.end_date) for i in u.intervals]))
+    if u.intervals:
+        iv = u.intervals[0]
+        check("13d. it starts at the FIRST qualifying filing, not the last",
+              iv.start_date == "2015-03-01", iv.start_date)
+        check("13e. and ends at the filing that stopped qualifying",
+              iv.end_date == "2017-03-01", str(iv.end_date))
+        check("13f. counting the filings that qualified",
+              iv.filings_qualifying == 2, str(iv.filings_qualifying))
+        check("13g. carrying the accession that opened it",
+              iv.start_accession == "acc-2015-03-01", iv.start_accession)
+
+    # CONTROL: the one-shot screen sees nothing here, because it reads only
+    # the newest filing. This is the gap the point-in-time pass exists to fill.
+    one_shot = derive_universe(_screen([]), cutoff_date=CUTOFF, frame=FRAME)
+    check("13h. CONTROL -- the newest-filing screen finds no member",
+          one_shot.members == (), str(one_shot.members))
+
+
+def test_14_intervals_open_close_and_repeat() -> None:
+    good = _edge(ticker="AAA")
+    hist = _history([_tickrec("AAA", [
+        _filing("2015-03-01", disclosures=[good]),
+        _filing("2016-03-01"),                       # lapse
+        _filing("2017-03-01", disclosures=[good]),   # resumes
+        _filing("2018-03-01", disclosures=[good]),
+    ])])
+    u = derive_universe_point_in_time(hist, frame=("AAA",))
+    spans = [(i.start_date, i.end_date) for i in u.intervals]
+    check("14a. a lapse and a resumption give TWO intervals, not one span",
+          len(u.intervals) == 2, str(spans))
+    check("14b. the first closes at the lapse",
+          bool(spans) and spans[0] == ("2015-03-01", "2016-03-01"), str(spans))
+    check("14c. the second is still open at the newest filing",
+          len(spans) > 1 and spans[1] == ("2017-03-01", None), str(spans))
+
+    # HARDCODED-OPEN CONTROL: move the qualifying filing to another ticker.
+    hist2 = _history([
+        _tickrec("AAA", [_filing("2015-03-01")]),
+        _tickrec("CCC", [_filing("2015-03-01",
+                                 disclosures=[_edge(ticker="CCC")])]),
+    ])
+    u2 = derive_universe_point_in_time(hist2, frame=("AAA", "CCC"))
+    check("14d. the intervals follow the data, not a hardcoded ticker",
+          u2.members_ever == ("CCC",), str(u2.members_ever))
+
+
+def test_15_qualifies_at_boundaries() -> None:
+    good = _edge(ticker="AAA")
+    hist = _history([_tickrec("AAA", [
+        _filing("2015-03-01", disclosures=[good]),
+        _filing("2017-03-01"),
+    ])])
+    u = derive_universe_point_in_time(hist, frame=("AAA",))
+
+    check("15a. the day BEFORE the filing: not a member",
+          not u.qualifies_at("AAA", "2015-02-28"))
+    check("15b. ON the filing date: a member -- the disclosure was public",
+          u.qualifies_at("AAA", "2015-03-01"))
+    check("15c. mid-interval: a member", u.qualifies_at("AAA", "2016-06-15"))
+    check("15d. the day before the superseding filing: still a member",
+          u.qualifies_at("AAA", "2017-02-28"))
+    check("15e. ON the superseding filing date: NOT a member",
+          not u.qualifies_at("AAA", "2017-03-01"))
+    check("15f. long after: not a member", not u.qualifies_at("AAA", "2020-01-01"))
+    check("15g. a ticker never walked: not a member",
+          not u.qualifies_at("BBB", "2016-06-15"))
+    check("15h. a malformed date denies rather than raising",
+          not u.qualifies_at("AAA", "15 March 2016"))
+    check("15i. a date object works as well as a string",
+          u.qualifies_at("AAA", date(2016, 6, 15)))
+
+    stale = _history([_tickrec("AAA", [
+        _no_disclosures(_filing("2015-03-01", disclosures=[good]))])])
+    ur = derive_universe_point_in_time(stale, frame=("AAA",))
+    check("15j. a REFUSED derivation is never a member on any date",
+          not ur.qualifies_at("AAA", "2016-06-15"), str(ur.refusals))
+
+
+def test_16_refusal_and_incompleteness_are_different_things() -> None:
+    good = _edge(ticker="AAA")
+
+    # REFUSAL: no denominators anywhere. Nothing may be published.
+    stale = _history([_tickrec("AAA", [
+        _no_disclosures(_filing("2015-03-01", disclosures=[good]))])])
+    r = derive_universe_point_in_time(stale, frame=("AAA",))
+    check("16a. a walk carrying no denominators is refused", not r.derived)
+    check("16b. naming the missing field",
+          any("disclosures" in x for x in r.refusals), str(r.refusals))
+    check("16c. and its intervals are WITHHELD, not merely empty",
+          r.intervals == () and r.members_ever == ())
+
+    # INCOMPLETE: one filing could not be fetched. The answer still stands.
+    part = _history([_tickrec(
+        "AAA",
+        [_filing("2015-03-01", disclosures=[good])],
+        filings_on_record=2,
+        filings_failed=[{"filing_date": "2011-03-01", "accession": "x",
+                         "error": "HTTPError: 404"}])])
+    i = derive_universe_point_in_time(part, frame=("AAA",))
+    check("16d. an unreachable filing does NOT refuse the derivation",
+          i.derived, str(i.refusals))
+    check("16e. but the result is not complete", not i.complete, str(i.incomplete))
+    check("16f. and the interval it did find still stands",
+          i.members_ever == ("AAA",), str(i.members_ever))
+    check("16g. the hole is enumerated, not merely flagged",
+          any("could not" in x for x in i.incomplete), str(i.incomplete))
+    check("16h. an incomplete result is never registry-grade",
+          not i.registry_grade)
+
+    # A frame member never walked IS a refusal: a universe over part of the
+    # frame is selected by whatever chose the part.
+    u = derive_universe_point_in_time(
+        _history([_tickrec("AAA", [_filing("2015-03-01", disclosures=[good])])]))
+    check("16i. an unwalked frame member refuses the derivation", not u.derived)
+    check("16j. saying how many were missed",
+          any("were not walked" in x for x in u.refusals), str(u.refusals))
+
+    # An overridden frame is a pilot and must never pass as registry-grade.
+    ok = derive_universe_point_in_time(
+        _history([_tickrec("AAA", [_filing("2015-03-01", disclosures=[good])])]),
+        frame=("AAA",))
+    check("16k. a complete, unrefused PILOT is still not registry-grade",
+          ok.derived and ok.complete and not ok.registry_grade)
+    check("16l. because the frame was overridden, and it says so",
+          ok.evidence.get("frame_is_default") is False
+          and "not a registry-grade"
+          in (ok.evidence.get("frame_override_note") or "").lower())
+
+    txt = format_point_in_time_report(i)
+    check("16m. the report shows incompleteness prominently", "INCOMPLETE" in txt)
+    check("16n. and a refused report withholds rather than showing zero",
+          "withheld" in format_point_in_time_report(r))
+
+
+def test_17_the_rule_itself_did_not_change() -> None:
+    """Point-in-time evaluation must REUSE the rule, never fork it."""
+    import inspect
+
+    from hyp04_supply_chain_hedge import anchor_universe as m
+
+    src = inspect.getsource(m._intervals_for_ticker)
+    check("17a. the interval builder calls evaluate_ticker",
+          "evaluate_ticker(" in src)
+    check("17b. and re-implements no condition of its own",
+          not any(cid in src for cid, _ in CONDITIONS), src[:160])
+    check("17c. the conditions are still exactly AU-1..AU-6",
+          [c for c, _ in CONDITIONS]
+          == ["AU-1", "AU-2", "AU-3", "AU-4", "AU-5", "AU-6"])
+    check("17d. the threshold is unchanged", CONCENTRATION_THRESHOLD_PCT == 10.0)
+    check("17e. the denominator is unchanged",
+          REQUIRED_BASIS == BASIS_CONSOLIDATED_REVENUE)
+
+
 def test_11_the_gate_does_not_move() -> None:
     from hyp04_supply_chain_hedge import display_gate as g
     d = g.current_decision()
@@ -457,6 +673,11 @@ if __name__ == "__main__":
     test_8_the_frame_is_derived_and_predates_the_rule()
     test_9_the_published_stale_screen_is_the_regression_fixture()
     test_10_the_rule_declares_what_it_is()
+    test_13_the_rule_is_evaluated_against_the_filing_in_force()
+    test_14_intervals_open_close_and_repeat()
+    test_15_qualifies_at_boundaries()
+    test_16_refusal_and_incompleteness_are_different_things()
+    test_17_the_rule_itself_did_not_change()
     test_11_the_gate_does_not_move()
     test_12_offline()
 

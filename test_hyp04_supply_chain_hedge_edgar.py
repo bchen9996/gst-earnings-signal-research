@@ -666,6 +666,255 @@ def test_6g_the_basis_classifier_fails_closed() -> None:
               for t in list(entity_wide) + list(narrowed) + [None, "  "]))
 
 
+
+def test_6h_older_filing_prose_does_not_manufacture_counterparties() -> None:
+    """The gates were tuned on 2026 filings. Widening to 1996-2026 broke them.
+
+    Every string below is verbatim from the filing named beside it, taken from
+    the full-frame 10-K history walk of 2026-08-27. Each produced a QUALIFYING
+    anchor-universe member -- that is, each would have put a company into a
+    preregistered universe on the strength of a relationship that does not
+    exist as described.
+
+    This is the same failure as the 2026-08-26 geographies-and-segments round,
+    and it recurred for the same structural reason: the corpus grew and the
+    gates did not. The four gates added here are STRUCTURAL rather than lists,
+    because the one list-based gate (GEOGRAPHIC_PARTY) is what failed -- it
+    enumerated a dozen places and did not contain "Singapore".
+    """
+    def named(text, filing_date):
+        edges, _ = extract_edges_from_text(text, ticker="T", cik="0",
+                                           filing_date=filing_date, accession="a")
+        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+
+    # Microchip 10-K 2003-06-05, accession 0000950147-03-000708. "Distributors"
+    # is the whole channel; the all-caps section heading above it was swallowed
+    # into the name, giving the counterparty "DISTRIBUTION Distributors".
+    mchp = ("DISTRIBUTION Distributors accounted for 60% of our net sales in "
+            "fiscal 2003, 62% of our net sales in fiscal 2002 and 65% of our "
+            "net sales in fiscal 2001. Our largest distributor accounted for "
+            "approximately 12% of our net sales.")
+    check("6h-a. a bare plural class noun is an aggregate, not a counterparty",
+          named(mchp, "2003-06-05") == set(), str(named(mchp, "2003-06-05")))
+
+    # NVIDIA 10-K 2015-03-12, accession 0001045810-15-000036.
+    nvda_geo = ("We also generate a significant portion of our revenue from "
+                "sales to customers outside the United States and Other "
+                "Americas. Revenue from sales to customers outside of the "
+                "United States and Other Americas accounted for 75% of total "
+                "revenue for both fiscal year 2015 and 2014.")
+    check("6h-b. 'outside of the United States' is a geography, not a customer",
+          named(nvda_geo, "2015-03-12") == set(),
+          str(named(nvda_geo, "2015-03-12")))
+
+    # NVIDIA 10-K 2025-02-26, accession 0001045810-25-000023. GEOGRAPHIC_PARTY
+    # is a LIST and did not contain Singapore -- which is the argument for
+    # matching the construction instead of the place.
+    nvda_sg = ("Singapore (1) 23,684 6,831 2,288 Taiwan 20,573 13,405 6,986 "
+               "(1) Singapore represented 18 % of fiscal year 2025 total "
+               "revenue based upon customer billing location. Customers use "
+               "Singapore to centralize invoicing while our products are "
+               "almost always shipped elsewhere.")
+    check("6h-c. a billing-location table is a geography, not a customer",
+          named(nvda_sg, "2025-02-26") == set(), str(named(nvda_sg, "2025-02-26")))
+
+    # Qualcomm 10-K 2013-11-06, accession 0001234452-13-000483. The 26% is the
+    # PAIR; the backward scan attributed all of it to HTC alone.
+    qcom = ("QCT and QTL segment revenues from Samsung Electronics and HTC "
+            "comprised 26% of total consolidated revenues in fiscal 2013.")
+    check("6h-d. a percentage shared by two named parties is attributed to "
+          "neither", named(qcom, "2013-11-06") == set(),
+          str(named(qcom, "2013-11-06")))
+
+    # Cognizant 10-K 2007-02-16, accession 0001193125-07-034095. The filing
+    # states plainly that there was NO 10% customer in 2005 or 2006; the 13.7%
+    # is a 2004 comparative. Stamped with the filing date it would have made
+    # Cognizant a registered anchor in 2007 on a fact the filing supersedes.
+    ctsh_stale = ("No customer accounted for revenues in excess of 10% of "
+                  "total revenues in 2006 and 2005. One customer, JPMorgan "
+                  "Chase, accounted for 13.7% of revenues in 2004.")
+    check("6h-e. a prior-period comparative is not a current disclosure",
+          named(ctsh_stale, "2007-02-16") == set(),
+          str(named(ctsh_stale, "2007-02-16")))
+
+    # ---- HARDCODED-OPEN CONTROLS ----
+    # Without these, a gate that rejected everything would pass all five above.
+
+    # Apple 10-K 2000-12-14, accession 0000912057-00-053623.
+    aapl = ("The Company distributes its products through wholesalers, "
+            "resellers, national and regional retailers and cataloguers. "
+            "During 2000, a single distributor, Ingram Micro Inc., accounted "
+            "for approximately 11.5% of net sales. No other customer accounted "
+            "for more than 10% of net sales during 2000.")
+    check("6h-f. CONTROL -- a genuine single named distributor survives",
+          named(aapl, "2000-12-14") == {"Ingram Micro Inc"},
+          str(named(aapl, "2000-12-14")))
+
+    # Cognizant 10-K 2004-03-12, accession 0000903100-04-000126. Same
+    # counterparty as 6h-e, but the CURRENT year -- so it must survive.
+    ctsh_ok = ("During 2003, one customer, JP Morgan Chase, accounted for "
+               "10.1% of our revenues and, in 2002, no single customer "
+               "accounted for greater than 10% of revenues.")
+    check("6h-g. CONTROL -- the same name in the CURRENT year survives",
+          named(ctsh_ok, "2004-03-12") == {"JP Morgan Chase"},
+          str(named(ctsh_ok, "2004-03-12")))
+
+    # Intel 10-K 2005-02-22, accession 0001193125-05-033162. A one-year lag is
+    # normal for an annual report and must NOT read as a stale comparative.
+    intc = ("We sell our products primarily to OEMs and ODMs. We also sell our "
+            "products to industrial and retail distributors. In 2004, Dell "
+            "Inc. accounted for approximately 19% of our total sales, and "
+            "Hewlett-Packard Company accounted for approximately 16% of our "
+            "total sales.")
+    got = named(intc, "2005-02-22")
+    check("6h-h. CONTROL -- a one-year lag is current, not stale",
+          "Dell Inc" in got, str(got))
+    # KNOWN UNDER-INCLUSION, recorded rather than fixed here: "Company" is
+    # deliberately absent from LEGAL_ENTITY_SUFFIX (segments are named
+    # "...Group", "...Systems"), and this sentence carries no role word, so
+    # Hewlett-Packard is dropped by the 2026-08-26 attribution gate. It costs
+    # nothing on this filing -- Dell at 19% already qualifies Intel -- and
+    # widening that suffix risks the four false positives it was built for.
+    check("6h-i. and the two clauses are NOT treated as a joint pair",
+          "Dell Inc" in got and len(got) <= 2, str(got))
+
+    # NVIDIA 10-K 2020-02-20, accession 0001045810-20-000010.
+    nvda_dell = ("Sales to Dell Technologies Inc., or Dell, accounted for 11% "
+                 "of our total revenue for fiscal year 2020.")
+    check("6h-j. CONTROL -- a genuine named customer survives",
+          named(nvda_dell, "2020-02-20") == {"Dell"},
+          str(named(nvda_dell, "2020-02-20")))
+
+    # McKesson 10-K 2001-06-01, accession 0000950149-01-500834 -- the oldest
+    # genuine qualifying disclosure the walk found.
+    mck = ("Fiscal 2001 sales to, and March 31, 2001 receivables from, the "
+           "Company's largest customer, Rite Aid Corporation, represented "
+           "approximately 16% of consolidated sales and 10% of consolidated "
+           "customer accounts receivable, respectively.")
+    check("6h-k. CONTROL -- a 2001 appositive disclosure survives",
+          named(mck, "2001-06-01") == {"Rite Aid Corporation"},
+          str(named(mck, "2001-06-01")))
+
+
+
+def test_6i_exhaustive_enumeration_round_two() -> None:
+    """Found by enumerating EVERY qualifying disclosure, not just the visible ones.
+
+    Round one (test_6h) inspected only the disclosures that opened a
+    membership interval -- the ones the report happened to print. That is not
+    a measurement, it is a spot check. Enumerating all 1,239 filings' named
+    disclosures at or above 10% of consolidated revenue surfaced three more
+    fabrications that the printed summary had hidden behind a genuine one.
+
+    The lesson is recorded in the gates themselves: each of the three matches
+    a CONSTRUCTION. Round one already established that the list-based gate is
+    the one that fails, and "Hong Kong" proved it twice over -- a second place
+    name, absent from the same list that lacked Singapore.
+    """
+    def named(text, filing_date):
+        edges, _ = extract_edges_from_text(text, ticker="T", cik="0",
+                                           filing_date=filing_date, accession="a")
+        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+
+    # Intel 10-K 2007-02-26. "Mobility Group" is Intel's own operating
+    # segment. The sentence that says so is the PREVIOUS one, and
+    # NON_CUSTOMER_SUBJECT is checked sentence-bounded on purpose -- so the
+    # giveaway has to be "within the", which is internal by construction.
+    intc = ("Net revenue for the Mobility Group operating segment made up 35% "
+            "of our consolidated net revenue in 2006. Revenue from sales of "
+            "microprocessors within the Mobility Group represented 26% of "
+            "consolidated net revenue in 2006.")
+    check("6i-a. revenue earned WITHIN the filer is not a counterparty",
+          named(intc, "2007-02-26") == set(), str(named(intc, "2007-02-26")))
+
+    # Microchip 10-K 2015-05-27. A SECOND place name missing from
+    # GEOGRAPHIC_PARTY's list, after Singapore. The construction is the signal.
+    mchp = ("Americas' sales include sales to customers in the U.S., Canada, "
+            "Central America and South America. Sales to customers in China, "
+            "including Hong Kong, accounted for approximately 28% of our net "
+            "sales in fiscal 2015.")
+    check("6i-b. 'sales to customers in <place>' is a geography",
+          named(mchp, "2015-05-27") == set(), str(named(mchp, "2015-05-27")))
+
+    # NVIDIA 10-K 2007-03-16. "a CEM" is what Asustek IS, not who it is.
+    # The real counterparty sits immediately before the category, and must be
+    # recovered rather than lost -- dropping both would trade a fabrication
+    # for a missing real relationship.
+    nvda = ("As a result of our channel strategy, our sales are focused on a "
+            "small number of customers. Sales to Asustek Computer Inc., or "
+            "Asustek, a CEM, accounted for 12% of our total revenue for "
+            "fiscal 2007.")
+    got = named(nvda, "2007-03-16")
+    check("6i-c. an indefinite article marks a category, not an entity",
+          "CEM" not in got, str(got))
+    check("6i-d. and the counterparty it describes is still recovered",
+          got == {"Asustek"}, str(got))
+
+    # ---- HARDCODED-OPEN CONTROLS ----
+    # Microchip's genuine distributor, in the same filings as 6i-b. Without
+    # this, gate 6i-b could delete Microchip's real membership unnoticed.
+    mchp_ok = ("In fiscal 2011, we derived 58% of our net sales through "
+               "distributors. Our largest distributor, Future Electronics, "
+               "accounted for approximately 10% of our net sales in each of "
+               "fiscal 2012 and fiscal 2011.")
+    check("6i-e. CONTROL -- Microchip's real distributor survives",
+          named(mchp_ok, "2013-05-30") == {"Future Electronics"},
+          str(named(mchp_ok, "2013-05-30")))
+
+    # THE ARTICLE CONTROL. Here "a" governs "single distributor", not the
+    # name, so Apple's counterparty must be untouched by gate 6i-c.
+    aapl = ("The Company distributes its products through wholesalers and "
+            "resellers. During 2000, a single distributor, Ingram Micro Inc., "
+            "accounted for approximately 11.5% of net sales.")
+    check("6i-f. CONTROL -- an article governing a ROLE word is not the same "
+          "thing", named(aapl, "2000-12-14") == {"Ingram Micro Inc"},
+          str(named(aapl, "2000-12-14")))
+
+    nvda_ok = ("As a result of our Channel strategy, a small number of our "
+               "customers represent the majority of our revenue. Sales to "
+               "ASUSTeK Computer Inc., accounted for 11% of our total revenue "
+               "for fiscal year 2016.")
+    check("6i-g. CONTROL -- the same counterparty without the appositive",
+          named(nvda_ok, "2016-03-17") == {"ASUSTeK Computer Inc"},
+          str(named(nvda_ok, "2016-03-17")))
+
+
+def test_6j_the_denominator_classifier_does_not_silently_under_include() -> None:
+    """Over-inclusion was measured; under-inclusion has to be measured too.
+
+    Every gate added on 2026-08-27 REJECTS things, and `other_or_unknown`
+    fails closed. Both shrink the universe silently. Measured across all 1,239
+    filings of the full-frame walk, exactly TWO named disclosures at or above
+    10% carried an unrecognised denominator -- both Qualcomm SEGMENT revenues
+    ("QCT revenue", "QWS revenue"), which the rule excludes correctly anyway.
+
+    This pins the phrasings that must keep classifying, so a future tightening
+    of the classifier cannot quietly start dropping entity-wide denominators.
+    """
+    entity_wide = (
+        "net sales",                    # Apple, 2000
+        "our revenues",                 # Cognizant, 2003
+        "our total sales",              # Intel, 2004
+        "consolidated sales",           # McKesson, 2001
+        "our total consolidated revenues",   # McKesson, 2013
+        "our total revenue",            # NVIDIA, 2020
+        "our net sales",                # Microchip, 2013
+        "consolidated net revenue",     # Intel, 2006
+        "total revenue",                # NVIDIA, 2002
+    )
+    for phrase in entity_wide:
+        check(f"6j. entity-wide denominator still classifies: {phrase!r}",
+              classify_concentration_basis(phrase) == BASIS_CONSOLIDATED_REVENUE,
+              classify_concentration_basis(phrase))
+
+    # And the two that legitimately did not classify stay unclassified: a
+    # segment denominator must never be read as entity-wide.
+    for phrase in ("QCT revenue", "QWS revenue"):
+        check(f"6j. a segment-coded denominator is NOT entity-wide: {phrase!r}",
+              classify_concentration_basis(phrase) != BASIS_CONSOLIDATED_REVENUE,
+              classify_concentration_basis(phrase))
+
+
 def test_11_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -687,6 +936,9 @@ if __name__ == "__main__":
     test_6e_geographies_and_own_segments_are_not_counterparties()
     test_6f_the_concentration_denominator_is_recorded()
     test_6g_the_basis_classifier_fails_closed()
+    test_6h_older_filing_prose_does_not_manufacture_counterparties()
+    test_6i_exhaustive_enumeration_round_two()
+    test_6j_the_denominator_classifier_does_not_silently_under_include()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()

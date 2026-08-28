@@ -228,8 +228,16 @@ def test_c_pkg_is_excluded_and_the_reason_is_recorded() -> None:
 
 def test_d_the_gate_did_not_move() -> None:
     print("\n--- PART D: the display gate ---")
-    check("D1. the gate reads the v1.5 artifact",
-          REGISTRY_CURRENT.name.endswith("v1.5.json"), REGISTRY_CURRENT.name)
+    # v1.5 was the current artifact when this suite was written; v1.6
+    # superseded it on 2026-08-27. "Is current" is not v1.5's claim to make
+    # any more -- each version's own suite asserts that, and the v1.6 suite
+    # now does (A2/A3 pin the supersession by name and hash, and v1.4 AND
+    # v1.5 are both pinned byte-identical there). Asserting the chain from
+    # here as well would duplicate it and would break on a v1.7, because
+    # v1.5 is only the CURRENT registry's predecessor until it is not.
+    # What stays true forever is the direction: v1.5 was superseded.
+    check("D1. v1.5 is no longer the current artifact -- v1.6 superseded it",
+          not REGISTRY_CURRENT.name.endswith("v1.5.json"), REGISTRY_CURRENT.name)
     d = current_decision()
     check("D2. it is CLOSED", d.open is False, str(d.conditions))
     check("D3. with exactly 4 denials", len(d.denials) == 4, str(d.denials))

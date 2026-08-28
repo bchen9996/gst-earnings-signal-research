@@ -1,0 +1,2071 @@
+{
+  "artifact": "HYP04_EDGAR_LINKAGE_HISTORY.json",
+  "source": "EDGAR 10-K history walk (ASC 280 concentration disclosures)",
+  "is_production_linkage_map": false,
+  "status": "CANDIDATE_REVIEW_QUEUE",
+  "not_a_replacement": "A review queue for a human, not a linkage map. No row here is curated, and none is promoted automatically. Every claim carries an accession number so it can be checked against the filing.",
+  "what_the_earliest_date_means": "The earliest filing that DISCLOSES the relationship, which is the claim as_of_date makes. It is not evidence the relationship began then -- only that it was publicly known by then. An earlier start date requires a different source.",
+  "why_earliest_matters": "Peer eligibility counts an edge only for anchor events strictly after its as_of_date. The earliest disclosing filing therefore maximises the events an edge can serve; the newest one, which the candidate extractor records, minimises it.",
+  "per_filing_carries_disclosures": true,
+  "per_filing_carries_disclosures_note": "Each per_filing entry carries the full `disclosures` records, including concentration_pct and concentration_basis. A walk written before 2026-08-27 carries only counterparty NAMES and cannot be evaluated against the anchor-universe rule -- consumers must REFUSE such a walk rather than score it, because an absent denominator would read as a denial and produce an empty universe that looks like a finding.",
+  "contact_supplied": true,
+  "requests_made": 61,
+  "tickers": [
+    {
+      "ticker": "MCK",
+      "cik": "0000927653",
+      "filings_on_record": 29,
+      "filings_examined": 28,
+      "filings_failed": [
+        {
+          "filing_date": "2000-06-13",
+          "accession": "0000929624-00-000832",
+          "error": "HTTPError: 404 Client Error: Not Found for url: https://www.sec.gov/Archives/edgar/data/927653/000092962400000832/0001.txt"
+        }
+      ],
+      "stopped_early_reason": null,
+      "error": null,
+      "named_counterparties": [
+        {
+          "counterparty": "CVS Health Corporation",
+          "earliest_filing_date": "2020-05-22",
+          "earliest_accession": "0000927653-20-000033",
+          "latest_filing_date": "2026-05-08",
+          "latest_accession": "0000927653-26-000069",
+          "filings_naming_it": 7
+        },
+        {
+          "counterparty": "CVS Health",
+          "earliest_filing_date": "2016-05-05",
+          "earliest_accession": "0000927653-16-000020",
+          "latest_filing_date": "2019-05-15",
+          "latest_accession": "0000927653-19-000009",
+          "filings_naming_it": 4
+        },
+        {
+          "counterparty": "CVS Caremark Corporation",
+          "earliest_filing_date": "2013-05-07",
+          "earliest_accession": "0001561787-13-000010",
+          "latest_filing_date": "2015-05-12",
+          "latest_accession": "0001628280-15-004098",
+          "filings_naming_it": 3
+        },
+        {
+          "counterparty": "CVS",
+          "earliest_filing_date": "2013-05-07",
+          "earliest_accession": "0001561787-13-000010",
+          "latest_filing_date": "2014-05-14",
+          "latest_accession": "0001445305-14-002132",
+          "filings_naming_it": 2
+        },
+        {
+          "counterparty": "Caremark RX",
+          "earliest_filing_date": "2006-05-16",
+          "earliest_accession": "0000950149-06-000282",
+          "latest_filing_date": "2007-05-09",
+          "latest_accession": "0000950134-07-010894",
+          "filings_naming_it": 2
+        },
+        {
+          "counterparty": "Rite Aid Corporation",
+          "earliest_filing_date": "2001-06-01",
+          "earliest_accession": "0000950149-01-500834",
+          "latest_filing_date": "2005-05-13",
+          "latest_accession": "0000950134-05-009971",
+          "filings_naming_it": 5
+        }
+      ],
+      "per_filing": [
+        {
+          "filing_date": "2026-05-08",
+          "accession": "0000927653-26-000069",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2026-05-08",
+              "accession": "0000927653-26-000069",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 73% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24% of our total consolidated revenues in fiscal 2026. In fiscal 2023, we extended our pharmaceutical distribution partnership with CVS to June 2027. Sales to our next two ",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2026-05-08",
+              "accession": "0000927653-26-000069",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "oximately 73 % of its total consolidated revenues and approximately 43 % of total trade accounts receivable at March 31, 2026. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24 % of its total consolidated revenues in fiscal 2026 and comprised approximately 21 % of total trade accounts receivable at March 31, 2026. Sales to the Company’s next tw",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2026-05-08",
+              "accession": "0000927653-26-000069",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ew their purchase contracts at less favorable terms, delay or default on their payments to us, or avoid payments to us through bankruptcy proceedings. At March 31, 2026, sales to our largest customer represented approximately 24% of our total consolidated revenues and approximately 21% of our total trade receivables, and those of our ten largest customers combined accounted for approximately 73% o",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2026-05-08",
+              "accession": "0000927653-26-000069",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "total trade accounts receivable at March 31, 2026. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24% of our total consolidated revenues in fiscal 2026 and comprised approximately 21% of total trade accounts receivable at March 31, 2026. Sales to our next two largest customers accounted for 11% and 10% of total consolidated revenues in fiscal 2026. As a ",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2026-05-08",
+              "accession": "0000927653-26-000069",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "accounts receivable at March 31, 2026. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24 % of its total consolidated revenues in fiscal 2026 and comprised approximately 21 % of total trade accounts receivable at March 31, 2026. Sales to the Company’s next two largest customers accounted for 11 % and 10 % of total consolidated revenues in fiscal",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2025-05-09",
+          "accession": "0000927653-25-000036",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2025-05-09",
+              "accession": "0000927653-25-000036",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 72% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24% of our total consolidated revenues in fiscal 2025. In fiscal 2023, we extended our pharmaceutical distribution partnership with CVS to June 2027. Our ten largest custom",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2025-05-09",
+              "accession": "0000927653-25-000036",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "oximately 72 % of its total consolidated revenues and approximately 48 % of total trade accounts receivable at March 31, 2025. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24 % of its total consolidated revenues in fiscal 2025 and comprised approximately 23 % of total trade accounts receivable at March 31, 2025. As a result, the Company’s sal",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2025-05-09",
+              "accession": "0000927653-25-000036",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ew their purchase contracts at less favorable terms, delay or default on their payments to us, or avoid payments to us through bankruptcy proceedings. At March 31, 2025, sales to our largest customer represented approximately 24% of our total consolidated revenues and approximately 23% of our total trade receivables, and those of our ten largest customers combined accounted for approximately 72% o",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 23.0,
+              "as_of_date": "2025-05-09",
+              "accession": "0000927653-25-000036",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "total trade accounts receivable at March 31, 2025. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24% of our total consolidated revenues in fiscal 2025 and comprised approximately 23% of total trade accounts receivable at March 31, 2025. As a result, our sales and credit concentration is significant. We also have agreements with GPOs, each of which funct",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 23.0,
+              "as_of_date": "2025-05-09",
+              "accession": "0000927653-25-000036",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "accounts receivable at March 31, 2025. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 24 % of its total consolidated revenues in fiscal 2025 and comprised approximately 23 % of total trade accounts receivable at March 31, 2025. As a result, the Company’s sales and credit concentration is significant. The Company has agreements with GPOs, each o",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2024-05-08",
+          "accession": "0000927653-24-000035",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 28.0,
+              "as_of_date": "2024-05-08",
+              "accession": "0000927653-24-000035",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 69% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 28% of our total consolidated revenues in fiscal 2024. In fiscal 2023, we extended our pharmaceutical distribution partnership with CVS to June 2027. Our ten largest custom",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 28.0,
+              "as_of_date": "2024-05-08",
+              "accession": "0000927653-24-000035",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "oximately 69 % of its total consolidated revenues and approximately 43 % of total trade accounts receivable at March 31, 2024. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 28 % of its total consolidated revenues in fiscal 2024 and comprised approximately 24 % of total trade accounts receivable at March 31, 2024. As a result, the Company’s sal",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 28.0,
+              "as_of_date": "2024-05-08",
+              "accession": "0000927653-24-000035",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "m us, do not renew their purchase contracts with us, delay or default on their payments to us, or avoid payments to us through bankruptcy proceedings. At March 31, 2024, sales to our largest customer represented approximately 28% of our total consolidated revenues and approximately 24% of our total trade receivables, and those of our ten largest customers combined accounted for approximately 69% o",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2024-05-08",
+              "accession": "0000927653-24-000035",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "total trade accounts receivable at March 31, 2024. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 28% of our total consolidated revenues in fiscal 2024 and comprised approximately 24% of total trade accounts receivable at March 31, 2024. As a result, our sales and credit concentration is significant. We also have agreements with GPOs, each of which funct",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 24.0,
+              "as_of_date": "2024-05-08",
+              "accession": "0000927653-24-000035",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "accounts receivable at March 31, 2024. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 28 % of its total consolidated revenues in fiscal 2024 and comprised approximately 24 % of total trade accounts receivable at March 31, 2024. As a result, the Company’s sales and credit concentration is significant. The Company has agreements with GPOs, each o",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2023-05-09",
+          "accession": "0000927653-23-000038",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 27.0,
+              "as_of_date": "2023-05-09",
+              "accession": "0000927653-23-000038",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 68% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 27% of our total consolidated revenues in fiscal 2023. In fiscal 2023, we extended our pharmaceutical distribution partnership with CVS to June 2027. Our ten largest custom",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 27.0,
+              "as_of_date": "2023-05-09",
+              "accession": "0000927653-23-000038",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "oximately 68 % of its total consolidated revenues and approximately 42 % of total trade accounts receivable at March 31, 2023. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 27 % of its total consolidated revenues in fiscal 2023 and comprised approximately 21 % of total trade accounts receivable at March 31, 2023. As a result, the Company’s sal",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 27.0,
+              "as_of_date": "2023-05-09",
+              "accession": "0000927653-23-000038",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "wal. We derive a significant portion of our revenue from, and have a significant portion of our accounts receivable with, a small number of customers. At March 31, 2023, sales to our largest customer represented approximately 27% of our total consolidated revenues and approximately 21% of our total trade receivables, and those of our ten largest customers combined accounted for approximately 68% o",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2023-05-09",
+              "accession": "0000927653-23-000038",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "total trade accounts receivable at March 31, 2023. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 27% of our total consolidated revenues in fiscal 2023 and comprised approximately 21% of total trade accounts receivable at March 31, 2023. As a result, our sales and credit concentration is significant. We also have agreements with GPOs, each of which funct",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2023-05-09",
+              "accession": "0000927653-23-000038",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "accounts receivable at March 31, 2023. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 27 % of its total consolidated revenues in fiscal 2023 and comprised approximately 21 % of total trade accounts receivable at March 31, 2023. As a result, the Company’s sales and credit concentration is significant. The Company has agreements with GPOs, each o",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2022-05-09",
+          "accession": "0000927653-22-000051",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2022-05-09",
+              "accession": "0000927653-22-000051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 52% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21% of our total consolidated revenues in 2022. In May 2019, we extended our pharmaceutical distribution relationship with CVS to June 2023. Our ten largest customers compr",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2022-05-09",
+              "accession": "0000927653-22-000051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "oximately 52 % of its total consolidated revenues and approximately 43 % of total trade accounts receivable at March 31, 2022. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21 % of its total consolidated revenues in 2022 and comprised approximately 28 % of total trade accounts receivable at March 31, 2022. As a result, the Company’s sales and ",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2022-05-09",
+              "accession": "0000927653-22-000051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "wal. We derive a significant portion of our revenue from, and have a significant portion of our accounts receivable with, a small number of customers. At March 31, 2022, sales to our largest customer represented approximately 21% of our consolidated revenues and approximately 28% of our trade receivables, and those of our ten largest customers combined accounted for approximately 52% of our consol",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 28.0,
+              "as_of_date": "2022-05-09",
+              "accession": "0000927653-22-000051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "43% of total trade accounts receivable at March 31, 2022. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21% of our total consolidated revenues in 2022 and comprised approximately 28% of total trade accounts receivable at March 31, 2022. As a result, our sales and credit concentration is significant. We also have agreements with GPOs, each of which funct",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 28.0,
+              "as_of_date": "2022-05-09",
+              "accession": "0000927653-22-000051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "l trade accounts receivable at March 31, 2022. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21 % of its total consolidated revenues in 2022 and comprised approximately 28 % of total trade accounts receivable at March 31, 2022. As a result, the Company’s sales and credit concentration is significant. The Company has agreements with GPOs, each ",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2021-05-12",
+          "accession": "0000927653-21-000039",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2021-05-12",
+              "accession": "0000927653-21-000039",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 51% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21% of our total consolidated revenues in 2021. In May 2019, we extended our pharmaceutical distribution relationship with CVS to June 2023. Our ten largest customers compr",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2021-05-12",
+              "accession": "0000927653-21-000039",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "oximately 51 % of its total consolidated revenues and approximately 32 % of total trade accounts receivable at March 31, 2021. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21 % of its total consolidated revenues in 2021 and comprised approximately 19 % of total trade accounts receivable at March 31, 2021. As a result, the Company’s sales and ",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 21.0,
+              "as_of_date": "2021-05-12",
+              "accession": "0000927653-21-000039",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "wal. We derive a significant portion of our revenue from, and have a significant portion of our accounts receivable with, a small number of customers. At March 31, 2021, sales to our largest customer represented approximately 21% of our consolidated revenues and approximately 19% of our trade receivables, and those of our ten largest customers combined accounted for approximately 51% of our consol",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 19.0,
+              "as_of_date": "2021-05-12",
+              "accession": "0000927653-21-000039",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "32% of total trade accounts receivable at March 31, 2021. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21% of our total consolidated revenues in 2021 and comprised approximately 19% of total trade accounts receivable at March 31, 2021. As a result, our sales and credit concentration is significant. We also have agreements with GPOs, each of which funct",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 19.0,
+              "as_of_date": "2021-05-12",
+              "accession": "0000927653-21-000039",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "l trade accounts receivable at March 31, 2021. Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 21 % of its total consolidated revenues in 2021 and comprised approximately 19 % of total trade accounts receivable at March 31, 2021. As a result, the Company’s sales and credit concentration is significant. The Company has agreements with GPOs, each ",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2020-05-22",
+          "accession": "0000927653-20-000033",
+          "form": "10-K",
+          "edges_found": 5,
+          "named_counterparties": [
+            "CVS Health Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 20.0,
+              "as_of_date": "2020-05-22",
+              "accession": "0000927653-20-000033",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "rs: During 2020 , sales to our ten largest customers, including GPOs accounted for approximately 51% of our total consolidated revenues. Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 20% of our total consolidated revenues in 2020 . In May 2019, we extended our pharmaceutical distribution relationship with CVS to June 2023. Our ten largest customers comp",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 20.0,
+              "as_of_date": "2020-05-22",
+              "accession": "0000927653-20-000033",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "ximately 51 % of its total consolidated revenues and approximately 37 % of total trade accounts receivable at March 31, 2020 . Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 20 % of its total consolidated revenues in 2020 and comprised approximately 20 % of total trade accounts receivable at March 31, 2020 . As a result, the Company’s sales and",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "its total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 20.0,
+              "as_of_date": "2020-05-22",
+              "accession": "0000927653-20-000033",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "wal. We derive a significant portion of our revenue from, and have a significant portion of our accounts receivable with, a small number of customers. At March 31, 2020, sales to our largest customer represented approximately 20% of our consolidated revenues and approximately 20% of our trade receivables, and those of our ten largest customers combined accounted for approximately 51% of our consol",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 20.0,
+              "as_of_date": "2020-05-22",
+              "accession": "0000927653-20-000033",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "7% of total trade accounts receivable at March 31, 2020 . Sales to our largest customer, CVS Health Corporation (“CVS”), accounted for approximately 20% of our total consolidated revenues in 2020 and comprised approximately 20% of total trade accounts receivable March 31, 2020 . As a result, our sales and credit concentration is significant. We also have agreements with GPOs, each of which functio",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 20.0,
+              "as_of_date": "2020-05-22",
+              "accession": "0000927653-20-000033",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "trade accounts receivable at March 31, 2020 . Sales to the Company’s largest customer, CVS Health Corporation (“CVS”), accounted for approximately 20 % of its total consolidated revenues in 2020 and comprised approximately 20 % of total trade accounts receivable at March 31, 2020 . As a result, the Company’s sales and credit concentration is significant. The Company has agreements with GPOs, each ",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "total trade accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "2019-05-15",
+          "accession": "0000927653-19-000009",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 19.4,
+              "as_of_date": "2019-05-15",
+              "accession": "0000927653-19-000009",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "ss Customers: During 2019 , sales to our ten largest customers, including GPOs accounted for approximately 49.9% of our total consolidated revenues. Sales to our largest customer, CVS Health (“CVS”), accounted for approximately 19.4% of our total consolidated revenues. In May 2019, we extended our pharmaceutical distribution relationship with CVS to June 2023. At March 31, 2019 , trade accounts re",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2018-05-24",
+          "accession": "0000927653-18-000010",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 19.9,
+              "as_of_date": "2018-05-24",
+              "accession": "0000927653-18-000010",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "ss Customers: During 2018 , sales to our ten largest customers, including GPOs accounted for approximately 51.7% of our total consolidated revenues. Sales to our largest customer, CVS Health (“CVS”), accounted for approximately 19.9% of our total consolidated revenues. At March 31, 2018 , trade accounts receivable from our ten largest customers were approximately 24.9% of total trade accounts rece",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2017-05-22",
+          "accession": "0000927653-17-000007",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 20.2,
+              "as_of_date": "2017-05-22",
+              "accession": "0000927653-17-000007",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "o our ten largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 54.2% of our total consolidated revenues. Sales to our largest customer, CVS Health (“CVS”), accounted for approximately 20.2% of our total consolidated revenues. At March 31, 2017 , trade accounts receivable from our ten largest customers were approximately 33.7% of total trade accounts rece",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 99.0,
+              "as_of_date": "2017-05-22",
+              "accession": "0000927653-17-000007",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "al Revenues $ 198,533 $ 190,884 $ 179,045 4 % 7 % Revenues increased 4 % and 7 % in 2017 and 2016 compared to the same periods a year ago primarily driven by our Distribution Solutions segment, which accounted for approximately 99% of our consolidated revenues. Distribution Solutions North America pharmaceutical distribution and services revenues increased over the last two years primarily due to ",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2016-05-05",
+          "accession": "0000927653-16-000020",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "CVS Health"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Health",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 20.3,
+              "as_of_date": "2016-05-05",
+              "accession": "0000927653-16-000020",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "o our ten largest customers, including group purchasing organizations (“GPOs”) accounted for approximately 52.4% of our total consolidated revenues. Sales to our largest customer, CVS Health (“CVS”), accounted for approximately 20.3% of our total consolidated revenues. At March 31, 2016 , trade accounts receivable from our ten largest customers were approximately 32% of total trade accounts receiv",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 98.0,
+              "as_of_date": "2016-05-05",
+              "accession": "0000927653-16-000020",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "to the same periods a year ago. Excluding unfavorable foreign currency effects of 2%, revenues increased 9% in 2016. These increases were primarily driven by our Distribution Solutions segment, which accounted for approximately 98% of our consolidated revenues. Distribution Solutions North America pharmaceutical distribution and services revenues increased over the last two years primarily due to ",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2015-05-12",
+          "accession": "0001628280-15-004098",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "CVS Caremark Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Caremark Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 15.0,
+              "as_of_date": "2015-05-12",
+              "accession": "0001628280-15-004098",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "iness Customers: During 2015 , sales to our ten largest customers accounted for approximately 44% of our total consolidated revenues. Sales to our largest customer, CVS Caremark Corporation (“CVS”) , accounted for approximately 15% of our total consolidated revenues. At March 31, 2015 , trade accounts receivable from our ten largest customers were approximately 36% of total trade accounts receivab",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2014-05-14",
+          "accession": "0001445305-14-002132",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "CVS",
+            "CVS Caremark Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Caremark Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 16.0,
+              "as_of_date": "2014-05-14",
+              "accession": "0001445305-14-002132",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "iness Customers: During 2014 , sales to our ten largest customers accounted for approximately 48% of our total consolidated revenues. Sales to our largest customer, CVS Caremark Corporation (\"CVS\") , accounted for approximately 16% of our total consolidated revenues. At March 31, 2014 , trade accounts receivable from our ten largest customers were approximately 32% of total trade accounts receivab",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 16.0,
+              "as_of_date": "2014-05-14",
+              "accession": "0001445305-14-002132",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "een with a limited number of large customers. During 2014 , sales to our ten largest customers accounted for approximately 48% of our total consolidated revenues. Sales to our largest customer, CVS , accounted for approximately 16% of our total consolidated revenues. At March 31, 2014 , trade accounts receivable from our ten largest customers were approximately 32% of total trade accounts receivab",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2013-05-07",
+          "accession": "0001561787-13-000010",
+          "form": "10-K",
+          "edges_found": 3,
+          "named_counterparties": [
+            "CVS",
+            "CVS Caremark Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS Caremark Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 17.0,
+              "as_of_date": "2013-05-07",
+              "accession": "0001561787-13-000010",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "iness Customers: During 2013 , sales to our ten largest customers accounted for approximately 51% of our total consolidated revenues. Sales to our largest customer, CVS Caremark Corporation (\"CVS\") , accounted for approximately 17% of our total consolidated revenues. At March 31, 2013 , trade accounts receivable from our ten largest customers were approximately 44% of total trade accounts receivab",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "CVS",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 17.0,
+              "as_of_date": "2013-05-07",
+              "accession": "0001561787-13-000010",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "een with a limited number of large customers. During 2013 , sales to our ten largest customers accounted for approximately 51% of our total consolidated revenues. Sales to our largest customer, CVS , accounted for approximately 17% of our total consolidated revenues. At March 31, 2013 , trade accounts receivable from our ten largest customers were approximately 44% of total trade accounts receivab",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 97.0,
+              "as_of_date": "2013-05-07",
+              "accession": "0001561787-13-000010",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "ased in 2012 compared to 2011. Revenues over the last two years benefited from market growth, which includes growing drug utilization and price increases, in our Distribution Solutions segment, which accounted for approximately 97% of our consolidated revenues, as well as due to our business acquisitions. In addition, revenues for 2013 were impacted by price deflation associated with brand to gene",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2012-05-02",
+          "accession": "0001193125-12-204736",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2011-05-05",
+          "accession": "0000950123-11-045634",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 97.0,
+              "as_of_date": "2011-05-05",
+              "accession": "0000950123-11-045634",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "2010 and 2009. Revenues increased 3% to $112.1 billion in 2011 and 2% to $108.7 billion in 2010. The increase in revenues primarily reflects market growth in our Distribution Solutions segment, which accounted for approximately 97% of our consolidated revenues. Additionally, revenues for 2011 benefited from our December 30, 2010 acquisition of US Oncology Holdings, Inc. (“US Oncology”) of The Wood",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2010-05-04",
+          "accession": "0000950123-10-043581",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 97.0,
+              "as_of_date": "2010-05-04",
+              "accession": "0000950123-10-043581",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "es 273 279 298 Revenues increased 2% to $108.7 billion in 2010 and 5% to $106.6 billion in 2009. The increase in revenues primarily reflects market growth in our Distribution Solutions segment, which accounted for approximately 97% of our consolidated revenues. To a lesser extent, revenues for 2010 were also affected by an increase in demand related to the flu season. These increases were partiall",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2009-05-05",
+          "accession": "0000950134-09-009477",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2008-05-07",
+          "accession": "0000950149-08-000067",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 97.0,
+              "as_of_date": "2008-05-07",
+              "accession": "0000950149-08-000067",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "FINANCIAL REVIEW (Continued) Revenues increased 9% to $101.7 billion in 2008 and 7% to $93.0 billion in 2007. The growth in revenues was primarily driven by our Distribution Solutions segment, which accounted for 97% of revenues. U.S. pharmaceutical direct distribution and service revenues increased in 2008 primarily reflecting market growth rates, new and expanded business and to a lesser extent,",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2007-05-09",
+          "accession": "0000950134-07-010894",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Caremark RX"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Caremark RX",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 11.0,
+              "as_of_date": "2007-05-09",
+              "accession": "0000950134-07-010894",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "lection may be in doubt. In addition, in 2007, sales to our ten largest customers accounted for approximately 51% of our total consolidated revenues. Sales to our largest customer, Caremark RX, Inc., represented approximately 11% of our 2007 total consolidated revenues. At March 31, 2007, accounts receivable from our ten largest customers and Caremark RX, Inc. were approximately 48% and 12% of tot",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2007 total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2006-05-16",
+          "accession": "0000950149-06-000282",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Caremark RX"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 95.0,
+              "as_of_date": "2006-05-16",
+              "accession": "0000950149-06-000282",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "8 $ (0.53 ) $ 2.19 Revenues increased 10% to $88.1 billion and 16% to $80.1 billion in 2006 and 2005. The increase in revenues primarily reflects growth in our Pharmaceutical Solutions segment, which accounted for 95% of our consolidated revenues. Increases in 2006 revenue for this segment were largely the result of our acquisition of D&K Healthcare Resources, Inc. (“D&K”) in August 2005 and growt",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Caremark RX",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 11.0,
+              "as_of_date": "2006-05-16",
+              "accession": "0000950149-06-000282",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "lection may be in doubt. In addition, in 2006, sales to our ten largest customers accounted for approximately 53% of our total consolidated revenues. Sales to our largest customer, Caremark RX, Inc., represented approximately 11% of our 2006 total consolidated revenues. At March 31, 2006, accounts receivable from our ten largest customers and Caremark RX, Inc. were approximately 48% and 11% of tot",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2006 total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2005-05-13",
+          "accession": "0000950134-05-009971",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Rite Aid Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 10.0,
+              "as_of_date": "2005-05-13",
+              "accession": "0000950134-05-009971",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "sales to our ten largest customers accounted for approximately 50% of our total consolidated revenues (including sales to customers’ warehouses). Sales to our largest customer, Rite Aid Corporation, represented approximately 10% of our 2005 total consolidated revenues. At March 31, 2005, accounts receivable from our ten largest customers and Rite Aid Corporation were approximately 49% and 7% of to",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2005 total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2004-06-10",
+          "accession": "0000950149-04-001115",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Rite Aid Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 11.0,
+              "as_of_date": "2004-06-10",
+              "accession": "0000950149-04-001115",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "sales to our ten largest customers accounted for approximately 50% of our total consolidated revenues (including sales to customers’ warehouses). Sales to our largest customer, Rite Aid Corporation, represented approximately 11% of our 2004 total consolidated revenues. At March 31, 2004, accounts receivable from our ten largest customers and Rite Aid Corporation were approximately 50% and 8% of to",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2004 total consolidated revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2003-06-06",
+          "accession": "0000950149-03-001297",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Rite Aid Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 12.0,
+              "as_of_date": "2003-06-06",
+              "accession": "0000950149-03-001297",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "f large customers. During the year ended March 31, 2003, sales to our ten largest customers accounted for approximately 50% of our total revenues. Sales to our largest customer, Rite Aid Corporation, represented approximately 12% of our 2003 revenues. At March 31, 2003, accounts receivable from our ten largest customers and Rite Aid Corporation were approximately 43% and 10% of total accounts rece",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2003 revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2002-06-12",
+          "accession": "0000950149-02-001196",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 93.0,
+              "as_of_date": "2002-06-12",
+              "accession": "0000950149-02-001196",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "ding sales to customers’ warehouses, consolidated revenues increased 18% in 2002 as compared to 12% in 2001. The growth in revenues was primarily driven by the Pharmaceutical Solutions segment, which accounted for 93% of our 2002 consolidated revenues. Excluding sales to customers’ warehouses, Pharmaceutical Solutions segment revenues increased 20% in 2002 as compared to 14% in 2001. Consolidated ",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2002 consolidated revenues"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Rite Aid Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 14.0,
+              "as_of_date": "2002-06-12",
+              "accession": "0000950149-02-001196",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "f large customers. During the year ended March 31, 2002, sales to our ten largest customers accounted for approximately 55% of our total revenues. Sales to our largest customer, Rite Aid Corporation, represented approximately 14% of our 2002 revenues. As a result, our sales and credit concentration have significantly increased. Any defaults in payment or a 45 Table of Contents McKESSON CORPORATION",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our 2002 revenues"
+            }
+          ]
+        },
+        {
+          "filing_date": "2001-06-01",
+          "accession": "0000950149-01-500834",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Rite Aid Corporation"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": "Rite Aid Corporation",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 16.0,
+              "as_of_date": "2001-06-01",
+              "accession": "0000950149-01-500834",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "rgest customers accounted for approximately 41% of total customer accounts receivable. Fiscal 2001 sales to, and March 31, 2001 receivables from, the Company's largest customer, Rite Aid Corporation, represented approximately 16% of consolidated sales and 10% of consolidated customer accounts receivable, respectively. Receivables from the Company's second largest customer represented approximately",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "consolidated sales"
+            },
+            {
+              "reporting_company": "MCK",
+              "reporting_cik": "0000927653",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 11.0,
+              "as_of_date": "2001-06-01",
+              "accession": "0000950149-01-500834",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "r, Rite Aid Corporation, represented approximately 16% of consolidated sales and 10% of consolidated customer accounts receivable, respectively. Receivables from the Company's second largest customer represented approximately 11% of consolidated customer accounts receivable. No other customers represented greater than 10% of consolidated sales or customer accounts receivable. At March 31, 2001, th",
+              "concentration_basis": "receivables",
+              "concentration_basis_text": "consolidated customer accounts receivable"
+            }
+          ]
+        },
+        {
+          "filing_date": "1997-06-19",
+          "accession": "0000929624-97-000781",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "1996-06-19",
+          "accession": "0000898430-96-002749",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        }
+      ]
+    },
+    {
+      "ticker": "PKG",
+      "cik": "0000075677",
+      "filings_on_record": 27,
+      "filings_examined": 27,
+      "filings_failed": [],
+      "stopped_early_reason": null,
+      "error": null,
+      "named_counterparties": [
+        {
+          "counterparty": "ODP",
+          "earliest_filing_date": "2023-02-23",
+          "earliest_accession": "0000950170-23-003990",
+          "latest_filing_date": "2026-02-26",
+          "latest_accession": "0001193125-26-074129",
+          "filings_naming_it": 4
+        },
+        {
+          "counterparty": "Office Depot",
+          "earliest_filing_date": "2016-02-26",
+          "earliest_accession": "0000075677-16-000030",
+          "latest_filing_date": "2022-02-24",
+          "latest_accession": "0000950170-22-001913",
+          "filings_naming_it": 7
+        }
+      ],
+      "per_filing": [
+        {
+          "filing_date": "2026-02-26",
+          "accession": "0001193125-26-074129",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "ODP",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 58.0,
+              "as_of_date": "2026-02-26",
+              "accession": "0001193125-26-074129",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ember 31, 2026. If the agreement is not renewed by the parties, ODP's obligation to purchase paper would phase down over a two-year period beginning January 1, 2027. In 2025, our sales revenue to ODP represented 58% of our Paper segment sales revenue and 4% of our consolidated sales revenue. 7 Competition The markets in which our Paper segment competes are large and highly competitive. Commodity g",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2025-02-27",
+          "accession": "0000950170-25-028533",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "ODP",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 58.0,
+              "as_of_date": "2025-02-27",
+              "accession": "0000950170-25-028533",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ember 31, 2025. If the agreement is not renewed by the parties, ODP's obligation to purchase paper would phase down over a two-year period beginning January 1, 2026. In 2024, our sales revenue to ODP represented 58% of our Paper segment sales revenue and 4% of our consolidated sales revenue. 7 Competition The markets in which our Paper segment competes are large and highly competitive. Commodity g",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2024-02-29",
+          "accession": "0000950170-24-022794",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "ODP",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 61.0,
+              "as_of_date": "2024-02-29",
+              "accession": "0000950170-24-022794",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ember 31, 2025. If the agreement is not renewed by the parties, ODP's obligation to purchase paper would phase down over a two-year period beginning January 1, 2026. In 2023, our sales revenue to ODP represented 61% of our Paper segment sales revenue and 5% of our consolidated sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity gra",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2023-02-23",
+          "accession": "0000950170-23-003990",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "ODP"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "ODP",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 48.0,
+              "as_of_date": "2023-02-23",
+              "accession": "0000950170-23-003990",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ember 31, 2024. If the agreement is not renewed by the parties, ODP's obligation to purchase paper would phase down over a two-year period beginning January 1, 2025. In 2022, our sales revenue to ODP represented 48% of our Paper segment sales revenue and 4% of our consolidated sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity gra",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "ODP",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 4.0,
+              "as_of_date": "2023-02-23",
+              "accession": "0000950170-23-003990",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ur Paper segment has had a long-standing commercial and contractual relationship with ODP. This relationship exposes us to a significant concentration of business and financial risk. Our sales to ODP represented approximately 4 % of our total Company sales for both 2022 and 2021 and about 48 % and 51 % of our Paper segment sales revenue for those periods, respectively. At December 31, 2022 and 202",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total Company sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2022-02-24",
+          "accession": "0000950170-22-001913",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 51.0,
+              "as_of_date": "2022-02-24",
+              "accession": "0000950170-22-001913",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "e agreement is not renewed by the parties, Office Depot’s obligation to purchase paper would phase down over a two-year period beginning on January 1, 2023. In 2021, our sales revenue to Office Depot represented 51% of our Paper segment sales revenue and 4% of our consolidated sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity gra",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2021-02-24",
+          "accession": "0001564590-21-008051",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 45.0,
+              "as_of_date": "2021-02-24",
+              "accession": "0001564590-21-008051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": ". If the agreement is not renewed by the parties, Office Depot’s obligation to purchase paper would phase down over a two-year period beginning on January 1, 2023. 11 In 2020 , sale s to Office Depot represented 45% of our Paper segment sales and 5% of our consolidated sales. If t hese sales are reduced, including if we are unable to renew the agreement at historical volume levels, we would need t",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 45.0,
+              "as_of_date": "2021-02-24",
+              "accession": "0001564590-21-008051",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "nd $ 76.2 million of accounts receivable due from Office Depot, respectively, which represents approximately 5 % and 9 % of our total Company receivables, respectively. In 2020, sales to Office Depot represented about 45 % of our Paper segment sales. If these sales are reduced, we would need to find new customers. We may not be able to fully replace any lost sales, and any new sales may be at lowe",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2020-02-26",
+          "accession": "0001564590-20-006774",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 50.0,
+              "as_of_date": "2020-02-26",
+              "accession": "0001564590-20-006774",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "holds. If the agreement is not renewed by the parties, Office Depot’s obligation to purchase paper would phase down over a two-year period beginning on January 1, 2023. In 2019, sales to Office Depot represented 50% of our Paper segment sales and 7% of our consolidated sales. If these sales are reduced, including if we are unable to renew the agreement at historical volume levels, we would need to",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 7.0,
+              "as_of_date": "2020-02-26",
+              "accession": "0001564590-20-006774",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ctual relationship with Office Depot, our largest customer in the paper business. This relationship exposes us to a significant concentration of business and financial risk. Our sales to Office Depot represented 7 % of our total Company sales for both 2019 and 2018 and about 50 % and 47 % of our Paper segment sales revenue for those periods, respectively. At December 31, 2019 and 2018, we had $ 76",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total Company sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2019-02-28",
+          "accession": "0001564590-19-005284",
+          "form": "10-K",
+          "edges_found": 3,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 47.0,
+              "as_of_date": "2019-02-28",
+              "accession": "0001564590-19-005284",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "uld cause the agreement to terminate in 2019. If this were to occur, Office Depot's purchase obligations under the agreement would phase out over two years. In 2018, our sales revenue to Office Depot represented 47% of our Paper segment sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity grades of white paper are globally traded, w",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 47.0,
+              "as_of_date": "2019-02-28",
+              "accession": "0001564590-19-005284",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "egment. The agreement requires Office Depot to buy, and us to supply, at least 50% of Office Depot's requirements for commodity office papers through December 2019. 10 In 2018, sale s to Office Depot represented 47 % of our Paper segment sales and 7% of our consolidated sales. If t hese sales are reduced, including if we ar e unable to renew the agreement at committed volumes, we would need to fin",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 7.0,
+              "as_of_date": "2019-02-28",
+              "accession": "0001564590-19-005284",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ctual relationship with Office Depot, our largest customer in the paper business. This relationship exposes us to a significant concentration of business and financial risk. Our sales to Office Depot represented 7% of our total company sales for both 2018 and 2017 and about 47% and 43% of our Paper segment sales revenue for those periods, respectively. At December 31, 2018 and 2017, we had $66.7 m",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total company sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2018-02-28",
+          "accession": "0001564590-18-003690",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 43.0,
+              "as_of_date": "2018-02-28",
+              "accession": "0001564590-18-003690",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "uld cause the agreement to terminate in 2018. If this were to occur, Office Depot's purchase obligations under the agreement would phase out over two years. In 2017, our sales revenue to Office Depot represented 43% of our Paper segment sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity grades of white paper are globally traded, w",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2017-02-28",
+          "accession": "0000075677-17-000004",
+          "form": "10-K",
+          "edges_found": 2,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 42.0,
+              "as_of_date": "2017-02-28",
+              "accession": "0000075677-17-000004",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "ld cause the agreement to terminate in 2017. If this were to occur, Office Depot's purchase obligations under the agreement would phase out over two years. In 2016 , our sales revenue to Office Depot represented 42% of our Paper segment sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity grades of white paper are globally traded, w",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 42.0,
+              "as_of_date": "2017-02-28",
+              "accession": "0000075677-17-000004",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": ", high brightness, or recycled content. We ship to customers both directly from our mills and through distribution centers. In 2016 , our sales to Office Depot, our largest Paper segment customer, 72 represented 42% of our Paper segment sales revenue. Sales for market pulp decreased in 2016 as we ceased softwood market pulp operations at our Wallula, Washington mill with the permanent shutdown of ",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2016-02-26",
+          "accession": "0000075677-16-000030",
+          "form": "10-K",
+          "edges_found": 3,
+          "named_counterparties": [
+            "Office Depot"
+          ],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 45.0,
+              "as_of_date": "2016-02-26",
+              "accession": "0000075677-16-000030",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "gest customer when it acquired OfficeMax Incorporated late in 2013. We previously had a long standing contractual relationship with OfficeMax Incorporated. In 2015 , our sales revenue to Office Depot represented 45% of our Paper segment sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity grades of white paper are globally traded, w",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": "Office Depot",
+              "counterparty_is_named": true,
+              "direction": "customer",
+              "concentration_pct": 9.0,
+              "as_of_date": "2016-02-26",
+              "accession": "0000075677-16-000030",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "subject to the satisfaction of certain conditions, including regulatory approval. This relationship exposes us to a significant concentration of business and financial risk. Our sales to Office Depot represented 9% of our total company sales, for both 2015 and 2014 , and about 45% of our Paper segment sales revenue for those periods. At December 31, 2015 and 2014 , we had $39.5 million and $52.6 m",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total company sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 45.0,
+              "as_of_date": "2016-02-26",
+              "accession": "0000075677-16-000030",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": ", high brightness, or recycled content. We ship to customers both directly 72 from our mills and through distribution centers. In 2015 , our sales to Office Depot, our largest paper segment customer, represented 45% of our Paper segment sales revenue. Corporate and Other. Our Corporate and Other segment includes corporate support staff services and related assets and liabilities, and foreign excha",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2015-02-27",
+          "accession": "0000075677-15-000007",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 44.0,
+              "as_of_date": "2015-02-27",
+              "accession": "0000075677-15-000007",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "s purchase obligations under the agreement would phase out over two years. OfficeMax was acquired by Office Depot, Inc. late in 2013. In 2014 , our sales revenue to Office Depot (including OfficeMax) represented 44% of our Paper segment sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity grades of white paper are globally traded, w",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2014-02-28",
+          "accession": "0000075677-14-000009",
+          "form": "10-K",
+          "edges_found": 3,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "supplier",
+              "concentration_pct": 38.0,
+              "as_of_date": "2014-02-28",
+              "accession": "0000075677-14-000009",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "accounted_for",
+              "context": "x business, or the effects on the pricing and competition for office papers. In 2013, for the period of October 25, 2013, to December 31, 2013, our sales revenue to Office Depot (including OfficeMax) accounted for 38% of Paper segment sales. Significant reductions in paper purchases from the post-merger entity would cause our paper business to attempt to expand its customer base and could potentia",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 38.0,
+              "as_of_date": "2014-02-28",
+              "accession": "0000075677-14-000009",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "aper requirements of the legacy OfficeMax business. For the period of October 25, 2013, through December 31, 2013, our sales to Office Depot (including OfficeMax), our largest paper segment customer, represented 38% of our Paper segment sales revenue. Competition The markets in which our Paper segment competes are large and highly competitive. Commodity grades of white paper are globally traded, w",
+              "concentration_basis": "segment_revenue",
+              "concentration_basis_text": "our Paper segment sales"
+            },
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 2.0,
+              "as_of_date": "2014-02-28",
+              "accession": "0000075677-14-000009",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "relationship exposes us to a significant concentration of business and financial risk. For the period of October 25, 2013 , through December 31, 2013 , our sales to Office Depot (including OfficeMax) represented 2% of our total company sales revenue and 38% of our Paper segment sales revenue. At December 31, 2013, we had $39.2 million of accounts receivable due from Office Depot (including OfficeM",
+              "concentration_basis": "consolidated_revenue",
+              "concentration_basis_text": "our total company sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2013-02-28",
+          "accession": "0001193125-13-083569",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2012-02-21",
+          "accession": "0001193125-12-070269",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2011-02-22",
+          "accession": "0000950123-11-016543",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2010-02-17",
+          "accession": "0000950123-10-013747",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2009-02-27",
+          "accession": "0000950137-09-001376",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2008-02-20",
+          "accession": "0001047469-08-001511",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2007-03-01",
+          "accession": "0001104659-07-015513",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 68.0,
+              "as_of_date": "2007-03-01",
+              "accession": "0001104659-07-015513",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "agreed-upon prices negotiated with the purchasers. Other sales are recognized when earned. Revenue from Packaging Corporation of America, a related party with whom the Company has a supply agreement, represented 68% of timber sales in 2004 and 55% in 2003 (see Note 7). The Company also generates income from the leasing of hunting rights on the land it owns. Leases are renewed annually by the lesse",
+              "concentration_basis": "other_or_unknown",
+              "concentration_basis_text": "timber sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2006-02-21",
+          "accession": "0001104659-06-010794",
+          "form": "10-K",
+          "edges_found": 1,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": [
+            {
+              "reporting_company": "PKG",
+              "reporting_cik": "0000075677",
+              "named_counterparty": null,
+              "counterparty_is_named": false,
+              "direction": "customer",
+              "concentration_pct": 68.0,
+              "as_of_date": "2006-02-21",
+              "accession": "0001104659-06-010794",
+              "form": "10-K",
+              "source": "EDGAR_10K_ASC280",
+              "pattern": "represented",
+              "context": "agreed-upon prices negotiated with the purchasers. Other sales are recognized when earned. Revenue from Packaging Corporation of America, a related party with whom the Company has a supply agreement, represented 68% of timber sales in 2004 and 55% in 2003 (see Note 7). The Company also generates income from the leasing of hunting rights on the land it owns. Leases are renewed annually by the lesse",
+              "concentration_basis": "other_or_unknown",
+              "concentration_basis_text": "timber sales"
+            }
+          ]
+        },
+        {
+          "filing_date": "2005-03-09",
+          "accession": "0001104659-05-010147",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2004-03-12",
+          "accession": "0001104659-04-007269",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2003-03-19",
+          "accession": "0001047469-03-009199",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2002-03-20",
+          "accession": "0000912057-02-010616",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2001-03-27",
+          "accession": "0000912057-01-008509",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        },
+        {
+          "filing_date": "2000-03-10",
+          "accession": "0000912057-00-010890",
+          "form": "10-K",
+          "edges_found": 0,
+          "named_counterparties": [],
+          "explicit_no_concentration": false,
+          "disclosures": []
+        }
+      ]
+    }
+  ]
+}

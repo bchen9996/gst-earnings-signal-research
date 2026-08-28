@@ -48,6 +48,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
@@ -72,6 +73,10 @@ class TickerHistory:
     error: Optional[str] = None
     per_filing: list[dict[str, Any]] = field(default_factory=list)
     stopped_early_reason: Optional[str] = None
+    # Filings that could not be retrieved. Distinct from stopping early: the
+    # walk carried on past these, so the gap is bounded and enumerable rather
+    # than being "everything older than the first failure".
+    filings_failed: list[dict[str, Any]] = field(default_factory=list)
 
     def named_counterparties(self) -> dict[str, dict[str, Any]]:
         """counterparty -> earliest/latest filing that names it.
@@ -117,7 +122,24 @@ def walk_ticker(client: EdgarClient, ticker: str, *,
             filings = filings[:max_filings]
 
         for f in filings:
-            text = client.filing_text(cik, f["accession"], f["primary_document"])
+            # A single unreachable document must NOT end the walk. The older
+            # filings are exactly the ones this walk exists to reach, and the
+            # oldest are the likeliest to 404 on the modern /Archives/ path --
+            # measured on MCK, where a 404 at filing 27 of 29 truncated the
+            # whole history and looked identical to "no earlier disclosure".
+            # Each failure is recorded and bounded; the walk continues.
+            try:
+                text, src = client.filing_text_with_source(
+                    cik, f["accession"], f["primary_document"])
+            except Exception as e:              # noqa: BLE001 -- recorded
+                if "request cap" in str(e):
+                    raise                        # a cap IS a reason to stop
+                h.filings_failed.append({
+                    "filing_date": f["filing_date"],
+                    "accession": f["accession"],
+                    "error": f"{type(e).__name__}: {str(e)[:160]}",
+                })
+                continue
             edges, no_conc = extract_edges_from_text(
                 text, ticker=ticker, cik=cik, filing_date=f["filing_date"],
                 accession=f["accession"], form=f["form"])
@@ -126,9 +148,23 @@ def walk_ticker(client: EdgarClient, ticker: str, *,
             h.per_filing.append({
                 "filing_date": f["filing_date"],
                 "accession": f["accession"],
+                "form": f["form"],
                 "edges_found": len(edges),
                 "named_counterparties": named,
                 "explicit_no_concentration": bool(no_conc),
+                # Which retrieval path served this filing. A full-submission
+                # extraction covers only the 10-K document, exhibits stripped,
+                # but it is not the same artifact as the primary document and
+                # must be distinguishable without re-fetching.
+                "source_path": src,
+                # The FULL disclosure records, not just the names. This walk
+                # was built to answer "who is named, and how far back?", and a
+                # name alone cannot be tested against the anchor-universe rule:
+                # that rule turns on the percentage AND its denominator, and
+                # 58% of a segment is not 58% of an entity. Recording only
+                # names here would force any point-in-time evaluation to
+                # re-fetch every filing.
+                "disclosures": [e.as_dict() for e in edges],
             })
             h.filings_examined += 1
     except Exception as e:                      # noqa: BLE001 -- recorded, not raised
@@ -160,6 +196,15 @@ def build_report(histories: list[TickerHistory], *, contact_used: bool,
             "after its as_of_date. The earliest disclosing filing therefore "
             "maximises the events an edge can serve; the newest one, which the "
             "candidate extractor records, minimises it."),
+        "per_filing_carries_disclosures": True,
+        "per_filing_carries_disclosures_note": (
+            "Each per_filing entry carries the full `disclosures` records, "
+            "including concentration_pct and concentration_basis. A walk "
+            "written before 2026-08-27 carries only counterparty NAMES and "
+            "cannot be evaluated against the anchor-universe rule -- consumers "
+            "must REFUSE such a walk rather than score it, because an absent "
+            "denominator would read as a denial and produce an empty universe "
+            "that looks like a finding."),
         "contact_supplied": contact_used,
         "requests_made": requests_made,
         "tickers": [
@@ -168,6 +213,7 @@ def build_report(histories: list[TickerHistory], *, contact_used: bool,
                 "cik": h.cik,
                 "filings_on_record": h.filings_on_record,
                 "filings_examined": h.filings_examined,
+                "filings_failed": h.filings_failed,
                 "stopped_early_reason": h.stopped_early_reason,
                 "error": h.error,
                 "named_counterparties": list(h.named_counterparties().values()),
@@ -205,7 +251,25 @@ def main(argv: list[str] | None = None) -> int:
     print(f"EDGAR 10-K history walk over {len(tickers)} ticker(s): {tickers}")
     print(f"  request cap: {a.max_requests}")
 
-    histories = [walk_ticker(client, t, max_filings=a.max_filings) for t in tickers]
+    # Progress is printed and FLUSHED per ticker. A full-frame walk is well
+    # over a thousand filings and runs for an hour or more; without this the
+    # log stays empty throughout and a hung run is indistinguishable from a
+    # slow one -- which has already cost this project a wrong diagnosis once.
+    histories = []
+    for i, t in enumerate(tickers, 1):
+        t0 = time.time()
+        h = walk_ticker(client, t, max_filings=a.max_filings)
+        named = h.named_counterparties()
+        print(f"[{i:3d}/{len(tickers)}] {t:<6} "
+              f"filings {h.filings_examined:>3}/{h.filings_on_record:<3} "
+              f"failed {len(h.filings_failed):>2}  "
+              f"named {len(named):>2}  "
+              f"{time.time() - t0:5.1f}s  "
+              f"(requests {client.requests_made})"
+              + ("  STOPPED EARLY" if h.stopped_early_reason else "")
+              + (f"  ERROR: {h.error}" if h.error else ""),
+              flush=True)
+        histories.append(h)
 
     print("\n=== EARLIEST NAMED DISCLOSURE ===")
     for h in histories:

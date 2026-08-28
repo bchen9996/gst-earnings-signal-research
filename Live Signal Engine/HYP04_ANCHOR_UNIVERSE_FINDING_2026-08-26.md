@@ -181,3 +181,57 @@ One extractor change was required to make the rule mechanically applicable.
 verbatim and classified — the anchors had always captured it in a `basis` group
 that nothing read. Without it, "58%" and "24%" and "21%" were three different
 quantities being compared as if they were one.
+
+---
+
+## AMENDMENT — 2026-08-27: the "zero among the locked 24" measurement was an artifact
+
+**This amendment corrects the central measurement of section 4.** That section
+reports, and section 4's closing sentence turns on, the claim that extraction
+over 51 tickers found **zero** named counterparties among the locked 24. The
+extraction was run correctly and the number was true of what it read. It is not
+true of the locked 24.
+
+**It read only each filer's newest 10-K.** `extract_for_universe()` calls
+`client.latest_10k()`, so the screen could only see concentrations still
+disclosed in 2026. Evaluating the same unchanged rule against every 10-K in
+force from 1996 to 2026 — 1,250 filings, all 51 frame members, zero retrieval
+failures — finds that **three locked-24 members qualify**:
+
+| Locked-24 member | Span | Disclosure |
+|---|---|---|
+| **AAPL** | 2000-12-14 → 2002-12-19 | Ingram Micro Inc, 11.5% of net sales |
+| **CTSH** | 2004-03-12 → 2005-03-16 | JP Morgan Chase, 10.1% of revenues |
+| **INTC** | 2005-02-22 → 2017-02-17 | Dell Inc, 19% of total sales |
+
+So the finding's conclusion — *"the anchors that have linkage edges are outside
+the locked universe, and the anchors inside the locked universe have no linkage
+edges"* — **does not hold**. Its second half was an artifact of the corpus, not
+a property of the locked 24. Apple, Cognizant and Intel each disclosed a named
+≥10% customer concentration; all three had simply stopped by 2026.
+
+### What still stands
+
+- **Section 1 stands.** MCK, PKG, CVS and ODP are still absent from
+  `locked_universe_v0.1.json`. That was a fact about a list, not about filings.
+- **Section 2 stands.** An MCK earnings event still has no route to becoming a
+  core-eligible anchor event, because no capture path runs over it. Membership
+  is not eligibility, and widening the universe changes no counter.
+- **Section 3 stands.** This was never asserted to be a bug, and it still is not.
+- **Section 6 stands.** The two attribution gates added on 2026-08-26 were
+  correct for the filings they were tested against, and both are still in force.
+
+### Why the error is worth recording rather than quietly fixing
+
+The gates were built against 2026 prose and were right for it. Widening the
+corpus by twenty-five years raised the false-positive rate with no code change
+at all — the gates did not regress, the corpus outgrew them. Eight fabricated
+counterparties were found and rejected across two rounds before the number
+above could be trusted, and the first round was a spot check that missed three
+of them. **A screen's coverage is part of its result**, and this document
+reported a number without reporting what the screen could see.
+
+Recorded in registry v1.6 and in
+[`HYP04_ANCHOR_UNIVERSE_POINT_IN_TIME_FINDING_2026-08-27.md`](HYP04_ANCHOR_UNIVERSE_POINT_IN_TIME_FINDING_2026-08-27.md).
+
+**No gate moved:** CLOSED, C4 MET, 4 denials.
