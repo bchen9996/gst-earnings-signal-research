@@ -993,6 +993,64 @@ def test_6k_possessive_denominators_are_a_known_blind_spot() -> None:
               named(d) == {"Rite Aid Corporation"}, str(named(d)))
 
 
+
+def test_6l_the_accepted_verb_set_is_closed_and_misses_the_copula() -> None:
+    """A SECOND known gap, same shape as 6k and pinned the same way.
+
+    The anchor recognises a closed set of five verb lemmas -- represent,
+    account for, comprise, constitute, make up. A concentration stated with a
+    COPULA ("sales to X were 15% of net sales") or an equivalence verb
+    ("totaled", "equaled", "approximated") expresses the identical relation and
+    is not matched at all.
+
+    "were approximately N% of" is not exotic phrasing; it is ordinary 10-K
+    prose. As with 6k the direction is one-way -- an unmatched verb can only
+    OMIT a real disclosure, never invent one -- so no published member is at
+    risk, and as with 6k the fix is a derivation change that needs a re-walk
+    and a new registry version rather than a quiet regex edit.
+
+    Recorded in HYP04_EXTRACTOR_POSSESSIVE_DENOMINATOR_FINDING_2026-08-27.md.
+    """
+    S = "Sales to Rite Aid Corporation {v} consolidated sales."
+
+    def named(v):
+        edges, _ = extract_edges_from_text(
+            S.format(v=v), ticker="X", cik="0",
+            filing_date="2005-01-01", accession="a")
+        return {e.named_counterparty for e in edges if e.counterparty_is_named}
+
+    # THE GAP PROPER. Each states the same relation the accepted verbs do.
+    equivalence = ("were approximately 15% of", "was approximately 15% of",
+                   "totaled 15% of", "equaled 15% of", "approximated 15% of")
+    for v in equivalence:
+        check(f"6l. KNOWN GAP -- equivalence phrasing is unmatched: {v!r}",
+              named(v) == set(), str(named(v)))
+
+    # ALSO UNMATCHED, but deliberately NOT claimed as a gap. These describe
+    # what the counterparty contributed rather than asserting the share IS the
+    # figure, and reading them as concentration statements would be a
+    # semantic widening, not a phrasing fix. Pinned so that a future change
+    # admitting them is a visible decision rather than a side effect of
+    # loosening the verb list.
+    not_equivalence = ("generated 15% of", "provided 15% of",
+                       "contributed 15% of", "is 15% of", "are 15% of")
+    for v in not_equivalence:
+        check(f"6l. unmatched, and NOT claimed as a gap: {v!r}",
+              named(v) == set(), str(named(v)))
+
+    # CONTROLS -- the closed accepted set. Without these, everything above
+    # would pass for an extractor that matches no verb at all.
+    accepted = ("represented approximately 15% of",
+                "accounted for approximately 15% of",
+                "comprised approximately 15% of",
+                "constituted approximately 15% of",
+                "made up approximately 15% of",
+                "represented 15% of", "accounted for 15% of")
+    for v in accepted:
+        check(f"6l. CONTROL -- accepted verb still matches: {v!r}",
+              named(v) == {"Rite Aid Corporation"}, str(named(v)))
+
+
 def test_11_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -1018,6 +1076,7 @@ if __name__ == "__main__":
     test_6i_exhaustive_enumeration_round_two()
     test_6j_the_denominator_classifier_does_not_silently_under_include()
     test_6k_possessive_denominators_are_a_known_blind_spot()
+    test_6l_the_accepted_verb_set_is_closed_and_misses_the_copula()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()
