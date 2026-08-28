@@ -141,14 +141,34 @@ class EdgarContactError(RuntimeError):
 # as the "party". Stage 1 anchors on the concentration claim, which is
 # unambiguous; stage 2 looks BACKWARD a bounded distance within the same
 # sentence for the counterparty.
+# The denominator's qualifier class admits an APOSTROPHE. Without it, "15% of
+# the Company's revenues" does not match at all -- such a disclosure is not
+# merely unclassified, it is INVISIBLE, and classify_concentration_basis is
+# never reached. Measured 2026-08-27 over a controlled grid: every
+# apostrophe-s form was rejected and every non-possessive form accepted, and
+# the split was exactly the apostrophe. Measured again 2026-08-28 over the
+# cached corpus: it cost at least one real anchor, NIKE / Foot Locker at 11%
+# of consolidated revenues.
+_BASIS = (r"(?P<basis>[\w\s'\u2019]{0,40}?"
+          r"(?:revenue|revenues|sales|receivable|receivables))\b")
+_PCT = r"(?P<pct>\d{1,3}(?:\.\d)?)\s*%\s+of\s+"
+_APPROX = r"(?:approximately\s+|about\s+|nearly\s+)?"
+
 CONCENTRATION_ANCHORS: tuple[tuple[str, str], ...] = (
-    (r"\baccounted for\s+(?:approximately\s+|about\s+|nearly\s+)?"
-     r"(?P<pct>\d{1,3}(?:\.\d)?)\s*%\s+of\s+(?P<basis>[\w\s]{0,40}?"
-     r"(?:revenue|revenues|sales|receivable|receivables))\b", "accounted_for"),
+    (r"\baccounted for\s+" + _APPROX + _PCT + _BASIS, "accounted_for"),
     (r"\b(?:represented|comprised|constituted|made up)\s+"
-     r"(?:approximately\s+|about\s+)?(?P<pct>\d{1,3}(?:\.\d)?)\s*%\s+of\s+"
-     r"(?P<basis>[\w\s]{0,40}?(?:revenue|revenues|sales|receivable|receivables))\b",
-     "represented"),
+     + _APPROX + _PCT + _BASIS, "represented"),
+    # Copular and equivalence phrasings state exactly the relation the verbs
+    # above state: "sales to X WERE approximately 15% of net sales" is
+    # ordinary 10-K prose, not exotic phrasing.
+    #
+    # DELIBERATELY NOT INCLUDED: generated, provided, contributed. Those
+    # describe what a counterparty CONTRIBUTED rather than asserting the share
+    # IS the figure, so admitting them would be a semantic widening rather
+    # than a phrasing fix. test_6l pins that distinction so a future change
+    # admitting them is a visible decision.
+    (r"\b(?:were|was|totaled|totalled|equaled|equalled|approximated)\s+"
+     + _APPROX + _PCT + _BASIS, "equivalence"),
 )
 
 # How far back from the concentration claim to look for the counterparty.
@@ -221,12 +241,54 @@ def classify_concentration_basis(basis_text: Optional[str]) -> str:
         return BASIS_CONSOLIDATED_REVENUE
     return BASIS_UNKNOWN
 
+# ==========================================================================
+# Two fabrication CONSTRUCTIONS that no gate covered until 2026-08-28.
+#
+# Both were found by measuring a candidate anchor widening over the cached
+# corpus -- and both turned out to be latent in the CURRENT extractor, not
+# introduced by the widening. Measured: with an accepted verb ("accounted
+# for", "represented") today's code produces both fabrications. They are
+# absent from the corpus only because the particular filings that contain
+# them happen to use a copular verb the anchor does not match.
+#
+# That is protection by accident. A filing writing the same construction with
+# an accepted verb would produce a fabricated supply-chain relationship today,
+# which is the one failure this source must not have.
+# ==========================================================================
+
+# "sales from the Company's Office Products Group were 16% of net sales"
+# (Genuine Parts, 2010-02-26). The subject is the FILER'S OWN segment reached
+# through a possessive self-reference, which INTERNAL_SUBJECT does not cover
+# because it looks for "within the|our". Checked against the resolved PARTY,
+# so it is construction-based rather than a list of segment names -- the
+# lesson of the GEOGRAPHIC_PARTY list that lacked Singapore and Hong Kong.
+SELF_REFERENTIAL_PARTY = re.compile(
+    r"^(?:the\s+)?(?:Compan(?:y|ies)|Corporation|Registrant|Group)"
+    r"(?:['\u2019]s)?\b", re.I)
+
+# "Revenue from billings to China, including Hong Kong, was 24% of our
+# revenue" (NVIDIA, 2019-02-21). "including X" makes X an INSTANCE of the
+# category being measured, so the percentage belongs to the category and not
+# to X. True whether X is a place or a company: a share attributed to a set
+# is not a bilateral relationship with one member of it.
+INCLUDING_APPOSITIVE = re.compile(
+    r"\b(?:including|includes|such\s+as)[\s,]*$", re.I)
+
+
+# THE COMMA IN "Foot Locker, Inc." -- both PARTY_TAIL and APPOSITIVE_NAME
+# allowed a legal suffix only after whitespace, so the continuation stopped at
+# the comma and the match, anchored to the end of the window, captured the
+# bare suffix "Inc". That is a fabricated counterparty standing in for a real
+# one. Measured on NIKE's FY2002 disclosure of Foot Locker at 11% of
+# consolidated revenues, which this had reduced to "Inc".
+
+
 # The counterparty phrase immediately preceding the claim. Anchored to the
 # END of the lookback window so it is the NEAREST candidate, not the first.
 PARTY_TAIL = re.compile(
     r"(?:(?:sales|revenues?|purchases|shipments)\s+to\s+)?"
     r"(?P<party>[A-Z][A-Za-z0-9.&'\-]*(?:\s+[A-Z][A-Za-z0-9.&'\-]*){0,4}"
-    r"(?:\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
+    r"(?:,?\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
     r"[,\s]*$")
 
 # The unnamed-disclosure forms: a SINGLE real counterparty whose identity is
@@ -269,7 +331,7 @@ APPOSITIVE_NAME = re.compile(
     r"(?:our|the|its)\s+(?:single\s+)?(?:largest|principal|primary|biggest|"
     r"major|top)\s+(?:customer|client|distributor)\s*,\s*"
     r"(?P<party>[A-Z][A-Za-z0-9.&'\-]*(?:\s+[A-Z][A-Za-z0-9.&'\-]*){0,5}"
-    r"(?:\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
+    r"(?:,?\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
     r"\s*(?:\(|,)", re.I)
 
 # A disclosure explicitly stating there is NO concentration. Recorded, because
@@ -401,6 +463,45 @@ GEOGRAPHIC_CONSTRUCTION = re.compile(
 # earned "within" something is internal by construction.
 INTERNAL_SUBJECT = re.compile(r"\bwithin\s+(?:the|our)\b", re.I)
 
+# The filer's own named unit, identified by an APPOSITIVE rather than by the
+# word "within". Genuine Parts, 2001-03-12: "The Automotive Parts Group, the
+# largest DIVISION OF THE COMPANY, distributes automotive replacement parts",
+# and 2002-03-07: "The Office Products Group, operated through S. P. Richards
+# Company, a wholly-owned SUBSIDIARY OF THE COMPANY".
+#
+# Found 2026-08-28 when the anchor widening first made these sentences
+# matchable. Left ungated they would have registered GPC as an anchor with its
+# OWN Automotive Parts Group as the counterparty at 50% of consolidated
+# revenue -- a fabricated member, and the one failure this source must not
+# have.
+#
+# Matched as a CONSTRUCTION, not a list of unit names. A list of the filer's
+# segments could never be complete across 51 companies and 30 years, which is
+# the lesson GEOGRAPHIC_PARTY taught by lacking Singapore and Hong Kong.
+# A party whose HEAD NOUN is a unit type is a business unit, not an entity.
+# Genuine Parts, 2001-03-12: "sales from the Automotive Parts Group
+# approximated 50% of the Company's net sales." There is no "of the Company"
+# appositive in that sentence to catch -- the heading two sentences earlier
+# reads "SEGMENT DATA." and nothing in the claim's own sentence says the Group
+# is GPC's. Only the name's shape gives it away.
+#
+# Ungated this registered GPC as an anchor whose counterparty is GPC's own
+# Automotive Parts Group at 50% of consolidated revenue -- five such segments
+# across its filings, and a fabricated member.
+#
+# THE HEAD NOUN, not any occurrence: "Lenovo Group Limited" is a real Intel
+# counterparty and its head is "Limited", so it is untouched. Measured over
+# the full corpus, this rejects exactly the five GPC segments and no real
+# counterparty. Under-inclusive by construction -- a real firm whose name ends
+# in "Group" would be dropped -- which is the correct direction for a source
+# that must never assert a relationship that does not exist.
+UNIT_HEAD_PARTY = re.compile(
+    r"\b(?:Group|Division|Segment|Unit|Operations)$", re.I)
+
+OWN_BUSINESS_UNIT = re.compile(
+    r"\b(?:division|segment|group|business\s+unit|subsidiary|affiliate)s?\s+"
+    r"of\s+(?:the\s+(?:Company|Corporation|Registrant)|us|our\b)", re.I)
+
 # An INDEFINITE ARTICLE immediately before the name means the phrase describes
 # a category, not an entity. "Sales to Asustek Computer Inc., or Asustek, a
 # CEM, accounted for 12% of our total revenue" -- NVIDIA, fiscal 2007: the
@@ -500,8 +601,26 @@ NON_CUSTOMER_SUBJECT = re.compile(
 # the year that just ended, so Intel's 10-K filed 2005-02-22 saying "In 2004,
 # Dell Inc. accounted for approximately 19%" is current, not stale. Only a gap
 # of two years or more is treated as a comparative.
+# The "ended" branch was added 2026-08-28, and it is load-bearing rather than
+# cosmetic. NIKE's 10-K of 2004-07-30 says, in the SAME filing that states
+# 2004 and 2003 had no customer above 10%:
+#
+#     "During the year ended May 31, 2002, revenues derived from Foot Locker,
+#      Inc. represented 11% of the Company's consolidated revenues."
+#
+# With only the in|for|during|of branch, that sentence yields NO stated year --
+# "During" is followed by "the year ended May 31," and not by the year itself.
+# The stale-comparative gate then cannot fire, and the disclosure is stamped
+# with the 2004 FILING date. That would open an anchor-universe interval on
+# precisely the filing that denies one.
+#
+# Found by measuring the 2026-08-28 anchor widening: the widening makes this
+# sentence matchable for the first time, so the gap became reachable.
 STATED_YEAR = re.compile(
-    r"\b(?:in|for|during|of)\s+(?:fiscal\s+(?:year\s+)?)?(?P<year>(?:19|20)\d{2})\b",
+    r"\b(?:"
+    r"(?:in|for|during|of)\s+(?:fiscal\s+(?:year\s+)?)?"
+    r"|(?:fiscal\s+)?(?:years?\s+)?ended\s+(?:[A-Z][a-z]+\.?\s+\d{1,2},\s*)?"
+    r")(?P<year>(?:19|20)\d{2})\b",
     re.I)
 STALE_COMPARATIVE_YEARS = 2
 
@@ -744,6 +863,10 @@ def extract_edges_from_text(
                 continue
             if INTERNAL_SUBJECT.search(window):
                 continue
+            # Sentence-scoped: the appositive naming the unit as the filer's
+            # own sits beside the name, not in the short lookback window.
+            if OWN_BUSINESS_UNIT.search(sentence):
+                continue
             if GEOGRAPHIC_CONSTRUCTION.search(sentence):
                 continue
             years = [int(m.group("year")) for m in STATED_YEAR.finditer(sentence)]
@@ -776,6 +899,10 @@ def extract_edges_from_text(
                         pm2 = PARTY_TAIL.search(trimmed)
                         if pm2:
                             party = clean_party(pm2.group("party"))
+                    elif INCLUDING_APPOSITIVE.search(lead):
+                        # An instance of the measured category, not the
+                        # counterparty. Take nothing rather than the instance.
+                        party = None
                     else:
                         party = clean_party(pm.group("party"))
 
@@ -785,6 +912,10 @@ def extract_edges_from_text(
             # supply-chain relationship that does not exist, which is the one
             # failure this source must not have.
             if party is not None and GEOGRAPHIC_PARTY.match(party):
+                party = None
+            if party is not None and SELF_REFERENTIAL_PARTY.match(party):
+                party = None
+            if party is not None and UNIT_HEAD_PARTY.search(party):
                 party = None
 
             # The topic window above is deliberately WIDE, so a role word in a

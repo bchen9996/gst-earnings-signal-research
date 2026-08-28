@@ -133,3 +133,76 @@ cache by re-running it.
 **Nothing in this document is evidence about supply-chain transmission.** No
 result, direction, effect estimate, plot, p-value or confidence interval exists
 for HYP-04, and none may be displayed while the gate is closed.
+
+---
+
+## AMENDMENT — 2026-08-28: the fix was implemented, and §2's diagnosis was wrong
+
+**§2 said the structural gates are verb-sensitive. That is false**, and it was
+checked rather than assumed only after it had been committed. Running the same
+sentences with an ACCEPTED verb shows today's extractor produces the identical
+fabrications:
+
+| Construction | with `was` | with `accounted for` |
+|---|---|---|
+| "billings to China, including Hong Kong" | not matched | **`Hong Kong` admitted** |
+| "sales from the Company's Office Products Group" | not matched | **segment admitted** |
+
+The gates were never verb-sensitive. **The constructions were simply not
+covered by any gate.** They are absent from the corpus because the filings
+carrying them happen to use copular verbs the anchor did not match — the code
+was clean **by accident**, and any filing writing the same construction with an
+accepted verb would have produced a fabrication at any point in this project.
+
+**§3's attribution was wrong too.** It blamed `PARTY_TAIL` for lacking
+`derived from`. The actual defect is the **comma before the legal suffix**:
+`"Foot Locker, Inc."` captured as `Inc`, because the name continuation stops at
+the comma and the match, anchored to the end of the window, keeps only the
+suffix. Corpus-wide this had mis-parsed three *existing* counterparties —
+`Inc` for Ingram Micro (AAPL), `Caremark RX` truncated (MCK), `Ltd` for Hyundai
+(QCOM).
+
+### What was implemented
+
+1. `PARTY_TAIL` and `APPOSITIVE_NAME` accept a comma before the legal suffix.
+2. `OWN_BUSINESS_UNIT` — an appositive naming the party as the filer's own
+   division/subsidiary.
+3. `UNIT_HEAD_PARTY` — a party whose **head noun** is a unit type. Head noun
+   only: `Lenovo Group Limited` is a real Intel counterparty and survives.
+   Measured corpus-wide, this rejects exactly the five GPC segments and no real
+   counterparty.
+4. `INCLUDING_APPOSITIVE` — `including X` makes X an instance of the measured
+   category, so the share belongs to the category.
+5. `STATED_YEAR` recognises `year ended <Month> <day>, <year>`.
+6. The anchor admits possessive denominators and copular/equivalence verbs.
+
+**Item 5 is the one that mattered most.** Without it the widening would have
+opened an NKE interval at **2004-07-30** — on the strength of a comparative
+about FY2002, in the very filing stating that 2004 and 2003 had *no* customer
+above 10%. The widening made that sentence matchable for the first time, so a
+pre-existing hole in the stale gate became reachable.
+
+### The result: membership is UNCHANGED
+
+Re-derived over the full corpus, offline, at zero requests:
+
+**Six members, nine intervals, identical to registry v1.6** — same tickers,
+same dates, same counterparties, `registry_grade=True`. **No v1.7 is
+required.**
+
+**NKE did not become a member**, and §3 of this finding overstated what the fix
+would recover. Its genuinely qualifying disclosures are all of the form
+*"represented 11% and 12%, **respectively**, of the Company's consolidated
+revenues"* — a multi-year construction still unsupported. The one simple-form
+sentence is the 2004 comparative, now correctly rejected. So NKE remains a
+**known missing member**, and the reason is now precisely identified rather
+than attributed to the wrong cause.
+
+### What actually improved
+
+- three real counterparties stopped being mis-parsed
+- four fabrication routes closed, three of which were **live defects in the
+  published extractor**, not artefacts of the widening
+- a stale-comparative hole closed before it could create a false interval
+
+2,096 checks over 27 suites, 0 failures. Gate **CLOSED, C4 MET, 4 denials**.
