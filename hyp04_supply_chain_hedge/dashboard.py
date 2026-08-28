@@ -73,7 +73,7 @@ LSE = REPO_ROOT / "Live Signal Engine"
 
 CANARY = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_CANARY_2026-08-17.json"
 FULL = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_FULL_2026-08-17.json"
-REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.5.json"
+REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.6.json"
 
 # Suites this page runs.
 #
@@ -252,8 +252,18 @@ def read_anchor_event_candidates() -> dict[str, Any]:
         by_prov[r.get("provenance", "unrecorded")] = \
             by_prov.get(r.get("provenance", "unrecorded"), 0) + 1
     dates = sorted(r.get("release_date", "") for r in rows if r.get("release_date"))
+    # Per-anchor release DATES, because registry v1.6 makes membership a span
+    # rather than a flag: a candidate event counts only if its anchor was a
+    # registered member ON THAT DATE. Counting by ticker alone would credit an
+    # anchor for events outside its own interval.
+    dates_by_anchor: dict[str, list[str]] = {}
+    for r in rows:
+        d = r.get("release_date")
+        if d:
+            dates_by_anchor.setdefault(r.get("anchor_ticker", "?"), []).append(d)
     return {
         "present": True,
+        "dates_by_anchor": dates_by_anchor,
         "source": files[0].name,
         "total": len(rows),
         "by_anchor": by_anchor,
@@ -636,51 +646,80 @@ def render(tests: dict, audit: dict, registry: dict,
     au = registry.get("anchor_universe") or {}
     universe_block = ""
     if au:
-        members = list(au.get("derived_members", []))
-        prov = au.get("derived_members_provenance", {}) or {}
-        rows = "".join(
-            f"<tr><td class='mono'>{_e(str(t))}</td>"
-            f"<td>{_e(str(e.get('counterparty')))}</td>"
-            f"<td class='num'>{_e(str(e.get('concentration_pct')))}%</td>"
-            f"<td class='mono'>{_e(str(e.get('concentration_basis')))}</td>"
-            f"<td class='mono'>{_e(str(e.get('as_of_date')))}</td></tr>"
-            for t in members for e in (prov.get(t) or []))
-        excluded = "".join(
-            f"<li><span class='mono'>{_e(str(r.get('ticker')))}</span> &rarr; "
-            f"{_e(str(r.get('counterparty')))} &mdash; "
-            f"{_e(str(r.get('concentration_pct')))}% of "
-            f"<span class='mono'>{_e(str(r.get('concentration_basis')))}</span></li>"
-            for r in au.get("screened_but_not_qualifying", [])
-            if r.get("counterparty"))
-        by_anchor = cand.get("by_anchor", {}) if cand.get("present") else {}
+        # v1.6 declares membership as INTERVALS and removes v1.5's snapshot
+        # fields. Read both shapes: this page must keep working against an
+        # older registry rather than silently rendering an empty universe,
+        # which would read as "nobody qualifies" instead of "wrong shape".
+        intervals = au.get("membership_intervals") or []
+        members = list(au.get("members_ever") or au.get("derived_members") or [])
+
+        if intervals:
+            rows = "".join(
+                f"<tr><td class='mono'>{_e(str(i.get('ticker')))}</td>"
+                f"<td class='mono'>{_e(str(i.get('start_date')))}</td>"
+                f"<td class='mono'>{_e(str(i.get('end_date') or 'current'))}</td>"
+                f"<td>{_e(str((i.get('evidence', {}).get('qualifying_disclosures') or [{}])[0].get('counterparty')))}</td>"
+                f"<td class='num'>{_e(str((i.get('evidence', {}).get('qualifying_disclosures') or [{}])[0].get('concentration_pct')))}%</td>"
+                f"<td class='num'>{_e(str(i.get('filings_qualifying')))}</td></tr>"
+                for i in intervals)
+            head = ("<tr><th>Anchor</th><th>From</th><th>To</th>"
+                    "<th>Counterparty</th><th>Concentration</th>"
+                    "<th>Filings</th></tr>")
+        else:
+            prov = au.get("derived_members_provenance", {}) or {}
+            rows = "".join(
+                f"<tr><td class='mono'>{_e(str(t))}</td>"
+                f"<td class='mono'>{_e(str(e.get('as_of_date')))}</td>"
+                f"<td class='mono'>&mdash;</td>"
+                f"<td>{_e(str(e.get('counterparty')))}</td>"
+                f"<td class='num'>{_e(str(e.get('concentration_pct')))}%</td>"
+                f"<td class='num'>1</td></tr>"
+                for t in members for e in (prov.get(t) or []))
+            head = ("<tr><th>Anchor</th><th>As of</th><th>To</th>"
+                    "<th>Counterparty</th><th>Concentration</th>"
+                    "<th>Filings</th></tr>")
+
+        # Candidate events split by whether the anchor was a member ON the
+        # release date. Computed here from the registry and the candidates
+        # file; no count is written into this source.
         split = ""
-        if by_anchor:
-            inside = sum(n for t, n in by_anchor.items() if t in members)
-            outside = sum(n for t, n in by_anchor.items() if t not in members)
-            outs = ", ".join(sorted(t for t in by_anchor if t not in members))
+        dba = cand.get("dates_by_anchor", {}) if cand.get("present") else {}
+        if dba and intervals:
+            spans: dict[str, list[tuple[str, str]]] = {}
+            for i in intervals:
+                spans.setdefault(str(i.get("ticker")), []).append(
+                    (str(i.get("start_date") or ""), str(i.get("end_date") or "")))
+            inside = outside = 0
+            outside_tickers: set[str] = set()
+            for t, ds in dba.items():
+                for d in ds:
+                    ok = any(st and d >= st and (not en or d < en)
+                             for st, en in spans.get(t, []))
+                    if ok:
+                        inside += 1
+                    else:
+                        outside += 1
+                        outside_tickers.add(t)
             if outside:
                 split = (
                     "<div class='caveat blocker'><strong>"
                     f"{outside} of the {inside + outside} candidate anchor "
-                    "events belong to tickers OUTSIDE the registered anchor "
-                    f"universe</strong> ({_e(outs)}). They are correctly dated "
-                    "releases and are not deleted; they simply cannot become "
-                    "HYP-04 anchor events under the rule this registry "
-                    "declares.</div>")
+                    "events fall OUTSIDE every membership interval</strong> "
+                    f"({_e(', '.join(sorted(outside_tickers)))}). Membership is "
+                    "a span, not a flag: an event counts only if its anchor was "
+                    "a registered member on the release date. These are "
+                    "correctly dated releases and are not deleted.</div>")
+
         universe_block = f"""
           <p class="mt"><strong>Anchor universe</strong> &mdash; a RULE
              (<span class="mono">{_e(str(au.get('rule_id')))}</span>), evaluated
              over {_e(str((au.get('screening_frame') or {}).get('size')))} tickers
-             at cutoff {_e(str(au.get('cutoff_date')))}. Members qualify by
-             meeting a criterion fixed in advance; none is named in.
-             Threshold {_e(str(au.get('threshold_pct')))}% of
+             {_e('at each filing in force' if intervals else 'at one cutoff')}.
+             Members qualify by meeting a criterion fixed in advance; none is
+             named in. Threshold {_e(str(au.get('threshold_pct')))}% of
              <span class="mono">{_e(str(au.get('required_denominator')))}</span>,
              both taken from ASC 280-10-50-42.</p>
-          <table><thead><tr><th>Anchor</th><th>Counterparty</th>
-            <th>Concentration</th><th>Denominator</th><th>As of</th></tr></thead>
-          <tbody>{rows}</tbody></table>
-          <p class="muted small">Screened and NOT qualifying:</p>
-          <ul class="small">{excluded}</ul>
+          <table><thead>{head}</thead><tbody>{rows}</tbody></table>
           {split}
           <div class="caveat"><strong>Membership is not eligibility.</strong>
              Declaring who may be an anchor creates no eligible anchor event.

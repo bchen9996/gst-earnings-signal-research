@@ -86,6 +86,17 @@ SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik}.json"
 # Older filings live in separate paginated files named by `filings.files[].name`.
 SUBMISSIONS_EXTRA_URL = "https://data.sec.gov/submissions/{name}"
 ARCHIVE_DOC_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
+# Every document of a filing, concatenated. The only route to pre-2001
+# filings, whose per-document path does not exist.
+FULL_SUBMISSION_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}.txt"
+
+SOURCE_PRIMARY_DOCUMENT = "primary_document"
+SOURCE_FULL_SUBMISSION = "full_submission_text"
+
+# Server-side conditions worth exactly one retry. A 404 is not among them:
+# it is a statement about the layout, not about load.
+TRANSIENT_STATUSES: tuple[int, ...] = (429, 500, 502, 503, 504)
+TRANSIENT_RETRY_SECONDS = 1.0
 FULL_TEXT_SEARCH_URL = "https://efts.sec.gov/LATEST/search-index"
 
 # SEC asks for <10 req/sec. 0.15s between requests is ~6.7/sec, the same
@@ -319,6 +330,76 @@ AGGREGATE_SUBJECT = re.compile(
     r"(?:largest\s+|major\s+|significant\s+|principal\s+|key\s+)?"
     r"(?:customer|client|distributor|reseller)s\b", re.I)
 
+# A BARE PLURAL CLASS NOUN is just as aggregate as "our ten largest customers",
+# and AGGREGATE_SUBJECT above cannot see it: that pattern requires a counting
+# word first. Measured on Microchip, whose 10-Ks from 2003 to 2025 read
+# "Distributors accounted for 60% of our net sales" -- a whole channel, not a
+# counterparty. The preceding word was an all-caps section heading
+# ("DISTRIBUTION"), which the name scan swallowed, producing the counterparty
+# "DISTRIBUTION Distributors". The very next sentence names no one either:
+# "Our largest distributor accounted for approximately 12% of our net sales."
+#
+# Anchored to the END of the subject span so it only fires when the class noun
+# is what the claim is ABOUT. "Sales to Ingram Micro Inc. ... distributors ..."
+# elsewhere in a sentence must not veto a real named counterparty.
+BARE_CLASS_SUBJECT = re.compile(
+    r"(?:^|[.;:]|\b)(?:our\s+|the\s+)?"
+    r"(?:customer|client|distributor|reseller|dealer|wholesaler|"
+    r"retailer|end.?user|oem|odm)s\s*$", re.I)
+
+# TWO NAMES SHARING ONE PERCENTAGE. Measured on Qualcomm: "QCT and QTL segment
+# revenues from Samsung Electronics and HTC comprised 26% of total
+# consolidated revenues" -- 26% is the PAIR. The backward scan takes the
+# nearest name and attributes the whole figure to HTC alone, which overstates
+# a real relationship by an unknown amount.
+#
+# Anchored to the end, and both sides must look like NAMES: Intel's "Dell Inc.
+# accounted for approximately 19% of our total sales, and Hewlett-Packard
+# Company accounted for approximately 16%" must survive, because there the
+# token before "and" is "sales," -- not a name.
+JOINT_SUBJECT = re.compile(
+    r"[A-Z][A-Za-z0-9.&'\-]*(?:\s+[A-Z][A-Za-z0-9.&'\-]*){0,4}"
+    r"\s+and\s+"
+    r"[A-Z][A-Za-z0-9.&'\-]*(?:\s+[A-Z][A-Za-z0-9.&'\-]*){0,4}"
+    r"[,\s]*$")
+
+# A GEOGRAPHIC claim that no list of place names would catch. GEOGRAPHIC_PARTY
+# enumerates places and therefore can never be complete -- it did not contain
+# "Singapore", and NVIDIA's fiscal-2025 10-K says "Singapore represented 18% of
+# fiscal year 2025 total revenue based upon customer billing location", with
+# the next sentence explaining the products ship elsewhere. These are
+# STRUCTURAL markers of a geography table instead.
+GEOGRAPHIC_CONSTRUCTION = re.compile(
+    r"\b(?:billing location|bill.to location|customer location|"
+    r"based upon (?:the )?location|based on (?:the )?location|"
+    r"shipped elsewhere|by geographic|geographic area|"
+    r"outside\s+(?:of\s+)?(?:the\s+)?(?:United States|U\.?S\.?A?\.?|"
+    r"North America|Americas)|"
+    # "Sales to customers in China, including Hong Kong, accounted for
+    # approximately 28% of our net sales" -- Microchip, fiscal 2015. The name
+    # scan lifts "Hong Kong" out of the apposition. The subject of the claim
+    # is a PLACE, and the giveaway is the construction "customers in", not the
+    # place name -- which is the whole reason GEOGRAPHIC_PARTY's list failed
+    # on Singapore.
+    r"(?:customers|clients)\s+(?:located\s+)?in)\b", re.I)
+
+# The filer's OWN internals. "Revenue from sales of microprocessors WITHIN THE
+# Mobility Group represented 26% of consolidated net revenue" -- Intel, 2006.
+# Mobility Group is Intel's operating segment; the preceding sentence says so
+# outright, but the claim's own sentence does not, so NON_CUSTOMER_SUBJECT
+# (which is checked sentence-bounded, deliberately) cannot see it. Revenue
+# earned "within" something is internal by construction.
+INTERNAL_SUBJECT = re.compile(r"\bwithin\s+(?:the|our)\b", re.I)
+
+# An INDEFINITE ARTICLE immediately before the name means the phrase describes
+# a category, not an entity. "Sales to Asustek Computer Inc., or Asustek, a
+# CEM, accounted for 12% of our total revenue" -- NVIDIA, fiscal 2007: the
+# real counterparty is Asustek, and "CEM" (contract electronics manufacturer)
+# is what it IS. Checked immediately before the captured name, so "a single
+# distributor, Ingram Micro Inc., accounted for..." is untouched -- there the
+# article governs "distributor", not the name.
+ARTICLE_BEFORE_NAME = re.compile(r"\b(?:a|an)\s+$", re.I)
+
 
 def _first_sentence_break(window: str) -> int:
     """Index of the first REAL sentence break, or -1. Mirror of the reverse scan."""
@@ -397,6 +478,23 @@ NON_CUSTOMER_SUBJECT = re.compile(
     r"segment revenue|product line|passenger ticket|onboard|"
     r"commercial space|square feet|square foot)\b", re.I)
 
+# A PRIOR-PERIOD COMPARATIVE is not a statement about the filing's own year.
+# Measured on Cognizant: the 10-K filed 2007-02-16 says "One customer,
+# JPMorgan Chase, accounted for 13.7% of revenues in 2004" -- in the same
+# breath as "No customer accounted for revenues in excess of 10% of total
+# revenues in 2006 and 2005". Stamping that with the filing date would make
+# Cognizant a registered anchor in 2007 on the strength of a 2004 fact the
+# filing itself supersedes.
+#
+# One year of lag is NORMAL and must not be rejected: an annual report reports
+# the year that just ended, so Intel's 10-K filed 2005-02-22 saying "In 2004,
+# Dell Inc. accounted for approximately 19%" is current, not stale. Only a gap
+# of two years or more is treated as a comparative.
+STATED_YEAR = re.compile(
+    r"\b(?:in|for|during|of)\s+(?:fiscal\s+(?:year\s+)?)?(?P<year>(?:19|20)\d{2})\b",
+    re.I)
+STALE_COMPARATIVE_YEARS = 2
+
 DIRECTION_CUSTOMER = "customer"       # counterparty BUYS from the filer
 DIRECTION_SUPPLIER = "supplier"       # counterparty SELLS to the filer
 SUPPLIER_HINT = re.compile(r"\b(supplier|vendor|contract manufacturer|foundry|"
@@ -466,6 +564,46 @@ class ExtractionResult:
 # ==========================================================================
 # Text handling
 # ==========================================================================
+def first_document_of_submission(raw: str) -> str:
+    """The 10-K itself, out of a concatenated full submission.
+
+    A full submission text file is every document of the filing end to end:
+    the 10-K, then every exhibit. Handing all of it to the extractor is NOT a
+    neutral convenience. HYP04_Linkage_Map_v1.0.csv records that CVS appears
+    in McKesson's FY2000 filing only inside an EXHIBIT -- a receivables
+    facility defining "Special Obligor" as Rite Aid, Osco Drug, CVS Corp. and
+    Wal-Mart -- and that it was rejected as a source for exactly that reason:
+    it names no percentage and is not a customer-concentration disclosure.
+
+    Feeding exhibits to the extractor would recreate that error across the
+    whole frame, on filings nobody has read. So only the first document whose
+    TYPE begins "10-K" is returned, falling back to the first document.
+    """
+    blocks = raw.split("<DOCUMENT>")[1:]
+    if not blocks:
+        return raw
+    chosen = None
+    for b in blocks:
+        head = b[:400].upper()
+        i = head.find("<TYPE>")
+        if i == -1:
+            continue
+        kind = head[i + len("<TYPE>"):].splitlines()[0].strip()
+        if kind.startswith("10-K"):
+            chosen = b
+            break
+    if chosen is None:
+        chosen = blocks[0]
+    end = chosen.find("</DOCUMENT>")
+    if end != -1:
+        chosen = chosen[:end]
+    start = chosen.find("<TEXT>")
+    if start != -1:
+        stop = chosen.find("</TEXT>")
+        chosen = chosen[start + len("<TEXT>"):stop if stop != -1 else len(chosen)]
+    return chosen
+
+
 def strip_markup(raw: str) -> str:
     """Filing HTML/XBRL -> readable text. Not a parser; a normaliser."""
     txt = re.sub(r"(?is)<(script|style)[^>]*>.*?</\1>", " ", raw)
@@ -587,6 +725,24 @@ def extract_edges_from_text(
             # single relationship of that size exists, which is false.
             if AGGREGATE_TAIL.search(window) or AGGREGATE_SUBJECT.search(subject_span):
                 continue
+            # Added 2026-08-27 after the full-frame HISTORY walk. The gates
+            # above were tuned against 2026 filings only; widening the corpus
+            # to 1996-2026 surfaced four prose patterns they do not cover.
+            if BARE_CLASS_SUBJECT.search(window):
+                continue
+            if JOINT_SUBJECT.search(window):
+                continue
+            if INTERNAL_SUBJECT.search(window):
+                continue
+            if GEOGRAPHIC_CONSTRUCTION.search(sentence):
+                continue
+            years = [int(m.group("year")) for m in STATED_YEAR.finditer(sentence)]
+            filing_year = None
+            if len(filing_date) >= 4 and filing_date[:4].isdigit():
+                filing_year = int(filing_date[:4])
+            if years and filing_year is not None \
+                    and max(years) <= filing_year - STALE_COMPARATIVE_YEARS:
+                continue
 
             party = None
             # Appositive form first: the name follows the role phrase, so a
@@ -597,7 +753,21 @@ def extract_edges_from_text(
             if party is None and not UNNAMED_TAIL.search(window):
                 pm = PARTY_TAIL.search(window)
                 if pm:
-                    party = clean_party(pm.group("party"))
+                    lead = window[:pm.start("party")]
+                    if ARTICLE_BEFORE_NAME.search(lead):
+                        # An appositive CATEGORY, not the counterparty -- but
+                        # the counterparty is usually right in front of it:
+                        # "Sales to Asustek Computer Inc., or Asustek, a CEM,
+                        # accounted for 12%...". Dropping the category and
+                        # taking nothing would lose a real, named relationship,
+                        # so look once more at what the category describes.
+                        trimmed = ARTICLE_BEFORE_NAME.sub("", lead).rstrip()
+                        trimmed = trimmed.rstrip(",").rstrip()
+                        pm2 = PARTY_TAIL.search(trimmed)
+                        if pm2:
+                            party = clean_party(pm2.group("party"))
+                    else:
+                        party = clean_party(pm.group("party"))
 
             # ATTRIBUTION GATES. Both added 2026-08-26 after the 51-ticker run
             # produced four false named edges -- two geographies and two of
@@ -777,10 +947,48 @@ class EdgarClient:
         out.sort(key=lambda f: f["filing_date"], reverse=True)
         return out
 
-    def filing_text(self, cik: str, accession: str, document: str) -> str:
+    def filing_text_with_source(self, cik: str, accession: str,
+                                document: str) -> tuple[str, str]:
+        """A filing's text, and WHICH path it came from.
+
+        Measured on the 2026-08-27 full-frame history walk: 10 of 11
+        unretrievable filings were from 2000-2001 and returned 404. They
+        predate the modern per-document layout, so the `primaryDocument` named
+        in the submissions JSON does not exist at ARCHIVE_DOC_URL. Those are
+        precisely the OLDEST filings -- the ones a history walk exists to
+        reach -- so losing them biases the walk toward recent history.
+
+        The eleventh was a 503, which is transient and worth one retry.
+
+        The source is returned rather than hidden, because a full-submission
+        extraction is not equivalent to a primary-document one and a reader
+        must be able to tell them apart.
+        """
+        import requests
+
         url = ARCHIVE_DOC_URL.format(cik=int(cik), acc=accession.replace("-", ""),
                                      doc=document)
-        return strip_markup(self._get(url, timeout=60).text)
+        status = None
+        for attempt in (1, 2):
+            try:
+                return (strip_markup(self._get(url, timeout=60).text),
+                        SOURCE_PRIMARY_DOCUMENT)
+            except requests.HTTPError as exc:
+                status = getattr(exc.response, "status_code", None)
+                if status in TRANSIENT_STATUSES and attempt == 1:
+                    time.sleep(TRANSIENT_RETRY_SECONDS)
+                    continue
+                break
+        if status != 404:
+            raise RuntimeError(
+                f"{accession}: primary document unavailable (HTTP {status})")
+        raw = self._get(FULL_SUBMISSION_URL.format(cik=int(cik), acc=accession),
+                        timeout=120).text
+        return (strip_markup(first_document_of_submission(raw)),
+                SOURCE_FULL_SUBMISSION)
+
+    def filing_text(self, cik: str, accession: str, document: str) -> str:
+        return self.filing_text_with_source(cik, accession, document)[0]
 
 
 def extract_for_universe(

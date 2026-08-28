@@ -363,6 +363,337 @@ def derive_universe(
     )
 
 
+# ==========================================================================
+# POINT-IN-TIME evaluation
+# ==========================================================================
+# `derive_universe` above answers "who qualifies as of one cutoff, according to
+# one screen". That screen reads only each filer's NEWEST 10-K, so membership
+# is filtered by whether the concentration is still disclosed today -- and a
+# concentration ends for reasons that are not independent of this hypothesis
+# (the customer was acquired, went private, the agreement lapsed). That is the
+# same selection the peer-data policy forbids on the peer side.
+#
+# So the rule is also evaluated against the filing IN FORCE over time. THE RULE
+# DOES NOT CHANGE: `evaluate_ticker` below is the same function, with the same
+# six conditions, called once per filing with that filing's own date as the
+# cutoff. What changes is when it is asked, not what it asks.
+#
+# Recorded 2026-08-27 in HYP04_ANCHOR_UNIVERSE_POINT_IN_TIME_FINDING_2026-08-27.md.
+
+
+@dataclass(frozen=True)
+class QualificationInterval:
+    """A span during which one ticker satisfied the rule.
+
+    `start_date` is the filing date of the first filing whose disclosure
+    qualifies -- the date the fact became public, which is the same claim an
+    edge's `as_of_date` makes. `end_date` is the filing date of the later
+    filing that no longer qualified; None means it still qualifies in the
+    newest filing examined. The span is [start, end): on the day the
+    superseding filing landed, the old disclosure no longer stood.
+    """
+
+    ticker: str
+    start_date: str
+    end_date: Optional[str]
+    start_accession: str
+    end_accession: Optional[str]
+    filings_qualifying: int
+    evidence: dict[str, Any] = field(default_factory=dict)
+
+    def covers(self, day: date) -> bool:
+        start = _valid_iso_date(self.start_date)
+        if start is None or day < start:
+            return False
+        if self.end_date is None:
+            return True
+        end = _valid_iso_date(self.end_date)
+        return end is None or day < end
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"ticker": self.ticker, "start_date": self.start_date,
+                "end_date": self.end_date,
+                "start_accession": self.start_accession,
+                "end_accession": self.end_accession,
+                "filings_qualifying": self.filings_qualifying,
+                "evidence": self.evidence}
+
+
+@dataclass(frozen=True)
+class PointInTimeUniverse:
+    """Two different kinds of "not right", kept apart on purpose.
+
+    A REFUSAL means the question cannot be answered from this input at all --
+    no denominators, a frame member never walked. Nothing is published.
+
+    An INCOMPLETE means the answer is bounded but has enumerable holes: some
+    filings could not be retrieved. Withholding everything for one unreachable
+    document would make a 1,275-filing walk useless, and hiding it would be
+    worse. So the intervals stand, `complete` is False, and the holes are
+    listed. A registry version must require BOTH.
+    """
+
+    rule_id: str
+    intervals: tuple[QualificationInterval, ...]
+    members_ever: tuple[str, ...]
+    refusals: tuple[str, ...]
+    incomplete: tuple[str, ...] = ()
+    evidence: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def derived(self) -> bool:
+        return not self.refusals
+
+    @property
+    def complete(self) -> bool:
+        return not self.incomplete
+
+    @property
+    def registry_grade(self) -> bool:
+        """What a registry version may declare: answerable AND whole."""
+        return self.derived and self.complete and bool(
+            self.evidence.get("frame_is_default"))
+
+    def qualifies_at(self, ticker: str, day: Any) -> bool:
+        """Was `ticker` a registered anchor on `day`?
+
+        Fail-closed on every unknown: a refused derivation, a malformed date
+        and an unwalked ticker all answer False. Note this is INCLUSIVE of the
+        filing date -- the disclosure was public that day. It is a different
+        question from pair_eligibility's strict `as_of_date < event_date`,
+        which guards look-ahead on an EDGE at an event; both may apply.
+        """
+        if not self.derived:
+            return False
+        d = day if isinstance(day, date) else _valid_iso_date(day)
+        if d is None:
+            return False
+        t = ticker.upper()
+        return any(i.covers(d) for i in self.intervals if i.ticker == t)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"rule_id": self.rule_id, "derived": self.derived,
+                "complete": self.complete,
+                "registry_grade": self.registry_grade,
+                "members_ever": list(self.members_ever),
+                "refusals": list(self.refusals),
+                "incomplete": list(self.incomplete),
+                "intervals": [i.as_dict() for i in self.intervals],
+                "evidence": self.evidence}
+
+
+def _intervals_for_ticker(
+    ticker: str, per_filing: Sequence[Mapping[str, Any]], *,
+    frame: Iterable[str],
+) -> tuple[list[QualificationInterval], list[dict[str, Any]]]:
+    """Evaluate the rule against each filing in turn, oldest first."""
+    ordered = sorted(per_filing, key=lambda f: str(f.get("filing_date") or ""))
+    states: list[dict[str, Any]] = []
+    for f in ordered:
+        filing_date = str(f.get("filing_date") or "")
+        q = evaluate_ticker(ticker, list(f.get("disclosures") or []),
+                            cutoff_date=filing_date, frame=frame)
+        states.append({"filing_date": filing_date,
+                       "accession": f.get("accession"),
+                       "qualifies": q.qualifies,
+                       "qualifying_disclosures":
+                           q.evidence.get("qualifying_disclosures", [])})
+
+    intervals: list[QualificationInterval] = []
+    open_at: Optional[int] = None
+    for i, st in enumerate(states):
+        if st["qualifies"] and open_at is None:
+            open_at = i
+        elif not st["qualifies"] and open_at is not None:
+            first = states[open_at]
+            intervals.append(QualificationInterval(
+                ticker=ticker.upper(),
+                start_date=first["filing_date"], end_date=st["filing_date"],
+                start_accession=str(first["accession"]),
+                end_accession=str(st["accession"]),
+                filings_qualifying=i - open_at,
+                evidence={"qualifying_disclosures":
+                          first["qualifying_disclosures"]}))
+            open_at = None
+    if open_at is not None:
+        first = states[open_at]
+        intervals.append(QualificationInterval(
+            ticker=ticker.upper(),
+            start_date=first["filing_date"], end_date=None,
+            start_accession=str(first["accession"]), end_accession=None,
+            filings_qualifying=len(states) - open_at,
+            evidence={"qualifying_disclosures": first["qualifying_disclosures"]}))
+    return intervals, states
+
+
+def derive_universe_point_in_time(
+    history: Mapping[str, Any],
+    *,
+    frame: Optional[Iterable[str]] = None,
+) -> PointInTimeUniverse:
+    """Run the rule against every 10-K in a history walk.
+
+    Refuses rather than scores when the walk cannot support the question: a
+    walk that carries only counterparty NAMES has no denominator, and reading
+    an absent denominator as a denial would produce an empty universe that is
+    indistinguishable from a real finding that nobody qualifies.
+    """
+    frame_is_default = frame is None
+    frame_set = frozenset(t.upper() for t in
+                          (screening_frame() if frame_is_default else frame))
+    refusals: list[str] = []
+
+    tickers = history.get("tickers")
+    if not isinstance(tickers, list):
+        return PointInTimeUniverse(
+            RULE_ID, (), (), ("history has no `tickers` list",), (),
+            {"frame_size": len(frame_set), "frame_is_default": frame_is_default})
+
+    by_ticker: dict[str, list[Mapping[str, Any]]] = {}
+    partial: list[str] = []
+    failed_filings: dict[str, int] = {}
+    unexamined: dict[str, int] = {}
+    stale = 0
+    for rec in tickers:
+        if not isinstance(rec, Mapping):
+            refusals.append("history contains a non-mapping ticker record")
+            continue
+        t = str(rec.get("ticker", "")).upper()
+        fils = rec.get("per_filing") or []
+        for f in fils:
+            if isinstance(f, Mapping) and "disclosures" not in f:
+                stale += 1
+        by_ticker[t] = [f for f in fils if isinstance(f, Mapping)]
+        if rec.get("stopped_early_reason") or rec.get("error"):
+            partial.append(t)
+        nfailed = len(rec.get("filings_failed") or [])
+        if nfailed:
+            failed_filings[t] = nfailed
+        on_record = rec.get("filings_on_record")
+        examined = rec.get("filings_examined")
+        if isinstance(on_record, int) and isinstance(examined, int)                 and examined + nfailed < on_record:
+            unexamined[t] = on_record - examined - nfailed
+
+    if stale:
+        refusals.append(
+            f"{stale} filing record(s) carry no `disclosures`. This walk "
+            "predates the field and records counterparty NAMES only, so the "
+            "concentration denominator is unavailable -- an absent denominator "
+            "would read as a denial and produce an empty universe that looks "
+            "like a finding. Re-run the walk.")
+
+    outside = sorted(set(by_ticker) - frame_set)
+    if outside:
+        refusals.append(
+            f"history covers tickers outside the frame: {', '.join(outside)}")
+
+    unwalked = sorted(frame_set - set(by_ticker))
+    if unwalked:
+        refusals.append(
+            f"{len(unwalked)} of {len(frame_set)} frame ticker(s) were not "
+            f"walked: {', '.join(unwalked[:8])}"
+            + (" ..." if len(unwalked) > 8 else "")
+            + ". A universe evaluated over part of the frame is selected on "
+              "whatever decided which part.")
+
+    # NOT refusals. These are bounded, enumerable holes -- the intervals below
+    # still stand, and `complete` reports that they do not stand on everything.
+    incomplete: list[str] = []
+    if partial:
+        incomplete.append(
+            f"{len(partial)} ticker walk(s) stopped early "
+            f"({', '.join(sorted(partial)[:8])}). Everything older than the "
+            "stop is unexamined, so a qualifying filing there would be missed.")
+    if failed_filings:
+        tot = sum(failed_filings.values())
+        incomplete.append(
+            f"{tot} filing(s) across {len(failed_filings)} ticker(s) could not "
+            f"be retrieved ({', '.join(f'{k}:{v}' for k, v in sorted(failed_filings.items())[:8])}). "
+            "The walk continued past them, so the gap is these filings only.")
+    if unexamined:
+        tot = sum(unexamined.values())
+        incomplete.append(
+            f"{tot} filing(s) on record were neither examined nor recorded as "
+            f"failed ({', '.join(f'{k}:{v}' for k, v in sorted(unexamined.items())[:8])}).")
+
+    intervals: list[QualificationInterval] = []
+    per_ticker_states: dict[str, list[dict[str, Any]]] = {}
+    for t in sorted(by_ticker):
+        ivs, states = _intervals_for_ticker(t, by_ticker[t], frame=frame_set)
+        intervals.extend(ivs)
+        per_ticker_states[t] = states
+
+    members_ever = tuple(sorted({i.ticker for i in intervals}))
+    return PointInTimeUniverse(
+        rule_id=RULE_ID,
+        # Fail closed on REFUSALS only. An incomplete walk still publishes what
+        # it found, labelled incomplete -- see the class docstring.
+        intervals=() if refusals else tuple(intervals),
+        members_ever=() if refusals else members_ever,
+        refusals=tuple(refusals),
+        incomplete=tuple(incomplete),
+        evidence={
+            "frame_size": len(frame_set),
+            "frame_is_default": frame_is_default,
+            "frame_override_note": (
+                None if frame_is_default else
+                "The frame was OVERRIDDEN by the caller. This is a pilot or "
+                "diagnostic result and is NOT a registry-grade universe."),
+            "tickers_walked": len(by_ticker),
+            "filings_evaluated": sum(len(v) for v in by_ticker.values()),
+            "partial_histories": sorted(partial),
+            "filings_failed": failed_filings,
+            "filings_unexamined": unexamined,
+            "threshold_pct": CONCENTRATION_THRESHOLD_PCT,
+            "required_basis": REQUIRED_BASIS,
+            "intervals_found": len(intervals),
+            "per_ticker_filing_states": per_ticker_states,
+        },
+    )
+
+
+def format_point_in_time_report(u: PointInTimeUniverse) -> str:
+    lines = ["=== HYP-04 anchor universe: POINT-IN-TIME rule evaluation ===",
+             f"  rule              {u.rule_id}",
+             f"  frame             {u.evidence.get('frame_size')} tickers"
+             + ("" if u.evidence.get("frame_is_default")
+                else "   (OVERRIDDEN -- pilot, not registry-grade)"),
+             f"  tickers walked    {u.evidence.get('tickers_walked')}",
+             f"  filings evaluated {u.evidence.get('filings_evaluated')}",
+             f"  derived           {u.derived}",
+             f"  complete          {u.complete}",
+             f"  registry-grade    {u.registry_grade}"]
+    if u.incomplete:
+        lines.append("")
+        lines.append("  INCOMPLETE -- the intervals below stand, but not on "
+                     "everything:")
+        lines += [f"    ! {c}" for c in u.incomplete]
+    if u.refusals:
+        lines.append("\n  REFUSED:")
+        lines += [f"    * {r}" for r in u.refusals]
+        lines.append("\n  No universe is produced by a refused derivation.")
+        lines.append("  (Intervals below are withheld, not merely empty.)")
+        return "\n".join(lines)
+
+    lines.append(f"\n  MEMBERS EVER ({len(u.members_ever)}): "
+                 + (", ".join(u.members_ever) if u.members_ever else "(none)"))
+    for iv in u.intervals:
+        end = iv.end_date or "current"
+        disc = iv.evidence.get("qualifying_disclosures") or [{}]
+        d0 = disc[0]
+        lines.append(
+            f"    {iv.ticker}  {iv.start_date} -> {end}   "
+            f"({iv.filings_qualifying} filing(s))")
+        lines.append(
+            f"        {d0.get('counterparty')}  {d0.get('concentration_pct')}% "
+            f"of {d0.get('concentration_basis')}   {iv.start_accession}")
+    lines.append("\n  Membership says who MAY be an anchor. It creates no "
+                 "eligible anchor event,")
+    lines.append("  opens no display-gate condition, and is not evidence "
+                 "about supply-chain transmission.")
+    return "\n".join(lines)
+
+
 def format_report(d: UniverseDerivation) -> str:
     lines = ["=== HYP-04 anchor universe: rule evaluation ===",
              f"  rule            {d.rule_id}",
@@ -411,14 +742,36 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Evaluate the HYP-04 anchor-universe rule over an EDGAR "
                     "concentration screen. Reads; writes nothing.")
-    ap.add_argument("--screen", required=True,
-                    help="path to an EDGAR candidate-linkage screen JSON")
-    ap.add_argument("--cutoff", required=True, help="YYYY-MM-DD")
+    src = ap.add_mutually_exclusive_group(required=True)
+    src.add_argument("--screen",
+                     help="an EDGAR candidate-linkage screen JSON -- evaluates "
+                          "the rule at ONE cutoff, against each filer's newest "
+                          "10-K only")
+    src.add_argument("--history",
+                     help="an EDGAR 10-K history walk JSON -- evaluates the "
+                          "SAME rule against the filing in force over time")
+    ap.add_argument("--cutoff", help="YYYY-MM-DD; required with --screen")
+    ap.add_argument("--frame", default=None,
+                    help="comma-separated ticker override. PILOT USE ONLY: a "
+                         "derivation over part of the frame is not "
+                         "registry-grade and says so in its own output.")
     ap.add_argument("--json", action="store_true", help="emit the derivation as JSON")
     a = ap.parse_args(argv)
 
+    frame = ([t.strip().upper() for t in a.frame.split(",") if t.strip()]
+             if a.frame else None)
+
+    if a.history:
+        hist = json.loads(Path(a.history).read_text(encoding="utf-8-sig"))
+        u = derive_universe_point_in_time(hist, frame=frame)
+        print(json.dumps(u.as_dict(), indent=2) if a.json
+              else format_point_in_time_report(u))
+        return 0 if u.derived else 1
+
+    if not a.cutoff:
+        ap.error("--cutoff is required with --screen")
     screen = json.loads(Path(a.screen).read_text(encoding="utf-8-sig"))
-    d = derive_universe(screen, cutoff_date=a.cutoff)
+    d = derive_universe(screen, cutoff_date=a.cutoff, frame=frame)
     print(json.dumps(d.as_dict(), indent=2) if a.json else format_report(d))
     return 0 if d.derived else 1
 
