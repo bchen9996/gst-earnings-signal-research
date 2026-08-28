@@ -12,3 +12,8 @@ __pycache__/
 
 # Local Claude Code session config (permission allowlist etc.), not project content.
 .claude/
+
+# EDGAR response cache (hyp04_supply_chain_hedge). Raw SEC filing bodies,
+# reproducible by re-running the walk, and large. The code that produces and
+# reads it is version-controlled; the corpus itself is not.
+.edgar_cache/

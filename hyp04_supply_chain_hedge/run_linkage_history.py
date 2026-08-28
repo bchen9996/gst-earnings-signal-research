@@ -57,6 +57,7 @@ from .edgar_linkage import (
     CONTACT_REQUIRED_MESSAGE,
     LSE,
     EdgarClient,
+    FilingCache,
     LinkageEdge,
     extract_edges_from_text,
 )
@@ -239,17 +240,44 @@ def main(argv: list[str] | None = None) -> int:
                     help="optional per-ticker cap on 10-Ks examined")
     ap.add_argument("--out", type=Path,
                     default=LSE / "HYP04_EDGAR_LINKAGE_HISTORY.json")
+    ap.add_argument("--cache-dir", type=Path, default=None,
+                    help="store raw EDGAR responses here and serve repeats "
+                         "from disk. A cached hit is not counted against "
+                         "--max-requests, because it is not a request.")
+    ap.add_argument("--offline", action="store_true",
+                    help="replay ENTIRELY from --cache-dir and never reach "
+                         "the network; a cache miss is a hard error. This is "
+                         "how an extractor change is re-measured over the "
+                         "whole corpus without re-spending it in SEC "
+                         "requests. Requires --cache-dir.")
     a = ap.parse_args(argv)
+
+    if a.offline and not a.cache_dir:
+        print("--offline requires --cache-dir: there is nothing else to read "
+              "from. Refusing rather than silently going online.",
+              file=sys.stderr)
+        return 2
 
     if not a.contact:
         print(CONTACT_REQUIRED_MESSAGE, file=sys.stderr)
         return 2
 
     tickers = [t.strip().upper() for t in a.tickers.split(",") if t.strip()]
-    client = EdgarClient(a.contact, max_requests=a.max_requests)
+    # --contact stays required even offline. An offline replay contacts
+    # nobody, so the value goes unused -- but the alternative is either a
+    # special case in EdgarClient's contact validation or an invented
+    # placeholder address, and EdgarClient refuses placeholder domains on
+    # purpose. Keeping one unconditional rule costs a flag nobody minds
+    # supplying and keeps that refusal intact.
+    cache = FilingCache(a.cache_dir) if a.cache_dir else None
+    client = EdgarClient(a.contact, max_requests=a.max_requests,
+                         cache=cache, offline=a.offline)
 
     print(f"EDGAR 10-K history walk over {len(tickers)} ticker(s): {tickers}")
     print(f"  request cap: {a.max_requests}")
+    if cache is not None:
+        print(f"  cache: {a.cache_dir}"
+              + ("  (OFFLINE REPLAY -- no network)" if a.offline else ""))
 
     # Progress is printed and FLUSHED per ticker. A full-frame walk is well
     # over a thousand filings and runs for an hour or more; without this the
