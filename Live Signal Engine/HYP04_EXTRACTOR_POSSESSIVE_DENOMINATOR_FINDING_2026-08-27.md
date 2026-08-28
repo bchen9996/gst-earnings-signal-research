@@ -177,6 +177,41 @@ reason given in §2.
 Both are one-way: an unmatched verb, like an unmatched denominator, can only
 omit a real disclosure and never invent one.
 
+
+---
+
+## AMENDMENT — 2026-08-28: the measurement was run, and it reverses §6
+
+§6 proposed populating the cache, widening both layers, then re-measuring. The
+cache was populated 2026-08-28 and the measurement run over all 1,250 filings
+at zero SEC requests. **The proposed widening is net-negative as it stands**
+and must not be applied in the order §6 gives.
+
+Widening the anchor admits **five** disclosures: three NVDA `Hong Kong`
+geographies, one GPC self-segment, and one real relationship — NIKE / Foot
+Locker at 11% of consolidated revenues — which arrives **mis-parsed** as the
+bare suffix `Inc`.
+
+Two things follow, both recorded in
+[HYP04_EXTRACTOR_GAP_MEASUREMENT_FINDING_2026-08-28.md](HYP04_EXTRACTOR_GAP_MEASUREMENT_FINDING_2026-08-28.md):
+
+**The structural gates are verb-sensitive.** `Hong Kong` and the self-segment
+are precisely the classes the round-two gates were built to reject; they
+reappear through a copular construction because those gates were only ever
+exercised against the verb set the anchor already admitted. Widening the anchor
+raises the false-positive rate with no change to any gate — the same shape as
+widening the corpus did on 2026-08-27.
+
+**There is a third gap, not recorded here.** `PARTY_TAIL` recognises
+`… to X` but not `revenues derived from X`, which is why the real NIKE
+disclosure resolves to `Inc`. The denominator fix alone would convert a hidden
+real relationship into a fabricated one.
+
+§1's claim that the direction is one-way still stands, and §3's "the risk is
+that members are missing" is now confirmed rather than hypothetical: the gaps
+cost **at least one real anchor**. But "one-way" describes what the gaps hide,
+not what fixing them admits — and fixing them naively admits four fabrications.
+
 ---
 
 **Nothing in this document is evidence about supply-chain transmission.** No

@@ -27,8 +27,11 @@ non-equivalence:
     because those are the functions a re-measurement most needs to vary
   * a corrupt, truncated or version-mismatched entry must be a MISS, never a
     partial body handed to the parser as though it were a whole filing
-  * a transport error with no status must NOT be cached, or a transient
-    failure becomes permanent
+  * neither a status-less transport error NOR a status in TRANSIENT_STATUSES
+    may be cached, or a passing server hiccup becomes a permanent fact about
+    the corpus. The 2026-08-28 walk proved this one in production: it cached
+    two 503s, and this suite's own "definite status" control had used 500 --
+    itself transient -- so the control was pinning the bug
 
 Offline. `_get` is stubbed and the socket layer is blocked before any import.
 
@@ -338,16 +341,39 @@ def test_7_a_transport_error_without_a_status_is_not_cached() -> None:
         check("7b. and no file exists on disk",
               list(Path(td).rglob("*.json.gz")) == [], "an entry was created")
 
-    # CONTROL: a real HTTP status IS stored, so 7a is about the missing status
-    # and not about the cache being inert on every error path.
+    # A TRANSIENT status is not definitive either, and this is the case that
+    # was actually wrong. 503 is in TRANSIENT_STATUSES -- the module already
+    # treats it as retryable -- so caching one contradicts that contract and
+    # makes a passing server hiccup permanent for every future replay.
+    #
+    # Found in production, not in review: the 2026-08-28 full-frame walk hit
+    # exactly two 503s and cached both. The original version of THIS test used
+    # 500 as its "definite status" control, and 500 is itself transient, so the
+    # control was pinning the bug instead of catching it.
     with tempfile.TemporaryDirectory() as td:
         cache = FilingCache(Path(td))
-        c = FakeClient({"a.htm": 500, ".txt": 500}, cache=cache)
+        c = FakeClient({"a.htm": 503, ".txt": 503}, cache=cache)
         try:
             c.filing_text_with_source("927653", "acc", "a.htm")
         except Exception:
             pass
-        check("7c. CONTROL -- a definite HTTP status IS stored",
+        check("7c. a TRANSIENT 503 is NOT cached -- it stays retryable",
+              cache.writes == 0, str(cache.stats()))
+        check("7d. and leaves no entry on disk",
+              list(Path(td).rglob("*.json.gz")) == [], "an entry was created")
+
+    # CONTROL: a genuinely definitive status IS stored, so the checks above are
+    # about WHICH statuses are definitive and not about the cache being inert
+    # on every error path. 404 is the one that matters -- it drives the
+    # full-submission fallback for the 2000-2001 filings.
+    with tempfile.TemporaryDirectory() as td:
+        cache = FilingCache(Path(td))
+        c = FakeClient({"a.htm": 404, ".txt": 404}, cache=cache)
+        try:
+            c.filing_text_with_source("927653", "acc", "a.htm")
+        except Exception:
+            pass
+        check("7e. CONTROL -- a DEFINITIVE 404 is stored",
               cache.writes >= 1, str(cache.stats()))
 
 

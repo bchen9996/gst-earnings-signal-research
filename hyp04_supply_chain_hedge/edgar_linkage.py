@@ -1058,10 +1058,23 @@ class EdgarClient:
             resp = self._get(url, timeout=timeout)
         except Exception as exc:
             status = getattr(getattr(exc, "response", None), "status_code", None)
-            # Only a definitive answer from the server is worth storing. A
-            # timeout or a connection reset says nothing about the filing, and
-            # caching it would turn a transient failure into a permanent one.
-            if status is not None and self.cache is not None:
+            # Only a DEFINITIVE answer from the server is worth storing.
+            #
+            # Two things are not definitive. A timeout or connection reset
+            # carries no status at all and says nothing about the filing. And a
+            # status in TRANSIENT_STATUSES is the server declining to answer
+            # right now -- this module already treats those as retryable, so
+            # storing one would contradict that contract and turn a passing
+            # 503 into a permanent failure for every future replay.
+            #
+            # Measured: the 2026-08-28 full-frame walk hit exactly two 503s
+            # (ADP 1998-09-23, ERIE 2001-03-23), both of which had already
+            # consumed their retry. Caching them would have made those filings
+            # permanently unreachable from the cache while looking like a
+            # settled fact about the corpus.
+            if (status is not None
+                    and status not in TRANSIENT_STATUSES
+                    and self.cache is not None):
                 self.cache.put(url, kind, status, None)
             raise
         body = resp.json() if kind == CACHE_KIND_JSON else resp.text
