@@ -797,6 +797,351 @@ def infer_direction(context: str) -> str:
     return DIRECTION_SUPPLIER if SUPPLIER_HINT.search(context) else DIRECTION_CUSTOMER
 
 
+# ==========================================================================
+# A LIST UNDER A STATED DENOMINATOR
+# ==========================================================================
+# Every anchor in CONCENTRATION_ANCHORS requires the percentage and the
+# denominator to be ADJACENT -- "<pct>% of <basis>". Filings routinely state
+# the denominator once and then list parties carrying bare percentages, in
+# prose or as a table:
+#
+#   INTC 2018-02-16  "our three largest customers accounted for 40% of our net
+#                     revenue, with Dell Inc. (Dell) accounting for 16% ..."
+#   INTC 2024-01-26  "accounted for the following percentage of our net
+#                     revenue: ... Dell Inc. 19 % 19 % 21 %"
+#   ADBE 2011-01-27  "as a percentage of net revenue for fiscal 2010, 2009 and
+#                     2008 ... 2010 2009 2008 Ingram Micro 15 % 15 % 18 %"
+#
+# Adjacency cannot be satisfied by any of them, so all three were invisible.
+# The verb tense and the table layout are incidental; the structural fact is
+# that the denominator is not repeated per party.
+#
+# The cost was already in the published registry. INTC's membership interval
+# closed at 2017-02-17 -- not when the relationship ended, but when Intel
+# moved the disclosure out of Item 1 prose into the segment note. ADBE never
+# appeared at all. Both are availability deciding membership, which AU-1..AU-6
+# forbid.
+
+# The scope clause. Two shapes, and BOTH require a counterparty role word to
+# come before the denominator, so a geography table headed "revenues by
+# geography as a percentage of revenues, determined based on the addresses of
+# our customers" is not a scope clause at all -- its role word trails.
+SCOPED_LIST_HEADER = re.compile(
+    # (a) "...customers ... percentage of <basis>"   -- the table form
+    r"(?:customer|client|distributor|reseller)s?\b[^.:;]{0,200}?"
+    r"percentages?\s+of\s+"
+    r"(?P<basis>[\w\s'’]{0,40}?(?:revenues?|sales|receivables?))\b"
+    r"|"
+    # (b) "...customers accounted for N% of <basis>, with X ..., Y ..."
+    # The aggregate figure here is the SCOPE, never taken as an edge; only
+    # the per-party items beneath it are read.
+    r"(?:customer|client|distributor|reseller)s?\b[^.:;]{0,80}?"
+    r"(?:accounted\s+for|represented|comprised)\s+(?:approximately\s+)?"
+    r"\d{1,3}(?:\.\d)?\s*%\s+of\s+"
+    r"(?P<basis2>[\w\s'’]{0,40}?(?:revenues?|sales|receivables?))\b",
+    re.I)
+
+# One row: a name, then a short span, then its figures. The span is bounded so
+# a name cannot reach across a neighbouring row to claim its percentage.
+# THE COMMA IN "Apple, Inc." AGAIN. Jabil discloses Apple at 11-28% of net
+# revenue in 26 filings; a name that stops at the comma records the bare
+# suffix "Inc" as the counterparty -- the same defect that reduced NIKE's
+# Foot Locker to "Inc", now in a second reader.
+#
+# "and" is NOT a name continuation here. Allowing it produced
+# "Hewlett-Packard Company and Lucent Technologies" as one party sharing one
+# percentage, which is what JOINT_SUBJECT exists to refuse.
+SCOPED_LIST_ITEM = re.compile(
+    r"(?P<name>[A-Z][A-Za-z0-9.&'’\-]*"
+    r"(?:\s+(?:[A-Z][A-Za-z0-9.&'’\-]*|of|de|van|der))*"
+    r"(?:,?\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?)?)"
+    r"[^%.;:]{0,30}?"
+    r"(?P<pcts>(?:(?:\d{1,3}(?:\.\d)?\s*%|\*|\u2014|\u2013)\s*){1,8})")
+
+# A row that is entirely placeholders states nothing.
+SCOPED_LIST_HAS_PCT = re.compile(r"\d{1,3}(?:\.\d)?\s*%")
+# One cell: a figure, or the filer's "below the threshold" placeholder.
+# Jabil writes "Cisco Systems, Inc 10 % 13 % 15 % * *" -- five columns, of
+# which the last two are deliberately blank. Reading the "*" as a column
+# rather than as noise is what keeps the row aligned with the year header;
+# discarding rows whose width disagreed with the header dropped Cisco at
+# 12% of consolidated net revenue from the fiscal-2004 filing while keeping
+# Philips at 18% from the row above it.
+SCOPED_LIST_CELL = re.compile(r"(\d{1,3}(?:\.\d)?)\s*%|(\*|\u2014|\u2013)")
+
+
+def _scoped_list_cells(run: str) -> list[Optional[float]]:
+    """One entry per column, None where the filer left the cell blank."""
+    out: list[Optional[float]] = []
+    for m in SCOPED_LIST_CELL.finditer(run):
+        out.append(float(m.group(1)) if m.group(1) else None)
+    return out
+
+# A legal suffix standing alone is the wreckage of a mis-parsed name, never a
+# counterparty.
+BARE_SUFFIX_PARTY = re.compile(
+    r"^(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|AG|SA)\.?$",
+    re.I)
+
+# TABLE FURNITURE. Row and column labels are capitalised exactly like company
+# names and sit in exactly the same place relative to the figures. UNNAMED_TOKENS
+# already refuses the obvious ones; these are the ones a TABLE adds.
+TABLE_FURNITURE_PARTY = re.compile(
+    r"^(?:amounts?|accounts?|percentages?|totals?|net|gross|fiscal|years?|"
+    r"ended|ending|approximately|other|various|balance|amount\s+due|"
+    r"period|periods|quarter|quarters|as\s+of|for\s+the)\b", re.I)
+
+# A METRIC-LABELLED BLOCK TABLE. Some filers head a block with the party and
+# then label each row of figures by METRIC rather than by party:
+#
+#   STZ 2026-04-22   "Reyes Beer Division entities
+#                     Net sales           27.5 %  25.4 %  25.1 %
+#                     Accounts receivable 22.0 %  15.0 %  17.7 %
+#                     Southern Glazer's Wine and Spirits
+#                     Net sales           11.2 %  11.7 %  13.0 %"
+#
+# The nearest label to every figure is a metric, not a party, so a reader that
+# pairs a figure with the capitalised token before it attributes net sales to
+# "Accounts". This reader cannot attribute those rows and REFUSES the whole
+# list rather than guess which block a figure belongs to.
+#
+# The cost is real and is recorded as under-inclusion, not hidden: STZ
+# discloses Reyes Beer Division entities at 25-27% and Southern Glazer's Wine
+# and Spirits at 11-13% of net sales, and this reader takes neither. Missing a
+# real relationship is the safe direction; inventing one is not.
+#
+# THE REVENUE BLOCK COMES FIRST. Jabil shares ONE year row between a
+# "Percentage of Net Revenue" block and a "Percentage of Accounts
+# Receivable" block, so the reporting year appears twice in the header and
+# the FIRST occurrence is the revenue column. That is only safe while the
+# revenue label precedes the receivables label, so the order is checked
+# rather than trusted: reversed, the reader refuses instead of reporting a
+# receivables figure as a share of revenue.
+REVENUE_BLOCK_LABEL = re.compile(
+    r"percentage\s+of\s+(?:consolidated\s+|total\s+|net\s+){0,2}(?:net\s+)?(?:revenues?|sales)", re.I)
+RECEIVABLE_BLOCK_LABEL = re.compile(
+    r"percentage\s+of\s+(?:trade\s+)?(?:accounts\s+)?receivables?", re.I)
+
+# The lookbehind matters: "Total percentage OF net revenue 40 %" is Intel's
+# own total row, not a metric label heading a block, and refusing on it
+# would throw away the very table this reader exists to read.
+METRIC_LABELLED_BLOCK = re.compile(
+    r"(?<!of )\b(?:net\s+(?:sales|revenues?)|accounts\s+receivable|"
+    r"trade\s+receivables?)\s+\d{1,3}(?:\.\d)?\s*%", re.I)
+
+SCOPED_LIST_YEAR = re.compile(r"\b((?:19|20)\d{2})\b")
+SCOPED_LIST_PAREN = re.compile(r"\([^()]{0,80}\)")
+SCOPED_LIST_SPAN_CHARS = 420
+SCOPED_LIST_LABEL = "scoped_list"
+
+
+def _scoped_list_edges(
+    text: str, *, ticker: str, cik: str, filing_date: str, accession: str,
+    form: str, report_date: Optional[str],
+    already: set[tuple],
+) -> list[LinkageEdge]:
+    """Read lists governed by a scope clause that states the denominator once.
+
+    Fails closed at every step where the filing is ambiguous. In particular it
+    REFUSES rather than guesses when it cannot tell which column belongs to the
+    reporting year, because column order is not a convention: INTC, ADBE and
+    CTSH list years newest-first and GOOGL lists "2023 2024" oldest-first, all
+    in this corpus. The multi-year "respectively" reader may assume newest-first
+    within one sentence; a table may not.
+    """
+    out: list[LinkageEdge] = []
+    for m in SCOPED_LIST_HEADER.finditer(text):
+        basis_text = " ".join(
+            (m.group("basis") or m.group("basis2") or "").split())
+        basis = classify_concentration_basis(basis_text)
+
+        # The scope clause must be ABOUT counterparties. A "segment revenue"
+        # or geographic scope disqualifies every row beneath it at once.
+        scope_start = max(0, m.start() - SENTENCE_SPAN_CHARS)
+        sb = _last_sentence_break(text[scope_start:m.start()])
+        scope_text = text[scope_start + (sb if sb != -1 else 0):m.end()]
+        if NON_CUSTOMER_SUBJECT.search(scope_text):
+            continue
+
+        window = text[m.end():m.end() + SCOPED_LIST_SPAN_CHARS]
+        # Refused outright: the figures in this window are labelled by metric,
+        # so no pairing of a figure with a nearby name is trustworthy.
+        if METRIC_LABELLED_BLOCK.search(window):
+            continue
+        # A parenthesised figure in this construction is a prior-year
+        # comparative -- "accounting for 16% ( 15% in 2016 )". Removing them
+        # before parsing is what turns the prose form into a clean list.
+        window = SCOPED_LIST_PAREN.sub(" ", window)
+
+        first = SCOPED_LIST_ITEM.search(window)
+        if not first:
+            continue
+        ncols = len(_scoped_list_cells(first.group("pcts")))
+
+        # Two blocks sharing one year row: only trustworthy while the
+        # revenue block is the first of them.
+        #
+        # Read from the COLUMN HEADER, not from the scope sentence. Jabil's
+        # scope clause ends "...expressed as a percentage of consolidated
+        # net revenue, and the percentage of accounts receivable for each
+        # customer, were as follows:" -- so the sentence introducing the
+        # table mentions receivables before the table's own revenue label,
+        # and a check reading the whole span refused every Jabil filing.
+        head = window[:first.start()]
+        hdr = head.rsplit(":", 1)[-1] if ":" in head else head
+        rec = RECEIVABLE_BLOCK_LABEL.search(hdr)
+        rev = REVENUE_BLOCK_LABEL.search(hdr)
+        if rec and (not rev or rec.start() < rev.start()):
+            continue
+
+        # THE COLUMN HEADER. Take the last `ncols` years stated before the
+        # first row -- ADBE states the years twice, once in the scope tail and
+        # again as the header row, and it is the row that labels the columns.
+        years = [int(y) for y in SCOPED_LIST_YEAR.findall(window[:first.start()])]
+        header = years[-ncols:] if len(years) >= ncols else []
+
+        period_year = None
+        if report_date and len(report_date) >= 4 and report_date[:4].isdigit():
+            period_year = int(report_date[:4])
+        elif len(filing_date) >= 4 and filing_date[:4].isdigit():
+            period_year = int(filing_date[:4])
+
+        if ncols > 1:
+            # Multiple columns and no readable header is exactly the case this
+            # refuses. Guessing the order would attribute a prior year's
+            # concentration to the reporting year -- the error the stale gate
+            # exists to prevent, committed where that gate cannot see it.
+            if len(header) != ncols or period_year is None:
+                continue
+            if period_year in header:
+                col = header.index(period_year)
+            elif period_year - 1 in header:
+                # A filing whose period ends early in the calendar year labels
+                # its own year one lower. ADBE's FY2010 ended 2010-12-03 and is
+                # headed 2010; a January filer's is not.
+                col = header.index(period_year - 1)
+            else:
+                continue
+        else:
+            col = 0
+            # A SINGLE COLUMN MUST SIT IN THE SCOPE CLAUSE'S OWN SENTENCE.
+            # A multi-column table announces itself with a year header and may
+            # cross sentences; a one-figure list has nothing to announce it, so
+            # letting it run on attaches the denominator to whatever follows.
+            #
+            # This guard was originally waived whenever any year appeared in
+            # the window, which is nearly always -- and the corpus enumeration
+            # showed what that cost: MCHP's "sales into China, including Hong
+            # Kong" became a 30% counterparty, MCK's "accounts receivable from
+            # our ten largest customers and Rite Aid Corporation were
+            # approximately 49%" became Rite Aid at 49% OF REVENUE, and NVDA's
+            # "There were no customers with 10% or more" became "There".
+            fb = _first_sentence_break(window)
+            if fb != -1:
+                if first.start() > fb:
+                    continue
+                # Checking only the first row let a LATER sentence supply rows
+                # under this scope clause's denominator. STZ 2009-04-29 states
+                # its customer at 15.7% of sales and then, a sentence later,
+                # the prior year at 12.3%; the 12.3% was taken as if current.
+                window = window[:fb]
+
+        for it in SCOPED_LIST_ITEM.finditer(window):
+            if not SCOPED_LIST_HAS_PCT.search(it.group("pcts")):
+                continue
+            pcts = _scoped_list_cells(it.group("pcts"))
+            if len(pcts) != ncols or col >= len(pcts):
+                continue
+            pct = pcts[col]
+            # A blank cell is the filer saying this party was below the
+            # threshold that year. It is information, and it is not an edge.
+            if pct is None or not (0.0 < pct <= 100.0):
+                continue
+
+            # THE GATES NEED THE ROW'S NEIGHBOURHOOD, NOT THE ROW. STZ's
+            # "of which 87.3% is reported within the Constellation Wines
+            # segment and 12.7% is reported within the Constellation Spirits
+            # segment" puts "within the" outside the matched row, so a gate
+            # reading only the row cannot see that the party is a segment.
+            # ...and it must not cross a sentence boundary to get it. Widening
+            # to a flat 80/40 characters let the NEXT sentence veto a real row:
+            # "and HP Inc. accounting for 11% . These three customers accounted
+            # for 36% of our accounts receivable" -- the aggregate belongs to
+            # the following sentence, and HP is a genuine 11% counterparty.
+            lo = max(0, it.start() - 80)
+            b = _last_sentence_break(window[lo:it.start()])
+            lo += b if b != -1 else 0
+            post = window[it.end():it.end() + 40]
+            fb2 = _first_sentence_break(post)
+            item_text = window[lo:it.end() + (fb2 if fb2 != -1 else len(post))]
+            # THE AGGREGATE GATE BELONGS ON THE ROW, NOT THE SCOPE. "our three
+            # largest customers" is the legitimate scope of a list that then
+            # names its members; "Top ten clients 14.6 %" is a row that names
+            # nobody. Applying it to the scope would reject the construction
+            # this function exists to read.
+            if AGGREGATE_SUBJECT.search(item_text) or AGGREGATE_TAIL.search(item_text):
+                continue
+            if OWN_BUSINESS_UNIT.search(item_text) or INTERNAL_SUBJECT.search(item_text):
+                continue
+            # The same structural gates the anchor pass applies. Each was left
+            # out of the first draft of this reader and each produced a
+            # fabrication in the 1,250-filing enumeration.
+            if JOINT_SUBJECT.search(it.group("name") + " "):
+                continue
+            if GEOGRAPHIC_CONSTRUCTION.search(item_text):
+                continue
+            if BARE_CLASS_SUBJECT.search(it.group("name")):
+                continue
+            if NEGATIVE_PATTERN.search(item_text):
+                continue
+            # A name whose next word is a unit type is the filer's own unit,
+            # however ordinary the name itself looks.
+            if re.match(r"\s*(?:segment|division|business\s+unit)\b",
+                        window[it.end("name"):it.end("name") + 20], re.I):
+                continue
+
+            party = clean_party(it.group("name"))
+            if party is None:
+                continue
+            if GEOGRAPHIC_PARTY.match(party) or SELF_REFERENTIAL_PARTY.match(party):
+                continue
+            if BARE_SUFFIX_PARTY.match(party) or TABLE_FURNITURE_PARTY.match(party):
+                continue
+            if UNIT_HEAD_PARTY.search(party):
+                continue
+            # The scope clause supplies the counterparty context for every row,
+            # so a bare name in a table is legitimate here -- but the name must
+            # still look like an entity rather than a stray capitalised token.
+            if not LEGAL_ENTITY_SUFFIX.search(party) \
+                    and not _has_counterparty_context(item_text) \
+                    and " " not in party:
+                continue
+
+            key = (party, pct, basis)
+            if key in already:
+                continue
+            already.add(key)
+
+            ctx = text[max(0, m.start()):
+                       min(len(text), m.end() + SCOPED_LIST_SPAN_CHARS)].strip()
+            out.append(LinkageEdge(
+                reporting_company=ticker,
+                reporting_cik=cik,
+                named_counterparty=party,
+                counterparty_is_named=True,
+                direction=infer_direction(ctx),
+                concentration_pct=pct,
+                as_of_date=filing_date,
+                accession=accession,
+                form=form,
+                pattern=SCOPED_LIST_LABEL,
+                context=ctx[:400],
+                concentration_basis=basis,
+                concentration_basis_text=basis_text,
+            ))
+    return out
+
+
 def extract_edges_from_text(
     text: str, *, ticker: str, cik: str, filing_date: str,
     accession: str, form: str = "10-K", report_date: Optional[str] = None,
@@ -1008,6 +1353,16 @@ def extract_edges_from_text(
                 concentration_basis=basis,
                 concentration_basis_text=basis_text,
             ))
+
+    # SECOND PASS: lists governed by a scope clause that states the
+    # denominator once. Runs after the anchors so an item already taken
+    # by an adjacency match is not recorded twice.
+    taken = {(e.named_counterparty, e.concentration_pct, e.concentration_basis)
+             for e in edges}
+    edges.extend(_scoped_list_edges(
+        text, ticker=ticker, cik=cik, filing_date=filing_date,
+        accession=accession, form=form, report_date=report_date,
+        already=taken))
 
     return edges, bool(NEGATIVE_PATTERN.search(text))
 

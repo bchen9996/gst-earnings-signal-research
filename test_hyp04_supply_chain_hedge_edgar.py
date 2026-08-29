@@ -1129,7 +1129,7 @@ def test_6m_the_widening_and_the_four_gates_it_required() -> None:
 
 
 def test_6n_a_list_under_a_stated_denominator_is_unreadable() -> None:
-    """A PINNED GAP, asserted 2026-08-29. This test is expected to FLIP.
+    """Was a pinned GAP for the length of one commit; now pins the fix.
 
     Every anchor in CONCENTRATION_ANCHORS requires the percentage and the
     denominator to sit adjacent in ONE match -- "<pct>% of <basis>". Real
@@ -1188,18 +1188,62 @@ def test_6n_a_list_under_a_stated_denominator_is_unreadable() -> None:
             accession="a", report_date=report_date)
         return {x.named_counterparty for x in e if x.counterparty_is_named}
 
-    gap = (
-        ("INTC prose, Dell 16% of net revenue", intc_prose,
-         "2018-02-16", "2017-12-30", "Dell"),
-        ("INTC table, Dell 19% of net revenue", intc_table,
-         "2024-01-26", "2023-12-30", "Dell"),
-        ("ADBE table, Ingram Micro 15% of net revenue", adbe_table,
-         "2011-01-27", "2010-12-03", "Ingram"),
+    def pairs(text, filing_date, report_date):
+        e, _ = extract_edges_from_text(
+            text, ticker="X", cik="0", filing_date=filing_date,
+            accession="a", report_date=report_date)
+        return {(x.named_counterparty, x.concentration_pct, x.concentration_basis)
+                for x in e if x.counterparty_is_named}
+
+    # THE READING IS PINNED, NOT JUST THE FACT OF ONE. Taking the wrong column
+    # would attribute a prior year's concentration to the reporting year --
+    # the error the stale gate exists to prevent, committed inside a table
+    # where that gate cannot see it. So every percentage is asserted.
+    R = BASIS_CONSOLIDATED_REVENUE
+    now_read = (
+        ("INTC prose, FY2017", intc_prose, "2018-02-16", "2017-12-30",
+         {("Dell Inc", 16.0, R), ("Lenovo Group Limited", 13.0, R),
+          ("HP Inc", 11.0, R)}),
+        ("INTC table, FY2023", intc_table, "2024-01-26", "2023-12-30",
+         {("Dell Inc", 19.0, R), ("Lenovo Group Limited", 11.0, R),
+          ("HP Inc", 10.0, R)}),
+        ("ADBE table, FY2010", adbe_table, "2011-01-27", "2010-12-03",
+         {("Ingram Micro", 15.0, R)}),
     )
-    for label, text, fd, rd, who in gap:
-        got = named(text, fd, rd)
-        check(f"6n. GAP -- {label} yields no named edge",
-              not any(who in (n or "") for n in got), str(got))
+    for label, text, fd, rd, want in now_read:
+        got = pairs(text, fd, rd)
+        check(f"6n. {label} is read, with the reporting year's column",
+              got == want, f"got {sorted(got)}")
+
+    # The comparatives in those same fixtures must NOT appear. INTC's FY2017
+    # prose carries "( 15% in 2016 )" beside Dell's 16%, and its FY2023 table
+    # carries 19% and 21% for FY2022 and FY2021 in the same row.
+    got = {p for _, p, _ in pairs(intc_table, "2024-01-26", "2023-12-30")}
+    check("6n. the prior-year columns are not read as the reporting year",
+          21.0 not in got and 12.0 not in got, str(sorted(got)))
+
+    # REFUSAL: multi-column with no readable year header. The same table with
+    # its header removed must yield nothing rather than a guess -- column
+    # order is not a convention and there is nothing left to read it from.
+    headless = (
+        "Our three largest customers accounted for the following percentage "
+        "of our net revenue: Dell Inc. 19 % 19 % 21 % Lenovo Group Limited "
+        "11 % 12 % 12 %"
+    )
+    got = named(headless, "2024-01-26", "2023-12-30")
+    check("6n. REFUSES a multi-column list whose year header is unreadable",
+          got == set(), str(got))
+
+    # REFUSAL: a header that does not carry the reporting year at all is a
+    # table of comparatives, and none of it belongs to this filing's year.
+    stale_header = (
+        "Our three largest customers accounted for the following percentage "
+        "of our net revenue: Years Ended Dec 31, 2019 Dec 31, 2018 Dec 31, "
+        "2017 Dell Inc. 19 % 19 % 21 %"
+    )
+    got = named(stale_header, "2024-01-26", "2023-12-30")
+    check("6n. REFUSES a header that never names the reporting year",
+          got == set(), str(got))
 
     # ---------------- CONTROLS: these must hold BEFORE and AFTER ------------
     # Each is a real scope clause governing a real list of names with figures
