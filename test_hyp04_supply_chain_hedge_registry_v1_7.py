@@ -231,8 +231,9 @@ def test_d_membership_moved_in_both_directions() -> None:
 
 def test_e_the_gate_did_not_move() -> None:
     print("\n--- PART E: the display gate ---")
-    check("E1. the gate reads the v1.7 artifact",
-          REGISTRY_CURRENT.name.endswith("v1.7.json"), REGISTRY_CURRENT.name)
+    check("E1. v1.7 is no longer the current artifact -- v1.8 superseded it",
+          not REGISTRY_CURRENT.name.endswith("v1.7.json"),
+          REGISTRY_CURRENT.name)
     d = current_decision()
     check("E2. it is CLOSED", d.open is False, str(d.conditions))
     check("E3. with exactly 4 denials", len(d.denials) == 4, str(d.denials))
