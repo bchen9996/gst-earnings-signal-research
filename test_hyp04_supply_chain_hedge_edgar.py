@@ -1128,6 +1128,152 @@ def test_6m_the_widening_and_the_four_gates_it_required() -> None:
           str(named(mck, "2000-06-13", "MCK")))
 
 
+def test_6n_a_list_under_a_stated_denominator_is_unreadable() -> None:
+    """A PINNED GAP, asserted 2026-08-29. This test is expected to FLIP.
+
+    Every anchor in CONCENTRATION_ANCHORS requires the percentage and the
+    denominator to sit adjacent in ONE match -- "<pct>% of <basis>". Real
+    filings routinely state the denominator ONCE in a scope clause and then
+    list parties carrying bare percentages:
+
+        prose   "our three largest customers accounted for 40% of our net
+                 revenue, with Dell Inc. accounting for 16% ..."
+        table   "accounted for the following percentage of our net revenue:
+                 ... Dell Inc. 19 % 19 % 21 %"
+
+    Neither can satisfy an adjacency-based anchor, so BOTH are invisible. The
+    surface form is incidental -- the verb tense, the table layout and the
+    parenthetical comparatives are all downstream of the one structural fact
+    that the denominator is not repeated per party.
+
+    THE COST IS ALREADY IN THE PUBLISHED REGISTRY. Intel's membership interval
+    closes at 2017-02-17, which is not when the relationship ended but when
+    Intel moved the disclosure out of Item 1 prose. Dell is disclosed at
+    15-21% of Intel's net revenue in every filing from 2017-02-17 through
+    2024-01-26, in plain English. Adobe never appears in any registry version
+    at all, though Ingram Micro is disclosed at 11-21% of net revenue across
+    2008-2015. Both are data AVAILABILITY deciding membership, which AU-1..AU-6
+    forbid.
+
+    The fixtures below are verbatim from the cached corpus, accession noted.
+    """
+    # ---------------- THE GAP: real disclosures, currently unreadable -------
+    # INTC 0000050863-18-000007, filed 2018-02-16, period 2017-12-30.
+    intc_prose = (
+        "In 2017 , our three largest customers accounted for 40% of our net "
+        "revenue ( 38% in 2016 ), with Dell Inc. (Dell) accounting for 16% "
+        "( 15% in 2016 ), Lenovo Group Limited (Lenovo) accounting for 13% "
+        "( 13% in 2016 ), and HP Inc. accounting for 11% ( 10% in 2016 ). "
+        "These three customers accounted for 36% of our accounts receivable "
+        "as of December 30, 2017 ( 31% as of December 31, 2016 )."
+    )
+    # INTC 0000050863-24-000010, filed 2024-01-26, period 2023-12-30.
+    intc_table = (
+        "Our three largest customers accounted for the following percentage "
+        "of our net revenue: Years Ended Dec 30, 2023 Dec 31, 2022 Dec 25, "
+        "2021 Dell Inc. 19 % 19 % 21 % Lenovo Group Limited 11 % 12 % 12 % "
+        "HP Inc. 10 % 11 % 10 % Total percentage of net revenue 40 % 42 % 43 %"
+    )
+    # ADBE 0000796343-11-000003, filed 2011-01-27, period 2010-12-03.
+    adbe_table = (
+        "The table below lists our significant customers, as a percentage of "
+        "net revenue for fiscal 2010, 2009 and 2008. As listed, our "
+        "significant customers are distributors who sell products across our "
+        "various segments. 2010 2009 2008 Ingram Micro 15 % 15 % 18 %"
+    )
+
+    def named(text, filing_date, report_date):
+        e, _ = extract_edges_from_text(
+            text, ticker="X", cik="0", filing_date=filing_date,
+            accession="a", report_date=report_date)
+        return {x.named_counterparty for x in e if x.counterparty_is_named}
+
+    gap = (
+        ("INTC prose, Dell 16% of net revenue", intc_prose,
+         "2018-02-16", "2017-12-30", "Dell"),
+        ("INTC table, Dell 19% of net revenue", intc_table,
+         "2024-01-26", "2023-12-30", "Dell"),
+        ("ADBE table, Ingram Micro 15% of net revenue", adbe_table,
+         "2011-01-27", "2010-12-03", "Ingram"),
+    )
+    for label, text, fd, rd, who in gap:
+        got = named(text, fd, rd)
+        check(f"6n. GAP -- {label} yields no named edge",
+              not any(who in (n or "") for n in got), str(got))
+
+    # ---------------- CONTROLS: these must hold BEFORE and AFTER ------------
+    # Each is a real scope clause governing a real list of names with figures
+    # at or above the threshold. Every one of them must yield NO counterparty.
+    # They are the reason a scoped-list reader cannot simply take every name
+    # that follows a denominator.
+
+    # GOOGL 0001652044-25-000014, filed 2025-02-05. A GEOGRAPHY table whose
+    # scope clause names customers outright -- "the addresses of our
+    # customers". Role word, revenue denominator, names, figures over the
+    # threshold, and not one counterparty in it.
+    googl_geo = (
+        "Revenues by Geography The following table presents revenues by "
+        "geography as a percentage of revenues, determined based on the "
+        "addresses of our customers: Year Ended December 31, 2023 2024 "
+        "United States 47 % 49 % EMEA 30 % 29 % APAC 17 % 16 % Other "
+        "Americas 6 % 6 % Hedging gains (losses) 0 % 0 %"
+    )
+    got = named(googl_geo, "2025-02-05", "2024-12-31")
+    check("6n. CONTROL -- a geography table names no counterparty",
+          got == set(), str(got))
+
+    # CTSH 0001058290-20-000008, filed 2020-02-14. An AGGREGATE table: the
+    # rows are portfolios, not parties. 14.6% is real and belongs to nobody.
+    ctsh_agg = (
+        "Revenues from our top clients as a percentage of total revenues "
+        "were as follows: For the years ended December 31, 2019 2018 2017 "
+        "Top five clients 7.9 % 8.6 % 8.9 % Top ten clients 14.6 % 15.4 % "
+        "14.9 %"
+    )
+    got = named(ctsh_agg, "2020-02-14", "2019-12-31")
+    check("6n. CONTROL -- an aggregate table names no counterparty",
+          got == set(), str(got))
+
+    # ADBE 0000796343-11-000003. The RECEIVABLES twin of the qualifying table,
+    # in the same filing. Same party, same layout, denominator the rule
+    # excludes. If a reader takes this one it has stopped reading the header.
+    adbe_recv = (
+        "Receivables from our significant distributors, as a percentage of "
+        "gross trade receivables for fiscal 2010 and 2009 were as follows: "
+        "2010 2009 Ingram Micro 14 % 16 %"
+    )
+    e, _ = extract_edges_from_text(
+        adbe_recv, ticker="X", cik="0", filing_date="2011-01-27",
+        accession="a", report_date="2010-12-03")
+    check("6n. CONTROL -- the receivables twin is never consolidated revenue",
+          all(x.concentration_basis != BASIS_CONSOLIDATED_REVENUE for x in e),
+          str([(x.named_counterparty, x.concentration_basis) for x in e]))
+
+    # INTC 0000050863-25-000010, filed 2025-01-31. Intel ANONYMISED its
+    # customers for FY2024. This is a genuine, rule-based exit from the
+    # universe -- not a defect -- and it must stay an exit however good the
+    # reader gets. "Customer A" is not a name.
+    intc_anon = (
+        "Our three largest customers accounted for the following percentage "
+        "of our net revenue: Years Ended Dec 28, 2024 Dec 30, 2023 Dec 31, "
+        "2022 Customer A 19 % 19 % 19 % Customer B 14 % 11 % 12 % Customer C "
+        "12 % 10 % 11 % Total percentage of net revenue 45 % 40 % 42 %"
+    )
+    got = named(intc_anon, "2025-01-31", "2024-12-28")
+    check("6n. CONTROL -- Customer A/B/C is not a named counterparty",
+          got == set(), str(got))
+
+    # ---------------- COLUMN ORDER IS NOT A CONVENTION ----------------------
+    # The multi-year "respectively" reader takes the FIRST percentage as the
+    # reporting year's, because filings list years newest-first. That holds
+    # for INTC, ADBE and CTSH above -- and NOT for GOOGL, whose header reads
+    # "2023 2024". Both orders are present in this corpus, so a table reader
+    # may not carry the respectively-form assumption across. It must read the
+    # year header, and refuse when it cannot.
+    check("6n. newest-first and oldest-first BOTH occur in the corpus",
+          "2010 2009 2008" in adbe_table and "2023 2024" in googl_geo)
+
+
 def test_11_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -1155,6 +1301,7 @@ if __name__ == "__main__":
     test_6k_possessive_denominators_are_read_layer_by_layer()
     test_6l_the_verb_set_admits_equivalence_but_not_contribution()
     test_6m_the_widening_and_the_four_gates_it_required()
+    test_6n_a_list_under_a_stated_denominator_is_unreadable()
     test_7_direction_inference()
     test_8_strip_markup()
     test_9_coverage_is_reported_as_a_floor()
