@@ -241,8 +241,15 @@ def test_d_the_supersession_is_recorded() -> None:
 
 def test_e_the_gate_did_not_move() -> None:
     print("\n--- PART E: the display gate ---")
-    check("E1. the gate reads the v1.6 artifact",
-          REGISTRY_CURRENT.name.endswith("v1.6.json"), REGISTRY_CURRENT.name)
+    # v1.6 was current when this suite was written; v1.7 superseded it on
+    # 2026-08-28. "Is current" is each version's own suite to assert, and the
+    # v1.7 suite does. What stays true for v1.6 forever is the direction --
+    # it was superseded -- so that is what is checked here. Asserting the
+    # chain from this side as well would duplicate the v1.7 suite and break on
+    # a v1.8, because v1.6 is only the current registry's predecessor until it
+    # is not. Same reasoning as the v1.5 suite's D1.
+    check("E1. v1.6 is no longer the current artifact -- v1.7 superseded it",
+          not REGISTRY_CURRENT.name.endswith("v1.6.json"), REGISTRY_CURRENT.name)
     d = current_decision()
     check("E2. it is CLOSED", d.open is False, str(d.conditions))
     check("E3. with exactly 4 denials", len(d.denials) == 4, str(d.denials))
