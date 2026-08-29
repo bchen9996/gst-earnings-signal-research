@@ -143,7 +143,8 @@ def walk_ticker(client: EdgarClient, ticker: str, *,
                 continue
             edges, no_conc = extract_edges_from_text(
                 text, ticker=ticker, cik=cik, filing_date=f["filing_date"],
-                accession=f["accession"], form=f["form"])
+                accession=f["accession"], form=f["form"],
+                report_date=f.get("report_date"))
             named = sorted({e.named_counterparty for e in edges
                             if e.counterparty_is_named and e.named_counterparty})
             h.per_filing.append({

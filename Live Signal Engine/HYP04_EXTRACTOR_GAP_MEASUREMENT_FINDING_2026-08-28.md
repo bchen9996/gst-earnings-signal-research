@@ -206,3 +206,71 @@ than attributed to the wrong cause.
 - a stale-comparative hole closed before it could create a false interval
 
 2,096 checks over 27 suites, 0 failures. Gate **CLOSED, C4 MET, 4 denials**.
+
+---
+
+## AMENDMENT — 2026-08-28 (later): "respectively" implemented; membership moves BOTH ways, and v1.6 contains an error
+
+The multi-year `respectively` construction is now supported, and staleness is
+measured against the **period of report** rather than the filing date. The two
+changes are inseparable: pairing percentages to years by position is only safe
+if the reporting year can be identified exactly.
+
+**Membership moved, and not only by addition.**
+
+| | |
+|---|---|
+| **NKE ADDED** | 2002-08-14 → 2004-07-30, Foot Locker Inc, 10.9% |
+| **MCHP REMOVED** | its v1.6 interval rests on a stale comparative |
+
+### MCHP was never entitled to membership
+
+Both filings that produced it disclose a figure for a year **other than the one
+they report on**:
+
+| Filed | Period | What it says |
+|---|---|---|
+| 2013-05-30 | FY2013 | "…approximately 10% of our net sales **in each of fiscal 2012 and fiscal 2011**" |
+| 2014-05-30 | FY2014 | "…approximately 10% of our net sales **in fiscal 2012**" |
+
+Neither states a ≥10% concentration for its own reporting year. The
+filing-date window is two years wide — it must be, to avoid rejecting the
+reporting year of a calendar-year filer — and that slack admitted a FY2012
+figure into a FY2013 filing.
+
+**This directly contradicts registry v1.6's own companion**, which records the
+fiscal-period imprecision as a stated limitation and says it *"changes no
+membership here."* It did. It manufactured a member.
+
+The same correction removes NVDA/Celestica, which v1.6 also names as a known
+comparative that "still passes". It was not an interval opener, so NVDA is
+unaffected.
+
+### Verification
+
+Re-derived offline, zero requests, `registry_grade=True`. Corpus diff against
+the previous run: **two removals, zero additions.** The exhaustive enumeration
+gives 62 qualifying disclosures over 23 distinct ticker-counterparty pairs,
+every one a real company — no geography, no segment, no bare legal suffix.
+**Zero fabrications.**
+
+### THE REPOSITORY IS NOW IN A DIVERGED STATE, deliberately and visibly
+
+The extractor derives a universe that the published registry v1.6 does not
+describe: **AAPL, CTSH, INTC, MCK, NKE, NVDA** against v1.6's AAPL, CTSH, INTC,
+MCHP, MCK, NVDA.
+
+**No test catches this**, and that is not an oversight in the tests — it is the
+consequence, now realised, of a property this project chose on purpose: the
+registry suites re-derive from the **stored corpus artifact**, so they verify
+that the published artifact matches the corpus it was built from, not that it
+matches today's code. The divergence was predicted in
+[the 2026-08-27 finding](HYP04_EXTRACTOR_POSSESSIVE_DENOMINATOR_FINDING_2026-08-27.md),
+§4, as the reason not to change the extractor without authoring a version.
+
+**Resolving it requires registry v1.7**, which is a governed act and has not
+been taken. Until then this document is the record that the divergence exists
+and is understood, rather than being discovered later as a contradiction.
+
+The display gate is unaffected: **CLOSED, C4 MET, 4 denials**. Membership is
+not eligibility, and C2 counts zero regardless of who is in the universe.

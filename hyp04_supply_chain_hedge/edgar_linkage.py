@@ -169,6 +169,28 @@ CONCENTRATION_ANCHORS: tuple[tuple[str, str], ...] = (
     # admitting them is a visible decision.
     (r"\b(?:were|was|totaled|totalled|equaled|equalled|approximated)\s+"
      + _APPROX + _PCT + _BASIS, "equivalence"),
+    # THE MULTI-YEAR "RESPECTIVELY" FORM. NIKE, 2002-08-14:
+    #
+    #   "During the years ended May 31, 2002, 2001 and 2000, revenues derived
+    #    from Foot Locker, Inc. represented 10.9%, 11.8% and 12.4%,
+    #    respectively of the Company's consolidated revenues."
+    #
+    # One sentence carrying one figure per fiscal year. Filings list the years
+    # NEWEST FIRST and the percentages in the same order, so the FIRST
+    # percentage is the reporting year's -- which is why `pct` captures only
+    # that one and the rest are consumed unnamed.
+    #
+    # Pairing by position is what makes this safe to read at all. Taking the
+    # largest of the percentages, or the last, would silently attribute a
+    # prior year's concentration to the reporting year -- the same error the
+    # stale-comparative gate exists to prevent, committed inside a single
+    # sentence where that gate cannot see it.
+    (r"\b(?:represented|accounted for|comprised|constituted|made up|were|was"
+     r"|totaled|totalled)\s+" + _APPROX
+     + r"(?P<pct>\d{1,3}(?:\.\d)?)\s*%"
+     r"(?:\s*,\s*\d{1,3}(?:\.\d)?\s*%)*"
+     r"\s+and\s+\d{1,3}(?:\.\d)?\s*%\s*,?\s*respectively\s*,?\s+of\s+"
+     + _BASIS, "respectively"),
 )
 
 # How far back from the concentration claim to look for the counterparty.
@@ -624,6 +646,11 @@ STATED_YEAR = re.compile(
     re.I)
 STALE_COMPARATIVE_YEARS = 2
 
+# Used when the submission's period of report is known. One year, not two: with
+# the actual fiscal period in hand there is no filing-lag slack to absorb, so
+# anything not naming the reported year is a comparative.
+STALE_PERIOD_YEARS = 1
+
 DIRECTION_CUSTOMER = "customer"       # counterparty BUYS from the filer
 DIRECTION_SUPPLIER = "supplier"       # counterparty SELLS to the filer
 SUPPLIER_HINT = re.compile(r"\b(supplier|vendor|contract manufacturer|foundry|"
@@ -772,7 +799,7 @@ def infer_direction(context: str) -> str:
 
 def extract_edges_from_text(
     text: str, *, ticker: str, cik: str, filing_date: str,
-    accession: str, form: str = "10-K",
+    accession: str, form: str = "10-K", report_date: Optional[str] = None,
 ) -> tuple[list[LinkageEdge], bool]:
     """Extract candidate edges from one filing's text.
 
@@ -869,12 +896,30 @@ def extract_edges_from_text(
                 continue
             if GEOGRAPHIC_CONSTRUCTION.search(sentence):
                 continue
+            # STALENESS IS MEASURED AGAINST THE PERIOD OF REPORT when the
+            # submission supplies one, and against the FILING DATE otherwise.
+            #
+            # The two differ by about a year for any calendar-year filer -- a
+            # FY2004 10-K filed 2005-02-22 -- so a window measured from the
+            # filing date has to be two years wide just to avoid rejecting the
+            # reporting year itself. That slack is what let NIKE's FY2002
+            # comparative pass in a filing covering FY2003.
+            #
+            # Given the actual period, the rule is exact and the window
+            # narrows to one: a figure is current if it names the year the
+            # filing reports on, and is a comparative otherwise. Recorded as a
+            # v1.6 limitation; closed here because the "respectively" form
+            # above cannot be read correctly without it.
             years = [int(m.group("year")) for m in STATED_YEAR.finditer(sentence)]
-            filing_year = None
-            if len(filing_date) >= 4 and filing_date[:4].isdigit():
-                filing_year = int(filing_date[:4])
-            if years and filing_year is not None \
-                    and max(years) <= filing_year - STALE_COMPARATIVE_YEARS:
+            period_year = None
+            if report_date and len(report_date) >= 4 and report_date[:4].isdigit():
+                period_year = int(report_date[:4])
+                stale_window = STALE_PERIOD_YEARS
+            elif len(filing_date) >= 4 and filing_date[:4].isdigit():
+                period_year = int(filing_date[:4])
+                stale_window = STALE_COMPARATIVE_YEARS
+            if years and period_year is not None \
+                    and max(years) <= period_year - stale_window:
                 continue
 
             party = None
