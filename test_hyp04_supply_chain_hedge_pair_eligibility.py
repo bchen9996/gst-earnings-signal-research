@@ -36,10 +36,9 @@ socket.socket.connect_ex = _no_net
 socket.create_connection = _no_net
 socket.getaddrinfo = _no_net
 
-from gst_market_response.completeness import (  # noqa: E402
-    OptionBenchmarkDisposition,
-    PRE_EVENT_TIER_CORE_ONLY,
-    ModuleEligibility,
+from hyp04_supply_chain_hedge.anchor_shock import (  # noqa: E402
+    AnchorShock,
+    shock_for_event,
 )
 from hyp04_supply_chain_hedge.curated_linkage import (  # noqa: E402
     CuratedEdge,
@@ -98,25 +97,23 @@ def _edge(**over) -> CuratedEdge:
     return CuratedEdge(**base)
 
 
-def _anchor_ok() -> ModuleEligibility:
-    """A core-eligible anchor. Core-only is deliberate: options must not gate."""
-    return ModuleEligibility(
-        core_pre_event_eligible=True,
-        option_benchmark_eligible=False,
-        joint_full_eligible=False,
-        pre_event_completeness_tier=PRE_EVENT_TIER_CORE_ONLY,
-        option_benchmark_status=OptionBenchmarkDisposition.UNAVAILABLE_NO_VERIFIED_SOURCE,
-        option_benchmark_unavailable_reason="no OPRA-entitled source")
+ANCHOR_FOR_SHOCK = "MCK"
 
 
-def _anchor_bad() -> ModuleEligibility:
-    return ModuleEligibility(
-        core_pre_event_eligible=False,
-        option_benchmark_eligible=False,
-        joint_full_eligible=False,
-        pre_event_completeness_tier=PRE_EVENT_TIER_CORE_ONLY,
-        option_benchmark_status=OptionBenchmarkDisposition.UNAVAILABLE_NO_VERIFIED_SOURCE,
-        option_benchmark_unavailable_reason="no OPRA-entitled source")
+def _anchor_ok() -> AnchorShock:
+    """A well-measured anchor shock: both legs present, session resolved."""
+    s, denials = shock_for_event(
+        event_id="EVT-1", anchor_ticker=ANCHOR_FOR_SHOCK,
+        attributed_session="2026-02-17",
+        anchor_return=-0.084, benchmark_return=-0.004)
+    assert s is not None and not denials, denials
+    return s
+
+
+def _anchor_bad() -> None:
+    """No shock. An unsupplied shock is not a shock of zero -- it is an
+    unusable anchor, and P1 must deny it."""
+    return None
 
 
 def _eval(edge=None, **over):
@@ -124,7 +121,7 @@ def _eval(edge=None, **over):
         event_id=EVENT_ID,
         event_date=EVENT_DATE,
         event_anchor_ticker=ANCHOR,
-        anchor_eligibility=_anchor_ok(),
+        anchor_shock=_anchor_ok(),
         peer_history_available=True,
     )
     kw.update(over)
@@ -153,8 +150,13 @@ def test_2_a_fully_valid_pair_is_eligible() -> None:
     check("2a. a fully valid pair IS eligible", r.eligible is True,
           str(r.denials))
     check("2b. with zero denials", r.denials == ())
+    # The evidence records the SHOCK itself, not merely a pass/fail, so a
+    # reader can see which number and which session P1 accepted.
     check("2c. the anchor was checked, not assumed",
-          r.evidence["anchor_core_eligible"] is True)
+          r.evidence["anchor_shock"] is not None
+          and r.evidence["anchor_shock_session"] == "2026-02-17",
+          str({k: v for k, v in r.evidence.items()
+               if k.startswith("anchor_shock")}))
     check("2d. the point-in-time comparison was actually made",
           r.evidence["as_of_strictly_before_event"] is True)
     check("2e. direction came from the closed lookup",
@@ -165,14 +167,14 @@ def test_2_a_fully_valid_pair_is_eligible() -> None:
     # options requirement that would exclude the thin peers this hypothesis
     # exists to study.
     check("2f. a core-ONLY anchor (no option benchmark) is still eligible",
-          _eval(anchor_eligibility=_anchor_ok()).eligible is True)
+          _eval(anchor_shock=_anchor_ok()).eligible is True)
 
 
 # ============ 3. each condition falsified ALONE ===========================
 def test_3_each_condition_denies_on_its_own() -> None:
     cases = [
-        ("P1 anchor not core-eligible", dict(anchor_eligibility=_anchor_bad()), "P1"),
-        ("P1 anchor eligibility not supplied", dict(anchor_eligibility=None), "P1"),
+        ("P1 anchor not core-eligible", dict(anchor_shock=_anchor_bad()), "P1"),
+        ("P1 anchor eligibility not supplied", dict(anchor_shock=None), "P1"),
         ("P2 edge belongs to another anchor",
          dict(edge=_edge(anchor_ticker="AAPL")), "P2"),
         ("P2 peer blank", dict(edge=_edge(peer_ticker="")), "P2"),
@@ -203,7 +205,7 @@ def test_3_each_condition_denies_on_its_own() -> None:
     # P5's unknown is a THIRD state, distinct from False, and also denies.
     r = evaluate_pair(_edge(), event_id=EVENT_ID, event_date=EVENT_DATE,
                       event_anchor_ticker=ANCHOR,
-                      anchor_eligibility=_anchor_ok())
+                      anchor_shock=_anchor_ok())
     check("3c. P5 unsupplied peer history denies (unknown is not available)",
           r.eligible is False and any(d.startswith("P5") for d in r.denials))
     check("3d. and records it as None, not False",
@@ -243,7 +245,7 @@ def test_5_eligible_pairs_splits_and_denies_unknown_peers() -> None:
              _edge(peer_ticker="AAPL", as_of_date="2026-09-01")]
     ok, no = eligible_pairs(
         edges, event_id=EVENT_ID, event_date=EVENT_DATE,
-        event_anchor_ticker=ANCHOR, anchor_eligibility=_anchor_ok(),
+        event_anchor_ticker=ANCHOR, anchor_shock=_anchor_ok(),
         peer_history={"COHR": True, "JBL": False})
 
     check("5a. the valid pair is eligible",
@@ -260,7 +262,7 @@ def test_5_eligible_pairs_splits_and_denies_unknown_peers() -> None:
     # No history map at all: every peer is unknown, so nothing is eligible.
     ok2, no2 = eligible_pairs(
         edges, event_id=EVENT_ID, event_date=EVENT_DATE,
-        event_anchor_ticker=ANCHOR, anchor_eligibility=_anchor_ok())
+        event_anchor_ticker=ANCHOR, anchor_shock=_anchor_ok())
     check("5f. with no history map supplied, nothing is eligible",
           ok2 == [] and len(no2) == len(edges))
 
@@ -278,7 +280,7 @@ def test_6_no_pair_is_eligible_today() -> None:
     res = load_curated_linkage(found[0])
     ok, _ = eligible_pairs(
         res.edges, event_id=EVENT_ID, event_date=EVENT_DATE,
-        event_anchor_ticker=ANCHOR, anchor_eligibility=_anchor_ok())
+        event_anchor_ticker=ANCHOR, anchor_shock=_anchor_ok())
     check("6b. a live curated file yields no eligible pair without peer history",
           ok == [])
 

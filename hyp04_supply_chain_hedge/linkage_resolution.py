@@ -49,7 +49,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from gst_market_response.completeness import ModuleEligibility
+from .anchor_shock import AnchorShock
 
 from .curated_linkage import CuratedEdge, load_curated_linkage
 from .pair_eligibility import PairEligibility, evaluate_pair
@@ -135,7 +135,7 @@ def resolve_from_curated_map(
     anchor_events: list[dict[str, Any]],
     *,
     map_path: Path,
-    anchor_eligibility: Optional[dict[str, ModuleEligibility]] = None,
+    anchor_shock: Optional[dict[str, AnchorShock]] = None,
     peer_history: Optional[dict[str, bool]] = None,
 ) -> ResolvedPanel:
     """Attach real peers to each anchor event from the curated map.
@@ -145,7 +145,7 @@ def resolve_from_curated_map(
     IGNORED and replaced -- a positional list must never survive into a panel
     that claims curated linkage.
 
-    `anchor_eligibility` maps event_id -> ModuleEligibility. An event absent
+    `anchor_shock` maps event_id -> AnchorShock. An event absent
     from it is denied by P1, never assumed eligible. `peer_history` maps peer
     ticker -> availability; a peer absent from it is UNKNOWN and denied by P5,
     never assumed available.
@@ -188,7 +188,7 @@ def resolve_from_curated_map(
                 "event_id": event_id,
                 "event_date": event_date,
                 "event_anchor_ticker": anchor,
-                "anchor_eligibility": (anchor_eligibility or {}).get(event_id),
+                "anchor_shock": (anchor_shock or {}).get(event_id),
                 "from_placeholder_linkage": False,
             }
             # Only supply peer availability when it is actually known. Omitting
