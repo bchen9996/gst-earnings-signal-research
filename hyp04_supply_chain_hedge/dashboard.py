@@ -222,6 +222,65 @@ def read_curated_linkage() -> dict[str, Any]:
     }
 
 
+def read_anchor_event_calendar() -> dict[str, Any]:
+    """The anchor-event CALENDAR, COUNTED FROM DISK at render time.
+
+    Different from `read_anchor_event_candidates`, which reads a per-ticker
+    walk with no membership filter. This reads the calendar: releases that fall
+    INSIDE a span during which the filer was a registered anchor.
+
+    The totals are COUNTED FROM THE CSV ROWS, not read out of the JSON's own
+    summary fields, so a stale summary in the artifact cannot render as a
+    current number. Only the two things the CSV cannot express -- the measured
+    alternative that was not adopted, and the member-years with no results item
+    code -- are taken from the JSON.
+    """
+    import csv as _csv
+    import json as _json
+
+    csvs = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.csv"))
+    if not csvs:
+        return {"present": False}
+    rows = list(_csv.DictReader(csvs[0].open(encoding="utf-8", newline="")))
+
+    by_session: dict[str, int] = {}
+    by_anchor: dict[str, int] = {}
+    for r in rows:
+        by_session[r.get("release_session", "?")] = \
+            by_session.get(r.get("release_session", "?"), 0) + 1
+        by_anchor[r.get("anchor_ticker", "?")] = \
+            by_anchor.get(r.get("anchor_ticker", "?"), 0) + 1
+
+    out: dict[str, Any] = {
+        "present": True,
+        "source": csvs[0].name,
+        "total": len(rows),
+        "by_session": by_session,
+        "by_anchor": by_anchor,
+        "resolved_session": by_session.get("BMO", 0) + by_session.get("AMC", 0),
+        "alternative_total": None,
+        "blind_member_years": None,
+        "superseded": None,
+    }
+    js = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.json"))
+    if js:
+        try:
+            d = _json.loads(js[0].read_text(encoding="utf-8"))
+        except ValueError:
+            return out
+        primary = d.get("primary_specification_unchanged") or {}
+        alt = d.get("measured_alternative_not_adopted") or {}
+        out["alternative_total"] = alt.get("candidate_events_total")
+        out["superseded"] = primary.get("duplicate_filings_superseded")
+        out["blind_member_years"] = \
+            primary.get("member_years_with_no_results_item_code")
+        # A disagreement between the artifact's own summary and the rows it
+        # shipped with is a fact worth surfacing, not smoothing over.
+        out["summary_disagrees"] = (
+            primary.get("candidate_events_total") not in (None, len(rows)))
+    return out
+
+
 def read_anchor_event_candidates() -> dict[str, Any]:
     """Candidate anchor events, COUNTED FROM DISK at render time.
 
@@ -628,10 +687,63 @@ def render(tests: dict, audit: dict, registry: dict,
              events, and this number does not move C2.</strong> Nothing here
              has been screened against HYP-01's eligibility rules; the eligible
              count remains zero.{shortfall} C2 counts ELIGIBLE anchor events,
-             so deriving release dates does not advance it &mdash; only
-             screening does, and screening is HYP-01's, not HYP-04's.
+             so deriving release dates does not advance it. Since registry
+             v1.9 the anchor-side requirement is HYP-04's own
+             <span class="mono">HYP04-ANCHOR-SHOCK-RULE-v1</span>, not HYP-01's
+             attention screen; it needs the anchor's and the benchmark's closes
+             for the attributed session, no price source is decided, and no
+             shock has been computed from production data.
              These counts are read from the file at render time; this page does
              not carry a copy of them.</div>"""
+
+    # --- anchor-event calendar -------------------------------------------
+    # The candidate walk above counts a ticker's releases. This counts the
+    # releases that fall INSIDE a membership span, which is the number the
+    # feasibility question actually asks about. Every figure is counted from
+    # the shipped CSV rows at render time; none may be written as a literal
+    # here, in code OR in a comment.
+    cal = read_anchor_event_calendar()
+    if not cal.get("present"):
+        calendar_block = ""
+    else:
+        cfloor = registry.get("hyp04_threshold")
+        vs = ("" if not isinstance(cfloor, int) else
+              f" The registered floor is {cfloor}.")
+        alt = ("" if not cal.get("alternative_total") else
+               f" A measured alternative that recovers the pre-2004 SEC item "
+               f"numbering reaches {cal['alternative_total']}; it is "
+               f"<strong>not adopted</strong> and is published beside the "
+               f"primary specification, not in place of it.")
+        blind = ("" if cal.get("blind_member_years") in (None, 0) else
+                 f" {cal['blind_member_years']} member-years fall before any "
+                 f"earnings-specific 8-K item code existed and are invisible "
+                 f"to an index-level rule entirely.")
+        dropped = ("" if not cal.get("superseded") else
+                   f" {cal['superseded']} same-release re-filings were "
+                   f"superseded by the earliest acceptance rather than counted "
+                   f"twice.")
+        warn = ("" if not cal.get("summary_disagrees") else
+                "<div class=\"caveat blocker\"><strong>The artifact's own "
+                "summary disagrees with the rows it shipped with.</strong> The "
+                "figures above are the rows.</div>")
+        csess = " &middot; ".join(
+            f"{_e(k)} {v}" for k, v in sorted(cal["by_session"].items()))
+        calendar_block = f"""
+          <div class="kpis">
+            <div class="kpi"><div class="v">{cal['total']}</div><div class="l">candidate events INSIDE a membership span</div></div>
+            <div class="kpi"><div class="v">{cal['resolved_session']}</div><div class="l">of those with a resolved session</div></div>
+            <div class="kpi"><div class="v">0</div><div class="l">ELIGIBLE anchor events</div></div>
+          </div>
+          <p class="small">Release session: {csess}. Source
+             <span class="mono">{_e(cal['source'])}</span>.{dropped}{alt}{blind}</p>
+          {warn}
+          <div class="caveat blocker"><strong>A ceiling above the floor is not
+             a met threshold, and this moves no gate.</strong>{vs} Each of these
+             still has to survive
+             <span class="mono">HYP04-ANCHOR-SHOCK-RULE-v1</span>, which needs
+             the anchor's and the benchmark's closes for the attributed
+             session. No price source is decided, none has been put through it,
+             and the eligible count is zero.</div>"""
 
     # --- anchor universe (registry v1.5 and later) -----------------------
     # The candidate counts above are a floor on RELEASES, not on usable
@@ -743,6 +855,7 @@ def render(tests: dict, audit: dict, registry: dict,
           <table><thead><tr><th>Hypothesis</th><th>Eligible events</th></tr></thead>
           <tbody>{counts}</tbody></table>
           {candidates_block}
+          {calendar_block}
           {universe_block}
           <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
              display gate independently):</p>
