@@ -300,15 +300,25 @@ def all_item_202_records(client: EdgarClient, cik: str) -> list[dict[str, str]]:
     that block truncates silently at whatever depth it happens to reach, which
     is indistinguishable from "the company reported no earlier earnings" --
     the same trap `all_10ks` documents.
+
+    GOES THROUGH `_get_json`, NOT `_get`. `_get` is the raw transport: it sits
+    BELOW both the on-disk cache and the `offline=True` guard. This function
+    called it directly until 2026-08-29, which meant an EdgarClient constructed
+    with `offline=True` reached data.sec.gov anyway -- silently, and while
+    reporting cache hits of zero. That is exactly the failure `OfflineCacheMiss`
+    was written to prevent ("quietly reaching the network from a run the caller
+    asked to be offline is how a 'no requests made' claim becomes false without
+    anyone noticing"), and it was found by making that false claim: a run
+    asserted to be offline came back with requests_made=20.
     """
-    data = client._get(SUBMISSIONS_URL.format(cik=cik)).json()
+    data = client._get_json(SUBMISSIONS_URL.format(cik=cik))
     filings = data.get("filings", {})
     blocks = [filings.get("recent", {})]
     for extra in filings.get("files", []) or []:
         name = extra.get("name")
         if name:
             blocks.append(
-                client._get(SUBMISSIONS_EXTRA_URL.format(name=name)).json())
+                client._get_json(SUBMISSIONS_EXTRA_URL.format(name=name)))
 
     out: list[dict[str, str]] = []
     for blk in blocks:

@@ -502,10 +502,112 @@ def test_13_the_dashboard_derives_the_count_and_disclaims_c2():
           "NOT eligible events" in flat and "does not move C2" in flat)
     check("13f. and says the eligible count remains zero",
           "eligible count remains zero" in flat)
-    check("13g. and says screening belongs to HYP-01",
-          "screening is HYP-01" in flat)
+    # CHANGED 2026-08-29, deliberately, and this flip is the point. The page
+    # used to say "screening is HYP-01's, not HYP-04's". Registry v1.9 moved
+    # HYP-04's anchor-side requirement to its OWN rule, so that sentence became
+    # a claim the registry contradicts -- exactly the code-says-one-thing,
+    # artifact-says-another drift v1.7's companion records.
+    check("13g. and names HYP-04's OWN anchor-side rule",
+          "HYP04-ANCHOR-SHOCK-RULE-v1" in flat)
+    check("13g2. and no longer sends HYP-04 eligibility to HYP-01",
+          "screening is HYP-01" not in flat, "the stale claim is back")
     check("13h. the block is omitted, not zeroed, when the file is absent",
           'candidates_block = ""' in src)
+
+
+def test_14_the_submissions_walk_cannot_bypass_the_cache() -> None:
+    """A REGRESSION TEST FOR A DEFECT THAT MADE A TRUE-SOUNDING CLAIM FALSE.
+
+    `EdgarClient._get` is the raw transport. It sits BELOW the on-disk cache and
+    BELOW the `offline=True` guard, and it is the seam the offline suites
+    replace. `all_item_202_records` called it directly until 2026-08-29, so a
+    client built with `offline=True` reached data.sec.gov anyway -- with the
+    cache reporting zero hits, because the cache was never consulted.
+
+    Found by making the false claim: a run asserted to be offline came back
+    with requests_made=20. `OfflineCacheMiss` exists precisely to stop this
+    ("quietly reaching the network from a run the caller asked to be offline is
+    how a 'no requests made' claim becomes false without anyone noticing"), and
+    it could not fire because nothing on this path ever asked it to.
+    """
+    import inspect
+    import tempfile
+    from pathlib import Path
+
+    from hyp04_supply_chain_hedge.earnings_events import all_item_202_records
+    from hyp04_supply_chain_hedge.edgar_linkage import (
+        EdgarClient, FilingCache, OfflineCacheMiss)
+
+    print()
+    print("--- 14: the submissions walk goes through the cache ---")
+
+    BLOB = {"filings": {"recent": {"form": ["8-K", "10-K"],
+                                   "items": ["2.02,9.01", ""],
+                                   "accessionNumber": ["a-1", "a-2"],
+                                   "filingDate": ["2020-02-04", "2020-05-01"],
+                                   "reportDate": ["2020-02-04", "2020-05-01"],
+                                   "acceptanceDateTime":
+                                       ["2020-02-04T12:10:43.000Z", ""]},
+                        "files": [{"name": "CIK0000000001-submissions-001.json"}]}}
+    EXTRA = {"form": ["8-K"], "items": ["2.02"], "accessionNumber": ["a-3"],
+             "filingDate": ["2019-11-01"], "reportDate": ["2019-11-01"],
+             "acceptanceDateTime": ["2019-11-01T21:10:00.000Z"]}
+
+    class StubClient:
+        """`_get` is booby-trapped. Reverting the fix must fail here loudly."""
+
+        def __init__(self):
+            self.json_urls = []
+
+        def _get_json(self, url, timeout=30):
+            self.json_urls.append(url)
+            return EXTRA if "submissions-001" in url else BLOB
+
+        def _get(self, url, timeout=30):
+            raise AssertionError(
+                "all_item_202_records reached the RAW transport, below the "
+                "cache and below the offline guard: " + url)
+
+    c = StubClient()
+    recs = all_item_202_records(c, "0000000001")
+    check("14a. the walk reads submissions through _get_json, never _get",
+          len(recs) == 2, str(recs))
+    check("14b. and it still follows the extra blocks",
+          len(c.json_urls) == 2 and "submissions-001" in c.json_urls[1],
+          str(c.json_urls))
+    check("14c. the 10-K is not mistaken for an earnings release",
+          all(r["accessionNumber"] != "a-2" for r in recs), str(recs))
+
+    # CONTROL -- the booby trap is armed. A guard nobody has seen fail is not
+    # known to work, so prove _get would have been caught had it been called.
+    try:
+        c._get("https://data.sec.gov/anything")
+        check("14d. CONTROL -- the raw-transport trap fires", False,
+              "it did not raise")
+    except AssertionError:
+        check("14d. CONTROL -- the raw-transport trap fires", True)
+
+    # And the real client, offline over an EMPTY cache, must REFUSE rather than
+    # reach the network. Before the fix this raised NetworkBlocked from the
+    # socket guard instead -- i.e. it tried.
+    with tempfile.TemporaryDirectory() as tmp:
+        real = EdgarClient("hyp04-test@example-real-domain.org",
+                           cache=FilingCache(Path(tmp)), offline=True)
+        try:
+            all_item_202_records(real, "0000000001")
+            check("14e. an offline client with an empty cache REFUSES", False,
+                  "it returned instead of raising")
+        except OfflineCacheMiss:
+            check("14e. an offline client with an empty cache REFUSES", True)
+        except NetworkBlocked:
+            check("14e. an offline client with an empty cache REFUSES", False,
+                  "it attempted a live request -- the defect is back")
+        check("14f. and no request was counted against the SEC",
+              real.requests_made == 0, str(real.requests_made))
+
+    src = inspect.getsource(all_item_202_records)
+    check("14g. the raw transport is not named in the walk at all",
+          "_get(" not in src, "still present")
 
 
 def test_10_offline():
@@ -530,6 +632,7 @@ if __name__ == "__main__":
     test_11_addenda_demand_provenance()
     test_12_supersession_prevents_double_counting()
     test_13_the_dashboard_derives_the_count_and_disclaims_c2()
+    test_14_the_submissions_walk_cannot_bypass_the_cache()
     test_10_offline()
 
     print()
