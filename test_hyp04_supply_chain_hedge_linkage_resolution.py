@@ -43,10 +43,9 @@ socket.socket.connect_ex = _no_net
 socket.create_connection = _no_net
 socket.getaddrinfo = _no_net
 
-from gst_market_response.completeness import (  # noqa: E402
-    PRE_EVENT_TIER_CORE_ONLY,
-    ModuleEligibility,
-    OptionBenchmarkDisposition,
+from hyp04_supply_chain_hedge.anchor_shock import (  # noqa: E402
+    AnchorShock,
+    shock_for_event,
 )
 from hyp04_supply_chain_hedge.curated_linkage import EXPECTED_HEADERS, LSE  # noqa: E402
 from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
@@ -98,13 +97,17 @@ def _map(tmp: Path, *rows: str, name: str = "m.csv") -> Path:
     return p
 
 
-def _anchor_ok() -> ModuleEligibility:
-    return ModuleEligibility(
-        core_pre_event_eligible=True, option_benchmark_eligible=False,
-        joint_full_eligible=False,
-        pre_event_completeness_tier=PRE_EVENT_TIER_CORE_ONLY,
-        option_benchmark_status=OptionBenchmarkDisposition.UNAVAILABLE_NO_VERIFIED_SOURCE,
-        option_benchmark_unavailable_reason="no OPRA-entitled source")
+ANCHOR_FOR_SHOCK = "MCK"
+
+
+def _anchor_ok() -> AnchorShock:
+    """A well-measured anchor shock: both legs present, session resolved."""
+    s, denials = shock_for_event(
+        event_id="EVT-1", anchor_ticker=ANCHOR_FOR_SHOCK,
+        attributed_session="2026-02-17",
+        anchor_return=-0.084, benchmark_return=-0.004)
+    assert s is not None and not denials, denials
+    return s
 
 
 EVENTS = [
@@ -118,7 +121,7 @@ def _resolve(p: Path, events=None, peer_history=None, elig=True):
     events = events if events is not None else EVENTS
     return resolve_from_curated_map(
         events, map_path=p,
-        anchor_eligibility=({e["event_id"]: _anchor_ok() for e in events}
+        anchor_shock=({e["event_id"]: _anchor_ok() for e in events}
                             if elig else {}),
         peer_history=peer_history if peer_history is not None else {"CVS": True})
 

@@ -5,6 +5,27 @@ FAIL-CLOSED. Every unknown denies.
 
 === WHY THIS IS NOT A FOURTH HYPOTHESIS CLASS ===
 
+=== P1 CHANGED 2026-08-29: THE ANCHOR SIDE IS A SHOCK, NOT ATTENTION ===
+
+P1 used to require the anchor event to be eligible for
+`core_attention_vs_equity_response`, while the denial it raised justified
+itself as "the peer measurement is only defined relative to a usable
+anchor earnings shock". The justification was information transmission;
+the thing enforced was attention. They sat on adjacent lines.
+
+The repo owner determined 2026-08-29 that HYP-04 tests INFORMATION
+TRANSMISSION along supply-chain links, so P1 now requires exactly what its
+own message always claimed: a well-measured anchor shock, per
+`anchor_shock.AnchorShock`. HYP-04's pair side no longer imports
+`gst_market_response.completeness` at all -- the paragraphs below describe
+the arrangement that was in force until 2026-08-29 and are kept because
+the reasoning about UNIT MISMATCH still holds and still explains why no
+fourth class was ever created.
+
+See HYP04_ANCHOR_SHOCK_DEFINITION_MEMO_2026-08-29.md and its amendment.
+
+=== THE ORIGINAL NOTE ON WHY THIS IS NOT A FOURTH HYPOTHESIS CLASS ===
+
 Registry v1.2 records HYP-04's `required_eligibility_class` as
 `core_attention_vs_equity_response` and notes that the PEER side "has no
 eligibility class in gst_market_response.completeness.HYPOTHESIS_CLASSES at
@@ -68,12 +89,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-from gst_market_response.completeness import (
-    HYPOTHESIS_CORE_ATTENTION_RESPONSE,
-    ModuleEligibility,
-    is_eligible_for_hypothesis,
-)
-
+from .anchor_shock import AnchorShock
 from .curated_linkage import (
     AS_OF_DATE_BASES,
     RELATIONSHIP_TYPE_TO_DIRECTION,
@@ -128,7 +144,7 @@ def evaluate_pair(
     event_id: str,
     event_date: str,
     event_anchor_ticker: str,
-    anchor_eligibility: Optional[ModuleEligibility] = None,
+    anchor_shock: Optional[AnchorShock] = None,
     peer_history_available: Any = _UNKNOWN,
     from_placeholder_linkage: bool = False,
 ) -> PairEligibility:
@@ -148,25 +164,21 @@ def evaluate_pair(
         "date_confidence": edge.date_confidence,
     }
 
-    # ---- P1: the ANCHOR event must itself be core-eligible ---------------
-    # Delegated, never reimplemented: this is the anchor-side requirement the
-    # registry already names, and it belongs to gst_market_response.
-    if anchor_eligibility is None:
+    # ---- P1: the ANCHOR event must carry a well-measured shock -----------
+    # Delegated, never reimplemented: anchor_shock.shock_for_event decides
+    # whether the shock is measurable and fails closed on every unknown. An
+    # unsupplied shock is not a shock of zero -- it is an unusable anchor.
+    if anchor_shock is None:
         denials.append(
-            "P1 FAILED: no anchor ModuleEligibility supplied. An unsupplied "
-            "anchor eligibility is not an eligible anchor."
+            "P1 FAILED: no anchor shock supplied. The peer measurement is "
+            "only defined relative to a usable anchor earnings shock, and an "
+            "unsupplied shock is not one."
         )
-        evidence["anchor_core_eligible"] = None
+        evidence["anchor_shock"] = None
     else:
-        core_ok = is_eligible_for_hypothesis(
-            HYPOTHESIS_CORE_ATTENTION_RESPONSE, anchor_eligibility)
-        evidence["anchor_core_eligible"] = core_ok
-        if not core_ok:
-            denials.append(
-                f"P1 FAILED: the anchor event is not eligible for "
-                f"{HYPOTHESIS_CORE_ATTENTION_RESPONSE!r}. The peer measurement "
-                "is only defined relative to a usable anchor earnings shock."
-            )
+        evidence["anchor_shock"] = anchor_shock.shock
+        evidence["anchor_shock_session"] = anchor_shock.session
+        evidence["anchor_shock_rule_id"] = anchor_shock.rule_id
 
     # ---- P2: the edge must belong to THIS anchor -------------------------
     edge_anchor = (edge.anchor_ticker or "").strip().upper()
@@ -285,7 +297,7 @@ def eligible_pairs(
     event_id: str,
     event_date: str,
     event_anchor_ticker: str,
-    anchor_eligibility: Optional[ModuleEligibility] = None,
+    anchor_shock: Optional[AnchorShock] = None,
     peer_history: Optional[dict[str, bool]] = None,
     from_placeholder_linkage: bool = False,
 ) -> tuple[list[PairEligibility], list[PairEligibility]]:
@@ -306,7 +318,7 @@ def eligible_pairs(
             event_id=event_id,
             event_date=event_date,
             event_anchor_ticker=event_anchor_ticker,
-            anchor_eligibility=anchor_eligibility,
+            anchor_shock=anchor_shock,
             peer_history_available=avail,
             from_placeholder_linkage=from_placeholder_linkage,
         )
