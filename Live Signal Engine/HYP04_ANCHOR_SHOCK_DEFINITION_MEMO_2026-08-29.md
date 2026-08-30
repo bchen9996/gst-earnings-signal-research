@@ -158,3 +158,98 @@ Nothing in the repository changes because this document exists. HYP-04's status
 remains `PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED`, every eligible-event
 counter remains zero, and the display gate remains **CLOSED, C4 MET, four
 denials**.
+
+---
+
+# AMENDMENT — 2026-08-29 (same day, after the memo was circulated)
+
+**Appended, not merged.** Sections 0–7 above stand as written. This amendment
+records the repo owner's decision and corrects one word in §5 that would
+otherwise mislead a later reader into the opposite conclusion.
+
+## A1. The decision
+
+**The repo owner determined, 2026-08-29, that HYP-04 tests INFORMATION
+TRANSMISSION along supply-chain links** — how an anchor's earnings news
+dictates volatility and a range of price changes for stocks in industries
+across the supply chain.
+
+**The recommendation in §4 therefore stands: `shock` is the anchor's
+earnings-day |excess return|, and HYP-04's anchor side does not require
+attention data.**
+
+## A2. "Sibling" — §5 is superseded, and the word was doing two jobs
+
+§5 said the recommendation would be overturned if HYP-04 were "intended as a
+sibling of HYP-01". The owner's answer used the same word for a different
+thing, and the distinction is the whole decision:
+
+| | |
+|---|---|
+| **§5's sense** (the overturning condition) | HYP-04 tests the same MECHANISM as HYP-01 — attention diffusion — with supply-chain links as the medium |
+| **The owner's sense** (what is actually true) | HYP-04 belongs to the same RESEARCH PROGRAMME and attacks the same central issue **from a different angle than HYP-01** |
+
+HYP-04 is a sibling in the second sense and not the first. Same programme,
+different mechanism. **§5's overturning condition is NOT met**, and a later
+reader must not read "sibling of HYP-01" in §5 as satisfied by the owner's
+answer. It is not.
+
+## A3. Two things found after the memo was written
+
+Both sharpen §3 and neither changes the conclusion.
+
+**A3.1 — The side effect is visible in a single line.**
+`pair_eligibility.py`'s P1 check hardcodes `HYPOTHESIS_CORE_ATTENTION_RESPONSE`,
+and the denial it raises reads:
+
+> "P1 FAILED: the anchor event is not eligible for
+> `core_attention_vs_equity_response`. **The peer measurement is only defined
+> relative to a usable anchor earnings shock.**"
+
+The *justification* given is the information-transmission one — a usable
+earnings shock. The *thing enforced* is the attention class. The two sit on
+adjacent lines. This is §3's claim, in the code, stated by the code itself.
+
+**A3.2 — The inherited class is far heavier than "the shock is well measured".**
+`core_pre_event_eligible` requires the STRICT six-field gate, each field backed
+by a successful per-leg source status, plus a `pre_event_snapshot_asof_utc`:
+
+    gst_zscore   wiki_zscore   panel_implied_volatility
+    realized_volatility   previous_close   volume
+
+So certifying one HYP-04 anchor event currently requires **two attention series
+and an option chain**. Under information transmission the anchor-side
+requirement is that the earnings-day excess return is well measured. Neither
+attention series, nor the option chain, nor a pre-event snapshot bears on that.
+
+This is not an argument that those fields are worthless. It is that they are
+HYP-01's requirements, imported wholesale, and never examined against HYP-04's
+own question.
+
+## A4. How this gets recorded, and what is deliberately NOT done
+
+**It is recorded at REGISTRY level, not through the analysis-lock mechanism.**
+`required_eligibility_class` — this decision's closest sibling — is a plain
+registry field, not a locked decision. The four decisions the lock carries
+(clustering, IV promotion, lag-quantity uncertainty, ticker-cluster estimator)
+are estimator and reporting choices. What the independent variable IS sits
+above those, in the hypothesis specification.
+
+**Two things are deliberately not done.** This decision is NOT added to
+`unresolved_analysis_decisions`: marking it RESOLVED would have to cite
+`GST_HYP04_ANALYSIS_LOCK_v1.0`, which predates the decision and does not
+contain it — a false citation — and marking it PENDING would flip C4 for a
+decision that is not pending. And no analysis lock is authored here: that
+artifact carries an authorizer and a
+`no_outcome_inspected_before_signing_attested` attestation, which is the repo
+owner's to sign and not this session's to write.
+
+**If the owner wants this decision at lock grade rather than registry grade,
+that is an authorization they sign, and it should happen before any
+measurement runs.**
+
+## A5. Status is unchanged
+
+Nothing is measured. No capture path runs. HYP-04's status remains
+`PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED`, every eligible-event counter
+remains zero, and the display gate remains **CLOSED, C4 MET, four denials**.
