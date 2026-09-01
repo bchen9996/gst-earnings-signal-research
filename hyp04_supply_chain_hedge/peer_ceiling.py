@@ -115,6 +115,8 @@ WORKLIST_FIELDS: tuple[str, ...] = (
     "filings_naming_it",
     "years_since_disclosure",
     "max_anchor_events",
+    "incremental_anchor_events",
+    "dominated_by_curated_map",
     "share_of_floor_pct",
 )
 
@@ -125,14 +127,28 @@ UNRESOLVED_SELF_LINK = "UNRESOLVED_self_link"
 
 RESOLUTION_BASIS = "exact_match_on_normalised_sec_company_title"
 
-#: Corporate-form tokens stripped from both sides before comparison. This list
-#: is deliberately short and structural. It contains no industry words and no
-#: company-specific terms, because every entry is a chance to collapse two
-#: genuinely different companies onto one normalised form.
+#: LEGAL-FORM tokens stripped from both sides before comparison. Every entry is
+#: a chance to collapse two genuinely different companies, so the list holds
+#: only tokens that denote incorporation form and carry no identity.
+#:
+#: HOLDING, HOLDINGS and GROUP WERE HERE AND WERE REMOVED (2026-08-31). They
+#: are not legal forms -- they distinguish a holding company from its operating
+#: company, and a successor vehicle from its predecessor. Stripping them
+#: resolved ADBE's 2006 disclosure of "Ingram Micro" onto INGM / "Ingram Micro
+#: Holding Corp", CIK 1897762, the 2024 re-IPO vehicle, which is a DIFFERENT
+#: registrant from the Ingram Micro Inc. that filing named. That is exactly the
+#: error Caremark RX and OfficeMax were rejected for.
+#:
+#: Measured over SEC's 10,391-entry map, the three tokens merged 5 distinct
+#: registrant pairs, among them TARGET CORP / Target Group Inc. and GRAHAM CORP
+#: / Graham Holdings Co. Four of those five collapsed to a name with two
+#: tickers and were caught as AMBIGUOUS. Ingram Micro was the dangerous case:
+#: the predecessor is no longer a filer, so there was nothing to be ambiguous
+#: WITH and the wrong ticker resolved silently. A collision is only detectable
+#: when both parties survive, which is precisely when it matters least.
 NAME_SUFFIXES: frozenset[str] = frozenset({
     "INC", "INCORPORATED", "CORP", "CORPORATION", "CO", "COMPANY",
     "LTD", "LIMITED", "LLC", "LP", "PLC", "SA", "NV", "AG", "THE",
-    "HOLDING", "HOLDINGS", "GROUP",
 })
 
 _NON_ALNUM = re.compile(r"[^A-Z0-9 ]+")
@@ -169,9 +185,11 @@ def refuse_if_curated_schema(fields: Iterable[str]) -> None:
 def normalize_company_name(name: str) -> str:
     """Upper-case, drop punctuation, strip leading/trailing corporate forms.
 
-    Only structural tokens are removed, and only from the ends. Nothing in the
-    middle of a name is touched, so 'Micro-Star' and 'Micro Star' agree while
-    'Atlantic' and 'Atlantic Semiconductor' stay apart.
+    Only LEGAL-FORM tokens are removed, and only from the ends. Nothing in
+    the middle of a name is touched, so 'Micro-Star' and 'Micro Star' agree
+    while 'Atlantic' and 'Atlantic Semiconductor' stay apart -- and 'Ingram
+    Micro' stays apart from 'Ingram Micro Holding Corp', which is a different
+    registrant. See NAME_SUFFIXES for why that one is not a hypothetical.
     """
     s = (name or "").upper().replace("&", " AND ")
     s = _NON_ALNUM.sub(" ", s)
@@ -261,10 +279,30 @@ class CandidateRow:
     accession: str
     filings_naming_it: int
     event_ids: tuple[str, ...] = ()
+    #: Of `event_ids`, those the CURATED map cannot already reach. Curating a
+    #: candidate that adds none of these buys nothing, however large its gross
+    #: count looks.
+    incremental_ids: tuple[str, ...] = ()
 
     @property
     def max_anchor_events(self) -> int:
         return len(self.event_ids)
+
+    @property
+    def incremental_anchor_events(self) -> int:
+        return len(self.incremental_ids)
+
+    @property
+    def dominated(self) -> bool:
+        """Adds nothing the curated map does not already reach.
+
+        Two of the first eight resolved candidates were MCK -> CVS at as_of
+        dates LATER than the curated edge's 2013-05-07, so their events are a
+        strict subset of what the map already covers. Reporting their gross
+        counts (41 and 26) beside the others invited reading them as
+        opportunity. They are not.
+        """
+        return bool(self.event_ids) and not self.incremental_ids
 
     def years_since_disclosure(self, today: date) -> int:
         try:
@@ -297,6 +335,8 @@ class CandidateRow:
             "filings_naming_it": self.filings_naming_it,
             "years_since_disclosure": self.years_since_disclosure(today),
             "max_anchor_events": self.max_anchor_events,
+            "incremental_anchor_events": self.incremental_anchor_events,
+            "dominated_by_curated_map": "yes" if self.dominated else "",
             "share_of_floor_pct": share,
         }
 
@@ -318,6 +358,9 @@ class CeilingReport:
     ceiling_events: int = 0
     ceiling_denials: dict[str, int] = field(default_factory=dict)
     ceiling_by_anchor: dict[str, int] = field(default_factory=dict)
+    #: The events the curated map reaches. `build_worklist` subtracts these to
+    #: report incremental rather than gross opportunity.
+    ceiling_event_ids: tuple[str, ...] = ()
     curated_peers: tuple[str, ...] = ()
     peers_never_evaluated: tuple[str, ...] = ()
     floor: Optional[int] = None
@@ -428,10 +471,12 @@ def measure_ceiling(
         peer_history={p: True for p in peers})
 
     by_anchor: dict[str, int] = {}
+    reached: list[str] = []
     for ev in ceiling.anchor_events:
         if ev.get("peers"):
             a = str(ev.get("anchor", ""))
             by_anchor[a] = by_anchor.get(a, 0) + 1
+            reached.append(str(ev.get("event_id", "")))
 
     # A peer that never appears in ANY pair evaluation was not denied -- it was
     # never asked about, because its anchor has no calendar events. That is a
@@ -449,6 +494,7 @@ def measure_ceiling(
         ceiling_events=ceiling.n_events_with_peers,
         ceiling_denials=_by_code(ceiling),
         ceiling_by_anchor=by_anchor,
+        ceiling_event_ids=tuple(reached),
         curated_peers=peers,
         peers_never_evaluated=never,
         floor=floor,
@@ -462,6 +508,7 @@ def build_worklist(
     shock_rows: list[Mapping[str, str]],
     name_index: Mapping[str, list[dict[str, str]]],
     anchors: Optional[Iterable[str]] = None,
+    already_reachable: Optional[Iterable[str]] = None,
 ) -> list[CandidateRow]:
     """Rank review-queue counterparties by the anchor events each could add.
 
@@ -473,6 +520,11 @@ def build_worklist(
     It is a CEILING for the candidate. Curating the edge could only lower it --
     a rejected as_of moves the date later, and a rejected relationship removes
     the row.
+
+    `already_reachable` is the set of events the CURATED map already covers.
+    Subtracting it gives each candidate's INCREMENTAL count, which is the
+    number a curator actually needs: a candidate duplicating an existing edge
+    at a later as_of date has a large gross count and buys nothing.
     """
     refuse_if_curated_schema(WORKLIST_FIELDS)
 
@@ -485,6 +537,7 @@ def build_worklist(
 
     want = ({a.strip().upper() for a in anchors} if anchors is not None
             else set(ok_events))
+    have = set(already_reachable or ())
 
     out: list[CandidateRow] = []
     for t in queue_tickers:
@@ -496,6 +549,7 @@ def build_worklist(
             as_of = str(nc.get("earliest_filing_date", ""))
             ids = tuple(r["event_id"] for r in ok_events.get(anchor, [])
                         if r["release_date"] > as_of)
+            inc = tuple(i for i in ids if i not in have)
             out.append(CandidateRow(
                 anchor_ticker=anchor,
                 counterparty=name,
@@ -506,11 +560,20 @@ def build_worklist(
                 accession=str(nc.get("earliest_accession", "")),
                 filings_naming_it=int(nc.get("filings_naming_it") or 0),
                 event_ids=ids,
+                incremental_ids=inc,
             ))
 
-    out.sort(key=lambda r: (-r.max_anchor_events, r.anchor_ticker,
-                            r.counterparty))
+    out.sort(key=lambda r: (-r.incremental_anchor_events, -r.max_anchor_events,
+                            r.anchor_ticker, r.counterparty))
     return out
+
+
+def union_incremental(rows: Iterable[CandidateRow]) -> set[str]:
+    """Distinct events a set of candidates would add BEYOND the curated map."""
+    s: set[str] = set()
+    for r in rows:
+        s.update(r.incremental_ids)
+    return s
 
 
 def union_events(rows: Iterable[CandidateRow]) -> set[str]:
