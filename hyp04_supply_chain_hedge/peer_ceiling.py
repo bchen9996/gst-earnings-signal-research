@@ -589,6 +589,86 @@ def union_events(rows: Iterable[CandidateRow]) -> set[str]:
     return s
 
 
+def resolution_survivorship(
+    rows: Iterable[CandidateRow],
+) -> dict[str, Any]:
+    """What the RESOLUTION METHOD cannot reach, and why that is structural.
+
+    `resolve_counterparty` matches against SEC's `company_tickers.json`, which
+    lists companies that file and trade TODAY. So a counterparty that was
+    delisted, merged away, taken private, or never a US filer CANNOT RESOLVE --
+    not because the match is imperfect, but by construction.
+
+    That makes the resolved set a survivorship-biased sample of the queue, and
+    it biases in the direction that matters most here. `peer_price_data_policy`
+    already states the mechanism: the peers most likely to disappear are those
+    acquired or taken private, and acquisition is frequently CAUSED by the
+    commercial relationship under study, so the missing counterparties are not
+    missing at random with respect to this hypothesis.
+
+    This is measured rather than argued, and reported rather than corrected.
+    The registry's survivors-only option is permitted "only if the restriction
+    and its bias are stated in the registry version that does it", and a
+    statement of bias needs a number.
+
+    It is NOT a claim that every unresolved name is a delisted company. Some
+    are ambiguous, some are foreign-listed, some are subsidiaries or brands
+    that were never registrants. The point is that the method cannot tell those
+    apart from survivors, so the whole set is where the exposure lives.
+    """
+    all_rows = list(rows)
+    res = [r for r in all_rows if r.resolution.resolved]
+    unres = [r for r in all_rows if not r.resolution.resolved]
+
+    reachable = union_incremental(res)
+    total = union_incremental(all_rows)
+    behind = total - reachable
+
+    reasons: dict[str, int] = {}
+    for r in unres:
+        reasons[r.resolution.status] = reasons.get(r.resolution.status, 0) + 1
+
+    return {
+        "candidates": len(all_rows),
+        "resolved": len(res),
+        "unresolved": len(unres),
+        "unresolved_by_reason": reasons,
+        "incremental_events_reachable_by_resolution": len(reachable),
+        "incremental_events_total_in_queue": len(total),
+        "incremental_events_behind_unresolvable_names": len(behind),
+        "largest_unresolvable_counterparties": [
+            {"anchor_ticker": r.anchor_ticker,
+             "counterparty": r.counterparty,
+             "resolution": r.resolution.status,
+             "incremental_anchor_events": r.incremental_anchor_events}
+            for r in sorted(unres, key=lambda x: -x.incremental_anchor_events)
+            if r.incremental_anchor_events
+        ][:10],
+        "why_this_is_structural": (
+            "company_tickers.json lists companies that file and trade today. A "
+            "counterparty that was delisted, merged away, taken private or "
+            "never a US filer cannot resolve against it at all -- by "
+            "construction, not by imperfect matching. Widening the matcher "
+            "cannot fix this; only a source that includes former registrants "
+            "can."),
+        "why_it_biases_toward_the_hypothesis": (
+            "peer_price_data_policy's own reasoning applies one level earlier. "
+            "The peers most likely to have disappeared are those acquired or "
+            "taken private, and acquisition is frequently CAUSED by the "
+            "commercial relationship under study, so the unreachable "
+            "counterparties are not missing at random."),
+        "what_it_does_not_claim": (
+            "That every unresolved name is a delisted company. Some are "
+            "ambiguous, some foreign-listed, some brands or subsidiaries that "
+            "were never registrants. The method cannot tell those apart from "
+            "survivors, which is why the whole set is the exposure."),
+        "not_a_property_of_the_rule": (
+            "This measures the RESOLUTION METHOD, not the anchor universe and "
+            "not the peer-eligibility rule. It is a fact about how the "
+            "worklist was built on this date."),
+    }
+
+
 def write_worklist_csv(rows: list[CandidateRow], path: Path, *,
                        today: date, floor: Optional[int]) -> int:
     refuse_if_curated_schema(WORKLIST_FIELDS)
@@ -639,6 +719,11 @@ def rule_description() -> dict[str, Any]:
             "curated_linkage.REQUIRED_FIELDS, so load_curated_linkage refuses "
             "it on the header. refuse_if_curated_schema enforces the same "
             "thing at build time."),
+        "resolution_is_survivorship_biased_by_construction": (
+            "Names are resolved against SEC's list of CURRENT filers, so a "
+            "delisted, merged-away, taken-private or never-US-listed "
+            "counterparty cannot resolve at all. See "
+            "`resolution_survivorship`."),
         "opens_no_gate": (
             "The display gate is CLOSED, C4 MET, four denials. C2 counts "
             "eligible anchor events and this supplies none; C2 and C3 move "

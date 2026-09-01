@@ -63,6 +63,7 @@ from hyp04_supply_chain_hedge.peer_ceiling import (  # noqa: E402
     WORKLIST_FIELDS,
     Resolution,
     union_incremental,
+    resolution_survivorship,
     CandidateRow,
     CeilingReport,
     CuratedSchemaLeak,
@@ -80,8 +81,10 @@ from hyp04_supply_chain_hedge.peer_ceiling import (  # noqa: E402
 )
 
 LSE = Path("Live Signal Engine")
-CEILING = LSE / "HYP04_PEER_CEILING_2026-08-31_v2.json"
-WORKLIST = LSE / "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v2.csv"
+CEILING = LSE / "HYP04_PEER_CEILING_2026-08-31_v3.json"
+WORKLIST = LSE / "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v3.csv"
+CEILING_V2 = LSE / "HYP04_PEER_CEILING_2026-08-31_v2.json"
+WORKLIST_V2 = LSE / "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v2.csv"
 # v1 is SUPERSEDED, not retargeted -- the same treatment the v1.7/v1.8/v1.9
 # registry suites got. It is still checked, but only for the one property a
 # superseded artifact must keep: being byte-identical to what it claimed.
@@ -424,17 +427,21 @@ def test_8_the_published_artifacts_agree_with_a_fresh_derivation() -> None:
     # what v2 says it hashed to. A superseded artifact that quietly changed
     # would make the correction unauditable.
     import hashlib
-    for name, path in (("ceiling", CEILING_V1), ("worklist", WORKLIST_V1)):
+    for name, path in (("ceiling", CEILING_V1), ("worklist", WORKLIST_V1),
+                       ("ceiling", CEILING_V2), ("worklist", WORKLIST_V2)):
         claimed = (doc.get("supersedes_sha256") or {}).get(path.name)
         if not path.is_file():
             check(f"8l. superseded {name} v1 is still on disk", False,
                   str(path))
             continue
         actual = hashlib.sha256(path.read_bytes()).hexdigest()
-        check(f"8l. superseded {name} v1 is byte-identical to v2's claim",
-              claimed == actual, f"{claimed} vs {actual}")
-    check("8m. v2 records what it changed",
+        check(f"8l. superseded {name} {path.name} is byte-identical to "
+              "the current artifact's claim", claimed == actual,
+              f"{claimed} vs {actual}")
+    check("8m. it records what it changed from v1",
           len(doc.get("what_changed_from_v1") or []) >= 2)
+    check("8m2. and from v2",
+          len(doc.get("what_changed_from_v2") or []) >= 1)
 
 
 def test_9_the_gate_is_untouched() -> None:
@@ -468,6 +475,79 @@ def test_10_the_module_reaches_no_provider() -> None:
               str(sorted(mods)))
 
 
+
+
+def test_11_the_resolver_can_only_ever_return_survivors() -> None:
+    print("\n--- 11: the resolution method is survivorship-biased by "
+          "construction ---")
+    # A queue where one counterparty survives and one did not. The SEC map is
+    # a list of CURRENT filers, so the second cannot resolve at all -- there
+    # is nothing to match it against, however good the matcher is.
+    idx = build_name_index({
+        "0": {"cik_str": 1, "ticker": "CSCO", "title": "Cisco Systems, Inc."}})
+    cal = [{"event_id": f"J-{i}", "anchor_ticker": "JBL",
+            "release_date": f"20{10 + i}-01-01"} for i in range(4)]
+    shk = [{"event_id": r["event_id"], "status": "shock_computed"} for r in cal]
+    q = [{"ticker": "JBL", "named_counterparties": [
+        {"counterparty": "Cisco Systems, Inc", "earliest_filing_date": "2011-06-01",
+         "earliest_accession": "A", "filings_naming_it": 2},
+        {"counterparty": "Marconi Communications",
+         "earliest_filing_date": "2009-06-01",
+         "earliest_accession": "B", "filings_naming_it": 2}]}]
+    rows = build_worklist(q, calendar_rows=cal, shock_rows=shk,
+                          name_index=idx, anchors=["JBL"])
+    rep = resolution_survivorship(rows)
+
+    check("11a. the survivor resolves", rep["resolved"] == 1, str(rep))
+    check("11b. the non-survivor does not", rep["unresolved"] == 1)
+    check("11c. and it is a plain non-match, not a near miss",
+          rep["unresolved_by_reason"].get(UNRESOLVED_NO_MATCH) == 1,
+          str(rep["unresolved_by_reason"]))
+    # The measurement that matters: sample sitting behind unreachable names.
+    check("11d. events behind unresolvable names are counted",
+          rep["incremental_events_behind_unresolvable_names"] > 0,
+          str(rep["incremental_events_behind_unresolvable_names"]))
+    check("11e. reachable + behind accounts for the queue total",
+          rep["incremental_events_reachable_by_resolution"]
+          + rep["incremental_events_behind_unresolvable_names"]
+          == rep["incremental_events_total_in_queue"],
+          str(rep))
+    check("11f. the biggest unreachable counterparties are named",
+          any(x["counterparty"] == "Marconi Communications"
+              for x in rep["largest_unresolvable_counterparties"]))
+    check("11g. it says the limit is structural, not a matcher problem",
+          "by construction" in rep["why_this_is_structural"])
+    check("11h. and refuses the overclaim that all of them are delisted",
+          "not claim" in rep["what_it_does_not_claim"].lower()
+          or "does not claim" in rep["what_it_does_not_claim"].lower()
+          or "That every" in rep["what_it_does_not_claim"])
+
+    # CONTROL: with every name resolvable, nothing is behind the method.
+    idx2 = build_name_index({
+        "0": {"cik_str": 1, "ticker": "CSCO", "title": "Cisco Systems, Inc."},
+        "1": {"cik_str": 2, "ticker": "MRCY", "title": "Marconi Communications"}})
+    rows2 = build_worklist(q, calendar_rows=cal, shock_rows=shk,
+                           name_index=idx2, anchors=["JBL"])
+    rep2 = resolution_survivorship(rows2)
+    check("11i. CONTROL: all resolvable leaves nothing behind",
+          rep2["incremental_events_behind_unresolvable_names"] == 0
+          and rep2["unresolved"] == 0, str(rep2["unresolved"]))
+
+    # And against the published artifact.
+    if CEILING.is_file():
+        real = json.loads(CEILING.read_text(encoding="utf-8"))
+        rs = real.get("resolution_survivorship") or {}
+        check("11j. the artifact carries the measurement", bool(rs))
+        check("11k. with a non-trivial amount of sample behind it",
+              rs.get("incremental_events_behind_unresolvable_names", 0) > 0,
+              str(rs.get("incremental_events_behind_unresolvable_names")))
+        check("11l. and its parts still sum to the total",
+              rs.get("incremental_events_reachable_by_resolution", 0)
+              + rs.get("incremental_events_behind_unresolvable_names", 0)
+              == rs.get("incremental_events_total_in_queue"),
+              str(rs.get("incremental_events_total_in_queue")))
+
+
 if __name__ == "__main__":
     test_1_normalisation_strips_form_and_nothing_else()
     test_2_the_ceiling_is_measured_from_the_real_join()
@@ -479,6 +559,7 @@ if __name__ == "__main__":
     test_8_the_published_artifacts_agree_with_a_fresh_derivation()
     test_9_the_gate_is_untouched()
     test_10_the_module_reaches_no_provider()
+    test_11_the_resolver_can_only_ever_return_survivors()
 
     print()
     if SKIPS:

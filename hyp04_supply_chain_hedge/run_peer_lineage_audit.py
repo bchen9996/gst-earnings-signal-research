@@ -74,8 +74,9 @@ def _sha256(p: Path) -> str:
 
 
 def _newest(pattern: str) -> Optional[Path]:
-    hits = sorted(LSE.glob(pattern), key=lambda p: p.name)
-    return hits[-1] if hits else None
+    # Version-aware; a lexical sort picks _v3 over _v10. See artifacts.py.
+    from .artifacts import newest_in
+    return newest_in(LSE, pattern)
 
 
 def _resolved_rows(path: Path) -> list[dict[str, str]]:
