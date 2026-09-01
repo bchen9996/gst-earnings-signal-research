@@ -240,6 +240,45 @@ def _newest(paths: "list[Any]") -> Any:
     return sorted(paths)[-1]
 
 
+def read_peer_ceiling() -> dict[str, Any]:
+    """The peer-side ceiling artifact. COUNTS AND BLOCKERS, no candidate names.
+
+    The ceiling is a SAMPLE-SIZE FEASIBILITY number -- how far the peer side
+    could reach -- and belongs on this page for the same reason the 342 anchor
+    events do. What is deliberately NOT read is the worklist's candidate
+    counterparty names: those are an unreviewed review queue, and a public page
+    listing them beside an anchor ticker would read as a linkage map to anyone
+    who did not open the CSV.
+    """
+    import json as _json
+
+    js = list(LSE.glob("HYP04_PEER_CEILING_*.json"))
+    if not js:
+        return {"present": False}
+    newest = _newest(js)
+    try:
+        d = _json.loads(newest.read_text(encoding="utf-8"))
+    except ValueError:
+        return {"present": False}
+    c = d.get("ceiling") or {}
+    w = d.get("worklist") or {}
+    cap = c.get("ceiling_peer_prices_assumed") or {}
+    return {
+        "present": True,
+        "source": newest.name,
+        "measured": (c.get("measured") or {}).get("anchor_events_with_a_peer"),
+        "ceiling": cap.get("anchor_events_with_a_peer"),
+        "by_anchor": cap.get("by_anchor") or {},
+        "floor": c.get("registered_floor"),
+        "shortfall": c.get("shortfall_against_floor"),
+        "never_evaluated": c.get("peers_never_evaluated") or [],
+        "candidates": w.get("candidates_on_anchor_tickers"),
+        "resolved": w.get("ticker_resolved"),
+        "union_all": w.get("union_all_candidates"),
+        "union_resolved": w.get("union_ticker_resolved_only"),
+    }
+
+
 def read_anchor_shocks() -> dict[str, Any]:
     """The anchor-shock artifact, COUNTED FROM ITS ROWS at render time.
 
@@ -769,8 +808,10 @@ def render(tests: dict, audit: dict, registry: dict,
              attention screen; it needs the anchor's and the benchmark's closes
              for the attributed session. Anchor-side closes have since been
              collected and shocks computed &mdash; see below &mdash; but the
-             PEER side still has no survivorship-bias-free source, and a
-             computed shock is not an eligible event.
+             PEER side has neither the curated linkage to use them nor a
+             survivorship-bias-free source &mdash; in that order, per the
+             ceiling below &mdash; and a computed shock is not an eligible
+             event.
              These counts are read from the file at render time; this page does
              not carry a copy of them.</div>"""
 
@@ -821,8 +862,10 @@ def render(tests: dict, audit: dict, registry: dict,
              <span class="mono">HYP04-ANCHOR-SHOCK-RULE-v1</span>, which needs
              the anchor's and the benchmark's closes for the attributed
              session. The anchor side of that has been collected and
-             measured; the PEER side still has no survivorship-bias-free
-             source. Either way the eligible count is zero.</div>"""
+             measured; the PEER side is capped first by the curated
+             linkage map and only then by the absence of a
+             survivorship-bias-free source. Either way the eligible count is
+             zero.</div>"""
 
 
     # --- anchor shocks ----------------------------------------------------
@@ -866,6 +909,57 @@ def render(tests: dict, audit: dict, registry: dict,
              are separately authorised. No shock distribution, direction or
              effect estimate is shown here or anywhere while the gate is
              closed.</div>"""
+
+
+    # --- peer-side ceiling ------------------------------------------------
+    # This panel exists to correct an ordering this dashboard itself implied:
+    # that the peer PRICE SOURCE was the last thing standing. The ceiling run
+    # assumes prices exist and still stops well short of the floor, so the
+    # binding constraint is CURATION. Counts only -- no candidate names, and
+    # no peer measurement, because none has been made.
+    pc = read_peer_ceiling()
+    if not pc.get("present"):
+        ceiling_block = ""
+    else:
+        never = (", ".join(_e(x) for x in pc["never_evaluated"])
+                 if pc["never_evaluated"] else "")
+        never_txt = ("" if not never else
+                     f" The curated peer {never} is never evaluated at all: "
+                     "its anchor has no events in the universe, so the price "
+                     "failure recorded against it cannot cost a single pair.")
+        by = ", ".join(f"{_e(k)} {v}" for k, v in sorted(
+            pc["by_anchor"].items())) or "none"
+        union_txt = ""
+        if isinstance(pc.get("union_resolved"), int):
+            union_txt = (
+                f"<p class=\"small\">The EDGAR review queue holds "
+                f"{pc.get('candidates')} candidate counterparties on anchor "
+                f"tickers, {pc.get('resolved')} of which resolve to a ticker "
+                "by exact match against SEC's own company list. Those alone "
+                f"span {pc['union_resolved']} distinct anchor events, and all "
+                f"{pc.get('candidates')} span {pc.get('union_all')}. So the "
+                "material to reach the floor exists &mdash; as an UNREVIEWED "
+                "QUEUE. No candidate is curated, no as-of date is ratified, "
+                "and every resolution needs lineage review, because a merger "
+                "is not a rename.</p>")
+        ceiling_block = f"""
+          <div class="kpis">
+            <div class="kpi"><div class="v">{pc['ceiling']}</div><div class="l">anchor events the curated map could reach</div></div>
+            <div class="kpi"><div class="v">{pc['floor']}</div><div class="l">registered floor</div></div>
+            <div class="kpi"><div class="v">{pc['measured']}</div><div class="l">reached today</div></div>
+          </div>
+          <p class="small">Source <span class="mono">{_e(pc['source'])}</span>.
+             The ceiling assumes peer prices exist &mdash; a stated
+             hypothetical, not a measurement &mdash; so that P5 stops masking
+             the other conditions. By anchor: {by}.{never_txt}</p>
+          {union_txt}
+          <div class="caveat blocker"><strong>Curation binds before prices.</strong>
+             A survivorship-bias-free price source bought tomorrow would not
+             raise the ceiling by one event, because the ceiling already
+             assumes one. The shortfall against the floor is
+             {pc['shortfall']} events. Nothing here is eligibility: no pair has
+             passed pair_eligibility, no peer return has been measured, and the
+             gate is closed with the eligible count at zero.</div>"""
 
     # --- anchor universe (registry v1.5 and later) -----------------------
     # The candidate counts above are a floor on RELEASES, not on usable
@@ -979,6 +1073,7 @@ def render(tests: dict, audit: dict, registry: dict,
           {candidates_block}
           {calendar_block}
           {shocks_block}
+          {ceiling_block}
           {universe_block}
           <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
              display gate independently):</p>
