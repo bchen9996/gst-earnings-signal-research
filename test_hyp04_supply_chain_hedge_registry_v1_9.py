@@ -134,9 +134,28 @@ def test_b_the_shock_is_declared_not_paraphrased() -> None:
     if not isinstance(blk, dict):
         return
     again = ashock.rule_description()
-    check("B2. every declared field re-derives from the rule itself",
-          {k: blk.get(k) for k in again} == again,
-          str([k for k in again if blk.get(k) != again[k]]))
+    # OVER THE FIELDS v1.9 DECLARED, not over the fields the rule defines TODAY.
+    #
+    # v1.9 is frozen and byte-identical by design. A later version may add a
+    # field to the same rule -- v1.10 added `return_basis` -- and iterating over
+    # today's keys would fail a frozen artifact for not having anticipated one.
+    # That is not drift; it is the artifact being older.
+    #
+    # What must still hold is that nothing v1.9 DID declare has since changed
+    # underneath it. So: every overlapping key must agree exactly.
+    overlap = {k: blk[k] for k in blk if k in again}
+    check("B2. every field v1.9 declared still re-derives from the rule",
+          overlap == {k: again[k] for k in overlap},
+          str([k for k in overlap if overlap[k] != again[k]]))
+    check("B2b. and that is not a vacuous comparison",
+          len(overlap) >= 6, str(len(overlap)))
+    # CONTROL -- a CHANGED field must still be caught. A test that tolerates
+    # additions must not have started tolerating edits.
+    tampered = dict(blk)
+    tampered["shock_definition"] = "abs(anchor_return)"
+    t_overlap = {k: tampered[k] for k in tampered if k in again}
+    check("B2c. CONTROL -- a changed field would still fail",
+          t_overlap != {k: again[k] for k in t_overlap})
     check("B3. it names the rule", blk.get("rule_id") == ashock.ANCHOR_SHOCK_RULE_ID)
     check("B4. the formula is stated in full",
           blk.get("shock_definition")
@@ -215,8 +234,14 @@ def test_d_the_peer_side_is_unchanged() -> None:
 
 def test_e_the_gate_did_not_move() -> None:
     print("\n--- PART E: the display gate ---")
-    check("E1. the gate reads the v1.9 artifact",
-          REGISTRY_CURRENT.name.endswith("v1.9.json"), REGISTRY_CURRENT.name)
+    # NARROWED, not retargeted -- the same treatment v1.7's and v1.8's suites
+    # got when they were superseded. A frozen version's suite asserting that IT
+    # is current breaks at every subsequent version, which trains the reader to
+    # retarget a failing assertion instead of reading it. What v1.9 must still
+    # be able to claim is that it was superseded, not that it is in force.
+    check("E1. v1.9 is no longer the current artifact -- v1.10 superseded it",
+          not REGISTRY_CURRENT.name.endswith("v1.9.json"),
+          REGISTRY_CURRENT.name)
     d = current_decision()
     check("E2. it is CLOSED", d.open is False, str(d.conditions))
     check("E3. with exactly 4 denials", len(d.denials) == 4, str(d.denials))

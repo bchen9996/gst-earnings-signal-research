@@ -84,6 +84,32 @@ POINT_IN_TIME_BASIS = (
 # Mirrors the extractor's rule that a concentration above 100% is a parse error.
 MAX_ABS_EXCESS_RETURN = 2.0
 
+# HOW A "RETURN" IS COMPUTED. Declared by registry v1.10.
+#
+# This module has always ACCEPTED returns and never computed them, so simple
+# vs log was never stated anywhere -- a gap found while planning the anchor-side
+# collection, not by anything failing. At daily scale the two differ in the
+# third decimal, which is exactly why it would never have surfaced as a bug and
+# exactly why it has to be written down: two collections computed under
+# different conventions are not comparable, and nothing would say so.
+#
+# LOG, matching `peer_returns`, which builds log(p_t / p_{t-1}) and is the other
+# half of every pair this shock is joined to. One convention across both sides
+# of the join beats the marginally more conventional choice on one side.
+#
+# Both legs of the excess return use it. Mixing bases -- a log anchor return
+# against a simple benchmark return -- would put a small systematic wedge in
+# every excess return, largest exactly on the big-move days that carry the
+# signal.
+RETURN_BASIS = "log"
+RETURN_BASIS_DEFINITION = "log(close_t / close_{t-1})"
+RETURN_BASIS_NOTE = (
+    "Both legs use the same basis. This module does not compute returns -- it "
+    "accepts them -- so the basis is a CONTRACT WITH THE CALLER, not something "
+    "it can enforce. It is declared here and in the registry so a series "
+    "collected under the other convention is a stated mismatch rather than a "
+    "silent one.")
+
 RULE_CONDITIONS: tuple[tuple[str, str], ...] = (
     ("AS-1", "The shock is measured on the session the earnings release is "
              "ATTRIBUTED to -- the same session the peer target indexes as "
@@ -257,6 +283,9 @@ def rule_description() -> dict[str, Any]:
         "benchmark_beta": BENCHMARK_BETA,
         "beta_is_estimated": False,
         "max_abs_excess_return": MAX_ABS_EXCESS_RETURN,
+        "return_basis": RETURN_BASIS,
+        "return_basis_definition": RETURN_BASIS_DEFINITION,
+        "return_basis_note": RETURN_BASIS_NOTE,
         "point_in_time_basis": POINT_IN_TIME_BASIS,
         "conditions": [{"id": c, "text": t} for c, t in RULE_CONDITIONS],
         "measurement_status": (
