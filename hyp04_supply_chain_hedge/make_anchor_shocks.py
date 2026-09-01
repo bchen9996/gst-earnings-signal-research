@@ -79,8 +79,10 @@ def _sha256(p: Path) -> str:
 
 
 def _newest_calendar() -> Optional[Path]:
-    cands = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.csv"))
-    return cands[-1] if cands else None
+    # Version-aware: a lexical sort picks _v3 over _v10 and rebuilds shocks
+    # from a superseded calendar without saying so.
+    from .artifacts import newest_in
+    return newest_in(LSE, "HYP04_ANCHOR_EVENT_CALENDAR_*.csv")
 
 
 def _calendar_rows(path: Path) -> list[dict[str, str]]:
