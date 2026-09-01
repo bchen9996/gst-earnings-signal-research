@@ -239,8 +239,14 @@ def test_3_deduplication_keeps_the_earliest_acceptance() -> None:
 
 
 def test_4_legacy_recovery_is_opt_in() -> None:
-    """Accepting Item 12 is a SPECIFICATION change. Measuring it is not."""
-    print("\n--- 4: the legacy code is measured, not adopted ---")
+    """ADOPTED by registry v1.10, having been MEASURED first and adopted second.
+
+    The flip in 4a is the point. Until v1.10 the default was Item-2.02-only and
+    the era rule was published beside it un-adopted; the owner then took the
+    decision. Passing False must still reproduce the superseded rule exactly, or
+    the 2026-08-29 artifact stops being reproducible.
+    """
+    print("\n--- 4: the era rule is adopted; the old rule stays reproducible ---")
     rows = [
         ("8-K", "2.02,9.01", "2005-01-20", "2005-01-20",
          "2005-01-20T21:20:00.000Z", "a-modern"),
@@ -253,29 +259,30 @@ def test_4_legacy_recovery_is_opt_in() -> None:
     u = FakeUniverse([FakeInterval("AAA", "2000-01-01", None)])
 
     c = FakeClient({"0000000001": _sub(rows)})
-    strict = derive_anchor_calendar(u, c, today="2026-08-29")
-    check("4a. the default rule is Item 2.02 only",
-          strict.accept_legacy_item_12 is False and strict.total == 1,
-          str(strict.total))
-    check("4b. the untagged pre-2003 release is invisible to it",
-          all(e.event.accession != "a-untagged" for e in strict.entries))
+    era = derive_anchor_calendar(u, c, today="2026-08-29")
+    check("4a. the DEFAULT is the era rule, adopted by registry v1.10",
+          era.accept_legacy_item_12 is True and era.total == 2,
+          str(era.total))
+    check("4b. the untagged pre-2003 release is invisible even so",
+          all(e.event.accession != "a-untagged" for e in era.entries))
     check("4c. and a 10-K is never an earnings release",
-          all(e.event.accession != "a-10k" for e in strict.entries))
+          all(e.event.accession != "a-10k" for e in era.entries))
+    check("4d. the Item 12 release is recovered in its own era",
+          era.legacy_total == 1, str(era.legacy_total))
+    check("4e. the rows are labelled by era",
+          {e.item_era for e in era.entries} == {"modern", "legacy"})
+    check("4f. and carry the note",
+          any(FLAG_LEGACY_ITEM_12 in e.notes for e in era.entries))
 
     c2 = FakeClient({"0000000001": _sub(rows)})
-    loose = derive_anchor_calendar(u, c2, accept_legacy_item_12=True,
-                                   today="2026-08-29")
-    check("4d. opting in recovers the Item 12 release",
-          loose.total == 2 and loose.legacy_total == 1, str(loose.total))
-    check("4e. the recovered rows are labelled by era",
-          {e.item_era for e in loose.entries} == {"modern", "legacy"})
-    check("4f. and carry the note",
-          any(FLAG_LEGACY_ITEM_12 in e.notes for e in loose.entries))
-    check("4g. even opted in, the untagged era stays invisible",
-          all(e.event.accession != "a-untagged" for e in loose.entries))
+    superseded = derive_anchor_calendar(u, c2, accept_legacy_item_12=False,
+                                        today="2026-08-29")
+    check("4g. CONTROL -- passing False reproduces the SUPERSEDED rule exactly",
+          superseded.total == 1 and superseded.legacy_total == 0,
+          str(superseded.total))
     check("4h. the choice is reported in the artifact, not implied",
-          loose.as_dict()["accept_legacy_item_12"] is True
-          and strict.as_dict()["accept_legacy_item_12"] is False)
+          era.as_dict()["accept_legacy_item_12"] is True
+          and superseded.as_dict()["accept_legacy_item_12"] is False)
 
 
 def test_5_membership_bounds_are_respected() -> None:
@@ -415,13 +422,17 @@ def test_11_the_published_artifact_re_derives() -> None:
     print("--- 11: the published calendar re-derives from source ---")
 
     LSE = Path("Live Signal Engine")
-    art = LSE / "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29.json"
+    # NEWEST, not first. sorted()[0] would pin this test to a SUPERSEDED
+    # artifact the moment a same-day _vN revision appears -- the same defect
+    # this change fixes in the dashboard reader.
+    arts = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.json"))
     hist = LSE / "HYP04_EDGAR_LINKAGE_HISTORY_FULL51_2026-08-29_v1.json"
     cache_dir = Path(".edgar_cache")
 
-    if not art.is_file():
-        skip("11. published calendar re-derives", f"{art.name} not present")
+    if not arts:
+        skip("11. published calendar re-derives", "no calendar artifact present")
         return
+    art = arts[-1]
     if not hist.is_file() or not cache_dir.is_dir():
         skip("11. published calendar re-derives",
              "the pinned history or the EDGAR cache is not on this machine")
@@ -437,28 +448,44 @@ def test_11_the_published_artifact_re_derives() -> None:
                          cache=FilingCache(cache_dir, readonly=True),
                          offline=True)
 
-    strict = derive_anchor_calendar(u, client, today="2026-08-29")
-    legacy = derive_anchor_calendar(u, client, accept_legacy_item_12=True,
-                                    today="2026-08-29")
+    # Re-derive under the flags THE ARTIFACT ITSELF RECORDS, so this test
+    # follows a specification change instead of having to be rewritten by one,
+    # and cannot be satisfied by an artifact whose flags disagree with its rows.
+    ps = published.get("primary_specification")
+    if ps is None:
+        ps = published["primary_specification_unchanged"]
+    other_key = ("superseded_specification_reproduced"
+                 if "superseded_specification_reproduced" in published
+                 else "measured_alternative_not_adopted")
+    pl = published[other_key]
 
-    ps = published["primary_specification_unchanged"]
-    pl = published["measured_alternative_not_adopted"]
-    check("11a. the strict total re-derives",
-          ps["candidate_events_total"] == strict.total,
-          f'{ps["candidate_events_total"]} vs {strict.total}')
-    check("11b. the superseded count re-derives",
-          ps["duplicate_filings_superseded"] == len(strict.superseded),
-          f'{ps["duplicate_filings_superseded"]} vs {len(strict.superseded)}')
-    check("11c. the measured alternative re-derives",
-          pl["candidate_events_total"] == legacy.total,
-          f'{pl["candidate_events_total"]} vs {legacy.total}')
+    primary = derive_anchor_calendar(
+        u, client, today="2026-08-29",
+        accept_legacy_item_12=ps["accept_legacy_item_12"])
+    other = derive_anchor_calendar(
+        u, client, today="2026-08-29",
+        accept_legacy_item_12=pl["accept_legacy_item_12"])
+
+    check("11a. the primary total re-derives",
+          ps["candidate_events_total"] == primary.total,
+          str(ps["candidate_events_total"]) + " vs " + str(primary.total))
+    check("11b. the duplicate-supersession count re-derives",
+          ps["duplicate_filings_superseded"] == len(primary.superseded),
+          str(ps["duplicate_filings_superseded"]) + " vs "
+          + str(len(primary.superseded)))
+    check("11c. the companion specification re-derives too",
+          pl["candidate_events_total"] == other.total,
+          str(pl["candidate_events_total"]) + " vs " + str(other.total))
     check("11d. per-interval counts re-derive",
-          ps["per_interval"] == strict.per_interval, "they diverged")
+          ps["per_interval"] == primary.per_interval, "they diverged")
     check("11e. the artifact was written from an offline derivation",
           published["sources"]["live_requests_made"] == 0
-          and strict.live_requests_made == 0)
-    check("11f. and the strict artifact really is the DEFAULT rule",
-          ps["accept_legacy_item_12"] is False)
+          and primary.live_requests_made == 0)
+    check("11f. the two published specifications really are different rules",
+          ps["accept_legacy_item_12"] != pl["accept_legacy_item_12"],
+          "both blocks describe the same rule")
+    check("11f2. and the CURRENT primary is the era rule (registry v1.10)",
+          ps["accept_legacy_item_12"] is True, str(art.name))
 
     # The threshold comparison must come from the registry, not from a number
     # typed into the artifact next to it.
@@ -487,6 +514,71 @@ def test_11_the_published_artifact_re_derives() -> None:
           and "CLOSED" in published["what_this_is_not"])
 
 
+def test_12_the_dashboard_reads_the_NEWEST_artifact() -> None:
+    """A superseded artifact must never render as the current one.
+
+    The readers globbed a dated pattern and took `sorted(...)[0]` -- the
+    EARLIEST name. Harmless while exactly one artifact existed; wrong the moment
+    a same-day `_vN` revision appears, and wrong SILENTLY: the page would show a
+    superseded count with full confidence. Found while adding the v2 calendar,
+    not by it failing.
+
+    Both files here are real and well-formed, so this cannot pass by one of them
+    being unreadable.
+    """
+    import csv as _csv
+    import json as _json
+    import tempfile
+    from pathlib import Path
+
+    print()
+    print("--- 12: newest artifact wins, superseded never renders ---")
+
+    from hyp04_supply_chain_hedge import dashboard as dash
+
+    def _write(d: Path, name: str, n_rows: int, total: int) -> None:
+        with (d / (name + ".csv")).open("w", encoding="utf-8", newline="") as fh:
+            w = _csv.writer(fh)
+            w.writerow(["event_id", "anchor_ticker", "release_date",
+                        "release_session"])
+            for i in range(n_rows):
+                w.writerow(["E%d" % i, "AAA", "2010-01-%02d" % (i + 1), "AMC"])
+        (d / (name + ".json")).write_text(_json.dumps({
+            "primary_specification": {
+                "candidate_events_total": total,
+                "duplicate_filings_superseded": 0,
+                "member_years_with_no_results_item_code": 1.5,
+                "accept_legacy_item_12": True},
+            "superseded_specification_reproduced": {
+                "candidate_events_total": total - 1,
+                "accept_legacy_item_12": False},
+        }), encoding="utf-8")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp)
+        _write(d, "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29", 2, 2)
+        _write(d, "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2", 7, 7)
+
+        original = dash.LSE
+        try:
+            dash.LSE = d
+            got = dash.read_anchor_event_calendar()
+        finally:
+            dash.LSE = original
+
+    check("12a. it reads the SUPERSEDING revision, not the first name",
+          got["source"].endswith("_v2.csv"), got.get("source", ""))
+    check("12b. and the counts come from that file's rows",
+          got["total"] == 7, str(got.get("total")))
+    check("12c. CONTROL -- the superseded file really did hold a different "
+          "count, so 12b is not trivially satisfied",
+          got["total"] != 2)
+    check("12d. the JSON companion is taken from the same revision",
+          got["alternative_total"] == 6, str(got.get("alternative_total")))
+    check("12e. and the new block names are read, not the superseded ones",
+          got["blind_member_years"] == 1.5, str(got.get("blind_member_years")))
+
+
 def test_10_offline_suite() -> None:
     print("\n--- 10: the suite itself is offline ---")
     try:
@@ -507,6 +599,7 @@ if __name__ == "__main__":
     test_8_offline_and_through_the_cache()
     test_9_the_blind_era_is_measured_not_described()
     test_11_the_published_artifact_re_derives()
+    test_12_the_dashboard_reads_the_NEWEST_artifact()
     test_10_offline_suite()
 
     print()

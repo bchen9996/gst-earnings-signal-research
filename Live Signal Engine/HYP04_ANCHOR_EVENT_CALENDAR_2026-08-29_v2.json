@@ -1,0 +1,752 @@
+{
+  "artifact": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2.json",
+  "as_of_date": "2026-08-29",
+  "hypothesis_id": "HYP-04",
+  "supersedes": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29.json",
+  "supersedes_sha256": "02566273be9cfb250c92aef1c48abd1e5cca513ae9fa7a285b86babaee86c822",
+  "what_changed": "Registry v1.10 adopted HYP04-ANCHOR-EVENT-RULE-v1: the results item is selected by the SEC numbering IN FORCE ON THE REPORT DATE, so Item 12 counts in its own era (2003-03-28..2004-08-22). The superseded artifact measured this and did not adopt it; the owner took the decision on 2026-08-29. The superseded rule is re-derived here rather than quoted, so its numbers stay reproducible.",
+  "what_this_is": "CANDIDATE anchor events: 8-K results filings falling inside a span during which the filer was a registered HYP-04 anchor. It answers the feasibility question registry v1.9 leaves open by name, and it answers it with a DERIVED count in place of the member-years estimate used until now.",
+  "what_this_is_not": "It is not an eligible-event count and moves no gate. An eligible anchor event additionally requires a well-measured shock (HYP04-ANCHOR-SHOCK-RULE-v1), which requires anchor and benchmark closes for the attributed session. No price source is decided, no shock has been computed from production data, the eligible count is zero, and the display gate stays CLOSED.",
+  "sources": {
+    "linkage_history": "HYP04_EDGAR_LINKAGE_HISTORY_FULL51_2026-08-29_v1.json",
+    "linkage_history_sha256": "ad90a2a49e10500a6e57086b938f55a52dbfba3250368b1fbc3e139ec7761e3e",
+    "anchor_universe_rule_id": "HYP04-ANCHOR-UNIVERSE-RULE-v1",
+    "anchor_universe_registry_grade": true,
+    "membership_intervals": 11,
+    "members_ever": [
+      "AAPL",
+      "ADBE",
+      "CTSH",
+      "INTC",
+      "JBL",
+      "MCK",
+      "NKE",
+      "NVDA"
+    ],
+    "edgar_cache": ".edgar_cache",
+    "live_requests_made": 0
+  },
+  "registered_threshold": {
+    "minimum_eligible_events": 193,
+    "unit": "anchor events, deliberately not (anchor x peer) pairs",
+    "candidates_vs_threshold": 149,
+    "note": "A candidate surplus is not a met threshold. Every candidate still has to survive the shock rule, and none has been put through it."
+  },
+  "primary_specification": {
+    "rule_id": "HYP04-ANCHOR-CALENDAR-RULE-v1",
+    "derived": true,
+    "accept_legacy_item_12": true,
+    "dedup_rule": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession",
+    "candidate_events_total": 342,
+    "candidate_events_item_2_02": 321,
+    "candidate_events_item_12": 21,
+    "duplicate_filings_superseded": 20,
+    "superseded": [
+      {
+        "event_id": "INTC-2009-10-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2009-10-13",
+        "superseded_accession": "0000050863-09-000193",
+        "superseded_acceptance_et": "2009-10-14 09:55 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-09-006864",
+        "kept_acceptance_et": "2009-10-13 16:22 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-01-14",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-01-14",
+        "superseded_accession": "0000050863-10-000006",
+        "superseded_acceptance_et": "2010-01-15 14:05 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-000165",
+        "kept_acceptance_et": "2010-01-14 16:23 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-04-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-04-13",
+        "superseded_accession": "0000050863-10-000033",
+        "superseded_acceptance_et": "2010-04-14 11:47 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-002015",
+        "kept_acceptance_et": "2010-04-13 16:20 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-07-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-07-13",
+        "superseded_accession": "0000050863-10-000065",
+        "superseded_acceptance_et": "2010-07-14 09:25 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-004005",
+        "kept_acceptance_et": "2010-07-13 16:20 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-10-12",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-10-12",
+        "superseded_accession": "0000050863-10-000098",
+        "superseded_acceptance_et": "2010-10-13 10:28 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-005787",
+        "kept_acceptance_et": "2010-10-12 16:36 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-01-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-01-13",
+        "superseded_accession": "0000050863-11-000011",
+        "superseded_acceptance_et": "2011-01-14 10:15 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-000178",
+        "kept_acceptance_et": "2011-01-13 16:29 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-04-19",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-04-19",
+        "superseded_accession": "0000050863-11-000068",
+        "superseded_acceptance_et": "2011-04-20 09:45 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-002097",
+        "kept_acceptance_et": "2011-04-19 16:38 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-07-20",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-07-20",
+        "superseded_accession": "0000050863-11-000110",
+        "superseded_acceptance_et": "2011-07-21 10:57 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-004100",
+        "kept_acceptance_et": "2011-07-20 16:35 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-10-18",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-10-18",
+        "superseded_accession": "0000050863-11-000129",
+        "superseded_acceptance_et": "2011-10-19 09:53 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-005759",
+        "kept_acceptance_et": "2011-10-18 16:10 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-01-19",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-01-19",
+        "superseded_accession": "0000050863-12-000006",
+        "superseded_acceptance_et": "2012-01-20 09:33 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-000203",
+        "kept_acceptance_et": "2012-01-19 16:12 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-04-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-04-17",
+        "superseded_accession": "0000050863-12-000051",
+        "superseded_acceptance_et": "2012-04-18 10:09 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-001849",
+        "kept_acceptance_et": "2012-04-17 16:14 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-07-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-07-17",
+        "superseded_accession": "0000050863-12-000087",
+        "superseded_acceptance_et": "2012-07-18 09:50 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-003647",
+        "kept_acceptance_et": "2012-07-17 16:14 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-10-16",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-10-16",
+        "superseded_accession": "0000050863-12-000113",
+        "superseded_acceptance_et": "2012-10-17 10:09 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-005134",
+        "kept_acceptance_et": "2012-10-16 16:11 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-01-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-01-17",
+        "superseded_accession": "0000050863-13-000005",
+        "superseded_acceptance_et": "2013-01-18 09:07 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-13-000168",
+        "kept_acceptance_et": "2013-01-17 16:08 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-04-16",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-04-16",
+        "superseded_accession": "0000050863-13-000036",
+        "superseded_acceptance_et": "2013-04-17 09:31 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-13-001800",
+        "kept_acceptance_et": "2013-04-16 16:12 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-07-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-07-17",
+        "superseded_accession": "0000050863-13-000081",
+        "superseded_acceptance_et": "2013-07-18 15:38 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-13-003366",
+        "kept_acceptance_et": "2013-07-17 16:13 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-10-15",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-10-15",
+        "superseded_accession": "0000050863-13-000094",
+        "superseded_acceptance_et": "2013-10-15 16:05 EDT",
+        "superseded_release_session": "AMC",
+        "kept_accession": "0000050863-13-000093",
+        "kept_acceptance_et": "2013-10-15 16:04 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "JBL-2011-09-27",
+        "anchor_ticker": "JBL",
+        "release_date": "2011-09-27",
+        "superseded_accession": "0000950123-11-088284",
+        "superseded_acceptance_et": "2011-10-03 16:40 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001193125-11-257475",
+        "kept_acceptance_et": "2011-09-27 16:47 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "NKE-2003-09-18",
+        "anchor_ticker": "NKE",
+        "release_date": "2003-09-18",
+        "superseded_accession": "0000891020-03-002377",
+        "superseded_acceptance_et": "2003-09-25 17:21 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0000891020-03-002342",
+        "kept_acceptance_et": "2003-09-18 16:22 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "NKE-2004-06-24",
+        "anchor_ticker": "NKE",
+        "release_date": "2004-06-24",
+        "superseded_accession": "0000320187-04-000101",
+        "superseded_acceptance_et": "2004-06-28 12:31 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0000320187-04-000099",
+        "kept_acceptance_et": "2004-06-24 16:26 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      }
+    ],
+    "per_interval": [
+      {
+        "ticker": "AAPL",
+        "start_date": "2000-12-14",
+        "end_date": "2002-12-19",
+        "candidate_events": 0,
+        "item_2_02": 0,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 2.01
+      },
+      {
+        "ticker": "ADBE",
+        "start_date": "2008-01-24",
+        "end_date": "2015-01-20",
+        "candidate_events": 30,
+        "item_2_02": 30,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "CTSH",
+        "start_date": "2004-03-12",
+        "end_date": "2005-03-16",
+        "candidate_events": 4,
+        "item_2_02": 2,
+        "item_12": 2,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "INTC",
+        "start_date": "2005-02-22",
+        "end_date": "2025-01-31",
+        "candidate_events": 85,
+        "item_2_02": 85,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "JBL",
+        "start_date": "2001-11-28",
+        "end_date": "2025-10-17",
+        "candidate_events": 91,
+        "item_2_02": 87,
+        "item_12": 4,
+        "member_years_with_no_results_item_code": 1.33
+      },
+      {
+        "ticker": "MCK",
+        "start_date": "2000-06-13",
+        "end_date": "2008-05-07",
+        "candidate_events": 20,
+        "item_2_02": 16,
+        "item_12": 4,
+        "member_years_with_no_results_item_code": 2.79
+      },
+      {
+        "ticker": "MCK",
+        "start_date": "2013-05-07",
+        "end_date": null,
+        "candidate_events": 56,
+        "item_2_02": 56,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "NKE",
+        "start_date": "2002-08-14",
+        "end_date": "2004-07-30",
+        "candidate_events": 6,
+        "item_2_02": 0,
+        "item_12": 6,
+        "member_years_with_no_results_item_code": 0.62
+      },
+      {
+        "ticker": "NVDA",
+        "start_date": "2002-05-14",
+        "end_date": "2012-03-13",
+        "candidate_events": 38,
+        "item_2_02": 33,
+        "item_12": 5,
+        "member_years_with_no_results_item_code": 0.87
+      },
+      {
+        "ticker": "NVDA",
+        "start_date": "2016-03-17",
+        "end_date": "2018-02-28",
+        "candidate_events": 8,
+        "item_2_02": 8,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "NVDA",
+        "start_date": "2020-02-20",
+        "end_date": "2021-02-26",
+        "candidate_events": 4,
+        "item_2_02": 4,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      }
+    ],
+    "refusals": [],
+    "live_requests_made": 0,
+    "member_years_with_no_results_item_code": 7.62,
+    "item_code_eras": {
+      "no_results_item_exists_before": "2003-03-28",
+      "item_12_window": "2003-03-28..2004-08-23",
+      "item_2_02_from": "2004-08-23"
+    },
+    "eligible_event_count": null,
+    "measurement_status": "CANDIDATE counts only. An eligible anchor event additionally requires a well-measured shock (HYP04-ANCHOR-SHOCK-RULE-v1), which requires anchor and benchmark closes for the attributed session. No price source is decided, no shock has been computed from production data, and the eligible count is zero. C2 counts eligible events, not these."
+  },
+  "superseded_specification_reproduced": {
+    "rule_id": "HYP04-ANCHOR-CALENDAR-RULE-v1",
+    "derived": true,
+    "accept_legacy_item_12": false,
+    "dedup_rule": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession",
+    "candidate_events_total": 321,
+    "candidate_events_item_2_02": 321,
+    "candidate_events_item_12": 0,
+    "duplicate_filings_superseded": 18,
+    "superseded": [
+      {
+        "event_id": "INTC-2009-10-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2009-10-13",
+        "superseded_accession": "0000050863-09-000193",
+        "superseded_acceptance_et": "2009-10-14 09:55 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-09-006864",
+        "kept_acceptance_et": "2009-10-13 16:22 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-01-14",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-01-14",
+        "superseded_accession": "0000050863-10-000006",
+        "superseded_acceptance_et": "2010-01-15 14:05 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-000165",
+        "kept_acceptance_et": "2010-01-14 16:23 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-04-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-04-13",
+        "superseded_accession": "0000050863-10-000033",
+        "superseded_acceptance_et": "2010-04-14 11:47 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-002015",
+        "kept_acceptance_et": "2010-04-13 16:20 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-07-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-07-13",
+        "superseded_accession": "0000050863-10-000065",
+        "superseded_acceptance_et": "2010-07-14 09:25 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-004005",
+        "kept_acceptance_et": "2010-07-13 16:20 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2010-10-12",
+        "anchor_ticker": "INTC",
+        "release_date": "2010-10-12",
+        "superseded_accession": "0000050863-10-000098",
+        "superseded_acceptance_et": "2010-10-13 10:28 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-10-005787",
+        "kept_acceptance_et": "2010-10-12 16:36 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-01-13",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-01-13",
+        "superseded_accession": "0000050863-11-000011",
+        "superseded_acceptance_et": "2011-01-14 10:15 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-000178",
+        "kept_acceptance_et": "2011-01-13 16:29 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-04-19",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-04-19",
+        "superseded_accession": "0000050863-11-000068",
+        "superseded_acceptance_et": "2011-04-20 09:45 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-002097",
+        "kept_acceptance_et": "2011-04-19 16:38 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-07-20",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-07-20",
+        "superseded_accession": "0000050863-11-000110",
+        "superseded_acceptance_et": "2011-07-21 10:57 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-004100",
+        "kept_acceptance_et": "2011-07-20 16:35 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2011-10-18",
+        "anchor_ticker": "INTC",
+        "release_date": "2011-10-18",
+        "superseded_accession": "0000050863-11-000129",
+        "superseded_acceptance_et": "2011-10-19 09:53 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-11-005759",
+        "kept_acceptance_et": "2011-10-18 16:10 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-01-19",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-01-19",
+        "superseded_accession": "0000050863-12-000006",
+        "superseded_acceptance_et": "2012-01-20 09:33 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-000203",
+        "kept_acceptance_et": "2012-01-19 16:12 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-04-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-04-17",
+        "superseded_accession": "0000050863-12-000051",
+        "superseded_acceptance_et": "2012-04-18 10:09 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-001849",
+        "kept_acceptance_et": "2012-04-17 16:14 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-07-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-07-17",
+        "superseded_accession": "0000050863-12-000087",
+        "superseded_acceptance_et": "2012-07-18 09:50 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-003647",
+        "kept_acceptance_et": "2012-07-17 16:14 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2012-10-16",
+        "anchor_ticker": "INTC",
+        "release_date": "2012-10-16",
+        "superseded_accession": "0000050863-12-000113",
+        "superseded_acceptance_et": "2012-10-17 10:09 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-12-005134",
+        "kept_acceptance_et": "2012-10-16 16:11 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-01-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-01-17",
+        "superseded_accession": "0000050863-13-000005",
+        "superseded_acceptance_et": "2013-01-18 09:07 EST",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-13-000168",
+        "kept_acceptance_et": "2013-01-17 16:08 EST",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-04-16",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-04-16",
+        "superseded_accession": "0000050863-13-000036",
+        "superseded_acceptance_et": "2013-04-17 09:31 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-13-001800",
+        "kept_acceptance_et": "2013-04-16 16:12 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-07-17",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-07-17",
+        "superseded_accession": "0000050863-13-000081",
+        "superseded_acceptance_et": "2013-07-18 15:38 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001157523-13-003366",
+        "kept_acceptance_et": "2013-07-17 16:13 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "INTC-2013-10-15",
+        "anchor_ticker": "INTC",
+        "release_date": "2013-10-15",
+        "superseded_accession": "0000050863-13-000094",
+        "superseded_acceptance_et": "2013-10-15 16:05 EDT",
+        "superseded_release_session": "AMC",
+        "kept_accession": "0000050863-13-000093",
+        "kept_acceptance_et": "2013-10-15 16:04 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      },
+      {
+        "event_id": "JBL-2011-09-27",
+        "anchor_ticker": "JBL",
+        "release_date": "2011-09-27",
+        "superseded_accession": "0000950123-11-088284",
+        "superseded_acceptance_et": "2011-10-03 16:40 EDT",
+        "superseded_release_session": "UNKNOWN",
+        "kept_accession": "0001193125-11-257475",
+        "kept_acceptance_et": "2011-09-27 16:47 EDT",
+        "kept_release_session": "AMC",
+        "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession"
+      }
+    ],
+    "per_interval": [
+      {
+        "ticker": "AAPL",
+        "start_date": "2000-12-14",
+        "end_date": "2002-12-19",
+        "candidate_events": 0,
+        "item_2_02": 0,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 2.01
+      },
+      {
+        "ticker": "ADBE",
+        "start_date": "2008-01-24",
+        "end_date": "2015-01-20",
+        "candidate_events": 30,
+        "item_2_02": 30,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "CTSH",
+        "start_date": "2004-03-12",
+        "end_date": "2005-03-16",
+        "candidate_events": 2,
+        "item_2_02": 2,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "INTC",
+        "start_date": "2005-02-22",
+        "end_date": "2025-01-31",
+        "candidate_events": 85,
+        "item_2_02": 85,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "JBL",
+        "start_date": "2001-11-28",
+        "end_date": "2025-10-17",
+        "candidate_events": 87,
+        "item_2_02": 87,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 1.33
+      },
+      {
+        "ticker": "MCK",
+        "start_date": "2000-06-13",
+        "end_date": "2008-05-07",
+        "candidate_events": 16,
+        "item_2_02": 16,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 2.79
+      },
+      {
+        "ticker": "MCK",
+        "start_date": "2013-05-07",
+        "end_date": null,
+        "candidate_events": 56,
+        "item_2_02": 56,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "NKE",
+        "start_date": "2002-08-14",
+        "end_date": "2004-07-30",
+        "candidate_events": 0,
+        "item_2_02": 0,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.62
+      },
+      {
+        "ticker": "NVDA",
+        "start_date": "2002-05-14",
+        "end_date": "2012-03-13",
+        "candidate_events": 33,
+        "item_2_02": 33,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.87
+      },
+      {
+        "ticker": "NVDA",
+        "start_date": "2016-03-17",
+        "end_date": "2018-02-28",
+        "candidate_events": 8,
+        "item_2_02": 8,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      },
+      {
+        "ticker": "NVDA",
+        "start_date": "2020-02-20",
+        "end_date": "2021-02-26",
+        "candidate_events": 4,
+        "item_2_02": 4,
+        "item_12": 0,
+        "member_years_with_no_results_item_code": 0.0
+      }
+    ],
+    "refusals": [],
+    "live_requests_made": 0,
+    "member_years_with_no_results_item_code": 7.62,
+    "item_code_eras": {
+      "no_results_item_exists_before": "2003-03-28",
+      "item_12_window": "2003-03-28..2004-08-23",
+      "item_2_02_from": "2004-08-23"
+    },
+    "eligible_event_count": null,
+    "measurement_status": "CANDIDATE counts only. An eligible anchor event additionally requires a well-measured shock (HYP04-ANCHOR-SHOCK-RULE-v1), which requires anchor and benchmark closes for the attributed session. No price source is decided, no shock has been computed from production data, and the eligible count is zero. C2 counts eligible events, not these."
+  },
+  "session_resolution": {
+    "primary": {
+      "AMC": 275,
+      "UNKNOWN": 18,
+      "BMO": 49,
+      "resolved_BMO_or_AMC": 324
+    },
+    "superseded": {
+      "AMC": 258,
+      "UNKNOWN": 15,
+      "BMO": 48,
+      "resolved_BMO_or_AMC": 306
+    },
+    "why_it_matters": "AS-1 requires the shock to be measured on the session the release is attributed to. An UNKNOWN session cannot satisfy it, so a resolved session is a necessary condition for eligibility and the resolved count is the tighter ceiling."
+  }
+}

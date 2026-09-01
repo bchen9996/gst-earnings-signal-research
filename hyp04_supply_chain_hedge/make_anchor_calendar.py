@@ -34,8 +34,15 @@ HISTORY = LSE / "HYP04_EDGAR_LINKAGE_HISTORY_FULL51_2026-08-29_v1.json"
 CACHE = Path(".edgar_cache")
 AS_OF = "2026-08-29"
 
-OUT_JSON = LSE / f"HYP04_ANCHOR_EVENT_CALENDAR_{AS_OF}.json"
-OUT_CSV = LSE / f"HYP04_ANCHOR_EVENT_CALENDAR_{AS_OF}.csv"
+# _v2: registry v1.10 adopted the era-aware item rule, so the primary
+# specification changed on the same day the first calendar was published. The
+# 2026-08-29 artifact stays on disk BYTE-IDENTICAL and superseded -- the
+# same-day `_vN` convention the linkage-history artifacts already use.
+REVISION = "_v2"
+
+OUT_JSON = LSE / f"HYP04_ANCHOR_EVENT_CALENDAR_{AS_OF}{REVISION}.json"
+OUT_CSV = LSE / f"HYP04_ANCHOR_EVENT_CALENDAR_{AS_OF}{REVISION}.csv"
+SUPERSEDES_JSON = LSE / f"HYP04_ANCHOR_EVENT_CALENDAR_{AS_OF}.json"
 
 # The registered threshold, restated here so the artifact can compare itself
 # against it. Read from the registry rather than typed would be better still,
@@ -68,11 +75,15 @@ def build(*, history: Path = HISTORY, cache_dir: Path = CACHE,
     cache = FilingCache(cache_dir, readonly=True)
     client = EdgarClient(contact, cache=cache, offline=True)
 
-    strict = derive_anchor_calendar(universe, client, today=today)
-    legacy = derive_anchor_calendar(universe, client,
-                                    accept_legacy_item_12=True, today=today)
+    # PRIMARY is the era rule (registry v1.10). The Item-2.02-only rule is
+    # derived too, so the superseded specification stays reproducible rather
+    # than merely archived.
+    primary = derive_anchor_calendar(universe, client, today=today)
+    superseded = derive_anchor_calendar(universe, client,
+                                        accept_legacy_item_12=False,
+                                        today=today)
 
-    for name, cal in (("strict", strict), ("legacy", legacy)):
+    for name, cal in (("primary", primary), ("superseded", superseded)):
         if not cal.derived:
             refusals.append(f"{name} calendar refused: " + "; ".join(cal.refusals))
         if cal.live_requests_made:
@@ -87,6 +98,17 @@ def build(*, history: Path = HISTORY, cache_dir: Path = CACHE,
         "artifact": out_json.name,
         "as_of_date": today,
         "hypothesis_id": "HYP-04",
+        "supersedes": SUPERSEDES_JSON.name,
+        "supersedes_sha256": (_sha256(SUPERSEDES_JSON)
+                              if SUPERSEDES_JSON.is_file() else None),
+        "what_changed": (
+            "Registry v1.10 adopted HYP04-ANCHOR-EVENT-RULE-v1: the results "
+            "item is selected by the SEC numbering IN FORCE ON THE REPORT "
+            "DATE, so Item 12 counts in its own era (2003-03-28..2004-08-22). "
+            "The superseded artifact measured this and did not adopt it; the "
+            "owner took the decision on 2026-08-29. The superseded rule is "
+            "re-derived here rather than quoted, so its numbers stay "
+            "reproducible."),
         "what_this_is": (
             "CANDIDATE anchor events: 8-K results filings falling inside a "
             "span during which the filer was a registered HYP-04 anchor. It "
@@ -113,18 +135,18 @@ def build(*, history: Path = HISTORY, cache_dir: Path = CACHE,
         "registered_threshold": {
             "minimum_eligible_events": MINIMUM_ELIGIBLE_EVENTS,
             "unit": "anchor events, deliberately not (anchor x peer) pairs",
-            "candidates_vs_threshold_strict":
-                strict.total - MINIMUM_ELIGIBLE_EVENTS,
+            "candidates_vs_threshold":
+                primary.total - MINIMUM_ELIGIBLE_EVENTS,
             "note": (
                 "A candidate surplus is not a met threshold. Every candidate "
                 "still has to survive the shock rule, and none has been put "
                 "through it."),
         },
-        "primary_specification_unchanged": strict.as_dict(),
-        "measured_alternative_not_adopted": legacy.as_dict(),
+        "primary_specification": primary.as_dict(),
+        "superseded_specification_reproduced": superseded.as_dict(),
         "session_resolution": {
-            "strict": _sessions(strict),
-            "legacy": _sessions(legacy),
+            "primary": _sessions(primary),
+            "superseded": _sessions(superseded),
             "why_it_matters": (
                 "AS-1 requires the shock to be measured on the session the "
                 "release is attributed to. An UNKNOWN session cannot satisfy "
@@ -139,7 +161,7 @@ def build(*, history: Path = HISTORY, cache_dir: Path = CACHE,
     with out_csv.open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(CALENDAR_CSV_FIELDS))
         w.writeheader()
-        for e in strict.entries:
+        for e in primary.entries:
             w.writerow(e.as_row())
 
     return []

@@ -154,6 +154,108 @@ ITEM_RESULTS = "2.02"
 ITEM_EXHIBITS = "9.01"
 STANDARD_ITEMS = frozenset({ITEM_RESULTS, ITEM_EXHIBITS})
 
+# === THE RESULTS ITEM IS SELECTED BY THE NUMBERING IN FORCE ON THE REPORT DATE
+#
+# HYP04-ANCHOR-EVENT-RULE-v1. Decided by the repo owner 2026-08-29,
+# declared by registry v1.10.
+#
+# Selecting on Item 2.02 alone is selecting on an SEC numbering decision. The
+# earliest Item 2.02 across all eight anchor-universe members is 2004-09-20, and
+# seven of the eight first tag it in September-October 2004 -- not a change in
+# corporate behaviour, but SEC Release 33-8400 ("Additional Form 8-K Disclosure
+# Requirements and Acceleration of Filing Date") renumbering Item 12 to Item
+# 2.02 effective 2004-08-23. Item 12 itself was created by the Regulation G
+# release effective 2003-03-28; before that an earnings release carried Item 5
+# or Item 7, the same codes every unrelated 8-K carried, so the index cannot
+# distinguish it at all.
+#
+# Three eras, therefore:
+#     before 2003-03-28   no earnings-specific code exists -- INVISIBLE here
+#     2003-03-28..08-22   the release is Item 12
+#     from 2004-08-23     the release is Item 2.02
+#
+# NKE is the clean case: ZERO Item 2.02 filings inside its 2002-08-14..
+# 2004-07-30 membership span and SIX Item 12 filings. Its zero was the
+# renumbering and nothing else.
+#
+# This is the principle already settled twice in this project -- DATA
+# AVAILABILITY MUST NOT DECIDE MEMBERSHIP, and a filer changing PRINT FORMAT is
+# not a changed relationship. A regulator renumbering a form item is not a filer
+# that stopped reporting earnings.
+ANCHOR_EVENT_RULE_ID = "HYP04-ANCHOR-EVENT-RULE-v1"
+
+ITEM_RESULTS_MODERN = ITEM_RESULTS
+ITEM_RESULTS_LEGACY = "12"
+ITEM_RENUMBERED_TO_2_02 = "2004-08-23"
+ITEM_12_INTRODUCED = "2003-03-28"
+
+FLAG_LEGACY_ITEM_12 = "legacy_item_12"
+FLAG_MODERN_CODE_BEFORE_RENUMBERING = "modern_code_before_renumbering"
+FLAG_LEGACY_CODE_OUT_OF_ERA = "legacy_code_outside_its_era"
+
+
+def item_codes(items: Optional[str]) -> set[str]:
+    """The comma-separated item codes, as EXACT tokens.
+
+    A substring test would be wrong in both directions here: the legacy code is
+    "12", which occurs inside no other real code today but is one edit away from
+    doing so, and the whole point of the era rule is that codes mean different
+    things at different times.
+    """
+    return {c.strip() for c in (items or "").split(",") if c.strip()}
+
+
+def results_item_verdict(items: Optional[str],
+                         report_date: str) -> tuple[bool, bool, str]:
+    """(is_modern, is_legacy, note) for one 8-K's item string.
+
+    Neither flag is set for an 8-K reporting something other than results.
+
+    THE LEGACY CODE IS BOUNDED TO ITS OWN ERA, IN BOTH DIRECTIONS. Item 12 did
+    not exist before 2003-03-28 and stopped existing on 2004-08-23. Accepting a
+    bare "12" outside that window would not be an era-aware rule, it would just
+    be a WIDER one -- and a wider rule is how an unrelated filing becomes an
+    anchor event. The first draft of this function did exactly that, and was
+    caught by registry v1.10's `code_disagreements()` guard rather than by any
+    corpus filing: there are no out-of-era occurrences to catch it. A guard
+    written while the data happens to be clean is the cheapest kind there is.
+
+    Out-of-era occurrences are NOT results filings, and are flagged rather than
+    dropped silently.
+
+    A MODERN code before the renumbering date is treated differently: it IS
+    counted -- the index is what it is -- and flagged, so it cannot pass
+    unnoticed. Exactly one exists in the corpus, NKE 2001-12-16, and it falls
+    outside NKE's membership span.
+    """
+    codes = item_codes(items)
+    d = (report_date or "").strip()
+    modern = ITEM_RESULTS_MODERN in codes
+    legacy_code_present = ITEM_RESULTS_LEGACY in codes
+    in_legacy_era = bool(d) and ITEM_12_INTRODUCED <= d < ITEM_RENUMBERED_TO_2_02
+    legacy = legacy_code_present and in_legacy_era
+
+    note = ""
+    if modern and d and d < ITEM_RENUMBERED_TO_2_02:
+        note = FLAG_MODERN_CODE_BEFORE_RENUMBERING
+    elif legacy:
+        note = FLAG_LEGACY_ITEM_12
+    elif legacy_code_present and not modern:
+        note = FLAG_LEGACY_CODE_OUT_OF_ERA
+    return modern, legacy, note
+
+
+def is_results_filing(items: Optional[str], report_date: str, *,
+                      accept_legacy_item_12: bool = True) -> bool:
+    """Does this 8-K report results, under the numbering of its own era?
+
+    `accept_legacy_item_12` defaults to TRUE from registry v1.10. Passing False
+    reproduces the superseded Item-2.02-only rule exactly, which is what keeps
+    the earlier counts reproducible rather than lost.
+    """
+    modern, legacy, _ = results_item_verdict(items, report_date)
+    return bool(modern or (legacy and accept_legacy_item_12))
+
 SESSION_BMO = "BMO"
 SESSION_AMC = "AMC"
 SESSION_UNKNOWN = "UNKNOWN"
@@ -293,7 +395,9 @@ def candidate_from_record(ticker: str, rec: dict[str, str]) -> CandidateEvent:
     )
 
 
-def all_item_202_records(client: EdgarClient, cik: str) -> list[dict[str, str]]:
+def all_item_202_records(client: EdgarClient, cik: str, *,
+                        accept_legacy_item_12: bool = True
+                        ) -> list[dict[str, str]]:
     """Every 8-K carrying Item 2.02, newest first, across ALL submission blocks.
 
     `filings.recent` holds only the most recent block. A walk that reads only
@@ -327,7 +431,9 @@ def all_item_202_records(client: EdgarClient, cik: str) -> list[dict[str, str]]:
             if form != "8-K":
                 continue
             items = (blk.get("items") or [""] * len(forms))[i]
-            if ITEM_RESULTS not in items:
+            report_date = (blk.get("reportDate") or [""] * len(forms))[i]
+            if not is_results_filing(items, report_date,
+                                     accept_legacy_item_12=accept_legacy_item_12):
                 continue
             out.append({
                 "accessionNumber": blk["accessionNumber"][i],

@@ -22,45 +22,23 @@ because the disclosure was public that day.
 
 Every number here is a CANDIDATE count. An eligible anchor event additionally
 needs a well-measured shock (`anchor_shock`, AS-1..AS-6), which needs the
-anchor's and the benchmark's closes for the attributed session. No price source
-has been decided for HYP-04, so no shock has been computed from production data
-and the eligible count is still zero. C2 counts eligible events, not these.
+anchor's and the benchmark's closes for the attributed session. C2 counts
+eligible events, not these.
 
 A calendar that CAN be filled is not a filled calendar.
 
 === THE ITEM CODE IS AN ARTEFACT OF ITS ERA, NOT A FACT ABOUT THE FILER ===
 
-`earnings_events` selects on Item 2.02, "Results of Operations and Financial
-Condition". Measured across all eight members: the earliest Item 2.02 in the
-data is 2004-09-20 (ADBE), and seven of the eight fall in September-October
-2004. That is not a change in corporate behaviour. The SEC's additional Form
-8-K disclosure requirements took effect 2004-08-23 and RENUMBERED Item 12 to
-Item 2.02; Item 12 itself only came into being 2003-03-28. Before that an
-earnings release was furnished under Item 5 or Item 7 -- the same codes every
-unrelated 8-K carried, so the index cannot distinguish it at all.
+The era rule -- three item-code eras, selection by the numbering in force on the
+report date -- lives in `earnings_events`, which owns 8-K item semantics. ONE
+definition, so the candidates walk and this calendar cannot diverge; see that
+module for the measurement and the SEC releases behind it.
 
-So the item code partitions the corpus into three eras:
-
-  before 2003-03-28   no earnings-specific code exists.  INVISIBLE to any
-                      index-level rule. Recoverable only by reading text.
-  2003-03-28..08-22   the release is Item 12.
-  from 2004-08-23     the release is Item 2.02.
-
-This is the same principle already settled twice in this project: DATA
-AVAILABILITY MUST NOT DECIDE MEMBERSHIP, and a filer changing PRINT FORMAT is
-not a changed relationship. A regulator renumbering a form item is not a filer
-that stopped reporting earnings. NKE is the clean case -- ZERO Item 2.02 events
-inside its 2002-08-14..2004-07-30 span and EIGHT Item 12 events, so its zero is
-an artefact of the renumbering and nothing else.
-
-BUT ACCEPTING ITEM 12 IS A SPECIFICATION CHANGE, so it is NOT the default here.
-`accept_legacy_item_12` defaults to False, which reproduces the existing rule
-exactly; both totals are derived and reported side by side, and the owner
-decides which one the registry adopts. Measuring a change is not making it.
-
-A modern code before the renumbering date is a data anomaly, not a licence: it
-is counted under the strict rule (the index is what it is) and FLAGGED, so it
-cannot pass unnoticed. Exactly one exists -- NKE 2001-12-16.
+ADOPTED AS THE DEFAULT BY REGISTRY v1.10. It was measured first and adopted
+second: the 2026-08-29 calendar published both totals side by side under
+`accept_legacy_item_12=False`, and the owner then took the decision. Passing
+False still reproduces the superseded Item-2.02-only rule exactly, which is what
+keeps that earlier artifact reproducible rather than merely archived.
 
 === OFFLINE ===
 
@@ -78,25 +56,23 @@ from datetime import date
 from typing import Any, Optional
 
 from .earnings_events import (
+    ANCHOR_EVENT_RULE_ID,
+    FLAG_LEGACY_CODE_OUT_OF_ERA,
+    FLAG_LEGACY_ITEM_12,
+    FLAG_MODERN_CODE_BEFORE_RENUMBERING,
+    ITEM_12_INTRODUCED,
+    ITEM_RENUMBERED_TO_2_02,
+    ITEM_RESULTS_LEGACY,
+    ITEM_RESULTS_MODERN,
     SUBMISSIONS_EXTRA_URL,
     SUBMISSIONS_URL,
     CandidateEvent,
     candidate_from_record,
+    item_codes,
+    results_item_verdict,
 )
 
 ANCHOR_CALENDAR_RULE_ID = "HYP04-ANCHOR-CALENDAR-RULE-v1"
-
-ITEM_RESULTS_MODERN = "2.02"
-ITEM_RESULTS_LEGACY = "12"
-
-# SEC Release 33-8400, "Additional Form 8-K Disclosure Requirements and
-# Acceleration of Filing Date", effective 2004-08-23: Item 12 became Item 2.02.
-ITEM_RENUMBERED_TO_2_02 = "2004-08-23"
-# Item 12 was itself created by the Regulation G release, effective 2003-03-28.
-ITEM_12_INTRODUCED = "2003-03-28"
-
-FLAG_LEGACY_ITEM_12 = "legacy_item_12"
-FLAG_MODERN_CODE_BEFORE_RENUMBERING = "modern_code_before_renumbering"
 
 # ONE ANCHOR EVENT PER (ticker, release_date). EARLIEST ACCEPTANCE WINS.
 #
@@ -127,34 +103,6 @@ DEDUP_RULE = ("one anchor event per (anchor_ticker, release_date); the "
               "earliest ACCEPTANCE wins, ties broken on accession")
 
 
-def item_codes(items: Optional[str]) -> set[str]:
-    """The comma-separated item codes, as EXACT tokens.
-
-    A substring test would be wrong in both directions here: the legacy code is
-    "12", which occurs inside no other real code today but is one edit away
-    from doing so, and the whole point of this module is that codes mean
-    different things in different eras.
-    """
-    return {c.strip() for c in (items or "").split(",") if c.strip()}
-
-
-def results_item_verdict(items: Optional[str],
-                         report_date: str) -> tuple[bool, bool, str]:
-    """(is_modern, is_legacy, note) for one 8-K's item string.
-
-    Neither flag is set for an 8-K reporting something other than results.
-    """
-    codes = item_codes(items)
-    modern = ITEM_RESULTS_MODERN in codes
-    legacy = ITEM_RESULTS_LEGACY in codes
-    note = ""
-    if modern and report_date and report_date < ITEM_RENUMBERED_TO_2_02:
-        note = FLAG_MODERN_CODE_BEFORE_RENUMBERING
-    elif legacy and not modern:
-        note = FLAG_LEGACY_ITEM_12
-    return modern, legacy, note
-
-
 @dataclass(frozen=True)
 class CalendarEntry:
     """One candidate anchor event, placed in the interval that contains it."""
@@ -181,7 +129,7 @@ class AnchorCalendar:
 
     rule_id: str = ANCHOR_CALENDAR_RULE_ID
     derived: bool = False
-    accept_legacy_item_12: bool = False
+    accept_legacy_item_12: bool = True
     entries: list[CalendarEntry] = field(default_factory=list)
     per_interval: list[dict[str, Any]] = field(default_factory=list)
     refusals: list[str] = field(default_factory=list)
@@ -291,7 +239,7 @@ def derive_anchor_calendar(
     universe,
     client,
     *,
-    accept_legacy_item_12: bool = False,
+    accept_legacy_item_12: bool = True,
     today: Optional[str] = None,
 ) -> AnchorCalendar:
     """Cross the point-in-time universe with 8-K results filings.
@@ -409,6 +357,67 @@ def derive_anchor_calendar(
     cal.derived = not cal.refusals
     cal.live_requests_made = getattr(client, "requests_made", 0) - before
     return cal
+
+
+def rule_description() -> dict[str, Any]:
+    """The anchor-event rule, for a registry version to DECLARE, not paraphrase.
+
+    Mirrors `anchor_shock.rule_description()`. A registry that restates a rule
+    in prose can drift from the code without any test being able to see it --
+    the failure v1.7's companion records. Declaring it from here means the
+    published fields are the implemented ones by construction.
+    """
+    return {
+        "rule_id": ANCHOR_EVENT_RULE_ID,
+        "selection": (
+            "An 8-K reports results if it carries the item code for Results of "
+            "Operations and Financial Condition UNDER THE NUMBERING IN FORCE ON "
+            "ITS REPORT DATE."),
+        "item_code_modern": ITEM_RESULTS_MODERN,
+        "item_code_legacy": ITEM_RESULTS_LEGACY,
+        "item_12_introduced": ITEM_12_INTRODUCED,
+        "item_renumbered_to_2_02": ITEM_RENUMBERED_TO_2_02,
+        "eras": [
+            {"from": None, "until": ITEM_12_INTRODUCED,
+             "results_item": None,
+             "note": "No earnings-specific code exists. An earnings release "
+                     "carried Item 5 or Item 7, the same codes every unrelated "
+                     "8-K carried, so the index cannot distinguish it. "
+                     "INVISIBLE to any index-level rule."},
+            {"from": ITEM_12_INTRODUCED, "until": ITEM_RENUMBERED_TO_2_02,
+             "results_item": ITEM_RESULTS_LEGACY,
+             "note": "Item 12, created by the Regulation G release."},
+            {"from": ITEM_RENUMBERED_TO_2_02, "until": None,
+             "results_item": ITEM_RESULTS_MODERN,
+             "note": "Item 2.02, renumbered from Item 12 by SEC Release "
+                     "33-8400."},
+        ],
+        "codes_are_exact_tokens": True,
+        "dedup_rule": DEDUP_RULE,
+        "why": (
+            "A regulator renumbering a form item is not a filer that stopped "
+            "reporting earnings. Selecting on Item 2.02 alone lets an SEC "
+            "numbering decision decide which events exist -- the same defect "
+            "as letting a filer's PRINT FORMAT decide membership, which this "
+            "project already refused once."),
+        "measured_instance": (
+            "NKE has ZERO Item 2.02 filings inside its 2002-08-14..2004-07-30 "
+            "membership span and SIX Item 12 filings. Its zero was the "
+            "renumbering and nothing else."),
+        "anomaly_handling": (
+            "A MODERN code before the renumbering date is counted -- the index "
+            "is what it is -- and FLAGGED as "
+            + FLAG_MODERN_CODE_BEFORE_RENUMBERING + ". Exactly one exists, NKE "
+            "2001-12-16, and it falls outside NKE's membership span."),
+        "stated_under_inclusion": (
+            "Member-years before " + ITEM_12_INTRODUCED + " carry no results "
+            "item code and are unrecoverable at index level. The count is "
+            "published with every calendar as "
+            "member_years_with_no_results_item_code."),
+        "measurement_status": (
+            "This rule selects FILINGS. It computes no shock and creates no "
+            "eligible anchor event."),
+    }
 
 
 CALENDAR_CSV_FIELDS = (
