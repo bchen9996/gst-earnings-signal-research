@@ -240,6 +240,60 @@ def _newest(paths: "list[Any]") -> Any:
     return sorted(paths)[-1]
 
 
+def read_anchor_shocks() -> dict[str, Any]:
+    """The anchor-shock artifact, COUNTED FROM ITS ROWS at render time.
+
+    COUNTS ONLY, AND DELIBERATELY. This is the first HYP-04 artifact holding
+    real measured values, and the line between progress and a finding runs right
+    through it. How many anchor events carry a well-measured shock is a data
+    availability statement -- the same category as the options-coverage audit,
+    and publishable for the same reason. The DISTRIBUTION of those shocks is a
+    measured property of the anchors and does not belong on a page whose gate is
+    closed, so it is not read here and not rendered.
+
+    Statuses are counted from the CSV rather than read from the JSON summary, so
+    a stale summary cannot render as a current number.
+    """
+    import csv as _csv
+    import json as _json
+
+    csvs = list(LSE.glob("HYP04_ANCHOR_SHOCKS_*.csv"))
+    if not csvs:
+        return {"present": False}
+    newest = _newest(csvs)
+    rows = list(_csv.DictReader(newest.open(encoding="utf-8", newline="")))
+
+    by_status: dict[str, int] = {}
+    for r in rows:
+        k = r.get("status", "?")
+        by_status[k] = by_status.get(k, 0) + 1
+
+    out: dict[str, Any] = {
+        "present": True,
+        "source": newest.name,
+        "events": len(rows),
+        "computed": by_status.get("shock_computed", 0),
+        "by_status": by_status,
+        "floor": None,
+        "calendar": None,
+        "agrees": None,
+    }
+    js = list(LSE.glob("HYP04_ANCHOR_SHOCKS_*.json"))
+    if js:
+        try:
+            d = _json.loads(_newest(js).read_text(encoding="utf-8"))
+        except ValueError:
+            return out
+        out["floor"] = (d.get("registered_threshold") or {}).get(
+            "minimum_eligible_events")
+        out["calendar"] = (d.get("sources") or {}).get("calendar")
+        out["agrees"] = (d.get("session_index") or {}).get("agrees")
+        out["summary_disagrees"] = (
+            (d.get("counts") or {}).get("shock_computed")
+            not in (None, out["computed"]))
+    return out
+
+
 def read_anchor_event_calendar() -> dict[str, Any]:
     """The anchor-event CALENDAR, COUNTED FROM DISK at render time.
 
@@ -713,8 +767,10 @@ def render(tests: dict, audit: dict, registry: dict,
              v1.9 the anchor-side requirement is HYP-04's own
              <span class="mono">HYP04-ANCHOR-SHOCK-RULE-v1</span>, not HYP-01's
              attention screen; it needs the anchor's and the benchmark's closes
-             for the attributed session, no price source is decided, and no
-             shock has been computed from production data.
+             for the attributed session. Anchor-side closes have since been
+             collected and shocks computed &mdash; see below &mdash; but the
+             PEER side still has no survivorship-bias-free source, and a
+             computed shock is not an eligible event.
              These counts are read from the file at render time; this page does
              not carry a copy of them.</div>"""
 
@@ -764,8 +820,52 @@ def render(tests: dict, audit: dict, registry: dict,
              still has to survive
              <span class="mono">HYP04-ANCHOR-SHOCK-RULE-v1</span>, which needs
              the anchor's and the benchmark's closes for the attributed
-             session. No price source is decided, none has been put through it,
-             and the eligible count is zero.</div>"""
+             session. The anchor side of that has been collected and
+             measured; the PEER side still has no survivorship-bias-free
+             source. Either way the eligible count is zero.</div>"""
+
+
+    # --- anchor shocks ----------------------------------------------------
+    # The first HYP-04 panel backed by measured values. COUNTS ONLY: how many
+    # anchor events carry a well-measured shock is data availability, the same
+    # category as the coverage audit. The distribution of those shocks is a
+    # measured property and is neither read nor rendered while the gate is shut.
+    shk = read_anchor_shocks()
+    if not shk.get("present"):
+        shocks_block = ""
+    else:
+        st = " &middot; ".join(f"{_e(k)} {v}"
+                              for k, v in sorted(shk["by_status"].items()))
+        floor_txt = ("" if not isinstance(shk.get("floor"), int) else
+                     f" The registered floor is {shk['floor']} ELIGIBLE anchor "
+                     f"events, which is a different quantity.")
+        agree_txt = ("" if shk.get("agrees") is not True else
+                     " The session index agreed with the authoritative XNYS "
+                     "calendar on every overlapping session.")
+        warn2 = ("" if not shk.get("summary_disagrees") else
+                 "<div class=\"caveat blocker\"><strong>The artifact's own "
+                 "summary disagrees with its rows.</strong> The figures above "
+                 "are the rows.</div>")
+        shocks_block = f"""
+          <div class="kpis">
+            <div class="kpi"><div class="v">{shk['computed']}</div><div class="l">anchor events with a measured shock</div></div>
+            <div class="kpi"><div class="v">{shk['events']}</div><div class="l">calendar events, all accounted for</div></div>
+            <div class="kpi"><div class="v">0</div><div class="l">ELIGIBLE anchor events</div></div>
+          </div>
+          <p class="small">Status: {st}. Source
+             <span class="mono">{_e(shk['source'])}</span>, built from
+             <span class="mono">{_e(str(shk.get('calendar')))}</span>.{agree_txt}
+             Every calendar event has a row &mdash; a denied event is data, and
+             keeps the denominator visible.</p>
+          {warn2}
+          <div class="caveat blocker"><strong>A measured shock is not an
+             eligible event, and this does not move C2.</strong>{floor_txt}
+             C2 reads a count this artifact does not supply, and the gate
+             cross-checks that count against a freeze record that does not
+             exist &mdash; so C2 and C3 move together or not at all, and both
+             are separately authorised. No shock distribution, direction or
+             effect estimate is shown here or anywhere while the gate is
+             closed.</div>"""
 
     # --- anchor universe (registry v1.5 and later) -----------------------
     # The candidate counts above are a floor on RELEASES, not on usable
@@ -878,6 +978,7 @@ def render(tests: dict, audit: dict, registry: dict,
           <tbody>{counts}</tbody></table>
           {candidates_block}
           {calendar_block}
+          {shocks_block}
           {universe_block}
           <p class="mt"><strong>Unresolved analysis decisions</strong> (each blocks the
              display gate independently):</p>
