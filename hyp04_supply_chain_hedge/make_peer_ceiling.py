@@ -39,6 +39,7 @@ from .peer_ceiling import (
     build_worklist,
     events_from_calendar,
     measure_ceiling,
+    resolution_survivorship,
     rule_description,
     shocks_from_rows,
     union_events,
@@ -60,9 +61,14 @@ AS_OF = "2026-08-31"
 #:      dates later than the curated edge, so their events are a strict subset
 #:      of what the map already reaches and they add nothing. v1's union of 231
 #:      was neither the incremental figure nor the reachable total.
-OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json"
-OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv"
-SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}.json",
+#: _v3 adds `resolution_survivorship`: names are resolved against SEC's list of
+#: CURRENT filers, so the method can only ever return survivors. The worklist
+#: rows are unchanged from _v2.
+OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v3.json"
+OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v3.csv"
+SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json",
+              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv",
+              LSE / f"HYP04_PEER_CEILING_{AS_OF}.json",
               LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv")
 
 CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.0.csv"
@@ -79,7 +85,9 @@ def _sha256(p: Path) -> str:
 
 
 def _newest(paths: list[Path]) -> Path:
-    return sorted(paths, key=lambda p: p.name)[-1]
+    # Version-aware; a lexical sort picks _v3 over _v10. See artifacts.py.
+    from .artifacts import newest
+    return newest(paths)
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -87,8 +95,8 @@ def _rows(path: Path) -> list[dict[str, str]]:
 
 
 def _newest_of(pattern: str) -> Optional[Path]:
-    hits = list(LSE.glob(pattern))
-    return _newest(hits) if hits else None
+    from .artifacts import newest_in
+    return newest_in(LSE, pattern)
 
 
 def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
@@ -200,6 +208,7 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
             "edges_usable": len(loaded.edges),
         },
         "ceiling": report.as_dict(),
+        "resolution_survivorship": resolution_survivorship(rows),
         "the_binding_constraint": (
             "Curation, not prices. The curated map caps the sample at "
             f"{report.ceiling_events} anchor events against a floor of "
@@ -240,6 +249,17 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
         "supersedes": [q.name for q in SUPERSEDES],
         "supersedes_sha256": {q.name: (_sha256(q) if q.is_file() else None)
                               for q in SUPERSEDES},
+        "what_changed_from_v2": [
+            "Adds resolution_survivorship. Names are resolved against SEC's "
+            "company_tickers.json, which lists companies that file and trade "
+            "TODAY, so a delisted, merged-away, taken-private or "
+            "never-US-listed counterparty cannot resolve BY CONSTRUCTION. The "
+            "resolved set is therefore a survivorship-biased sample of the "
+            "queue. Measured, because peer_price_data_policy permits a "
+            "survivors-only restriction only if its bias is stated, and a "
+            "statement of bias needs a number.",
+            "Worklist rows are unchanged from _v2.",
+        ],
         "what_changed_from_v1": [
             "The name normaliser no longer strips HOLDING/HOLDINGS/GROUP. "
             "They are not legal forms: they separate a holding company from "

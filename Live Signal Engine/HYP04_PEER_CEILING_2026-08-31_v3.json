@@ -1,0 +1,421 @@
+{
+  "artifact": "HYP04_PEER_CEILING_2026-08-31_v3.json",
+  "as_of_date": "2026-08-31",
+  "hypothesis_id": "HYP-04",
+  "rule": {
+    "rule_id": "HYP04-PEER-CEILING-RULE-v1",
+    "what_the_ceiling_is": "The most anchor events the peer side could reach if every unresolved question resolved favourably. A sample-size feasibility count, the same category as the 342 anchor events.",
+    "what_the_ceiling_is_not": "Eligibility. No pair here has passed pair_eligibility, the ceiling run supplies peer price availability as a stated hypothetical rather than a measurement, and CeilingReport has no eligible field.",
+    "measured_vs_ceiling": "Both are published. The measured join is the honest state and returns zero, all denied on P5. The ceiling exists because P5 denying everything hides whether P1 and P3 would have denied it too.",
+    "worklist_counts_are_anchor_side_only": "A candidate's count is this anchor's shock-carrying events after the earliest filing that disclosed the counterparty. No peer ticker or price is involved, which is why it is derivable now.",
+    "name_resolution": "exact_match_on_normalised_sec_company_title",
+    "name_resolution_refuses": "Fuzzy matching and scored matching. A wrong ticker is fabricated linkage wearing a number and it fails silently. Ambiguous names, self-links and near-misses are left UNRESOLVED for the curator.",
+    "every_resolution_needs_lineage_review": "SEC's ticker map describes companies as they are today; the names come from filings made years earlier. Caremark RX and OfficeMax were both rejected on exactly this ground -- a merger is not a rename -- so no row is promoted automatically.",
+    "not_a_curated_map": "The worklist's columns are provably disjoint from curated_linkage.REQUIRED_FIELDS, so load_curated_linkage refuses it on the header. refuse_if_curated_schema enforces the same thing at build time.",
+    "resolution_is_survivorship_biased_by_construction": "Names are resolved against SEC's list of CURRENT filers, so a delisted, merged-away, taken-private or never-US-listed counterparty cannot resolve at all. See `resolution_survivorship`.",
+    "opens_no_gate": "The display gate is CLOSED, C4 MET, four denials. C2 counts eligible anchor events and this supplies none; C2 and C3 move together or not at all."
+  },
+  "what_this_is": "How far the peer side can reach with the linkage that exists today, and which unreviewed candidates would extend it. A feasibility measurement of the SAMPLE, not of the hypothesis.",
+  "what_this_is_not": "Evidence about supply-chain transmission. No peer return has been measured, no pair is eligible, and the display gate is CLOSED with the eligible-event count at zero.",
+  "sources": {
+    "calendar": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2.csv",
+    "calendar_sha256": "62f9c5cede3945c4b475aaf385595b0dd1448912ba53e71bfa0de2275e2004c8",
+    "shocks": "HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+    "shocks_sha256": "d9f59a06c4db222a7dd29fa3a7d95aa151e12523498e64f17d1072d67188a870",
+    "review_queue": "HYP04_EDGAR_LINKAGE_HISTORY_FULL51_2026-08-29_v1.json",
+    "review_queue_sha256": "ad90a2a49e10500a6e57086b938f55a52dbfba3250368b1fbc3e139ec7761e3e",
+    "curated_map": "HYP04_Linkage_Map_v1.0.csv",
+    "curated_map_sha256": "e7b0881186751f32c5f56633a3a8809824ccdfee4485e8e4a3ce368795b371d4",
+    "sec_ticker_map": "https://www.sec.gov/files/company_tickers.json",
+    "sec_ticker_map_entries": 10391,
+    "sec_ticker_map_served_from": "EDGAR cache, offline",
+    "requests_made": 0
+  },
+  "curated_map_load": {
+    "rows_seen": 2,
+    "rows_rejected": 0,
+    "edges_usable": 2
+  },
+  "ceiling": {
+    "rule_id": "HYP04-PEER-CEILING-RULE-v1",
+    "measured": {
+      "pairs_eligible": 0,
+      "anchor_events_with_a_peer": 0,
+      "denials_by_code": {
+        "P3": 21,
+        "P5": 76,
+        "P1": 1
+      }
+    },
+    "ceiling_peer_prices_assumed": {
+      "pairs": 54,
+      "anchor_events_with_a_peer": 54,
+      "denials_by_code": {
+        "P3": 21,
+        "P1": 1
+      },
+      "by_anchor": {
+        "MCK": 54
+      }
+    },
+    "curated_peers": [
+      "CVS",
+      "ODP"
+    ],
+    "peers_never_evaluated": [
+      "ODP"
+    ],
+    "registered_floor": 193,
+    "ceiling_reaches_floor": false,
+    "shortfall_against_floor": 139
+  },
+  "resolution_survivorship": {
+    "candidates": 35,
+    "resolved": 7,
+    "unresolved": 28,
+    "unresolved_by_reason": {
+      "UNRESOLVED_no_exact_match": 27,
+      "UNRESOLVED_ambiguous": 1
+    },
+    "incremental_events_reachable_by_resolution": 161,
+    "incremental_events_total_in_queue": 270,
+    "incremental_events_behind_unresolvable_names": 109,
+    "largest_unresolvable_counterparties": [
+      {
+        "anchor_ticker": "JBL",
+        "counterparty": "Dell Computer Corporation",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 89
+      },
+      {
+        "anchor_ticker": "JBL",
+        "counterparty": "Marconi Communications",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 89
+      },
+      {
+        "anchor_ticker": "JBL",
+        "counterparty": "Hewlett-Packard Company",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 88
+      },
+      {
+        "anchor_ticker": "JBL",
+        "counterparty": "Royal Philips Electronics",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 88
+      },
+      {
+        "anchor_ticker": "JBL",
+        "counterparty": "Nokia Corporation",
+        "resolution": "UNRESOLVED_ambiguous",
+        "incremental_anchor_events": 80
+      },
+      {
+        "anchor_ticker": "INTC",
+        "counterparty": "Dell Inc",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 79
+      },
+      {
+        "anchor_ticker": "INTC",
+        "counterparty": "ICG",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 79
+      },
+      {
+        "anchor_ticker": "INTC",
+        "counterparty": "Hewlett-Packard Company",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 46
+      },
+      {
+        "anchor_ticker": "INTC",
+        "counterparty": "Lenovo Group Limited",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 46
+      },
+      {
+        "anchor_ticker": "NVDA",
+        "counterparty": "Atlantic",
+        "resolution": "UNRESOLVED_no_exact_match",
+        "incremental_anchor_events": 45
+      }
+    ],
+    "why_this_is_structural": "company_tickers.json lists companies that file and trade today. A counterparty that was delisted, merged away, taken private or never a US filer cannot resolve against it at all -- by construction, not by imperfect matching. Widening the matcher cannot fix this; only a source that includes former registrants can.",
+    "why_it_biases_toward_the_hypothesis": "peer_price_data_policy's own reasoning applies one level earlier. The peers most likely to have disappeared are those acquired or taken private, and acquisition is frequently CAUSED by the commercial relationship under study, so the unreachable counterparties are not missing at random.",
+    "what_it_does_not_claim": "That every unresolved name is a delisted company. Some are ambiguous, some foreign-listed, some brands or subsidiaries that were never registrants. The method cannot tell those apart from survivors, which is why the whole set is the exposure.",
+    "not_a_property_of_the_rule": "This measures the RESOLUTION METHOD, not the anchor universe and not the peer-eligibility rule. It is a fact about how the worklist was built on this date."
+  },
+  "the_binding_constraint": "Curation, not prices. The curated map caps the sample at 54 anchor events against a floor of 193. A survivorship-bias-free price source bought tomorrow would not raise that by one event, because the ceiling run already assumes prices exist.",
+  "worklist": {
+    "artifact": "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v3.csv",
+    "candidates_on_anchor_tickers": 35,
+    "ticker_resolved": 7,
+    "unresolved": 28,
+    "dominated_by_curated_map": 4,
+    "union_all_candidates": 324,
+    "union_ticker_resolved_only": 202,
+    "incremental_all_candidates": 270,
+    "incremental_ticker_resolved_only": 161,
+    "total_reachable_if_resolved_curated": 215,
+    "total_reachable_if_all_curated": 324,
+    "registered_floor": 193,
+    "why_incremental_matters": "A candidate duplicating an existing edge at a LATER as_of date has a large gross count and buys nothing. Two resolved rows are exactly that, both MCK -> CVS behind the curated 2013-05-07 edge, and they are flagged dominated_by_curated_map.",
+    "union_is_not_a_sum": "Candidates on one anchor cover overlapping stretches of the same event list, so summing max_anchor_events would double-count heavily. The union is the only honest total.",
+    "what_the_union_means": "The queue CONTAINS enough material to reach the floor. It does not make any of it eligible: no candidate is curated, no as_of is ratified, every resolution needs lineage review, and no peer price source exists.",
+    "rows_written": 35
+  },
+  "supersedes": [
+    "HYP04_PEER_CEILING_2026-08-31_v2.json",
+    "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v2.csv",
+    "HYP04_PEER_CEILING_2026-08-31.json",
+    "HYP04_PEER_CURATION_WORKLIST_2026-08-31.csv"
+  ],
+  "supersedes_sha256": {
+    "HYP04_PEER_CEILING_2026-08-31_v2.json": "4bfd6d4607719dc5c0bd693337069b9558549338c0ac498ec56cd3f76f71b99a",
+    "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v2.csv": "ea300f02eac89511e8c3e023c1d5bf85419424844518122ac02196b7eb96a032",
+    "HYP04_PEER_CEILING_2026-08-31.json": "7ee2196f2863b53177199f8b1128965cbaea27456fc66a03ed50e37f48985c5f",
+    "HYP04_PEER_CURATION_WORKLIST_2026-08-31.csv": "61d6c42e4577d8bdbe5c9f912d575fa71983b763d86585fe35e37de14e143f1c"
+  },
+  "what_changed_from_v2": [
+    "Adds resolution_survivorship. Names are resolved against SEC's company_tickers.json, which lists companies that file and trade TODAY, so a delisted, merged-away, taken-private or never-US-listed counterparty cannot resolve BY CONSTRUCTION. The resolved set is therefore a survivorship-biased sample of the queue. Measured, because peer_price_data_policy permits a survivors-only restriction only if its bias is stated, and a statement of bias needs a number.",
+    "Worklist rows are unchanged from _v2."
+  ],
+  "what_changed_from_v1": [
+    "The name normaliser no longer strips HOLDING/HOLDINGS/GROUP. They are not legal forms: they separate a holding company from its operating company and a successor vehicle from its predecessor. v1 resolved ADBE's 2006 disclosure of 'Ingram Micro' onto INGM (Ingram Micro Holding Corp, CIK 1897762), the 2024 re-IPO vehicle. That row is now UNRESOLVED, which is correct, and the resolved count falls by one.",
+    "Candidate counts are now reported INCREMENTAL to the curated map as well as gross, and rows the map already covers are flagged dominated_by_curated_map. v1's headline union of 231 counted events the curated edge already reaches.",
+    "Rows are ranked by incremental opportunity rather than gross."
+  ],
+  "top_candidates": [
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "CSCO",
+      "counterparty_name_as_filed": "Cisco Systems, Inc",
+      "normalized_name": "CISCO SYSTEMS",
+      "resolution": "resolved",
+      "resolution_basis": "exact_match_on_normalised_sec_company_title",
+      "sec_title": "CISCO SYSTEMS, INC.",
+      "sec_cik": "858877",
+      "requires_lineage_review": "yes",
+      "earliest_disclosing_filing_date": "2002-11-25",
+      "earliest_accession": "0000950144-02-012283",
+      "filings_naming_it": 9,
+      "years_since_disclosure": 23,
+      "max_anchor_events": 89,
+      "incremental_anchor_events": 89,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 46.1
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Dell Computer Corporation",
+      "normalized_name": "DELL COMPUTER",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2001-11-28",
+      "earliest_accession": "0000950144-01-509611",
+      "filings_naming_it": 1,
+      "years_since_disclosure": 24,
+      "max_anchor_events": 89,
+      "incremental_anchor_events": 89,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 46.1
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Marconi Communications",
+      "normalized_name": "MARCONI COMMUNICATIONS",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2002-11-25",
+      "earliest_accession": "0000950144-02-012283",
+      "filings_naming_it": 1,
+      "years_since_disclosure": 23,
+      "max_anchor_events": 89,
+      "incremental_anchor_events": 89,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 46.1
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Hewlett-Packard Company",
+      "normalized_name": "HEWLETT PACKARD",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2003-11-12",
+      "earliest_accession": "0000950144-03-012684",
+      "filings_naming_it": 2,
+      "years_since_disclosure": 22,
+      "max_anchor_events": 88,
+      "incremental_anchor_events": 88,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 45.6
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Royal Philips Electronics",
+      "normalized_name": "ROYAL PHILIPS ELECTRONICS",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2003-11-12",
+      "earliest_accession": "0000950144-03-012684",
+      "filings_naming_it": 4,
+      "years_since_disclosure": 22,
+      "max_anchor_events": 88,
+      "incremental_anchor_events": 88,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 45.6
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Nokia Corporation",
+      "normalized_name": "NOKIA",
+      "resolution": "UNRESOLVED_ambiguous:NOK|NOKBF",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2005-10-28",
+      "earliest_accession": "0000950144-05-010851",
+      "filings_naming_it": 3,
+      "years_since_disclosure": 20,
+      "max_anchor_events": 80,
+      "incremental_anchor_events": 80,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 41.5
+    },
+    {
+      "anchor_ticker": "INTC",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Dell Inc",
+      "normalized_name": "DELL",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2005-02-22",
+      "earliest_accession": "0001193125-05-033162",
+      "filings_naming_it": 20,
+      "years_since_disclosure": 21,
+      "max_anchor_events": 79,
+      "incremental_anchor_events": 79,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 40.9
+    },
+    {
+      "anchor_ticker": "INTC",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "ICG",
+      "normalized_name": "ICG",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2005-02-22",
+      "earliest_accession": "0001193125-05-033162",
+      "filings_naming_it": 1,
+      "years_since_disclosure": 21,
+      "max_anchor_events": 79,
+      "incremental_anchor_events": 79,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 40.9
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "AAPL",
+      "counterparty_name_as_filed": "Apple, Inc",
+      "normalized_name": "APPLE",
+      "resolution": "resolved",
+      "resolution_basis": "exact_match_on_normalised_sec_company_title",
+      "sec_title": "Apple Inc.",
+      "sec_cik": "320193",
+      "requires_lineage_review": "yes",
+      "earliest_disclosing_filing_date": "2012-10-25",
+      "earliest_accession": "0001193125-12-435503",
+      "filings_naming_it": 13,
+      "years_since_disclosure": 13,
+      "max_anchor_events": 51,
+      "incremental_anchor_events": 51,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 26.4
+    },
+    {
+      "anchor_ticker": "JBL",
+      "candidate_peer_ticker": "BB",
+      "counterparty_name_as_filed": "BlackBerry Limited",
+      "normalized_name": "BLACKBERRY",
+      "resolution": "resolved",
+      "resolution_basis": "exact_match_on_normalised_sec_company_title",
+      "sec_title": "BLACKBERRY Ltd",
+      "sec_cik": "1070235",
+      "requires_lineage_review": "yes",
+      "earliest_disclosing_filing_date": "2013-10-28",
+      "earliest_accession": "0001193125-13-413660",
+      "filings_naming_it": 1,
+      "years_since_disclosure": 12,
+      "max_anchor_events": 47,
+      "incremental_anchor_events": 47,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 24.4
+    },
+    {
+      "anchor_ticker": "INTC",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Hewlett-Packard Company",
+      "normalized_name": "HEWLETT PACKARD",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2013-02-19",
+      "earliest_accession": "0001193125-13-065416",
+      "filings_naming_it": 3,
+      "years_since_disclosure": 13,
+      "max_anchor_events": 46,
+      "incremental_anchor_events": 46,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 23.8
+    },
+    {
+      "anchor_ticker": "INTC",
+      "candidate_peer_ticker": "",
+      "counterparty_name_as_filed": "Lenovo Group Limited",
+      "normalized_name": "LENOVO GROUP",
+      "resolution": "UNRESOLVED_no_exact_match",
+      "resolution_basis": "",
+      "sec_title": "",
+      "sec_cik": "",
+      "requires_lineage_review": "",
+      "earliest_disclosing_filing_date": "2013-02-19",
+      "earliest_accession": "0001193125-13-065416",
+      "filings_naming_it": 12,
+      "years_since_disclosure": 13,
+      "max_anchor_events": 46,
+      "incremental_anchor_events": 46,
+      "dominated_by_curated_map": "",
+      "share_of_floor_pct": 23.8
+    }
+  ],
+  "opens_no_gate": "The display gate is CLOSED, C4 MET, four denials. C2 counts ELIGIBLE anchor events; this artifact supplies none, and C2 and C3 move together or not at all."
+}
