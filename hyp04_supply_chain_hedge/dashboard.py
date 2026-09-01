@@ -73,7 +73,7 @@ LSE = REPO_ROOT / "Live Signal Engine"
 
 CANARY = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_CANARY_2026-08-17.json"
 FULL = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_FULL_2026-08-17.json"
-REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.9.json"
+REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.10.json"
 
 # Suites this page runs.
 #
@@ -222,6 +222,24 @@ def read_curated_linkage() -> dict[str, Any]:
     }
 
 
+# NEWEST, NOT FIRST.
+#
+# These readers globbed a dated pattern and took `sorted(...)[0]` -- the
+# EARLIEST name. That was harmless only while exactly one artifact existed. The
+# moment a same-day revision appears (the `_vN` convention the linkage-history
+# artifacts already use), `[0]` pins the page to the SUPERSEDED file while the
+# page goes on looking current -- a stale number rendered with full confidence,
+# which is the failure class this dashboard's derive-at-render-time rule exists
+# to prevent.
+#
+# Lexical sort is correct for these names because the date is ISO and the
+# revision suffix sorts after the bare name: 2026-08-29 < 2026-08-29_v2, and
+# 2026-08-29_v2 < 2026-08-30. It is not correct in general, so if the naming
+# convention ever changes this has to change with it.
+def _newest(paths: "list[Any]") -> Any:
+    return sorted(paths)[-1]
+
+
 def read_anchor_event_calendar() -> dict[str, Any]:
     """The anchor-event CALENDAR, COUNTED FROM DISK at render time.
 
@@ -238,10 +256,11 @@ def read_anchor_event_calendar() -> dict[str, Any]:
     import csv as _csv
     import json as _json
 
-    csvs = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.csv"))
+    csvs = list(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.csv"))
     if not csvs:
         return {"present": False}
-    rows = list(_csv.DictReader(csvs[0].open(encoding="utf-8", newline="")))
+    newest_csv = _newest(csvs)
+    rows = list(_csv.DictReader(newest_csv.open(encoding="utf-8", newline="")))
 
     by_session: dict[str, int] = {}
     by_anchor: dict[str, int] = {}
@@ -253,7 +272,7 @@ def read_anchor_event_calendar() -> dict[str, Any]:
 
     out: dict[str, Any] = {
         "present": True,
-        "source": csvs[0].name,
+        "source": newest_csv.name,
         "total": len(rows),
         "by_session": by_session,
         "by_anchor": by_anchor,
@@ -262,14 +281,16 @@ def read_anchor_event_calendar() -> dict[str, Any]:
         "blind_member_years": None,
         "superseded": None,
     }
-    js = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.json"))
+    js = list(LSE.glob("HYP04_ANCHOR_EVENT_CALENDAR_*.json"))
     if js:
         try:
-            d = _json.loads(js[0].read_text(encoding="utf-8"))
+            d = _json.loads(_newest(js).read_text(encoding="utf-8"))
         except ValueError:
             return out
-        primary = d.get("primary_specification_unchanged") or {}
-        alt = d.get("measured_alternative_not_adopted") or {}
+        primary = (d.get("primary_specification")
+                   or d.get("primary_specification_unchanged") or {})
+        alt = (d.get("superseded_specification_reproduced")
+               or d.get("measured_alternative_not_adopted") or {})
         out["alternative_total"] = alt.get("candidate_events_total")
         out["superseded"] = primary.get("duplicate_filings_superseded")
         out["blind_member_years"] = \
@@ -295,11 +316,12 @@ def read_anchor_event_candidates() -> dict[str, Any]:
     """
     import csv as _csv
 
-    files = sorted(LSE.glob("HYP04_ANCHOR_EVENT_CANDIDATES*.csv"))
+    files = list(LSE.glob("HYP04_ANCHOR_EVENT_CANDIDATES*.csv"))
     if not files:
         return {"present": False}
 
-    rows = list(_csv.DictReader(files[0].open(encoding="utf-8", newline="")))
+    newest = _newest(files)
+    rows = list(_csv.DictReader(newest.open(encoding="utf-8", newline="")))
     by_anchor: dict[str, int] = {}
     by_session: dict[str, int] = {}
     by_prov: dict[str, int] = {}
@@ -323,7 +345,7 @@ def read_anchor_event_candidates() -> dict[str, Any]:
     return {
         "present": True,
         "dates_by_anchor": dates_by_anchor,
-        "source": files[0].name,
+        "source": newest.name,
         "total": len(rows),
         "by_anchor": by_anchor,
         "by_session": by_session,
