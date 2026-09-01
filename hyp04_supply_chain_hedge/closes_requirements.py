@@ -43,7 +43,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import sys
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 from typing import Any, Iterable, Optional, Sequence
 
@@ -312,15 +312,23 @@ def format_report(rep: RequirementsReport, *, max_sessions_shown: int = 6) -> st
 # This mirrors how edgar_linkage defers `requests`.
 
 def _load_sessions(first: date, last: date) -> list[date]:
-    from gst_market_response.exchange_calendar import is_trading_day
+    """XNYS sessions in [first, last], from HYP-04's own wider index.
 
-    out: list[date] = []
-    d = first
-    while d <= last:
-        if is_trading_day(d):
-            out.append(d)
-        d += timedelta(days=1)
-    return out
+    IT USED TO CALL `gst_market_response.exchange_calendar.is_trading_day`,
+    which builds `get_calendar("XNYS")` with no `start`. That instance begins
+    2006-08-31 -- a package default, not a data limit -- and it silently
+    returned False for every earlier date, so a pre-2006 peer event produced a
+    request that was SHORT rather than one that refused. Recorded when the same
+    bound was found on the anchor side, where it excluded 57 of 342 events.
+
+    `sessions.xnys_sessions` reaches back to 1995 and verifies itself against
+    the authoritative instance across the whole overlap, refusing on any
+    disagreement. Out-of-range dates now RAISE, which `main` reports; a short
+    request that looks complete is the failure worth preventing.
+    """
+    from .sessions import xnys_sessions
+
+    return xnys_sessions(first, last)
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -414,7 +422,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         sessions = _load_sessions(
             date(min(dates).year - a.pad_years, 1, 1), as_of)
     except ImportError:
-        print("The authoritative XNYS calendar is unavailable "
+        print("The XNYS calendar is unavailable "
               "(`pip install exchange_calendars`). REFUSING rather than "
               "approximating with weekdays -- an approximate calendar would "
               "put market holidays into the request.", file=sys.stderr)
