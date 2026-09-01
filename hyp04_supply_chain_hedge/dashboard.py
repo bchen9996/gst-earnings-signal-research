@@ -233,11 +233,15 @@ def read_curated_linkage() -> dict[str, Any]:
 # to prevent.
 #
 # Lexical sort is correct for these names because the date is ISO and the
-# revision suffix sorts after the bare name: 2026-08-29 < 2026-08-29_v2, and
-# 2026-08-29_v2 < 2026-08-30. It is not correct in general, so if the naming
-# convention ever changes this has to change with it.
+# Version-AWARE. This used to be `sorted(paths)[-1]`, which is right up to _v9
+# and wrong at _v10, because lexical order puts "_v10" before "_v2". It did not
+# raise -- it rendered a superseded artifact as current, on a page whose whole
+# job is to state what is true now.
+from .artifacts import newest as _newest_artifact       # noqa: E402
+
+
 def _newest(paths: "list[Any]") -> Any:
-    return sorted(paths)[-1]
+    return _newest_artifact(paths)
 
 
 def read_peer_ceiling() -> dict[str, Any]:
@@ -281,6 +285,9 @@ def read_peer_ceiling() -> dict[str, Any]:
         "reachable_resolved": w.get("total_reachable_if_resolved_curated"),
         "reachable_all": w.get("total_reachable_if_all_curated"),
         "lineage": _read_lineage(),
+        # How much of the queue the RESOLUTION METHOD structurally cannot
+        # reach. Counts only; the unreachable names themselves stay in the CSV.
+        "surv": d.get("resolution_survivorship") or {},
     }
 
 
@@ -977,6 +984,29 @@ def render(tests: dict, audit: dict, registry: dict,
                 "reach the floor exists &mdash; as an UNREVIEWED QUEUE. No "
                 "candidate is curated and no as-of date is ratified.</p>")
 
+        sv = pc.get("surv") or {}
+        surv_txt = ""
+        if sv.get("incremental_events_total_in_queue"):
+            surv_txt = (
+                f"<div class=\"caveat\"><strong>The resolver can only ever "
+                "return survivors.</strong> Counterparty names are matched "
+                "against SEC's list of companies that file and trade TODAY, so "
+                "one that was delisted, merged away, taken private or never a "
+                "US filer cannot resolve at all &mdash; by construction, not by "
+                "imperfect matching. Of the "
+                f"{sv['incremental_events_total_in_queue']} events the queue "
+                "could add, "
+                f"{sv.get('incremental_events_reachable_by_resolution')} are "
+                "reachable this way and "
+                f"<strong>{sv.get('incremental_events_behind_unresolvable_names')}"
+                "</strong> sit behind names it cannot reach. Those are the "
+                "peers most likely to have been acquired &mdash; and "
+                "acquisition is often caused by the very relationship under "
+                "study, so they are not missing at random. This measures the "
+                "method, not the universe, and it is the number "
+                "<span class=\"mono\">peer_price_data_policy</span> requires "
+                "before any survivors-only restriction could be adopted.</div>")
+
         lin = pc.get("lineage") or {}
         lineage_txt = ""
         if lin.get("counts"):
@@ -1006,6 +1036,7 @@ def render(tests: dict, audit: dict, registry: dict,
              the other conditions. By anchor: {by}.{never_txt}</p>
           {union_txt}
           {lineage_txt}
+          {surv_txt}
           <div class="caveat blocker"><strong>Curation binds before prices.</strong>
              A survivorship-bias-free price source bought tomorrow would not
              raise the ceiling by one event, because the ceiling already
