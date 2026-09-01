@@ -397,9 +397,31 @@ def test_9_the_cli_defers_the_calendar() -> None:
     check("9b. no heavy import at module scope", not bad, str(bad))
 
     src = Path(cr.__file__).read_text(encoding="utf-8")
-    check("9c. the calendar IS imported somewhere -- deferred, not absent",
-          "from gst_market_response.exchange_calendar import" in src,
-          "the CLI must use the authoritative calendar, not a weekday guess")
+    # NARROWED 2026-08-31, not deleted. This asserted an import of
+    # `gst_market_response.exchange_calendar`. The INTENT was "use a real
+    # exchange calendar, never a weekday approximation", and that still holds
+    # -- but that particular instance is bound to a default window starting
+    # 2006-08-31 and RAISED on every earlier date, which killed the CLI on its
+    # own primary input. The module now uses HYP-04's `sessions`, which is
+    # verified against the authoritative instance across the whole overlap.
+    check("9c. a REAL exchange calendar is imported -- deferred, not absent",
+          "from .sessions import" in src,
+          "the CLI must use a verified session index, not a weekday guess")
+    # Asserted against the IMPORTS, not the text: the module explains this
+    # defect in its own docstring, and a substring search matches the
+    # explanation as readily as the defect.
+    imported: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module:
+            for a in node.names:
+                imported.add(node.module + "." + a.name)
+        elif isinstance(node, ast.Import):
+            imported.update(a.name for a in node.names)
+    bounded = sorted(n for n in imported
+                     if "compute_expected_next_full_trading_session_xnys" in n
+                     or n.startswith("gst_market_response"))
+    check("9c2. and NOT the 2006-bounded calendar, which raises on 57 of "
+          "342 events", not bounded, str(bounded))
     check("9d. and the refusal path names the reason",
           "REFUSING rather than" in src and "holidays" in src)
 
