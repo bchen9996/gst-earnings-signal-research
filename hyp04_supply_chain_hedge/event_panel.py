@@ -31,9 +31,16 @@ Neither error raises. Both produce a finite number.
 === IT DOES NOT DECIDE WHICH SESSION AN EARNINGS RELEASE AFFECTS ===
 
 That decision -- BMO before the open lands on the same session, everything else
-on the next one -- belongs to
-`gst_market_response.exchange_calendar.compute_expected_next_full_trading_session_xnys`,
-which is bound to the authoritative XNYS calendar.
+on the next one -- belongs to `anchor_closes.resolve_attributed_session`, which
+applies the rule against a session index the CALLER supplies.
+
+It used to name
+`gst_market_response.exchange_calendar.compute_expected_next_full_trading_session_xnys`
+instead. That function is bound to the default-window XNYS instance, whose first
+session is 2006-08-31, and it RAISES `DateOutOfBounds` on every earlier date --
+57 of HYP-04's 342 anchor events. Recommending it here sent callers at a
+function that cannot serve 17% of the sample; `closes_requirements` followed the
+advice and died on the real calendar.
 
 This module DELEGATES it by requiring the caller to pass a session date that
 has already been resolved, the same way `pair_eligibility` delegates P1 to
@@ -260,9 +267,10 @@ def assert_sessions_resolved(
             f"{off} of {total} supplied {date_field} value(s) are not sessions "
             "in the index. A RESOLVED response session is always a session, so "
             "this usually means raw earnings dates were passed. Resolve them "
-            "with gst_market_response.exchange_calendar."
-            "compute_expected_next_full_trading_session_xnys(earnings_date, "
-            "release_market_session) first -- every AMC release is otherwise "
-            "one session early."
+            "with anchor_closes.resolve_attributed_session(release_date, "
+            "release_session, sessions) first -- every AMC release is "
+            "otherwise one session early. Do NOT use gst_market_response's "
+            "compute_expected_next_full_trading_session_xnys: it is bound to a "
+            "calendar starting 2006-08-31 and raises on anything earlier."
         )
     return warnings

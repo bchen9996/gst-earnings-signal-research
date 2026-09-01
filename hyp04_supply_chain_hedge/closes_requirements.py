@@ -538,19 +538,39 @@ def _events_from_csv(path: Path) -> tuple[list[dict[str, Any]], list[tuple[str, 
     a candidate that vanishes without explanation is indistinguishable from
     one that was never in the file.
 
-    BMO/AMC is resolved to the response session HERE, via the authoritative
-    calendar, so the caller never hand-converts. An UNKNOWN release session is
-    skipped rather than assumed -- guessing it would put every mis-guessed AMC
-    event one session early, which is the look-ahead direction.
+    BMO/AMC is resolved to the response session HERE, so the caller never
+    hand-converts. An UNKNOWN release session is skipped rather than assumed --
+    guessing it would put every mis-guessed AMC event one session early, which
+    is the look-ahead direction.
+
+    IT USED TO CALL `gst_market_response.exchange_calendar.
+    compute_expected_next_full_trading_session_xnys`, which is built on the
+    default-window XNYS instance starting 2006-08-31. That call RAISES
+    `DateOutOfBounds` on every earlier date, so this function died with an
+    unhandled traceback on the real anchor calendar -- whose earliest release is
+    2003-08-07, with 57 of 342 events before the bound. `_load_sessions` was
+    moved off that calendar when the bound was first found; this site was
+    missed.
+
+    It now resolves through `anchor_closes.resolve_attributed_session` against
+    HYP-04's own wider index. That function was already written for exactly
+    this: it takes the session index as an argument and returns a REASON rather
+    than raising, so an event the index cannot serve joins `unresolved` with an
+    explanation instead of killing the run. Reporting it is the behaviour the
+    rest of this function was already built around.
+
+    Two passes, because the index has to span every release date before any of
+    them can be resolved.
     """
     import csv
 
-    from gst_market_response.exchange_calendar import (
-        compute_expected_next_full_trading_session_xnys as _resolve)
+    from .anchor_closes import resolve_attributed_session
     from .earnings_events import SESSION_AMC, SESSION_BMO
+    from .sessions import SessionIndexError, sessions_for_release_dates
 
     events: list[dict[str, Any]] = []
     unresolved: list[tuple[str, str]] = []
+    pending: list[tuple[str, str, str, str]] = []
 
     with path.open(encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
@@ -569,15 +589,33 @@ def _events_from_csv(path: Path) -> tuple[list[dict[str, Any]], list[tuple[str, 
                           f"{SESSION_BMO}/{SESSION_AMC} can be resolved to a "
                           "response session, and guessing is not an option"))
                 continue
-            rel = _parse_iso(rel_raw)
-            if rel is None:
+            if _parse_iso(rel_raw) is None:
                 unresolved.append((eid, f"release_date {rel_raw!r} is not "
                                         "YYYY-MM-DD"))
                 continue
+            pending.append((eid, anchor, rel_raw, sess))
 
-            events.append({"event_id": eid, "anchor": anchor,
-                           "response_session_date": _resolve(rel, sess)
-                           .isoformat()})
+    if not pending:
+        return events, unresolved
+
+    try:
+        sessions, _ = sessions_for_release_dates(r for _, _, r, _ in pending)
+    except SessionIndexError as exc:
+        # Every pending row is reported, not silently lost. A whole file
+        # disappearing because one index could not be built is the same
+        # failure this function exists to prevent, one level up.
+        for eid, _a, _r, _s in pending:
+            unresolved.append((eid, f"no session index could be built: {exc}"))
+        return events, unresolved
+
+    for eid, anchor, rel_raw, sess in pending:
+        attributed, _prior, reason = resolve_attributed_session(
+            rel_raw, sess, sessions)
+        if attributed is None:
+            unresolved.append((eid, reason))
+            continue
+        events.append({"event_id": eid, "anchor": anchor,
+                       "response_session_date": attributed.isoformat()})
     return events, unresolved
 
 
