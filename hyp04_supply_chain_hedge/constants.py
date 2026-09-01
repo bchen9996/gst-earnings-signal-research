@@ -26,6 +26,36 @@ REPORTING_HORIZONS: tuple[int, ...] = (5, 10, 20)
 # its absence directly.
 REFERENCE_WINDOW_TRADING_DAYS = 20
 
+# Sessions between the END of the reference window and `anchor_day` itself.
+#
+# THE PRIMARY SPECIFICATION IS 1: the reference window ends at anchor_day - 1,
+# so the anchor's own response session is in NEITHER window. Decided by the
+# repo owner 2026-08-29, declared by registry v1.10.
+#
+# It was 0 until then -- the reference window ended AT anchor_day, which is the
+# session the anchor's earnings news is attributed to. If transmission is partly
+# same-day, the peer's response was sitting inside the baseline the response is
+# measured against. Standard event-study practice is that the estimation window
+# ends BEFORE the event window, and it did not.
+#
+# THE DIRECTION OF THIS CHANGE IS FAVOURABLE, AND THAT IS WHY THE TIMING
+# MATTERS. Removing a contaminated session from the baseline lowers the
+# baseline and RAISES the measured log-ratio. A change that makes results look
+# stronger is exactly the kind this project's rules exist to stop being made
+# after the fact. It is legitimate here only because NOTHING HAS BEEN MEASURED:
+# no shock, no peer response, no target value from production data exists, so
+# there is no outcome this could have been chosen to favour.
+#
+# Only the ENDPOINT moves. REFERENCE_WINDOW_TRADING_DAYS stays 20, so the two
+# specifications differ in exactly one way and the robustness comparison is not
+# confounded by a length change as well. The cost is one extra close per
+# (peer, event) -- see closes_requirements.closes_per_event.
+REFERENCE_WINDOW_OFFSET_SESSIONS = 1
+
+# The superseded value, kept NAMED rather than as a bare 0 at the call site, so
+# the robustness variant is requested by name and is greppable.
+REFERENCE_WINDOW_OFFSET_INCLUDING_ANCHOR_DAY = 0
+
 # Floor applied before every log() so an exact-zero return day (halted
 # trading, stale or bad data) cannot send the target to -inf. Applied
 # identically in the fixture generator and the real-data path.

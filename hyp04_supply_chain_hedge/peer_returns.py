@@ -68,7 +68,11 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Iterable, Optional, Sequence
 
-from .constants import HORIZON_GRID, REFERENCE_WINDOW_TRADING_DAYS
+from .constants import (
+    HORIZON_GRID,
+    REFERENCE_WINDOW_OFFSET_SESSIONS,
+    REFERENCE_WINDOW_TRADING_DAYS,
+)
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -367,12 +371,20 @@ def coverage_for_event(series: PeerReturnSeries, *, event_id: str,
                        anchor_day: int,
                        max_horizon: Optional[int] = None,
                        reference_window: int = REFERENCE_WINDOW_TRADING_DAYS,
+                       reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
                        ) -> Coverage:
     """Derive P5's answer for one (peer, event) from the series itself.
 
     Windows are taken to match `target.raw_log_ratio_target`:
-      reference = the `reference_window` sessions ending AT anchor_day
+      reference = `reference_window` sessions ending `reference_offset`
+                  sessions BEFORE anchor_day
       post      = [anchor_day + 1, anchor_day + max_horizon]
+
+    `reference_offset` MUST match the target's, and defaults from the same
+    constant so it cannot drift. If coverage checked a different window from the
+    one the target slices, P5 would certify pairs the target then returns NaN
+    for -- a denial pointing at the wrong thing, which is the specific failure
+    the +1 close in `closes_requirements` was already written to avoid.
 
     Every return in BOTH windows must be finite. A partially-populated
     reference window is not a shorter reference window -- RVar_ref is a mean
@@ -383,8 +395,9 @@ def coverage_for_event(series: PeerReturnSeries, *, event_id: str,
     reasons: list[str] = []
     n = len(series.log_returns)
 
-    ref_start = anchor_day - reference_window + 1
-    ref = series.window(ref_start, anchor_day + 1)
+    ref_end = anchor_day - reference_offset + 1      # exclusive
+    ref_start = ref_end - reference_window
+    ref = series.window(ref_start, ref_end)
     ref_have = sum(1 for r in ref if r is not None)
     if ref_start < 0:
         reasons.append(
@@ -414,6 +427,7 @@ def peer_history_map(series_by_peer: dict[str, PeerReturnSeries],
                      events: Sequence[dict[str, Any]],
                      *, max_horizon: Optional[int] = None,
                      reference_window: int = REFERENCE_WINDOW_TRADING_DAYS,
+                     reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
                      ) -> dict[str, bool]:
     """Build the per-peer availability dict P5 currently consumes.
 
@@ -444,7 +458,8 @@ def peer_history_map(series_by_peer: dict[str, PeerReturnSeries],
                 s, event_id=str(ev.get("event_id", "")),
                 anchor_day=int(ev.get("anchor_day", -1)),
                 max_horizon=max_horizon,
-                reference_window=reference_window).sufficient
+                reference_window=reference_window,
+                reference_offset=reference_offset).sufficient
             for ev in evs)
     return out
 

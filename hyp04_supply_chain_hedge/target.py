@@ -51,6 +51,7 @@ from .constants import (
     HORIZON_GRID,
     MIN_BUCKET_COUNT,
     MIN_RETAINED_HISTORY_FRACTION,
+    REFERENCE_WINDOW_OFFSET_SESSIONS,
     REFERENCE_WINDOW_TRADING_DAYS,
     RVAR_LOG_FLOOR,
 )
@@ -86,23 +87,38 @@ def raw_log_ratio_target(
     horizon: int,
     *,
     reference_window: int = REFERENCE_WINDOW_TRADING_DAYS,
+    reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
 ) -> float:
     """log(RVar(h)) - log(RVar_ref) for one (anchor event, peer, horizon).
 
-    Post-event window is [anchor_day+1, anchor_day+h]; the reference window
-    is the `reference_window` sessions ending AT the anchor day, so the two
-    never overlap.
+    Post-event window is [anchor_day+1, anchor_day+h]. The reference window is
+    `reference_window` sessions ending `reference_offset` sessions BEFORE the
+    anchor day.
+
+    `reference_offset` DEFAULTS TO 1 (registry v1.10): the reference window ends
+    at anchor_day - 1, so anchor_day -- the session the anchor's earnings news is
+    attributed to -- is in NEITHER window. It used to end AT anchor_day, which
+    put the peer's own response session inside the baseline that response is
+    measured against.
+
+    Pass `reference_offset=0` for the day-0-inclusive variant. That is the
+    ROBUSTNESS specification, reported alongside and never substituted silently;
+    it also reproduces the pre-v1.10 numbers exactly, which is how the change is
+    kept visible rather than assumed.
     """
     n = peer_returns.size
     start, stop = anchor_day + 1, anchor_day + 1 + horizon
     if stop > n:
         return float("nan")
-    ref_start = max(0, anchor_day - reference_window + 1)
-    if anchor_day + 1 - ref_start < reference_window:
+    ref_end = anchor_day - reference_offset + 1      # exclusive
+    ref_start = max(0, ref_end - reference_window)
+    # Fail closed on a short window, exactly as before: a reference window with
+    # fewer sessions than asked for is a different estimator, not a smaller one.
+    if ref_end - ref_start < reference_window:
         return float("nan")
 
     post = peer_returns[start:stop]
-    ref = peer_returns[ref_start:anchor_day + 1]
+    ref = peer_returns[ref_start:ref_end]
     lp, lr = log_rvar(post), log_rvar(ref)
     if not (np.isfinite(lp) and np.isfinite(lr)):
         return float("nan")
@@ -193,6 +209,7 @@ def estimate_earnings_cycle_baseline(
     horizon: int,
     *,
     exclusion: int = ANCHOR_ADJACENT_EXCLUSION_TRADING_DAYS,
+    reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
 ) -> EarningsCycleBaseline:
     """Estimate one peer's unconditional log-ratio vs. days-to-own-earnings.
 
@@ -207,7 +224,12 @@ def estimate_earnings_cycle_baseline(
         lo, hi = max(0, a - exclusion), min(n, a + exclusion + 1)
         excluded[lo:hi] = True
 
-    lo_day = REFERENCE_WINDOW_TRADING_DAYS
+    # + reference_offset: with the window ending before the anchor day, the
+    # earliest day that can carry a full reference window is that much later.
+    # Leaving this at REFERENCE_WINDOW_TRADING_DAYS would sweep days whose
+    # target is NaN by construction and count them as candidates, deflating
+    # `retained_fraction` -- a reported universe constraint.
+    lo_day = REFERENCE_WINDOW_TRADING_DAYS + reference_offset
     hi_day = n - horizon - 1
     buckets: dict[int, list[float]] = {}
     n_used = n_candidates = 0
@@ -216,7 +238,8 @@ def estimate_earnings_cycle_baseline(
         n_candidates += 1
         if excluded[day]:
             continue
-        val = raw_log_ratio_target(peer_returns, day, horizon)
+        val = raw_log_ratio_target(peer_returns, day, horizon,
+                                   reference_offset=reference_offset)
         if not np.isfinite(val):
             continue
         buckets.setdefault(_dte_bucket(dte[day]), []).append(val)
@@ -244,6 +267,7 @@ def build_feature_table(
     *,
     horizons: tuple[int, ...] = HORIZON_GRID,
     residualize: bool = True,
+    reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
 ) -> dict[str, Any]:
     """Assemble the (anchor event x peer x horizon) panel Phase 0 analyses.
 
@@ -267,6 +291,7 @@ def build_feature_table(
                 baselines[(peer, h)] = estimate_earnings_cycle_baseline(
                     peer, returns, panel.peer_earnings_days[peer],
                     anchor_days_by_peer.get(peer, []), h,
+                    reference_offset=reference_offset,
                 )
 
     dte_cache = {
@@ -287,7 +312,8 @@ def build_feature_table(
         for peer in ev["peers"]:
             returns = panel.returns[peer]
             for h in horizons:
-                raw = raw_log_ratio_target(returns, ev["anchor_day"], h)
+                raw = raw_log_ratio_target(returns, ev["anchor_day"], h,
+                                           reference_offset=reference_offset)
                 if not np.isfinite(raw):
                     continue
                 n_candidate_obs += 1
