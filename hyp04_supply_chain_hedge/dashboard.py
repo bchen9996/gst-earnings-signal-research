@@ -285,9 +285,76 @@ def read_peer_ceiling() -> dict[str, Any]:
         "reachable_resolved": w.get("total_reachable_if_resolved_curated"),
         "reachable_all": w.get("total_reachable_if_all_curated"),
         "lineage": _read_lineage(),
+        "search": _read_name_search(),
+        "draft": _read_draft(),
         # How much of the queue the RESOLUTION METHOD structurally cannot
         # reach. Counts only; the unreachable names themselves stay in the CSV.
         "surv": d.get("resolution_survivorship") or {},
+    }
+
+
+def _read_name_search() -> dict[str, Any]:
+    """The name-search outcome: how many former registrants still trade.
+
+    Counts only. The identified registrants ARE named here, unusually for this
+    page, because the finding is precisely that specific well-known companies
+    are gone -- an anonymous count would read as a data-quality note rather
+    than as the survivorship statement it is.
+    """
+    import json as _json
+
+    js = list(LSE.glob("HYP04_PEER_NAME_SEARCH_*.json"))
+    if not js:
+        return {}
+    try:
+        d = _json.loads(_newest(js).read_text(encoding="utf-8"))
+    except ValueError:
+        return {}
+    ident = [r for r in (d.get("results") or []) if r.get("resolved")]
+    return {
+        "source": _newest(js).name,
+        "searched": (d.get("sources") or {}).get("names_searched"),
+        "identified": d.get("names_identified"),
+        "tradeable": d.get("names_now_tradeable"),
+        "events_lost": d.get("events_behind_identified_but_untradeable"),
+        "unanswered": d.get("names_unanswered"),
+        # Deduplicated: two counterparty names can resolve to one
+        # registrant (JBL's "Dell Computer Corporation" and INTC's "Dell Inc"
+        # are both CIK 826083), and listing it twice overstates the count.
+        "names": sorted({r["registrant_name_at_as_of"] for r in ident
+                         if r.get("registrant_name_at_as_of")}),
+        "registrants": len({r.get("registrant_cik") for r in ident
+                            if r.get("registrant_cik")}),
+    }
+
+
+def _read_draft() -> dict[str, Any]:
+    """The draft linkage rows, and whether they are still inert.
+
+    `inert` is COMPUTED by running the real loader over the real file, not
+    read from anywhere. The whole claim is that the rows cannot load until a
+    human completes them, and a page asserting that from a stored flag would
+    be asserting the thing it is supposed to be checking.
+    """
+    import csv as _csv
+
+    hits = list(LSE.glob("HYP04_LINKAGE_ROWS_DRAFT_2[0-9][0-9][0-9]-*.csv"))
+    if not hits:
+        return {}
+    newest = _newest(hits)
+    try:
+        from .curated_linkage import load_curated_linkage
+        res = load_curated_linkage(newest)
+        rows = list(_csv.DictReader(newest.open(encoding="utf-8", newline="")))
+    except Exception:                                    # noqa: BLE001
+        return {}
+    return {
+        "source": newest.name,
+        "rows": len(rows),
+        "edges_usable": len(res.edges),
+        "inert": len(res.edges) == 0 and res.rows_rejected == res.rows_seen,
+        "pairs": [f"{r.get('anchor_ticker')}&rarr;{r.get('peer_ticker')}"
+                  for r in rows],
     }
 
 
@@ -1007,6 +1074,47 @@ def render(tests: dict, audit: dict, registry: dict,
                 "<span class=\"mono\">peer_price_data_policy</span> requires "
                 "before any survivors-only restriction could be adopted.</div>")
 
+        ns = pc.get("search") or {}
+        search_txt = ""
+        if ns.get("identified") is not None:
+            nm = ", ".join(_e(x) for x in ns.get("names") or [])
+            unans = ("" if not ns.get("unanswered") else
+                     f" {ns['unanswered']} name(s) went UNANSWERED when the "
+                     "endpoint failed; they are excluded from this count "
+                     "rather than read as negatives.")
+            search_txt = (
+                f"<p class=\"small\"><strong>Searched for the missing "
+                f"registrants.</strong> EDGAR's company search sees former "
+                "names that the current company list drops. Across "
+                f"{ns.get('searched')} names it identified "
+                f"{ns.get('identified')} registrants, each confirmed by the "
+                f"lineage test, {ns.get('registrants')} of them distinct "
+                f"&mdash; and <strong>{ns.get('tradeable')} of them still "
+                "trade</strong>."
+                + (f" They are {nm}, and every one is gone." if nm else "") +
+                f" {ns.get('events_lost')} anchor events sit behind companies "
+                "that are identified, confirmed, and gone. The survivorship "
+                f"gap is measured now, not inferred.{unans}</p>")
+
+        dr = pc.get("draft") or {}
+        draft_txt = ""
+        if dr.get("rows"):
+            state = ("INERT" if dr.get("inert") else
+                     "<strong>NOT INERT &mdash; investigate</strong>")
+            cls = "caveat" if dr.get("inert") else "caveat blocker"
+            draft_txt = (
+                f"<div class=\"{cls}\"><strong>{dr['rows']} draft linkage "
+                f"row(s) await review</strong> ({', '.join(dr['pairs'])}), in "
+                f"<span class=\"mono\">{_e(dr['source'])}</span>. Every "
+                "field derivable from the filings is filled; confidence, "
+                "date_confidence, curated_by, curated_date and review_status "
+                "are blank because no derivation can supply them. All five "
+                "are required fields, so the loader rejects every row and "
+                f"{dr['edges_usable']} edges are usable &mdash; checked by "
+                f"running the real loader over the real file, which reports "
+                f"the rows {state}. Nothing enters the curated map until a "
+                "person completes it.</div>")
+
         lin = pc.get("lineage") or {}
         lineage_txt = ""
         if lin.get("counts"):
@@ -1037,6 +1145,8 @@ def render(tests: dict, audit: dict, registry: dict,
           {union_txt}
           {lineage_txt}
           {surv_txt}
+          {search_txt}
+          {draft_txt}
           <div class="caveat blocker"><strong>Curation binds before prices.</strong>
              A survivorship-bias-free price source bought tomorrow would not
              raise the ceiling by one event, because the ceiling already
