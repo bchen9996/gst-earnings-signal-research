@@ -197,13 +197,22 @@ def test_3_coverage_accepts_a_genuinely_complete_series():
           str(c.horizon_have))
     check("3d. no reasons on a sufficient coverage", c.reasons == ())
 
-    # Exact boundaries. Index 0 has no return, so the earliest usable anchor
-    # day is REFERENCE_WINDOW, not REFERENCE_WINDOW - 1.
-    first_ok = REFERENCE_WINDOW_TRADING_DAYS
-    check("3e. earliest sufficient anchor day is the reference window",
+    # Exact boundaries. Index 0 has no return, so the earliest usable anchor day
+    # is REFERENCE_WINDOW plus the v1.10 offset -- the reference window now ends
+    # at anchor_day-1, so it needs one more session of history at the left edge.
+    from hyp04_supply_chain_hedge.constants import (
+        REFERENCE_WINDOW_OFFSET_SESSIONS as _OFF)
+    first_ok = REFERENCE_WINDOW_TRADING_DAYS + _OFF
+    check("3e. earliest sufficient anchor day is reference window + offset",
           coverage_for_event(s, event_id="E", anchor_day=first_ok).sufficient)
     check("3f. one day earlier is NOT sufficient",
           not coverage_for_event(s, event_id="E", anchor_day=first_ok - 1).sufficient)
+    # COVERAGE MUST AGREE WITH THE TARGET. If it checked a different window the
+    # target would return NaN for a pair P5 had already certified, and the
+    # denial would point at the wrong thing.
+    check("3f2. and it IS sufficient one day earlier under the superseded window",
+          coverage_for_event(s, event_id="E", anchor_day=first_ok - 1,
+                             reference_offset=0).sufficient)
 
     last_ok = N_SESSIONS - 1 - h
     check("3g. latest sufficient anchor day leaves a full horizon",

@@ -187,8 +187,8 @@ def test_3_the_request_is_exactly_41_real_sessions():
     ev = _STATE["ev"]
     sessions = _STATE["sessions"]
 
-    check("3a. 41 sessions, on the real calendar",
-          req.n_sessions == closes_per_event() == 41, str(req.n_sessions))
+    check("3a. 42 sessions, on the real calendar",
+          req.n_sessions == closes_per_event() == 42, str(req.n_sessions))
     check("3b. nothing skipped or truncated",
           not _STATE["rep"].skipped and not _STATE["rep"].truncated,
           f"{len(_STATE['rep'].skipped)} skipped, "
@@ -230,8 +230,10 @@ def test_4_target_is_finite_across_the_grid():
 
     arr = np.array([np.nan if r is None else r for r in series.log_returns],
                    dtype=float)
-    check("4b. exactly 40 finite returns exist",
-          int(np.isfinite(arr).sum()) == 40, str(int(np.isfinite(arr).sum())))
+    # 42 closes -> 41 returns: the first close yields no return. Was 41 -> 40
+    # before the v1.10 window moved one session earlier.
+    check("4b. exactly 41 finite returns exist",
+          int(np.isfinite(arr).sum()) == 41, str(int(np.isfinite(arr).sum())))
 
     vals = {h: raw_log_ratio_target(arr, ev.day_index, h)
             for h in sorted(HORIZON_GRID)}

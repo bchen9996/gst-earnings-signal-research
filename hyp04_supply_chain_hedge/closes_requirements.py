@@ -47,7 +47,11 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Iterable, Optional, Sequence
 
-from .constants import HORIZON_GRID, REFERENCE_WINDOW_TRADING_DAYS
+from .constants import (
+    HORIZON_GRID,
+    REFERENCE_WINDOW_OFFSET_SESSIONS,
+    REFERENCE_WINDOW_TRADING_DAYS,
+)
 from .curated_linkage import CuratedEdge
 from .event_panel import ResolvedEvent, normalize_sessions
 
@@ -98,6 +102,10 @@ class RequirementsReport:
     truncated: tuple[SkippedPair, ...] = ()
     reference_window: int = REFERENCE_WINDOW_TRADING_DAYS
     max_horizon: int = max(HORIZON_GRID)
+    # RECORDED, not assumed. The span depends on it, so a request file whose
+    # window specification is unknown cannot be checked against the target that
+    # will later consume it.
+    reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS
 
     @property
     def total_rows(self) -> int:
@@ -108,8 +116,10 @@ class RequirementsReport:
         return {
             "reference_window": self.reference_window,
             "max_horizon": self.max_horizon,
+            "reference_offset": self.reference_offset,
             "closes_per_peer_per_event": closes_per_event(
-                self.reference_window, self.max_horizon),
+                self.reference_window, self.max_horizon,
+                self.reference_offset),
             "total_rows": self.total_rows,
             "peers": [r.as_dict() for r in self.requirements],
             "skipped": [vars(s) for s in self.skipped],
@@ -118,23 +128,40 @@ class RequirementsReport:
 
 
 def closes_per_event(reference_window: int = REFERENCE_WINDOW_TRADING_DAYS,
-                     max_horizon: Optional[int] = None) -> int:
+                     max_horizon: Optional[int] = None,
+                     reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
+                     ) -> int:
     """Closes needed for ONE (peer, event): reference + horizon + the prior close.
 
     The `+ 1` is the close before the first reference return. See the module
     docstring -- dropping it is the difference between a pair that resolves and
     one that denies for a reason pointing somewhere else.
+
+    The `+ reference_offset` is registry v1.10's day-0-exclusive window. Ending
+    the reference window at anchor_day - 1 while keeping its LENGTH at 20 slides
+    it one session earlier, so it needs one more close at the left edge. That is
+    the entire data cost of the change: one close per (peer, event), paid once
+    here, or paid as a whole second collection round if the window is decided
+    after closes are gathered.
     """
     h = int(max_horizon if max_horizon is not None else max(HORIZON_GRID))
-    return reference_window + h + 1
+    return reference_window + h + 1 + reference_offset
 
 
 def session_span(anchor_day: int, *,
                  reference_window: int = REFERENCE_WINDOW_TRADING_DAYS,
-                 max_horizon: Optional[int] = None) -> tuple[int, int]:
-    """Inclusive [start, end] session indices of closes needed for one event."""
+                 max_horizon: Optional[int] = None,
+                 reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
+                 ) -> tuple[int, int]:
+    """Inclusive [start, end] session indices of closes needed for one event.
+
+    The span MUST cover both specifications. It is derived from the day-0-
+    EXCLUSIVE window, which starts one session earlier, so a request emitted
+    under it also satisfies the day-0-inclusive robustness variant. Emitting the
+    narrower span would make the robustness comparison cost a second collection.
+    """
     h = int(max_horizon if max_horizon is not None else max(HORIZON_GRID))
-    return anchor_day - reference_window, anchor_day + h
+    return anchor_day - reference_window - reference_offset, anchor_day + h
 
 
 def requirements_for(
@@ -144,6 +171,7 @@ def requirements_for(
     sessions: Sequence[date],
     reference_window: int = REFERENCE_WINDOW_TRADING_DAYS,
     max_horizon: Optional[int] = None,
+    reference_offset: int = REFERENCE_WINDOW_OFFSET_SESSIONS,
 ) -> RequirementsReport:
     """Which closes to collect, per peer, for these events and this map.
 
@@ -184,7 +212,8 @@ def requirements_for(
 
             start, end = session_span(ev.day_index,
                                       reference_window=reference_window,
-                                      max_horizon=h)
+                                      max_horizon=h,
+                                      reference_offset=reference_offset)
             if start < 0 or end >= len(idx):
                 truncated.append(SkippedPair(
                     ev.anchor, peer, ev.event_id,
@@ -203,17 +232,21 @@ def requirements_for(
 
     return RequirementsReport(requirements=reqs, skipped=tuple(skipped),
                               truncated=tuple(truncated),
-                              reference_window=reference_window, max_horizon=h)
+                              reference_window=reference_window, max_horizon=h,
+                              reference_offset=reference_offset)
 
 
 def format_report(rep: RequirementsReport, *, max_sessions_shown: int = 6) -> str:
     """A human-readable request an operator can act on."""
     out: list[str] = []
-    per = closes_per_event(rep.reference_window, rep.max_horizon)
+    per = closes_per_event(rep.reference_window, rep.max_horizon,
+                           rep.reference_offset)
     out.append(
         f"Closes needed: {per} sessions per (peer, event) -- "
         f"{rep.reference_window} reference + {rep.max_horizon} horizon + 1 "
-        "prior close for the first reference return.")
+        "prior close for the first reference return"
+        + (f" + {rep.reference_offset} for the day-0-exclusive reference "
+           "window (registry v1.10)." if rep.reference_offset else "."))
     out.append(f"Schema: HYP04_Peer_Closes_TEMPLATE_headers.csv "
                f"(ticker,session_date,close)")
     out.append("")

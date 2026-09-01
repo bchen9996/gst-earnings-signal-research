@@ -56,7 +56,8 @@ from hyp04_supply_chain_hedge.closes_requirements import (  # noqa: E402
     requirements_for,
     session_span,
 )
-from hyp04_supply_chain_hedge.constants import (  # noqa: E402
+from hyp04_supply_chain_hedge.constants import (
+    REFERENCE_WINDOW_OFFSET_SESSIONS,  # noqa: E402
     HORIZON_GRID,
     REFERENCE_WINDOW_TRADING_DAYS,
 )
@@ -88,6 +89,7 @@ def skip(label: str, why: str) -> None:
 
 
 R = REFERENCE_WINDOW_TRADING_DAYS
+OFFSET = REFERENCE_WINDOW_OFFSET_SESSIONS
 H = max(HORIZON_GRID)
 N = 300
 
@@ -137,17 +139,30 @@ def _event(event_id: str, anchor: str, day: int):
 
 
 def test_1_the_41st_close() -> None:
-    check("1a. one event needs reference + horizon + ONE more close",
-          closes_per_event() == R + H + 1, str(closes_per_event()))
-    check("1b. which is 41 at the registered constants",
-          closes_per_event() == 41, str(closes_per_event()))
+    # WAS 41. Registry v1.10 moved the reference window to end at anchor_day-1
+    # while keeping its LENGTH at 20, which slides it one session earlier and
+    # costs exactly one more close at the left edge.
+    check("1a. one event needs reference + horizon + prior close + offset",
+          closes_per_event() == R + H + 1 + OFFSET, str(closes_per_event()))
+    check("1b. which is 42 at the registered constants",
+          closes_per_event() == 42, str(closes_per_event()))
+    check("1b2. the SUPERSEDED specification still costs 41, reproducibly",
+          closes_per_event(reference_offset=0) == 41,
+          str(closes_per_event(reference_offset=0)))
+    check("1b3. so the day-0-exclusive window costs exactly one extra close",
+          closes_per_event() - closes_per_event(reference_offset=0) == 1)
     check("1c. and is NOT reference + horizon",
           closes_per_event() != R + H,
           "40 would leave the first reference return uncomputable")
 
     start, end = session_span(100)
-    check("1d. the span starts a full reference window BEFORE the anchor",
-          start == 100 - R, str(start))
+    check("1d. the span starts a reference window PLUS the offset before the anchor",
+          start == 100 - R - OFFSET, str(start))
+    check("1d2. the span COVERS the superseded window too, so the robustness "
+          "variant needs no second collection",
+          start <= session_span(100, reference_offset=0)[0]
+          and end >= session_span(100, reference_offset=0)[1],
+          f"{session_span(100)} vs {session_span(100, reference_offset=0)}")
     check("1e. not reference-1, which is where the returns start",
           start != 100 - R + 1,
           "the earliest reference RETURN needs a close before it")
@@ -166,7 +181,7 @@ def test_2_the_request_is_exactly_what_coverage_needs() -> None:
     check("2a. one peer is requested", len(rep.requirements) == 1,
           str([r.peer for r in rep.requirements]))
     req = rep.requirements[0]
-    check("2b. it asks for exactly 41 sessions", req.n_sessions == 41,
+    check("2b. it asks for exactly 42 sessions", req.n_sessions == 42,
           str(req.n_sessions))
     check("2c. nothing was skipped or truncated",
           not rep.skipped and not rep.truncated,
@@ -244,7 +259,19 @@ def test_4_spans_off_the_index_are_truncated_not_clipped() -> None:
     check("4c. an event too near the end is truncated too",
           not late.requirements and len(late.truncated) == 1)
 
-    ok = requirements_for([_event("E", "MCK", R)], edge, sessions=SESSIONS)
+    # R was the earliest fully-covered anchor day under the superseded window;
+    # under v1.10 it is one session short, which is the change made visible.
+    short = requirements_for([_event("E", "MCK", R)], edge, sessions=SESSIONS)
+    check("4c2. the day that was JUST covered before is now truncated",
+          not short.requirements and len(short.truncated) == 1,
+          str(short.truncated))
+    check("4c3. and it still IS covered under the superseded window",
+          len(requirements_for([_event("E", "MCK", R)], edge,
+                               sessions=SESSIONS,
+                               reference_offset=0).requirements) == 1)
+
+    ok = requirements_for([_event("E", "MCK", R + OFFSET)], edge,
+                          sessions=SESSIONS)
     check("4d. control -- the earliest fully-covered event IS requested",
           len(ok.requirements) == 1 and not ok.truncated,
           str(ok.truncated))
@@ -279,8 +306,10 @@ def test_6_the_report_is_actionable() -> None:
 
     check("6a. it names the schema file", "TEMPLATE_headers.csv" in text)
     check("6b. it states the per-event count and why the +1 exists",
-          "41 sessions per (peer, event)" in text
-          and "prior close" in text, text[:160])
+          "42 sessions per (peer, event)" in text
+          and "prior close" in text, text[:200])
+    check("6b2. and names the day-0-exclusive window as the extra session",
+          "day-0-exclusive" in text and "v1.10" in text, text[:220])
     check("6c. it gives a total row count",
           f"TOTAL ROWS TO PRODUCE: {rep.total_rows}" in text)
     check("6d. it names the peer and its span", "CVS:" in text)
@@ -289,9 +318,12 @@ def test_6_the_report_is_actionable() -> None:
 
     d = rep.as_dict()
     check("6f. the dict form carries the explicit session list",
-          len(d["peers"][0]["sessions"]) == 41)
+          len(d["peers"][0]["sessions"]) == 42)
     check("6g. and records the constants it was computed from",
           d["reference_window"] == R and d["max_horizon"] == H)
+    check("6g2. INCLUDING the window offset -- a request whose window "
+          "specification is unknown cannot be checked against the target",
+          d["reference_offset"] == OFFSET, str(d.get("reference_offset")))
 
 
 def test_7_against_the_committed_map() -> None:
@@ -311,8 +343,9 @@ def test_7_against_the_committed_map() -> None:
     check("7b. it produces a request from the real edges",
           len(rep.requirements) == 1 and rep.requirements[0].peer == "CVS",
           str([r.peer for r in rep.requirements]))
-    check("7c. asking for exactly 41 CVS sessions",
-          rep.requirements[0].n_sessions == 41)
+    check("7c. asking for exactly 42 CVS sessions (41 + the v1.10 offset)",
+          rep.requirements[0].n_sessions == 42,
+          str(rep.requirements[0].n_sessions))
     check("7d. PKG's edge contributes nothing to an MCK event",
           all(r.peer != "ODP" for r in rep.requirements),
           "an edge belongs to its own anchor")

@@ -170,16 +170,39 @@ def test_4_windows_do_not_overlap_and_respect_bounds() -> None:
     val = raw_log_ratio_target(r, anchor_day=100, horizon=5)
     check("4a. a well-formed window returns a finite target", np.isfinite(val))
 
-    # post window is [t+1, t+h] and reference ends AT t -> disjoint
+    # CHANGED BY REGISTRY v1.10, and the flip is the point. The post window is
+    # [t+1, t+h]; the reference window now ends at t-1, so session t -- the
+    # session the anchor's earnings news is attributed to -- is in NEITHER. It
+    # used to end AT t, which put the peer's own response session inside the
+    # baseline that response is measured against.
     post_expected = log_rvar(r[101:106])
-    ref_expected = log_rvar(r[81:101])
-    check("4b. target equals log(RVar_post) - log(RVar_ref), windows disjoint",
+    ref_expected = log_rvar(r[80:100])
+    check("4b. target equals log(RVar_post) - log(RVar_ref), day 0 in NEITHER",
           abs(val - (post_expected - ref_expected)) < 1e-12)
+    check("4b2. the reference window ends the session BEFORE the anchor day",
+          abs(val - (post_expected - log_rvar(r[81:101]))) > 1e-9,
+          "it still ends AT the anchor day -- the v1.10 change is not in force")
+    check("4b3. and it is still exactly 20 sessions long, not 19",
+          r[80:100].size == 20, str(r[80:100].size))
+
+    # The ROBUSTNESS variant reproduces the pre-v1.10 arithmetic exactly, which
+    # is what keeps the superseded specification reportable rather than lost.
+    old_val = raw_log_ratio_target(r, anchor_day=100, horizon=5,
+                                   reference_offset=0)
+    check("4b4. reference_offset=0 reproduces the superseded window",
+          abs(old_val - (post_expected - log_rvar(r[81:101]))) < 1e-12)
 
     check("4c. refuses when the post window runs off the end",
           not np.isfinite(raw_log_ratio_target(r, anchor_day=198, horizon=10)))
     check("4d. refuses when the reference window is short",
           not np.isfinite(raw_log_ratio_target(r, anchor_day=3, horizon=5)))
+    # The new window needs exactly ONE more session of history at the left edge.
+    check("4e. day 19 is short under the new window but was usable under the old",
+          not np.isfinite(raw_log_ratio_target(r, anchor_day=19, horizon=1))
+          and np.isfinite(raw_log_ratio_target(r, anchor_day=19, horizon=1,
+                                               reference_offset=0)))
+    check("4f. day 20 is the earliest usable anchor day now",
+          np.isfinite(raw_log_ratio_target(r, anchor_day=20, horizon=1)))
 
 
 # ---------------------------------------------------------------- 5. residualization leakage
