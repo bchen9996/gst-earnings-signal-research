@@ -62,6 +62,7 @@ from hyp04_supply_chain_hedge.peer_ceiling import (  # noqa: E402
     UNRESOLVED_SELF_LINK,
     WORKLIST_FIELDS,
     Resolution,
+    union_incremental,
     CandidateRow,
     CeilingReport,
     CuratedSchemaLeak,
@@ -79,8 +80,13 @@ from hyp04_supply_chain_hedge.peer_ceiling import (  # noqa: E402
 )
 
 LSE = Path("Live Signal Engine")
-CEILING = LSE / "HYP04_PEER_CEILING_2026-08-31.json"
-WORKLIST = LSE / "HYP04_PEER_CURATION_WORKLIST_2026-08-31.csv"
+CEILING = LSE / "HYP04_PEER_CEILING_2026-08-31_v2.json"
+WORKLIST = LSE / "HYP04_PEER_CURATION_WORKLIST_2026-08-31_v2.csv"
+# v1 is SUPERSEDED, not retargeted -- the same treatment the v1.7/v1.8/v1.9
+# registry suites got. It is still checked, but only for the one property a
+# superseded artifact must keep: being byte-identical to what it claimed.
+CEILING_V1 = LSE / "HYP04_PEER_CEILING_2026-08-31.json"
+WORKLIST_V1 = LSE / "HYP04_PEER_CURATION_WORKLIST_2026-08-31.csv"
 CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.0.csv"
 
 TMAP = {
@@ -113,6 +119,20 @@ def test_1_normalisation_strips_form_and_nothing_else() -> None:
           n("Quanta Computer Incorporated") == "QUANTA COMPUTER")
     check("1g. an all-suffix name does not become empty-matching junk",
           n("The Company") == "", repr(n("The Company")))
+
+    # THE REGRESSION. Stripping "Holding" resolved ADBE's 2006 disclosure of
+    # "Ingram Micro" onto INGM / Ingram Micro Holding Corp, CIK 1897762 --
+    # first SEC filing 2022-04-13, sixteen years later. HOLDING/HOLDINGS/GROUP
+    # are not legal forms and must never rejoin NAME_SUFFIXES.
+    check("1h. 'Holding' is NOT a legal form and is not stripped",
+          n("Ingram Micro") != n("Ingram Micro Holding Corp"),
+          f"{n('Ingram Micro')} vs {n('Ingram Micro Holding Corp')}")
+    check("1i. nor is 'Group'", n("UBS") != n("UBS Group AG"))
+    check("1j. nor 'Holdings'", n("Graham") != n("Graham Holdings Co"))
+    from hyp04_supply_chain_hedge.peer_ceiling import NAME_SUFFIXES
+    check("1k. and none of the three is in the suffix set",
+          not ({"HOLDING", "HOLDINGS", "GROUP"} & set(NAME_SUFFIXES)),
+          str(sorted(NAME_SUFFIXES)))
 
 
 def test_2_the_ceiling_is_measured_from_the_real_join() -> None:
@@ -192,6 +212,27 @@ def test_3_worklist_counts_are_anchor_side_and_strict() -> None:
     check("3g. overlapping candidates union rather than sum",
           len(union_events(two)) == 1
           and sum(x.max_anchor_events for x in two) == 2)
+
+    # INCREMENTAL: a candidate the curated map already covers buys nothing,
+    # however large its gross count. Two real rows were exactly this.
+    rows2 = build_worklist(q, calendar_rows=cal, shock_rows=shk,
+                           name_index=build_name_index(TMAP), anchors=["JBL"],
+                           already_reachable={"A-1"})
+    r2 = rows2[0]
+    check("3h. gross is unchanged by what is already reachable",
+          r2.max_anchor_events == 1, str(r2.max_anchor_events))
+    check("3i. but incremental is zero", r2.incremental_anchor_events == 0,
+          str(r2.incremental_anchor_events))
+    check("3j. and the row is flagged DOMINATED", r2.dominated)
+    check("3k. a row with no events at all is not 'dominated'",
+          not CandidateRow(anchor_ticker="X", counterparty="y",
+                           normalized_name="Y",
+                           resolution=resolve_counterparty("y", {},
+                                                           anchor_ticker="X"),
+                           as_of_date="2020-01-01", accession="A",
+                           filings_naming_it=1).dominated)
+    check("3l. union_incremental subtracts what the map reaches",
+          len(union_incremental(rows2)) == 0)
 
 
 def test_4_the_worklist_can_never_pass_as_a_curated_map() -> None:
@@ -333,16 +374,43 @@ def test_8_the_published_artifacts_agree_with_a_fresh_derivation() -> None:
           all(not r["candidate_peer_ticker"] for r in rows
               if r["resolution"] != RESOLVED and
               r["resolution"].startswith("UNRESOLVED")))
-    check("8f. rows are ranked by opportunity, descending",
-          [int(r["max_anchor_events"]) for r in rows]
-          == sorted((int(r["max_anchor_events"]) for r in rows), reverse=True))
+    check("8f. rows are ranked by INCREMENTAL opportunity, descending",
+          [int(r["incremental_anchor_events"]) for r in rows]
+          == sorted((int(r["incremental_anchor_events"]) for r in rows),
+                    reverse=True))
+    check("8f2. incremental never exceeds gross",
+          all(int(r["incremental_anchor_events"]) <= int(r["max_anchor_events"])
+              for r in rows))
+    dom = [r for r in rows if r["dominated_by_curated_map"] == "yes"]
+    check("8f3. dominated rows are exactly those adding nothing",
+          all(int(r["incremental_anchor_events"]) == 0 for r in dom)
+          and len(dom) == doc["worklist"]["dominated_by_curated_map"],
+          f"{len(dom)} flagged")
+    check("8f4. and some row IS dominated, so the flag is not vacuous",
+          len(dom) > 0, str(len(dom)))
+    check("8f5. INGM is gone from the worklist entirely",
+          all(r["candidate_peer_ticker"] != "INGM" for r in rows))
     check("8g. every row cites the accession that disclosed it",
           all(r["earliest_accession"] for r in rows))
 
-    # The claim the finding rests on: the union is not the sum.
-    check("8h. the resolved union clears the floor",
-          doc["worklist"]["union_ticker_resolved_only"] >= 193,
-          str(doc["worklist"]["union_ticker_resolved_only"]))
+    # The claim the finding rests on, now stated as the REACHABLE TOTAL
+    # rather than v1's gross union, which counted events the curated map
+    # already reaches.
+    w = doc["worklist"]
+    check("8h. the reachable total clears the floor",
+          w["total_reachable_if_resolved_curated"] >= 193,
+          str(w["total_reachable_if_resolved_curated"]))
+    check("8h2. and it equals incremental plus the curated ceiling",
+          w["total_reachable_if_resolved_curated"]
+          == w["incremental_ticker_resolved_only"]
+          + doc["ceiling"]["ceiling_peer_prices_assumed"]
+              ["anchor_events_with_a_peer"],
+          str(w["total_reachable_if_resolved_curated"]))
+    check("8h3. incremental is strictly below the gross union it corrects",
+          w["incremental_ticker_resolved_only"]
+          < w["union_ticker_resolved_only"],
+          f"{w['incremental_ticker_resolved_only']} < "
+          f"{w['union_ticker_resolved_only']}")
     check("8i. and the CURATED ceiling does not",
           doc["ceiling"]["ceiling_reaches_floor"] is False)
     check("8j. the artifact makes no network claim",
@@ -351,6 +419,22 @@ def test_8_the_published_artifacts_agree_with_a_fresh_derivation() -> None:
     check("8k. ODP is recorded as never evaluated",
           doc["ceiling"]["peers_never_evaluated"] == ["ODP"],
           str(doc["ceiling"]["peers_never_evaluated"]))
+
+    # SUPERSESSION INTEGRITY. v1 must still be on disk and must still hash to
+    # what v2 says it hashed to. A superseded artifact that quietly changed
+    # would make the correction unauditable.
+    import hashlib
+    for name, path in (("ceiling", CEILING_V1), ("worklist", WORKLIST_V1)):
+        claimed = (doc.get("supersedes_sha256") or {}).get(path.name)
+        if not path.is_file():
+            check(f"8l. superseded {name} v1 is still on disk", False,
+                  str(path))
+            continue
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        check(f"8l. superseded {name} v1 is byte-identical to v2's claim",
+              claimed == actual, f"{claimed} vs {actual}")
+    check("8m. v2 records what it changed",
+          len(doc.get("what_changed_from_v1") or []) >= 2)
 
 
 def test_9_the_gate_is_untouched() -> None:

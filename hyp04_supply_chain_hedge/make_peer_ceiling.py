@@ -42,14 +42,28 @@ from .peer_ceiling import (
     rule_description,
     shocks_from_rows,
     union_events,
+    union_incremental,
     write_worklist_csv,
 )
 
 LSE = Path("Live Signal Engine")
 AS_OF = "2026-08-31"
 
-OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}.json"
-OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv"
+#: _v2 (2026-08-31). The v1 pair stays byte-identical on disk -- superseded,
+#: not rewritten -- and SUPERSEDES/SUPERSEDES_SHA256 below record what changed.
+#: Two defects in v1, both found by reading its own output:
+#:   1. The normaliser stripped "Holding", resolving ADBE's 2006 "Ingram Micro"
+#:      onto INGM (Ingram Micro Holding Corp, CIK 1897762), a different
+#:      registrant. Fixed in peer_ceiling.NAME_SUFFIXES; that row is now
+#:      correctly UNRESOLVED.
+#:   2. Candidate counts were GROSS. Two resolved rows were MCK -> CVS at as_of
+#:      dates later than the curated edge, so their events are a strict subset
+#:      of what the map already reaches and they add nothing. v1's union of 231
+#:      was neither the incremental figure nor the reachable total.
+OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json"
+OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv"
+SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}.json",
+              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv")
 
 CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.0.csv"
 MINIMUM_ELIGIBLE_EVENTS = 193
@@ -141,12 +155,17 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
     rows = build_worklist(queue.get("tickers") or [],
                           calendar_rows=cal_rows, shock_rows=shk_rows,
                           name_index=build_name_index(ticker_map),
-                          anchors=anchors)
+                          anchors=anchors,
+                          already_reachable=report.ceiling_event_ids)
 
     day = today or date.today()
     resolved = [r for r in rows if r.resolution.resolved]
     all_union = union_events(rows)
     res_union = union_events(resolved)
+    all_inc = union_incremental(rows)
+    res_inc = union_incremental(resolved)
+    curated_reach = set(report.ceiling_event_ids)
+    dominated = [r for r in rows if r.dominated]
 
     payload: dict[str, Any] = {
         "artifact": out_json.name,
@@ -192,9 +211,22 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
             "candidates_on_anchor_tickers": len(rows),
             "ticker_resolved": len(resolved),
             "unresolved": len(rows) - len(resolved),
+            "dominated_by_curated_map": len(dominated),
             "union_all_candidates": len(all_union),
             "union_ticker_resolved_only": len(res_union),
+            # The numbers a curator acts on. GROSS unions double-count what the
+            # curated map already reaches; v1 published only those.
+            "incremental_all_candidates": len(all_inc),
+            "incremental_ticker_resolved_only": len(res_inc),
+            "total_reachable_if_resolved_curated": len(res_inc | curated_reach),
+            "total_reachable_if_all_curated": len(all_inc | curated_reach),
             "registered_floor": MINIMUM_ELIGIBLE_EVENTS,
+            "why_incremental_matters": (
+                "A candidate duplicating an existing edge at a LATER as_of "
+                "date has a large gross count and buys nothing. Two resolved "
+                "rows are exactly that, both MCK -> CVS behind the curated "
+                "2013-05-07 edge, and they are flagged "
+                "dominated_by_curated_map."),
             "union_is_not_a_sum": (
                 "Candidates on one anchor cover overlapping stretches of the "
                 "same event list, so summing max_anchor_events would "
@@ -205,6 +237,23 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
                 "no as_of is ratified, every resolution needs lineage review, "
                 "and no peer price source exists."),
         },
+        "supersedes": [q.name for q in SUPERSEDES],
+        "supersedes_sha256": {q.name: (_sha256(q) if q.is_file() else None)
+                              for q in SUPERSEDES},
+        "what_changed_from_v1": [
+            "The name normaliser no longer strips HOLDING/HOLDINGS/GROUP. "
+            "They are not legal forms: they separate a holding company from "
+            "its operating company and a successor vehicle from its "
+            "predecessor. v1 resolved ADBE's 2006 disclosure of 'Ingram "
+            "Micro' onto INGM (Ingram Micro Holding Corp, CIK 1897762), the "
+            "2024 re-IPO vehicle. That row is now UNRESOLVED, which is "
+            "correct, and the resolved count falls by one.",
+            "Candidate counts are now reported INCREMENTAL to the curated "
+            "map as well as gross, and rows the map already covers are "
+            "flagged dominated_by_curated_map. v1's headline union of 231 "
+            "counted events the curated edge already reaches.",
+            "Rows are ranked by incremental opportunity rather than gross.",
+        ],
         "top_candidates": [
             r.as_row(today=day, floor=MINIMUM_ELIGIBLE_EVENTS)
             for r in rows[:12]
