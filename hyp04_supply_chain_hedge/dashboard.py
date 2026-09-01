@@ -274,8 +274,37 @@ def read_peer_ceiling() -> dict[str, Any]:
         "never_evaluated": c.get("peers_never_evaluated") or [],
         "candidates": w.get("candidates_on_anchor_tickers"),
         "resolved": w.get("ticker_resolved"),
-        "union_all": w.get("union_all_candidates"),
-        "union_resolved": w.get("union_ticker_resolved_only"),
+        "dominated": w.get("dominated_by_curated_map"),
+        # INCREMENTAL, not the gross unions. The v1 artifact published only
+        # gross, which counted events the curated map already reaches.
+        "incremental_resolved": w.get("incremental_ticker_resolved_only"),
+        "reachable_resolved": w.get("total_reachable_if_resolved_curated"),
+        "reachable_all": w.get("total_reachable_if_all_curated"),
+        "lineage": _read_lineage(),
+    }
+
+
+def _read_lineage() -> dict[str, Any]:
+    """Verdict COUNTS from the peer-lineage audit, plus whether it controlled.
+
+    Counts only, and the control's status. Which registrant carries which
+    verdict is review-queue detail; that a check was demonstrated capable of
+    firing is a property of the evidence and belongs on the page.
+    """
+    import json as _json
+
+    js = list(LSE.glob("HYP04_PEER_LINEAGE_AUDIT_*.json"))
+    if not js:
+        return {}
+    try:
+        d = _json.loads(_newest(js).read_text(encoding="utf-8"))
+    except ValueError:
+        return {}
+    return {
+        "source": _newest(js).name,
+        "counts": d.get("counts_by_verdict") or {},
+        "breaks": d.get("lineage_breaks"),
+        "control_fired": bool((d.get("control") or {}).get("is_lineage_break")),
     }
 
 
@@ -930,18 +959,41 @@ def render(tests: dict, audit: dict, registry: dict,
         by = ", ".join(f"{_e(k)} {v}" for k, v in sorted(
             pc["by_anchor"].items())) or "none"
         union_txt = ""
-        if isinstance(pc.get("union_resolved"), int):
+        if isinstance(pc.get("reachable_resolved"), int):
+            dom_txt = ("" if not pc.get("dominated") else
+                       f" {pc['dominated']} candidates are flagged DOMINATED "
+                       "&mdash; they duplicate an existing edge at a later "
+                       "as-of date and add nothing.")
             union_txt = (
                 f"<p class=\"small\">The EDGAR review queue holds "
                 f"{pc.get('candidates')} candidate counterparties on anchor "
                 f"tickers, {pc.get('resolved')} of which resolve to a ticker "
-                "by exact match against SEC's own company list. Those alone "
-                f"span {pc['union_resolved']} distinct anchor events, and all "
-                f"{pc.get('candidates')} span {pc.get('union_all')}. So the "
-                "material to reach the floor exists &mdash; as an UNREVIEWED "
-                "QUEUE. No candidate is curated, no as-of date is ratified, "
-                "and every resolution needs lineage review, because a merger "
-                "is not a rename.</p>")
+                "by exact match against SEC's own company list. Curating "
+                f"those would add {pc.get('incremental_resolved')} events "
+                "beyond what the map already reaches, for a reachable total "
+                f"of {pc['reachable_resolved']}; curating all "
+                f"{pc.get('candidates')} would reach "
+                f"{pc.get('reachable_all')}.{dom_txt} So the material to "
+                "reach the floor exists &mdash; as an UNREVIEWED QUEUE. No "
+                "candidate is curated and no as-of date is ratified.</p>")
+
+        lin = pc.get("lineage") or {}
+        lineage_txt = ""
+        if lin.get("counts"):
+            verd = " &middot; ".join(f"{_e(k)} {v}"
+                                     for k, v in sorted(lin["counts"].items()))
+            ctrl = ("And its control FIRED on the case that motivated it, so "
+                    "the check is known to be capable of failing"
+                    if lin.get("control_fired") else
+                    "<strong>But its control did not fire, so these passes "
+                    "carry no weight</strong>")
+            lineage_txt = (
+                f"<p class=\"small\">Lineage audit "
+                f"(<span class=\"mono\">{_e(lin.get('source', ''))}</span>), "
+                "against each registrant's own SEC filing record: "
+                f"{verd}. {ctrl}. A CONTINUOUS verdict removes ONE way of "
+                "being wrong &mdash; it does not establish the "
+                "relationship.</p>")
         ceiling_block = f"""
           <div class="kpis">
             <div class="kpi"><div class="v">{pc['ceiling']}</div><div class="l">anchor events the curated map could reach</div></div>
@@ -953,6 +1005,7 @@ def render(tests: dict, audit: dict, registry: dict,
              hypothetical, not a measurement &mdash; so that P5 stops masking
              the other conditions. By anchor: {by}.{never_txt}</p>
           {union_txt}
+          {lineage_txt}
           <div class="caveat blocker"><strong>Curation binds before prices.</strong>
              A survivorship-bias-free price source bought tomorrow would not
              raise the ceiling by one event, because the ceiling already
