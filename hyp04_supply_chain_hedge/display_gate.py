@@ -103,7 +103,7 @@ LSE = REPO_ROOT / "Live Signal Engine"
 # signed analysis lock. v1.1 is NOT edited in place and is still governed by its
 # own suite -- test_market_response_hypothesis_registry_v1_1.py keeps pointing
 # at v1.1 on purpose, and must not be repointed here.
-REGISTRY_CURRENT = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.9.json"
+REGISTRY_CURRENT = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.10.json"
 GATES_DOC = LSE / "GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md"
 
 HYPOTHESIS_ID = "HYP-04"
