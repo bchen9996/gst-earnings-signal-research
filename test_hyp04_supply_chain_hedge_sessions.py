@@ -57,7 +57,8 @@ def test_1_the_wider_index_reaches_the_calendar_it_must() -> None:
         return
 
     # The anchor calendar's earliest release is 2003-08-07. The authoritative
-    # instance starts 2006-08-31, which is why this module exists at all.
+    # instance starts about 20 years before TODAY on a rolling window (see
+    # test_2d), which is why this module exists at all.
     s = xnys_sessions(date(2003, 1, 1), date(2003, 12, 31))
     check("1a. 2003 is reachable at all", len(s) > 0, str(len(s)))
     check("1b. and holds a full year of sessions", 248 <= len(s) <= 256,
@@ -87,10 +88,27 @@ def test_2_it_refuses_to_disagree_with_the_authoritative_calendar() -> None:
     check("2c. the wider one really does start earlier",
           r["wide_first_session"] < r["authoritative_first_session"],
           f'{r["wide_first_session"]} vs {r["authoritative_first_session"]}')
-    check("2d. the authoritative first session is the package default, not a "
-          "data limit -- which is the whole reason this module exists",
-          r["authoritative_first_session"] == "2006-08-31",
-          r["authoritative_first_session"])
+    # MEASURED 2026-09-01: the bound is not a fixed default, it ROLLS. The
+    # authoritative instance spans exactly 21 years ending a year ahead, so its
+    # first session is today minus 20 years and MOVES FORWARD ONE DAY PER DAY.
+    # It read 2006-08-31 yesterday and 2006-09-01 today, with no code change.
+    #
+    # This test asserted the literal date and broke overnight. The date was
+    # never the point; the property is. And the property is worse than a fixed
+    # default: anything resolving sessions through that instance silently loses
+    # its oldest day every day, so an event in range today can be out of range
+    # tomorrow. That is the strongest form of the reason this module exists.
+    today = date.today()
+    first = date.fromisoformat(r["authoritative_first_session"])
+    age = (today - first).days / 365.25
+    check("2d. the authoritative first session is a ROLLING default about 20 "
+          "years back -- not a data limit, and not even a fixed one",
+          19.0 <= age <= 21.5, f'{r["authoritative_first_session"]} '
+          f'({age:.2f}y before {today.isoformat()})')
+    check("2d2. and it is far later than HYP-04's fixed start, which is the "
+          "whole reason this module exists",
+          first > date.fromisoformat(r["wide_first_session"]),
+          f'{first} vs {r["wide_first_session"]}')
 
     # CONTROL -- a guard nobody has seen fail is not known to work. Force a
     # disagreement with a calendar that really is different, and require both
@@ -196,9 +214,17 @@ def test_5_the_authoritative_calendar_is_not_modified() -> None:
 
     if HAVE_CALENDAR:
         from gst_market_response.exchange_calendar import _calendar
-        check("5d. the authoritative instance still starts where it did",
-              _calendar.first_session.date() == date(2006, 8, 31),
-              str(_calendar.first_session.date()))
+        # NOT a literal date: see 2d. The bound rolls with the current
+        # date, so pinning it makes this suite fail on a calendar change
+        # nobody made. What must hold is that HYP-04 reaches earlier.
+        auth = _calendar.first_session.date()
+        check("5d. the authoritative instance is still bounded well after "
+              "HYP-04's index start",
+              auth > date.fromisoformat(DEFAULT_INDEX_START),
+              f"{auth} vs {DEFAULT_INDEX_START}")
+        check("5e. and it still cannot serve the anchor calendar's earliest "
+              "release (2003-08-07), which is why HYP-04 has its own",
+              auth > date(2003, 8, 7), str(auth))
 
 
 def test_6_offline() -> None:

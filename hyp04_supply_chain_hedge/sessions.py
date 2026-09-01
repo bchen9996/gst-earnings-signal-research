@@ -5,14 +5,26 @@ CHECKED against it.
 === WHY THIS EXISTS ===
 
 `gst_market_response.exchange_calendar` builds `xcals.get_calendar("XNYS")` with
-no `start`, so `exchange_calendars` applies its default window and the instance's
-first session is 2006-08-31. That is a DEFAULT, not a data limitation: the
-package ships XNYS sessions back to 1885.
+no `start`, so `exchange_calendars` applies its default window. That is a
+DEFAULT, not a data limitation: the package ships XNYS sessions back to 1885.
+
+AND THE DEFAULT ROLLS. Measured 2026-09-01: the instance spans exactly 21 years
+ending a year ahead, so its first session is TODAY MINUS 20 YEARS and moves
+forward one day per day. It was 2006-08-31 on 2026-08-31 and 2006-09-01 on
+2026-09-01, with no code change and no package upgrade -- a suite pinned to the
+literal date broke overnight.
+
+That makes the failure worse than a fixed bound, not better: anything resolving
+sessions through that instance silently loses its oldest day every day, so an
+event that is in range today can be out of range tomorrow. A fixed `start` is
+the only way to get an index that means the same thing on two different days,
+which is what a point-in-time study requires.
 
 HYP-04's anchor-event calendar reaches back to 2003-08-07, and **57 of its 342
-events (17%) fall before 2006-08-31** -- NVDA 15, JBL 13, MCK 13, NKE 6, INTC 6,
-CTSH 4. Resolving sessions with the default instance raises DateOutOfBounds on
-every one of them.
+events (17%) fell before that bound when it was measured** -- NVDA 15, JBL 13,
+MCK 13, NKE 6, INTC 6, CTSH 4. Resolving sessions with the default instance
+raises DateOutOfBounds on every one of them, and because the bound rolls, that
+count only grows.
 
 Silently dropping them would be DATA AVAILABILITY DECIDING MEMBERSHIP, which
 this project has refused twice already -- once for a filer's print format and
