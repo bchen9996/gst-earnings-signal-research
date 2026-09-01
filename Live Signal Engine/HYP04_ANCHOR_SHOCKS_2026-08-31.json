@@ -1,0 +1,243 @@
+{
+  "artifact": "HYP04_ANCHOR_SHOCKS_2026-08-31.json",
+  "as_of_date": "2026-08-31",
+  "hypothesis_id": "HYP-04",
+  "what_this_is": "HYP-04's FIRST production measurement: the anchor-side earnings shock, or a stated reason there is none, for every event in the anchor-event calendar.",
+  "what_this_is_not": "It is not an open gate and it does not move C2. display_gate.current_decision() passes a literal eligible_event_count=0 and the gate cross-checks that count against the freeze record's event ids, so C2 and C3 move together or not at all. Both are separately authorized. The gate stays CLOSED with C4 MET and four denials.",
+  "rules": {
+    "shock_rule_id": "HYP04-ANCHOR-SHOCK-RULE-v1",
+    "closes_rule_id": "HYP04-ANCHOR-CLOSES-REQUEST-v1",
+    "shock_definition": "abs(anchor_return - beta * benchmark_return)",
+    "benchmark_ticker": "SPY",
+    "benchmark_beta": 1.0,
+    "beta_is_estimated": false,
+    "return_basis": "log"
+  },
+  "sources": {
+    "calendar": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2.csv",
+    "calendar_sha256": "62f9c5cede3945c4b475aaf385595b0dd1448912ba53e71bfa0de2275e2004c8",
+    "calendar_events": 342,
+    "request_dir": "Live Signal Engine\\HYP04_ANCHOR_CLOSES_REQUEST",
+    "closes_by_ticker": {
+      "ADBE": 58,
+      "CTSH": 6,
+      "INTC": 158,
+      "JBL": 178,
+      "MCK": 150,
+      "NKE": 8,
+      "NVDA": 90,
+      "SPY": 619
+    },
+    "request_files": {
+      "ADBE": {
+        "filled": 58,
+        "blank": 0
+      },
+      "CTSH": {
+        "filled": 6,
+        "blank": 0
+      },
+      "INTC": {
+        "filled": 158,
+        "blank": 0
+      },
+      "JBL": {
+        "filled": 178,
+        "blank": 0
+      },
+      "MCK": {
+        "filled": 150,
+        "blank": 0
+      },
+      "NKE": {
+        "filled": 8,
+        "blank": 0
+      },
+      "NVDA": {
+        "filled": 90,
+        "blank": 0
+      },
+      "SPY": {
+        "filled": 619,
+        "blank": 0
+      }
+    }
+  },
+  "session_index": {
+    "calendar_id": "XNYS_exchange_calendars_v4.13.2",
+    "index_start": "1995-01-01",
+    "wide_first_session": "1995-01-03",
+    "authoritative_first_session": "2006-08-31",
+    "overlap_first": "2006-08-31",
+    "overlap_last": "2027-08-31",
+    "overlap_sessions": 5281,
+    "disagreements": 0,
+    "only_in_wide": [],
+    "only_in_authoritative": [],
+    "agrees": true,
+    "why_wider": "The authoritative instance is built with no `start`, so its first session is a package default rather than a data limit. HYP-04's anchor calendar reaches earlier, and dropping those events would let data availability decide membership.",
+    "requested_first": "2003-07-18",
+    "requested_last": "2026-08-25",
+    "sessions_returned": 5813,
+    "earliest_release_date": "2003-08-07",
+    "latest_release_date": "2026-08-05",
+    "pad_days": 20
+  },
+  "counts": {
+    "events_total": 342,
+    "shock_computed": 324,
+    "denied_session": 18,
+    "denied_closes": 0,
+    "denied_other": 0
+  },
+  "every_event_has_a_row": "All calendar events appear, computed or denied. A denied event is data: it keeps the denominator visible so a sample that shrank cannot look like one that was always clean.",
+  "registered_threshold": {
+    "minimum_eligible_events": 193,
+    "shocks_vs_threshold": 131,
+    "note": "A computed shock satisfies the ANCHOR-side requirement. It is not the same as C2 being met: C2 reads a count this artifact does not supply, and C3 must agree with it."
+  },
+  "survivorship": {
+    "tickers_required": [
+      "ADBE",
+      "CTSH",
+      "INTC",
+      "JBL",
+      "MCK",
+      "NKE",
+      "NVDA",
+      "SPY"
+    ],
+    "tickers_not_currently_listed": [],
+    "anchor_side_survivorship_clean": true,
+    "why_this_is_not_the_peer_side_policy": "peer_price_data_policy requires a survivorship-bias-free PEER source and is unchanged. This reports the ANCHOR side only.",
+    "not_a_property_of_the_rule": "The anchor universe is derived point-in-time and its intervals include exits, so a future re-walk can admit a delisted anchor. A clean result here is an observation about today's universe."
+  },
+  "denial_examples": [
+    {
+      "event_id": "NKE-2003-12-22",
+      "anchor_ticker": "NKE",
+      "release_date": "2003-12-22",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "NKE-2004-03-19",
+      "anchor_ticker": "NKE",
+      "release_date": "2004-03-19",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "CTSH-2004-04-19",
+      "anchor_ticker": "CTSH",
+      "release_date": "2004-04-19",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "NVDA-2004-10-25",
+      "anchor_ticker": "NVDA",
+      "release_date": "2004-10-25",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "NVDA-2005-01-31",
+      "anchor_ticker": "NVDA",
+      "release_date": "2005-01-31",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "JBL-2006-06-12",
+      "anchor_ticker": "JBL",
+      "release_date": "2006-06-12",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "NVDA-2006-09-11",
+      "anchor_ticker": "NVDA",
+      "release_date": "2006-09-11",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "INTC-2007-10-22",
+      "anchor_ticker": "INTC",
+      "release_date": "2007-10-22",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "INTC-2009-01-06",
+      "anchor_ticker": "INTC",
+      "release_date": "2009-01-06",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "NVDA-2010-11-11",
+      "anchor_ticker": "NVDA",
+      "release_date": "2010-11-11",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "INTC-2011-01-31",
+      "anchor_ticker": "INTC",
+      "release_date": "2011-01-31",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "ADBE-2011-12-12",
+      "anchor_ticker": "ADBE",
+      "release_date": "2011-12-12",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "JBL-2016-09-15",
+      "anchor_ticker": "JBL",
+      "release_date": "2016-09-15",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "NVDA-2017-11-06",
+      "anchor_ticker": "NVDA",
+      "release_date": "2017-11-06",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "INTC-2021-01-12",
+      "anchor_ticker": "INTC",
+      "release_date": "2021-01-12",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "INTC-2021-10-18",
+      "anchor_ticker": "INTC",
+      "release_date": "2021-10-18",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "MCK-2023-10-27",
+      "anchor_ticker": "MCK",
+      "release_date": "2023-10-27",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    },
+    {
+      "event_id": "INTC-2024-10-28",
+      "anchor_ticker": "INTC",
+      "release_date": "2024-10-28",
+      "status": "denied_session",
+      "denial_reasons": "release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+    }
+  ]
+}
