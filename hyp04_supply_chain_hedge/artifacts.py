@@ -36,20 +36,40 @@ import re
 from pathlib import Path
 from typing import Any, Iterable, Optional, Sequence
 
-#: `_v12` immediately before the extension. Deliberately anchored: a `_v2` in
-#: the middle of a name is part of the name, not a revision counter.
-_VERSION_SUFFIX = re.compile(r"^(?P<base>.*)_v(?P<n>\d+)(?P<ext>\.[^.]*)$")
+#: `_v12` or `_v1.10` immediately before the extension. Deliberately anchored:
+#: a `_v2` in the MIDDLE of a name is part of the name, not a revision counter.
+#:
+#: The dotted form was added 2026-09-01. The curated linkage map is named
+#: `HYP04_Linkage_Map_v1.0.csv`, which the integer-only pattern did not match at
+#: all -- so every map fell back to lexical order and `newest` picked `_v1.2`
+#: over `_v1.10`. That is the same double-digit failure this module was written
+#: to fix, surviving in the one artifact family whose version happens to have a
+#: dot in it.
+_VERSION_SUFFIX = re.compile(
+    r"^(?P<base>.*)_v(?P<maj>\d+)(?:\.(?P<min>\d+))?(?P<ext>\.[^.]*)$")
 
 
-def split_version(name: str) -> tuple[str, int]:
-    """'X_2026-08-31_v10.json' -> ('X_2026-08-31.json', 10). Bare name -> 0."""
+def split_version(name: str) -> tuple[str, tuple[int, int]]:
+    """'X_v10.json' -> ('X.json', (10, 0)); 'M_v1.10.csv' -> ('M.csv', (1, 10)).
+
+    A name with no revision suffix is version (0, 0), which sorts before its
+    own `_v1` -- that is what supersession means.
+
+    The version is a TUPLE, not an int, so `_v1.10` compares above `_v1.2`
+    numerically rather than as text. A deeper form (`_v1.2.3`) does not match
+    and is treated as part of the name, which is the conservative direction:
+    an unrecognised scheme keeps its whole filename and orders lexically rather
+    than being silently reinterpreted.
+    """
     m = _VERSION_SUFFIX.match(name)
     if not m:
-        return name, 0
-    return m.group("base") + m.group("ext"), int(m.group("n"))
+        return name, (0, 0)
+    minor = m.group("min")
+    return (m.group("base") + m.group("ext"),
+            (int(m.group("maj")), int(minor) if minor is not None else 0))
 
 
-def artifact_sort_key(name: str) -> tuple[str, int]:
+def artifact_sort_key(name: str) -> tuple[str, tuple[int, int]]:
     """Order artifacts by base name, then by revision NUMBER."""
     return split_version(name)
 
