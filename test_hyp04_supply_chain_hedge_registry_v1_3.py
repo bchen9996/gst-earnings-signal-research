@@ -402,6 +402,73 @@ def test_10_offline() -> None:
         check("10a. network blocked", type(e).__name__ == "NetworkBlocked")
 
 
+
+
+def test_11_the_linkage_map_is_PINNED_not_globbed() -> None:
+    """A frozen registry's evidence must not move when a new map lands.
+
+    v1.3's availability_basis quotes a specific map, its edge count and its
+    sha256, as of 2026-08-22. `observed_linkage_state` used to glob and take
+    `sorted(...)[0]`, which returned that map only BY LUCK -- a map named
+    without a `v` prefix sorts before `_v1.0` and would have silently become
+    this registry's evidence.
+
+    Curating the five draft rows creates exactly such a new map, so this is
+    about to matter.
+    """
+    print("\n--- 11: the map is pinned by name and hash ---")
+    from hyp04_supply_chain_hedge.make_registry_v1_3 import (
+        PINNED_MAP_NAME, PINNED_MAP_SHA256, PinnedMapChanged,
+        observed_linkage_state)
+
+    st = observed_linkage_state()
+    check("11a. it reads the pinned map", st["source"] == PINNED_MAP_NAME,
+          str(st["source"]))
+    check("11b. and its hash matches the pin",
+          st["source_sha256"] == PINNED_MAP_SHA256, str(st["source_sha256"]))
+
+    # The pin must agree with what the FROZEN artifact says it read.
+    basis = _entry(json.loads(V1_3.read_text(encoding="utf-8-sig")))[
+        "required_external_measurement"]["availability_basis"]
+    check("11c. the frozen artifact names the same map",
+          PINNED_MAP_NAME in basis, basis[:90])
+    check("11d. and quotes the same hash prefix",
+          PINNED_MAP_SHA256[:16] in basis, basis[:120])
+    check("11e. and the same edge count",
+          f"{st['edges']} curated edge(s)" in basis, basis[:60])
+
+    # A NEW map on disk must not move the evidence. This is the whole point.
+    newer = gen.LSE / "HYP04_Linkage_Map_v9.9.csv"
+    assert not newer.exists(), "test fixture would clobber a real file"
+    try:
+        newer.write_bytes((gen.LSE / PINNED_MAP_NAME).read_bytes())
+        after = observed_linkage_state()
+        check("11f. a newer map on disk does NOT change v1.3's source",
+              after["source"] == PINNED_MAP_NAME, str(after["source"]))
+        check("11g. nor its edge count", after["edges"] == st["edges"],
+              str(after["edges"]))
+    finally:
+        if newer.exists():
+            newer.unlink()
+
+    # CONTROL: the guard must actually fire when the pinned map changes.
+    import tempfile, pathlib
+    real = gen.LSE / PINNED_MAP_NAME
+    backup = real.read_bytes()
+    fired = False
+    try:
+        real.write_bytes(backup + b"\n")
+        try:
+            observed_linkage_state()
+        except PinnedMapChanged:
+            fired = True
+    finally:
+        real.write_bytes(backup)
+    check("11h. CONTROL: it REFUSES if the pinned map's bytes change", fired)
+    check("11i. and the map is restored byte-identical",
+          gen._sha256(real) == PINNED_MAP_SHA256, gen._sha256(real))
+
+
 if __name__ == "__main__":
     test_1_version_and_supersession()
     test_2_the_three_corrections()
@@ -413,6 +480,7 @@ if __name__ == "__main__":
     test_8_v1_2_is_never_modified()
     test_9_the_written_artifact()
     test_10_offline()
+    test_11_the_linkage_map_is_PINNED_not_globbed()
 
     print()
     if SKIPS:
