@@ -119,25 +119,61 @@ def _load(p: Path) -> dict:
     return json.loads(p.read_text(encoding="utf-8-sig"))
 
 
+#: The map v1.3 was AUTHORED AGAINST, pinned by name and hash.
+#:
+#: This used to glob and take `sorted(...)[0]`. That returned v1.0 only by
+#: luck: a map named without a `v` prefix (`HYP04_Linkage_Map_final.csv` sorts
+#: before `_v1.0`) would silently have become this frozen registry's evidence.
+#:
+#: And "newest" -- the right answer for the live dashboard -- is the WRONG
+#: answer here, in the opposite direction. v1.3's own availability_basis reads
+#: "As of 2026-08-22: 2 curated edge(s) in HYP04_Linkage_Map_v1.0.csv (sha256
+#: e7b0881186751f32...)". That is a dated, point-in-time record. A generator
+#: that re-derived it from whatever map is on disk today would make a frozen
+#: registry's evidence drift the moment the next map lands -- which the
+#: curation step now in front of us is about to do.
+#:
+#: So the pin is explicit and CHECKED. If the file is missing or its bytes
+#: changed, this refuses rather than quietly reporting a different map's edges
+#: under v1.3's name.
+PINNED_MAP_NAME = "HYP04_Linkage_Map_v1.0.csv"
+PINNED_MAP_SHA256 = (
+    "e7b0881186751f32c5f56633a3a8809824ccdfee4485e8e4a3ce368795b371d4")
+
+
+class PinnedMapChanged(RuntimeError):
+    """The map v1.3 was authored against is gone or no longer byte-identical."""
+
+
 def observed_linkage_state() -> dict[str, Any]:
-    """Read the committed map through the VALIDATING loader. No assertions.
+    """Read the PINNED map through the VALIDATING loader. No assertions.
 
     Returns what was actually found. `usable` is the only thing that may
     justify `exists_partial`, and it is computed here rather than supplied.
+
+    Pinned, not globbed: see PINNED_MAP_NAME. A frozen registry has to keep
+    deriving the same evidence, and later maps are later registries' business.
     """
     from .curated_linkage import load_curated_linkage
 
-    maps = sorted(p for p in LSE.glob("HYP04_Linkage_Map*.csv")
-                  if "TEMPLATE" not in p.name.upper())
-    if not maps:
-        return {"map_present": False, "source": None, "edges": 0,
-                "rows_seen": 0, "rows_rejected": 0, "loads_clean": False,
-                "usable": False}
-    res = load_curated_linkage(maps[0])
+    pinned = LSE / PINNED_MAP_NAME
+    if not pinned.is_file():
+        raise PinnedMapChanged(
+            f"{PINNED_MAP_NAME} is not on disk. v1.3 records its edge count "
+            "and sha256 as a point-in-time fact; regenerating against a "
+            "different map would silently restate that fact.")
+    got = _sha256(pinned)
+    if got != PINNED_MAP_SHA256:
+        raise PinnedMapChanged(
+            f"{PINNED_MAP_NAME} has changed: expected {PINNED_MAP_SHA256}, "
+            f"found {got}. v1.3's availability_basis quotes the old hash. "
+            "Curate into a NEW map version rather than editing this one.")
+
+    res = load_curated_linkage(pinned)
     return {
         "map_present": True,
-        "source": maps[0].name,
-        "source_sha256": _sha256(maps[0]),
+        "source": pinned.name,
+        "source_sha256": got,
         "edges": len(res.edges),
         "rows_seen": res.rows_seen,
         "rows_rejected": res.rows_rejected,
