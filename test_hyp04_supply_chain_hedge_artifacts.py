@@ -103,23 +103,45 @@ def test_2_a_later_date_beats_any_revision() -> None:
 def test_3_only_a_trailing_suffix_is_a_revision() -> None:
     print("\n--- 3: a _v2 in the middle of a name is part of the name ---")
     check("3a. trailing suffix parses",
-          split_version(f"{BASE}_v10.json") == (f"{BASE}.json", 10),
+          split_version(f"{BASE}_v10.json") == (f"{BASE}.json", (10, 0)),
           str(split_version(f"{BASE}_v10.json")))
-    check("3b. bare name is version 0",
-          split_version(f"{BASE}.json") == (f"{BASE}.json", 0))
+    check("3b. bare name is version (0, 0)",
+          split_version(f"{BASE}.json") == (f"{BASE}.json", (0, 0)))
     check("3c. a mid-name _v2 is NOT a revision",
           split_version("HYP04_v2_THING_2026-01-01.csv")
-          == ("HYP04_v2_THING_2026-01-01.csv", 0),
+          == ("HYP04_v2_THING_2026-01-01.csv", (0, 0)),
           str(split_version("HYP04_v2_THING_2026-01-01.csv")))
-    # The real one this protects: the registry files are named v1.10, and a
-    # naive matcher could read them as revision suffixes.
-    check("3d. a registry filename is not mangled",
-          split_version("GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.10.json")[1] == 0,
-          str(split_version("GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.10.json")))
+    # DOTTED versions, added 2026-09-01. The curated linkage map is named
+    # HYP04_Linkage_Map_v1.0.csv, which the integer-only pattern did not match
+    # at all -- so maps fell back to lexical order and _v1.2 beat _v1.10.
+    check("3d. a dotted version parses into (major, minor)",
+          split_version("HYP04_Linkage_Map_v1.10.csv")
+          == ("HYP04_Linkage_Map.csv", (1, 10)),
+          str(split_version("HYP04_Linkage_Map_v1.10.csv")))
+    check("3d2. so v1.10 outranks v1.2 NUMERICALLY",
+          artifact_sort_key("HYP04_Linkage_Map_v1.10.csv")
+          > artifact_sort_key("HYP04_Linkage_Map_v1.2.csv"))
+    # CONTROL: lexical order really does get this backwards.
+    check("3d3. CONTROL: lexical sort puts v1.10 BEFORE v1.2",
+          "HYP04_Linkage_Map_v1.10.csv" < "HYP04_Linkage_Map_v1.2.csv")
+    check("3d4. and the two disagree, so the fix is doing work",
+          (artifact_sort_key("HYP04_Linkage_Map_v1.10.csv")
+           > artifact_sort_key("HYP04_Linkage_Map_v1.2.csv"))
+          != ("HYP04_Linkage_Map_v1.10.csv" > "HYP04_Linkage_Map_v1.2.csv"))
     check("3e. a non-numeric suffix is not a revision",
-          split_version(f"{BASE}_vFINAL.json")[1] == 0)
+          split_version(f"{BASE}_vFINAL.json")[1] == (0, 0))
+    # A scheme deeper than major.minor is NOT reinterpreted -- it keeps its
+    # whole name, which is the conservative direction.
+    check("3e2. a three-part version is left alone",
+          split_version("foo_v1.2.3.csv") == ("foo_v1.2.3.csv", (0, 0)),
+          str(split_version("foo_v1.2.3.csv")))
     check("3f. empty input returns None rather than raising",
           newest([]) is None)
+    check("3f2. the real curated map beats a hypothetical v1.10 correctly",
+          newest([Path("HYP04_Linkage_Map_v1.0.csv"),
+                  Path("HYP04_Linkage_Map_v1.2.csv"),
+                  Path("HYP04_Linkage_Map_v1.10.csv")]).name
+          == "HYP04_Linkage_Map_v1.10.csv")
     check("3g. plain strings work too",
           newest([f"{BASE}_v2.json", f"{BASE}_v10.json"]) == f"{BASE}_v10.json")
 
@@ -171,12 +193,82 @@ def test_5_it_picks_the_real_artifacts_on_disk() -> None:
           newest_in(lse, "HYP04_NOTHING_MATCHES_THIS_*.json") is None)
 
 
+
+
+def test_6_a_corrupt_artifact_is_not_an_absent_one() -> None:
+    """A file that exists but will not parse must be VISIBLE, not silent.
+
+    These readers used to collapse an unparseable artifact into the same value
+    as a missing one, so a corrupt file made its panel vanish and the page
+    rendered as though the work had never been done. That is the same failure
+    as recording an HTTP 503 as "no registrant matched": an unanswered question
+    reported as an answer.
+    """
+    print("\n--- 6: broken is not absent ---")
+    import tempfile
+    from pathlib import Path as _P
+    import hyp04_supply_chain_hedge.dashboard as dash
+
+    saved = dash.LSE
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            dash.LSE = _P(td)
+
+            # ABSENT: nothing on disk at all.
+            gone = dash.read_peer_ceiling()
+            check("6a. an absent artifact reports not-present",
+                  gone.get("present") is False and not gone.get("unreadable"),
+                  str(gone))
+
+            # BROKEN: present, unparseable.
+            bad = _P(td) / "HYP04_PEER_CEILING_2026-09-01.json"
+            bad.write_text("{not json at all", encoding="utf-8")
+            got = dash.read_peer_ceiling()
+            check("6b. a corrupt artifact is NOT reported as absent",
+                  got.get("present") is not False, str(got))
+            check("6c. it names the unreadable file",
+                  got.get("unreadable") == bad.name, str(got.get("unreadable")))
+            check("6d. and carries the reason",
+                  bool(got.get("why")), str(got.get("why")))
+            # The distinction is the whole point.
+            check("6e. absent and broken are genuinely different values",
+                  gone != got)
+
+            # The same for the other three readers.
+            b2 = _P(td) / "HYP04_PEER_NAME_SEARCH_2026-09-01.json"
+            b2.write_text("<<<", encoding="utf-8")
+            check("6f. the name-search reader reports unreadable",
+                  dash._read_name_search().get("unreadable") == b2.name)
+
+            b3 = _P(td) / "HYP04_PEER_LINEAGE_AUDIT_2026-09-01.json"
+            b3.write_text("<<<", encoding="utf-8")
+            check("6g. the lineage reader reports unreadable",
+                  dash._read_lineage().get("unreadable") == b3.name)
+
+            b4 = _P(td) / "HYP04_LINKAGE_ROWS_DRAFT_2026-09-01.csv"
+            b4.write_bytes(bytes([0xFF, 0xFE, 0x00]) + b"bad bytes")
+            d4 = dash._read_draft()
+            check("6h. the draft reader reports unreadable",
+                  d4.get("unreadable") == b4.name, str(d4))
+            check("6i. and does NOT claim the rows are inert",
+                  d4.get("inert") is None, str(d4.get("inert")))
+    finally:
+        dash.LSE = saved
+
+    # CONTROL: with the real directory restored, the readers work again.
+    real = dash.read_peer_ceiling()
+    check("6j. CONTROL: the real artifacts still read cleanly",
+          real.get("present") is True and not real.get("unreadable"),
+          str(real.get("unreadable")))
+
+
 if __name__ == "__main__":
     test_1_the_double_digit_revision()
     test_2_a_later_date_beats_any_revision()
     test_3_only_a_trailing_suffix_is_a_revision()
     test_4_every_former_lexical_site_uses_this()
     test_5_it_picks_the_real_artifacts_on_disk()
+    test_6_a_corrupt_artifact_is_not_an_absent_one()
 
     print()
     if SKIPS:
