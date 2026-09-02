@@ -205,16 +205,29 @@ def read_curated_linkage() -> dict[str, Any]:
     """
     from .curated_linkage import load_curated_linkage
 
-    maps = sorted(p for p in LSE.glob("HYP04_Linkage_Map*.csv")
-                  if "TEMPLATE" not in p.name.upper())
-    if not maps:
+    # NEWEST, NOT FIRST -- see the note below, which described this exact
+    # failure for the dated readers while this one went on doing it. It took
+    # `sorted(...)[0]`, the EARLIEST map. The moment a curated v1.1 lands, the
+    # page would keep reporting v1.0's edge count with full confidence, and the
+    # curation step now in front of us is precisely what creates a v1.1.
+    #
+    # Version-aware, because lexical order puts _v1.10 before _v1.2.
+    from .artifacts import newest as _newest_artifact
+
+    maps = [p for p in LSE.glob("HYP04_Linkage_Map*.csv")
+            if "TEMPLATE" not in p.name.upper()]
+    current = _newest_artifact(maps)
+    if current is None:
         return {"available": True, "map_present": False, "edges": 0,
-                "rows_rejected": 0, "source": None}
-    res = load_curated_linkage(maps[0])
+                "rows_rejected": 0, "source": None, "superseded": []}
+    res = load_curated_linkage(current)
     return {
         "available": True,
         "map_present": True,
-        "source": maps[0].name,
+        "source": current.name,
+        # Named so a reader can see WHICH map the numbers came from when more
+        # than one exists, rather than having to trust the selection.
+        "superseded": sorted(p.name for p in maps if p != current),
         "edges": len(res.edges),
         "rows_seen": res.rows_seen,
         "rows_rejected": res.rows_rejected,
@@ -244,6 +257,16 @@ def _newest(paths: "list[Any]") -> Any:
     return _newest_artifact(paths)
 
 
+# BROKEN IS NOT ABSENT.
+#
+# These readers used to collapse an unparseable artifact into the same value as
+# a missing one, so a corrupt file made its panel VANISH -- the page rendered
+# as though the work had never been done, with nothing anywhere saying why.
+# That is the same failure as recording an HTTP 503 as "no registrant matched":
+# an unanswered question reported as an answer.
+#
+# A file that exists but will not parse now returns `unreadable`, and the panel
+# renders a blocker naming it.
 def read_peer_ceiling() -> dict[str, Any]:
     """The peer-side ceiling artifact. COUNTS AND BLOCKERS, no candidate names.
 
@@ -262,8 +285,9 @@ def read_peer_ceiling() -> dict[str, Any]:
     newest = _newest(js)
     try:
         d = _json.loads(newest.read_text(encoding="utf-8"))
-    except ValueError:
-        return {"present": False}
+    except (ValueError, OSError) as exc:
+        return {"present": True, "unreadable": newest.name,
+                "why": f"{type(exc).__name__}: {exc}"}
     c = d.get("ceiling") or {}
     w = d.get("worklist") or {}
     cap = c.get("ceiling_peer_prices_assumed") or {}
@@ -308,8 +332,9 @@ def _read_name_search() -> dict[str, Any]:
         return {}
     try:
         d = _json.loads(_newest(js).read_text(encoding="utf-8"))
-    except ValueError:
-        return {}
+    except (ValueError, OSError) as exc:
+        return {"unreadable": _newest(js).name,
+                "why": f"{type(exc).__name__}: {exc}"}
     ident = [r for r in (d.get("results") or []) if r.get("resolved")]
     return {
         "source": _newest(js).name,
@@ -346,8 +371,9 @@ def _read_draft() -> dict[str, Any]:
         from .curated_linkage import load_curated_linkage
         res = load_curated_linkage(newest)
         rows = list(_csv.DictReader(newest.open(encoding="utf-8", newline="")))
-    except Exception:                                    # noqa: BLE001
-        return {}
+    except Exception as exc:                             # noqa: BLE001
+        return {"unreadable": newest.name,
+                "why": f"{type(exc).__name__}: {exc}"}
     return {
         "source": newest.name,
         "rows": len(rows),
@@ -372,8 +398,9 @@ def _read_lineage() -> dict[str, Any]:
         return {}
     try:
         d = _json.loads(_newest(js).read_text(encoding="utf-8"))
-    except ValueError:
-        return {}
+    except (ValueError, OSError) as exc:
+        return {"unreadable": _newest(js).name,
+                "why": f"{type(exc).__name__}: {exc}"}
     return {
         "source": _newest(js).name,
         "counts": d.get("counts_by_verdict") or {},
@@ -1021,7 +1048,17 @@ def render(tests: dict, audit: dict, registry: dict,
     # binding constraint is CURATION. Counts only -- no candidate names, and
     # no peer measurement, because none has been made.
     pc = read_peer_ceiling()
-    if not pc.get("present"):
+    if pc.get("unreadable"):
+        # Present but unparseable. Rendered LOUDLY: a corrupt artifact used to
+        # make this panel vanish, which is indistinguishable from work never
+        # done.
+        ceiling_block = (
+            f"<div class=\"caveat blocker\"><strong>The peer-ceiling "
+            f"artifact is on disk but could not be read.</strong> "
+            f"<span class=\"mono\">{_e(pc['unreadable'])}</span> &mdash; "
+            f"{_e(pc.get('why', ''))}. No ceiling figure is shown, and its "
+            "absence here is a READ FAILURE, not an absence of work.</div>")
+    elif not pc.get("present"):
         ceiling_block = ""
     else:
         never = (", ".join(_e(x) for x in pc["never_evaluated"])
@@ -1076,7 +1113,13 @@ def render(tests: dict, audit: dict, registry: dict,
 
         ns = pc.get("search") or {}
         search_txt = ""
-        if ns.get("identified") is not None:
+        if ns.get("unreadable"):
+            search_txt = (
+                f"<div class=\"caveat blocker\"><strong>The name-search "
+                f"artifact could not be read</strong> "
+                f"(<span class=\"mono\">{_e(ns['unreadable'])}</span>: "
+                f"{_e(ns.get('why', ''))}).</div>")
+        elif ns.get("identified") is not None:
             nm = ", ".join(_e(x) for x in ns.get("names") or [])
             unans = ("" if not ns.get("unanswered") else
                      f" {ns['unanswered']} name(s) went UNANSWERED when the "
@@ -1098,7 +1141,14 @@ def render(tests: dict, audit: dict, registry: dict,
 
         dr = pc.get("draft") or {}
         draft_txt = ""
-        if dr.get("rows"):
+        if dr.get("unreadable"):
+            draft_txt = (
+                f"<div class=\"caveat blocker\"><strong>The draft linkage "
+                f"rows could not be read</strong> "
+                f"(<span class=\"mono\">{_e(dr['unreadable'])}</span>: "
+                f"{_e(dr.get('why', ''))}). Their INERTNESS is therefore "
+                "unverified &mdash; treat them as unchecked.</div>")
+        elif dr.get("rows"):
             state = ("INERT" if dr.get("inert") else
                      "<strong>NOT INERT &mdash; investigate</strong>")
             cls = "caveat" if dr.get("inert") else "caveat blocker"
@@ -1117,7 +1167,13 @@ def render(tests: dict, audit: dict, registry: dict,
 
         lin = pc.get("lineage") or {}
         lineage_txt = ""
-        if lin.get("counts"):
+        if lin.get("unreadable"):
+            lineage_txt = (
+                f"<div class=\"caveat blocker\"><strong>The lineage audit "
+                f"could not be read</strong> "
+                f"(<span class=\"mono\">{_e(lin['unreadable'])}</span>: "
+                f"{_e(lin.get('why', ''))}).</div>")
+        elif lin.get("counts"):
             verd = " &middot; ".join(f"{_e(k)} {v}"
                                      for k, v in sorted(lin["counts"].items()))
             ctrl = ("And its control FIRED on the case that motivated it, so "
