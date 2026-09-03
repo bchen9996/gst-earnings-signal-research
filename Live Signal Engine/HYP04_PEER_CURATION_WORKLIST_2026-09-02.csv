@@ -1,0 +1,36 @@
+anchor_ticker,candidate_peer_ticker,counterparty_name_as_filed,normalized_name,resolution,resolution_basis,sec_title,sec_cik,requires_lineage_review,earliest_disclosing_filing_date,earliest_accession,filings_naming_it,years_since_disclosure,max_anchor_events,incremental_anchor_events,dominated_by_curated_map,share_of_floor_pct
+INTC,,Dell Inc,DELL,UNRESOLVED_no_exact_match,,,,,2005-02-22,0001193125-05-033162,20,21,79,49,,40.9
+INTC,,ICG,ICG,UNRESOLVED_no_exact_match,,,,,2005-02-22,0001193125-05-033162,1,21,79,49,,40.9
+ADBE,,Ingram Micro,INGRAM MICRO,UNRESOLVED_no_exact_match,,,,,2006-02-08,0001047469-06-001601,9,20,29,29,,15.0
+ADBE,,Tech Data,TECH DATA,UNRESOLVED_no_exact_match,,,,,2006-02-08,0001047469-06-001601,5,20,29,29,,15.0
+ADBE,,Tech Data Corporation,TECH DATA,UNRESOLVED_no_exact_match,,,,,2000-02-16,0000912057-00-007295,1,26,29,29,,15.0
+MCK,,Rite Aid Corporation,RITE AID,UNRESOLVED_no_exact_match,,,,,2000-06-13,0000929624-00-000832,6,26,75,21,,38.9
+INTC,,Hewlett-Packard Company,HEWLETT PACKARD,UNRESOLVED_no_exact_match,,,,,2013-02-19,0001193125-13-065416,3,13,46,16,,23.8
+INTC,,Lenovo Group Limited,LENOVO GROUP,UNRESOLVED_no_exact_match,,,,,2013-02-19,0001193125-13-065416,12,13,46,16,,23.8
+MCK,,"Caremark RX, Inc",CAREMARK RX,UNRESOLVED_no_exact_match,,,,,2006-05-16,0000950149-06-000282,2,20,63,9,,32.6
+NKE,,"Foot Locker, Inc",FOOT LOCKER,UNRESOLVED_no_exact_match,,,,,2002-08-14,0000891020-02-001248,4,24,4,4,,2.1
+NVDA,,Atlantic,ATLANTIC,UNRESOLVED_no_exact_match,,,,,2002-05-14,0001012870-02-002262,1,24,45,3,,23.3
+NVDA,,Atlantic Semiconductor,ATLANTIC SEMICONDUCTOR,UNRESOLVED_no_exact_match,,,,,2002-05-14,0001012870-02-002262,1,24,45,3,,23.3
+NVDA,,Micro-Star,MICRO STAR,UNRESOLVED_no_exact_match,,,,,2003-04-25,0001045969-03-001196,2,23,45,3,,23.3
+CTSH,,JP Morgan Chase,JP MORGAN CHASE,UNRESOLVED_no_exact_match,,,,,2004-03-12,0000903100-04-000126,1,22,3,3,,1.6
+JBL,CSCO,"Cisco Systems, Inc",CISCO SYSTEMS,resolved,exact_match_on_normalised_sec_company_title,"CISCO SYSTEMS, INC.",858877,yes,2002-11-25,0000950144-02-012283,9,23,89,0,yes,46.1
+JBL,,Dell Computer Corporation,DELL COMPUTER,UNRESOLVED_no_exact_match,,,,,2001-11-28,0000950144-01-509611,1,24,89,0,yes,46.1
+JBL,,Marconi Communications,MARCONI COMMUNICATIONS,UNRESOLVED_no_exact_match,,,,,2002-11-25,0000950144-02-012283,1,23,89,0,yes,46.1
+JBL,,Hewlett-Packard Company,HEWLETT PACKARD,UNRESOLVED_no_exact_match,,,,,2003-11-12,0000950144-03-012684,2,22,88,0,yes,45.6
+JBL,,Royal Philips Electronics,ROYAL PHILIPS ELECTRONICS,UNRESOLVED_no_exact_match,,,,,2003-11-12,0000950144-03-012684,4,22,88,0,yes,45.6
+JBL,,Nokia Corporation,NOKIA,UNRESOLVED_ambiguous:NOK|NOKBF,,,,,2005-10-28,0000950144-05-010851,3,20,80,0,yes,41.5
+MCK,,CVS,CVS,UNRESOLVED_no_exact_match,,,,,2013-05-07,0001561787-13-000010,2,13,54,0,yes,28.0
+MCK,,CVS Caremark Corporation,CVS CAREMARK,UNRESOLVED_no_exact_match,,,,,2013-05-07,0001561787-13-000010,3,13,54,0,yes,28.0
+JBL,AAPL,"Apple, Inc",APPLE,resolved,exact_match_on_normalised_sec_company_title,Apple Inc.,320193,yes,2012-10-25,0001193125-12-435503,13,13,51,0,yes,26.4
+JBL,BB,BlackBerry Limited,BLACKBERRY,resolved,exact_match_on_normalised_sec_company_title,BLACKBERRY Ltd,1070235,yes,2013-10-28,0001193125-13-413660,1,12,47,0,yes,24.4
+NVDA,MSFT,Microsoft,MICROSOFT,resolved,exact_match_on_normalised_sec_company_title,MICROSOFT CORP,789019,yes,2004-03-29,0001045810-04-000007,2,22,42,0,yes,21.8
+MCK,CVS,CVS Health,CVS HEALTH,resolved,exact_match_on_normalised_sec_company_title,CVS HEALTH Corp,64803,yes,2016-05-05,0000927653-16-000020,4,10,41,0,yes,21.2
+NVDA,,Asustek,ASUSTEK,UNRESOLVED_no_exact_match,,,,,2006-03-16,0001045810-06-000014,2,20,34,0,yes,17.6
+INTC,HPQ,HP Inc,HP,resolved,exact_match_on_normalised_sec_company_title,HP INC,47217,yes,2017-02-17,0000050863-17-000012,8,9,30,0,yes,15.5
+MCK,CVS,CVS Health Corporation,CVS HEALTH,resolved,exact_match_on_normalised_sec_company_title,CVS HEALTH Corp,64803,yes,2020-05-22,0000927653-20-000033,7,6,26,0,yes,13.5
+NVDA,,Asustek Computer,ASUSTEK COMPUTER,UNRESOLVED_no_exact_match,,,,,2008-03-21,0001045810-08-000011,1,18,26,0,yes,13.5
+NVDA,,Hewlett-Packard Company,HEWLETT PACKARD,UNRESOLVED_no_exact_match,,,,,2009-03-13,0001045810-09-000013,1,17,22,0,yes,11.4
+NVDA,,Quanta,QUANTA,UNRESOLVED_no_exact_match,,,,,2010-03-18,0001045810-10-000006,1,16,18,0,yes,9.3
+NVDA,,Quanta Computer Incorporated,QUANTA COMPUTER,UNRESOLVED_no_exact_match,,,,,2011-03-16,0001045810-11-000015,1,15,15,0,yes,7.8
+NVDA,,ASUSTeK Computer Inc,ASUSTEK COMPUTER,UNRESOLVED_no_exact_match,,,,,2016-03-17,0001045810-16-000205,2,10,11,0,yes,5.7
+NVDA,,Dell,DELL,UNRESOLVED_no_exact_match,,,,,2020-02-20,0001045810-20-000010,1,6,4,0,yes,2.1
