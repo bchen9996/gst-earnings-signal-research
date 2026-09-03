@@ -48,7 +48,7 @@ from .peer_ceiling import (
 )
 
 LSE = Path("Live Signal Engine")
-AS_OF = "2026-08-31"
+AS_OF = "2026-09-02"
 
 #: _v2 (2026-08-31). The v1 pair stays byte-identical on disk -- superseded,
 #: not rewritten -- and SUPERSEDES/SUPERSEDES_SHA256 below record what changed.
@@ -64,14 +64,21 @@ AS_OF = "2026-08-31"
 #: _v3 adds `resolution_survivorship`: names are resolved against SEC's list of
 #: CURRENT filers, so the method can only ever return survivors. The worklist
 #: rows are unchanged from _v2.
-OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v3.json"
-OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v3.csv"
-SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json",
-              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv",
-              LSE / f"HYP04_PEER_CEILING_{AS_OF}.json",
-              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv")
+#: 2026-09-02 is a NEW DATE, not a same-day revision, so it carries no _vN and
+#: supersedes the whole 2026-08-31 series. What changed is the input, not the
+#: method: the owner curated the five draft rows into HYP04_Linkage_Map_v1.1,
+#: and every number below is the same measurement over a larger map.
+OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}.json"
+OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv"
+PRIOR = "2026-08-31"
+SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{PRIOR}_v3.json",
+              LSE / f"HYP04_PEER_CURATION_WORKLIST_{PRIOR}_v3.csv")
 
-CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.0.csv"
+#: PINNED BY NAME, deliberately, and it sits next to AS_OF so the two go stale
+#: together and visibly. A `newest_in` glob here would let the map in force
+#: change under a dated artifact without the date moving, which is the drift
+#: this convention exists to prevent. Bump both when a new map is curated.
+CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.1.csv"
 MINIMUM_ELIGIBLE_EVENTS = 193
 
 #: SEC's fair-access User-Agent. Required even offline, because the client
@@ -209,12 +216,32 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
         },
         "ceiling": report.as_dict(),
         "resolution_survivorship": resolution_survivorship(rows),
+        # DERIVED, not asserted. Through 2026-08-31 this read "Curation, not
+        # prices" as a hardcoded string, and it was true: the ceiling was 54
+        # against a floor of 193. Curating v1.1 took the ceiling to 215 and
+        # made that sentence false while the artifact went on stating it. The
+        # dashboard READS this field rather than recomputing, so a stale claim
+        # here is published, not merely stored. Which constraint binds is a
+        # measurement; it is now measured.
         "the_binding_constraint": (
-            "Curation, not prices. The curated map caps the sample at "
-            f"{report.ceiling_events} anchor events against a floor of "
-            f"{MINIMUM_ELIGIBLE_EVENTS}. A survivorship-bias-free price source "
-            "bought tomorrow would not raise that by one event, because the "
-            "ceiling run already assumes prices exist."),
+            (
+                "Curation, not prices. The curated map caps the sample at "
+                f"{report.ceiling_events} anchor events against a floor of "
+                f"{MINIMUM_ELIGIBLE_EVENTS}. A survivorship-bias-free price "
+                "source bought tomorrow would not raise that by one event, "
+                "because the ceiling run already assumes prices exist."
+            ) if not report.reaches_floor else (
+                "Prices, not curation -- REVERSED from every prior version of "
+                "this artifact. The curated map now reaches "
+                f"{report.ceiling_events} anchor events against a floor of "
+                f"{MINIMUM_ELIGIBLE_EVENTS}, so curation no longer caps the "
+                "sample below the floor. That ceiling ASSUMES peer prices "
+                "exist. None do: the measured join yields "
+                f"{report.measured_pairs} eligible pairs and "
+                f"{report.measured_events} anchor events with a peer. A peer "
+                "price source is now the binding constraint, and no such "
+                "source is registered."
+            )),
         "worklist": {
             "artifact": out_csv.name,
             "candidates_on_anchor_tickers": len(rows),
@@ -249,6 +276,24 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
         "supersedes": [q.name for q in SUPERSEDES],
         "supersedes_sha256": {q.name: (_sha256(q) if q.is_file() else None)
                               for q in SUPERSEDES},
+        "what_changed_from_2026_08_31_v3": [
+            "The curated map moved from HYP04_Linkage_Map_v1.0.csv (2 edges) "
+            "to v1.1 (7 edges). The owner curated the five machine-prepared "
+            "draft rows -- JBL->CSCO, JBL->AAPL, JBL->BB, NVDA->MSFT, "
+            "INTC->HPQ -- supplying the five fields no derivation can "
+            "supply. v1.1 is the UNION: v1.0's two rows are carried through "
+            "unchanged, because this artifact's reader takes the newest map "
+            "and a v1.1 holding only the new rows would have dropped them.",
+            "The method is unchanged. Same calendar, same shocks, same review "
+            "queue, same rule. Every difference below follows from the map.",
+            "the_binding_constraint is now DERIVED from whether the ceiling "
+            "reaches the floor, instead of being a hardcoded string. It has "
+            "reversed: through v3 curation bound at a ceiling of 54; it now "
+            "reads 215 against a floor of 193, and prices bind.",
+            "A ceiling above the floor is still not an eligible event. The "
+            "measured join yields zero eligible pairs, the display gate is "
+            "CLOSED with four denials, and C2 counts eligible events only.",
+        ],
         "what_changed_from_v2": [
             "Adds resolution_survivorship. Names are resolved against SEC's "
             "company_tickers.json, which lists companies that file and trade "
