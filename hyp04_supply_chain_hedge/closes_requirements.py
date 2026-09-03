@@ -378,7 +378,21 @@ def main(argv: Optional[list[str]] = None) -> int:
     from .curated_linkage import LSE, load_curated_linkage
     from .event_panel import resolve_events
 
-    map_path = a.map or (LSE / "HYP04_Linkage_Map_v1.0.csv")
+    # NEWEST, not a pinned version -- and deliberately the opposite choice to
+    # make_peer_ceiling.CURATED_MAP, which is pinned by name. The difference is
+    # what the two produce. make_peer_ceiling writes a DATED ARTIFACT, which
+    # must say exactly which map it measured and must not have that input
+    # change under a fixed date. This is an operator tool that emits a work
+    # order for data still to be collected, so the map in force is the only
+    # correct answer: a stale pin here would quietly build a request from an
+    # older, smaller map and under-collect, and the shortfall would not surface
+    # until the join denied on P5 for reasons that look like missing prices.
+    # It was pinned to v1.0 (2 edges) through v1.1 and v1.2 (7 edges).
+    from .artifacts import newest_in
+    map_path = a.map or newest_in(LSE, "HYP04_Linkage_Map_v*.csv")
+    if map_path is None:
+        print(f"No curated map found in {LSE}", file=sys.stderr)
+        return 2
     if not map_path.is_file():
         print(f"No curated map at {map_path}", file=sys.stderr)
         return 2
