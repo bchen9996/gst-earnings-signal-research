@@ -74,10 +74,16 @@ from .curated_linkage import (
 from .peer_lineage import VERDICT_CONTINUOUS
 
 LSE = Path("Live Signal Engine")
-AS_OF = "2026-08-31"
+AS_OF = "2026-09-02"
 OUT_CSV = LSE / f"HYP04_LINKAGE_ROWS_DRAFT_{AS_OF}.csv"
 
-CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.0.csv"
+#: MUST track the map in force, not the map this module was written against.
+#: This excludes candidates whose (anchor, peer) pair is ALREADY curated, so a
+#: stale pin here does not merely mis-cite provenance -- it puts rows in front
+#: of a reviewer that are already curated and that load_curated_linkage would
+#: reject as duplicate pairs. Left at v1.0 it would have re-drafted all five
+#: rows the owner curated on 2026-09-01.
+CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.2.csv"
 
 #: The only source_type these rows can honestly claim. Every candidate comes
 #: from an ASC 280-10-50-42 customer-concentration disclosure in a 10-K, which

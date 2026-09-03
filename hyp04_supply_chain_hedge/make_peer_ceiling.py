@@ -50,9 +50,12 @@ from .peer_ceiling import (
 LSE = Path("Live Signal Engine")
 AS_OF = "2026-09-02"
 
-#: _v2 (2026-08-31). The v1 pair stays byte-identical on disk -- superseded,
-#: not rewritten -- and SUPERSEDES/SUPERSEDES_SHA256 below record what changed.
-#: Two defects in v1, both found by reading its own output:
+#: A CHRONOLOGY, and the _vN suffixes restart on each new DATE -- so
+#: "2026-08-31_v3" and "2026-09-02_v3" are different artifacts and the note
+#: for each says which date it belongs to. Superseded files stay byte-identical
+#: on disk; SUPERSEDES/SUPERSEDES_SHA256 below record what each replaced.
+#:
+#: 2026-08-31_v2 -- fixed two defects in _v1, both found by reading its output:
 #:   1. The normaliser stripped "Holding", resolving ADBE's 2006 "Ingram Micro"
 #:      onto INGM (Ingram Micro Holding Corp, CIK 1897762), a different
 #:      registrant. Fixed in peer_ceiling.NAME_SUFFIXES; that row is now
@@ -61,26 +64,30 @@ AS_OF = "2026-09-02"
 #:      dates later than the curated edge, so their events are a strict subset
 #:      of what the map already reaches and they add nothing. v1's union of 231
 #:      was neither the incremental figure nor the reachable total.
-#: _v3 adds `resolution_survivorship`: names are resolved against SEC's list of
-#: CURRENT filers, so the method can only ever return survivors. The worklist
-#: rows are unchanged from _v2.
-#: 2026-09-02 is a NEW DATE, not a same-day revision, so it carries no _vN and
-#: supersedes the whole 2026-08-31 series. What changed is the input, not the
-#: method: the owner curated the five draft rows into HYP04_Linkage_Map_v1.1,
-#: and every number below is the same measurement over a larger map.
-#: _v2 is a SAME-DAY revision: the 2026-09-02 pair was built against the
-#: 2026-08-29 walk, and the corrected walk landed the same day. The originals
-#: stay byte-identical on disk and are recorded below with their hashes.
-OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json"
-OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv"
-SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}.json",
-              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv")
+#: 2026-08-31_v3 -- added `resolution_survivorship`: names resolve against
+#:      SEC's list of CURRENT filers, so the method can only ever return
+#:      survivors. Worklist rows unchanged from _v2.
+#: 2026-09-02    -- a NEW DATE, so the suffix resets. The input changed, not
+#:      the method: the owner curated the five draft rows into
+#:      HYP04_Linkage_Map_v1.1, and the ceiling went 54 -> 215.
+#: 2026-09-02_v2 -- rebuilt against the corrected EDGAR walk, which recovered
+#:      56 annual reports the old form filter could not see.
+#: 2026-09-02_v3 -- THIS ONE, and the only revision here that changes no
+#:      number. The map in force moved to v1.2, and a dated artifact citing an
+#:      input map that is no longer in force is stale provenance even when its
+#:      arithmetic is unaffected. The dashboard reads the newest map for its
+#:      edge count and the newest ceiling for reach, so leaving them citing
+#:      different maps would make the page disagree with itself.
+OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v3.json"
+OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v3.csv"
+SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json",
+              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv")
 
 #: PINNED BY NAME, deliberately, and it sits next to AS_OF so the two go stale
 #: together and visibly. A `newest_in` glob here would let the map in force
 #: change under a dated artifact without the date moving, which is the drift
 #: this convention exists to prevent. Bump both when a new map is curated.
-CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.1.csv"
+CURATED_MAP = LSE / "HYP04_Linkage_Map_v1.2.csv"
 MINIMUM_ELIGIBLE_EVENTS = 193
 
 #: SEC's fair-access User-Agent. Required even offline, because the client
@@ -278,6 +285,23 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
         "supersedes": [q.name for q in SUPERSEDES],
         "supersedes_sha256": {q.name: (_sha256(q) if q.is_file() else None)
                               for q in SUPERSEDES},
+        "what_changed_from_2026_09_02_v2": [
+            "PROVENANCE ONLY. Every number in this artifact is identical to "
+            "_v2: ceiling 215, measured 0 eligible pairs, the same by_anchor "
+            "split, the same worklist rows. Nothing was remeasured.",
+            "The map in force moved from HYP04_Linkage_Map_v1.1.csv to v1.2, "
+            "which raises date_confidence on NVDA->MSFT (low -> high) and "
+            "JBL->CSCO (medium -> high). Those grades ask whether the as_of "
+            "is really the floor; the 2026-09-02 walk read the previously "
+            "invisible 10-K405s sitting before both dates and neither names "
+            "its counterparty, so both are now floors across a COMPLETE "
+            "annual-report series. The grades recorded an open question that "
+            "has since been measured.",
+            "date_confidence has no consumer wired (recorded inert by the "
+            "2026-08-18 linkage-source decision), which is exactly why the "
+            "ceiling is unchanged and why this revision exists only so a "
+            "dated artifact does not cite a map that is no longer in force.",
+        ],
         "what_changed_from_2026_09_02": [
             "The review queue is rebuilt from a corrected EDGAR walk. Both "
             "walk entry points filtered on form == '10-K' exactly, which "
