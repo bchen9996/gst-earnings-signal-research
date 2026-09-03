@@ -95,6 +95,39 @@ FULL_SUBMISSION_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}.txt"
 SOURCE_PRIMARY_DOCUMENT = "primary_document"
 SOURCE_FULL_SUBMISSION = "full_submission_text"
 
+# --- Which forms are annual reports ----------------------------------------
+#
+# A CLOSED ALLOWLIST, not a prefix match. Both walk entry points tested
+# `form == "10-K"` exactly, which silently excluded every annual report filed
+# on a variant form. Measured against SEC's own submissions for this study's
+# 51 tickers: 52 `10-K405` filings across 22 tickers, and 4 `10-KT`, were never
+# examined -- 56 annual reports invisible to a walk whose whole purpose is to
+# find the EARLIEST filing that disclosed a relationship. DVN's entire
+# pre-2003 history and eBay's first annual report as a public company were
+# among them, and an as_of_date is only ever as early as the earliest filing
+# actually read.
+#
+#   10-K     the standard annual report
+#   10-K405  1996-2003. Identical in substance; the 405 suffix only flagged
+#            the Reg S-K Item 405 delinquent-filer checkbox. The SEC retired
+#            the form in 2003, which is precisely why an exact-match filter
+#            looks correct on modern filings and silently truncates history.
+#   10-KT    a transition-period annual report, filed when a fiscal year end
+#            moves. It carries the same ASC 280 concentration disclosures.
+#            Its period is shorter than a year, so a "% of consolidated
+#            revenue" figure in one covers a stub period -- a caveat for
+#            reading the number, not a reason to be blind to the disclosure.
+#
+# AMENDMENTS ARE DELIBERATELY EXCLUDED (`10-K/A`, `10-K405/A`, `10-KT/A` --
+# 140 of them here). An amendment restates a filing already in the series, so
+# including it would count one annual report twice and could date a disclosure
+# to the amendment rather than to the filing that first made it public. The
+# residual risk is stated rather than fixed: if an original omitted the
+# concentration note and only its amendment carried it, this walk misses that
+# disclosure. That can only make an as_of_date LATER, never earlier, which is
+# the safe direction for a rule that counts events strictly after as_of.
+ANNUAL_REPORT_FORMS: frozenset[str] = frozenset({"10-K", "10-K405", "10-KT"})
+
 # Server-side conditions worth exactly one retry. A 404 is not among them:
 # it is a statement about the layout, not about load.
 TRANSIENT_STATUSES: tuple[int, ...] = (429, 500, 502, 503, 504)
@@ -1630,7 +1663,7 @@ class EdgarClient:
         data = self._get_json(SUBMISSIONS_URL.format(cik=cik))
         rec = data["filings"]["recent"]
         for i, form in enumerate(rec["form"]):
-            if form == "10-K":
+            if form in ANNUAL_REPORT_FORMS:
                 return {"accession": rec["accessionNumber"][i],
                         "filing_date": rec["filingDate"][i],
                         "report_date": _parallel_field(rec, "reportDate", i),
@@ -1673,7 +1706,7 @@ class EdgarClient:
         for blk in blocks:
             forms = blk.get("form") or []
             for i, form in enumerate(forms):
-                if form != "10-K":
+                if form not in ANNUAL_REPORT_FORMS:
                     continue
                 out.append({
                     "accession": blk["accessionNumber"][i],
