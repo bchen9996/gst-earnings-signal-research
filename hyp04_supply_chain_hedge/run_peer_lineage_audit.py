@@ -40,12 +40,21 @@ from .peer_lineage import (
 )
 
 LSE = Path("Live Signal Engine")
-AS_OF = "2026-08-31"
-#: _v2 adds the live control below. v1 stays byte-identical: it is a correct
-#: audit whose every verdict was CONTINUOUS, which is exactly the condition
-#: under which the check had never been observed to fire.
-OUT_JSON = LSE / f"HYP04_PEER_LINEAGE_AUDIT_{AS_OF}_v2.json"
-SUPERSEDES = LSE / f"HYP04_PEER_LINEAGE_AUDIT_{AS_OF}.json"
+AS_OF = "2026-09-02"
+#: A CHRONOLOGY; the _vN suffix restarts on each new date.
+#: 2026-08-31    -- a correct audit whose every verdict was CONTINUOUS, which
+#:      is exactly the condition under which the check had never been observed
+#:      to fire. Stays byte-identical on disk.
+#: 2026-08-31_v2 -- added the live INGM control below.
+#: 2026-09-02    -- THIS ONE. The corrected EDGAR walk recovered 56 annual
+#:      reports the old `form == "10-K"` filter could not see, and one new
+#:      counterparty resolved out of them: NVDA / Celestica, earliest
+#:      2001-04-27, from a 10-K405. A resolved candidate cannot become a draft
+#:      row until its lineage is audited -- make_linkage_draft excludes any row
+#:      whose verdict is not CONTINUOUS -- so the audit re-runs over the new
+#:      worklist. The control is unchanged and must still fire.
+OUT_JSON = LSE / f"HYP04_PEER_LINEAGE_AUDIT_{AS_OF}.json"
+SUPERSEDES = LSE / "HYP04_PEER_LINEAGE_AUDIT_2026-08-31_v2.json"
 
 #: THE LIVE CONTROL. Every real candidate came back CONTINUOUS, and a guard
 #: nobody has seen fail is not known to work -- the principle this repo applies
