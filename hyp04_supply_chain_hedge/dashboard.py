@@ -694,13 +694,20 @@ PHASES = [
     ("Phase 0", "Feasibility on placeholder linkage", "COMPLETE",
      "Pipeline runs end-to-end; estimator recovers a known injected lag on "
      "synthetic fixtures and correctly finds nothing when nothing is there."),
+    # This text names the STANDING structural facts only. It deliberately no
+    # longer says which blocker binds today: that claim was hardcoded here as
+    # "the blocker is unchanged" and went stale on 2026-09-01, when curation
+    # took the ceiling past the floor and prices began to bind instead. Which
+    # constraint binds is derived, and it is stated in the peer-ceiling block
+    # below, from the measurement rather than from a literal.
     ("Phase 1", "Exploratory, non-binding", "BLOCKED",
-     "Requires the real supply-chain linkage map, including a "
+     "Requires a real supply-chain linkage map with a "
      "first-known/established-as-of date per pair. Source switched 2026-08-18 "
      "from the deprioritised automated teammate mapping to hand curation, and "
-     "curation began 2026-08-22 -- see the live edge count below. The blocker "
-     "is unchanged: the gate's threshold counts anchor EVENTS, which curating "
-     "edges does not move, and rows on disk never change a registry field."),
+     "curation began 2026-08-22 -- see the live edge count below. Two facts "
+     "hold regardless of how far curation gets: the gate's threshold counts "
+     "anchor EVENTS, which curating edges does not by itself move, and rows "
+     "on disk never change a registry field."),
     ("Phase 2", "Preregistration lock", "NOT STARTED",
      "Freeze target, features, model spec and validation split in a dated "
      "lock before touching any holdout."),
@@ -1188,6 +1195,41 @@ def render(tests: dict, audit: dict, registry: dict,
                 f"{verd}. {ctrl}. A CONTINUOUS verdict removes ONE way of "
                 "being wrong &mdash; it does not establish the "
                 "relationship.</p>")
+        # WHICH CONSTRAINT BINDS IS DERIVED, NEVER ASSERTED.
+        #
+        # This read "Curation binds before prices" as hardcoded prose, and it
+        # was true while the ceiling stood at 54 against a floor of 193. It
+        # stopped being true the moment the curated map reached the floor, and
+        # the page went on printing it beside its own contradiction -- "the
+        # shortfall against the floor is 0 events" -- because the sentence was
+        # a constant and only the number was computed. A claim about the world
+        # that renders from a literal cannot go stale loudly; it goes stale
+        # silently, which is the failure this whole page is built against.
+        _reaches = (pc["ceiling"] is not None and pc["floor"] is not None
+                    and pc["ceiling"] >= pc["floor"])
+        if not _reaches:
+            binds_txt = f"""
+          <div class="caveat blocker"><strong>Curation binds before prices.</strong>
+             A survivorship-bias-free price source bought tomorrow would not
+             raise the ceiling by one event, because the ceiling already
+             assumes one. The shortfall against the floor is
+             {pc['shortfall']} events. Nothing here is eligibility: no pair has
+             passed pair_eligibility, no peer return has been measured, and the
+             gate is closed with the eligible count at zero.</div>"""
+        else:
+            binds_txt = f"""
+          <div class="caveat blocker"><strong>Prices now bind, not curation
+             &mdash; reversed.</strong> The curated map reaches
+             {pc['ceiling']} anchor events against a floor of {pc['floor']},
+             so curation no longer caps the sample below the floor and the
+             shortfall is {pc['shortfall']}. That ceiling ASSUMES peer prices
+             exist; none do, and no peer price source is registered. Reaching
+             the floor in the ceiling is not reaching it in fact: this is a
+             count of what COULD carry a peer, not of what is eligible. No
+             pair has passed pair_eligibility, no peer return has been
+             measured, {pc['measured']} anchor events have a peer today, and
+             the gate is closed with the eligible count at zero.</div>"""
+
         ceiling_block = f"""
           <div class="kpis">
             <div class="kpi"><div class="v">{pc['ceiling']}</div><div class="l">anchor events the curated map could reach</div></div>
@@ -1203,13 +1245,7 @@ def render(tests: dict, audit: dict, registry: dict,
           {surv_txt}
           {search_txt}
           {draft_txt}
-          <div class="caveat blocker"><strong>Curation binds before prices.</strong>
-             A survivorship-bias-free price source bought tomorrow would not
-             raise the ceiling by one event, because the ceiling already
-             assumes one. The shortfall against the floor is
-             {pc['shortfall']} events. Nothing here is eligibility: no pair has
-             passed pair_eligibility, no peer return has been measured, and the
-             gate is closed with the eligible count at zero.</div>"""
+          {binds_txt}"""
 
     # --- anchor universe (registry v1.5 and later) -----------------------
     # The candidate counts above are a floor on RELEASES, not on usable
