@@ -68,11 +68,13 @@ AS_OF = "2026-09-02"
 #: supersedes the whole 2026-08-31 series. What changed is the input, not the
 #: method: the owner curated the five draft rows into HYP04_Linkage_Map_v1.1,
 #: and every number below is the same measurement over a larger map.
-OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}.json"
-OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv"
-PRIOR = "2026-08-31"
-SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{PRIOR}_v3.json",
-              LSE / f"HYP04_PEER_CURATION_WORKLIST_{PRIOR}_v3.csv")
+#: _v2 is a SAME-DAY revision: the 2026-09-02 pair was built against the
+#: 2026-08-29 walk, and the corrected walk landed the same day. The originals
+#: stay byte-identical on disk and are recorded below with their hashes.
+OUT_JSON = LSE / f"HYP04_PEER_CEILING_{AS_OF}_v2.json"
+OUT_CSV = LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}_v2.csv"
+SUPERSEDES = (LSE / f"HYP04_PEER_CEILING_{AS_OF}.json",
+              LSE / f"HYP04_PEER_CURATION_WORKLIST_{AS_OF}.csv")
 
 #: PINNED BY NAME, deliberately, and it sits next to AS_OF so the two go stale
 #: together and visibly. A `newest_in` glob here would let the map in force
@@ -276,6 +278,32 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
         "supersedes": [q.name for q in SUPERSEDES],
         "supersedes_sha256": {q.name: (_sha256(q) if q.is_file() else None)
                               for q in SUPERSEDES},
+        "what_changed_from_2026_09_02": [
+            "The review queue is rebuilt from a corrected EDGAR walk. Both "
+            "walk entry points filtered on form == '10-K' exactly, which "
+            "excluded 10-K405 (a valid annual report 1996-2003) and 10-KT "
+            "entirely: 56 annual reports across 25 tickers had never been "
+            "examined. They have been, and the walk now reads 1306 filings "
+            "instead of 1250, with zero retrieval failures.",
+            "The correction moved NO curated as_of_date. NVDA's three "
+            "newly-visible 10-K405s (1999-04-29, 2000, 2001-04-27) do not "
+            "name Microsoft, so NVDA->MSFT's as_of of 2004-03-29 is now a "
+            "PROVEN floor across a complete annual-report series rather than "
+            "the earliest of an incomplete one. The same holds for "
+            "JBL->CSCO at 2002-11-25 after JBL's 1999 10-K405 was read.",
+            "One counterparty name is newly visible across the whole "
+            "expansion: NVDA / Celestica, earliest 2001-04-27, from a 10-K405 "
+            "the old filter could not see.",
+            "XOM now carries a stated refusal instead of a zero. It resolves "
+            "through company_tickers.json to CIK 2115436 'ExxonMobil Holdings "
+            "Corp', a post-reorganisation registrant with no filing history, "
+            "and the previous walk recorded that as filings_on_record 0 with "
+            "no error -- indistinguishable from a filer that disclosed "
+            "nothing. It is excluded from counts rather than counted as zero.",
+            "The ceiling itself is UNCHANGED at 215. It is a function of the "
+            "curated map, the calendar and the shocks, none of which moved; "
+            "the walk feeds the candidate worklist, not the curated reach.",
+        ],
         "what_changed_from_2026_08_31_v3": [
             "The curated map moved from HYP04_Linkage_Map_v1.0.csv (2 edges) "
             "to v1.1 (7 edges). The owner curated the five machine-prepared "

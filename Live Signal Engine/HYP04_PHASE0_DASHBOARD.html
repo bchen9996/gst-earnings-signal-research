@@ -1,4 +1,4 @@
-<!-- generated 2026-09-03 00:55 UTC -->
+<!-- generated 2026-09-03 01:17 UTC -->
 <style>
   :root {
     --bg:#f6f7f9; --card:#fff; --ink:#16181d; --muted:#6b7280; --line:#e5e7eb;
@@ -56,7 +56,7 @@
 <div class="wrap">
 <header>
   <h1>HYP-04 Phase 0 &mdash; Build &amp; Process Status</h1>
-  <p class="muted small">Infrastructure and process metrics. Generated 2026-09-03 00:55 UTC.
+  <p class="muted small">Infrastructure and process metrics. Generated 2026-09-03 01:17 UTC.
      Reads committed artifacts; computes no new statistics.</p>
 </header>
 
@@ -243,13 +243,13 @@
             <div class="kpi"><div class="v">193</div><div class="l">registered floor</div></div>
             <div class="kpi"><div class="v">0</div><div class="l">reached today</div></div>
           </div>
-          <p class="small">Source <span class="mono">HYP04_PEER_CEILING_2026-09-02.json</span>.
+          <p class="small">Source <span class="mono">HYP04_PEER_CEILING_2026-09-02_v2.json</span>.
              The ceiling assumes peer prices exist &mdash; a stated
              hypothetical, not a measurement &mdash; so that P5 stops masking
              the other conditions. By anchor: INTC 30, JBL 89, MCK 54, NVDA 42. The curated peer ODP is never evaluated at all: its anchor has no events in the universe, so the price failure recorded against it cannot cost a single pair.</p>
-          <p class="small">The EDGAR review queue holds 35 candidate counterparties on anchor tickers, 7 of which resolve to a ticker by exact match against SEC's own company list. Curating those would add 0 events beyond what the map already reaches, for a reachable total of 215; curating all 35 would reach 324. 21 candidates are flagged DOMINATED &mdash; they duplicate an existing edge at a later as-of date and add nothing. So the material to reach the floor exists &mdash; as an UNREVIEWED QUEUE. No candidate is curated and no as-of date is ratified.</p>
+          <p class="small">The EDGAR review queue holds 36 candidate counterparties on anchor tickers, 8 of which resolve to a ticker by exact match against SEC's own company list. Curating those would add 3 events beyond what the map already reaches, for a reachable total of 218; curating all 36 would reach 324. 21 candidates are flagged DOMINATED &mdash; they duplicate an existing edge at a later as-of date and add nothing. So the material to reach the floor exists &mdash; as an UNREVIEWED QUEUE. No candidate is curated and no as-of date is ratified.</p>
           <p class="small">Lineage audit (<span class="mono">HYP04_PEER_LINEAGE_AUDIT_2026-08-31_v2.json</span>), against each registrant's own SEC filing record: continuous_under_this_name 7. And its control FIRED on the case that motivated it, so the check is known to be capable of failing. A CONTINUOUS verdict removes ONE way of being wrong &mdash; it does not establish the relationship.</p>
-          <div class="caveat"><strong>The resolver can only ever return survivors.</strong> Counterparty names are matched against SEC's list of companies that file and trade TODAY, so one that was delisted, merged away, taken private or never a US filer cannot resolve at all &mdash; by construction, not by imperfect matching. Of the 109 events the queue could add, 0 are reachable this way and <strong>109</strong> sit behind names it cannot reach. Those are the peers most likely to have been acquired &mdash; and acquisition is often caused by the very relationship under study, so they are not missing at random. This measures the method, not the universe, and it is the number <span class="mono">peer_price_data_policy</span> requires before any survivors-only restriction could be adopted.</div>
+          <div class="caveat"><strong>The resolver can only ever return survivors.</strong> Counterparty names are matched against SEC's list of companies that file and trade TODAY, so one that was delisted, merged away, taken private or never a US filer cannot resolve at all &mdash; by construction, not by imperfect matching. Of the 109 events the queue could add, 3 are reachable this way and <strong>106</strong> sit behind names it cannot reach. Those are the peers most likely to have been acquired &mdash; and acquisition is often caused by the very relationship under study, so they are not missing at random. This measures the method, not the universe, and it is the number <span class="mono">peer_price_data_policy</span> requires before any survivors-only restriction could be adopted.</div>
           <p class="small"><strong>Searched for the missing registrants.</strong> EDGAR's company search sees former names that the current company list drops. Across 24 names it identified 5 registrants, each confirmed by the lineage test, 4 of them distinct &mdash; and <strong>0 of them still trade</strong>. They are DELL INC, FOOT LOCKER INC, INGRAM MICRO INC, TECH DATA CORP, and every one is gone. 145 anchor events sit behind companies that are identified, confirmed, and gone. The survivorship gap is measured now, not inferred.</p>
           <div class="caveat"><strong>5 draft linkage row(s) await review</strong> (INTC&rarr;HPQ, JBL&rarr;AAPL, JBL&rarr;BB, JBL&rarr;CSCO, NVDA&rarr;MSFT), in <span class="mono">HYP04_LINKAGE_ROWS_DRAFT_2026-08-31.csv</span>. Every field derivable from the filings is filled; confidence, date_confidence, curated_by, curated_date and review_status are blank because no derivation can supply them. All five are required fields, so the loader rejects every row and 0 edges are usable &mdash; checked by running the real loader over the real file, which reports the rows INERT. Nothing enters the curated map until a person completes it.</div>
           
