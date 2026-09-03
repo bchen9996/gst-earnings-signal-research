@@ -54,6 +54,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from .edgar_linkage import (
+    ANNUAL_REPORT_FORMS,
     CONTACT_REQUIRED_MESSAGE,
     LSE,
     EdgarClient,
@@ -78,6 +79,25 @@ class TickerHistory:
     # walk carried on past these, so the gap is bounded and enumerable rather
     # than being "everything older than the first failure".
     filings_failed: list[dict[str, Any]] = field(default_factory=list)
+    #: Set when the ticker resolved to a registrant that has NO annual report
+    #: of any accepted form. This is a REFUSAL, not a measurement.
+    #:
+    #: Why it needs its own field rather than a count of zero: SEC's
+    #: company_tickers.json maps a ticker to whoever holds it TODAY. When a
+    #: company reorganises into a holding company the ticker follows the new
+    #: registrant, which has a fresh CIK and no filing history, while the
+    #: operating company's decades of filings stay under the old CIK. Measured
+    #: on XOM, which resolves to CIK 2115436 "ExxonMobil Holdings Corp" and
+    #: returned filings_on_record = 0, filings_examined = 0, error = None,
+    #: stopped_early_reason = None -- a record indistinguishable from a filer
+    #: that genuinely disclosed no customer concentration.
+    #:
+    #: That is the same failure as recording an HTTP 503 as "no registrant
+    #: matched": an unanswered question reported as an answer. It is also the
+    #: INGM trap on a different path -- NAME_SUFFIXES fixed name-based
+    #: resolution; this is ticker-based resolution through SEC's own map, and
+    #: it fails identically and just as quietly.
+    no_annual_reports_reason: Optional[str] = None
 
     def named_counterparties(self) -> dict[str, dict[str, Any]]:
         """counterparty -> earliest/latest filing that names it.
@@ -119,6 +139,21 @@ def walk_ticker(client: EdgarClient, ticker: str, *,
 
         filings = client.all_10ks(cik)
         h.filings_on_record = len(filings)
+        if not filings:
+            # Refuse rather than return a zero. See no_annual_reports_reason.
+            h.no_annual_reports_reason = (
+                f"ticker {ticker} resolved to CIK {cik}, which has no annual "
+                f"report of any accepted form "
+                f"({', '.join(sorted(ANNUAL_REPORT_FORMS))}). This is a "
+                "resolution failure, not a finding: SEC's company_tickers.json "
+                "names the registrant holding the ticker today, which after a "
+                "holding-company reorganisation is a new CIK with no history "
+                "while the operating company's filings remain under the old "
+                "one. No conclusion may be drawn about what this filer "
+                "disclosed."
+            )
+            h.error = h.no_annual_reports_reason
+            return h
         if max_filings is not None:
             filings = filings[:max_filings]
 
@@ -222,6 +257,7 @@ def build_report(histories: list[TickerHistory], *, contact_used: bool,
                 "filings_failed": h.filings_failed,
                 "stopped_early_reason": h.stopped_early_reason,
                 "error": h.error,
+                "no_annual_reports_reason": h.no_annual_reports_reason,
                 "named_counterparties": list(h.named_counterparties().values()),
                 "per_filing": h.per_filing,
             }
