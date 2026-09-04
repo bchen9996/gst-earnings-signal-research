@@ -1,0 +1,247 @@
+{
+ "artifact": "GST_SEARCH_CONSTRUCT_VALIDITY_RESULTS",
+ "date": "2026-09-04",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "discharges_gap_audit_item": "F5",
+ "resolves_decision": false,
+ "uses_network": false,
+ "audit_document": "GST_SEARCH_CONSTRUCT_VALIDITY_AUDIT_v1.0_2026-09-04.md",
+ "ordering_note": "Sections 1-3 of the audit, including its recommendation, were committed before this script was run. Section 5 below is reported as robustness and does not revise that recommendation.",
+ "mapping_in_force": {
+  "term": "raw ticker string",
+  "geo": "US",
+  "gprop": "",
+  "cat": 0,
+  "note": "all categories; no disambiguation applied"
+ },
+ "undocumented_screen": {
+  "broad50_n": 50,
+  "broad50_clear_n": 36,
+  "dropped": [
+   "ARE",
+   "BRO",
+   "CI",
+   "CL",
+   "EL",
+   "FE",
+   "HD",
+   "KO",
+   "LOW",
+   "NI",
+   "PM",
+   "T",
+   "TT",
+   "VZ"
+  ],
+  "audit_named_risks": [
+   "BKR",
+   "GME",
+   "STZ"
+  ]
+ },
+ "section3_breadth": {
+  "tickers_with_any_breadth_data": [
+   "ADBE",
+   "AMZN",
+   "MSFT",
+   "NFLX",
+   "NKE",
+   "QCOM",
+   "SBUX",
+   "STZ"
+  ],
+  "n_tickers": 8,
+  "rows_total": 90,
+  "rows_usable": 85,
+  "rows_rate_limited": 5,
+  "breadth_score_min": 0.0,
+  "breadth_score_median": 21.0,
+  "breadth_score_max": 25.0,
+  "events_with_zero_breadth": 6,
+  "by_ticker": {
+   "ADBE": {
+    "events_ok": 10,
+    "events_zero_breadth": 0,
+    "median_breadth": 17.5
+   },
+   "AMZN": {
+    "events_ok": 10,
+    "events_zero_breadth": 0,
+    "median_breadth": 25.0
+   },
+   "MSFT": {
+    "events_ok": 15,
+    "events_zero_breadth": 0,
+    "median_breadth": 25.0
+   },
+   "NFLX": {
+    "events_ok": 14,
+    "events_zero_breadth": 1,
+    "median_breadth": 23.0
+   },
+   "NKE": {
+    "events_ok": 13,
+    "events_zero_breadth": 0,
+    "median_breadth": 18.0
+   },
+   "QCOM": {
+    "events_ok": 10,
+    "events_zero_breadth": 0,
+    "median_breadth": 14.5
+   },
+   "SBUX": {
+    "events_ok": 8,
+    "events_zero_breadth": 0,
+    "median_breadth": 19.0
+   },
+   "STZ": {
+    "events_ok": 5,
+    "events_zero_breadth": 5,
+    "median_breadth": 0.0
+   }
+  },
+  "caveat": "breadth is a COUNT of related queries, not the query strings, so it bounds ambiguity only weakly"
+ },
+ "section4_reproducibility": {
+  "closed_week_repeat_pulls": {
+   "events": 10,
+   "pulls_per_event": 10,
+   "max_zscore_range_across_events": 0.0,
+   "max_zscore_std_across_events": 0.0,
+   "events_flagged_unstable": 0,
+   "all_deterministic": true
+  },
+  "five_pull_weekly_series": {
+   "weeks_compared": 53,
+   "max_z_difference_any_week": 0.0,
+   "weeks_where_tier_differs": 0
+  },
+  "partial_week": {
+   "pulls": 5,
+   "is_partial_week": true,
+   "distinct_gst_values": 2,
+   "distinct_zscores": 2,
+   "zscore_range": 0.08119999999999994
+  }
+ },
+ "section5_term_sensitivity": {
+  "threshold": 5.0,
+  "n_events": 10,
+  "clears_z5_counts": {
+   "raw_ticker_cat0": 10,
+   "company_name_cat0": 0,
+   "raw_ticker_cat7_finance": 5
+  },
+  "n_with_value": {
+   "raw_ticker_cat0": 10,
+   "company_name_cat0": 10,
+   "raw_ticker_cat7_finance": 10
+  },
+  "events_changing_status_vs_ticker": {
+   "under_company_name": 10,
+   "under_finance_category": 5
+  },
+  "per_event": [
+   {
+    "ticker": "MSFT",
+    "spike_week": "2021-07-25",
+    "z_ticker": 5.682,
+    "z_company_name": 0.1544,
+    "z_finance_category": 4.6099,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": false
+   },
+   {
+    "ticker": "SBUX",
+    "spike_week": "2021-07-25",
+    "z_ticker": 5.332,
+    "z_company_name": 0.5383,
+    "z_finance_category": 4.6566,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": false
+   },
+   {
+    "ticker": "NVDA",
+    "spike_week": "2022-02-13",
+    "z_ticker": 5.716,
+    "z_company_name": 2.4362,
+    "z_finance_category": 5.1374,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": true
+   },
+   {
+    "ticker": "INTC",
+    "spike_week": "2022-07-24",
+    "z_ticker": 9.734,
+    "z_company_name": 2.7,
+    "z_finance_category": 8.932,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": true
+   },
+   {
+    "ticker": "ADBE",
+    "spike_week": "2023-03-12",
+    "z_ticker": 5.663,
+    "z_company_name": -0.0455,
+    "z_finance_category": 2.2653,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": false
+   },
+   {
+    "ticker": "TTWO",
+    "spike_week": "2023-11-05",
+    "z_ticker": 25.302,
+    "z_company_name": 2.2584,
+    "z_finance_category": 21.9512,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": true
+   },
+   {
+    "ticker": "NFLX",
+    "spike_week": "2024-10-13",
+    "z_ticker": 16.23,
+    "z_company_name": -0.5474,
+    "z_finance_category": 16.1674,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": true
+   },
+   {
+    "ticker": "LDOS",
+    "spike_week": "2024-10-27",
+    "z_ticker": 6.833,
+    "z_company_name": 2.5354,
+    "z_finance_category": 3.2272,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": false
+   },
+   {
+    "ticker": "BKR",
+    "spike_week": "2025-07-20",
+    "z_ticker": 9.706,
+    "z_company_name": 2.342,
+    "z_finance_category": 5.2336,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": true
+   },
+   {
+    "ticker": "CTSH",
+    "spike_week": "2025-07-27",
+    "z_ticker": 5.114,
+    "z_company_name": 3.9992,
+    "z_finance_category": 2.5645,
+    "clears_z5_ticker": true,
+    "clears_z5_company_name": false,
+    "clears_z5_finance_category": false
+   }
+  ]
+ }
+}
