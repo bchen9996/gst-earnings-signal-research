@@ -40,7 +40,13 @@ from .clustered_se import (
     ols,
     satterthwaite_df,
 )
-from .constants import HORIZON_GRID, N_PERMUTATIONS, RANDOM_SEED
+
+from .constants import (
+    HORIZON_GRID,
+    LOCKED_CLUSTER_KEY,
+    N_PERMUTATIONS,
+    RANDOM_SEED,
+)
 from .quantum_provenance import assert_may_influence_link_strength
 
 
@@ -108,7 +114,7 @@ class LocalProjectionResult:
     peak_significant: Optional[bool] = None
     n_permutations: int = 0
     effective_independent_tests: Optional[float] = None
-    clustering: str = "one-way (anchor event)"
+    clustering: str = f"one-way ({LOCKED_CLUSTER_KEY}) -- D1"
     clustering_limitation: str = TWO_WAY_LIMITATION_NOTE
     two_way_implemented: bool = TWO_WAY_CLUSTERING_IMPLEMENTED
 
@@ -146,7 +152,7 @@ def fit_local_projections(
     *,
     horizons: tuple[int, ...] = HORIZON_GRID,
     controls: bool = True,
-    cluster_key: str = "event_id",
+    cluster_key: str = LOCKED_CLUSTER_KEY,
 ) -> list[HorizonFit]:
     """One clustered regression per horizon. Shock coefficient is index 1."""
     fits: list[HorizonFit] = []
@@ -185,8 +191,14 @@ def _max_abs_t_for_shuffle(
     horizons: tuple[int, ...],
     controls: bool,
     shuffled_shock: np.ndarray,
+    cluster_key: str = LOCKED_CLUSTER_KEY,
 ) -> float:
-    """max_h |t_h| under one permutation. Mirrors fit_local_projections' math."""
+    """max_h |t_h| under one permutation. Mirrors fit_local_projections' math.
+
+    The cluster key must match the one the observed fit used. It was hardcoded
+    to event_id here while fit_local_projections took a parameter, so the null
+    was clustered on a different dimension from the statistic it calibrated.
+    """
     swapped = dict(table)
     swapped["shock"] = shuffled_shock
     best = 0.0
@@ -196,7 +208,7 @@ def _max_abs_t_for_shuffle(
             continue
         X = _design_matrix(swapped, mask, controls=controls)
         y = swapped["target"][mask]
-        g = swapped["event_id"][mask]
+        g = swapped[cluster_key][mask]
         if np.unique(g).size < 2:
             continue
         beta, V, _ = cr_vcov(X, y, g, "CR2")
@@ -215,6 +227,7 @@ def max_t_permutation(
     n_permutations: int = N_PERMUTATIONS,
     seed: int = RANDOM_SEED,
     observed_max_abs_t: Optional[float] = None,
+    cluster_key: str = LOCKED_CLUSTER_KEY,
 ) -> dict[str, Any]:
     """max-T permutation null over the horizon grid.
 
@@ -222,6 +235,24 @@ def max_t_permutation(
     that event's peers, so every peer of an event still shares one shock value
     and the within-event correlation structure survives the null. Shuffling
     rows independently would break that and make the null anticonservative.
+
+    The permutation is RESTRICTED to within cluster_key, for the same reason
+    at the level above. Under D1 the SE clusters on calendar_period, so period
+    carries common variation in peer volatility; anchor shocks vary by period
+    too, since earnings seasons differ. Permuting shocks freely across periods
+    decouples shock from period and strips that confounding out of the null
+    while leaving it in the observed statistic -- a null narrower than the
+    truth, which is anticonservative. It is exactly the error the paragraph
+    above guards against on the peer dimension, one level up.
+
+    An event's cluster must be constant within the event, and that is
+    verified rather than assumed by taking a silent first value.
+
+    When every cluster holds exactly one event -- what cluster_key="event_id"
+    produces -- there is no within-cluster structure to preserve and the
+    clustering asserts independence across clusters, so the permutation is
+    unrestricted. That is the correct null for that choice, not a fallback.
+    The mode taken is reported in the result.
 
     Also returns the EFFECTIVE NUMBER OF INDEPENDENT TESTS implied by the null
     -- the quantity Patch 2's Round 3 addition asks for, so the N-gate's
@@ -246,11 +277,55 @@ def max_t_permutation(
     index_of = {int(e): i for i, e in enumerate(unique_events)}
     row_event_index = np.array([index_of[int(e)] for e in event_ids])
 
+    # Each event's cluster, verified constant within the event rather than
+    # assumed. A shock is a property of the anchor event, so its cluster is
+    # too; if that is ever false the exchangeability argument below does not
+    # hold and a silent first-value pick would hide it.
+    cl = table[cluster_key]
+    event_cluster = np.empty(unique_events.size, dtype=cl.dtype)
+    for i, e in enumerate(unique_events):
+        vals = np.unique(cl[event_ids == e])
+        if vals.size != 1:
+            raise ValueError(
+                f"{cluster_key} is not constant within event {e!r}: {vals!r}. "
+                "Restricted permutation requires one cluster per event.")
+        event_cluster[i] = vals[0]
+
+    groups = [np.flatnonzero(event_cluster == c) for c in np.unique(event_cluster)]
+    movable = int(sum(g.size for g in groups if g.size >= 2))
+
+    # The permutation must preserve exactly the dependence the SE assumes, and
+    # which permutation does that depends on the cluster shape.
+    #
+    #   clusters holding MANY events -> permute WITHIN cluster. The clustering
+    #     asserts dependence inside a cluster, so that structure must survive
+    #     under the null; permuting across clusters would strip it out of the
+    #     null while leaving it in the observed statistic.
+    #
+    #   clusters that are all SINGLETONS -> cluster is the event, there is no
+    #     within-cluster structure to preserve, and the clustering asserts
+    #     independence ACROSS clusters. Free permutation is then not a fallback
+    #     but the correct null for that choice. This is what cluster_key=
+    #     "event_id" produces, and it is the pre-D1 behaviour, kept valid for
+    #     the sensitivity fit rather than refused.
+    #
+    # The mode is reported, never inferred silently by the reader.
+    restricted = movable > 0
+    mode = (f"restricted within {cluster_key}" if restricted
+            else f"unrestricted across {cluster_key} (every cluster is a "
+                 f"single event, so there is no within-cluster structure)")
+
     null_max = np.empty(n_permutations)
     for b in range(n_permutations):
-        permuted = rng.permutation(event_shock)
+        if restricted:
+            permuted = event_shock.copy()
+            for ix in groups:
+                if ix.size >= 2:
+                    permuted[ix] = rng.permutation(event_shock[ix])
+        else:
+            permuted = rng.permutation(event_shock)
         null_max[b] = _max_abs_t_for_shuffle(
-            table, horizons, controls, permuted[row_event_index])
+            table, horizons, controls, permuted[row_event_index], cluster_key)
 
     crit = float(np.percentile(null_max, 95))
 
@@ -267,8 +342,13 @@ def max_t_permutation(
         "null_max_abs_t_mean": float(np.mean(null_max)),
         "effective_independent_tests": k_eff,
         "n_horizons_tested": len(horizons),
-        "permutation_unit": "anchor event (shock permuted across events, "
-                            "re-broadcast to that event's peers)",
+        "permutation_unit": f"anchor event, {mode} (shock re-broadcast to "
+                            "that event's peers)",
+        "permutation_restricted": restricted,
+        "cluster_key": cluster_key,
+        "n_permutation_groups": len(groups),
+        "events_movable": movable,
+        "events_total": int(unique_events.size),
     }
     if observed_max_abs_t is not None:
         out["max_t_p_value"] = float(
@@ -285,10 +365,22 @@ def local_projection_analysis(
     n_permutations: int = N_PERMUTATIONS,
     seed: int = RANDOM_SEED,
     run_permutation: bool = True,
+    cluster_key: str = LOCKED_CLUSTER_KEY,
 ) -> LocalProjectionResult:
-    """Fit the LP profile, then judge its peak against a max-T permutation null."""
-    fits = fit_local_projections(table, horizons=horizons, controls=controls)
-    result = LocalProjectionResult(fits=fits, peak_horizon=None, peak_abs_t=0.0)
+    """Fit the LP profile, then judge its peak against a max-T permutation null.
+
+    cluster_key defaults to the D1-locked dimension. It is forwarded to BOTH
+    the fit and the permutation null: this function previously accepted no
+    cluster_key at all, so the null was always clustered on event_id however
+    the fit was configured.
+    """
+    fits = fit_local_projections(
+        table, horizons=horizons, controls=controls, cluster_key=cluster_key)
+    result = LocalProjectionResult(
+        fits=fits, peak_horizon=None, peak_abs_t=0.0,
+        clustering=f"one-way ({cluster_key})"
+                   + (" -- D1" if cluster_key == LOCKED_CLUSTER_KEY
+                      else " -- SENSITIVITY, NOT THE D1 PRIMARY"))
     if not fits:
         return result
 
@@ -301,7 +393,7 @@ def local_projection_analysis(
         perm = max_t_permutation(
             table, horizons=horizons, controls=controls,
             n_permutations=n_permutations, seed=seed,
-            observed_max_abs_t=result.peak_abs_t)
+            observed_max_abs_t=result.peak_abs_t, cluster_key=cluster_key)
         result.max_t_critical_value = perm["null_max_abs_t_p95"]
         result.max_t_p_value = perm["max_t_p_value"]
         result.peak_significant = perm["peak_significant"]

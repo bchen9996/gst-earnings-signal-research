@@ -141,6 +141,22 @@ Z_POWER = 0.8416212335729143
 # floored value.
 ICC_FLOOR = 0.0
 
+# --- Clustering dimension (D1) --------------------------------------------
+# GST_HYP04_ANALYSIS_LOCK_v1.0, SIGNED 2026-08-20, IN FORCE:
+#   "One-way, clustered on `calendar_period`. Not `event_id` (the Phase 0
+#    default) and not `anchor`."
+#
+# D2 records the price and accepts it: 8 clusters, Satterthwaite df ~5.7,
+# against 24.5 under event_id. The smaller df is the cost of a conservative
+# standard error, not a defect, and under D6 it is never grounds for
+# suppressing a result -- only for reporting it prominently.
+#
+# One-way clustering on the WRONG dimension understates the standard error,
+# and an understated SE is anticonservative in both directions: it makes a
+# null easier to reject AND an equivalence easier to declare. There is no
+# reading under which the event_id default was the safe one.
+LOCKED_CLUSTER_KEY = "calendar_period"
+
 # --- Permutation / multiplicity (Patch 2) ---------------------------------
 # max-T across the horizon grid, not Bonferroni: RVar(h) is a mean over an
 # expanding window, so adjacent beta_h are highly correlated by construction

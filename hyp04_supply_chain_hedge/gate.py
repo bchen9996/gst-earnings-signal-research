@@ -49,6 +49,8 @@ from scipy import stats
 
 from .clustered_se import intraclass_correlation
 from .constants import (
+    LOCKED_CLUSTER_KEY,
+    POWER,
     ALPHA,
     ASSUMED_COHENS_D,
     ICC_FLOOR,
@@ -98,6 +100,136 @@ def required_n_for_k_tests(
             "reconciled into an exact match."
         ),
     }
+
+
+def mde_cohens_d(
+    n_total: float,
+    k_effective_tests: float,
+    *,
+    alpha: float = ALPHA,
+    z_power: float = Z_POWER,
+) -> dict[str, Any]:
+    """Minimum detectable effect: the exact algebraic inverse of
+    required_n_for_k_tests.
+
+    That function answers "how many observations for effect d". This answers
+    the question a fixed sample actually poses: "given the N we have, what is
+    the smallest effect this design could detect". Same formula, solved the
+    other way:
+
+        N = 4 (z + z_power)^2 / d^2   =>   d = 2 (z + z_power) / sqrt(N)
+
+    OUTCOME-FREE BY CONSTRUCTION, and this is the property that makes it
+    permitted at all. The inputs are N, alpha, the effective test count and the
+    power target -- all properties of the DESIGN. No target value, no residual,
+    no fitted coefficient enters. GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0
+    forbids power calculations performed on observed project results; the
+    method review packet permits design-only sensitivity, which is what this
+    is. It must never be fed a quantity derived from a result.
+
+    Inherits the estimator mismatch of its forward twin: a two-sample
+    Cohen's-d proxy for a continuous LP regression, conservative and unmerged.
+    """
+    if not np.isfinite(k_effective_tests) or k_effective_tests < 1.0:
+        k_effective_tests = 1.0
+    if not np.isfinite(n_total) or n_total <= 0:
+        return {"minimum_detectable_cohens_d": float("nan"), "total_n": float(n_total)}
+    alpha_per_test = 1.0 - (1.0 - alpha) ** (1.0 / k_effective_tests)
+    z = float(stats.norm.ppf(1.0 - alpha_per_test / 2.0))
+    d = 2.0 * (z + z_power) / float(np.sqrt(n_total))
+    return {
+        "minimum_detectable_cohens_d": float(d),
+        "total_n": float(n_total),
+        "k_effective_tests": float(k_effective_tests),
+        "alpha_family_wise": alpha,
+        "alpha_per_test_sidak": float(alpha_per_test),
+        "z_critical": z,
+        "critical_value_basis": "normal approximation (matches the forward twin)",
+        "outcome_free": True,
+        "estimator_mismatch_note": (
+            "Two-sample Cohen's-d proxy for the continuous LP regression, "
+            "inherited unchanged from required_n_for_k_tests."
+        ),
+    }
+
+
+def mde_cohens_d_nct(
+    n_total: float,
+    k_effective_tests: float,
+    *,
+    dof: float,
+    alpha: float = ALPHA,
+    power: float = POWER,
+) -> dict[str, Any]:
+    """Minimum detectable effect using the NONCENTRAL t, not the normal.
+
+    Why this exists as a separate function rather than a better default: the
+    normal approximation is accurate when the degrees of freedom are large,
+    and under D1 they are not. D2 records Satterthwaite df around 5.7 at the
+    gate threshold, where t(0.9953, 5.7) is roughly 3.9 against z = 2.6. Using
+    z there understates the critical value by about half, and therefore
+    understates the detectable effect -- it makes the design look more
+    sensitive than it is.
+
+    Solves for d in
+
+        power = P(|T| > t_crit | ncp = d sqrt(N) / 2),  T ~ noncentral t(dof)
+
+    scipy's noncentral t, not statsmodels.stats.power, which is z-based and
+    would reproduce the very approximation this function exists to avoid.
+
+    OUTCOME-FREE, exactly as mde_cohens_d is: dof comes from satterthwaite_df,
+    which takes the design matrix and the cluster labels and NO y. Every input
+    here is a property of the design.
+    """
+    from scipy import optimize
+
+    if not np.isfinite(k_effective_tests) or k_effective_tests < 1.0:
+        k_effective_tests = 1.0
+    alpha_per_test = 1.0 - (1.0 - alpha) ** (1.0 / k_effective_tests)
+    out: dict[str, Any] = {
+        "total_n": float(n_total),
+        "k_effective_tests": float(k_effective_tests),
+        "alpha_family_wise": alpha,
+        "alpha_per_test_sidak": float(alpha_per_test),
+        "satterthwaite_dof": float(dof),
+        "power_target": power,
+        "critical_value_basis": "noncentral t",
+        "outcome_free": True,
+    }
+    if not np.isfinite(dof) or dof <= 0 or not np.isfinite(n_total) or n_total <= 0:
+        out["minimum_detectable_cohens_d"] = float("nan")
+        return out
+
+    t_crit = float(stats.t.ppf(1.0 - alpha_per_test / 2.0, dof))
+    out["t_critical"] = t_crit
+    out["z_critical_for_comparison"] = float(
+        stats.norm.ppf(1.0 - alpha_per_test / 2.0))
+
+    def attained(d: float) -> float:
+        ncp = d * float(np.sqrt(n_total)) / 2.0
+        upper = float(stats.nct.sf(t_crit, dof, ncp))
+        # The WRONG-SIGN tail: rejecting below -t_crit when the true effect is
+        # positive. It is negligible for ncp > 0 and scipy returns NaN for it
+        # once the effect is large, so a non-finite value is underflow, not a
+        # real quantity. Dropping it to zero understates power very slightly,
+        # which raises the reported MDE -- the conservative direction.
+        lower = float(stats.nct.cdf(-t_crit, dof, ncp))
+        if not np.isfinite(lower):
+            lower = 0.0
+        if not np.isfinite(upper):
+            upper = 1.0 if ncp > t_crit else 0.0
+        return upper + lower
+
+    lo, hi = 1e-6, 50.0
+    if attained(hi) < power:
+        out["minimum_detectable_cohens_d"] = float("nan")
+        out["note"] = "power target unreachable at any effect size for this dof"
+        return out
+    d = float(optimize.brentq(lambda x: attained(x) - power, lo, hi, xtol=1e-10))
+    out["minimum_detectable_cohens_d"] = d
+    out["attained_power_at_mde"] = attained(d)
+    return out
 
 
 @dataclass
@@ -190,6 +322,7 @@ def evaluate_gate(
     satterthwaite_dof: Optional[float] = None,
     bootstrap_icc: bool = True,
     seed: int = 42,
+    cluster_key: str = LOCKED_CLUSTER_KEY,
 ) -> GateResult:
     """Evaluate the N_eff gate on a built feature table.
 
@@ -205,7 +338,16 @@ def evaluate_gate(
         mask = table["horizon"] == reference_horizon
 
     y = table["target"][mask]
-    events = table["event_id"][mask]
+    # D1: the design effect must be computed on the SAME dimension the standard
+    # errors cluster on. This read table["event_id"] unconditionally, so DEFF
+    # and N_eff described a clustering the estimator was not using.
+    #
+    # The change is not cosmetic. Under event_id, m_bar is peers-per-event
+    # (~8). Under calendar_period it is pairs-per-period, which is larger by
+    # roughly the number of events per period, and DEFF = 1 + (m_bar - 1)*ICC
+    # grows with it. N_eff can fall below the registered floor as a result.
+    # That is the honest number, and now is the only free moment to learn it.
+    events = table[cluster_key][mask]
 
     n_pairs = int(mask.sum())
     n_events = int(np.unique(events).size)
