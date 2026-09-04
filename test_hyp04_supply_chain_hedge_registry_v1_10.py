@@ -152,8 +152,16 @@ def test_a_the_artifact_exists_and_supersedes_cleanly() -> None:
           doc.get("decisions_taken_on") == DECISIONS_TAKEN_ON
           and doc.get("authored_at_utc") != doc.get("decisions_taken_on"),
           f'{doc.get("decisions_taken_on")} / {doc.get("authored_at_utc")}')
-    check("A6. and the gate reads THIS version",
-          REGISTRY_CURRENT.name == V1_10.name, REGISTRY_CURRENT.name)
+    # NARROWED, not retargeted -- the same treatment v1.7's, v1.8's and v1.9's
+    # suites got when they were superseded. A frozen version's suite asserting
+    # that IT is current breaks at every subsequent version, which trains the
+    # reader to retarget a failing assertion instead of reading it. What v1.10
+    # must still be able to claim is that it WAS superseded, not that it is in
+    # force. The positive claim -- that the gate reads the current version --
+    # moves with the pointer, to v1.11's suite, where it is A6 again.
+    check("A6. v1.10 is no longer the current artifact -- v1.11 superseded it",
+          not REGISTRY_CURRENT.name.endswith("v1.10.json"),
+          REGISTRY_CURRENT.name)
 
 
 def test_b_the_era_rule_is_era_aware_not_merely_wider() -> None:
