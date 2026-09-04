@@ -49,6 +49,10 @@ from hyp04_supply_chain_hedge.inference import (  # noqa: E402
     placebo_test,
     prewhitened_ccf,
 )
+from hyp04_supply_chain_hedge.onset import (  # noqa: E402
+    OnsetInterval,
+    RefusedError as OnsetRefusedError,
+)
 from hyp04_supply_chain_hedge.stage2 import (  # noqa: E402
     PeerOptionsConditions,
     Stage1Score,
@@ -409,6 +413,89 @@ def test_14_stage2_tenor_uses_onset_not_peak() -> None:
           r2.tenor_trading_days == r.tenor_trading_days)
 
 
+def test_17_d7_onset_is_reported_as_an_interval() -> None:
+    """D7: the lag quantity is reported as [onset - 2, onset], never bare.
+
+    D8's arithmetic was brought into line with the lock on 2026-09-04, but D7's
+    REPORTING requirement had no implementation at all: onset_horizon was a
+    bare int on both dataclasses and Stage 2 serialised it straight out.
+    """
+    iv = OnsetInterval.from_onset(5)
+    check(f"17a. onset 5 renders as an interval, not a point (got {iv})",
+          str(iv) == "[3, 5]")
+    check("17b. widening is one-sided at k = 2, extending backward only",
+          iv.k == 2 and iv.lower_raw == 5 - 2 and iv.point == 5)
+
+    # --- the floor, and the fact that it stops before tenor -----------------
+    low = OnsetInterval.from_onset(1)
+    check(f"17c. onset 1 floors the REPORTED bound into the grid (got {low})",
+          str(low) == "[1, 1]")
+    check("17d. and still reports the raw unfloored bound beside it",
+          low.lower_raw == -1
+          and low.as_dict()["lower_raw_unfloored"] == -1)
+    check("17e. the divergence is surfaced, not smoothed over",
+          low.diverges_from_tenor_basis is True
+          and OnsetInterval.from_onset(5).diverges_from_tenor_basis is False)
+
+    # The decision of 2026-09-04: floor the report, keep D8's tenor literal.
+    # This is the assertion that pins it -- if flooring ever leaks into the
+    # tenor path, tenor at onset=1 moves from 4 to 6 and this fails.
+    liquid = PeerOptionsConditions("P", 5000, 500, 0.05, 0.02, 0.35)
+    r1 = select_hedge_structure(
+        Stage1Score("P", 0.8, onset_horizon=1, peak_horizon=9,
+                    lag_ci_width_days=2.0, significant=True), liquid)
+    check(f"17f. the floor does NOT reach D8 tenor: (1-2)+5 = 4 "
+          f"(got {r1.tenor_trading_days})",
+          r1.tenor_trading_days == 4)
+
+    # --- the reporting path itself -----------------------------------------
+    r5 = select_hedge_structure(
+        Stage1Score("P", 0.8, onset_horizon=5, peak_horizon=9,
+                    lag_ci_width_days=2.0, significant=True), liquid)
+    check("17g. Stage 2 no longer reports a bare onset point estimate",
+          "onset_horizon" not in r5.inputs)
+    reported = r5.inputs["onset_interval"]
+    check("17h. it reports the interval instead, carrying k and both bounds",
+          reported["reported_interval"] == "[3, 5]"
+          and reported["k"] == 2
+          and reported["lower_raw_unfloored"] == 3
+          and reported["point"] == 5)
+    check("17i. and states D8's tenor basis alongside it",
+          reported["tenor_basis_is_lower_raw_per_D8"] == 3)
+
+    # --- what D7 forbids ----------------------------------------------------
+    check("17j. the interval declares it is NOT a confidence interval",
+          iv.is_a_confidence_interval is False
+          and reported["is_a_confidence_interval"] is False)
+    try:
+        OnsetInterval(point=5, lower_raw=3, lower_floored=3,
+                      is_a_confidence_interval=True)
+        check("17k. calling it a confidence interval is refused", False)
+    except OnsetRefusedError:
+        check("17k. calling it a confidence interval is refused", True)
+
+    # --- guards, each forced to fail ---------------------------------------
+    check("17l. no onset detected yields no interval, not a degenerate one",
+          OnsetInterval.from_onset(None) is None)
+    for label, kwargs in (
+        ("lower above the point is not an interval",
+         dict(point=3, lower_raw=5, lower_floored=5)),
+        ("flooring may only raise the bound",
+         dict(point=5, lower_raw=3, lower_floored=2)),
+    ):
+        try:
+            OnsetInterval(**kwargs)
+            check(f"17m. {label}", False)
+        except OnsetRefusedError:
+            check(f"17m. {label}", True)
+    for bad in (True, 0, -1):
+        try:
+            OnsetInterval.from_onset(bad)
+            check(f"17n. from_onset refuses {bad!r}", False)
+        except OnsetRefusedError:
+            check(f"17n. from_onset refuses {bad!r}", True)
+
+
 def test_15_stage2_edge_cases() -> None:
     liquid = PeerOptionsConditions("P", 5000, 500, 0.05, 0.02, 0.35)
     cases = [
@@ -474,6 +561,7 @@ if __name__ == "__main__":
     test_14_stage2_tenor_uses_onset_not_peak()
     test_15_stage2_edge_cases()
     test_16_no_trained_model_and_no_edge_claim_in_stage2()
+    test_17_d7_onset_is_reported_as_an_interval()
 
     print()
     if SKIPS:

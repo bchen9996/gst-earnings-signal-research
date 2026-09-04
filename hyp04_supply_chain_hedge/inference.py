@@ -51,6 +51,7 @@ from .constants import (
     N_PERMUTATIONS,
     RANDOM_SEED,
 )
+from .onset import OnsetInterval
 from .quantum_provenance import assert_may_influence_link_strength
 
 
@@ -133,6 +134,17 @@ class LocalProjectionResult:
     clustering: str = f"one-way ({LOCKED_CLUSTER_KEY}) -- D1"
     clustering_limitation: str = TWO_WAY_LIMITATION_NOTE
     two_way_implemented: bool = TWO_WAY_CLUSTERING_IMPLEMENTED
+
+    @property
+    def onset_interval(self) -> Optional[OnsetInterval]:
+        """Onset in the only shape D7 permits it to be reported in.
+
+        `onset_horizon` stays on this dataclass as the raw detected scalar --
+        it is what detection produced and what D8's tenor arithmetic consumes.
+        Anything that REPORTS the lag quantity uses this instead, because D7
+        forbids reporting it as a point estimate.
+        """
+        return OnsetInterval.from_onset(self.onset_horizon)
 
     @property
     def horizons(self) -> list[int]:
