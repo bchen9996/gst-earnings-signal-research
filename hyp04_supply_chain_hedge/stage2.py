@@ -29,9 +29,9 @@ is reported alongside every recommendation rather than buried.
 
 Tenor is sized against Stage 1's ONSET horizon, never its peak horizon.
 
-With an expanding-window target, argmax|t_h| identifies the END of the
+With an expanding-window target, argmax|beta_h| identifies the END of the
 reaction window (h = L+W-1), while the first horizon clearing significance
-identifies its ONSET (h = L) -- confirmed on synthetic fixtures across six
+identifies its ONSET (h = L) -- confirmed on synthetic fixtures across 15
 (L, W) combinations. Sizing tenor off the peak buys protection (W-1) days too
 long and arrives after the move has already started.
 """
