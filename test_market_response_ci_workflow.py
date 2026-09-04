@@ -93,13 +93,6 @@ def test_path_filters_cover_every_relevant_surface():
         "gst_market_response/**",
         "test_market_response*.py",
         "Event_Dossier_Protocol/**",
-        # This suite runs a check whose input surface is every production
-        # Python module in the repository, so the trigger has to be all Python
-        # too. Without it the check can only run when something else happens to
-        # change, which is how it stayed red and unobserved for 15 days from
-        # 2026-08-19. Asserted here so the coverage this function claims in its
-        # own name is actually the coverage it checks.
-        "**/*.py",
         "requirements.txt",
         ".github/workflows/market-response-tests.yml",
         "GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md",

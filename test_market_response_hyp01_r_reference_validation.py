@@ -405,7 +405,16 @@ def test_8_isolation() -> None:
     driver = DRIVER.read_text(encoding="utf-8")
     check("8e. the driver installs nothing",
           "install.packages" not in driver and "pip install" not in driver)
-    # production code must not import the bridge
+    # production code must not import the bridge.
+    #
+    # CANONICAL HOME IS test_repo_invariants.py. This copy is kept as a second
+    # chance, not as the authority. It is the one that went red on 2026-08-19
+    # and stayed red for fifteen days, for two reasons that both live here: the
+    # module aborts at import without statsmodels, which this particular check
+    # does not need, and no workflow that runs this file triggers on the
+    # packages it scans. The canonical copy needs no dependencies and triggers
+    # on every Python file. Keep both -- a check that failed silently once
+    # earns redundancy -- but fix the other one first.
     offenders = []
     for p in ROOT.rglob("*.py"):
         if p.name.startswith("test_") or "hyp01_r_reference" in str(p) or "tools" in p.parts:
