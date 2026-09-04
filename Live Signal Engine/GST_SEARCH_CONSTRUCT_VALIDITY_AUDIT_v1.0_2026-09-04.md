@@ -170,6 +170,11 @@ considered.
 
 ### 3e. Empirical result: one ticker fails the thinness test outright
 
+> **CORRECTED IN §7.** The zero-breadth measurement below is right. The
+> *explanation* offered for it is wrong: `STZ`'s raw series is the richest of
+> the eight, not the thinnest. §7.1 gives the corrected mechanism and a
+> stronger replacement finding. Do not cite §3e's reasoning.
+
 Computed after §3c was written, from `RelatedQueriesBreadth_Results.csv`
 (90 event rows, 85 usable, 5 rate-limited across 8 tickers):
 
@@ -328,6 +333,134 @@ collection script, and reclassifies no hypothesis.
   the rule, because nobody wrote one down.
 - `cat = 0` remains an unexamined default. §5c is the first evidence that it is
   materially different from the obvious alternative.
+
+---
+
+## 7. Follow-up: a correction, a recovered criterion, and a broken tautology
+
+Computed from `GST_SEARCH_CONSTRUCT_VALIDITY_FOLLOWUP_2026-09-04.json`
+(`tools/run_gst_construct_validity_followup.py`). Offline; no Trends call.
+
+### 7.1 Correction to §3e — the measurement stands, the explanation does not
+
+§3e reported that all five `STZ` z >= 5 spike weeks returned zero related
+queries, and concluded that `STZ` is a **thin query**. The measurement is
+correct and reproduces. **The explanation is wrong.**
+
+`STZ`'s raw weekly series is not thin. It is the **richest of the eight**:
+0.0% zero weeks, 57 distinct values, and the **highest median of the group**
+(46.0, rank 1 of 8). A sparse-series account of the zero breadth is refuted by
+the series itself.
+
+**The corrected mechanism is more consequential than the claim it replaces.**
+Google Trends normalises each single-term query to its own 0–100 maximum, so
+**absolute search volume is structurally invisible in every series this project
+has ever collected.** Two tickers with wildly different underlying attention
+produce series that look alike, and no file in this repository records how much
+search actually occurred. The only proxy that survives normalisation is the
+**zero fraction**: a series rounds to 0 only when the underlying counts are
+tiny. Under the earnings-intent term:
+
+| ticker | `"[TICKER] earnings"` %zero | distinct |
+|---|---|---|
+| **STZ** | **95.0%** | **10** |
+| NKE | 82.8% | 27 |
+| SBUX | 80.5% | 30 |
+| ADBE | 77.0% | 35 |
+| QCOM | 75.5% | 40 |
+| NFLX | 55.2% | 41 |
+| MSFT | 15.3% | 42 |
+| AMZN | 5.4% | 48 |
+
+**The thinness is in the earnings-attention construct, not in the raw ticker
+series.** §7.3 turns this into a direct test, and `STZ` fails it.
+
+**Defeating the normalisation requires a network call** — a single multi-term
+`build_payload` normalises *across* terms, which is the only way to recover
+relative volume. Not attempted; recorded as a follow-up.
+
+### 7.2 The screen's criterion is recoverable, statistical separation is not
+
+§3a argued semantically that the 14 dropped tickers are homonyms. That is
+testable: a homonym carries a high, flat generic-traffic baseline that swamps
+company-specific variation.
+
+| group | n | mean median | mean CV | mean %zero |
+|---|---|---|---|---|
+| **dropped** | 14 | **80.43** | **0.146** | 0.00% |
+| kept | 36 | 59.83 | 0.372 | 5.08% |
+
+The dropped group sits far higher and far flatter. **§3a's semantic reading is
+empirically supported.**
+
+**But the signature does not separate the groups.** Applying it
+(median >= 64 and CV <= 0.31) to the kept 36 catches **sixteen** of them:
+`ADP`, `ALB`, `ALLE`, `AVB`, `CCL`, `DELL`, `ERIE`, `GPC`, `LNT`, `MCK`, `MDT`,
+`PKG`, `PLD`, `PNW`, `RCL`, `REG`. So the exclusion was **a human reading
+ticker strings, not a statistic** — and by its own signature it was
+**incomplete**, leaving sixteen tickers with the same profile in the universe.
+
+**The exposure that matters.** Applying the signature to the paper's
+28-ticker population returns exactly one hit:
+
+> **`DELL`** — median 65.0, CV 0.13. `GOOGL` is borderline (63.0, 0.19).
+
+`DELL` is the sharpest homonym case in the paper's universe and was never
+screened. Unlike `AAPL`/Apple or `NKE`/Nike, where ticker and brand are
+different strings, **the ticker `DELL` is identical to a heavily-searched
+consumer laptop brand**, so nothing separates security lookups from shopping
+traffic. This is recorded as an exposure. Removing `DELL`, or any universe
+change, is a `SCIENTIFIC_DECISION` for a human in a dated lock.
+
+### 7.3 The tautology, broken — and the signal mostly survives
+
+§5's 10-of-10 is true by construction: the events were selected as z >= 5 under
+the raw-ticker query. The fix is to measure an instrument that **never selected
+anything**. The earnings-intent series was collected independently and used for
+no selection, so it is admissible as an outcome at those same weeks.
+
+*This is not a selection-free test — the weeks are still ticker-selected. It is
+a test whose **measured quantity** is independent of the selection rule, which
+is what breaks the circularity.*
+
+Event weeks vs that ticker's own non-event weeks, 10,000-permutation test on
+the median difference, seed 42:
+
+| ticker | non-zero rate, event | non-event | median, event | non-event | perm p |
+|---|---|---|---|---|---|
+| NKE | 1.000 | 0.129 | 92.0 | 0.0 | 0.0 |
+| AMZN | 1.000 | 0.944 | 88.5 | 5.0 | 0.0 |
+| SBUX | 1.000 | 0.170 | 87.0 | 0.0 | 0.0 |
+| MSFT | 1.000 | 0.837 | 86.0 | 5.0 | 0.0 |
+| NFLX | 1.000 | 0.417 | 83.0 | 0.0 | 0.0 |
+| QCOM | 1.000 | 0.215 | 77.0 | 0.0 | 0.0 |
+| ADBE | 1.000 | 0.183 | 72.0 | 0.0 | 0.0 |
+| **STZ** | **0.400** | 0.043 | **0.0** | 0.0 | **1.0** |
+
+**For seven of eight tickers the signal survives an independent instrument.**
+Every ticker-selected spike week has non-zero earnings-intent search — a rate
+of 1.000 against non-event base rates as low as 0.129 — with median levels of
+72 to 92 against 0 to 5. This is the strongest corroboration in the audit, and
+it is not circular.
+
+**`STZ` fails.** Only 2 of its 5 selected spike weeks show any earnings-intent
+search at all, the median at event weeks is 0.0, and the permutation test
+returns p = 1.0. Its z >= 5 events are **not corroborated by any independent
+measure of earnings attention**. This replaces §3e's claim with a better-founded
+one: the problem with `STZ` is not that its ticker series is thin, it is that
+its selected events do not look like earnings-attention events under a second
+instrument.
+
+A rolling z-score is undefined on a mostly-zero series, so the z-based
+comparison is reported only for **`MSFT` and `AMZN`**, the two whose intent
+series support it. For the other six, *not computable* is the finding and is
+recorded as such rather than replaced by a number.
+
+### 7.4 What §7 does not change
+
+No decision is resolved, no gate moves, no universe changes, and no collection
+script is touched. `DELL`'s exposure and `STZ`'s failure are findings for a
+human to act on in a dated lock.
 
 ---
 
