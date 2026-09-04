@@ -136,6 +136,42 @@ It does not approve a submission, clear any display gate, resolve any other gap
 audit item, or make any retrospective figure into evidence about a hypothesis.
 It states which figures may be cited, in what state, and carrying what.
 
+## 7. Correction to this document, 2026-09-04
+
+**§5 attributes `7.97` to the wrong population.** The sentence reads:
+
+> among the 73 survivors **6 are themselves z ≥ 5 STRONG-tier events**, 32 are
+> z ≥ 2, and the largest control z (14.60) exceeds the *median* signal z (7.97)
+
+Every count in it is correct. The median is not. `7.97` is the median z across
+**all 152 signal events**, not across the 73 that survive matching. Because the
+clause opens with "among the 73 survivors", it reads as though 7.97 described
+the survivors, and it does not.
+
+Re-derived independently from `retrospective_event_components.csv` and from a
+replay of the frozen E1/E2 matching:
+
+| quantity | population | value |
+|---|---|---|
+| median signal z | all 152 signal events | **7.97** |
+| median treated z | the 73 surviving matched pairs | **7.28** |
+| controls at z ≥ 5 | the 73 survivors | 6 |
+| controls at z ≥ 2 | the 73 survivors | 32 |
+| largest control z | the 73 survivors | 14.60 |
+
+**The substantive claim survives intact**: 14.60 exceeds both medians, so the
+largest control is more attention-heavy than the typical signal event on either
+reading. Only the attribution was wrong.
+
+**Rule 3c applies to this document's own errors too.** Any text derived from §5
+must state which population its median describes. The corrected wording is:
+*"the largest control z (14.60) exceeds the median treated z among these 73
+(7.28), and also the median across all 152 signal events (7.97)."*
+
+§5 is left as written rather than edited in place: it is a dated, committed and
+published artifact, and a correction that silently rewrites the original is the
+failure Rule 3c exists to prevent.
+
 ---
 
 *No result, direction, effect estimate, plot, p-value or confidence interval is
