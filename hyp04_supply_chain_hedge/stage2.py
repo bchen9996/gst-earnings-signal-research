@@ -145,12 +145,38 @@ class HedgeRecommendation:
 
 
 def _tenor_from_onset(onset: int) -> int:
-    """Tenor covers the onset plus buffer, sized off ONSET not peak.
+    """Tenor covers the interval's LOWER bound plus buffer.
 
-    The buffer is a fixed 5 sessions rather than a fitted quantity: with this
-    sample size, fitting a buffer would be fitting noise.
+    TWO axes, and this function has to satisfy both. It used to defend only the
+    first, which is how it drifted from the lock.
+
+    ONSET, NOT PEAK. Sizing off the peak buys (W-1) days too much tenor and
+    arrives after the move started. That axis was never in dispute -- plan,
+    lock and code have always agreed on it.
+
+    THE LOWER BOUND, NOT THE POINT ESTIMATE. GST_HYP04_ANALYSIS_LOCK_v1.0 D8
+    (SIGNED 2026-08-20, IN FORCE) sizes tenor off "the interval's LOWER bound
+    (onset_horizon - 2)", D7 having fixed a one-sided widening at k = 2. This
+    returned onset + 5, off the bare point estimate. The reason matters: D7
+    establishes that onset is biased LATE, never early, so sizing off the
+    uncorrected point estimate compounds the known error in exactly the
+    direction D8 exists to prevent -- the same failure as using the peak, only
+    smaller, as inference.py says of itself.
+
+    The code predates the lock by two days (written 2026-08-18, lock signed
+    2026-08-20), so D7's line claiming "lock and code state the same thing" was
+    never true of this half. It is now.
+
+    THE BUFFER IS THE CODE'S OWN CHOICE, not the lock's. No signed artifact
+    specifies any buffer -- "buffer" and "5" appear nowhere in the lock or in
+    plan v0.2. It stays a fixed 5 sessions rather than a fitted quantity
+    because at this sample size fitting a buffer would be fitting noise.
+
+    NOT ADDRESSED HERE, because no artifact decides it: the lock sets no floor
+    on onset - 2, so onset = 1 yields a lower bound of -1. The tenor path is
+    unharmed -- (1 - 2) + 5 = 4 -- but a reported interval would not be.
     """
-    return int(onset) + 5
+    return int(onset) - 2 + 5
 
 
 def select_hedge_structure(
