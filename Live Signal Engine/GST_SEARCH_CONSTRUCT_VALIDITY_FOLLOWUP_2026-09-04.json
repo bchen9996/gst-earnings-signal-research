@@ -1,0 +1,823 @@
+{
+ "artifact": "GST_SEARCH_CONSTRUCT_VALIDITY_FOLLOWUP",
+ "date": "2026-09-04",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "follows_up": "GST_SEARCH_CONSTRUCT_VALIDITY_AUDIT_v1.0_2026-09-04.md",
+ "corrects": "audit v1.0 section 3e",
+ "resolves_decision": false,
+ "uses_network": false,
+ "the_fail": {
+  "published_claim_being_corrected": "audit v1.0 section 3e attributed STZ's zero related-query breadth to a thin raw ticker series",
+  "raw_ticker_series": {
+   "MSFT": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 56,
+    "median": 38.0,
+    "cv": 0.3869
+   },
+   "ADBE": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 49,
+    "median": 27.0,
+    "cv": 0.5187
+   },
+   "NFLX": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 57,
+    "median": 20.0,
+    "cv": 0.8057
+   },
+   "NKE": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 52,
+    "median": 28.0,
+    "cv": 0.5052
+   },
+   "STZ": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 57,
+    "median": 46.0,
+    "cv": 0.3011
+   },
+   "QCOM": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 56,
+    "median": 36.0,
+    "cv": 0.3948
+   },
+   "SBUX": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 66,
+    "median": 39.0,
+    "cv": 0.4335
+   },
+   "AMZN": {
+    "n_weeks": 261,
+    "pct_zero": 0.0,
+    "distinct_values": 59,
+    "median": 41.0,
+    "cv": 0.3648
+   }
+  },
+  "stz_raw_median_rank_of_8": 1,
+  "raw_series_refutes_thinness": true,
+  "earnings_intent_series": {
+   "MSFT": {
+    "n_weeks": 261,
+    "pct_zero": 15.33,
+    "distinct_values": 42,
+    "median": 5.0,
+    "cv": 1.7446
+   },
+   "ADBE": {
+    "n_weeks": 261,
+    "pct_zero": 77.01,
+    "distinct_values": 35,
+    "median": 0.0,
+    "cv": 2.4606
+   },
+   "NFLX": {
+    "n_weeks": 261,
+    "pct_zero": 55.17,
+    "distinct_values": 41,
+    "median": 0.0,
+    "cv": 2.0094
+   },
+   "NKE": {
+    "n_weeks": 261,
+    "pct_zero": 82.76,
+    "distinct_values": 27,
+    "median": 0.0,
+    "cv": 2.7741
+   },
+   "STZ": {
+    "n_weeks": 261,
+    "pct_zero": 95.02,
+    "distinct_values": 10,
+    "median": 0.0,
+    "cv": 4.7722
+   },
+   "QCOM": {
+    "n_weeks": 261,
+    "pct_zero": 75.48,
+    "distinct_values": 40,
+    "median": 0.0,
+    "cv": 2.3776
+   },
+   "SBUX": {
+    "n_weeks": 261,
+    "pct_zero": 80.46,
+    "distinct_values": 30,
+    "median": 0.0,
+    "cv": 2.4823
+   },
+   "AMZN": {
+    "n_weeks": 261,
+    "pct_zero": 5.36,
+    "distinct_values": 48,
+    "median": 6.0,
+    "cv": 1.5835
+   }
+  },
+  "stz_intent_pct_zero": 95.02,
+  "corrected_mechanism": "Google Trends normalises each single-term query to its own 0-100 max, so absolute search volume is structurally invisible in every series this project has collected. The zero fraction is the one proxy that survives normalisation: a series rounds to 0 only when the underlying counts are tiny. STZ's raw series is dense, but its earnings-intent series is zero in 95% of weeks. The thinness is in the earnings-attention construct, not the raw ticker series.",
+  "defeating_normalisation_requires": "a single multi-term build_payload, which normalises ACROSS terms -- a network call, not attempted here"
+ },
+ "the_screen": {
+  "signature": {
+   "min_median": 64.0,
+   "max_cv": 0.31,
+   "rationale": "a homonym carries a high, flat generic-traffic baseline that swamps company-specific variation"
+  },
+  "dropped_group": {
+   "n": 14,
+   "mean_median": 80.4286,
+   "mean_cv": 0.1461,
+   "mean_pct_zero": 0.0
+  },
+  "kept_group": {
+   "n": 36,
+   "mean_median": 59.8333,
+   "mean_cv": 0.372,
+   "mean_pct_zero": 5.0764
+  },
+  "signature_catches_dropped": [
+   "ARE",
+   "BRO",
+   "CI",
+   "CL",
+   "EL",
+   "FE",
+   "HD",
+   "KO",
+   "LOW",
+   "NI",
+   "PM",
+   "T",
+   "TT",
+   "VZ"
+  ],
+  "signature_also_catches_kept": [
+   "ADP",
+   "ALB",
+   "ALLE",
+   "AVB",
+   "CCL",
+   "DELL",
+   "ERIE",
+   "GPC",
+   "LNT",
+   "MCK",
+   "MDT",
+   "PKG",
+   "PLD",
+   "PNW",
+   "RCL",
+   "REG"
+  ],
+  "separates_cleanly": false,
+  "criterion_was_statistical": false,
+  "paper_universe": {
+   "AAPL": {
+    "median": 43.0,
+    "cv": 0.319,
+    "matches_dropped_signature": false
+   },
+   "ABBV": {
+    "median": 50.0,
+    "cv": 0.3394,
+    "matches_dropped_signature": false
+   },
+   "ADBE": {
+    "median": 27.0,
+    "cv": 0.5187,
+    "matches_dropped_signature": false
+   },
+   "AMZN": {
+    "median": 41.0,
+    "cv": 0.3648,
+    "matches_dropped_signature": false
+   },
+   "BKR": {
+    "median": 59.0,
+    "cv": 0.2668,
+    "matches_dropped_signature": false
+   },
+   "BRK-B": {
+    "median": 56.0,
+    "cv": 0.2981,
+    "matches_dropped_signature": false
+   },
+   "COHR": {
+    "median": 29.0,
+    "cv": 0.7432,
+    "matches_dropped_signature": false
+   },
+   "CTSH": {
+    "median": 48.0,
+    "cv": 0.3519,
+    "matches_dropped_signature": false
+   },
+   "DELL": {
+    "median": 65.0,
+    "cv": 0.1277,
+    "matches_dropped_signature": true
+   },
+   "DVN": {
+    "median": 60.0,
+    "cv": 0.2666,
+    "matches_dropped_signature": false
+   },
+   "GME": {
+    "median": 26.0,
+    "cv": 0.7913,
+    "matches_dropped_signature": false
+   },
+   "GOOGL": {
+    "median": 63.0,
+    "cv": 0.1947,
+    "matches_dropped_signature": false
+   },
+   "GPN": {
+    "median": 49.0,
+    "cv": 0.2854,
+    "matches_dropped_signature": false
+   },
+   "INTC": {
+    "median": 42.0,
+    "cv": 0.3718,
+    "matches_dropped_signature": false
+   },
+   "JBL": {
+    "median": 50.0,
+    "cv": 0.23,
+    "matches_dropped_signature": false
+   },
+   "LDOS": {
+    "median": 42.0,
+    "cv": 0.385,
+    "matches_dropped_signature": false
+   },
+   "MSFT": {
+    "median": 38.0,
+    "cv": 0.3869,
+    "matches_dropped_signature": false
+   },
+   "NCLH": {
+    "median": 56.0,
+    "cv": 0.2732,
+    "matches_dropped_signature": false
+   },
+   "NFLX": {
+    "median": 20.0,
+    "cv": 0.8057,
+    "matches_dropped_signature": false
+   },
+   "NKE": {
+    "median": 28.0,
+    "cv": 0.5052,
+    "matches_dropped_signature": false
+   },
+   "NVDA": {
+    "median": 34.0,
+    "cv": 0.4455,
+    "matches_dropped_signature": false
+   },
+   "QCOM": {
+    "median": 36.0,
+    "cv": 0.3948,
+    "matches_dropped_signature": false
+   },
+   "SBUX": {
+    "median": 39.0,
+    "cv": 0.4335,
+    "matches_dropped_signature": false
+   },
+   "STZ": {
+    "median": 46.0,
+    "cv": 0.3011,
+    "matches_dropped_signature": false
+   },
+   "SYK": {
+    "median": 48.0,
+    "cv": 0.3567,
+    "matches_dropped_signature": false
+   },
+   "TSLA": {
+    "median": 45.0,
+    "cv": 0.3819,
+    "matches_dropped_signature": false
+   },
+   "TTWO": {
+    "median": 28.0,
+    "cv": 0.5501,
+    "matches_dropped_signature": false
+   },
+   "UAL": {
+    "median": 55.0,
+    "cv": 0.3062,
+    "matches_dropped_signature": false
+   }
+  },
+  "paper_universe_matches": [
+   "DELL"
+  ],
+  "per_ticker_broad50": {
+   "ABBV": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 68,
+    "median": 48.0,
+    "cv": 0.3466
+   },
+   "ADP": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 44,
+    "median": 70.0,
+    "cv": 0.1373
+   },
+   "ALB": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 32,
+    "median": 83.0,
+    "cv": 0.0885
+   },
+   "ALLE": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 39,
+    "median": 84.0,
+    "cv": 0.112
+   },
+   "ARE": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 29,
+    "median": 90.0,
+    "cv": 0.0871
+   },
+   "AVB": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 45,
+    "median": 79.0,
+    "cv": 0.1233
+   },
+   "BKR": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 64,
+    "median": 62.0,
+    "cv": 0.2288
+   },
+   "BRK-B": {
+    "n_weeks": 313,
+    "pct_zero": 1.6,
+    "distinct_values": 68,
+    "median": 53.0,
+    "cv": 0.3338
+   },
+   "BRO": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 46,
+    "median": 73.0,
+    "cv": 0.1643
+   },
+   "CCL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 74,
+    "median": 73.0,
+    "cv": 0.3033
+   },
+   "CI": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 41,
+    "median": 90.0,
+    "cv": 0.1043
+   },
+   "CL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 53,
+    "median": 72.0,
+    "cv": 0.1721
+   },
+   "COF": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 67,
+    "median": 63.0,
+    "cv": 0.2929
+   },
+   "COHR": {
+    "n_weeks": 313,
+    "pct_zero": 44.09,
+    "distinct_values": 57,
+    "median": 15.0,
+    "cv": 1.1922
+   },
+   "CTSH": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 65,
+    "median": 49.0,
+    "cv": 0.2913
+   },
+   "CTVA": {
+    "n_weeks": 313,
+    "pct_zero": 72.84,
+    "distinct_values": 50,
+    "median": 0.0,
+    "cv": 2.0676
+   },
+   "DELL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 36,
+    "median": 75.0,
+    "cv": 0.1022
+   },
+   "DVN": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 68,
+    "median": 55.0,
+    "cv": 0.2891
+   },
+   "EL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 48,
+    "median": 79.0,
+    "cv": 0.168
+   },
+   "ERIE": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 56,
+    "median": 71.0,
+    "cv": 0.1752
+   },
+   "FE": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 36,
+    "median": 85.0,
+    "cv": 0.3071
+   },
+   "GPC": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 68,
+    "median": 70.0,
+    "cv": 0.2799
+   },
+   "GPN": {
+    "n_weeks": 313,
+    "pct_zero": 0.64,
+    "distinct_values": 65,
+    "median": 62.0,
+    "cv": 0.2452
+   },
+   "HD": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 49,
+    "median": 77.0,
+    "cv": 0.1566
+   },
+   "JBL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 58,
+    "median": 43.0,
+    "cv": 0.3093
+   },
+   "KO": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 61,
+    "median": 68.0,
+    "cv": 0.2094
+   },
+   "LDOS": {
+    "n_weeks": 313,
+    "pct_zero": 15.97,
+    "distinct_values": 75,
+    "median": 41.0,
+    "cv": 0.6614
+   },
+   "LNT": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 58,
+    "median": 70.0,
+    "cv": 0.1824
+   },
+   "LOW": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 26,
+    "median": 92.0,
+    "cv": 0.0532
+   },
+   "MCHP": {
+    "n_weeks": 313,
+    "pct_zero": 2.56,
+    "distinct_values": 71,
+    "median": 47.0,
+    "cv": 0.3851
+   },
+   "MCK": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 63,
+    "median": 67.0,
+    "cv": 0.2053
+   },
+   "MDT": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 45,
+    "median": 83.0,
+    "cv": 0.1286
+   },
+   "NCLH": {
+    "n_weeks": 313,
+    "pct_zero": 38.02,
+    "distinct_values": 54,
+    "median": 35.0,
+    "cv": 0.8932
+   },
+   "NI": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 41,
+    "median": 87.0,
+    "cv": 0.1725
+   },
+   "PKG": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 39,
+    "median": 80.0,
+    "cv": 0.1062
+   },
+   "PLD": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 40,
+    "median": 81.0,
+    "cv": 0.113
+   },
+   "PM": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 28,
+    "median": 87.0,
+    "cv": 0.072
+   },
+   "PNW": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 65,
+    "median": 64.0,
+    "cv": 0.24
+   },
+   "RCL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 47,
+    "median": 79.0,
+    "cv": 0.1205
+   },
+   "REG": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 51,
+    "median": 79.0,
+    "cv": 0.2563
+   },
+   "ROP": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 47,
+    "median": 85.0,
+    "cv": 0.3301
+   },
+   "RTX": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 62,
+    "median": 17.0,
+    "cv": 0.8374
+   },
+   "STZ": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 76,
+    "median": 42.0,
+    "cv": 0.4215
+   },
+   "SYF": {
+    "n_weeks": 313,
+    "pct_zero": 7.03,
+    "distinct_values": 72,
+    "median": 36.0,
+    "cv": 0.6334
+   },
+   "SYK": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 72,
+    "median": 61.0,
+    "cv": 0.2811
+   },
+   "T": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 37,
+    "median": 89.0,
+    "cv": 0.1288
+   },
+   "TT": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 32,
+    "median": 64.0,
+    "cv": 0.1193
+   },
+   "UAL": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 61,
+    "median": 71.0,
+    "cv": 0.4445
+   },
+   "VZ": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 47,
+    "median": 73.0,
+    "cv": 0.1304
+   },
+   "XOM": {
+    "n_weeks": 313,
+    "pct_zero": 0.0,
+    "distinct_values": 60,
+    "median": 61.0,
+    "cv": 0.2322
+   }
+  }
+ },
+ "the_trap": {
+  "why_this_breaks_the_tautology": "The audit's 10-of-10 is true by construction: the events were selected as z >= 5 under the raw-ticker query. The earnings-intent series was never used to select anything, so it is an independent outcome at those same weeks. The weeks remain ticker-selected -- this is not a selection-free test, it is a test whose measured quantity is independent of the selection rule.",
+  "n_permutations": 10000,
+  "random_seed": 42,
+  "z_infeasible_above_zero_share": 0.5,
+  "tickers_supporting_z_comparison": [
+   "AMZN",
+   "MSFT"
+  ],
+  "per_ticker": {
+   "MSFT": {
+    "status": "ok",
+    "n_event_weeks": 15,
+    "n_non_event_weeks": 246,
+    "pct_zero_whole_series": 15.33,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.8374,
+    "median_event": 86.0,
+    "median_non_event": 5.0,
+    "mean_event": 82.6,
+    "mean_non_event": 8.236,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": {
+     "median_z_event": 11.8513,
+     "median_z_non_event": -0.353,
+     "n_event_z_ge_2": 15
+    }
+   },
+   "ADBE": {
+    "status": "ok",
+    "n_event_weeks": 15,
+    "n_non_event_weeks": 246,
+    "pct_zero_whole_series": 77.01,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.1829,
+    "median_event": 72.0,
+    "median_non_event": 0.0,
+    "mean_event": 70.867,
+    "mean_non_event": 4.768,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": "not_computable",
+    "z_comparison_reason": "77.01% of weeks are zero; a 12-week rolling z-score is undefined or degenerate"
+   },
+   "NFLX": {
+    "status": "ok",
+    "n_event_weeks": 14,
+    "n_non_event_weeks": 247,
+    "pct_zero_whole_series": 55.17,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.417,
+    "median_event": 83.0,
+    "median_non_event": 0.0,
+    "mean_event": 78.786,
+    "mean_non_event": 6.931,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": "not_computable",
+    "z_comparison_reason": "55.17% of weeks are zero; a 12-week rolling z-score is undefined or degenerate"
+   },
+   "NKE": {
+    "status": "ok",
+    "n_event_weeks": 13,
+    "n_non_event_weeks": 248,
+    "pct_zero_whole_series": 82.76,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.129,
+    "median_event": 92.0,
+    "median_non_event": 0.0,
+    "mean_event": 84.462,
+    "mean_non_event": 4.129,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": "not_computable",
+    "z_comparison_reason": "82.76% of weeks are zero; a 12-week rolling z-score is undefined or degenerate"
+   },
+   "STZ": {
+    "status": "ok",
+    "n_event_weeks": 5,
+    "n_non_event_weeks": 256,
+    "pct_zero_whole_series": 95.02,
+    "nonzero_rate_event": 0.4,
+    "nonzero_rate_non_event": 0.043,
+    "median_event": 0.0,
+    "median_non_event": 0.0,
+    "mean_event": 37.4,
+    "mean_non_event": 2.797,
+    "perm_p_median_difference": 1.0,
+    "z_comparison": "not_computable",
+    "z_comparison_reason": "95.02% of weeks are zero; a 12-week rolling z-score is undefined or degenerate"
+   },
+   "QCOM": {
+    "status": "ok",
+    "n_event_weeks": 10,
+    "n_non_event_weeks": 251,
+    "pct_zero_whole_series": 75.48,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.2151,
+    "median_event": 77.0,
+    "median_non_event": 0.0,
+    "mean_event": 70.1,
+    "mean_non_event": 6.235,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": "not_computable",
+    "z_comparison_reason": "75.48% of weeks are zero; a 12-week rolling z-score is undefined or degenerate"
+   },
+   "SBUX": {
+    "status": "ok",
+    "n_event_weeks": 8,
+    "n_non_event_weeks": 253,
+    "pct_zero_whole_series": 80.46,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.17,
+    "median_event": 87.0,
+    "median_non_event": 0.0,
+    "mean_event": 78.625,
+    "mean_non_event": 6.984,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": "not_computable",
+    "z_comparison_reason": "80.46% of weeks are zero; a 12-week rolling z-score is undefined or degenerate"
+   },
+   "AMZN": {
+    "status": "ok",
+    "n_event_weeks": 10,
+    "n_non_event_weeks": 251,
+    "pct_zero_whole_series": 5.36,
+    "nonzero_rate_event": 1.0,
+    "nonzero_rate_non_event": 0.9442,
+    "median_event": 88.5,
+    "median_non_event": 5.0,
+    "mean_event": 87.6,
+    "mean_non_event": 11.139,
+    "perm_p_median_difference": 0.0,
+    "z_comparison": {
+     "median_z_event": 10.6971,
+     "median_z_non_event": -0.3822,
+     "n_event_z_ge_2": 10
+    }
+   }
+  }
+ }
+}
