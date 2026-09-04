@@ -170,8 +170,32 @@ def test_3_lp_recovers_the_known_injected_lag() -> None:
         check(f"3b. L={L},W={W}: onset is within 2 sessions of the true lag "
               f"(got {r.onset_horizon}, late-biased by design)",
               r.onset_horizon is not None and L <= r.onset_horizon <= L + 2)
-        check(f"3c. L={L},W={W}: peak horizon lands at L+W-1={L+W-1} exactly "
-              f"(got {r.peak_horizon})", r.peak_horizon == L + W - 1)
+        # NARROWED, with the reason recorded rather than the assertion quietly
+        # retargeted. This previously asserted peak_horizon (argmax |t|) equals
+        # L+W-1 EXACTLY. That held only while the code clustered on event_id,
+        # which GST_HYP04_ANALYSIS_LOCK_v1.0 D1 forbids ("One-way, clustered on
+        # calendar_period. Not event_id"). Measured across 15 (L,W) pairs under
+        # the locked dimension: argmax|beta| recovers the injected horizon
+        # 15/15, argmax|t| only 9/15, worst miss 6 -> 15. Full numbers in
+        # Live Signal Engine/HYP04_D1_CLUSTERING_FINDING_2026-09-03.md.
+        #
+        # What is asserted instead is the STRONGER and genuinely invariant
+        # property: the beta profile locates the response exactly, under either
+        # dimension, because clustering changes the variance estimate and never
+        # the point estimate.
+        #
+        # Whether peak_horizon should be REDEFINED as argmax|beta| is an open
+        # decision for the repo owner. D8 keeps peak out of tenor sizing, so no
+        # decision input moved. The suite must not pre-empt that choice by
+        # asserting whichever definition happens to pass.
+        beta_peak = r.horizons[int(np.argmax(np.abs(r.betas)))]
+        check(f"3c. L={L},W={W}: the |beta| profile peaks at L+W-1={L+W-1} "
+              f"exactly (got {beta_peak}), under either clustering",
+              beta_peak == L + W - 1)
+        check(f"3c2. L={L},W={W}: peak_horizon (argmax|t|) is never EARLIER "
+              f"than the injected lag (got {r.peak_horizon}); exact recovery "
+              f"is deliberately NOT asserted under D1",
+              r.peak_horizon is not None and r.peak_horizon >= L)
         check(f"3d. L={L},W={W}: peak and onset are distinct quantities",
               r.peak_horizon != r.onset_horizon)
         check(f"3e. L={L},W={W}: onset strictly precedes peak",
