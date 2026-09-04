@@ -35,11 +35,28 @@ section 3, carried into v0.2 section 3.6) -- the plan's own words:
 
     "...matching this project's own existing pattern of cross-validating novel
     statistical machinery against a trusted reference before it's allowed to
-    influence anything (see `tools/hyp01_r_reference/`), it should not be
-    permitted to affect any lock, gate, or hedge decision until it's been
-    validated against the classical result on known cases. Treat it the same
-    way the R cross-check treats the CR2/Satterthwaite estimator: a check on
-    the primary method, not a replacement for it."
+    influence anything (see the R reference bridge under `tools/`), it should
+    not be permitted to affect any lock, gate, or hedge decision until it's
+    been validated against the classical result on known cases. Treat it the
+    same way the R cross-check treats the CR2/Satterthwaite estimator: a check
+    on the primary method, not a replacement for it."
+
+The bridge directory is DESCRIBED above rather than named, and that is not
+editorial tidying of a quotation. Check 8f of the market-response R-reference
+validation suite scans every production module for that literal directory name
+and fails if one contains it -- comments included. That suite's own FILENAME
+embeds the same string, so it cannot be named here either; this paragraph was
+itself rejected once for naming it. market-response-tests.yml documents the identical convention for its
+own forbidden entry points: "That scan covers comments too -- which is why the
+names of those forbidden entry points are described here rather than spelled
+out."
+
+Spelling it out here left 8f RED from 2026-08-19 (81a3bd0) to 2026-09-03, and
+nothing could see it. The suite aborts at import without statsmodels, which the
+project venv did not carry; and neither workflow that runs the suite triggers on
+changes under hyp04_supply_chain_hedge/, so the file that broke the check could
+never itself trigger the check. Recorded because a guard that cannot fail
+visibly is not a guard.
 
 Build prompt v10 line 77 states the same scoping: tertiary, experimental,
 non-load-bearing, isolated, "never feeds into any decision or conclusion".
