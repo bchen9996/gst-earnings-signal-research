@@ -1,0 +1,261 @@
+{
+ "artifact": "GST_SEARCH_CONSTRUCT_VALIDITY_CORROBORATION",
+ "date": "2026-09-04",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "corrects": "audit v1.0 section 7.3",
+ "resolves_decision": false,
+ "uses_network": false,
+ "selectivity_and_periodicity": {
+  "rolling_window_weeks": 12,
+  "median_earnings_cadence_weeks": 13.0,
+  "baseline_is_structurally_trough_only": true,
+  "selectivity_pct_min": 25.0,
+  "selectivity_pct_max": 75.0,
+  "note": "a 12-week baseline on a 13-week earnings cadence rarely contains another earnings week, so the quarterly peak is compared against a trough-only baseline by construction",
+  "per_ticker": {
+   "MSFT": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 15,
+    "non_selected": 5,
+    "selectivity_pct": 75.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.0,
+    "max_earnings_weeks_inside_own_baseline": 0
+   },
+   "ADBE": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 15,
+    "non_selected": 5,
+    "selectivity_pct": 75.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.067,
+    "max_earnings_weeks_inside_own_baseline": 1
+   },
+   "NFLX": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 14,
+    "non_selected": 6,
+    "selectivity_pct": 70.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.0,
+    "max_earnings_weeks_inside_own_baseline": 0
+   },
+   "NKE": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 13,
+    "non_selected": 7,
+    "selectivity_pct": 65.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.077,
+    "max_earnings_weeks_inside_own_baseline": 1
+   },
+   "STZ": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 5,
+    "non_selected": 15,
+    "selectivity_pct": 25.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.0,
+    "max_earnings_weeks_inside_own_baseline": 0
+   },
+   "QCOM": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 10,
+    "non_selected": 10,
+    "selectivity_pct": 50.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.0,
+    "max_earnings_weeks_inside_own_baseline": 0
+   },
+   "SBUX": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 8,
+    "non_selected": 12,
+    "selectivity_pct": 40.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.0,
+    "max_earnings_weeks_inside_own_baseline": 0
+   },
+   "AMZN": {
+    "earnings_weeks_in_window": 20,
+    "selected_z5": 10,
+    "non_selected": 10,
+    "selectivity_pct": 50.0,
+    "mean_earnings_weeks_inside_own_baseline": 0.0,
+    "max_earnings_weeks_inside_own_baseline": 0
+   }
+  }
+ },
+ "like_for_like": {
+  "comparison": "selected z>=5 earnings weeks vs NON-SELECTED earnings weeks, same ticker; earnings-ness held constant",
+  "replaces": "audit section 7.3, which compared selected weeks against ALL other weeks, ~92% of which are not earnings weeks",
+  "min_arm_n": 5,
+  "n_permutations": 10000,
+  "random_seed": 42,
+  "pre_declared_interpretation": {
+   "higher_in_selected_arm": "the signal captures attention BEYOND earnings-ness; section 7.3's corroboration survives in weakened, honest form",
+   "no_detectable_difference": "the signal is detecting earnings-ness, not attention, and section 7.3's corroboration COLLAPSES; this is what the section 8.1 periodicity result predicts",
+   "commitment": "the result stands as reported either way; no re-slicing after seeing it, and no ticker with an arm below MIN_ARM_N is called a null"
+  },
+  "tickers_adequately_powered": [
+   "ADBE",
+   "AMZN",
+   "MSFT",
+   "NFLX",
+   "NKE",
+   "QCOM",
+   "SBUX",
+   "STZ"
+  ],
+  "tickers_underpowered": [],
+  "per_ticker": {
+   "MSFT": {
+    "status": "ok",
+    "n_selected": 15,
+    "n_non_selected": 5,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 86.0,
+    "median_non_selected": 93.0,
+    "mean_selected": 82.6,
+    "mean_non_selected": 86.0,
+    "perm_p_median_difference": 0.8398
+   },
+   "ADBE": {
+    "status": "ok",
+    "n_selected": 15,
+    "n_non_selected": 5,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 72.0,
+    "median_non_selected": 80.0,
+    "mean_selected": 70.867,
+    "mean_non_selected": 78.4,
+    "perm_p_median_difference": 0.7462
+   },
+   "NFLX": {
+    "status": "ok",
+    "n_selected": 14,
+    "n_non_selected": 6,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 83.0,
+    "median_non_selected": 83.5,
+    "mean_selected": 78.786,
+    "mean_non_selected": 81.167,
+    "perm_p_median_difference": 0.9838
+   },
+   "NKE": {
+    "status": "ok",
+    "n_selected": 13,
+    "n_non_selected": 7,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 92.0,
+    "median_non_selected": 77.0,
+    "mean_selected": 84.462,
+    "mean_non_selected": 77.714,
+    "perm_p_median_difference": 0.4146
+   },
+   "STZ": {
+    "status": "ok",
+    "n_selected": 5,
+    "n_non_selected": 15,
+    "nonzero_rate_selected": 0.4,
+    "nonzero_rate_non_selected": 0.4667,
+    "median_selected": 0.0,
+    "median_non_selected": 0.0,
+    "mean_selected": 37.4,
+    "mean_non_selected": 34.2,
+    "perm_p_median_difference": 1.0
+   },
+   "QCOM": {
+    "status": "ok",
+    "n_selected": 10,
+    "n_non_selected": 10,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 77.0,
+    "median_non_selected": 72.5,
+    "mean_selected": 70.1,
+    "mean_non_selected": 68.4,
+    "perm_p_median_difference": 0.906
+   },
+   "SBUX": {
+    "status": "ok",
+    "n_selected": 8,
+    "n_non_selected": 12,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 87.0,
+    "median_non_selected": 80.0,
+    "mean_selected": 78.625,
+    "mean_non_selected": 79.917,
+    "perm_p_median_difference": 0.8656
+   },
+   "AMZN": {
+    "status": "ok",
+    "n_selected": 10,
+    "n_non_selected": 10,
+    "nonzero_rate_selected": 1.0,
+    "nonzero_rate_non_selected": 1.0,
+    "median_selected": 88.5,
+    "median_non_selected": 79.0,
+    "mean_selected": 87.6,
+    "mean_non_selected": 79.7,
+    "perm_p_median_difference": 0.2826
+   }
+  }
+ },
+ "instrument_resolution": {
+  "question": "does the earnings-intent series have dynamic range WITHIN earnings weeks, or is it effectively binary?",
+  "added_after_seeing_8_2": true,
+  "does_not_change_8_2": true,
+  "n_tickers_saturated_at_earnings_weeks": 7,
+  "n_tickers_measured": 8,
+  "conclusion": "the instrument is near-binary: about 0 outside earnings weeks and 73-87 (of 100) during them. It separates earnings from non-earnings almost perfectly and high-attention from ordinary earnings weeks hardly at all, so the 8.2 null is largely UNINFORMATIVE rather than evidence that no attention difference exists",
+  "per_ticker": {
+   "MSFT": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 86.5,
+    "median_non_earnings_weeks": 5.0,
+    "pct_earnings_weeks_at_or_above_50": 100.0
+   },
+   "ADBE": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 73.0,
+    "median_non_earnings_weeks": 0.0,
+    "pct_earnings_weeks_at_or_above_50": 75.0
+   },
+   "NFLX": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 83.0,
+    "median_non_earnings_weeks": 0.0,
+    "pct_earnings_weeks_at_or_above_50": 95.0
+   },
+   "NKE": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 82.5,
+    "median_non_earnings_weeks": 0.0,
+    "pct_earnings_weeks_at_or_above_50": 100.0
+   },
+   "STZ": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 0.0,
+    "median_non_earnings_weeks": 0.0,
+    "pct_earnings_weeks_at_or_above_50": 40.0
+   },
+   "QCOM": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 76.0,
+    "median_non_earnings_weeks": 0.0,
+    "pct_earnings_weeks_at_or_above_50": 65.0
+   },
+   "SBUX": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 86.0,
+    "median_non_earnings_weeks": 0.0,
+    "pct_earnings_weeks_at_or_above_50": 90.0
+   },
+   "AMZN": {
+    "series_max": 100.0,
+    "median_earnings_weeks": 87.0,
+    "median_non_earnings_weeks": 5.0,
+    "pct_earnings_weeks_at_or_above_50": 100.0
+   }
+  }
+ }
+}

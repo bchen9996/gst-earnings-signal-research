@@ -414,6 +414,13 @@ change, is a `SCIENTIFIC_DECISION` for a human in a dated lock.
 
 ### 7.3 The tautology, broken — and the signal mostly survives
 
+> **CORRECTED IN §8, AND WITHDRAWN.** The comparison group below is wrong: it
+> pits selected spike weeks against *all* other weeks, ~92% of which are not
+> earnings weeks. It therefore tests whether earnings weeks have more
+> earnings-intent search than ordinary weeks — true, and not the claim made.
+> §8 repeats it against non-selected **earnings** weeks and the corroboration
+> does not survive. The numbers below are real; the inference from them is not.
+
 §5's 10-of-10 is true by construction: the events were selected as z >= 5 under
 the raw-ticker query. The fix is to measure an instrument that **never selected
 anything**. The earnings-intent series was collected independently and used for
@@ -461,6 +468,125 @@ recorded as such rather than replaced by a number.
 No decision is resolved, no gate moves, no universe changes, and no collection
 script is touched. `DELL`'s exposure and `STZ`'s failure are findings for a
 human to act on in a dated lock.
+
+---
+
+## 8. The corroboration, corrected — and withdrawn
+
+From `GST_SEARCH_CONSTRUCT_VALIDITY_CORROBORATION_2026-09-04.json`
+(`tools/run_gst_corroboration_fix.py`). Offline.
+
+### 8.1 The signal largely tracks the earnings calendar
+
+Two structural facts:
+
+- Median earnings cadence: **13.0 weeks**.
+- The z-score baseline is a **12-week** rolling window applied with `shift(1)`.
+
+So the baseline for an earnings week runs across weeks t−12 to t−1 and, at a
+13-week cadence, **almost never contains another earnings week**. Measured
+directly: the mean number of earnings weeks falling inside a selected event's
+own baseline is **0.0 for six of the eight tickers**, and 0.067 and 0.077 for
+the other two. **The quarterly peak is compared against a trough-only baseline
+by construction.**
+
+The consequence shows up in how often the signal fires:
+
+| ticker | earnings weeks clearing z ≥ 5 |
+|---|---|
+| MSFT | 15 of 20 (**75%**) |
+| ADBE | 15 of 20 (**75%**) |
+| NFLX | 14 of 20 (70%) |
+| NKE | 13 of 20 (65%) |
+| QCOM | 10 of 20 (50%) |
+| AMZN | 10 of 20 (50%) |
+| SBUX | 8 of 20 (40%) |
+| STZ | 5 of 20 (25%) |
+
+A five-sigma threshold that fires on **three-quarters of all earnings weeks**
+is not identifying unusual attention. It is substantially detecting the
+earnings cycle against a baseline that excludes earnings.
+
+*(These base rates were seen during feasibility checking, before §8.2 was run,
+and are reported as pre-observed rather than as a sealed result.)*
+
+### 8.2 Like-for-like: the corroboration does not survive
+
+§7.3's comparison group is replaced. Both arms are now **earnings weeks** for
+the same ticker, so earnings-ness is held constant and only attention varies.
+Median difference, 10,000-draw permutation test, seed 42.
+
+| ticker | n sel / non-sel | median selected | median non-selected | non-zero rate | perm p |
+|---|---|---|---|---|---|
+| MSFT | 15 / 5 | 86.0 | **93.0** | 1.00 vs 1.00 | 0.840 |
+| ADBE | 15 / 5 | 72.0 | **80.0** | 1.00 vs 1.00 | 0.746 |
+| NFLX | 14 / 6 | 83.0 | **83.5** | 1.00 vs 1.00 | 0.984 |
+| NKE | 13 / 7 | 92.0 | 77.0 | 1.00 vs 1.00 | 0.415 |
+| QCOM | 10 / 10 | 77.0 | 72.5 | 1.00 vs 1.00 | 0.906 |
+| SBUX | 8 / 12 | 87.0 | 80.0 | 1.00 vs 1.00 | 0.866 |
+| AMZN | 10 / 10 | 88.5 | 79.0 | 1.00 vs 1.00 | 0.283 |
+| STZ | 5 / 15 | 0.0 | 0.0 | 0.40 vs 0.47 | 1.000 |
+
+**Not one ticker shows a detectable difference.** No p-value falls below 0.28,
+and for MSFT, ADBE and NFLX the **non-selected** arm is the higher one. The
+non-zero rate is 1.00 in *both* arms for seven of eight — §7.3's headline
+contrast of "1.000 versus 0.129" was entirely the gap between earnings weeks
+and ordinary weeks.
+
+This is the outcome §8.1 predicted and the one the pre-declared interpretation
+assigned to "the signal is detecting earnings-ness, not attention." **§7.3's
+corroboration is withdrawn.** Every arm met the pre-declared minimum of 5
+observations, so no ticker is excused as underpowered.
+
+### 8.3 But the instrument is saturated, so the null is weak evidence
+
+*Added after §8.2 was computed, to diagnose it. It does not change §8.2, which
+stands exactly as reported. It is stated here because a non-saturated
+instrument would have made that null far stronger evidence against the signal,
+and the reader is entitled to know which case this is.*
+
+| ticker | median, earnings weeks | median, non-earnings weeks | earnings weeks ≥ 50 |
+|---|---|---|---|
+| MSFT | 86.5 | 5.0 | 100% |
+| AMZN | 87.0 | 5.0 | 100% |
+| NKE | 82.5 | 0.0 | 100% |
+| NFLX | 83.0 | 0.0 | 95% |
+| SBUX | 86.0 | 0.0 | 90% |
+| ADBE | 73.0 | 0.0 | 75% |
+| QCOM | 76.0 | 0.0 | 65% |
+| STZ | 0.0 | 0.0 | 40% |
+
+On a 0–100 index the earnings-intent series sits near **0 outside earnings
+weeks and 73–87 during them**, with 65–100% of earnings weeks at or above 50
+for seven of eight tickers. **The instrument is close to binary.** It separates
+earnings from non-earnings almost perfectly and discriminates within earnings
+weeks hardly at all.
+
+So §8.2's null means *this test cannot answer the question*, not *no attention
+difference exists*. The corroboration is not repaired by this instrument, and
+it cannot be: the measure runs out of range exactly where the question lives.
+
+**`STZ` is the one exception and it fails differently.** Its earnings-intent
+median is 0.0 even at earnings weeks, and only 40% reach 50 — consistent with
+§7.1's corrected finding that its earnings-attention volume is near-absent.
+
+### 8.4 Where this leaves the audit
+
+- §7.3's claim of independent corroboration is **withdrawn**. It was the
+  strongest evidence in the audit and it does not hold.
+- The z ≥ 5 signal fires on 25–75% of earnings weeks against a baseline that
+  structurally excludes earnings, so a large part of what it detects is the
+  earnings calendar.
+- **Nothing here shows the attention signal is spurious.** It shows the
+  available instruments cannot separate attention from earnings-ness. That is a
+  measurement limit, and stating it as a negative result about the signal would
+  overclaim in the opposite direction.
+- **What would answer it** is an instrument with dynamic range *within*
+  earnings weeks. That requires defeating the per-query normalisation of §7.1 —
+  a single multi-term `build_payload` — which is a network call needing a
+  staged go-ahead. It is now the highest-value follow-up in the project.
+
+Nothing here resolves a decision, moves a gate, or changes a universe.
 
 ---
 
