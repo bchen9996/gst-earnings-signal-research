@@ -4,8 +4,9 @@
 Primary lag estimator: LOCAL PROJECTIONS (Jorda-style). For each horizon h in
 the grid, regress the residualized abnormal-vol target at h on the anchor's
 shock magnitude plus controls, with cluster-robust SEs. The resulting beta_h
-sequence is an impulse-response profile, and the horizon where it peaks and
-clears significance is the estimated lag.
+sequence is an impulse-response profile. The horizon where beta_h peaks is the
+END of the reaction window; the first horizon clearing significance is its
+ONSET, and onset is the hedge-relevant one.
 
 Local projections rather than a raw CCF because CCF cannot condition on
 controls at each lag (so a "significant" lag can be shared sector-wide
@@ -13,12 +14,15 @@ movement rather than anchor-specific transmission) and is vulnerable to
 spurious correlation when either series is autocorrelated. The prewhitened
 CCF is kept as a SECONDARY classical cross-check, never as the decision-maker.
 
-MULTIPLICITY. The estimated lag is argmax|t_h| over ~20 horizons, which is a
-max-selection over correlated statistics. Uncorrected per-horizon p-values are
-meaningless for it. Significance therefore comes from a max-T PERMUTATION
-null, not Bonferroni: RVar(h) is a mean over an expanding window, so adjacent
-beta_h are correlated by construction and Bonferroni would be badly
-over-conservative against that correlation.
+MULTIPLICITY. Significance is judged on max_h |t_h| over ~20 horizons, which is
+a max-selection over correlated statistics. Uncorrected per-horizon p-values
+are meaningless for it. Significance therefore comes from a max-T PERMUTATION null,
+not Bonferroni: RVar(h) is a mean over an expanding window, so adjacent beta_h
+are correlated by construction and Bonferroni would be badly over-conservative
+against that correlation.
+
+The reported PEAK LOCATION is argmax|beta_h|, a SEPARATE quantity from the
+max_h |t_h| this paragraph is about -- see LocalProjectionResult.
 
 The permutation shuffles SHOCK MAGNITUDES ACROSS ANCHOR EVENTS, holding the
 panel's cluster structure fixed. That preserves within-event correlation among
@@ -78,10 +82,21 @@ class LocalProjectionResult:
     unaffected days dilute it. So:
 
         onset_horizon  = first h clearing significance  -> L      (ONSET)
-        peak_horizon   = argmax_h |t_h|                 -> L+W-1  (END)
+        peak_horizon   = argmax_h |beta_h|              -> L+W-1  (END)
 
-    Confirmed empirically on synthetic fixtures across six (L, W) combinations:
-    argmax matched L+W-1 and first-significant matched L in every case.
+    Confirmed empirically on synthetic fixtures: peak_horizon matched L+W-1 on
+    15 of 15 (L, W) combinations under the D1-locked clustering, and
+    first-significant matched L within the stated late bias.
+
+    PEAK IS argmax|beta|, NOT argmax|t|, and the distinction is load-bearing.
+    Plan v0.2 section 3.5 defines it on beta. A location estimate must not move
+    when the variance estimate changes, and argmax|t| does: under the
+    calendar_period clustering the signed lock requires it recovered the
+    injected peak only 9 of 15 times, worst miss h=6 reported at h=15.
+
+    max_abs_t is kept SEPARATE because the max-T permutation null is the
+    distribution of max_h |t_h|. Comparing anything else to its critical value
+    would be comparing a statistic to a null built for a different one.
 
     ONSET_HORIZON IS THE HEDGE-RELEVANT ONE. Stage 2 sizes tenor against when
     the reaction STARTS; using the peak would buy a tenor (W-1) days too long
@@ -111,6 +126,7 @@ class LocalProjectionResult:
     onset_abs_t: Optional[float] = None
     max_t_critical_value: Optional[float] = None
     max_t_p_value: Optional[float] = None
+    max_abs_t: Optional[float] = None
     peak_significant: Optional[bool] = None
     n_permutations: int = 0
     effective_independent_tests: Optional[float] = None
@@ -385,15 +401,30 @@ def local_projection_analysis(
         return result
 
     abs_t = np.array([abs(f.t_stat) for f in fits])
-    j = int(np.argmax(abs_t))
-    result.peak_horizon = fits[j].horizon
-    result.peak_abs_t = float(abs_t[j])
+
+    # THE TEST STATISTIC and THE REPORTED LOCATION are different quantities and
+    # are kept in different fields. Conflating them is what this split fixes.
+    #
+    # max_abs_t is max_h |t_h|, which is what the permutation null is a
+    # distribution OF. It alone may be compared to that null's critical value.
+    result.max_abs_t = float(np.max(abs_t))
+
+    # peak_horizon is argmax_h |beta_h| -- where the response actually peaks.
+    # Plan v0.2 section 3.5 defines it this way ("argmax_h beta_h lands at
+    # h = L+W-1, the end of the reaction window"); the argmax|t| this replaces
+    # was the code's divergence FROM the plan, not a separate choice. Under the
+    # D1-locked calendar_period clustering argmax|t| recovered an injected peak
+    # 9/15 while argmax|beta| recovered 15/15, because clustering changes the
+    # variance estimate and must never move a location estimate.
+    k = int(np.argmax(np.abs(np.array([f.beta for f in fits]))))
+    result.peak_horizon = fits[k].horizon
+    result.peak_abs_t = float(abs_t[k])          # |t| AT the peak, not the max
 
     if run_permutation:
         perm = max_t_permutation(
             table, horizons=horizons, controls=controls,
             n_permutations=n_permutations, seed=seed,
-            observed_max_abs_t=result.peak_abs_t, cluster_key=cluster_key)
+            observed_max_abs_t=result.max_abs_t, cluster_key=cluster_key)
         result.max_t_critical_value = perm["null_max_abs_t_p95"]
         result.max_t_p_value = perm["max_t_p_value"]
         result.peak_significant = perm["peak_significant"]

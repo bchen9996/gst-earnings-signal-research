@@ -170,32 +170,16 @@ def test_3_lp_recovers_the_known_injected_lag() -> None:
         check(f"3b. L={L},W={W}: onset is within 2 sessions of the true lag "
               f"(got {r.onset_horizon}, late-biased by design)",
               r.onset_horizon is not None and L <= r.onset_horizon <= L + 2)
-        # NARROWED, with the reason recorded rather than the assertion quietly
-        # retargeted. This previously asserted peak_horizon (argmax |t|) equals
-        # L+W-1 EXACTLY. That held only while the code clustered on event_id,
-        # which GST_HYP04_ANALYSIS_LOCK_v1.0 D1 forbids ("One-way, clustered on
-        # calendar_period. Not event_id"). Measured across 15 (L,W) pairs under
-        # the locked dimension: argmax|beta| recovers the injected horizon
-        # 15/15, argmax|t| only 9/15, worst miss 6 -> 15. Full numbers in
-        # Live Signal Engine/HYP04_D1_CLUSTERING_FINDING_2026-09-03.md.
-        #
-        # What is asserted instead is the STRONGER and genuinely invariant
-        # property: the beta profile locates the response exactly, under either
-        # dimension, because clustering changes the variance estimate and never
-        # the point estimate.
-        #
-        # Whether peak_horizon should be REDEFINED as argmax|beta| is an open
-        # decision for the repo owner. D8 keeps peak out of tenor sizing, so no
-        # decision input moved. The suite must not pre-empt that choice by
-        # asserting whichever definition happens to pass.
-        beta_peak = r.horizons[int(np.argmax(np.abs(r.betas)))]
-        check(f"3c. L={L},W={W}: the |beta| profile peaks at L+W-1={L+W-1} "
-              f"exactly (got {beta_peak}), under either clustering",
-              beta_peak == L + W - 1)
-        check(f"3c2. L={L},W={W}: peak_horizon (argmax|t|) is never EARLIER "
-              f"than the injected lag (got {r.peak_horizon}); exact recovery "
-              f"is deliberately NOT asserted under D1",
-              r.peak_horizon is not None and r.peak_horizon >= L)
+        # peak_horizon IS argmax|beta| as of the correction to plan v0.2
+        # section 3.5, so it is asserted directly and EXACTLY again. The
+        # narrowed form here was temporary, held only while the definition was
+        # an open question after the D1 clustering fix exposed that argmax|t|
+        # recovered the injected peak 9/15 where argmax|beta| recovers 15/15.
+        check(f"3c. L={L},W={W}: peak_horizon lands at L+W-1={L+W-1} exactly "
+              f"(got {r.peak_horizon})", r.peak_horizon == L + W - 1)
+        check(f"3c2. L={L},W={W}: peak_horizon is the |beta| argmax, so it "
+              f"cannot move with the clustering dimension",
+              r.peak_horizon == r.horizons[int(np.argmax(np.abs(r.betas)))])
         check(f"3d. L={L},W={W}: peak and onset are distinct quantities",
               r.peak_horizon != r.onset_horizon)
         check(f"3e. L={L},W={W}: onset strictly precedes peak",
@@ -210,9 +194,13 @@ def test_4_zero_effect_fixture_finds_nothing() -> None:
           f"(p={r.max_t_p_value:.3f})", r.peak_significant is False)
     check("4b. no onset horizon is reported when nothing clears",
           r.onset_horizon is None)
-    check(f"4c. peak |t| sits below the max-T critical value "
-          f"({r.peak_abs_t:.2f} < {r.max_t_critical_value:.2f})",
-          r.peak_abs_t < r.max_t_critical_value)
+    # max_abs_t, NOT peak_abs_t. The null is a distribution of max_h |t_h|, so
+    # the max is the only statistic its critical value may be compared to.
+    # peak_abs_t is |t| at the beta-peak and can be strictly smaller, which
+    # would make this check pass while testing something weaker than its label.
+    check(f"4c. the MAX |t| over horizons sits below the max-T critical value "
+          f"({r.max_abs_t:.2f} < {r.max_t_critical_value:.2f})",
+          r.max_abs_t < r.max_t_critical_value)
 
 
 def test_5_multiplicity_correction_actually_binds() -> None:
