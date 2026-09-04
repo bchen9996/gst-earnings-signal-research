@@ -376,12 +376,28 @@ def test_13_stage2_is_rules_based_and_carries_its_assumption() -> None:
 
 
 def test_14_stage2_tenor_uses_onset_not_peak() -> None:
-    """Sizing off the peak would buy (W-1) days too much tenor."""
+    """Sizing off the peak would buy (W-1) days too much tenor.
+
+    Also pins the OTHER axis, which this test did not cover while the code
+    diverged from it: tenor is sized off the interval's lower bound
+    (onset - 2), per the signed lock's D8, not off the bare point estimate.
+    """
     s = Stage1Score("P", 0.8, onset_horizon=5, peak_horizon=9,
                     lag_ci_width_days=2.0, significant=True)
     r = select_hedge_structure(s, PeerOptionsConditions("P", 5000, 500, 0.05, 0.02, 0.35))
+    # (5 - 2) + 5 = 8. It was 10 while tenor was sized off the point estimate.
     check(f"14a. tenor is derived from onset=5, not peak=9 (got {r.tenor_trading_days})",
-          r.tenor_trading_days == 10)
+          r.tenor_trading_days == 8)
+    # D8 explicitly: the LOWER bound, never the point estimate. Asserted as a
+    # relationship rather than a second magic number, so the buffer -- which no
+    # signed artifact fixes -- can change without this claim going stale.
+    check("14a2. and off the interval's LOWER bound (onset-2), per D8",
+          r.tenor_trading_days
+          == select_hedge_structure(
+              Stage1Score("P", 0.8, onset_horizon=3, peak_horizon=9,
+                          lag_ci_width_days=2.0, significant=True),
+              PeerOptionsConditions("P", 5000, 500, 0.05, 0.02, 0.35),
+          ).tenor_trading_days + 2)
     check("14b. the peak is recorded but explicitly not used for tenor",
           r.inputs["peak_horizon_not_used_for_tenor"] == 9)
 
