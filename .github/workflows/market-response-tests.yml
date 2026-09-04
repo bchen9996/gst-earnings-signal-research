@@ -47,18 +47,6 @@ on:
       # a change to it can break the suite. Without this filter that test would
       # only run when some other matching path happened to change.
       - "tools/**"
-      # A discovered test file scans EVERY production Python module in this
-      # repository -- comments included -- to assert that none of them names
-      # the R reference bridge directory. Its input surface is therefore ALL
-      # Python, while the filters above cover only a slice. A module outside
-      # them can break that check without ever triggering it, which is not
-      # hypothetical: the check was red from 2026-08-19 to 2026-09-03 and
-      # nothing ran it, because the only file that broke it lives in a package
-      # no filter here mentions.
-      #
-      # The rule this encodes: a trigger must cover the input surface of the
-      # checks it runs, not just the directories the workflow is named after.
-      - "**/*.py"
       - "Live Signal Engine/GST_Earnings_Market_Response_Decomposition_SPEC_v0.1_DRAFT.md"
       - "Live Signal Engine/GST_MARKET_RESPONSE_FIELD_DICTIONARY_v0.1.md"
       - "Live Signal Engine/GST_MARKET_RESPONSE_OPERATIONAL_READINESS_CHECKLIST_v0.1.md"

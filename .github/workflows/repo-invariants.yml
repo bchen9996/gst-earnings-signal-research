@@ -1,0 +1,55 @@
+name: Repository Invariants
+
+# One job, one file, no dependencies, a few seconds.
+#
+# WHY THIS EXISTS AS ITS OWN WORKFLOW.
+#
+# test_repo_invariants.py holds checks whose input surface is EVERY production
+# Python module in the repository. Every other workflow here filters on the
+# directories it is named after, which is correct for a suite that tests one
+# package and wrong for a check that reads all of them: a module outside those
+# filters can break a whole-repo check without ever triggering it.
+#
+# That is not hypothetical. The bridge-isolation check was red from 2026-08-19
+# to 2026-09-03 because the only file that broke it lived in a package no path
+# filter mentioned, and because the suite it lived in aborts at import without
+# an optional numerical dependency it does not need.
+#
+# So this workflow trades scope for cost: it triggers on ALL Python, and in
+# exchange installs nothing and runs one stdlib-only file. Putting the same
+# trigger on a heavier suite would have made every Python change pay for a
+# full dependency install and a multi-minute run.
+#
+# It touches no market data, no broker API, no credential, and no research
+# artifact. It reads source files and compares strings.
+on:
+  pull_request:
+    paths:
+      - "**/*.py"
+      - ".github/workflows/repo-invariants.yml"
+  workflow_dispatch: {}
+
+# Least privilege, matching the repository's existing workflows.
+permissions:
+  contents: read
+
+jobs:
+  repo-invariants:
+    name: Repository-wide invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # No setup-python step and no pip install, deliberately. The runner's
+      # system interpreter is enough, and needing nothing is the property that
+      # makes this check runnable everywhere -- which is the whole point.
+      - name: Run repository invariants
+        run: |
+          set -e
+          test -f test_repo_invariants.py || {
+            echo "test_repo_invariants.py is missing -- failing rather than reporting a vacuous success."
+            exit 1
+          }
+          python3 test_repo_invariants.py
