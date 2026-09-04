@@ -41,6 +41,8 @@ GEN = ROOT / "tools" / "run_gst_construct_validity_audit.py"
 ART = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_RESULTS_2026-09-04.json"
 GEN2 = ROOT / "tools" / "run_gst_construct_validity_followup.py"
 ART2 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_FOLLOWUP_2026-09-04.json"
+GEN3 = ROOT / "tools" / "run_gst_corroboration_fix.py"
+ART3 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_CORROBORATION_2026-09-04.json"
 DOC = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_AUDIT_v1.0_2026-09-04.md"
 
 FAILURES: list[str] = []
@@ -66,6 +68,10 @@ def _gen():
 
 def _gen2():
     return _load_mod(GEN2, "_f5followup")
+
+
+def _gen3():
+    return _load_mod(GEN3, "_f5corrob")
 
 
 def test_1_artifact_and_document_exist() -> None:
@@ -269,6 +275,100 @@ def test_10_followup_guards_refuse() -> None:
           m.RANDOM_SEED == 42 and m.N_PERMUTATIONS == 10000)
 
 
+def test_11_corroboration_fix_recomputes() -> None:
+    m = _gen3()
+    art = json.loads(ART3.read_text(encoding="utf-8"))
+    ed, br = m._load_inputs()
+    for name, fn in (("selectivity_and_periodicity", m.section_selectivity),
+                     ("like_for_like", m.section_like_for_like),
+                     ("instrument_resolution", m.section_instrument_resolution)):
+        check(f"11. {name} recomputes to the committed artifact",
+              fn(ed, br) == art[name])
+
+
+def test_12_the_baseline_is_structurally_trough_only() -> None:
+    s = json.loads(ART3.read_text(encoding="utf-8"))["selectivity_and_periodicity"]
+    check("12a. a 12-week baseline on a 13-week cadence excludes earnings weeks",
+          s["baseline_is_structurally_trough_only"] is True)
+    inside = [v["mean_earnings_weeks_inside_own_baseline"]
+              for v in s["per_ticker"].values()]
+    check("12b. no ticker averages even one earnings week in its own baseline",
+          max(inside) < 1.0, f"max={max(inside)}")
+    check("12c. the signal fires on a large share of ALL earnings weeks",
+          s["selectivity_pct_max"] >= 70.0,
+          f"max selectivity={s['selectivity_pct_max']}%")
+
+
+def test_13_the_corroboration_is_withdrawn_not_rescued() -> None:
+    """The headline result of section 7.3 must not survive anywhere."""
+    lf = json.loads(ART3.read_text(encoding="utf-8"))["like_for_like"]
+    per = lf["per_ticker"]
+    ps = [v["perm_p_median_difference"] for v in per.values()
+          if v.get("perm_p_median_difference") is not None]
+    check("13a. every ticker produced a like-for-like comparison", len(ps) == 8)
+    check("13b. not one reaches significance", min(ps) > 0.05, f"min p={min(ps)}")
+
+    # 7.3's contrast was 1.000 vs 0.129. Held to earnings weeks it vanishes.
+    both_one = [k for k, v in per.items()
+                if v.get("nonzero_rate_selected") == 1.0
+                and v.get("nonzero_rate_non_selected") == 1.0]
+    check("13c. the non-zero-rate contrast disappears once both arms are "
+          "earnings weeks", len(both_one) == 7, f"both 1.00: {sorted(both_one)}")
+
+    higher_in_control = [k for k, v in per.items()
+                         if v.get("median_selected") is not None
+                         and v["median_selected"] < v["median_non_selected"]]
+    check("13d. and for some tickers the NON-selected arm is higher",
+          len(higher_in_control) >= 3, f"{sorted(higher_in_control)}")
+
+    doc = DOC.read_text(encoding="utf-8")
+    check("13e. section 7.3 is marked corrected and withdrawn",
+          "CORRECTED IN §8, AND WITHDRAWN" in doc)
+    check("13f. section 7.3's original text is left intact",
+          "The tautology, broken" in doc)
+
+
+def test_14_the_power_rule_cannot_be_bypassed() -> None:
+    """An underpowered arm must never be reported as a null."""
+    m = _gen3()
+    lf = json.loads(ART3.read_text(encoding="utf-8"))["like_for_like"]
+    check("14a. the power rule is a module constant, pre-declared",
+          m.MIN_ARM_N == 5)
+    check("14b. it is recorded in the artifact", lf["min_arm_n"] == m.MIN_ARM_N)
+    for k, v in lf["per_ticker"].items():
+        if v.get("status") in (None, "no_intent_series"):
+            continue
+        small = min(v["n_selected"], v["n_non_selected"]) < m.MIN_ARM_N
+        if small and v["status"] != "underpowered":
+            check(f"14c. {k} has a small arm but is not flagged underpowered",
+                  False)
+            return
+    check("14c. every ticker with an arm below the minimum is flagged "
+          "underpowered, and none here is", True)
+    check("14d. the interpretation was pre-declared, not written after",
+          set(lf["pre_declared_interpretation"]) ==
+          {"higher_in_selected_arm", "no_detectable_difference", "commitment"})
+
+
+def test_15_the_null_is_not_overclaimed() -> None:
+    """Saturation means the null is weak evidence, and the doc must say so."""
+    art = json.loads(ART3.read_text(encoding="utf-8"))
+    ir = art["instrument_resolution"]
+    check("15a. the instrument is saturated at earnings weeks for most tickers",
+          ir["n_tickers_saturated_at_earnings_weeks"] >= 7)
+    check("15b. the diagnostic declares it was added after the null",
+          ir["added_after_seeing_8_2"] is True
+          and ir["does_not_change_8_2"] is True)
+
+    doc = DOC.read_text(encoding="utf-8")
+    check("15c. the write-up says the null cannot answer the question",
+          "cannot answer the question" in doc)
+    check("15d. and refuses to claim the signal is spurious",
+          "Nothing here shows the attention signal is spurious" in doc)
+    check("15e. and names what would actually answer it",
+          "multi-term" in doc and "dynamic range" in doc)
+
+
 if __name__ == "__main__":
     test_1_artifact_and_document_exist()
     test_2_every_artifact_number_recomputes()
@@ -280,6 +380,11 @@ if __name__ == "__main__":
     test_8_the_screen_does_not_separate_cleanly()
     test_9_the_tautology_is_broken_and_stz_fails()
     test_10_followup_guards_refuse()
+    test_11_corroboration_fix_recomputes()
+    test_12_the_baseline_is_structurally_trough_only()
+    test_13_the_corroboration_is_withdrawn_not_rescued()
+    test_14_the_power_rule_cannot_be_bypassed()
+    test_15_the_null_is_not_overclaimed()
 
     print()
     if FAILURES:
