@@ -41,6 +41,7 @@ from dataclasses import dataclass, field
 from typing import Any, Optional, Sequence, Union
 
 from .constants import ASSUMED_PEER_EQUITY_NOTIONAL_USD, NO_EDGE_CLAIM
+from .onset import OnsetInterval
 from .quantum_provenance import (
     MethodProvenance,
     assert_may_influence_link_strength,
@@ -111,6 +112,16 @@ class Stage1Score:
         Union[MethodProvenance, Sequence[Optional[MethodProvenance]]]
     ] = None
 
+    @property
+    def onset_interval(self) -> Optional[OnsetInterval]:
+        """Onset as D7 requires it reported: `[onset - 2, onset]`, never bare.
+
+        `onset_horizon` above stays the raw detected scalar because that is
+        what `_tenor_from_onset` consumes, per D8's literal arithmetic. Every
+        REPORTING path uses this property instead.
+        """
+        return OnsetInterval.from_onset(self.onset_horizon)
+
 
 @dataclass
 class HedgeRecommendation:
@@ -172,9 +183,19 @@ def _tenor_from_onset(onset: int) -> int:
     plan v0.2. It stays a fixed 5 sessions rather than a fitted quantity
     because at this sample size fitting a buffer would be fitting noise.
 
-    NOT ADDRESSED HERE, because no artifact decides it: the lock sets no floor
-    on onset - 2, so onset = 1 yields a lower bound of -1. The tenor path is
-    unharmed -- (1 - 2) + 5 = 4 -- but a reported interval would not be.
+    THE FLOOR DELIBERATELY DOES NOT REACH THIS FUNCTION. The lock sets no floor
+    on onset - 2, so onset = 1 yields a lower bound of -1. A REPORTED interval
+    of [-1, 1] would claim a horizon HORIZON_GRID cannot express, so onset.py
+    clamps the reported bound (decided 2026-09-04). It stops there: D8 states
+    the quantity it sizes off literally, as `onset_horizon - 2`, so this
+    function still computes on the raw value and its output is unchanged at
+    every onset -- (1 - 2) + 5 = 4, as before.
+
+    The two therefore diverge at onset in {1, 2}. That is disclosed rather than
+    reconciled: OnsetInterval.diverges_from_tenor_basis reports when it is
+    happening, and the serialised interval carries the tenor basis beside the
+    floored bound. Making tenor follow the floor would move hedge tenor at
+    those onsets and needs its own dated amendment, not a quiet change here.
     """
     return int(onset) - 2 + 5
 
@@ -207,9 +228,15 @@ def select_hedge_structure(
     )
 
     budget = notional_usd * cost_budget_pct
+    _onset_interval = score.onset_interval
     inputs = {
         "link_strength": score.link_strength,
-        "onset_horizon": score.onset_horizon,
+        # D7: the lag quantity is REPORTED as an interval, never as a point
+        # estimate. The bare `onset_horizon` scalar that used to sit here was
+        # the reporting-side D7 violation; the raw value is still carried,
+        # inside the interval, where its k and its floor travel with it.
+        "onset_interval": (_onset_interval.as_dict()
+                           if _onset_interval is not None else None),
         "peak_horizon_not_used_for_tenor": score.peak_horizon,
         "lag_ci_width_days": score.lag_ci_width_days,
         "significant": score.significant,

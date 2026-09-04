@@ -18,6 +18,27 @@ from __future__ import annotations
 HORIZON_GRID: tuple[int, ...] = tuple(range(1, 21))
 REPORTING_HORIZONS: tuple[int, ...] = (5, 10, 20)
 
+# --- Reported lag quantity (D7) -------------------------------------------
+# GST_HYP04_ANALYSIS_LOCK_v1.0 D7, SIGNED 2026-08-20, IN FORCE:
+#   "`onset_horizon` is reported as the interval `[onset - 2, onset]`, never
+#    as a point estimate."  Widening is one-sided and fixed at k = 2.
+#
+# The widening corrects a MECHANICAL BIAS (onset detects late, never early),
+# not sampling noise. D7 is explicit that the result "is_a_confidence_interval:
+# false" and "must_never_be_reported_as" one. Adding a noise-based band would
+# require a new dated amendment.
+ONSET_INTERVAL_K = 2
+
+# The lock sets NO floor on `onset - 2`, so onset = 1 yields a lower bound of
+# -1, which is not a horizon this grid can express. The floor exists so the
+# REPORTED interval stays inside the observable grid; it deliberately does NOT
+# reach D8's tenor arithmetic, which the lock states literally as
+# `onset_horizon - 2`. See onset.py for why the two intentionally differ.
+#
+# Same shape as ICC_FLOOR below: the raw value is always reported, and the
+# floored value is used only where an out-of-range number would be incoherent.
+ONSET_LOWER_FLOOR = min(HORIZON_GRID)
+
 # --- Target definition (Patch 9, Round 3 correction) ----------------------
 # RVar(h) = (1/h) * sum(r_i^2) -- a VARIANCE (no square root), unbiased for
 # sigma^2 at every h. The earlier unnormalized RV(h) = sqrt(sum(r_i^2))
