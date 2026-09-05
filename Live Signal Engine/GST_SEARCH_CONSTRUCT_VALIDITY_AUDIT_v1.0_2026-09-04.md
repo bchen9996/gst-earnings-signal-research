@@ -540,6 +540,14 @@ observations, so no ticker is excused as underpowered.
 
 ### 8.3 But the instrument is saturated, so the null is weak evidence
 
+> **CORRECTED IN §9.** "Saturated" names the consequence and misses the
+> mechanism. `GST_IntentFiltered_Pull.py:45` pulls **one Google Trends call per
+> calendar year**, so this series is five independently renormalised annual
+> segments concatenated — each year's peak forced to 100 whatever its true
+> volume. The compression below is real; calling it saturation of a single
+> scale is wrong, and the cross-year comparison §8.2 ran was invalid for a
+> reason §8.3 did not identify.
+
 *Added after §8.2 was computed, to diagnose it. It does not change §8.2, which
 stands exactly as reported. It is stated here because a non-saturated
 instrument would have made that null far stronger evidence against the signal,
@@ -585,6 +593,156 @@ median is 0.0 even at earnings weeks, and only 40% reach 50 — consistent with
   earnings weeks. That requires defeating the per-query normalisation of §7.1 —
   a single multi-term `build_payload` — which is a network call needing a
   staged go-ahead. It is now the highest-value follow-up in the project.
+
+Nothing here resolves a decision, moves a gate, or changes a universe.
+
+---
+
+## 9. Why §8.2 failed — the instrument is renormalised every year
+
+From `GST_SEARCH_CONSTRUCT_VALIDITY_NORMALIZATION_2026-09-04.json`
+(`tools/run_gst_instrument_normalization_fix.py`). Offline. The interpretation
+in §9.3 was committed (`e3d9036`) before any outcome was computed.
+
+### 9.1 The mechanism §8.3 missed
+
+`GST_IntentFiltered_Pull.py:45`:
+
+```python
+timeframe = f"{year}-01-01 {year}-12-31"
+```
+
+**One Google Trends call per calendar year.** Google renormalises its 0–100
+index to the peak of each queried window, so the series §8.2 analysed is five
+independently normalised annual segments concatenated.
+
+The signature is in the data. **All 40 ticker-years contain a week valued
+exactly 100**, and 39 of 40 contain exactly one (SBUX 2021 ties two weeks at
+its annual maximum — the same forced-ceiling signature, not a counterexample).
+A single continuous 2021–2025 pull would contain **one** 100 in total.
+
+The consequence is visible in the zero fraction, which §7.1 identified as the
+only surviving proxy for absolute volume. Nonzero weeks per year, of ~52:
+
+| ticker | 2021 | 2022 | 2023 | 2024 | 2025 |
+|---|---|---|---|---|---|
+| ADBE | 4 | 7 | 7 | 17 | **25** |
+| NKE | 4 | 4 | 6 | 14 | **17** |
+| NFLX | 17 | 24 | 20 | 21 | **35** |
+| MSFT | 34 | 40 | 46 | 51 | 50 |
+| AMZN | 42 | 51 | 51 | 52 | 51 |
+| STZ | 2 | 2 | 2 | 1 | 6 |
+
+ADBE's zero fraction moves by a factor of six across five years of one
+continuous phenomenon. Under a shared scale that cannot happen from
+renormalisation; under five independent anchors it is expected. **So §8.2
+pooled ~20 earnings weeks drawn on five different scales and compared their
+medians.** That is why it could not resolve anything, and "saturation" was the
+wrong name for it.
+
+**§7.1 is not affected.** Its cross-ticker zero-fraction comparison holds
+because every ticker spans the same five years: STZ sits at 1–6 nonzero weeks
+in *every* year against AMZN's 42–52 in *every* year. That contrast survives
+the year anchor; a within-ticker comparison across years does not.
+
+**The project already knew, for a different series.**
+`Live Signal Engine/CHANGELOG.md` (2026-07-18) documents per-year chunking and
+window renormalisation for the **main** GST series, and corrects it the same day
+by re-pulling continuously (`FullPopulation_ContinuousWindow_Recompute.csv`, one
+`2021-01-01 2025-12-31` call per ticker). **That correction was never applied to
+the intent-filtered series.** §8.2 ran on an instrument carrying a defect this
+repository had already diagnosed and repaired elsewhere. That is not a new
+discovery; it is an unapplied one, and the audit should have found it in §3.
+
+### 9.2 The selection side survives the correction
+
+§8's *selection* side came from the same per-year-chunked data, so it needs
+checking too, against the corrected population:
+
+| | audited | retained | dropped | newly qualifying |
+|---|---|---|---|---|
+| MSFT | 15 | 13 | 2 | 0 |
+| ADBE | 15 | 14 | 1 | 0 |
+| NFLX | 14 | 14 | 0 | 2 |
+| NKE | 13 | 12 | 1 | 1 |
+| QCOM | 10 | 9 | 1 | 1 |
+| SBUX | 8 | 7 | 1 | 2 |
+| AMZN | 10 | 10 | 0 | 0 |
+| STZ | 5 | 4 | 1 | 2 |
+| **total** | **90** | **83** | **7** | **8** |
+
+**83 of 90 survive.** §8.1's selectivity finding is not propped up by the same
+defect and stands as reported.
+
+### 9.3 The like-for-like test, blocked on year — the actual fix
+
+Within a single ticker-year the normalisation anchor **is** shared. So §8.2 is
+re-run with both arms held to earnings weeks *and* every comparison confined to
+one ticker-year, permuting arm labels **within stratum only** — permuting
+across strata would reintroduce exactly the scale break this section exists to
+remove. 10,000 draws, seed 42.
+
+- Informative strata (both arms non-empty): **32 of 40**, against a
+  pre-declared minimum of 20. Adequately powered by the rule as written.
+- Primary statistic, mean within-stratum difference of arm means:
+  **+4.17 index points**, **p = 0.380**.
+- Pre-declared robustness statistic on within-stratum ranks: **−0.006**,
+  **p = 0.949**. The two **agree**.
+
+**Verdict: no detectable difference.** By the interpretation sealed in
+`e3d9036`, this reads as: *the withdrawal in §8 stands, and now stands on an
+instrument whose known scale defect has been controlled rather than ignored.*
+
+Per ticker, **descriptive only** — three to five strata cannot support an
+inference for one ticker, and these are printed so the spread is visible, not
+so any of them can be quoted:
+
+| ticker | strata | mean within-stratum difference |
+|---|---|---|
+| STZ | 3 | +18.3 |
+| SBUX | 4 | +9.8 |
+| NKE | 4 | +8.7 |
+| QCOM | 5 | +7.7 |
+| AMZN | 5 | +3.2 |
+| MSFT | 3 | +2.9 |
+| NFLX | 5 | −3.4 |
+| ADBE | 3 | −13.7 |
+
+A spread from −13.7 to +18.3 with a pooled p of 0.38 is what noise looks like.
+
+**One caveat on the effect size, not the test.** The permutation p is exact
+under within-stratum exchangeability. The observed **+4.17 index points** is
+not a physical quantity: it averages differences measured on five annual
+scales. The rank statistic, which is scale-free within stratum, is the one to
+read for direction — and it is flat.
+
+### 9.4 What this fixes, what it does not, and exactly what would
+
+Blocking removes the **cross-year** scale break. It does not restore absolute
+scale, and it cannot add dynamic range *within* a year: at ~4 earnings weeks
+per ticker-year, a year-blocked test is inherently low-resolution. The honest
+statement is unchanged from §8.3's conclusion even though its mechanism was
+wrong — **these instruments cannot separate attention from earnings-ness**, and
+that remains a measurement limit rather than a negative result about the
+signal.
+
+**What would answer it**, specified precisely and **not performed here** — it
+is a network call and needs a staged go-ahead:
+
+```python
+pt.build_payload([company_term, earnings_term],
+                 timeframe="2021-01-01 2025-12-31", geo=GEO, gprop=GPROP)
+```
+
+**Eight calls, one per ticker.** A single continuous window fixes the time axis
+of §9.1; a multi-term payload fixes the term axis of §7.1. Both defects, one
+request. The five-years-flat bound is required, not cosmetic: `CHANGELOG.md`
+records that a pytrends window longer than ~5 years silently degrades from
+weekly to monthly granularity, and that `2021-01-01`–`2025-12-31` was confirmed
+to return the expected ~262 weekly points.
+
+Until that is run, §7.3 stays withdrawn and no corroboration claim is made in
+either direction.
 
 Nothing here resolves a decision, moves a gate, or changes a universe.
 

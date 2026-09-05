@@ -1,0 +1,584 @@
+{
+ "artifact": "GST_SEARCH_CONSTRUCT_VALIDITY_NORMALIZATION",
+ "date": "2026-09-04",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "corrects": "audit v1.0 section 8.3",
+ "resolves_decision": false,
+ "uses_network": false,
+ "normalization_evidence": {
+  "claim": "each yearly file is an independent Google Trends pull, so each year's peak is forced to 100 regardless of its true volume",
+  "cause": "GST_IntentFiltered_Pull.py line 45: timeframe = f'{year}-01-01 {year}-12-31'",
+  "prior_diagnosis_not_applied_here": "Live Signal Engine/CHANGELOG.md 2026-07-18 documents this for the MAIN GST series and corrects it by continuous re-pull; the intent-filtered series was never corrected",
+  "n_ticker_years": 40,
+  "n_ticker_years_with_at_least_one_100": 40,
+  "every_ticker_year_has_at_least_one_100": true,
+  "n_ticker_years_with_exactly_one_100": 39,
+  "every_ticker_year_has_exactly_one_100": false,
+  "ties_at_the_annual_ceiling": "SBUX 2021 carries two weeks at 100 -- a tie at that year's maximum, which is the same forced-ceiling signature and not a counterexample to it",
+  "corrects_section": "8.3",
+  "section_8_3_was": "directionally right about the consequence (no usable range within earnings weeks) and wrong about the mechanism (it read the compression as saturation of a single scale)",
+  "per_ticker": {
+   "MSFT": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 34
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 40
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 46
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 51
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 50
+    }
+   },
+   "ADBE": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 4
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 7
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 7
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 17
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 25
+    }
+   },
+   "NFLX": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 17
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 24
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 20
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 21
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 35
+    }
+   },
+   "NKE": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 4
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 4
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 6
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 14
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 17
+    }
+   },
+   "STZ": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 2
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 2
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 2
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 1
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 6
+    }
+   },
+   "QCOM": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 11
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 12
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 9
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 13
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 19
+    }
+   },
+   "SBUX": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 2,
+     "n_nonzero": 5
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 16
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 6
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 14
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 10
+    }
+   },
+   "AMZN": {
+    "2021": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 42
+    },
+    "2022": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 51
+    },
+    "2023": {
+     "n_weeks": 53,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 51
+    },
+    "2024": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 52
+    },
+    "2025": {
+     "n_weeks": 52,
+     "max": 100.0,
+     "n_at_100": 1,
+     "n_nonzero": 51
+    }
+   }
+  }
+ },
+ "selection_side": {
+  "question": "section 8's SELECTION side came from the same per-year-chunked data; does it survive the continuous-window correction?",
+  "source": "FullPopulation_ContinuousWindow_Recompute.csv",
+  "totals": {
+   "audited": 90,
+   "retained": 83,
+   "dropped": 7,
+   "newly_qualifying": 8
+  },
+  "selection_side_is_robust": true,
+  "per_ticker": {
+   "MSFT": {
+    "audited_spike_weeks": 15,
+    "retained": 13,
+    "dropped": 2,
+    "newly_qualifying": 0
+   },
+   "ADBE": {
+    "audited_spike_weeks": 15,
+    "retained": 14,
+    "dropped": 1,
+    "newly_qualifying": 0
+   },
+   "NFLX": {
+    "audited_spike_weeks": 14,
+    "retained": 14,
+    "dropped": 0,
+    "newly_qualifying": 2
+   },
+   "NKE": {
+    "audited_spike_weeks": 13,
+    "retained": 12,
+    "dropped": 1,
+    "newly_qualifying": 1
+   },
+   "STZ": {
+    "audited_spike_weeks": 5,
+    "retained": 4,
+    "dropped": 1,
+    "newly_qualifying": 2
+   },
+   "QCOM": {
+    "audited_spike_weeks": 10,
+    "retained": 9,
+    "dropped": 1,
+    "newly_qualifying": 1
+   },
+   "SBUX": {
+    "audited_spike_weeks": 8,
+    "retained": 7,
+    "dropped": 1,
+    "newly_qualifying": 2
+   },
+   "AMZN": {
+    "audited_spike_weeks": 10,
+    "retained": 10,
+    "dropped": 0,
+    "newly_qualifying": 0
+   }
+  }
+ },
+ "blocked_like_for_like": {
+  "design": "both arms are earnings weeks (as in 8.2) AND every comparison is made within one ticker-year, where the 0-100 anchor is shared",
+  "primary_statistic": "mean over informative strata of (selected mean - non-selected mean), in index points",
+  "n_strata_possible": 40,
+  "n_informative_strata": 32,
+  "min_informative_strata": 20,
+  "min_arm_n_inherited": 5,
+  "adequately_powered": true,
+  "observed_mean_difference": 4.171874999999999,
+  "perm_p": 0.3798,
+  "observed_rank_difference": -0.005642361111111112,
+  "perm_p_rank_robustness": 0.9492,
+  "statistics_agree": true,
+  "alpha": 0.05,
+  "n_permutations": 10000,
+  "random_seed": 42,
+  "pre_declared_interpretation": {
+   "selected_arm_higher": "once the cross-year scale break is removed the signal captures attention BEYOND earnings-ness; section 7.3's corroboration is partially reinstated, in weakened and explicitly blocked form",
+   "no_detectable_difference": "the withdrawal in section 8 stands, and now stands on an instrument whose known scale defect has been controlled rather than ignored",
+   "selected_arm_lower": "reported as-is, as evidence against the signal",
+   "commitment": "the primary statistic is the mean within-stratum difference of arm MEANS; the rank statistic is a pre-declared robustness check that does not govern, and disagreement between them is reported as instability rather than used to choose. No re-slicing, no re-blocking, no threshold change after seeing the result"
+  },
+  "verdict": "no_detectable_difference",
+  "reading": "the withdrawal in section 8 stands, and now stands on an instrument whose known scale defect has been controlled rather than ignored",
+  "effect_size_caveat": "the p-value is exact under within-stratum exchangeability, but the observed difference in index points mixes five annual scales and is not a physical quantity",
+  "per_ticker": {
+   "MSFT": {
+    "informative_strata": 3,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      4,
+      0
+     ],
+     "2023": [
+      4,
+      0
+     ],
+     "2024": [
+      2,
+      2
+     ],
+     "2025": [
+      3,
+      1
+     ]
+    },
+    "mean_within_stratum_difference": 2.944444444444443,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "ADBE": {
+    "informative_strata": 3,
+    "cells": {
+     "2021": [
+      3,
+      1
+     ],
+     "2022": [
+      2,
+      2
+     ],
+     "2023": [
+      2,
+      2
+     ],
+     "2024": [
+      4,
+      0
+     ],
+     "2025": [
+      4,
+      0
+     ]
+    },
+    "mean_within_stratum_difference": -13.722222222222223,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "NFLX": {
+    "informative_strata": 5,
+    "cells": {
+     "2021": [
+      3,
+      1
+     ],
+     "2022": [
+      2,
+      2
+     ],
+     "2023": [
+      3,
+      1
+     ],
+     "2024": [
+      3,
+      1
+     ],
+     "2025": [
+      3,
+      1
+     ]
+    },
+    "mean_within_stratum_difference": -3.4333333333333345,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "NKE": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      3,
+      1
+     ],
+     "2022": [
+      3,
+      1
+     ],
+     "2023": [
+      4,
+      0
+     ],
+     "2024": [
+      1,
+      3
+     ],
+     "2025": [
+      2,
+      2
+     ]
+    },
+    "mean_within_stratum_difference": 8.666666666666664,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "STZ": {
+    "informative_strata": 3,
+    "cells": {
+     "2021": [
+      0,
+      4
+     ],
+     "2022": [
+      1,
+      3
+     ],
+     "2023": [
+      3,
+      2
+     ],
+     "2024": [
+      1,
+      2
+     ],
+     "2025": [
+      0,
+      4
+     ]
+    },
+    "mean_within_stratum_difference": 18.333333333333332,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "QCOM": {
+    "informative_strata": 5,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      3,
+      1
+     ],
+     "2023": [
+      2,
+      2
+     ],
+     "2024": [
+      2,
+      2
+     ],
+     "2025": [
+      1,
+      3
+     ]
+    },
+    "mean_within_stratum_difference": 7.7,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "SBUX": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      0,
+      4
+     ],
+     "2023": [
+      3,
+      1
+     ],
+     "2024": [
+      1,
+      3
+     ],
+     "2025": [
+      2,
+      2
+     ]
+    },
+    "mean_within_stratum_difference": 9.75,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   },
+   "AMZN": {
+    "informative_strata": 5,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      1,
+      3
+     ],
+     "2023": [
+      2,
+      2
+     ],
+     "2024": [
+      3,
+      1
+     ],
+     "2025": [
+      2,
+      2
+     ]
+    },
+    "mean_within_stratum_difference": 3.1666666666666656,
+    "note": "DESCRIPTIVE ONLY: three to five strata cannot support an inference for a single ticker"
+   }
+  }
+ }
+}
