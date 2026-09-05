@@ -500,6 +500,56 @@ def test_19_the_strata_power_rule_cannot_be_bypassed() -> None:
           "stays withdrawn" in doc)
 
 
+def test_20_section_9s_prose_matches_its_artifact() -> None:
+    """The suite promises the .md's numbers come from the .json. Hold 9 to it."""
+    art = json.loads(ART4.read_text(encoding="utf-8"))
+    ne, ss, bl = (art["normalization_evidence"], art["selection_side"],
+                  art["blocked_like_for_like"])
+    # Markdown hard-wraps prose, so a sentence spanning a line break would
+    # fail a naive substring test. Collapse whitespace; table rows survive it.
+    doc = " ".join(DOC.read_text(encoding="utf-8").split())
+
+    n_ty = ne["n_ticker_years"]
+    check("20a. the annual-ceiling count in the prose is the artifact's",
+          f"All {n_ty} ticker-years contain a week valued exactly 100" in doc)
+    check("20b. so is the exactly-one count",
+          f"{ne['n_ticker_years_with_exactly_one_100']} of {n_ty}" in doc)
+
+    tot = ss["totals"]
+    check("20c. the selection-side survival in the prose is the artifact's",
+          f"{tot['retained']} of {tot['audited']} survive" in doc)
+
+    check("20d. the strata count in the prose is the artifact's",
+          f"{bl['n_informative_strata']} of {bl['n_strata_possible']}" in doc)
+    check("20e. the pre-declared minimum in the prose is the artifact's",
+          f"minimum of {bl['min_informative_strata']}" in doc)
+
+    # Numbers are rounded for the prose; check the prose rounding, not a
+    # reformatted copy of the float.
+    mean_txt = f"+{bl['observed_mean_difference']:.2f} index points"
+    check("20f. the primary effect size in the prose is the artifact's",
+          mean_txt in doc, mean_txt)
+    check("20g. the primary p in the prose is the artifact's",
+          f"p = {bl['perm_p']:.3f}" in doc, f"p = {bl['perm_p']:.3f}")
+    rank_txt = f"{bl['observed_rank_difference']:.3f}".replace("-", "\u2212")
+    check("20h. the rank effect size in the prose is the artifact's",
+          rank_txt in doc, rank_txt)
+    check("20i. the rank p in the prose is the artifact's",
+          f"p = {bl['perm_p_rank_robustness']:.3f}" in doc)
+
+    # Every per-ticker descriptive figure in 9.3's table.
+    missing = []
+    for tk, v in bl["per_ticker"].items():
+        d = v["mean_within_stratum_difference"]
+        if d is None:
+            continue
+        cell = f"{d:+.1f}".replace("-", "\u2212")
+        if f"| {tk} | {v['informative_strata']} | {cell} |" not in doc:
+            missing.append(f"{tk}:{cell}")
+    check("20j. every per-ticker row in the 9.3 table matches the artifact",
+          not missing, str(missing))
+
+
 if __name__ == "__main__":
     test_1_artifact_and_document_exist()
     test_2_every_artifact_number_recomputes()
@@ -520,6 +570,7 @@ if __name__ == "__main__":
     test_17_the_instrument_is_renormalised_every_year()
     test_18_blocking_actually_neutralises_a_year_effect()
     test_19_the_strata_power_rule_cannot_be_bypassed()
+    test_20_section_9s_prose_matches_its_artifact()
 
     print()
     if FAILURES:
