@@ -43,6 +43,9 @@ GEN2 = ROOT / "tools" / "run_gst_construct_validity_followup.py"
 ART2 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_FOLLOWUP_2026-09-04.json"
 GEN3 = ROOT / "tools" / "run_gst_corroboration_fix.py"
 ART3 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_CORROBORATION_2026-09-04.json"
+GEN4 = ROOT / "tools" / "run_gst_instrument_normalization_fix.py"
+ART4 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_NORMALIZATION_2026-09-04.json"
+PULL = ROOT / "GST_IntentFiltered_Pull.py"
 DOC = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_AUDIT_v1.0_2026-09-04.md"
 
 FAILURES: list[str] = []
@@ -72,6 +75,10 @@ def _gen2():
 
 def _gen3():
     return _load_mod(GEN3, "_f5corrob")
+
+
+def _gen4():
+    return _load_mod(GEN4, "_f5norm")
 
 
 def test_1_artifact_and_document_exist() -> None:
@@ -369,6 +376,130 @@ def test_15_the_null_is_not_overclaimed() -> None:
           "multi-term" in doc and "dynamic range" in doc)
 
 
+def test_16_normalization_fix_recomputes() -> None:
+    m = _gen4()
+    art = json.loads(ART4.read_text(encoding="utf-8"))
+    ed, br = m._load_inputs()
+    check("16a. normalization_evidence recomputes to the committed artifact",
+          m.section_normalization_evidence() == art["normalization_evidence"])
+    check("16b. selection_side recomputes to the committed artifact",
+          m.section_selection_side(ed, br) == art["selection_side"])
+    check("16c. blocked_like_for_like recomputes to the committed artifact",
+          m.section_blocked_like_for_like(ed, br) == art["blocked_like_for_like"])
+    ss = art["selection_side"]["totals"]
+    check("16d. the selection-side totals are internally consistent",
+          ss["retained"] + ss["dropped"] == ss["audited"],
+          f"{ss['retained']}+{ss['dropped']} != {ss['audited']}")
+
+
+def test_17_the_instrument_is_renormalised_every_year() -> None:
+    """The forced annual ceiling, and the citation that explains it."""
+    ne = json.loads(ART4.read_text(encoding="utf-8"))["normalization_evidence"]
+    check("17a. every ticker-year contains a week at exactly 100",
+          ne["every_ticker_year_has_at_least_one_100"] is True,
+          f"{ne['n_ticker_years_with_at_least_one_100']}/{ne['n_ticker_years']}")
+    per = ne["per_ticker"]
+    bad = [f"{t}/{y}" for t, rows in per.items()
+           for y, v in rows.items() if v["n_at_100"] < 1]
+    check("17b. no ticker-year lacks the annual ceiling", not bad, str(bad))
+
+    # 39 of 40, not 40 of 40 -- the tie is disclosed rather than rounded away.
+    check("17c. the one ticker-year with a tie at the ceiling is disclosed",
+          ne["n_ticker_years_with_exactly_one_100"]
+          == ne["n_ticker_years"] - 1
+          and "SBUX 2021" in ne["ties_at_the_annual_ceiling"])
+
+    # Pin the citation so it cannot rot into a wrong line number.
+    src = PULL.read_text(encoding="utf-8").splitlines()
+    cited = 45
+    line = src[cited - 1] if cited <= len(src) else ""
+    check("17d. the cited pull-script line really is the per-year timeframe",
+          "{year}-01-01" in line and "{year}-12-31" in line,
+          f"line 45 is: {line.strip()!r}")
+
+    doc = DOC.read_text(encoding="utf-8")
+    check("17e. section 8.3 is marked corrected", "CORRECTED IN §9." in doc)
+    check("17f. section 8.3's original text is left intact",
+          "But the instrument is saturated, so the null is weak evidence" in doc)
+
+
+def test_18_blocking_actually_neutralises_a_year_effect() -> None:
+    """Permuting within strata must kill a confound a naive pooled test reports.
+
+    Fixture: within every stratum the two arms have identical means, so the true
+    within-stratum effect is exactly zero. But the arms have different sizes in
+    low-scale and high-scale strata, so a test that ignores strata sees a large
+    spurious difference. The stratified test must not.
+    """
+    import numpy as np
+    m = _gen4()
+    strata = []
+    for i in range(3):
+        # low-scale stratum: selected has one mid value, non-selected brackets it
+        strata.append((2000 + i, np.array([5.0]), np.array([0.0, 10.0])))
+        # high-scale stratum: sizes reversed
+        strata.append((2100 + i, np.array([90.0, 100.0]), np.array([95.0])))
+
+    obs = m._mean_diff(strata)
+    check("18a. the fixture has exactly zero within-stratum effect",
+          obs is not None and abs(obs) < 1e-9, f"obs={obs}")
+
+    sel = np.concatenate([a for _, a, _ in strata])
+    non = np.concatenate([b for _, _, b in strata])
+    naive = float(sel.mean() - non.mean())
+    check("18b. a test that ignored strata would report a large difference",
+          naive > 20.0, f"naive pooled difference = {naive:.1f}")
+
+    rng = np.random.default_rng(m.RANDOM_SEED)
+    p = m._stratified_perm_p(strata, m._mean_diff, rng)
+    check("18c. the stratified test reports nothing, as it must",
+          p is not None and p >= 0.9, f"stratified p={p}")
+
+    # And the real run's statistics are recorded as agreeing or not, never hidden.
+    bl = json.loads(ART4.read_text(encoding="utf-8"))["blocked_like_for_like"]
+    check("18d. the robustness statistic is reported alongside the primary",
+          bl["perm_p_rank_robustness"] is not None
+          and bl["statistics_agree"] is not None)
+    check("18e. the primary statistic is declared to govern",
+          "does not govern" in bl["pre_declared_interpretation"]["commitment"])
+
+
+def test_19_the_strata_power_rule_cannot_be_bypassed() -> None:
+    """An underpowered blocked test must never be reported as a null."""
+    m = _gen4()
+    bl = json.loads(ART4.read_text(encoding="utf-8"))["blocked_like_for_like"]
+    check("19a. the strata rule is a module constant, pre-declared",
+          m.MIN_INFORMATIVE_STRATA == 20)
+    check("19b. it is recorded in the artifact",
+          bl["min_informative_strata"] == m.MIN_INFORMATIVE_STRATA)
+    check("19c. the powered flag matches the rule",
+          bl["adequately_powered"]
+          == (bl["n_informative_strata"] >= m.MIN_INFORMATIVE_STRATA))
+    check("19d. this run cleared the rule, so a verdict is legitimate",
+          bl["adequately_powered"] is True and bl["verdict"] != "underpowered")
+
+    # Force the rule to bite and confirm the verdict changes rather than the run
+    # quietly reporting a null it has no standing to report.
+    ed, br = m._load_inputs()
+    original = m.MIN_INFORMATIVE_STRATA
+    try:
+        m.MIN_INFORMATIVE_STRATA = 10_000
+        forced = m.section_blocked_like_for_like(ed, br)
+    finally:
+        m.MIN_INFORMATIVE_STRATA = original
+    check("19e. raised above the available strata, the verdict becomes "
+          "underpowered", forced["verdict"] == "underpowered",
+          f"got {forced['verdict']}")
+    check("19f. and no p-value is emitted to be quoted",
+          forced["perm_p"] is None and forced["perm_p_rank_robustness"] is None)
+
+    doc = DOC.read_text(encoding="utf-8")
+    check("19g. the write-up names the exact call that would resolve this",
+          "build_payload" in doc and "2021-01-01 2025-12-31" in doc)
+    check("19h. and does not claim the corroboration is reinstated",
+          "stays withdrawn" in doc)
+
+
 if __name__ == "__main__":
     test_1_artifact_and_document_exist()
     test_2_every_artifact_number_recomputes()
@@ -385,6 +516,10 @@ if __name__ == "__main__":
     test_13_the_corroboration_is_withdrawn_not_rescued()
     test_14_the_power_rule_cannot_be_bypassed()
     test_15_the_null_is_not_overclaimed()
+    test_16_normalization_fix_recomputes()
+    test_17_the_instrument_is_renormalised_every_year()
+    test_18_blocking_actually_neutralises_a_year_effect()
+    test_19_the_strata_power_rule_cannot_be_bypassed()
 
     print()
     if FAILURES:

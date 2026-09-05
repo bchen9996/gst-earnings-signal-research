@@ -103,6 +103,7 @@ def section_normalization_evidence() -> dict:
     per: dict[str, dict] = {}
     n_years_total = 0
     n_years_one_hundred = 0
+    n_years_any_hundred = 0
     for t in TICKERS:
         rows = {}
         for y in YEARS:
@@ -124,6 +125,8 @@ def section_normalization_evidence() -> dict:
             n_years_total += 1
             if n_100 == 1:
                 n_years_one_hundred += 1
+            if n_100 >= 1:
+                n_years_any_hundred += 1
         per[t] = rows
     return {
         "claim": (
@@ -136,9 +139,19 @@ def section_normalization_evidence() -> dict:
             "MAIN GST series and corrects it by continuous re-pull; the "
             "intent-filtered series was never corrected"),
         "n_ticker_years": n_years_total,
+        # The load-bearing test. An independently normalised window MUST contain
+        # its own maximum at 100, so "at least one" is the prediction; "exactly
+        # one" merely adds that the maximum is usually unique.
+        "n_ticker_years_with_at_least_one_100": n_years_any_hundred,
+        "every_ticker_year_has_at_least_one_100":
+            n_years_total > 0 and n_years_any_hundred == n_years_total,
         "n_ticker_years_with_exactly_one_100": n_years_one_hundred,
         "every_ticker_year_has_exactly_one_100":
             n_years_total > 0 and n_years_one_hundred == n_years_total,
+        "ties_at_the_annual_ceiling": (
+            "SBUX 2021 carries two weeks at 100 -- a tie at that year's "
+            "maximum, which is the same forced-ceiling signature and not a "
+            "counterexample to it"),
         "corrects_section": "8.3",
         "section_8_3_was": (
             "directionally right about the consequence (no usable range within "
@@ -354,9 +367,11 @@ def main() -> int:
 
     ne = doc["normalization_evidence"]
     print("=== 9.1 THE INSTRUMENT IS PER-YEAR RENORMALISED ===")
-    print(f"  ticker-years with exactly one week at 100: "
-          f"{ne['n_ticker_years_with_exactly_one_100']}/{ne['n_ticker_years']}")
-    print(f"  every ticker-year: {ne['every_ticker_year_has_exactly_one_100']}")
+    print(f"  ticker-years with AT LEAST one week at 100: "
+          f"{ne['n_ticker_years_with_at_least_one_100']}/{ne['n_ticker_years']}")
+    print(f"  every ticker-year: {ne['every_ticker_year_has_at_least_one_100']}")
+    print(f"  of those, exactly one: {ne['n_ticker_years_with_exactly_one_100']} "
+          "(SBUX 2021 ties two weeks at its annual maximum)")
     for t, rows in ne["per_ticker"].items():
         cells = " ".join(f"{y[2:]}:{v['n_at_100']}" for y, v in rows.items())
         print(f"  {t:6s} n_at_100 by year -> {cells}")
