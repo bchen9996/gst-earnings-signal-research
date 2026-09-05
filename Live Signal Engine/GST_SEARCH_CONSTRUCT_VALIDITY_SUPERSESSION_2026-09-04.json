@@ -1,0 +1,429 @@
+{
+ "artifact": "GST_SEARCH_CONSTRUCT_VALIDITY_SUPERSESSION",
+ "date": "2026-09-04",
+ "status": "RETROSPECTIVE_DEVELOPMENT_ONLY",
+ "corrects": "audit v1.0 section 9.2",
+ "resolves_decision": false,
+ "uses_network": false,
+ "citation_error": {
+  "error": "section 9.2 validated section 8.1 against FullPopulation_ContinuousWindow_Recompute.csv, which the CHANGELOG supersedes and quarantines for look-ahead contamination and says must not be used for new analysis",
+  "governing_entry": "Live Signal Engine/CHANGELOG.md, 2026-07-19, 'fixed-window per-event recompute (resolves the look-ahead finding; new canonical baseline)'",
+  "quarantined_file": "FullPopulation_ContinuousWindow_Recompute.csv",
+  "canonical_file": "FixedWindow_PerEvent_Canonical.csv",
+  "n_audited": 90,
+  "n_retained_under_quarantined": 83,
+  "n_retained_under_canonical": 83,
+  "headline_figures_agree": true,
+  "n_rejected_under_quarantined": 7,
+  "n_rejected_under_canonical": 7,
+  "n_rejections_in_common": 3,
+  "composition_agrees": false,
+  "warning": "the headline number is stable while the membership underneath it is not; a reader who checks only the count would conclude the two populations agree",
+  "rejected_by_quarantined_only": [
+   "ADBE 2021-03-21",
+   "MSFT 2024-10-27",
+   "NKE 2021-12-19",
+   "SBUX 2021-07-25"
+  ],
+  "rejected_by_canonical_only": [
+   "ADBE 2024-09-08",
+   "AMZN 2021-10-24",
+   "NKE 2021-03-14",
+   "STZ 2022-01-02"
+  ],
+  "rejected_by_both": [
+   "MSFT 2023-07-23",
+   "QCOM 2022-01-30",
+   "STZ 2023-04-02"
+  ]
+ },
+ "population_provenance": {
+  "finding": "the F5 audit selects events through RelatedQueriesBreadth_Results.csv, whose spike weeks are the GST-Legacy-v1 z>=5 set; sections 1-9 therefore analyse a superseded population and nowhere say so",
+  "manuscript_is_unaffected": "the citation policy and the paper use the canonical 152 PRICED signal events, which is the right population for a P&L claim; it is the audit that drifted",
+  "canonical_selection_population": 153,
+  "canonical_priced_population": 152,
+  "why_qualifying_not_priced": "this audit asks which events the attention signal selected, so the z>=5 selection population governs; LDOS 2021-02-21 qualifies at z=6.61 but could not be priced, and no audit ticker is affected either way",
+  "totals": {
+   "earnings_weeks": 160,
+   "audit_events_legacy": 90,
+   "canonical_events": 90,
+   "in_both": 83,
+   "audit_only": 7,
+   "canonical_only": 7
+  },
+  "selectivity_pct_legacy": 56.2,
+  "selectivity_pct_canonical": 56.2,
+  "section_8_1_conclusion_survives": true,
+  "per_ticker": {
+   "MSFT": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 15,
+    "canonical_events": 14,
+    "in_both": 14,
+    "audit_only_rejected_by_canonical": [
+     "2023-07-23"
+    ],
+    "canonical_z_of_rejected": {
+     "2023-07-23": 4.5515
+    },
+    "canonical_only_never_analysed": [],
+    "selectivity_pct_legacy": 75.0,
+    "selectivity_pct_canonical": 70.0
+   },
+   "ADBE": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 15,
+    "canonical_events": 14,
+    "in_both": 14,
+    "audit_only_rejected_by_canonical": [
+     "2024-09-08"
+    ],
+    "canonical_z_of_rejected": {
+     "2024-09-08": 4.9568
+    },
+    "canonical_only_never_analysed": [],
+    "selectivity_pct_legacy": 75.0,
+    "selectivity_pct_canonical": 70.0
+   },
+   "NFLX": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 14,
+    "canonical_events": 16,
+    "in_both": 14,
+    "audit_only_rejected_by_canonical": [],
+    "canonical_z_of_rejected": {},
+    "canonical_only_never_analysed": [
+     "2022-01-16",
+     "2023-01-15"
+    ],
+    "selectivity_pct_legacy": 70.0,
+    "selectivity_pct_canonical": 80.0
+   },
+   "NKE": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 13,
+    "canonical_events": 13,
+    "in_both": 12,
+    "audit_only_rejected_by_canonical": [
+     "2021-03-14"
+    ],
+    "canonical_z_of_rejected": {
+     "2021-03-14": 3.3487
+    },
+    "canonical_only_never_analysed": [
+     "2024-03-17"
+    ],
+    "selectivity_pct_legacy": 65.0,
+    "selectivity_pct_canonical": 65.0
+   },
+   "STZ": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 5,
+    "canonical_events": 4,
+    "in_both": 3,
+    "audit_only_rejected_by_canonical": [
+     "2022-01-02",
+     "2023-04-02"
+    ],
+    "canonical_z_of_rejected": {
+     "2022-01-02": 4.8886,
+     "2023-04-02": 4.5711
+    },
+    "canonical_only_never_analysed": [
+     "2025-01-05"
+    ],
+    "selectivity_pct_legacy": 25.0,
+    "selectivity_pct_canonical": 20.0
+   },
+   "QCOM": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 10,
+    "canonical_events": 10,
+    "in_both": 9,
+    "audit_only_rejected_by_canonical": [
+     "2022-01-30"
+    ],
+    "canonical_z_of_rejected": {
+     "2022-01-30": 3.9351
+    },
+    "canonical_only_never_analysed": [
+     "2025-02-02"
+    ],
+    "selectivity_pct_legacy": 50.0,
+    "selectivity_pct_canonical": 50.0
+   },
+   "SBUX": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 8,
+    "canonical_events": 10,
+    "in_both": 8,
+    "audit_only_rejected_by_canonical": [],
+    "canonical_z_of_rejected": {},
+    "canonical_only_never_analysed": [
+     "2024-01-28",
+     "2025-01-26"
+    ],
+    "selectivity_pct_legacy": 40.0,
+    "selectivity_pct_canonical": 50.0
+   },
+   "AMZN": {
+    "earnings_weeks_in_window": 20,
+    "audit_events_legacy": 10,
+    "canonical_events": 9,
+    "in_both": 9,
+    "audit_only_rejected_by_canonical": [
+     "2021-10-24"
+    ],
+    "canonical_z_of_rejected": {
+     "2021-10-24": 4.937
+    },
+    "canonical_only_never_analysed": [],
+    "selectivity_pct_legacy": 50.0,
+    "selectivity_pct_canonical": 45.0
+   }
+  }
+ },
+ "canonical_blocked_test": {
+  "design": "identical to 9.3 -- both arms earnings weeks, blocked on ticker x calendar year, labels permuted within stratum only -- with the selected arm defined by the CANONICAL event set",
+  "population": "FixedWindow_PerEvent_Canonical.csv",
+  "n_informative_strata": 33,
+  "n_strata_possible": 40,
+  "min_informative_strata": 20,
+  "adequately_powered": true,
+  "observed_mean_difference": -1.5909090909090917,
+  "perm_p": 0.727,
+  "observed_rank_difference": -0.026094276094276114,
+  "perm_p_rank_robustness": 0.7613,
+  "alpha": 0.05,
+  "n_permutations": 10000,
+  "random_seed": 42,
+  "pre_declared_interpretation": {
+   "basis_for_preferring_canonical": "supersession recorded in the CHANGELOG on 2026-07-19, not the outcome of this test",
+   "agrees_with_9_3": "the null in 9.3 is not an artifact of the superseded event set; both are reported and the canonical one is what should be cited",
+   "disagrees_with_9_3": "BOTH STAND AND THE DISAGREEMENT IS THE FINDING; neither is chosen after the fact, and section 9.3 is not rewritten",
+   "commitment": "section 9.3's legacy result is retained unchanged as the pre-registered original and is not deleted or restated; MIN_INFORMATIVE_STRATA applies unchanged, and below it the run is reported as underpowered, never as a null"
+  },
+  "verdict": "no_detectable_difference",
+  "per_ticker": {
+   "MSFT": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      4,
+      0
+     ],
+     "2023": [
+      3,
+      1
+     ],
+     "2024": [
+      2,
+      2
+     ],
+     "2025": [
+      3,
+      1
+     ]
+    },
+    "mean_within_stratum_difference": -0.04166666666666785,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "ADBE": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      3,
+      1
+     ],
+     "2022": [
+      2,
+      2
+     ],
+     "2023": [
+      2,
+      2
+     ],
+     "2024": [
+      3,
+      1
+     ],
+     "2025": [
+      4,
+      0
+     ]
+    },
+    "mean_within_stratum_difference": -4.708333333333336,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "NFLX": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      3,
+      1
+     ],
+     "2022": [
+      3,
+      1
+     ],
+     "2023": [
+      4,
+      0
+     ],
+     "2024": [
+      3,
+      1
+     ],
+     "2025": [
+      3,
+      1
+     ]
+    },
+    "mean_within_stratum_difference": -10.166666666666668,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "NKE": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      3,
+      1
+     ],
+     "2023": [
+      4,
+      0
+     ],
+     "2024": [
+      2,
+      2
+     ],
+     "2025": [
+      2,
+      2
+     ]
+    },
+    "mean_within_stratum_difference": 8.708333333333332,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "STZ": {
+    "informative_strata": 3,
+    "cells": {
+     "2021": [
+      0,
+      4
+     ],
+     "2022": [
+      0,
+      4
+     ],
+     "2023": [
+      2,
+      3
+     ],
+     "2024": [
+      1,
+      2
+     ],
+     "2025": [
+      1,
+      3
+     ]
+    },
+    "mean_within_stratum_difference": -22.166666666666668,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "QCOM": {
+    "informative_strata": 5,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      2,
+      2
+     ],
+     "2023": [
+      2,
+      2
+     ],
+     "2024": [
+      2,
+      2
+     ],
+     "2025": [
+      2,
+      2
+     ]
+    },
+    "mean_within_stratum_difference": -4.7,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "SBUX": {
+    "informative_strata": 4,
+    "cells": {
+     "2021": [
+      2,
+      2
+     ],
+     "2022": [
+      0,
+      4
+     ],
+     "2023": [
+      3,
+      1
+     ],
+     "2024": [
+      2,
+      2
+     ],
+     "2025": [
+      3,
+      1
+     ]
+    },
+    "mean_within_stratum_difference": 11.125,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   },
+   "AMZN": {
+    "informative_strata": 5,
+    "cells": {
+     "2021": [
+      1,
+      3
+     ],
+     "2022": [
+      1,
+      3
+     ],
+     "2023": [
+      2,
+      2
+     ],
+     "2024": [
+      3,
+      1
+     ],
+     "2025": [
+      2,
+      2
+     ]
+    },
+    "mean_within_stratum_difference": 3.5666666666666655,
+    "note": "DESCRIPTIVE ONLY, as in 9.3"
+   }
+  },
+  "legacy_verdict_9_3": "no_detectable_difference",
+  "agrees_with_9_3": true,
+  "reading": "the null in 9.3 is not an artifact of the superseded event set; both are reported and the canonical one is what should be cited"
+ }
+}

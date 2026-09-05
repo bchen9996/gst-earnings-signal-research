@@ -2,8 +2,8 @@
 """Correct section 9.2, which cited a file the CHANGELOG quarantines.
 
 Live Signal Engine/CHANGELOG.md (2026-07-19, "fixed-window per-event recompute")
-establishes FixedWindow_PerEvent_Canonical.csv (n=152) as the canonical
-historical population, superseding BOTH:
+establishes FixedWindow_PerEvent_Canonical.csv as the canonical historical
+population -- 153 events clear z>=5, 152 of them priced -- superseding BOTH:
 
   - the original 147-event chunked archive (GST-Legacy-v1), and
   - the 148/149-event continuous-window reconstruction, which is quarantined
@@ -67,7 +67,17 @@ CANONICAL = LSE / "FixedWindow_PerEvent_Canonical.csv"
 GOVERNING_ENTRY = ("Live Signal Engine/CHANGELOG.md, 2026-07-19, "
                    "'fixed-window per-event recompute "
                    "(resolves the look-ahead finding; new canonical baseline)'")
-CANONICAL_N = 152
+
+# Two different canonical numbers, conflated on the first pass here and caught
+# by this file's own precondition. The CHANGELOG: "153 of 175 candidates clear
+# z>=5 under this method; 152 priced successfully" -- LDOS 2021-02-21 qualifies
+# at z=6.61 but has no daily excess-return history early enough to price.
+#
+# This audit asks which events the ATTENTION signal selected, so the selection
+# population (153) governs here. The manuscript's "152 signal events" is the
+# priced set, which is the right one for a P&L claim and the wrong one for this.
+CANONICAL_N_QUALIFYING = 153
+CANONICAL_N_PRICED = 152
 
 # PRE-DECLARED, fixed before the canonical re-run of 9.3 was computed.
 #
@@ -104,11 +114,13 @@ def _load_canonical() -> pd.DataFrame:
     c["spike_week"] = pd.to_datetime(c.spike_week, errors="coerce")
     c = c.dropna(subset=["spike_week"])
     n_qual = int((c.qualifies_z5 == True).sum())  # noqa: E712
-    if n_qual != CANONICAL_N:
+    n_priced = int(c.loc[c.qualifies_z5 == True, "pnl_pct"].notna().sum())  # noqa: E712
+    if (n_qual, n_priced) != (CANONICAL_N_QUALIFYING, CANONICAL_N_PRICED):
         raise RefusedError(
-            f"{CANONICAL.name} carries {n_qual} qualifying events, not the "
-            f"{CANONICAL_N} the CHANGELOG designates canonical; the file this "
-            "correction points at is not the one it was written against")
+            f"{CANONICAL.name} carries {n_qual} qualifying / {n_priced} priced "
+            f"events, not the {CANONICAL_N_QUALIFYING} / {CANONICAL_N_PRICED} "
+            "the CHANGELOG designates canonical; the file this correction "
+            "points at is not the one it was written against")
     return c
 
 
@@ -212,8 +224,16 @@ def section_population_provenance(ed: pd.DataFrame, br: pd.DataFrame,
             ".csv, whose spike weeks are the GST-Legacy-v1 z>=5 set; sections "
             "1-9 therefore analyse a superseded population and nowhere say so"),
         "manuscript_is_unaffected": (
-            f"the citation policy and the paper use the canonical "
-            f"{CANONICAL_N} signal events; it is the audit that drifted"),
+            "the citation policy and the paper use the canonical "
+            f"{CANONICAL_N_PRICED} PRICED signal events, which is the right "
+            "population for a P&L claim; it is the audit that drifted"),
+        "canonical_selection_population": CANONICAL_N_QUALIFYING,
+        "canonical_priced_population": CANONICAL_N_PRICED,
+        "why_qualifying_not_priced": (
+            "this audit asks which events the attention signal selected, so "
+            "the z>=5 selection population governs; LDOS 2021-02-21 qualifies "
+            "at z=6.61 but could not be priced, and no audit ticker is "
+            "affected either way"),
         "totals": {
             "earnings_weeks": tot_earn,
             "audit_events_legacy": tot_audit,

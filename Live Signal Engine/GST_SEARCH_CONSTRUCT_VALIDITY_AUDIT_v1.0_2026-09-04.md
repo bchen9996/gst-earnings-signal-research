@@ -656,6 +656,14 @@ discovery; it is an unapplied one, and the audit should have found it in §3.
 
 ### 9.2 The selection side survives the correction
 
+> **CORRECTED IN §10.** The comparison below is made against
+> `FullPopulation_ContinuousWindow_Recompute.csv`, which `CHANGELOG.md`
+> supersedes and quarantines for look-ahead contamination, and of whose derived
+> ledgers it says they *"should not be used for new analysis."* §10 redoes it
+> against the canonical `FixedWindow_PerEvent_Canonical.csv`. The conclusion
+> holds — but the two disagree about **which** events survive, so the reasoning
+> below is not sound as written.
+
 §8's *selection* side came from the same per-year-chunked data, so it needs
 checking too, against the corrected population:
 
@@ -743,6 +751,121 @@ to return the expected ~262 weekly points.
 
 Until that is run, §7.3 stays withdrawn and no corroboration claim is made in
 either direction.
+
+Nothing here resolves a decision, moves a gate, or changes a universe.
+
+---
+
+## 10. The population this audit has been using is superseded
+
+From `GST_SEARCH_CONSTRUCT_VALIDITY_SUPERSESSION_2026-09-04.json`
+(`tools/run_gst_population_supersession_fix.py`). Offline. §10.3's
+interpretation was committed (`c21d31b`) before any outcome was computed.
+
+### 10.1 §9.2 cited a file the CHANGELOG quarantines
+
+`CHANGELOG.md` (2026-07-19, *"fixed-window per-event recompute"*) makes
+`FixedWindow_PerEvent_Canonical.csv` the canonical historical population — 153
+events clear z ≥ 5, 152 of them priced — **superseding both** the 147-event
+chunked archive (*GST-Legacy-v1*) and the continuous-window reconstruction. The
+latter is quarantined for **look-ahead contamination**, 93 of 175 events at
+risk, and the CHANGELOG states its derived ledgers *"should not be used for new
+analysis."*
+
+**§9.2 used exactly that file.** It reached for the continuous-window recompute
+because that was the file that existed, not the file that governs.
+
+Redone against the canonical population:
+
+| | quarantined | canonical |
+|---|---|---|
+| audited events retained | **83 of 90** | **83 of 90** |
+| events rejected | 7 | 7 |
+| rejections in common | — | **3 of 7** |
+
+**The headline agrees and the membership does not.** Only three of the seven
+rejected events are the same:
+
+- rejected by the quarantined set only — ADBE 2021-03-21, MSFT 2024-10-27,
+  NKE 2021-12-19, SBUX 2021-07-25
+- rejected by the canonical set only — ADBE 2024-09-08, AMZN 2021-10-24,
+  NKE 2021-03-14, STZ 2022-01-02
+
+A reader who checked only the count would conclude the two populations agree.
+They do not. **§9.2's conclusion survives; its reasoning does not, and the
+coincidence of the two 83s is the part worth distrusting.**
+
+### 10.2 And the audit's own event set is GST-Legacy-v1
+
+The larger fact §9 did not record. Every section of this audit selects events
+through `RelatedQueriesBreadth_Results.csv`, whose spike weeks are exactly the
+*GST-Legacy-v1* z ≥ 5 set. **§§1–9 analyse a superseded population and nowhere
+say so.**
+
+| ticker | legacy | canonical | both | canonical rejects (its z) | never analysed |
+|---|---|---|---|---|---|
+| MSFT | 15 | 14 | 14 | 2023-07-23 (4.55) | — |
+| ADBE | 15 | 14 | 14 | 2024-09-08 (4.96) | — |
+| NFLX | 14 | 16 | 14 | — | 2022-01-16, 2023-01-15 |
+| NKE | 13 | 13 | 12 | 2021-03-14 (3.35) | 2024-03-17 |
+| QCOM | 10 | 10 | 9 | 2022-01-30 (3.94) | 2025-02-02 |
+| SBUX | 8 | 10 | 8 | — | 2024-01-28, 2025-01-26 |
+| AMZN | 10 | 9 | 9 | 2021-10-24 (4.94) | — |
+| STZ | 5 | 4 | 3 | 2022-01-02 (4.89), 2023-04-02 (4.57) | 2025-01-05 |
+| **total** | **90** | **90** | **83** | **7** | **7** |
+
+Seven events this audit analysed do not clear z ≥ 5 canonically, and seven
+canonical events it never looked at. The totals coincide at 90; the sets differ
+by 7 in each direction.
+
+**§8.1's conclusion is unaffected, and now measured rather than inferred:**
+selectivity is **56.2%** of earnings weeks under the legacy set and **56.2%**
+under the canonical one. That is the check §9.2 should have made.
+
+**The manuscript is not implicated.** The citation policy and the paper use the
+canonical **152 priced** signal events, which is the correct population for a
+P&L claim. It is this audit that drifted.
+
+*(A distinction this section's own precondition caught: 153 events clear z ≥ 5
+and 152 price successfully — LDOS 2021-02-21 qualifies at z = 6.61 but has no
+early-enough return history. A construct-validity question about attention
+takes the 153; a P&L claim takes the 152. No audit ticker is affected either
+way.)*
+
+### 10.3 The blocked test, re-run on the canonical population
+
+§9.3's year-blocked test, with the selected arm defined by the canonical event
+set instead. Same statistic, same seed, same `MIN_INFORMATIVE_STRATA = 20`.
+
+| | §9.3 (legacy) | §10.3 (canonical) |
+|---|---|---|
+| informative strata | 32 of 40 | **33 of 40** |
+| mean difference | +4.17 | **−1.59** |
+| permutation p | 0.380 | **0.727** |
+| rank statistic | −0.006 | **−0.026** |
+| rank p | 0.949 | **0.761** |
+| verdict | no detectable difference | **no detectable difference** |
+
+**The two agree.** By the rule sealed in `c21d31b`: *the null in §9.3 is not an
+artifact of the superseded event set; both are reported and the canonical one
+is what should be cited.*
+
+Note the point estimate flips sign, +4.17 to −1.59, while both p-values sit far
+from significance. That is not a contradiction — it is what an estimate does
+when there is nothing to estimate, and it is a better argument for the null than
+either p-value alone.
+
+§9.3 is retained unchanged as the pre-registered original. It is not rewritten,
+and the canonical run does not replace it.
+
+### 10.4 What this does not cover
+
+`group_a_z4_earnings_adjacent.csv` — the same legacy archive — is read by
+roughly eight analysis scripts, among them `GST_AbnormalGST_Residual_Test.py`,
+`GST_ConcentrationDependence_Audit.py` and
+`GST_EarningsSurprise_SignalQuality_Test.py`. Whether any of their results are
+still cited anywhere current is a **repo-wide supersession sweep**, larger than
+this pass and recorded here as the next candidate rather than begun.
 
 Nothing here resolves a decision, moves a gate, or changes a universe.
 
