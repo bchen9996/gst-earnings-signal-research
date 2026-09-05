@@ -46,6 +46,8 @@ ART3 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_CORROBORATIO
 GEN4 = ROOT / "tools" / "run_gst_instrument_normalization_fix.py"
 ART4 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_NORMALIZATION_2026-09-04.json"
 PULL = ROOT / "GST_IntentFiltered_Pull.py"
+GEN5 = ROOT / "tools" / "run_gst_population_supersession_fix.py"
+ART5 = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_SUPERSESSION_2026-09-04.json"
 DOC = ROOT / "Live Signal Engine" / "GST_SEARCH_CONSTRUCT_VALIDITY_AUDIT_v1.0_2026-09-04.md"
 
 FAILURES: list[str] = []
@@ -79,6 +81,10 @@ def _gen3():
 
 def _gen4():
     return _load_mod(GEN4, "_f5norm")
+
+
+def _gen5():
+    return _load_mod(GEN5, "_f5super")
 
 
 def test_1_artifact_and_document_exist() -> None:
@@ -550,6 +556,126 @@ def test_20_section_9s_prose_matches_its_artifact() -> None:
           not missing, str(missing))
 
 
+def test_21_supersession_fix_recomputes() -> None:
+    m = _gen5()
+    art = json.loads(ART5.read_text(encoding="utf-8"))
+    ed, br = m._load_inputs()
+    c = m._load_canonical()
+    check("21a. citation_error recomputes to the committed artifact",
+          m.section_citation_error(br, c) == art["citation_error"])
+    check("21b. population_provenance recomputes to the committed artifact",
+          m.section_population_provenance(ed, br, c)
+          == art["population_provenance"])
+    legacy = json.loads(ART4.read_text(encoding="utf-8"))["blocked_like_for_like"]
+    check("21c. canonical_blocked_test recomputes to the committed artifact",
+          m.section_canonical_blocked_test(ed, m._canonical_breadth(c), legacy)
+          == art["canonical_blocked_test"])
+    check("21d. the canonical counts are pinned as the CHANGELOG states them",
+          (m.CANONICAL_N_QUALIFYING, m.CANONICAL_N_PRICED) == (153, 152))
+
+
+def test_22_the_two_populations_agree_only_on_the_headline() -> None:
+    """The whole point of 10.1: a stable count over an unstable membership."""
+    ce = json.loads(ART5.read_text(encoding="utf-8"))["citation_error"]
+    check("22a. the retained counts do agree",
+          ce["headline_figures_agree"] is True,
+          f"{ce['n_retained_under_quarantined']} vs "
+          f"{ce['n_retained_under_canonical']}")
+    check("22b. but the rejected SETS do not -- this must never be softened",
+          ce["composition_agrees"] is False)
+    check("22c. and only a minority of rejections are shared",
+          ce["n_rejections_in_common"] < ce["n_rejected_under_canonical"],
+          f"{ce['n_rejections_in_common']} of "
+          f"{ce['n_rejected_under_canonical']}")
+    check("22d. each population rejects events the other keeps",
+          len(ce["rejected_by_quarantined_only"]) > 0
+          and len(ce["rejected_by_canonical_only"]) > 0)
+
+    pp = json.loads(ART5.read_text(encoding="utf-8"))["population_provenance"]
+    tot = pp["totals"]
+    check("22e. the audit's event set differs from canonical in both "
+          "directions", tot["audit_only"] > 0 and tot["canonical_only"] > 0,
+          f"audit-only {tot['audit_only']}, canonical-only "
+          f"{tot['canonical_only']}")
+    check("22f. section 8.1's conclusion is measured against canonical, "
+          "not inferred", pp["section_8_1_conclusion_survives"] is True)
+
+    doc = " ".join(DOC.read_text(encoding="utf-8").split())
+    check("22g. section 9.2 is marked corrected", "CORRECTED IN §10." in doc)
+    check("22h. section 9.2's original text is left intact",
+          "The selection side survives the correction" in doc)
+    check("22i. the quarantined file is named as quarantined, not quietly "
+          "swapped", "should not be used for new analysis" in doc)
+
+
+def test_23_the_canonical_rerun_does_not_replace_9_3() -> None:
+    m = _gen5()
+    bt = json.loads(ART5.read_text(encoding="utf-8"))["canonical_blocked_test"]
+    check("23a. the canonical re-run cleared the same power rule",
+          bt["adequately_powered"] is True
+          and bt["min_informative_strata"] == m.MIN_INFORMATIVE_STRATA)
+    check("23b. both verdicts are recorded, not just the surviving one",
+          bt["verdict"] and bt["legacy_verdict_9_3"])
+    check("23c. whether they agree is recorded as a fact",
+          bt["agrees_with_9_3"] is not None)
+    check("23d. the preference for canonical rests on supersession, not on "
+          "the outcome",
+          "not the outcome" in
+          bt["pre_declared_interpretation"]["basis_for_preferring_canonical"])
+    check("23e. the commitment forbids rewriting 9.3",
+          "retained unchanged" in
+          bt["pre_declared_interpretation"]["commitment"])
+
+    # 9.3's own numbers must still be in the document, un-restated.
+    legacy = json.loads(ART4.read_text(encoding="utf-8"))["blocked_like_for_like"]
+    doc = " ".join(DOC.read_text(encoding="utf-8").split())
+    check("23f. section 9.3's legacy p is still reported in the document",
+          f"p = {legacy['perm_p']:.3f}" in doc)
+    check("23g. and its legacy effect size was not deleted",
+          f"+{legacy['observed_mean_difference']:.2f} index points" in doc)
+
+
+def test_24_section_10s_prose_matches_its_artifact() -> None:
+    art = json.loads(ART5.read_text(encoding="utf-8"))
+    ce, pp, bt = (art["citation_error"], art["population_provenance"],
+                  art["canonical_blocked_test"])
+    doc = " ".join(DOC.read_text(encoding="utf-8").split())
+
+    check("24a. the retained figure in the prose is the artifact's",
+          f"**{ce['n_retained_under_canonical']} of {ce['n_audited']}**" in doc)
+    check("24b. so is the shared-rejection count",
+          f"**{ce['n_rejections_in_common']} of "
+          f"{ce['n_rejected_under_canonical']}**" in doc)
+    for k in ("rejected_by_quarantined_only", "rejected_by_canonical_only"):
+        missing = [e for e in ce[k]
+                   if f"{e.split()[0]} {e.split()[1]}" not in doc]
+        check(f"24c. every event in {k} appears in the prose",
+              not missing, str(missing))
+
+    check("24d. the selectivity figures in the prose are the artifact's",
+          f"**{pp['selectivity_pct_legacy']}%**" in doc
+          and f"**{pp['selectivity_pct_canonical']}%**" in doc)
+    t2 = pp["totals"]
+    check("24e. the population totals row is the artifact's",
+          f"| **{t2['audit_events_legacy']}** | **{t2['canonical_events']}** "
+          f"| **{t2['in_both']}** | **{t2['audit_only']}** "
+          f"| **{t2['canonical_only']}** |" in doc)
+
+    md = f"{bt['observed_mean_difference']:.2f}".replace("-", "\u2212")
+    check("24f. the canonical effect size in the prose is the artifact's",
+          f"**{md}**" in doc, md)
+    check("24g. the canonical p in the prose is the artifact's",
+          f"**{bt['perm_p']:.3f}**" in doc)
+    rk = f"{bt['observed_rank_difference']:.3f}".replace("-", "\u2212")
+    check("24h. the canonical rank statistic in the prose is the artifact's",
+          f"**{rk}**" in doc, rk)
+    check("24i. the canonical rank p in the prose is the artifact's",
+          f"**{bt['perm_p_rank_robustness']:.3f}**" in doc)
+    check("24j. the strata count in the prose is the artifact's",
+          f"**{bt['n_informative_strata']} of {bt['n_strata_possible']}**"
+          in doc)
+
+
 if __name__ == "__main__":
     test_1_artifact_and_document_exist()
     test_2_every_artifact_number_recomputes()
@@ -571,6 +697,10 @@ if __name__ == "__main__":
     test_18_blocking_actually_neutralises_a_year_effect()
     test_19_the_strata_power_rule_cannot_be_bypassed()
     test_20_section_9s_prose_matches_its_artifact()
+    test_21_supersession_fix_recomputes()
+    test_22_the_two_populations_agree_only_on_the_headline()
+    test_23_the_canonical_rerun_does_not_replace_9_3()
+    test_24_section_10s_prose_matches_its_artifact()
 
     print()
     if FAILURES:
