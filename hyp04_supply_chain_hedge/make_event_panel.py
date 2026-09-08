@@ -50,7 +50,7 @@ from typing import Any, Optional
 from . import sessions as sessions_mod
 from .artifacts import newest_in
 from .constants import HORIZON_GRID
-from .linkage_resolution import resolve_from_curated_map
+from .linkage_resolution import freeze_record_fields, resolve_from_curated_map
 from .peer_ceiling import events_from_calendar, shocks_from_rows
 from .peer_returns import (
     build_series,
@@ -438,6 +438,14 @@ def build(*, out_json: Path = OUT_JSON, force: bool = False) -> dict[str, Any]:
             "MEASURABILITY question, reported per pair. It is never a "
             "MEMBERSHIP question.' Registered 2026-09-02, before this "
             "assembler existed."),
+        # Section 5 point 1 of the display-gates document requires the
+        # eligible set to be ENUMERATED mechanically, not merely counted. A
+        # count cannot be frozen; a set can.
+        "eligible_event_ids": list(
+            freeze_record_fields(panel_pair)["eligible_event_ids"]),
+        "eligible_event_anchors": {
+            str(ev["event_id"]): str(ev["anchor"])
+            for ev in panel_pair.anchor_events if ev.get("peers")},
         "per_pair": per_pair,
         "denial_note": denial_note,
         "per_peer": per_peer,
