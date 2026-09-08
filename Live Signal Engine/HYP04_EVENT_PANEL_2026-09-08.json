@@ -1,0 +1,2345 @@
+{
+ "artifact": "HYP04_EVENT_PANEL_2026-09-08.json",
+ "as_of_date": "2026-09-08",
+ "hypothesis_id": "HYP-04",
+ "what_this_is": "The first mechanically derived eligible-event count for HYP-04. Joins the anchor calendar, the anchor shocks, the curated linkage map and the collected peer closes through pair_eligibility.",
+ "what_this_is_not": "Evidence about supply-chain transmission, and not a freeze. No target value, beta_h, horizon or direction has been computed. A count of data availability is publishable under the display-gate convention; what it implies is not.",
+ "sources": {
+  "calendar": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2.csv",
+  "shocks": "HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+  "curated_map": "HYP04_Linkage_Map_v1.2.csv",
+  "calendar_sha256": "62f9c5cede3945c4b475aaf385595b0dd1448912ba53e71bfa0de2275e2004c8",
+  "shocks_sha256": "d9f59a06c4db222a7dd29fa3a7d95aa151e12523498e64f17d1072d67188a870",
+  "curated_map_sha256": "77f4e0e840c5a38b9c45410e5803ee702bcc1100af552308a5c763dc44b7d77d"
+ },
+ "session_index": {
+  "calendar_id": "XNYS_exchange_calendars_v4.13.2",
+  "first": "2003-01-21",
+  "last": "2027-02-22",
+  "n_sessions": 6060,
+  "pad_days": 200,
+  "verified_against_authoritative": true
+ },
+ "peer_closes": {
+  "AAPL": {
+   "file": "AAPL_closes_REQUEST.csv",
+   "sha256": "88b652644954dd0f0119c4f0c1ab51a50fea702988ad839d2a45f61cc7901fe0",
+   "rows_seen": 2142,
+   "rows_filled": 2142,
+   "rows_rejected": 0,
+   "off_calendar_dates": 0,
+   "finite_returns": 2091
+  },
+  "BB": {
+   "file": "BB_closes_REQUEST.csv",
+   "sha256": "ab621c92e4a8faf296674f932d401a4c9050f8be5e48b09737783159482d1be2",
+   "rows_seen": 1974,
+   "rows_filled": 1974,
+   "rows_rejected": 0,
+   "off_calendar_dates": 0,
+   "finite_returns": 1927
+  },
+  "CSCO": {
+   "file": "CSCO_closes_REQUEST.csv",
+   "sha256": "17ae9169289ec075bcf038cc81b678333fb23698152d709db365cd42dfc82fa9",
+   "rows_seen": 3716,
+   "rows_filled": 3716,
+   "rows_rejected": 0,
+   "off_calendar_dates": 0,
+   "finite_returns": 3628
+  },
+  "CVS": {
+   "file": "CVS_closes_REQUEST.csv",
+   "sha256": "75272fbc5ee75f389867ad30dc591329ca446e52b624cf3202d9215875a26d18",
+   "rows_seen": 2200,
+   "rows_filled": 2200,
+   "rows_rejected": 0,
+   "off_calendar_dates": 0,
+   "finite_returns": 2152
+  },
+  "HPQ": {
+   "file": "HPQ_closes_REQUEST.csv",
+   "sha256": "d9ceb37e6f305acbd3ab7b7ba0b0b7ed58993f3acf27e1673f4675c4d581c160",
+   "rows_seen": 1260,
+   "rows_filled": 1260,
+   "rows_rejected": 0,
+   "off_calendar_dates": 0,
+   "finite_returns": 1230
+  },
+  "MSFT": {
+   "file": "MSFT_closes_REQUEST.csv",
+   "sha256": "3d1c84f22f9e4471f0707ce3c48900847e16c033e904cc3d717d7b4600c9a1d4",
+   "rows_seen": 1764,
+   "rows_filled": 1764,
+   "rows_rejected": 0,
+   "off_calendar_dates": 0,
+   "finite_returns": 1722
+  }
+ },
+ "registered_floor": 193,
+ "registered_floor_agrees_across_modules": {
+  "make_event_panel": 193,
+  "make_anchor_calendar": 193,
+  "make_anchor_shocks": 193,
+  "make_peer_ceiling": 193
+ },
+ "unit_registered": "per_pair",
+ "unit_basis": "Registry v1.11: 'Peer-side price data availability is a MEASURABILITY question, reported per pair. It is never a MEMBERSHIP question.' Registered 2026-09-02, before this assembler existed.",
+ "per_pair": {
+  "eligible_anchor_events": 214,
+  "eligible_pairs": 312,
+  "pairs_denied": 172,
+  "denials_by_code": {
+   "P3": 158,
+   "P5": 171,
+   "P1": 18
+  },
+  "reaches_floor": true,
+  "shortfall": 0
+ },
+ "denial_note": {
+  "codes_count_pairs_not_events": true,
+  "events_in_calendar": 342,
+  "events_with_a_shock": 324,
+  "events_without_a_shock": 18,
+  "shockless_events_on_an_anchor_with_edges": 14,
+  "p1_denied_pairs": 18,
+  "p1_pairs_equals_shockless_events_by_coincidence": true,
+  "why": "a shockless event generates one denied pair per curated edge on its anchor, so an anchor with three edges contributes three; the counts are not interchangeable"
+ },
+ "per_peer": {
+  "eligible_anchor_events": 161,
+  "eligible_pairs": 259,
+  "pairs_denied": 225,
+  "denials_by_code": {
+   "P3": 158,
+   "P5": 76,
+   "P1": 18
+  },
+  "reaches_floor": false,
+  "shortfall": 32
+ },
+ "per_peer_scoping": {
+  "note": "the per-peer unit's answer depends on which events it ranges over; both scopings are published so the choice is visible",
+  "scoped_to_p1_p3_survivors": {
+   "eligible_anchor_events": 161,
+   "eligible_pairs": 259,
+   "pairs_denied": 225,
+   "denials_by_code": {
+    "P3": 158,
+    "P5": 76,
+    "P1": 18
+   },
+   "reaches_floor": false,
+   "shortfall": 32
+  },
+  "scoped_to_all_events": {
+   "eligible_anchor_events": 89,
+   "eligible_pairs": 89,
+   "pairs_denied": 395,
+   "denials_by_code": {
+    "P3": 158,
+    "P5": 393,
+    "P1": 18
+   },
+   "reaches_floor": false,
+   "shortfall": 104
+  },
+  "availability_survivors": {
+   "CSCO": true,
+   "MSFT": true,
+   "AAPL": true,
+   "CVS": false,
+   "BB": true,
+   "HPQ": true
+  },
+  "availability_all_events": {
+   "MSFT": false,
+   "AAPL": false,
+   "BB": false,
+   "CSCO": true,
+   "CVS": false,
+   "HPQ": false
+  }
+ },
+ "reconciliation": {
+  "question": "registry v1.11 section 10: the assumed-price route and the real-coverage route agree numerically but were not shown to be the same event set",
+  "assumed_prices_events": 215,
+  "assumed_prices_pairs": 313,
+  "real_coverage_events": 214,
+  "real_coverage_pairs": 312,
+  "sets_are_identical": false,
+  "in_assumed_not_in_real": [
+   "MCK-2026-08-05"
+  ],
+  "in_real_not_in_assumed": [],
+  "why": {
+   "MCK-2026-08-05": {
+    "peers_short": [
+     "CVS"
+    ]
+   }
+  },
+  "resolved": "the two routes differ by exactly the events listed above, each identified with the peer whose coverage window is empty; the discrepancy is no longer a bare count difference"
+ },
+ "unit_costs_events": 53,
+ "pairs_short_on_coverage": 153,
+ "coverage_shortfalls": [
+  {
+   "peer": "MSFT",
+   "event_id": "NVDA-2003-08-07",
+   "anchor_day": 139,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2003-09-18",
+   "anchor_day": 168,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2003-09-18",
+   "anchor_day": 168,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2003-10-23",
+   "anchor_day": 193,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "MSFT",
+   "event_id": "NVDA-2003-11-06",
+   "anchor_day": 203,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2003-12-17",
+   "anchor_day": 231,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2003-12-17",
+   "anchor_day": 231,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2004-01-22",
+   "anchor_day": 254,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "MSFT",
+   "event_id": "NVDA-2004-02-12",
+   "anchor_day": 269,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2004-03-17",
+   "anchor_day": 292,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2004-03-17",
+   "anchor_day": 292,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2004-04-29",
+   "anchor_day": 322,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2004-06-16",
+   "anchor_day": 354,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2004-06-16",
+   "anchor_day": 354,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2004-07-22",
+   "anchor_day": 379,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2004-09-21",
+   "anchor_day": 421,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2004-09-21",
+   "anchor_day": 421,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2004-10-21",
+   "anchor_day": 443,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2004-12-20",
+   "anchor_day": 484,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2004-12-20",
+   "anchor_day": 484,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2005-01-18",
+   "anchor_day": 503,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2005-01-27",
+   "anchor_day": 510,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2005-03-17",
+   "anchor_day": 544,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2005-03-17",
+   "anchor_day": 544,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2005-04-19",
+   "anchor_day": 566,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2005-05-05",
+   "anchor_day": 578,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2005-06-21",
+   "anchor_day": 610,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2005-06-21",
+   "anchor_day": 610,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2005-07-19",
+   "anchor_day": 629,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2005-07-27",
+   "anchor_day": 635,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2005-09-26",
+   "anchor_day": 677,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2005-09-26",
+   "anchor_day": 677,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2005-10-18",
+   "anchor_day": 693,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2005-11-08",
+   "anchor_day": 708,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2005-12-20",
+   "anchor_day": 737,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2005-12-20",
+   "anchor_day": 737,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2006-01-17",
+   "anchor_day": 754,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2006-01-26",
+   "anchor_day": 761,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2006-03-22",
+   "anchor_day": 799,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2006-03-22",
+   "anchor_day": 799,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2006-04-19",
+   "anchor_day": 818,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2006-05-04",
+   "anchor_day": 829,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2006-06-21",
+   "anchor_day": 862,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2006-06-21",
+   "anchor_day": 862,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2006-07-19",
+   "anchor_day": 881,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2006-07-27",
+   "anchor_day": 887,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2006-09-26",
+   "anchor_day": 929,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2006-09-26",
+   "anchor_day": 929,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2006-10-17",
+   "anchor_day": 944,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2006-10-31",
+   "anchor_day": 954,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2006-12-20",
+   "anchor_day": 989,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2006-12-20",
+   "anchor_day": 989,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2007-01-16",
+   "anchor_day": 1004,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2007-01-25",
+   "anchor_day": 1011,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2007-03-22",
+   "anchor_day": 1050,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2007-03-22",
+   "anchor_day": 1050,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2007-04-17",
+   "anchor_day": 1067,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2007-05-07",
+   "anchor_day": 1081,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2007-05-24",
+   "anchor_day": 1093,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2007-05-24",
+   "anchor_day": 1093,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2007-06-21",
+   "anchor_day": 1113,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2007-06-21",
+   "anchor_day": 1113,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2007-07-17",
+   "anchor_day": 1130,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2007-07-26",
+   "anchor_day": 1137,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2007-09-27",
+   "anchor_day": 1181,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2007-09-27",
+   "anchor_day": 1181,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2007-10-16",
+   "anchor_day": 1194,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2007-10-30",
+   "anchor_day": 1204,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2007-12-20",
+   "anchor_day": 1240,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2007-12-20",
+   "anchor_day": 1240,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2008-01-15",
+   "anchor_day": 1256,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2008-01-31",
+   "anchor_day": 1267,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2008-03-25",
+   "anchor_day": 1303,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2008-03-25",
+   "anchor_day": 1303,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2008-04-15",
+   "anchor_day": 1318,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2008-05-05",
+   "anchor_day": 1332,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2008-06-24",
+   "anchor_day": 1367,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2008-06-24",
+   "anchor_day": 1367,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2008-07-15",
+   "anchor_day": 1381,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2008-09-26",
+   "anchor_day": 1432,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2008-09-26",
+   "anchor_day": 1432,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2008-10-14",
+   "anchor_day": 1445,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2008-12-19",
+   "anchor_day": 1491,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2008-12-19",
+   "anchor_day": 1491,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2009-01-15",
+   "anchor_day": 1509,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2009-03-24",
+   "anchor_day": 1555,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2009-03-24",
+   "anchor_day": 1555,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2009-04-14",
+   "anchor_day": 1569,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2009-06-23",
+   "anchor_day": 1618,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2009-06-23",
+   "anchor_day": 1618,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2009-07-14",
+   "anchor_day": 1632,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2009-09-29",
+   "anchor_day": 1686,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2009-09-29",
+   "anchor_day": 1686,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2009-10-13",
+   "anchor_day": 1696,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2009-12-21",
+   "anchor_day": 1744,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2009-12-21",
+   "anchor_day": 1744,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2010-01-14",
+   "anchor_day": 1760,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2010-03-23",
+   "anchor_day": 1806,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2010-03-23",
+   "anchor_day": 1806,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2010-04-13",
+   "anchor_day": 1820,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2010-06-22",
+   "anchor_day": 1869,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2010-06-22",
+   "anchor_day": 1869,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2010-07-13",
+   "anchor_day": 1883,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2010-09-27",
+   "anchor_day": 1936,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2010-09-27",
+   "anchor_day": 1936,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2010-10-12",
+   "anchor_day": 1947,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2010-12-20",
+   "anchor_day": 1995,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2010-12-20",
+   "anchor_day": 1995,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2011-01-13",
+   "anchor_day": 2012,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2011-03-22",
+   "anchor_day": 2058,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2011-03-22",
+   "anchor_day": 2058,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2011-04-19",
+   "anchor_day": 2078,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2011-05-09",
+   "anchor_day": 2091,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2011-06-21",
+   "anchor_day": 2121,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2011-06-21",
+   "anchor_day": 2121,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2011-07-20",
+   "anchor_day": 2141,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2011-09-27",
+   "anchor_day": 2189,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2011-09-27",
+   "anchor_day": 2189,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2011-10-18",
+   "anchor_day": 2204,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2011-12-20",
+   "anchor_day": 2248,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2011-12-20",
+   "anchor_day": 2248,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2012-01-19",
+   "anchor_day": 2267,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2012-03-20",
+   "anchor_day": 2309,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2012-03-20",
+   "anchor_day": 2309,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2012-04-17",
+   "anchor_day": 2328,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2012-06-19",
+   "anchor_day": 2372,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2012-06-19",
+   "anchor_day": 2372,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2012-07-17",
+   "anchor_day": 2391,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "AAPL",
+   "event_id": "JBL-2012-09-25",
+   "anchor_day": 2440,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2012-09-25",
+   "anchor_day": 2440,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2012-10-16",
+   "anchor_day": 2455,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2012-12-19",
+   "anchor_day": 2498,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2013-01-17",
+   "anchor_day": 2517,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2013-03-20",
+   "anchor_day": 2559,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2013-04-16",
+   "anchor_day": 2577,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2013-06-19",
+   "anchor_day": 2622,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2013-07-17",
+   "anchor_day": 2641,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "BB",
+   "event_id": "JBL-2013-09-25",
+   "anchor_day": 2690,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2013-10-15",
+   "anchor_day": 2704,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2014-01-16",
+   "anchor_day": 2768,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2014-04-15",
+   "anchor_day": 2829,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2014-07-15",
+   "anchor_day": 2891,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2014-10-14",
+   "anchor_day": 2955,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2015-01-15",
+   "anchor_day": 3019,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2015-04-14",
+   "anchor_day": 3079,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2015-07-15",
+   "anchor_day": 3143,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2015-10-13",
+   "anchor_day": 3206,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2016-01-14",
+   "anchor_day": 3270,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2016-04-19",
+   "anchor_day": 3335,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2016-07-20",
+   "anchor_day": 3399,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2016-10-18",
+   "anchor_day": 3462,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "HPQ",
+   "event_id": "INTC-2017-01-26",
+   "anchor_day": 3530,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  },
+  {
+   "peer": "CVS",
+   "event_id": "MCK-2026-08-05",
+   "anchor_day": 5923,
+   "reference_needed": 20,
+   "reference_have": 0,
+   "horizon_needed": 20,
+   "horizon_have": 0,
+   "sufficient": false,
+   "reasons": [
+    "reference window has 0/20 finite returns",
+    "horizon window has 0/20 finite returns"
+   ]
+  }
+ ],
+ "pairs_left_unknown": {
+  "no_attributed_session": 18
+ },
+ "linkage_provenance": {
+  "source": "curated_map",
+  "source_path": "C:\\Users\\bchen\\Quant_Research_Project\\Live Signal Engine\\HYP04_Linkage_Map_v1.2.csv",
+  "source_sha256": "77f4e0e840c5a38b9c45410e5803ee702bcc1100af552308a5c763dc44b7d77d",
+  "rows_seen": 7,
+  "rows_rejected": 0,
+  "edges_usable": 7,
+  "load_ok": true,
+  "uses_placeholder_linkage": false
+ },
+ "opens_no_gate": "The display gate is CLOSED, C4 MET, four denials. This artifact supplies the count C2 asks for; it does not supply the freeze C3 asks for, and C2 and C3 move together or not at all."
+}
