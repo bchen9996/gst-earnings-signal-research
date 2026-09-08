@@ -137,6 +137,7 @@ def resolve_from_curated_map(
     map_path: Path,
     anchor_shock: Optional[dict[str, AnchorShock]] = None,
     peer_history: Optional[dict[str, bool]] = None,
+    peer_history_by_pair: Optional[dict[tuple[str, str], bool]] = None,
 ) -> ResolvedPanel:
     """Attach real peers to each anchor event from the curated map.
 
@@ -149,6 +150,14 @@ def resolve_from_curated_map(
     from it is denied by P1, never assumed eligible. `peer_history` maps peer
     ticker -> availability; a peer absent from it is UNKNOWN and denied by P5,
     never assumed available.
+
+    `peer_history_by_pair` maps (event_id, peer) -> availability and TAKES
+    PRECEDENCE over `peer_history` for pairs it covers. Registry v1.11: "Peer-
+    side price data availability is a MEASURABILITY question, reported per
+    pair." The per-peer unit marks a peer unavailable for every event it
+    appears in as soon as ONE event is uncoverable, which is lossy in the
+    direction that matters -- measured at 54 events on the real panel. A pair
+    absent from BOTH maps is still UNKNOWN and still denied by P5.
     """
     if not map_path.is_file():
         return ResolvedPanel(
@@ -194,7 +203,11 @@ def resolve_from_curated_map(
             # Only supply peer availability when it is actually known. Omitting
             # the argument leaves evaluate_pair's own sentinel in place, which
             # denies on P5 -- an unchecked peer is not a peer with data.
-            if peer_history is not None and peer in peer_history:
+            pair_key = (event_id, peer)
+            if (peer_history_by_pair is not None
+                    and pair_key in peer_history_by_pair):
+                kw["peer_history_available"] = peer_history_by_pair[pair_key]
+            elif peer_history is not None and peer in peer_history:
                 kw["peer_history_available"] = peer_history[peer]
 
             r = evaluate_pair(edge, **kw)
