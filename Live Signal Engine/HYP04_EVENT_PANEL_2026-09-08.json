@@ -7,10 +7,10 @@
  "sources": {
   "calendar": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2.csv",
   "shocks": "HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
-  "curated_map": "HYP04_Linkage_Map_v1.2.csv",
+  "curated_map": "HYP04_Linkage_Map_v1.3.csv",
   "calendar_sha256": "62f9c5cede3945c4b475aaf385595b0dd1448912ba53e71bfa0de2275e2004c8",
   "shocks_sha256": "d9f59a06c4db222a7dd29fa3a7d95aa151e12523498e64f17d1072d67188a870",
-  "curated_map_sha256": "77f4e0e840c5a38b9c45410e5803ee702bcc1100af552308a5c763dc44b7d77d"
+  "curated_map_sha256": "cac6ecd3ceda790fe3a02c4d8b85b9d79f9b9883c49e04d9dd62b520b1549a4d"
  },
  "session_index": {
   "calendar_id": "XNYS_exchange_calendars_v4.13.2",
@@ -2765,8 +2765,8 @@
  },
  "linkage_provenance": {
   "source": "curated_map",
-  "source_path": "C:\\Users\\bchen\\Quant_Research_Project\\Live Signal Engine\\HYP04_Linkage_Map_v1.2.csv",
-  "source_sha256": "77f4e0e840c5a38b9c45410e5803ee702bcc1100af552308a5c763dc44b7d77d",
+  "source_path": "C:\\Users\\bchen\\Quant_Research_Project\\Live Signal Engine\\HYP04_Linkage_Map_v1.3.csv",
+  "source_sha256": "cac6ecd3ceda790fe3a02c4d8b85b9d79f9b9883c49e04d9dd62b520b1549a4d",
   "rows_seen": 7,
   "rows_rejected": 0,
   "edges_usable": 7,

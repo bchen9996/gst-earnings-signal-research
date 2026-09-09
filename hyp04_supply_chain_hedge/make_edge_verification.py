@@ -95,11 +95,22 @@ def _history() -> dict[str, dict]:
     return {"path": path, "by_ticker": by_ticker, "incomplete": incomplete}
 
 
-def _eligible_pairs() -> tuple[dict[tuple[str, str], list[str]], dict]:
-    """(anchor, peer) -> eligible event ids, recomputed from the same inputs."""
+def _eligible_pairs(map_path: Optional[Path] = None
+                    ) -> tuple[dict[tuple[str, str], list[str]], dict]:
+    """(anchor, peer) -> eligible event ids, recomputed from the same inputs.
+
+    `map_path` PINS the curated map. It defaults to the newest, which is right
+    when generating, and is passed explicitly when REPRODUCING a dated
+    artifact. Without it this document would re-derive against whatever map is
+    newest today -- so once the map it was evidence FOR is ratified, it would
+    report `review_status: reviewed` and cite the decision it informed. A dated
+    evidence artifact has to stay reproducible as of its date.
+    """
     from . import make_event_panel as MP
 
     paths = MP._inputs()
+    if map_path is not None:
+        paths = {**paths, "curated_map": map_path}
     cal = MP._rows(paths["calendar"])
     shk = MP._rows(paths["shocks"])
     events = events_from_calendar(cal)
@@ -141,9 +152,9 @@ def _event_date(event_id: str, anchor: str) -> str:
     return tail if re.fullmatch(r"\d{4}-\d{2}-\d{2}", tail) else ""
 
 
-def build() -> dict[str, Any]:
+def build(map_path: Optional[Path] = None) -> dict[str, Any]:
     hist = _history()
-    pairs, sources = _eligible_pairs()
+    pairs, sources = _eligible_pairs(map_path=map_path)
 
     map_path = LSE / sources["map"]
     res = load_curated_linkage(map_path)

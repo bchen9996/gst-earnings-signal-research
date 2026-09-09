@@ -69,16 +69,33 @@ def _entry(doc: dict) -> dict:
 
 
 def test_1_it_refuses_out_of_order_today() -> None:
-    """The map is unratified and no freeze exists, so C1 must not move."""
+    """The map is now ratified. The freeze is not, so C1 still must not move.
+
+    This used to assert BOTH refusals fired. One of them has since been
+    satisfied for real, which turns the test into a better one: the guard has
+    to be granular. A blanket refusal that never releases anything would pass
+    the old assertion forever and tell you nothing about whether it tracks the
+    repository's actual state.
+    """
     problems = R.code_disagreements()
-    check("1a. the generator refuses against the real repository",
+    check("1a. the generator still refuses against the real repository",
           bool(problems))
     joined = " ".join(problems)
-    check("1b. it names the unratified map", "not 'reviewed'" in joined,
-          joined[:160])
-    check("1c. it names the missing freeze", "freeze" in joined.lower())
-    check("1d. and says C1 moves last",
+    check("1b. the ratified map is NO LONGER a stated reason",
+          "not 'reviewed'" not in joined, joined[:200])
+    check("1c. the missing freeze is", "freeze" in joined.lower(),
+          joined[:200])
+    check("1d. and it says C1 moves last",
           "LAST condition" in joined or "last condition" in joined.lower())
+
+    # Granularity proven the other way: the map guard is not dead code, it is
+    # satisfied. Point the same check at the unratified v1.2 and it fires.
+    from hyp04_supply_chain_hedge.curated_linkage import load_curated_linkage
+    v12 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.2.csv")
+    v13 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.3.csv")
+    check("1e. the map guard is satisfied, not disabled",
+          any(e.review_status != "reviewed" for e in v12.edges)
+          and all(e.review_status == "reviewed" for e in v13.edges))
 
 
 def test_2_the_exception_is_claimed_and_narrow() -> None:
