@@ -121,6 +121,24 @@ def _all_reviewed() -> dict[str, str]:
 # --------------------------------------------------------------------------
 
 
+def _unpasteable(out: str) -> list[str]:
+    """Lines that would break a paste, in EITHER shell.
+
+    Backslash AND backtick: this repo is driven from PowerShell, where a
+    trailing backtick continues a line and a trailing backslash does not, and
+    from bash, where it is the other way round. Neither may end a line -- and a
+    backtick may not appear anywhere, since inside a pasted command it is a
+    PowerShell escape.
+
+    Factored out because it was applied to the map template only. The attest
+    template kept its backslash continuations for two commits after the map
+    template was fixed, which would have broken the paste at the single most
+    consequential signature in the project.
+    """
+    return [ln for ln in out.splitlines()
+            if ln.rstrip().endswith(("\\", "`")) or "`" in ln]
+
+
 def test_0_the_reason_check_actually_bites() -> None:
     """Who tests the helper. A reason-check that cannot fail is decoration.
 
@@ -177,15 +195,8 @@ def test_1_the_templates_are_pasteable() -> None:
     out = buf.getvalue()
     cmd = [ln for ln in out.splitlines() if "ratify map --curated-by" in ln]
     check("1a. the map template emits exactly one command line", len(cmd) == 1)
-    # Backslash AND backtick: the driver is run from PowerShell, where a
-    # trailing backtick continues a line and a trailing backslash does not.
-    # Either one at end-of-line would break the paste in one shell or the
-    # other, so neither may appear there -- nor anywhere else in the output,
-    # since a backtick inside a pasted command is a PowerShell escape.
-    bad = [ln for ln in out.splitlines()
-           if ln.rstrip().endswith(("\\", "`")) or "`" in ln]
-    check("1b. it is a SINGLE line -- no backslash or backtick continuations",
-          not bad, str(bad[:2]))
+    check("1b. the map template is a SINGLE line", not _unpasteable(out),
+          str(_unpasteable(out)[:2]))
     rows = _rows(R.WORKSHEET)
     check("1c. every row appears in it",
           all(f"--edge {R._key(r)}=" in cmd[0] for r in rows) if cmd else False)
@@ -203,6 +214,13 @@ def test_1_the_templates_are_pasteable() -> None:
           R.AFFIRMATION in att)
     check("1g. and tells the signer when NOT to type it",
           "do not type it" in att.lower())
+    # The gap that let the backslashes survive here: 1b tested one template.
+    check("1h. the attest template is ALSO a single pasteable line",
+          not _unpasteable(att), str(_unpasteable(att)[:2]))
+    acmd = [ln for ln in att.splitlines() if "ratify attest" in ln]
+    check("1i. it emits exactly one command line", len(acmd) == 1, str(acmd))
+    check("1j. carrying both flags, so nothing is left to be guessed",
+          bool(acmd) and "--attested-by" in acmd[0] and "--affirm" in acmd[0])
 
 
 def test_2_it_refuses_every_judgement() -> None:

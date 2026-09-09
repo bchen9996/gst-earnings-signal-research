@@ -554,10 +554,20 @@ def _print_map_template() -> None:
 
 
 def _print_attest_template() -> None:
+    """One line, no continuations -- same rule as the map template.
+
+    This one kept its `\\`-continued form after the map template was fixed,
+    because the pasteability test only looked at the map. A backslash does not
+    continue a line in PowerShell, which is the shell this repo is driven from,
+    so the command would have broken at the point of the most consequential
+    signature in the project.
+    """
     draft = newest_in(LSE, "HYP04_FREEZE_DRAFT_*.json")
-    print("python -m hyp04_supply_chain_hedge.ratify attest \\")
-    print('  --attested-by "<your name>" \\')
-    print(f'  --affirm "{AFFIRMATION}"')
+    print("Replace <your name>, then paste as ONE line:\n")
+    print("  " + " ".join([
+        "python -m hyp04_supply_chain_hedge.ratify attest",
+        '--attested-by "<your name>"',
+        f'--affirm "{AFFIRMATION}"']))
     print(f"\nDraft: {Path(draft).name if draft else '(none yet -- step 5)'}")
     print("\nThat sentence is the whole attestation. It asserts no beta_h, no "
           "lag profile\nand no peer response has been computed ANYWHERE, "
