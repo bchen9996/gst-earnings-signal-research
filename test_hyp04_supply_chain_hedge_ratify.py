@@ -71,13 +71,37 @@ def check(label: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(label)
 
 
-def refuses(label: str, fn, *a, **k) -> None:
-    """The refusal IS the feature, so assert the type and capture the text."""
+def refuses(label: str, fn, *a, expect: str, **k) -> str:
+    """Refuse, AND refuse for the stated reason. `expect` is REQUIRED.
+
+    It used to assert only the exception TYPE. That is not enough: `ratify_map`
+    has eight distinct guards and every one of them raises RatifyError, so a
+    call meant to exercise one passes just as happily when a different one
+    fires first. That is what happened once v1.3 really existed -- every
+    refusal in test_2 tripped the already-exists guard before reaching the
+    guard it names, and only the single assertion that read the message
+    noticed.
+
+    Keep `expect` a short distinctive fragment rather than the whole sentence.
+    Pinning full prose makes the test fail on rewording, which teaches people
+    to loosen it, and a loosened reason-check is the thing being fixed here.
+    """
+    if not expect.strip():
+        check(label, False,
+              "expect= is empty, which matches ANY message and makes this "
+              "assertion vacuous. Give it a real fragment.")
+        return ""
     try:
         fn(*a, **k)
     except R.RatifyError as exc:
-        check(label, True)
-        return str(exc)
+        got = str(exc)
+        if expect.lower() in got.lower():
+            check(label, True)
+        else:
+            check(label, False,
+                  f"refused for the WRONG reason -- wanted {expect!r}, "
+                  f"got: {got[:140]}")
+        return got
     except Exception as exc:                       # noqa: BLE001
         check(label, False, f"raised {type(exc).__name__}: {exc}")
         return ""
@@ -95,6 +119,54 @@ def _all_reviewed() -> dict[str, str]:
 
 
 # --------------------------------------------------------------------------
+
+
+def test_0_the_reason_check_actually_bites() -> None:
+    """Who tests the helper. A reason-check that cannot fail is decoration.
+
+    `expect` exists because asserting the exception TYPE let a guard firing
+    for the wrong reason pass as the guard the test names. That fix is only
+    worth anything if a wrong reason really is recorded as a failure -- so
+    this drives the helper with a reason that cannot match and requires it to
+    fail, then with the true reason and requires it to pass.
+
+    Without this, someone could quietly widen the match (or default `expect`
+    to "") and every suite would stay green.
+    """
+    saved = list(FAILURES)
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        refuses("control -- this failure is EXPECTED", R.parse_edge_args,
+                ["MCK:CVS=approved"], expect="a reason it never gives")
+    bit = len(FAILURES) > len(saved)
+    FAILURES[:] = saved                 # the control's own failure is the point
+
+    check("0a. a refusal for the WRONG reason is recorded as a failure", bit)
+    out = buf.getvalue()
+    check("0b. and the report names both the wanted and the actual reason",
+          "wanted" in out and "got:" in out, out[:160])
+
+    with contextlib.redirect_stdout(io.StringIO()):
+        refuses("control -- the true reason", R.parse_edge_args,
+                ["MCK:CVS=approved"], expect="is not one of")
+    check("0c. CONTROL -- the true reason still passes",
+          len(FAILURES) == len(saved))
+
+    # An empty fragment matches ANY message, which would make every
+    # reason-check vacuous while still looking present at each call site.
+    # That is the obvious way to "fix" a failing reason-check, so it is
+    # rejected rather than documented.
+    buf2 = io.StringIO()
+    with contextlib.redirect_stdout(buf2):
+        refuses("control -- empty fragment, EXPECTED to fail", R.parse_edge_args,
+                ["MCK:CVS=approved"], expect="")
+    empty_rejected = len(FAILURES) > len(saved)
+    FAILURES[:] = saved
+    check("0d. an empty `expect` is rejected, not silently satisfied",
+          empty_rejected)
+    check("0e. and it says why", "vacuous" in buf2.getvalue(),
+          buf2.getvalue()[:160])
 
 
 def test_1_the_templates_are_pasteable() -> None:
@@ -151,35 +223,40 @@ def test_2_it_refuses_every_judgement() -> None:
     with tempfile.TemporaryDirectory() as td:
         fresh = Path(td) / "HYP04_Linkage_Map_v9.9.csv"
 
-        def rm(label, **kw):
+        def rm(label, *, expect, **kw):
             kw.setdefault("out_path", fresh)
-            return refuses(label, R.ratify_map, **kw)
+            return refuses(label, R.ratify_map, expect=expect, **kw)
 
         rm("2a. a missing decision",
            decisions={R._key(rows[0]): "reviewed"}, curated_by="T",
-           curated_date="2026-09-08")
+           curated_date="2026-09-08", expect="have no decision")
         msg = rm("2b. a typo'd edge, naming BOTH halves",
                  decisions={**{k: "reviewed" for k in list(good)[:-1]},
                             "JBL:CISCO": "reviewed"},
-                 curated_by="T", curated_date="2026-09-08")
+                 curated_by="T", curated_date="2026-09-08",
+                 expect="not rows in")
         check("2c. the typo itself is named", "JBL:CISCO" in msg, msg[:120])
 
         refuses("2d. a status outside the map's vocabulary", R.parse_edge_args,
-                ["MCK:CVS=approved"])
+                ["MCK:CVS=approved"], expect="is not one of")
         refuses("2e. a template placeholder left in an edge",
-                R.parse_edge_args, ["MCK:CVS=<draft|reviewed|needs_revisit>"])
+                R.parse_edge_args,
+                ["MCK:CVS=<draft|reviewed|needs_revisit>"],
+                expect="template placeholder")
         refuses("2f. the same edge decided twice", R.parse_edge_args,
-                ["MCK:CVS=reviewed", "MCK:CVS=draft"])
+                ["MCK:CVS=reviewed", "MCK:CVS=draft"],
+                expect="given twice")
         refuses("2g. a malformed edge spec", R.parse_edge_args,
-                ["MCK=reviewed"])
+                ["MCK=reviewed"], expect="is not ANCHOR:PEER=status")
         rm("2h. a blank signer", decisions=good, curated_by="  ",
-           curated_date="2026-09-08")
+           curated_date="2026-09-08", expect="is blank")
         rm("2i. a placeholder signer", decisions=good,
-           curated_by="<your name>", curated_date="2026-09-08")
+           curated_by="<your name>", curated_date="2026-09-08",
+           expect="template placeholder")
         rm("2j. a future decision date", decisions=good, curated_by="T",
-           curated_date="2099-01-01")
+           curated_date="2099-01-01", expect="is in the future")
         rm("2k. a non-ISO date", decisions=good, curated_by="T",
-           curated_date="Sept 8")
+           curated_date="Sept 8", expect="is not an ISO date")
         check("2l. nothing above actually wrote a map", not fresh.exists())
 
     check("2m. there is no bulk flag on the CLI",
@@ -190,7 +267,8 @@ def test_2_it_refuses_every_judgement() -> None:
     # decisions are fine AND whose decisions are missing both refuse -- but
     # for the same reason. That is what hid four broken assertions.
     dup = refuses("2n. an existing map version still refuses", R.ratify_map,
-                  decisions=good, curated_by="T", curated_date="2026-09-08")
+                  decisions=good, curated_by="T",
+                  curated_date="2026-09-08", expect="already exists")
     check("2o. and it is the already-exists guard, not a judgement guard",
           "already exists" in dup, dup[:120])
 
@@ -217,7 +295,7 @@ def test_4_it_writes_only_the_three_blanked_fields() -> None:
         refuses("4a. ratifying with no evidence artifact on disk",
                 R.ratify_map, decisions=_all_reviewed(), curated_by="T",
                 curated_date="2026-09-08", worksheet=ws, out_path=out,
-                evidence=t / "nope.md")
+                evidence=t / "nope.md", expect="is not on disk")
 
         res = R.ratify_map(decisions=_all_reviewed(), curated_by="test-op",
                            curated_date="2026-09-08", worksheet=ws,
@@ -242,7 +320,7 @@ def test_4_it_writes_only_the_three_blanked_fields() -> None:
         refuses("4g. overwriting an existing map version", R.ratify_map,
                 decisions=_all_reviewed(), curated_by="T",
                 curated_date="2026-09-08", worksheet=ws, out_path=out,
-                evidence=ev)
+                evidence=ev, expect="already exists")
 
         # a worksheet that arrives pre-filled is not the document that was
         # checked, and is refused rather than silently re-signed
@@ -257,7 +335,8 @@ def test_4_it_writes_only_the_three_blanked_fields() -> None:
         refuses("4h. a pre-filled worksheet", R.ratify_map,
                 decisions=_all_reviewed(), curated_by="T",
                 curated_date="2026-09-08", worksheet=pre,
-                out_path=t / "HYP04_Linkage_Map_v1.4.csv", evidence=ev)
+                out_path=t / "HYP04_Linkage_Map_v1.4.csv", evidence=ev,
+                expect="already carries")
 
 
 def test_5_a_bad_map_is_never_left_on_disk() -> None:
@@ -277,7 +356,7 @@ def test_5_a_bad_map_is_never_left_on_disk() -> None:
         refuses("5a. a map that fails its own validator", R.ratify_map,
                 decisions=_all_reviewed(), curated_by="T",
                 curated_date="2026-09-08", worksheet=ws, out_path=out,
-                evidence=ev)
+                evidence=ev, expect="does not load cleanly")
         check("5b. and the unloadable file was REMOVED, not left in force",
               not out.exists())
 
@@ -315,17 +394,19 @@ def test_6_the_attestation_cannot_be_inferred() -> None:
 
         msg = refuses("6a. a wrong affirmation", R.attest, draft_path=p,
                       attested_by="test-op", affirmation="yes",
-                      attested_date="2026-09-08")
+                      attested_date="2026-09-08",
+                      expect="affirmation does not match")
         check("6b. and the refusal quotes the sentence to type",
               R.AFFIRMATION in msg)
         check("6c. the draft was NOT touched",
               p.read_text(encoding="utf-8") == before)
         refuses("6d. an almost-right affirmation", R.attest, draft_path=p,
                 attested_by="test-op", attested_date="2026-09-08",
-                affirmation=R.AFFIRMATION.replace("anyone", "me"))
+                affirmation=R.AFFIRMATION.replace("anyone", "me"),
+                expect="affirmation does not match")
         refuses("6e. an unattributed attestation", R.attest, draft_path=p,
                 attested_by="  ", affirmation=R.AFFIRMATION,
-                attested_date="2026-09-08")
+                attested_date="2026-09-08", expect="is blank")
         check("6f. still untouched after every refusal",
               p.read_text(encoding="utf-8") == before)
 
@@ -361,7 +442,8 @@ def test_7_attesting_moves_only_the_owner_fields() -> None:
 
         refuses("7h. re-attesting an already-frozen record", R.attest,
                 draft_path=p, attested_by="someone-else",
-                affirmation=R.AFFIRMATION, attested_date="2026-09-08")
+                affirmation=R.AFFIRMATION, attested_date="2026-09-08",
+                expect="already attested")
 
         # Close the loop: the record THIS DRIVER produced, against the registry
         # v1.12 would write, must actually open the gate. The v1.12 suite
@@ -380,7 +462,8 @@ def test_7_attesting_moves_only_the_owner_fields() -> None:
 def test_8_pins_are_shown_before_they_are_written() -> None:
     fake = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json"
     refuses("8a. repointing at a registry that does not exist",
-            R.repoint_pins, registry=fake, apply=False)
+            R.repoint_pins, registry=fake, apply=False,
+            expect="is not on disk")
 
     real = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.11.json"
     edits = R.repoint_pins(registry=real, apply=False)
@@ -442,6 +525,7 @@ def test_9_a_ratified_map_opens_nothing() -> None:
 
 
 if __name__ == "__main__":
+    test_0_the_reason_check_actually_bites()
     test_1_the_templates_are_pasteable()
     test_2_it_refuses_every_judgement()
     test_3_underscore_spelling_normalises()
