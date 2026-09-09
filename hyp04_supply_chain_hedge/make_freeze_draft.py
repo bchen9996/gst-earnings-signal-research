@@ -46,6 +46,7 @@ valid.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import re
@@ -158,6 +159,156 @@ def _scan_for_results(lse: Path) -> list[str]:
     return hits
 
 
+#: Functions that, called on the real panel, would produce a HYP-04 OUTCOME.
+#: Named individually rather than matched by prefix: the point is to ask "did
+#: anyone compute a result", and a prefix match would drift into flagging any
+#: mention of the modules.
+ESTIMATOR_CALLS = ("local_projection_analysis", "placebo_test",
+                   "leave_one_anchor_out_cv", "prewhitened_ccf",
+                   "recommend_structure")
+
+#: Filename stems that only appear when code touches REAL HYP-04 inputs.
+REAL_INPUT_MARKERS = ("HYP04_EVENT_PANEL", "HYP04_Linkage_Map",
+                      "HYP04_PEER_CLOSES", "HYP04_ANCHOR_SHOCK")
+
+
+def _notebook_surface(repo: Path) -> list[dict[str, Any]]:
+    """Every notebook, whether it was RUN, and whether it touches real inputs.
+
+    A notebook is the obvious way to compute an outcome outside this
+    repository, so it gets looked at rather than assumed about. Two facts are
+    recorded per notebook and they answer different questions: saved outputs
+    say it was executed and the result kept, and a real-input reference says
+    it could produce a HYP-04 outcome at all.
+    """
+    out: list[dict[str, Any]] = []
+    for p in sorted(repo.rglob("*.ipynb")):
+        if any(part in (".venv", ".git", "node_modules")
+               for part in p.parts):
+            continue
+        try:
+            nb = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            out.append({"path": str(p.relative_to(repo)), "unreadable": str(e)})
+            continue
+        cells = nb.get("cells") or []
+        code = [c for c in cells if c.get("cell_type") == "code"]
+        src = "\n".join("".join(c.get("source") or "") for c in code)
+        out.append({
+            "path": str(p.relative_to(repo)).replace("\\", "/"),
+            "code_cells": len(code),
+            "cells_with_saved_outputs": sum(1 for c in code if c.get("outputs")),
+            "cells_with_execution_count": sum(
+                1 for c in code if c.get("execution_count")),
+            "references_real_inputs": sorted(
+                m for m in REAL_INPUT_MARKERS if m in src),
+        })
+    return out
+
+
+def _estimator_paths(repo: Path) -> list[str]:
+    """Modules that read the real panel AND call an estimator.
+
+    This is the structural question behind the attestation: not "is there an
+    estimator" (there is, and there should be), but "is there a route from the
+    real event set into it". While no such route exists, computing an outcome
+    from this repository takes writing one.
+    """
+    hits: list[str] = []
+    for p in sorted(repo.rglob("*.py")):
+        if any(part in (".venv", ".git") for part in p.parts):
+            continue
+        try:
+            src = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if "HYP04_EVENT_PANEL" not in src:
+            continue
+        # A CALL NODE, not a substring. Two files defeated substring matching
+        # on its first two runs: this module names all five functions as string
+        # literals in ESTIMATOR_CALLS, and the test suite embeds a wiring
+        # example as fixture TEXT. Both are mentions. Parsing tells them from
+        # code, and keeps tests in scope -- a test that really wired the panel
+        # to an estimator would compute a real outcome on every CI run, which
+        # is exactly what this is looking for.
+        try:
+            tree = ast.parse(src)
+        except SyntaxError:
+            hits.append(str(p.relative_to(repo)).replace("\\", "/")
+                        + " (unparseable; reported rather than skipped)")
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            fn = node.func
+            name = (fn.id if isinstance(fn, ast.Name)
+                    else fn.attr if isinstance(fn, ast.Attribute) else None)
+            if name in ESTIMATOR_CALLS:
+                hits.append(str(p.relative_to(repo)).replace("\\", "/"))
+                break
+    return hits
+
+
+def _results_in_history(repo: Path) -> list[str]:
+    """Result artifacts ever ADDED on any branch -- including then deleted.
+
+    `_scan_for_results` looks at the working tree, which a delete would empty.
+    History does not forget.
+    """
+    args = ["log", "--all", "--diff-filter=A", "--name-only", "--pretty=format:",
+            "--"] + [f"*{pat}" for pat in RESULT_ARTIFACT_PATTERNS]
+    out = _git(*args, repo=repo)
+    return sorted({ln.strip() for ln in out.splitlines() if ln.strip()})
+
+
+def _first_committed(repo: Path, pattern: str) -> Optional[str]:
+    out = _git("log", "--all", "--diff-filter=A", "--format=%ad",
+               "--date=short", "--", pattern, repo=repo)
+    dates = [ln.strip() for ln in out.splitlines() if ln.strip()]
+    return min(dates) if dates else None
+
+
+def computation_surface(*, repo: Path = REPO_ROOT, lse: Path = LSE
+                        ) -> dict[str, Any]:
+    """Everything checkable about whether an outcome could have been computed.
+
+    THIS DOES NOT ESTABLISH THE ATTESTATION AND MUST NEVER BE READ AS DOING SO.
+    It widens the backstop from six filename globs to the structural question,
+    and it records dates that bound the window a human has to think back over.
+    Someone can still join closes to shocks in a spreadsheet, and nothing here
+    would see it. That is why `frozen_before_any_result_computed` stays null in
+    every draft this module writes.
+    """
+    inputs = {
+        "anchor_shocks": _first_committed(repo, "*HYP04_ANCHOR_SHOCK*"),
+        "peer_closes": _first_committed(repo, "*HYP04_PEER_CLOSES*"),
+        "curated_map_v1_2": _first_committed(repo, "*HYP04_Linkage_Map_v1.2*"),
+        "enumerated_event_set": _first_committed(
+            repo, "*HYP04_EVENT_PANEL_*.json"),
+    }
+    dated = [d for d in (inputs["anchor_shocks"], inputs["peer_closes"],
+                         inputs["curated_map_v1_2"]) if d]
+    return {
+        "what_this_is_not": (
+            "NOT proof that no outcome was computed. A spreadsheet or a scratch "
+            "script outside this repository would leave no trace here. This "
+            "records what IS checkable so the attestation is made against "
+            "evidence rather than against nothing."),
+        "estimator_modules_exist": True,
+        "panel_to_estimator_paths": _estimator_paths(repo),
+        "estimator_calls_searched": list(ESTIMATOR_CALLS),
+        "notebooks": _notebook_surface(repo),
+        "result_artifacts_in_git_history": _results_in_history(repo),
+        "real_inputs_first_committed": inputs,
+        "all_real_inputs_coexist_from": max(dated) if len(dated) == 3 else None,
+        "window_note": (
+            "Before every real input existed there was no series to compute a "
+            "peer response from, so the period a signer has to account for "
+            "starts at all_real_inputs_coexist_from -- not at the beginning of "
+            "the project."),
+    }
+
+
 def _contributing_edges(map_path: Path, event_ids: tuple[str, ...],
                         anchors_by_event: dict[str, str]) -> list[Any]:
     """Curated edges whose anchor supplies at least one eligible event."""
@@ -210,6 +361,27 @@ def build_draft(*, panel_path: Path, out_path: Path, lse: Path = LSE,
             f"result artifacts already exist ({', '.join(results[:4])}). section 5 "
             "orders the freeze BEFORE results are computed; freezing now would "
             "record an order that did not happen.")
+
+    surface = computation_surface(repo=repo, lse=lse)
+
+    # Two refusals, and only two. Each is a case where an outcome demonstrably
+    # WAS computed, not a case where one could have been -- the difference
+    # between a check worth stopping for and a warning an operator learns to
+    # wave through.
+    historic = surface["result_artifacts_in_git_history"]
+    if historic:
+        raise FreezeError(
+            f"result artifacts exist in git history ({', '.join(historic[:4])}) "
+            "even though the working tree is clean. A deleted result is still "
+            "a computed result, and section 5 orders the freeze first.")
+    ran_on_real = [nb["path"] for nb in surface["notebooks"]
+                   if nb.get("cells_with_saved_outputs")
+                   and nb.get("references_real_inputs")]
+    if ran_on_real:
+        raise FreezeError(
+            f"{', '.join(ran_on_real)} has saved outputs AND references real "
+            "HYP-04 inputs, which is an executed computation over real data. "
+            "Freezing after it would record an order that did not happen.")
 
     per_pair = panel.get("per_pair") or {}
     floor = panel.get("registered_floor")
@@ -291,6 +463,10 @@ def build_draft(*, panel_path: Path, out_path: Path, lse: Path = LSE,
                 "outcome elsewhere; it is a backstop, which is exactly why the "
                 "attestation below is a human's"),
         },
+        # Recorded so the freeze carries the EVIDENCE the attestation was made
+        # against, not just the claim. A later reader can re-run every one of
+        # these; none of them makes the claim for the signer.
+        "computation_surface": surface,
         # ---- the owner's, left blank ----
         "frozen": False,
         "frozen_before_any_result_computed": None,
