@@ -331,36 +331,61 @@ def test_f_the_generator_refuses_to_outrun_the_code() -> None:
             return pol
         return mock.patch.object(gen, "_policy_block", _f)
 
-    def refuses(label: str, patcher) -> None:
+    def refuses(label: str, patcher, expect: str) -> None:
+        """Refuse, AND refuse for the stated reason. `expect` is REQUIRED.
+
+        build_v1_11 has a dozen guards and all of them raise RefusedError, so
+        asserting the TYPE alone lets a mutation that trips some other guard
+        first pass as though it exercised the one named. Six mutations here
+        share one code path; without the reason they could all be checking the
+        same guard and the suite would stay green.
+        """
+        if not expect.strip():
+            check(label, False,
+                  "expect= is empty, which matches ANY message and makes this "
+                  "assertion vacuous. Give it a real fragment.")
+            return
         try:
             with patcher:
                 gen.build_v1_11()
-        except RefusedError:
-            check(label, True)
+        except RefusedError as exc:
+            got = str(exc)
+            if expect.lower() in got.lower():
+                check(label, True)
+            else:
+                check(label, False,
+                      f"refused for the WRONG reason -- wanted {expect!r}, "
+                      f"got: {got[:140]}")
         except Exception as exc:                  # noqa: BLE001 -- reported
             check(label, False, f"{type(exc).__name__}: {exc}")
         else:
             check(label, False, "the guard did not fire")
 
     refuses("F5. rewriting the policy's own reasoning refuses",
-            mutating(lambda p: p.__setitem__("why", "shortened")))
+            mutating(lambda p: p.__setitem__("why", "shortened")),
+            expect="does not rewrite the policy's reasoning")
     refuses("F6. leaving no_option_taken_here True refuses",
-            mutating(lambda p: p.__setitem__("no_option_taken_here", True)))
+            mutating(lambda p: p.__setitem__("no_option_taken_here", True)),
+            expect="no_option_taken_here is not False")
     refuses("F7. a bias that is not an integer refuses",
             mutating(lambda p: p["measured_bias"].__setitem__(
-                "incremental_anchor_events_behind_unresolvable_names", "lots")))
+                "incremental_anchor_events_behind_unresolvable_names", "lots")),
+            expect="carries no integer event count")
     refuses("F8. a variant claiming to be derivable refuses",
             mutating(lambda p: p["robustness_variant"].__setitem__(
-                "derivable_from_the_primary", True)))
+                "derivable_from_the_primary", True)),
+            expect="claims to be derivable")
     refuses("F9. a variant hiding that it is uncollected refuses",
             mutating(lambda p: p["robustness_variant"].__setitem__(
-                "status", "COLLECTED")))
+                "status", "COLLECTED")),
+            expect="does not state that it is uncollected")
 
     with mock.patch(
             "hyp04_supply_chain_hedge.make_registry_v1_11."
             "SPECIFICATION_FIELDS_THIS_VERSION_MAY_MOVE", ("status",)):
         refuses("F10. claiming an immovable-field exception refuses",
-                mock.patch.object(gen, "_policy_block", original))
+                mock.patch.object(gen, "_policy_block", original),
+                expect="claims an immovable-field exception")
 
     check("F11. CONTROL -- the real build still succeeds after every forced "
           "failure", build_v1_11()[0].get("registry_version") == "1.11")

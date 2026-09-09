@@ -63,12 +63,35 @@ def check(label: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(label)
 
 
-def expect_refusal(label: str, fn) -> None:
+def expect_refusal(label: str, fn, expect: str) -> None:
+    """Refuse, AND refuse for the stated reason. `expect` is REQUIRED.
+
+    This used to assert only that something was raised, then print the message
+    without checking it. That is how a guard firing for the wrong reason passes
+    as the guard the test names -- and it has hidden three separate bugs in
+    this project, most recently when a real v1.3 on disk made every refusal
+    test in the ratify suite trip the already-exists guard first.
+
+    A refusal is only evidence about the guard it came from, so the reason is
+    part of the assertion now. Keep `expect` a short distinctive fragment of
+    the message, not the whole sentence: pinning full prose makes the test
+    fail on rewording, which teaches people to loosen it.
+    """
+    if not expect.strip():
+        check(label, False,
+              "expect= is empty, which matches ANY message and makes this "
+              "assertion vacuous. Give it a real fragment.")
+        return
     try:
         fn()
     except F.FreezeError as e:
-        check(label, True)
-        print(f"        -> {str(e)[:120]}")
+        got = str(e)
+        if expect.lower() in got.lower():
+            check(label, True)
+        else:
+            check(label, False,
+                  f"refused for the WRONG reason -- wanted {expect!r}, "
+                  f"got: {got[:140]}")
         return
     except Exception as e:  # noqa: BLE001
         check(label, False, f"wrong type {type(e).__name__}: {e}")
@@ -141,7 +164,8 @@ def test_1_the_ratification_guard_is_satisfied_not_disabled() -> None:
 
     v12 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.2.csv")
     expect_refusal("1a. unratified edges still refuse",
-                   lambda: F._require_ratified(list(v12.edges)))
+                   lambda: F._require_ratified(list(v12.edges)),
+                   expect="not 'reviewed'")
 
     v13 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.3.csv")
     F._require_ratified(list(v13.edges))          # must not raise
@@ -193,18 +217,21 @@ def test_4_an_unattested_draft_is_not_a_freeze() -> None:
         d = _build(f)
         f["out"].write_text(json.dumps(d), encoding="utf-8")
         expect_refusal("4a. an untouched draft is refused",
-                       lambda: F.validate_freeze(f["out"]))
+                       lambda: F.validate_freeze(f["out"]),
+                       expect="'frozen' is not true")
 
         d["frozen"] = True
         f["out"].write_text(json.dumps(d), encoding="utf-8")
         expect_refusal("4b. frozen=true alone is still refused -- the "
                        "attestation is separate",
-                       lambda: F.validate_freeze(f["out"]))
+                       lambda: F.validate_freeze(f["out"]),
+                       expect="is not attested")
 
         d["frozen_before_any_result_computed"] = True
         f["out"].write_text(json.dumps(d), encoding="utf-8")
         expect_refusal("4c. an unattributed attestation is refused",
-                       lambda: F.validate_freeze(f["out"]))
+                       lambda: F.validate_freeze(f["out"]),
+                       expect="is blank")
 
 
 def test_5_a_completed_freeze_leaves_exactly_c1() -> None:
@@ -244,13 +271,15 @@ def test_6_a_tampered_derived_field_is_refused() -> None:
         f["out"].write_text(json.dumps(d), encoding="utf-8")
         expect_refusal("6a. an edited event-id set is refused against the panel",
                        lambda: F.validate_freeze(f["out"],
-                                                 panel_path=f["panel"]))
+                                                 panel_path=f["panel"]),
+                       expect="does not match the panel")
 
         d["eligible_event_ids"] = d["eligible_event_ids"] + [
             d["eligible_event_ids"][0]]
         f["out"].write_text(json.dumps(d), encoding="utf-8")
         expect_refusal("6b. a duplicated id is refused",
-                       lambda: F.validate_freeze(f["out"]))
+                       lambda: F.validate_freeze(f["out"]),
+                       expect="contains duplicates")
 
 
 def test_7_every_other_precondition_refuses() -> None:
@@ -259,30 +288,36 @@ def test_7_every_other_precondition_refuses() -> None:
 
         f["out"].write_text("{}", encoding="utf-8")
         expect_refusal("7a. an existing freeze is never overwritten",
-                       lambda: _build(f))
+                       lambda: _build(f), expect="already exists")
         f["out"].unlink()
 
         expect_refusal("7b. a missing panel refuses",
                        lambda: F.build_draft(
                            panel_path=f["lse"] / "nope.json",
                            out_path=f["out"], lse=f["lse"], repo=f["tmp"],
-                           lock_path=f["lock"], today=date(2026, 9, 9)))
+                           lock_path=f["lock"], today=date(2026, 9, 9)),
+                       expect="no event panel")
 
         (f["lse"] / "HYP04_STAGE2_results.json").write_text("{}", encoding="utf-8")
         expect_refusal("7c. an existing result artifact refuses -- the freeze "
-                       "comes first", lambda: _build(f))
+                       "comes first", lambda: _build(f),
+                       expect="result artifacts already exist")
         (f["lse"] / "HYP04_STAGE2_results.json").unlink()
 
         (f["tmp"] / "dirty.txt").write_text("x", encoding="utf-8")
-        expect_refusal("7d. a dirty working tree refuses", lambda: _build(f))
+        expect_refusal("7d. a dirty working tree refuses", lambda: _build(f),
+                       expect="uncommitted change")
         (f["tmp"] / "dirty.txt").unlink()
 
         expect_refusal("7e. a lock signed ON the freeze date refuses -- equal "
                        "is not before",
-                       lambda: _build(f, ) if False else F.build_draft(
+                       # `today` == the lock's SIGNED date, so the dates are
+                       # equal and equal is not before.
+                       lambda: F.build_draft(
                            panel_path=f["panel"], out_path=f["out"],
                            lse=f["lse"], repo=f["tmp"], lock_path=f["lock"],
-                           today=date(2026, 8, 20)))
+                           today=date(2026, 8, 20)),
+                       expect="is not before")
 
         # Commit after each lock mutation, or the dirty-tree guard fires first
         # and these two are never actually exercised. It did, on this suite's
@@ -295,11 +330,13 @@ def test_7_every_other_precondition_refuses() -> None:
 
         f["lock"].write_text("# no marker\n", encoding="utf-8")
         _commit()
-        expect_refusal("7f. an unsigned lock refuses", lambda: _build(f))
+        expect_refusal("7f. an unsigned lock refuses", lambda: _build(f),
+                       expect="carries no 'SIGNED")
 
         f["lock"].unlink()
         _commit()
-        expect_refusal("7g. a missing lock refuses", lambda: _build(f))
+        expect_refusal("7g. a missing lock refuses", lambda: _build(f),
+                       expect="no analysis lock at")
 
 
 def test_9_the_computation_surface_is_evidence_not_a_verdict() -> None:
@@ -412,7 +449,8 @@ def test_8_the_real_gate_is_untouched() -> None:
               not str(rec.get("attested_by") or "").strip()
               and not str(rec.get("attested_date") or "").strip())
         expect_refusal(f"8h. {d.name}: and it does not validate as a freeze",
-                       lambda p=d: F.validate_freeze(p))
+                       lambda p=d: F.validate_freeze(p),
+                       expect="'frozen' is not true")
 
 
 if __name__ == "__main__":
