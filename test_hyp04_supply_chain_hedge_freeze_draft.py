@@ -282,6 +282,94 @@ def test_7_every_other_precondition_refuses() -> None:
         expect_refusal("7g. a missing lock refuses", lambda: _build(f))
 
 
+def test_9_the_computation_surface_is_evidence_not_a_verdict() -> None:
+    """What the attestation is made AGAINST -- and what it still cannot do."""
+    s = F.computation_surface()
+
+    check("9a. it refuses to be read as proof",
+          "NOT proof" in s["what_this_is_not"])
+    check("9b. and names the hole it cannot see into -- work off-repo",
+          "outside this repository" in s["what_this_is_not"])
+    check("9c. it concedes the estimator exists",
+          s["estimator_modules_exist"] is True)
+    check("9d. the structural question is whether a path INTO it exists",
+          isinstance(s["panel_to_estimator_paths"], list))
+    check("9e. every notebook is accounted for, with its execution state",
+          all({"code_cells", "cells_with_saved_outputs",
+               "references_real_inputs"} <= set(nb)
+              for nb in s["notebooks"] if "unreadable" not in nb))
+    check("9f. history is searched, not just the working tree",
+          isinstance(s["result_artifacts_in_git_history"], list))
+    check("9g. and it bounds the window a signer must think back over",
+          bool(s["all_real_inputs_coexist_from"]),
+          str(s["real_inputs_first_committed"]))
+
+
+def test_10_the_detector_catches_wiring_and_ignores_mentions() -> None:
+    """A scanner that flags itself is a field the reader learns to skip.
+
+    `make_freeze_draft` names all five estimator functions as string literals,
+    so a mention-match reported this module as a panel-to-estimator path. It
+    was a false positive on its first run and it is pinned here.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        (t / "wired.py").write_text(
+            'p = "HYP04_EVENT_PANEL_x.json"\n'
+            "r = local_projection_analysis(p)\n", encoding="utf-8")
+        (t / "mention_only.py").write_text(
+            'NAMES = ("local_projection_analysis",)\n'
+            'P = "HYP04_EVENT_PANEL"\n', encoding="utf-8")
+        (t / "imports_but_never_calls.py").write_text(
+            "from x import local_projection_analysis\n"
+            'P = "HYP04_EVENT_PANEL"\n', encoding="utf-8")
+        (t / "wired_via_module.py").write_text(
+            'P = "HYP04_EVENT_PANEL_x.json"\n'
+            "r = inference.local_projection_analysis(P)\n", encoding="utf-8")
+        (t / "broken.py").write_text(
+            'P = "HYP04_EVENT_PANEL"\ndef (\n', encoding="utf-8")
+        found = F._estimator_paths(t)
+        check("10a. a real wiring is caught", "wired.py" in found, str(found))
+        check("10a2. including one called through its module",
+              "wired_via_module.py" in found, str(found))
+        check("10a3. and a file that will not parse is REPORTED, not skipped",
+              any(f.startswith("broken.py") for f in found), str(found))
+        check("10b. a bare mention is not", "mention_only.py" not in found)
+        check("10c. nor is an import that never calls",
+              "imports_but_never_calls.py" not in found)
+
+    check("10d. and the real repository has no such path today",
+          F._estimator_paths(ROOT) == [], str(F._estimator_paths(ROOT)))
+
+
+def test_11_a_computed_outcome_blocks_the_freeze() -> None:
+    """The two refusals fire on evidence an outcome WAS computed."""
+    nb = {"cells": [{"cell_type": "code",
+                     "source": ['df = load("HYP04_EVENT_PANEL_2026-09-08.json")'],
+                     "execution_count": 1,
+                     "outputs": [{"output_type": "stream", "text": ["0.31"]}]}]}
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        (t / "ran.ipynb").write_text(json.dumps(nb), encoding="utf-8")
+        surf = F._notebook_surface(t)[0]
+        check("11a. an executed notebook over real inputs is detected",
+              surf["cells_with_saved_outputs"] == 1
+              and surf["references_real_inputs"] == ["HYP04_EVENT_PANEL"],
+              str(surf))
+
+    live = F._notebook_surface(ROOT)
+    ran = [n for n in live if n.get("cells_with_saved_outputs")
+           and n.get("references_real_inputs")]
+    check("11b. no notebook in this repo has been run over real inputs",
+          not ran, str(ran))
+    check("11c. the Colab notebook is unexecuted and synthetic-only",
+          any(n["path"].endswith("HYP04_Phase0_Colab.ipynb")
+              and n["cells_with_saved_outputs"] == 0
+              and n["cells_with_execution_count"] == 0
+              and n["references_real_inputs"] == [] for n in live),
+          str(live))
+
+
 def test_8_the_real_gate_is_untouched() -> None:
     """This suite must not have moved anything."""
     g = evaluate_gate()
@@ -302,6 +390,9 @@ if __name__ == "__main__":
     test_5_a_completed_freeze_leaves_exactly_c1()
     test_6_a_tampered_derived_field_is_refused()
     test_7_every_other_precondition_refuses()
+    test_9_the_computation_surface_is_evidence_not_a_verdict()
+    test_10_the_detector_catches_wiring_and_ignores_mentions()
+    test_11_a_computed_outcome_blocks_the_freeze()
     test_8_the_real_gate_is_untouched()
 
     print()
