@@ -17,6 +17,33 @@ assembles a v1.12 registry, the real panel's 214 enumerated event ids and a
 completed freeze record, and asserts `evaluate_gate` returns **OPEN with zero
 denials**. So these steps do what they claim. Nothing real was written to do it.
 
+## The short way: one command tells you where you are
+
+```
+./.venv/Scripts/python.exe -m hyp04_supply_chain_hedge.ratify status
+```
+
+It prints all eight steps with `[x]`/`[ ]`, marks each **mine** or **YOURS**,
+reports the gate, and ends with the next exact command. The two steps that are
+signatures print a fill-in-the-blank template:
+
+```
+./.venv/Scripts/python.exe -m hyp04_supply_chain_hedge.ratify map --template
+./.venv/Scripts/python.exe -m hyp04_supply_chain_hedge.ratify attest --template
+```
+
+**The driver does the mechanics and refuses the judgements.** It will not
+choose a `review_status` — there is one explicit `--edge ANCHOR:PEER=<status>`
+per row, no default and no bulk flag — and it will not infer the attestation:
+that requires the affirmation sentence typed out verbatim. What it removes is
+the hand-editing of a CSV and a JSON file on the way to an irreversible freeze,
+where a slip lands inside something signed.
+
+The sections below are the same procedure written out, and remain the
+authority on what each act means.
+
+---
+
 ## Before you start: every edge is load-bearing
 
 214 eligible events against a floor of 193 is a margin of **21**. The smallest
