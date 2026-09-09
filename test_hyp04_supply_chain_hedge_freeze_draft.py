@@ -3,11 +3,16 @@
 
 Two things this suite exists to pin:
 
-  1. Against the REAL repository, the machinery refuses, because the curated
-     map is not ratified. That refusal is the feature.
+  1. The ratification guard is SATISFIED, not disabled. v1.3 ratified every
+     edge on 2026-09-08, so the guard no longer fires against the real map --
+     and a test that merely flipped to "it does not refuse" would pass just as
+     well if the guard had been deleted. It is checked both ways: against
+     v1.2's unratified edges it must still refuse.
   2. On a fixture where everything is ratified, a completed freeze takes the
      display gate from four denials to ONE (C1). That is the consequence the
      module claims in its own docstring, asserted rather than asserted-in-prose.
+  3. The draft that now exists in the repository is INERT: frozen false, the
+     attestation null rather than defaulted, and it does not validate.
 
 Repo testing convention (hand-rolled check(), run directly, no pytest).
 Offline: no network, and it never writes into the real Live Signal Engine.
@@ -121,15 +126,30 @@ def _build(f: dict, **kw):
 
 
 # --------------------------------------------------------------------------
-def test_1_the_real_repository_refuses() -> None:
-    """The curated map is not ratified, so nothing can be frozen from it."""
-    with tempfile.TemporaryDirectory() as td:
-        expect_refusal(
-            "1a. against the real repo, an unratified map refuses",
-            lambda: F.build_draft(panel_path=PANEL,
-                                  out_path=Path(td) / "x.json"))
-    check("1b. the ratified status it demands is 'reviewed'",
+def test_1_the_ratification_guard_is_satisfied_not_disabled() -> None:
+    """The map is ratified now, so this guard no longer fires. Prove it still can.
+
+    This used to assert build_draft refused against the real repo. It did,
+    because every edge read `draft`. All seven are now `reviewed`, so the
+    refusal is gone -- and an assertion that simply flipped to "it does not
+    refuse" would pass just as happily if the guard had been deleted.
+
+    So: point `_require_ratified` at edges that are NOT ratified and require
+    it to fire, then at the live ones and require it not to.
+    """
+    from hyp04_supply_chain_hedge.curated_linkage import load_curated_linkage
+
+    v12 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.2.csv")
+    expect_refusal("1a. unratified edges still refuse",
+                   lambda: F._require_ratified(list(v12.edges)))
+
+    v13 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.3.csv")
+    F._require_ratified(list(v13.edges))          # must not raise
+    check("1b. and the ratified ones do not", True)
+    check("1c. the ratified status it demands is 'reviewed'",
           F.RATIFIED_REVIEW_STATUS == "reviewed")
+    check("1d. v1.2 really was unratified -- the guard had something to catch",
+          any(e.review_status != "reviewed" for e in v12.edges))
 
 
 def test_2_the_fixture_produces_a_complete_draft() -> None:
@@ -377,13 +397,26 @@ def test_8_the_real_gate_is_untouched() -> None:
     check("8b. still four denials", len(g.denials) == 4, str(len(g.denials)))
     check("8c. eligible count still unset",
           g.evidence.get("eligible_count") is None)
-    check("8d. no freeze artifact was written into the repo",
-          not list(LSE.glob("HYP04_FREEZE_DRAFT_*.json")),
-          str([p.name for p in LSE.glob("HYP04_FREEZE_DRAFT_*.json")]))
+    # A draft now exists on purpose. It must be INERT -- which is the whole
+    # claim this module makes about itself.
+    drafts = sorted(LSE.glob("HYP04_FREEZE_DRAFT_*.json"))
+    check("8d. any freeze artifact in the repo is a DRAFT, not a freeze",
+          bool(drafts), "none on disk")
+    for d in drafts:
+        rec = json.loads(d.read_text(encoding="utf-8"))
+        check(f"8e. {d.name}: frozen is not true",
+              rec.get("frozen") is not True)
+        check(f"8f. {d.name}: the attestation is null, not false",
+              rec.get("frozen_before_any_result_computed") is None)
+        check(f"8g. {d.name}: unattributed",
+              not str(rec.get("attested_by") or "").strip()
+              and not str(rec.get("attested_date") or "").strip())
+        expect_refusal(f"8h. {d.name}: and it does not validate as a freeze",
+                       lambda p=d: F.validate_freeze(p))
 
 
 if __name__ == "__main__":
-    test_1_the_real_repository_refuses()
+    test_1_the_ratification_guard_is_satisfied_not_disabled()
     test_2_the_fixture_produces_a_complete_draft()
     test_3_the_owner_fields_are_left_blank()
     test_4_an_unattested_draft_is_not_a_freeze()
