@@ -5,7 +5,10 @@ Two jobs:
 
   1. v1.12 refuses to run out of order. C1 is the LAST gate condition to move,
      and the generator must not clear it while the map is unratified or the
-     freeze is missing.
+     freeze is not valid. The map half is now SATISFIED (v1.3, 2026-09-08), so
+     the guard has to be granular -- it releases what is done and keeps firing
+     on what is not. A blanket refusal would pass a naive version of this test
+     forever while tracking nothing.
   2. THE REHEARSAL. Signing the documents has to actually work, so this
      assembles the whole chain -- v1.12's registry, the real panel's 214
      enumerated events, a completed freeze -- and asserts `evaluate_gate`
@@ -83,17 +86,26 @@ def test_1_it_refuses_out_of_order_today() -> None:
     joined = " ".join(problems)
     check("1b. the ratified map is NO LONGER a stated reason",
           "not 'reviewed'" not in joined, joined[:200])
-    check("1c. the missing freeze is", "freeze" in joined.lower(),
+    check("1c. the unattested freeze is", "freeze" in joined.lower(),
           joined[:200])
-    check("1d. and it says C1 moves last",
-          "LAST condition" in joined or "last condition" in joined.lower())
+    # Two branches state the ordering, because two things can be wrong with
+    # C3: no draft at all ("C1 is the LAST condition to move") or a draft that
+    # does not validate ("C1 does not move ahead of C3"). The draft exists now,
+    # so the second fires. The assertion is that the PRINCIPLE is stated, not
+    # that one particular sentence is.
+    check("1d. and it states the ordering, in whichever branch fired",
+          "last condition" in joined.lower()
+          or "does not move ahead of c3" in joined.lower(), joined[:200])
+    check("1e. specifically: a draft exists but is not a freeze",
+          "not a valid freeze" in joined.lower()
+          or "no freeze draft" in joined.lower(), joined[:200])
 
     # Granularity proven the other way: the map guard is not dead code, it is
     # satisfied. Point the same check at the unratified v1.2 and it fires.
     from hyp04_supply_chain_hedge.curated_linkage import load_curated_linkage
     v12 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.2.csv")
     v13 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.3.csv")
-    check("1e. the map guard is satisfied, not disabled",
+    check("1f. the map guard is satisfied, not disabled",
           any(e.review_status != "reviewed" for e in v12.edges)
           and all(e.review_status == "reviewed" for e in v13.edges))
 
