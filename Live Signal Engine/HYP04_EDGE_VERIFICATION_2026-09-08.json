@@ -1,0 +1,597 @@
+{
+ "artifact": "HYP04_EDGE_VERIFICATION_2026-09-08.json",
+ "as_of_date": "2026-09-08",
+ "hypothesis_id": "HYP-04",
+ "what_this_is": "Evidence for ratifying the curated linkage map. Assembled from the completed EDGAR 10-K walks already on disk.",
+ "what_this_is_not": "A verdict. It emits no review_status, ranks nothing by whether the sample needs it, and asserts no alias chain.",
+ "uses_network": false,
+ "sources": {
+  "map": "HYP04_Linkage_Map_v1.2.csv",
+  "calendar": "HYP04_ANCHOR_EVENT_CALENDAR_2026-08-29_v2.csv",
+  "shocks": "HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+  "history": "HYP04_EDGAR_LINKAGE_HISTORY_FULL51_2026-09-02.json"
+ },
+ "walk_completeness": {
+  "all_contributing_anchors_complete": true,
+  "incomplete_anchors": {}
+ },
+ "name_matching": "exact string equality against the counterparty named in each edge's own source_citation; no fuzzy matching, no scoring",
+ "alias_chains_not_asserted": "every counterparty an anchor ever named is listed so a reviewer can see the chain; deciding two names are one company is the judgement that rejected Caremark RX and OfficeMax",
+ "n_edges": 7,
+ "n_contributing_edges": 6,
+ "edges": [
+  {
+   "single_filing_edge": false,
+   "after_count_is_tautological": false,
+   "later_named_counterparties_on_this_anchor": [
+    {
+     "counterparty": "Apple, Inc",
+     "earliest": "2012-10-25",
+     "latest": "2024-10-28",
+     "filings": 13
+    },
+    {
+     "counterparty": "BlackBerry Limited",
+     "earliest": "2013-10-28",
+     "latest": "2013-10-28",
+     "filings": 1
+    }
+   ],
+   "later_names_exist": true,
+   "edge": "JBL->CSCO",
+   "anchor": "JBL",
+   "peer_ticker": "CSCO",
+   "map_as_of_date": "2002-11-25",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "high",
+   "map_review_status": "draft",
+   "counterparty_named_in_citation": "Cisco Systems, Inc",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2002-11-25",
+   "earliest_accession": "0000950144-02-012283",
+   "latest_disclosing_filing": "2012-10-25",
+   "latest_accession": "0001193125-12-435503",
+   "filings_naming_it": 9,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 89,
+   "eligible_events_after_last_disclosure": 51,
+   "pct_events_after_last_disclosure": 57.3,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "Apple, Inc",
+     "earliest": "2012-10-25",
+     "latest": "2024-10-28",
+     "filings": 13
+    },
+    {
+     "counterparty": "BlackBerry Limited",
+     "earliest": "2013-10-28",
+     "latest": "2013-10-28",
+     "filings": 1
+    },
+    {
+     "counterparty": "Cisco Systems, Inc",
+     "earliest": "2002-11-25",
+     "latest": "2012-10-25",
+     "filings": 9
+    },
+    {
+     "counterparty": "Nokia Corporation",
+     "earliest": "2005-10-28",
+     "latest": "2007-10-25",
+     "filings": 3
+    },
+    {
+     "counterparty": "Royal Philips Electronics",
+     "earliest": "2003-11-12",
+     "latest": "2007-05-15",
+     "filings": 4
+    },
+    {
+     "counterparty": "Hewlett-Packard Company",
+     "earliest": "2003-11-12",
+     "latest": "2005-10-28",
+     "filings": 2
+    },
+    {
+     "counterparty": "Marconi Communications",
+     "earliest": "2002-11-25",
+     "latest": "2002-11-25",
+     "filings": 1
+    },
+    {
+     "counterparty": "Dell Computer Corporation",
+     "earliest": "2001-11-28",
+     "latest": "2001-11-28",
+     "filings": 1
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED, MACHINE-PREPARED. Derived from the EDGAR review queue; no human has reviewed this edge. as_of_date is the EARLIEST filing in the walk that names this counterparty -- found, not proven to be the floor. LINEAGE: SEC's record shows the registrant filing on 2002-11-25 as 'CISCO SYSTEMS INC' (CIK 0000858877, filing since 1995-02-13), which matches the disclosed name -- this removes ONE way of being wrong and does not establish the relationship. A merger that preserved the name and the registrant would look identical here; check it the way Caremark RX and OfficeMax were checked. STAKE: 89 anchor events beyond what the curated map already reaches."
+  },
+  {
+   "single_filing_edge": false,
+   "after_count_is_tautological": false,
+   "later_named_counterparties_on_this_anchor": [
+    {
+     "counterparty": "CVS Health Corporation",
+     "earliest": "2020-05-22",
+     "latest": "2026-05-08",
+     "filings": 7
+    },
+    {
+     "counterparty": "CVS Health",
+     "earliest": "2016-05-05",
+     "latest": "2019-05-15",
+     "filings": 4
+    }
+   ],
+   "later_names_exist": true,
+   "edge": "MCK->CVS",
+   "anchor": "MCK",
+   "peer_ticker": "CVS",
+   "map_as_of_date": "2013-05-07",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "high",
+   "map_review_status": "draft",
+   "counterparty_named_in_citation": "CVS Caremark Corporation",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2013-05-07",
+   "earliest_accession": "0001561787-13-000010",
+   "latest_disclosing_filing": "2015-05-12",
+   "latest_accession": "0001628280-15-004098",
+   "filings_naming_it": 3,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 53,
+   "eligible_events_after_last_disclosure": 44,
+   "pct_events_after_last_disclosure": 83.0,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "CVS Health Corporation",
+     "earliest": "2020-05-22",
+     "latest": "2026-05-08",
+     "filings": 7
+    },
+    {
+     "counterparty": "CVS Health",
+     "earliest": "2016-05-05",
+     "latest": "2019-05-15",
+     "filings": 4
+    },
+    {
+     "counterparty": "CVS Caremark Corporation",
+     "earliest": "2013-05-07",
+     "latest": "2015-05-12",
+     "filings": 3
+    },
+    {
+     "counterparty": "CVS",
+     "earliest": "2013-05-07",
+     "latest": "2014-05-14",
+     "filings": 2
+    },
+    {
+     "counterparty": "Caremark RX, Inc",
+     "earliest": "2006-05-16",
+     "latest": "2007-05-09",
+     "filings": 2
+    },
+    {
+     "counterparty": "Rite Aid Corporation",
+     "earliest": "2000-06-13",
+     "latest": "2005-05-13",
+     "filings": 6
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED. EARLIEST-DISCLOSURE GAP NOW CLOSED (2026-08-22): all 29 MCK 10-Ks have been examined. The history walk had stopped at 26 on a 404; the 3 oldest (1996-06-19, 1997-06-19, 2000-06-13) were retrieved via the full-submission .txt path and none supports an earlier as_of. FY1996 names Wal-Mart Stores as largest customer (11% of revenues); FY1997 states credit risk is spread over many dispersed customers; FY2000 names Rite Aid Corporation as largest customer (15% of revenues). CVS appears once in the FY2000 filing but only inside an EXHIBIT -- a receivables-sales facility defining 'Special Obligor' as Rite Aid, Osco Drug, CVS Corp. and Wal-Mart -- which is a credit-facility definition, names no percentage, and is NOT a customer-concentration disclosure. It does not support a high-confidence as_of and was rejected as a source. Caremark RX (2006-2007) REJECTED by repo owner 2026-08-22: a merger, not a rename, so the pre-2007 counterparty is a different company. 2013-05-07 stands."
+  },
+  {
+   "single_filing_edge": false,
+   "after_count_is_tautological": false,
+   "later_named_counterparties_on_this_anchor": [],
+   "later_names_exist": false,
+   "edge": "JBL->AAPL",
+   "anchor": "JBL",
+   "peer_ticker": "AAPL",
+   "map_as_of_date": "2012-10-25",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "high",
+   "map_review_status": "draft",
+   "counterparty_named_in_citation": "Apple, Inc",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2012-10-25",
+   "earliest_accession": "0001193125-12-435503",
+   "latest_disclosing_filing": "2024-10-28",
+   "latest_accession": "0001628280-24-043960",
+   "filings_naming_it": 13,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 51,
+   "eligible_events_after_last_disclosure": 4,
+   "pct_events_after_last_disclosure": 7.8,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "Apple, Inc",
+     "earliest": "2012-10-25",
+     "latest": "2024-10-28",
+     "filings": 13
+    },
+    {
+     "counterparty": "BlackBerry Limited",
+     "earliest": "2013-10-28",
+     "latest": "2013-10-28",
+     "filings": 1
+    },
+    {
+     "counterparty": "Cisco Systems, Inc",
+     "earliest": "2002-11-25",
+     "latest": "2012-10-25",
+     "filings": 9
+    },
+    {
+     "counterparty": "Nokia Corporation",
+     "earliest": "2005-10-28",
+     "latest": "2007-10-25",
+     "filings": 3
+    },
+    {
+     "counterparty": "Royal Philips Electronics",
+     "earliest": "2003-11-12",
+     "latest": "2007-05-15",
+     "filings": 4
+    },
+    {
+     "counterparty": "Hewlett-Packard Company",
+     "earliest": "2003-11-12",
+     "latest": "2005-10-28",
+     "filings": 2
+    },
+    {
+     "counterparty": "Marconi Communications",
+     "earliest": "2002-11-25",
+     "latest": "2002-11-25",
+     "filings": 1
+    },
+    {
+     "counterparty": "Dell Computer Corporation",
+     "earliest": "2001-11-28",
+     "latest": "2001-11-28",
+     "filings": 1
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED, MACHINE-PREPARED. Derived from the EDGAR review queue; no human has reviewed this edge. as_of_date is the EARLIEST filing in the walk that names this counterparty -- found, not proven to be the floor. LINEAGE: SEC's record shows the registrant filing on 2012-10-25 as 'APPLE INC' (CIK 0000320193, filing since 1994-01-26), which matches the disclosed name -- this removes ONE way of being wrong and does not establish the relationship. A merger that preserved the name and the registrant would look identical here; check it the way Caremark RX and OfficeMax were checked. STAKE: 51 anchor events beyond what the curated map already reaches."
+  },
+  {
+   "single_filing_edge": true,
+   "after_count_is_tautological": true,
+   "later_named_counterparties_on_this_anchor": [
+    {
+     "counterparty": "Apple, Inc",
+     "earliest": "2012-10-25",
+     "latest": "2024-10-28",
+     "filings": 13
+    }
+   ],
+   "later_names_exist": true,
+   "edge": "JBL->BB",
+   "anchor": "JBL",
+   "peer_ticker": "BB",
+   "map_as_of_date": "2013-10-28",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "medium",
+   "map_review_status": "draft",
+   "counterparty_named_in_citation": "BlackBerry Limited",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2013-10-28",
+   "earliest_accession": "0001193125-13-413660",
+   "latest_disclosing_filing": "2013-10-28",
+   "latest_accession": "0001193125-13-413660",
+   "filings_naming_it": 1,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 47,
+   "eligible_events_after_last_disclosure": 47,
+   "pct_events_after_last_disclosure": 100.0,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "Apple, Inc",
+     "earliest": "2012-10-25",
+     "latest": "2024-10-28",
+     "filings": 13
+    },
+    {
+     "counterparty": "BlackBerry Limited",
+     "earliest": "2013-10-28",
+     "latest": "2013-10-28",
+     "filings": 1
+    },
+    {
+     "counterparty": "Cisco Systems, Inc",
+     "earliest": "2002-11-25",
+     "latest": "2012-10-25",
+     "filings": 9
+    },
+    {
+     "counterparty": "Nokia Corporation",
+     "earliest": "2005-10-28",
+     "latest": "2007-10-25",
+     "filings": 3
+    },
+    {
+     "counterparty": "Royal Philips Electronics",
+     "earliest": "2003-11-12",
+     "latest": "2007-05-15",
+     "filings": 4
+    },
+    {
+     "counterparty": "Hewlett-Packard Company",
+     "earliest": "2003-11-12",
+     "latest": "2005-10-28",
+     "filings": 2
+    },
+    {
+     "counterparty": "Marconi Communications",
+     "earliest": "2002-11-25",
+     "latest": "2002-11-25",
+     "filings": 1
+    },
+    {
+     "counterparty": "Dell Computer Corporation",
+     "earliest": "2001-11-28",
+     "latest": "2001-11-28",
+     "filings": 1
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED, MACHINE-PREPARED. Derived from the EDGAR review queue; no human has reviewed this edge. as_of_date is the EARLIEST filing in the walk that names this counterparty -- found, not proven to be the floor. LINEAGE: SEC's record shows the registrant filing on 2013-10-28 as 'BLACKBERRY Ltd' (CIK 0001070235, filing since 1999-07-12), which matches the disclosed name -- this removes ONE way of being wrong and does not establish the relationship. A merger that preserved the name and the registrant would look identical here; check it the way Caremark RX and OfficeMax were checked. STAKE: 47 anchor events beyond what the curated map already reaches."
+  },
+  {
+   "single_filing_edge": false,
+   "after_count_is_tautological": false,
+   "later_named_counterparties_on_this_anchor": [
+    {
+     "counterparty": "Dell",
+     "earliest": "2020-02-20",
+     "latest": "2020-02-20",
+     "filings": 1
+    },
+    {
+     "counterparty": "ASUSTeK Computer Inc",
+     "earliest": "2016-03-17",
+     "latest": "2017-03-01",
+     "filings": 2
+    },
+    {
+     "counterparty": "Quanta Computer Incorporated",
+     "earliest": "2011-03-16",
+     "latest": "2011-03-16",
+     "filings": 1
+    },
+    {
+     "counterparty": "Quanta",
+     "earliest": "2010-03-18",
+     "latest": "2010-03-18",
+     "filings": 1
+    },
+    {
+     "counterparty": "Hewlett-Packard Company",
+     "earliest": "2009-03-13",
+     "latest": "2009-03-13",
+     "filings": 1
+    },
+    {
+     "counterparty": "Asustek Computer",
+     "earliest": "2008-03-21",
+     "latest": "2008-03-21",
+     "filings": 1
+    },
+    {
+     "counterparty": "Asustek",
+     "earliest": "2006-03-16",
+     "latest": "2007-03-16",
+     "filings": 2
+    }
+   ],
+   "later_names_exist": true,
+   "edge": "NVDA->MSFT",
+   "anchor": "NVDA",
+   "peer_ticker": "MSFT",
+   "map_as_of_date": "2004-03-29",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "high",
+   "map_review_status": "draft",
+   "counterparty_named_in_citation": "Microsoft",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2004-03-29",
+   "earliest_accession": "0001045810-04-000007",
+   "latest_disclosing_filing": "2005-03-22",
+   "latest_accession": "0001045810-05-000008",
+   "filings_naming_it": 2,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 42,
+   "eligible_events_after_last_disclosure": 38,
+   "pct_events_after_last_disclosure": 90.5,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "Dell",
+     "earliest": "2020-02-20",
+     "latest": "2020-02-20",
+     "filings": 1
+    },
+    {
+     "counterparty": "ASUSTeK Computer Inc",
+     "earliest": "2016-03-17",
+     "latest": "2017-03-01",
+     "filings": 2
+    },
+    {
+     "counterparty": "Quanta Computer Incorporated",
+     "earliest": "2011-03-16",
+     "latest": "2011-03-16",
+     "filings": 1
+    },
+    {
+     "counterparty": "Quanta",
+     "earliest": "2010-03-18",
+     "latest": "2010-03-18",
+     "filings": 1
+    },
+    {
+     "counterparty": "Hewlett-Packard Company",
+     "earliest": "2009-03-13",
+     "latest": "2009-03-13",
+     "filings": 1
+    },
+    {
+     "counterparty": "Asustek Computer",
+     "earliest": "2008-03-21",
+     "latest": "2008-03-21",
+     "filings": 1
+    },
+    {
+     "counterparty": "Asustek",
+     "earliest": "2006-03-16",
+     "latest": "2007-03-16",
+     "filings": 2
+    },
+    {
+     "counterparty": "Microsoft",
+     "earliest": "2004-03-29",
+     "latest": "2005-03-22",
+     "filings": 2
+    },
+    {
+     "counterparty": "Micro-Star",
+     "earliest": "2003-04-25",
+     "latest": "2004-03-29",
+     "filings": 2
+    },
+    {
+     "counterparty": "Atlantic",
+     "earliest": "2002-05-14",
+     "latest": "2002-05-14",
+     "filings": 1
+    },
+    {
+     "counterparty": "Atlantic Semiconductor",
+     "earliest": "2002-05-14",
+     "latest": "2002-05-14",
+     "filings": 1
+    },
+    {
+     "counterparty": "Celestica",
+     "earliest": "2001-04-27",
+     "latest": "2001-04-27",
+     "filings": 1
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED, MACHINE-PREPARED. Derived from the EDGAR review queue; no human has reviewed this edge. as_of_date is the EARLIEST filing in the walk that names this counterparty -- found, not proven to be the floor. LINEAGE: SEC's record shows the registrant filing on 2004-03-29 as 'MICROSOFT CORP' (CIK 0000789019, filing since 1994-02-14), which matches the disclosed name -- this removes ONE way of being wrong and does not establish the relationship. A merger that preserved the name and the registrant would look identical here; check it the way Caremark RX and OfficeMax were checked. STAKE: 42 anchor events beyond what the curated map already reaches."
+  },
+  {
+   "single_filing_edge": false,
+   "after_count_is_tautological": false,
+   "later_named_counterparties_on_this_anchor": [],
+   "later_names_exist": false,
+   "edge": "INTC->HPQ",
+   "anchor": "INTC",
+   "peer_ticker": "HPQ",
+   "map_as_of_date": "2017-02-17",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "low",
+   "map_review_status": "needs revisit",
+   "counterparty_named_in_citation": "HP Inc",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2017-02-17",
+   "earliest_accession": "0000050863-17-000012",
+   "latest_disclosing_filing": "2024-01-26",
+   "latest_accession": "0000050863-24-000010",
+   "filings_naming_it": 8,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 30,
+   "eligible_events_after_last_disclosure": 3,
+   "pct_events_after_last_disclosure": 10.0,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "Dell Inc",
+     "earliest": "2005-02-22",
+     "latest": "2024-01-26",
+     "filings": 20
+    },
+    {
+     "counterparty": "HP Inc",
+     "earliest": "2017-02-17",
+     "latest": "2024-01-26",
+     "filings": 8
+    },
+    {
+     "counterparty": "Lenovo Group Limited",
+     "earliest": "2013-02-19",
+     "latest": "2024-01-26",
+     "filings": 12
+    },
+    {
+     "counterparty": "Hewlett-Packard Company",
+     "earliest": "2013-02-19",
+     "latest": "2015-02-13",
+     "filings": 3
+    },
+    {
+     "counterparty": "ICG",
+     "earliest": "2005-02-22",
+     "latest": "2005-02-22",
+     "filings": 1
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED, MACHINE-PREPARED. Derived from the EDGAR review queue; no human has reviewed this edge. as_of_date is the EARLIEST filing in the walk that names this counterparty -- found, not proven to be the floor. LINEAGE: SEC's record shows the registrant filing on 2017-02-17 as 'HP INC' (CIK 0000047217, filing since 1994-01-21), which matches the disclosed name -- this removes ONE way of being wrong and does not establish the relationship. A merger that preserved the name and the registrant would look identical here; check it the way Caremark RX and OfficeMax were checked. STAKE: 30 anchor events beyond what the curated map already reaches."
+  },
+  {
+   "single_filing_edge": false,
+   "after_count_is_tautological": false,
+   "later_named_counterparties_on_this_anchor": [
+    {
+     "counterparty": "ODP",
+     "earliest": "2023-02-23",
+     "latest": "2026-02-26",
+     "filings": 4
+    }
+   ],
+   "later_names_exist": true,
+   "edge": "PKG->ODP",
+   "anchor": "PKG",
+   "peer_ticker": "ODP",
+   "map_as_of_date": "2016-02-26",
+   "map_as_of_basis": "filing date of source",
+   "map_date_confidence": "high",
+   "map_review_status": "draft",
+   "counterparty_named_in_citation": "Office Depot",
+   "matched_in_walk": true,
+   "match_mode": "exact_string_equality",
+   "earliest_disclosing_filing": "2016-02-26",
+   "earliest_accession": "0000075677-16-000030",
+   "latest_disclosing_filing": "2022-02-24",
+   "latest_accession": "0000950170-22-001913",
+   "filings_naming_it": 6,
+   "as_of_agrees_with_walk": true,
+   "eligible_events": 0,
+   "eligible_events_after_last_disclosure": null,
+   "pct_events_after_last_disclosure": null,
+   "all_counterparties_this_anchor_ever_named": [
+    {
+     "counterparty": "ODP",
+     "earliest": "2023-02-23",
+     "latest": "2026-02-26",
+     "filings": 4
+    },
+    {
+     "counterparty": "Office Depot",
+     "earliest": "2016-02-26",
+     "latest": "2022-02-24",
+     "filings": 6
+    }
+   ],
+   "map_notes_verbatim": "DRAFT, UNVALIDATED. SOURCE_TYPE CONFIRMED 2026-08-22 by retrieving accession 0000075677-16-000030 (pkg1231201510k.htm). The disclosure sits under the 'Customers' subsection of Item 1 Business -- NOT the Competition section, which begins immediately AFTER it; the earlier concern was a proximity artifact. It reads: 'Office Depot, Inc. is our largest customer in the Paper segment ... In 2015, our sales revenue to Office Depot represented 45% of our Paper segment sales revenue.' That is substantively a customer-concentration statement, so the closed-vocabulary value stands, though it is coarse: the text is in Item 1, not in the notes to the financial statements. LINEAGE NOT EXTENDED: the same filing says 'Office Depot became our largest customer when it acquired OfficeMax Incorporated late in 2013', and PKG's own earlier 10-Ks name OfficeMax rather than Office Depot. That is a merger, not a rename -- the same basis on which Caremark RX was rejected for MCK -- so 2016-02-26 stands. All 27 PKG 10-Ks were examined; none before 2016 names Office Depot."
+  }
+ ]
+}
