@@ -134,37 +134,65 @@ def test_1_the_templates_are_pasteable() -> None:
 
 
 def test_2_it_refuses_every_judgement() -> None:
+    """Each refusal must fire for ITS OWN reason.
+
+    These originally ran against the default `out_path`. Once v1.3 was really
+    ratified that file existed, so every one of them tripped the
+    already-exists guard FIRST and passed without ever reaching the guard it
+    names. Only 2c noticed, because it is the one that inspects the message.
+
+    A test that passes for the wrong reason is worse than one that fails, so
+    each call now writes to a scratch path that does not exist, and 2m pins
+    the mistake itself.
+    """
     rows = _rows(R.WORKSHEET)
     good = _all_reviewed()
 
-    refuses("2a. a missing decision", R.ratify_map,
-            decisions={R._key(rows[0]): "reviewed"}, curated_by="T",
-            curated_date="2026-09-08")
-    msg = refuses("2b. a typo'd edge, naming BOTH halves", R.ratify_map,
-                  decisions={**{k: "reviewed" for k in list(good)[:-1]},
-                             "JBL:CISCO": "reviewed"},
-                  curated_by="T", curated_date="2026-09-08")
-    check("2c. the typo itself is named", "JBL:CISCO" in msg, msg[:120])
+    with tempfile.TemporaryDirectory() as td:
+        fresh = Path(td) / "HYP04_Linkage_Map_v9.9.csv"
 
-    refuses("2d. a status outside the map's vocabulary", R.parse_edge_args,
-            ["MCK:CVS=approved"])
-    refuses("2e. a template placeholder left in an edge", R.parse_edge_args,
-            ["MCK:CVS=<draft|reviewed|needs_revisit>"])
-    refuses("2f. the same edge decided twice", R.parse_edge_args,
-            ["MCK:CVS=reviewed", "MCK:CVS=draft"])
-    refuses("2g. a malformed edge spec", R.parse_edge_args, ["MCK=reviewed"])
-    refuses("2h. a blank signer", R.ratify_map, decisions=good,
-            curated_by="  ", curated_date="2026-09-08")
-    refuses("2i. a placeholder signer", R.ratify_map, decisions=good,
-            curated_by="<your name>", curated_date="2026-09-08")
-    refuses("2j. a future decision date", R.ratify_map, decisions=good,
-            curated_by="T", curated_date="2099-01-01")
-    refuses("2k. a non-ISO date", R.ratify_map, decisions=good,
-            curated_by="T", curated_date="Sept 8")
+        def rm(label, **kw):
+            kw.setdefault("out_path", fresh)
+            return refuses(label, R.ratify_map, **kw)
 
-    check("2l. there is no bulk flag on the CLI",
+        rm("2a. a missing decision",
+           decisions={R._key(rows[0]): "reviewed"}, curated_by="T",
+           curated_date="2026-09-08")
+        msg = rm("2b. a typo'd edge, naming BOTH halves",
+                 decisions={**{k: "reviewed" for k in list(good)[:-1]},
+                            "JBL:CISCO": "reviewed"},
+                 curated_by="T", curated_date="2026-09-08")
+        check("2c. the typo itself is named", "JBL:CISCO" in msg, msg[:120])
+
+        refuses("2d. a status outside the map's vocabulary", R.parse_edge_args,
+                ["MCK:CVS=approved"])
+        refuses("2e. a template placeholder left in an edge",
+                R.parse_edge_args, ["MCK:CVS=<draft|reviewed|needs_revisit>"])
+        refuses("2f. the same edge decided twice", R.parse_edge_args,
+                ["MCK:CVS=reviewed", "MCK:CVS=draft"])
+        refuses("2g. a malformed edge spec", R.parse_edge_args,
+                ["MCK=reviewed"])
+        rm("2h. a blank signer", decisions=good, curated_by="  ",
+           curated_date="2026-09-08")
+        rm("2i. a placeholder signer", decisions=good,
+           curated_by="<your name>", curated_date="2026-09-08")
+        rm("2j. a future decision date", decisions=good, curated_by="T",
+           curated_date="2099-01-01")
+        rm("2k. a non-ISO date", decisions=good, curated_by="T",
+           curated_date="Sept 8")
+        check("2l. nothing above actually wrote a map", not fresh.exists())
+
+    check("2m. there is no bulk flag on the CLI",
           not any("--all" in a for a in
                   ("--edge", "--curated-by", "--curated-date")))
+
+    # The masking bug itself: with an existing out_path, a call whose
+    # decisions are fine AND whose decisions are missing both refuse -- but
+    # for the same reason. That is what hid four broken assertions.
+    dup = refuses("2n. an existing map version still refuses", R.ratify_map,
+                  decisions=good, curated_by="T", curated_date="2026-09-08")
+    check("2o. and it is the already-exists guard, not a judgement guard",
+          "already exists" in dup, dup[:120])
 
 
 def test_3_underscore_spelling_normalises() -> None:
@@ -367,7 +395,13 @@ def test_8_pins_are_shown_before_they_are_written() -> None:
               for rel, _ in R.PIN_SITES))
 
 
-def test_9_the_real_gate_is_untouched() -> None:
+def test_9_a_ratified_map_opens_nothing() -> None:
+    """The map is now ratified. That was one of five conditions, not the gate.
+
+    This previously asserted no v1.3 existed. It does now, so the assertion
+    becomes the sharper one: ratification moved a real thing and the gate is
+    STILL closed, because C1 and C3 are untouched by it.
+    """
     g = evaluate_gate()
     check("9a. the gate is still CLOSED", g.open is False)
     check("9b. C4 is still MET", g.conditions["C4_decisions_resolved"] is True)
@@ -375,16 +409,36 @@ def test_9_the_real_gate_is_untouched() -> None:
           str(len(g.denials)))
     check("9d. the eligible count is still unknown, not zero",
           g.evidence.get("eligible_count") is None)
-    for name in ("HYP04_Linkage_Map_v1.3.csv",
-                 "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json"):
-        check(f"9e. {name} was not created", not (LSE / name).exists())
-    check("9f. no freeze draft was created",
-          not list(LSE.glob("HYP04_FREEZE_DRAFT_*.json")))
+
     live = sorted(LSE.glob("HYP04_Linkage_Map_v1.*.csv"))[-1]
     res = load_curated_linkage(live)
-    check("9g. the map in force still carries no ratified edge",
-          all(e.review_status != "reviewed" for e in res.edges),
-          f"{live.name}: {sorted({e.review_status for e in res.edges})}")
+    check("9e. the map in force is v1.3 and loads clean",
+          live.name == "HYP04_Linkage_Map_v1.3.csv" and res.ok, live.name)
+    check("9f. every edge in it is ratified",
+          all(e.review_status == "reviewed" for e in res.edges),
+          str(sorted({e.review_status for e in res.edges})))
+    check("9g. attributed to a named curator on every row",
+          all((e.curated_by or "").strip() for e in res.edges))
+
+    # The two acts that are still the owner's, and are still not done.
+    check("9h. no registry v1.12 was written",
+          not (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json").exists())
+    drafts = sorted(LSE.glob("HYP04_FREEZE_DRAFT_*.json"))
+    for d in drafts:
+        rec = json.loads(d.read_text(encoding="utf-8"))
+        check(f"9i. {d.name} is unattested",
+              rec.get("frozen") is not True
+              and rec.get("frozen_before_any_result_computed") is not True,
+              f"frozen={rec.get('frozen')}")
+
+    # Earlier versions are immutable; ratification writes a NEW file.
+    for old in ("v1.0", "v1.1", "v1.2"):
+        p = LSE / f"HYP04_Linkage_Map_{old}.csv"
+        if p.is_file():
+            r = load_curated_linkage(p)
+            check(f"9j. {old} still carries no ratified edge",
+                  all(e.review_status != "reviewed" for e in r.edges),
+                  str(sorted({e.review_status for e in r.edges})))
 
 
 if __name__ == "__main__":
@@ -396,7 +450,7 @@ if __name__ == "__main__":
     test_6_the_attestation_cannot_be_inferred()
     test_7_attesting_moves_only_the_owner_fields()
     test_8_pins_are_shown_before_they_are_written()
-    test_9_the_real_gate_is_untouched()
+    test_9_a_ratified_map_opens_nothing()
 
     print()
     if FAILURES:

@@ -68,8 +68,12 @@ def test_1_the_artifact_recomputes() -> None:
     check("1b. so is the rendered document", V.OUT_MD.is_file())
     if not V.OUT_JSON.is_file():
         return
-    fresh = V.build()
     committed = _art()
+    # PINNED to the map the artifact itself names, not to whatever is newest.
+    # Once v1.3 was ratified, an unpinned rebuild re-derived against it and
+    # this document -- the evidence FOR that ratification -- started reporting
+    # `review_status: reviewed`, citing the decision it informed.
+    fresh = V.build(map_path=LSE / committed["sources"]["map"])
     check("1c. every published number recomputes from the committed walks",
           fresh == committed,
           f"differing keys: "
@@ -197,14 +201,23 @@ def test_7_the_worksheet_is_valid_once_filled() -> None:
               fnmatch.fnmatch(f.name, "HYP04_Linkage_Map_v*.csv"))
 
 
-def test_8_nothing_was_ratified() -> None:
-    check("8a. no v1.3 linkage map exists",
-          not (LSE / "HYP04_Linkage_Map_v1.3.csv").exists())
-    live = load_curated_linkage(
-        sorted(LSE.glob("HYP04_Linkage_Map_v1.*.csv"))[-1])
-    check("8b. the map in force still carries no ratified edge",
-          all(e.review_status != "reviewed" for e in live.edges),
-          str(sorted({e.review_status for e in live.edges})))
+def test_8_the_evidence_predates_what_it_informed() -> None:
+    """v1.3 is now ratified. This artifact must still describe v1.2.
+
+    Ratification happened 2026-09-08 on the evidence above. The document is
+    only evidence if it says what was known BEFORE that -- so it names v1.2,
+    where every edge still reads `draft` or `needs revisit`.
+    """
+    art = _art()
+    check("8a. the artifact names the map it examined",
+          art["sources"]["map"] == "HYP04_Linkage_Map_v1.2.csv",
+          art["sources"]["map"])
+    examined = load_curated_linkage(LSE / art["sources"]["map"])
+    check("8b. and no edge in THAT map was ratified when it was written",
+          all(e.review_status != "reviewed" for e in examined.edges),
+          str(sorted({e.review_status for e in examined.edges})))
+    check("8c. the artifact still carries no review_status of its own",
+          all("recommended_review_status" not in e for e in art["edges"]))
 
 
 if __name__ == "__main__":
@@ -215,7 +228,7 @@ if __name__ == "__main__":
     test_5_names_are_matched_exactly()
     test_6_the_worksheet_is_inert_as_shipped()
     test_7_the_worksheet_is_valid_once_filled()
-    test_8_nothing_was_ratified()
+    test_8_the_evidence_predates_what_it_informed()
 
     print()
     if FAILURES:
