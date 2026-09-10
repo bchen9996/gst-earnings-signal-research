@@ -446,6 +446,98 @@ def test_11_a_computed_outcome_blocks_the_freeze() -> None:
           str(live))
 
 
+def test_12_the_result_refusal_discriminates_by_scope() -> None:
+    """A prior result blocks a freeze over THOSE events, not over any events.
+
+    Why this changed. The refusal was "a result artifact exists, anywhere,
+    ever" -- right about the case it was written for, wrong about one it was
+    not. Phase 1 computes a diagnostic over an EXPLORATION set; Phase 3 later
+    freezes the DISJOINT holdout. Under a blanket refusal that second freeze is
+    impossible, so a correctly-ordered project would be pushed either to skip
+    the freeze or to name the artifact so the scan misses it. A control people
+    route around is worse than one that discriminates.
+
+    The loosening is bounded by making unknown scope refuse: an artifact that
+    will not say what it ranged over cannot be shown to be disjoint.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        f = _fixture(Path(td))
+        ids = list(json.loads(f["panel"].read_text(encoding="utf-8"))
+                   ["eligible_event_ids"])
+        art = f["lse"] / "HYP04_INFERENCE_PHASE1_2026-09-09.json"
+
+        # 1. Declares no scope -> refuses. Unknown resolves to DENY.
+        art.write_text(json.dumps({"note": "no scope"}), encoding="utf-8")
+        expect_refusal("12a. a result declaring no scope refuses",
+                       lambda: _build(f),
+                       expect=f"declares no {F.RESULT_SCOPE_FIELD}")
+
+        # 2. Overlaps by ONE event -> refuses.
+        art.write_text(json.dumps({F.RESULT_SCOPE_FIELD: [ids[0]]}),
+                       encoding="utf-8")
+        expect_refusal("12b. an overlap of a single event refuses",
+                       lambda: _build(f), expect="1 event(s) in common")
+
+        # 3. Disjoint -> the freeze proceeds. This is the case the old refusal
+        #    made impossible, and it is the whole point of the change.
+        art.write_text(json.dumps(
+            {F.RESULT_SCOPE_FIELD: ["ZZZ-1999-01-04", "ZZZ-1999-04-05"]}),
+            encoding="utf-8")
+        # The artifact lives inside the fixture repo, so writing it dirtied the
+        # tree. 12a and 12b refused before reaching the clean-tree check; the
+        # success case does not, and a freeze legitimately requires a sha that
+        # describes the tree.
+        subprocess.run(("git", "add", "-A"), cwd=str(f["tmp"]),
+                       capture_output=True)
+        subprocess.run(("git", "commit", "-q", "-m", "disjoint prior result"),
+                       cwd=str(f["tmp"]), capture_output=True)
+        draft = _build(f)
+        check("12c. a DISJOINT prior result does not block the freeze",
+              draft["eligible_event_count"] == len(ids),
+              str(draft.get("eligible_event_count")))
+        check("12d. and the draft records that it checked, rather than "
+              "silently allowing it",
+              draft["computation_surface"]["result_artifact_scopes"]
+              [art.name]["declares_scope"] is True)
+        check("12e. with the count it was disjoint on",
+              draft["computation_surface"]["result_artifact_scopes"]
+              [art.name]["n_events_declared"] == 2)
+        # No unlink: build_draft COMPUTES the draft and returns it; main()
+        # does the writing. Nothing was written here.
+        check("12e2. and building wrote nothing -- build_draft is pure",
+              not f["out"].exists())
+
+        # 4. The scope reader itself, directly -- so 12a-c cannot pass because
+        #    _declared_scope returns None for everything.
+        check("12f. CONTROL -- the scope reader reads a real declaration",
+              F._declared_scope(art.name, lse=f["lse"])
+              == frozenset({"ZZZ-1999-01-04", "ZZZ-1999-04-05"}))
+        check("12g. and returns None for an artifact that is not there, which "
+              "is the refusing answer",
+              F._declared_scope("HYP04_BETA_nothing.json", lse=f["lse"]) is None)
+
+
+def test_13_the_committed_freeze_still_validates() -> None:
+    """This edit touched machinery underneath an ATTESTED freeze.
+
+    `validate_freeze` never rescans the computation surface, so changing the
+    scan cannot retroactively invalidate what the owner signed. Asserted here
+    rather than reasoned about, because the cost of being wrong is the gate.
+    """
+    draft = sorted(LSE.glob("HYP04_FREEZE_DRAFT_*.json"))[-1]
+    rec = F.validate_freeze(draft, panel_path=PANEL)
+    check("13a. the committed freeze still validates unchanged",
+          rec.frozen is True and len(rec.eligible_event_ids) == 214,
+          f"{len(rec.eligible_event_ids)} ids")
+    check("13b. attested by a human, and still says so",
+          json.loads(draft.read_text(encoding="utf-8"))["attested_by"].strip()
+          != "")
+    from hyp04_supply_chain_hedge.display_gate import current_decision
+    live = current_decision()
+    check("13c. and the live gate is still OPEN with zero denials",
+          live.open is True and len(live.denials) == 0, str(live.denials))
+
+
 def test_8_this_suite_moved_nothing() -> None:
     """The suite must not move the gate. The OWNER did, on 2026-09-09.
 
@@ -506,6 +598,8 @@ if __name__ == "__main__":
     test_9_the_computation_surface_is_evidence_not_a_verdict()
     test_10_the_detector_catches_wiring_and_ignores_mentions()
     test_11_a_computed_outcome_blocks_the_freeze()
+    test_12_the_result_refusal_discriminates_by_scope()
+    test_13_the_committed_freeze_still_validates()
     test_8_this_suite_moved_nothing()
 
     print()

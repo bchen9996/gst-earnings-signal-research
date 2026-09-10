@@ -159,6 +159,61 @@ def _scan_for_results(lse: Path) -> list[str]:
     return hits
 
 
+#: The field a result artifact uses to declare which events it consumed.
+RESULT_SCOPE_FIELD = "event_ids_consumed"
+
+
+def _declared_scope(name: str, *, lse: Path) -> Optional[frozenset[str]]:
+    """The event ids a result artifact declares it consumed, or None.
+
+    `None` means the scope could not be established, and every caller must
+    treat that as overlapping everything. Unknown resolves to DENY, exactly as
+    the gate's own conditions do -- a result that will not say what it ranged
+    over is indistinguishable from one that ranged over all of it.
+
+    A deleted artifact reads as `None` on purpose. Its bytes are recoverable
+    from history, but a result someone removed is the last thing to extend
+    trust to on the strength of a field it used to carry.
+    """
+    p = lse / Path(name).name
+    if not p.is_file():
+        return None
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    ids = d.get(RESULT_SCOPE_FIELD) if isinstance(d, dict) else None
+    if not isinstance(ids, list) or not ids:
+        return None
+    return frozenset(str(i) for i in ids)
+
+
+def _overlapping_results(names: list[str], freezing: set[str], *, lse: Path
+                         ) -> list[str]:
+    """Which prior results bar a freeze over `freezing`, and why.
+
+    The refusal used to be "a result artifact exists, anywhere, ever". That is
+    right about the case it was written for and wrong about one it was not:
+    Phase 1 computes a diagnostic over an EXPLORATION set, and Phase 3 later
+    freezes the DISJOINT holdout. A blanket refusal makes the legitimate second
+    freeze impossible, so a correctly-ordered project would be forced either to
+    skip the freeze or to name the artifact so the scan misses it -- and a
+    control people route around is worse than one that discriminates.
+
+    So: overlap refuses, disjoint is recorded and allowed, and an
+    unestablishable scope refuses.
+    """
+    blocking = []
+    for name in names:
+        scope = _declared_scope(name, lse=lse)
+        if scope is None:
+            blocking.append(f"{name} (declares no {RESULT_SCOPE_FIELD})")
+        elif scope & freezing:
+            n = len(scope & freezing)
+            blocking.append(f"{name} ({n} event(s) in common)")
+    return blocking
+
+
 #: Functions that, called on the real panel, would produce a HYP-04 OUTCOME.
 #: Named individually rather than matched by prefix: the point is to ask "did
 #: anyone compute a result", and a prefix match would drift into flagging any
@@ -299,6 +354,18 @@ def computation_surface(*, repo: Path = REPO_ROOT, lse: Path = LSE
         "estimator_calls_searched": list(ESTIMATOR_CALLS),
         "notebooks": _notebook_surface(repo),
         "result_artifacts_in_git_history": _results_in_history(repo),
+        # What each prior result says it ranged over. Recorded whether or not
+        # it blocks, so a reader can see that a freeze was allowed BECAUSE a
+        # prior result was disjoint rather than because nothing was checked.
+        # `declares_scope: false` is the refusing case, not the benign one.
+        "result_artifact_scopes": {
+            name: (lambda s: {"declares_scope": s is not None,
+                              "n_events_declared": len(s) if s else 0})(
+                _declared_scope(name, lse=lse))
+            for name in sorted(set(_scan_for_results(lse))
+                               | set(_results_in_history(repo)))
+        },
+        "result_scope_field": RESULT_SCOPE_FIELD,
         "real_inputs_first_committed": inputs,
         "all_real_inputs_coexist_from": max(dated) if len(dated) == 3 else None,
         "window_note": (
@@ -355,25 +422,36 @@ def build_draft(*, panel_path: Path, out_path: Path, lse: Path = LSE,
 
     panel = json.loads(panel_path.read_text(encoding="utf-8"))
 
+    # Needed before the refusals below, which ask whether a prior result
+    # touched THESE events rather than whether one exists at all.
+    freezing = set(_panel_events(panel)[0])
+
     results = _scan_for_results(lse)
-    if results:
+    blocking = _overlapping_results(results, freezing, lse=lse)
+    if blocking:
         raise FreezeError(
-            f"result artifacts already exist ({', '.join(results[:4])}). section 5 "
-            "orders the freeze BEFORE results are computed; freezing now would "
-            "record an order that did not happen.")
+            f"result artifacts already exist over these events "
+            f"({'; '.join(blocking[:4])}). section 5 orders the freeze BEFORE "
+            "results are computed; freezing now would record an order that did "
+            "not happen. A result that declares a DISJOINT "
+            f"{RESULT_SCOPE_FIELD} does not block this -- one that declares "
+            "none cannot be shown to be disjoint, and is treated as "
+            "overlapping.")
 
     surface = computation_surface(repo=repo, lse=lse)
 
     # Two refusals, and only two. Each is a case where an outcome demonstrably
-    # WAS computed, not a case where one could have been -- the difference
-    # between a check worth stopping for and a warning an operator learns to
-    # wave through.
+    # WAS computed OVER THIS SET, not a case where one could have been -- the
+    # difference between a check worth stopping for and a warning an operator
+    # learns to wave through.
     historic = surface["result_artifacts_in_git_history"]
-    if historic:
+    blocking = _overlapping_results(historic, freezing, lse=lse)
+    if blocking:
         raise FreezeError(
-            f"result artifacts exist in git history ({', '.join(historic[:4])}) "
-            "even though the working tree is clean. A deleted result is still "
-            "a computed result, and section 5 orders the freeze first.")
+            f"result artifacts covering these events exist in git history "
+            f"({'; '.join(blocking[:4])}) even though the working tree is "
+            "clean. A deleted result is still a computed result, and section 5 "
+            "orders the freeze first.")
     ran_on_real = [nb["path"] for nb in surface["notebooks"]
                    if nb.get("cells_with_saved_outputs")
                    and nb.get("references_real_inputs")]
