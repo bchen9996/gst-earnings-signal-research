@@ -479,11 +479,21 @@ def test_7_attesting_moves_only_the_owner_fields() -> None:
 
 def test_8_pins_are_shown_before_they_are_written() -> None:
     fake = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json"
+    # v1.12 exists now, so it is no longer the example of a missing registry.
+    # A name that will never exist is, and it keeps this guard testable through
+    # every future version bump.
     refuses("8a. repointing at a registry that does not exist",
-            R.repoint_pins, registry=fake, apply=False,
-            expect="is not on disk")
+            R.repoint_pins,
+            registry=LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v9.99.json",
+            apply=False, expect="is not on disk")
+    check("8a2. and v1.12, which does exist, is accepted",
+          fake.is_file(), fake.name)
 
-    real = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.11.json"
+    # The pins were repointed to v1.12 on 2026-09-09. "Already correct" has to
+    # mean the registry the gate READS, not a hardcoded version -- otherwise
+    # this assertion re-breaks on every bump.
+    from hyp04_supply_chain_hedge.display_gate import REGISTRY_CURRENT
+    real = REGISTRY_CURRENT
     edits = R.repoint_pins(registry=real, apply=False)
     check("8b. against the current registry both pins are already correct",
           edits == [], str(edits))
@@ -496,20 +506,26 @@ def test_8_pins_are_shown_before_they_are_written() -> None:
               for rel, _ in R.PIN_SITES))
 
 
-def test_9_a_ratified_map_opens_nothing() -> None:
-    """The map is now ratified. That was one of five conditions, not the gate.
+def test_9_the_chain_completed_and_each_act_is_attributable() -> None:
+    """All five conditions cleared, in the order the code enforced.
 
-    This previously asserted no v1.3 existed. It does now, so the assertion
-    becomes the sharper one: ratification moved a real thing and the gate is
-    STILL closed, because C1 and C3 are untouched by it.
+    This began as "no v1.3 exists", became "a ratified map opens nothing", and
+    is now the end of the chain: map ratified 2026-09-08, freeze attested
+    2026-09-09, registry v1.12 written, pins repointed, gate OPEN.
+
+    What it pins is not the outcome but the ATTRIBUTION -- every act that
+    required a human names one, because the driver refuses to supply them.
     """
-    g = evaluate_gate()
-    check("9a. the gate is still CLOSED", g.open is False)
+    from hyp04_supply_chain_hedge.display_gate import current_decision
+    g = current_decision()
+    check("9a. the gate is OPEN", g.open is True, str(g.denials))
     check("9b. C4 is still MET", g.conditions["C4_decisions_resolved"] is True)
-    check("9c. still exactly four denials", len(g.denials) == 4,
-          str(len(g.denials)))
-    check("9d. the eligible count is still unknown, not zero",
-          g.evidence.get("eligible_count") is None)
+    check("9c. zero denials", len(g.denials) == 0, str(g.denials))
+    # `eligible_event_count`, not `eligible_count` -- the latter is not a key
+    # the gate emits, so `.get(...) is None` passed no matter what it said.
+    check("9d. the count is the frozen 214",
+          g.evidence["eligible_event_count"] == 214,
+          str(g.evidence["eligible_event_count"]))
 
     live = sorted(LSE.glob("HYP04_Linkage_Map_v1.*.csv"))[-1]
     res = load_curated_linkage(live)
@@ -522,15 +538,24 @@ def test_9_a_ratified_map_opens_nothing() -> None:
           all((e.curated_by or "").strip() for e in res.edges))
 
     # The two acts that are still the owner's, and are still not done.
-    check("9h. no registry v1.12 was written",
-          not (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json").exists())
+    # Both of these inverted on 2026-09-09 when the OWNER ran the two commands
+    # this driver refuses to run for them. What is pinned now is that the
+    # record of those acts names a human -- which is the only thing that makes
+    # them acts rather than side effects.
+    check("9h. registry v1.12 exists",
+          (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json").is_file())
     drafts = sorted(LSE.glob("HYP04_FREEZE_DRAFT_*.json"))
+    check("9h2. and a freeze artifact exists", bool(drafts))
     for d in drafts:
         rec = json.loads(d.read_text(encoding="utf-8"))
-        check(f"9i. {d.name} is unattested",
-              rec.get("frozen") is not True
-              and rec.get("frozen_before_any_result_computed") is not True,
-              f"frozen={rec.get('frozen')}")
+        check(f"9i. {d.name} is attested by a NAMED person on a date",
+              rec.get("frozen") is True
+              and rec.get("frozen_before_any_result_computed") is True
+              and bool(str(rec.get("attested_by") or "").strip())
+              and bool(str(rec.get("attested_date") or "").strip()),
+              f"by={rec.get('attested_by')!r} on={rec.get('attested_date')!r}")
+        check(f"9i2. {d.name} records the sentence that was typed",
+              rec.get("attestation_text") == R.AFFIRMATION)
 
     # Earlier versions are immutable; ratification writes a NEW file.
     for old in ("v1.0", "v1.1", "v1.2"):
@@ -552,7 +577,7 @@ if __name__ == "__main__":
     test_6_the_attestation_cannot_be_inferred()
     test_7_attesting_moves_only_the_owner_fields()
     test_8_pins_are_shown_before_they_are_written()
-    test_9_a_ratified_map_opens_nothing()
+    test_9_the_chain_completed_and_each_act_is_attributable()
 
     print()
     if FAILURES:

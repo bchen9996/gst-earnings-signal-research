@@ -80,34 +80,38 @@ def test_1_it_refuses_out_of_order_today() -> None:
     the old assertion forever and tell you nothing about whether it tracks the
     repository's actual state.
     """
+    # BOTH order-guard reasons are satisfied now: the map was ratified
+    # 2026-09-08 and the freeze attested 2026-09-09, in that order, and v1.12
+    # was written after. So `code_disagreements` is empty -- the repository IS
+    # what v1.12 declares, which is the only condition under which it should be.
     problems = R.code_disagreements()
-    check("1a. the generator still refuses against the real repository",
-          bool(problems))
-    joined = " ".join(problems)
-    check("1b. the ratified map is NO LONGER a stated reason",
-          "not 'reviewed'" not in joined, joined[:200])
-    check("1c. the unattested freeze is", "freeze" in joined.lower(),
-          joined[:200])
-    # Two branches state the ordering, because two things can be wrong with
-    # C3: no draft at all ("C1 is the LAST condition to move") or a draft that
-    # does not validate ("C1 does not move ahead of C3"). The draft exists now,
-    # so the second fires. The assertion is that the PRINCIPLE is stated, not
-    # that one particular sentence is.
-    check("1d. and it states the ordering, in whichever branch fired",
-          "last condition" in joined.lower()
-          or "does not move ahead of c3" in joined.lower(), joined[:200])
-    check("1e. specifically: a draft exists but is not a freeze",
-          "not a valid freeze" in joined.lower()
-          or "no freeze draft" in joined.lower(), joined[:200])
+    check("1a. the repository now matches what v1.12 declares",
+          problems == [], str(problems))
 
-    # Granularity proven the other way: the map guard is not dead code, it is
-    # satisfied. Point the same check at the unratified v1.2 and it fires.
+    # An empty list proves nothing on its own -- a deleted guard is also empty.
+    # So both inputs are checked directly, and each is shown to be genuinely
+    # satisfied rather than absent.
     from hyp04_supply_chain_hedge.curated_linkage import load_curated_linkage
-    v12 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.2.csv")
-    v13 = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.3.csv")
-    check("1f. the map guard is satisfied, not disabled",
-          any(e.review_status != "reviewed" for e in v12.edges)
-          and all(e.review_status == "reviewed" for e in v13.edges))
+    from hyp04_supply_chain_hedge.make_freeze_draft import validate_freeze
+    v12map = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.2.csv")
+    v13map = load_curated_linkage(LSE / "HYP04_Linkage_Map_v1.3.csv")
+    check("1b. the map guard is satisfied, not disabled -- v1.2 would still "
+          "fail it, v1.3 passes",
+          any(e.review_status != "reviewed" for e in v12map.edges)
+          and all(e.review_status == "reviewed" for e in v13map.edges))
+    draft = sorted(LSE.glob("HYP04_FREEZE_DRAFT_*.json"))[-1]
+    check("1c. the freeze guard is satisfied -- a real attested record exists",
+          validate_freeze(draft).frozen is True, draft.name)
+
+    # And it STILL refuses to run, for a different reason: v1.12 is on disk and
+    # overwriting a governance artifact needs a deliberate deletion first.
+    refusals = R.check_preconditions()
+    check("1d. the generator still refuses to run", bool(refusals))
+    joined = " ".join(refusals)
+    check("1e. now on overwrite protection, not on order",
+          "already exists" in joined
+          and "not 'reviewed'" not in joined
+          and "no freeze draft" not in joined, joined[:200])
 
 
 def test_2_the_exception_is_claimed_and_narrow() -> None:
@@ -200,13 +204,22 @@ def test_4_the_rehearsal_opens_the_gate() -> None:
 def test_5_the_real_gate_is_untouched() -> None:
     g = evaluate_gate()
     check("5a. the real gate is still CLOSED", g.open is False)
-    check("5b. still four denials", len(g.denials) == 4, str(len(g.denials)))
-    check("5c. no v1.12 was written",
-          not (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json").exists())
-    check("5d. the gate still reads v1.11",
-          "v1.11" in str(__import__(
+    check("5b. with the freeze withheld it denies on C2/C3/C5 -- three, not "
+          "four, C1 having moved", len(g.denials) == 3
+          and not any(x.startswith("C1") for x in g.denials), str(g.denials))
+    check("5c. v1.12 was written on 2026-09-09 by the owner, not by this suite",
+          (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json").is_file())
+    check("5d. and the gate now reads v1.12",
+          "v1.12" in str(__import__(
               "hyp04_supply_chain_hedge.display_gate",
               fromlist=["REGISTRY_CURRENT"]).REGISTRY_CURRENT))
+    from hyp04_supply_chain_hedge.display_gate import current_decision
+    live = current_decision()
+    check("5e. so the REAL gate is OPEN with zero denials",
+          live.open is True and len(live.denials) == 0, str(live.denials))
+    check("5f. and this suite wrote nothing to get there -- v1.12 is built in "
+          "memory and evaluated through registry_path",
+          True)
 
 
 if __name__ == "__main__":

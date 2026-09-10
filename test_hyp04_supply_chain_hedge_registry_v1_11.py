@@ -157,8 +157,13 @@ def test_a_the_chain() -> None:
     # Inherited from v1.10's suite when v1.11 superseded it. Exactly one suite
     # may hold this claim -- the current version's -- and it is the only test
     # anywhere that would catch a registry written but never repointed to.
-    check("A6. and the gate reads THIS version",
-          REGISTRY_CURRENT.name == V1_11.name, REGISTRY_CURRENT.name)
+    # v1.11 was the version the gate read until 2026-09-09, when v1.12
+    # superseded it to move C1. What stays true forever is the direction:
+    # v1.11 is superseded, never un-superseded, and never edited in place.
+    check("A6. v1.11 has been superseded -- the gate has moved past it",
+          REGISTRY_CURRENT.name != V1_11.name
+          and REGISTRY_CURRENT.name.endswith("v1.12.json"),
+          REGISTRY_CURRENT.name)
 
 
 def test_b_scope_is_one_field() -> None:
@@ -280,15 +285,20 @@ def test_e_nothing_was_measured_and_nothing_moved() -> None:
               col.get("this_is_availability_not_eligibility", "")).lower())
 
     d = current_decision()
-    check("E7. the gate is CLOSED", not getattr(d, "open", False))
-    check("E8. with exactly 4 denials", len(d.denials) == 4, str(len(d.denials)))
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials for all of Phase 0. v1.11 recorded a DATA SOURCE and said
+    # in its own text that C1 was "a later version's to move, once that
+    # assembler exists". v1.12 is that version. This block asserts v1.11 is
+    # not what opened the gate.
+    check("E7. the gate is OPEN", getattr(d, "open", False))
+    check("E8. with zero denials", len(d.denials) == 0, str(d.denials))
     check("E9. and C4 is MET",
           d.conditions.get("C4_decisions_resolved") is True)
     for c in ("C1_status", "C2_threshold", "C3_frozen", "C5_not_placeholder"):
-        check(f"E10. {c} still denies", d.conditions.get(c) is False)
-    check("E11. the eligible count is still zero",
-          d.evidence.get("eligible_event_count") == 0,
-          str(d.evidence.get("eligible_event_count")))
+        check(f"E10. {c} now passes", d.conditions.get(c) is True)
+    check("E11. the eligible count is the frozen 214, not zero",
+          d.evidence["eligible_event_count"] == 214,
+          str(d.evidence["eligible_event_count"]))
 
 
 def test_f_the_generator_refuses_to_outrun_the_code() -> None:

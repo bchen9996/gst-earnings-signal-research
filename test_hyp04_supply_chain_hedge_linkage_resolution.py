@@ -223,9 +223,19 @@ def test_5_c5_clears_through_the_real_gate() -> None:
               ff["eligible_event_ids"] == ("E-2020",), str(ff["eligible_event_ids"]))
         check("5c. C2 still fails -- one event is not 193",
               d.conditions["C2_threshold"] is False)
-        check("5d. C1 still fails -- linkage is not activation",
-              d.conditions["C1_status"] is False)
-        check("5e. the gate is still CLOSED", d.open is False)
+        # C1 read False until registry v1.12 moved it on 2026-09-09. The claim
+        # this line was making -- linkage is not activation -- is unchanged and
+        # is now asserted at its source: C1 tracks the REGISTRY's status field,
+        # which nothing in this fixture touches.
+        check("5d. C1 tracks the registry, not linkage",
+              d.conditions["C1_status"] is True
+              and d.evidence["registry_status"] == "ACTIVE_COLLECTING",
+              str(d.evidence.get("registry_status")))
+        # And the gate is STILL closed on this fixture, for the reason 5c
+        # gives: one event is not 193. An open C1 changes nothing about that.
+        check("5e. the gate is still CLOSED here -- C2 alone is enough",
+              d.open is False and [x for x in d.denials if x.startswith("C2")],
+              str(d.denials))
 
         # CONTROL: the same events with no map must leave C5 shut.
         p2 = _resolve(Path(t) / "nope.csv")

@@ -144,39 +144,52 @@ def _good_freeze(n: int = 193) -> FreezeRecord:
     )
 
 
-# ===================== 1. today's real gate is CLOSED =====================
-def test_1_the_live_gate_is_closed_right_now() -> None:
+# ===================== 1. today's real gate is OPEN =======================
+def test_1_the_live_gate_is_open_and_why() -> None:
+    """The gate OPENED on 2026-09-09. Every condition is pinned to its cause.
+
+    It was CLOSED with four denials from the beginning of this project until
+    then, and this test asserted exactly that. The conditions cleared one at a
+    time, each for a stated reason, and the ORDER was enforced in code: C4 in
+    registry v1.2 (2026-08-20), then C2 when `make_event_panel` first derived a
+    count, then C3 and C5 together when a freeze was attested over the ratified
+    map, and C1 LAST in registry v1.12 -- `make_registry_v1_12` refuses to move
+    it while the map is unratified or the freeze invalid.
+
+    What an open gate means is unchanged and is asserted at the end: it
+    licenses REPORTING a measurement. It is not a finding, and this test does
+    not assert one exists. At the moment it opened, none did.
+    """
     d = current_decision()
-    check("1a. the live gate is CLOSED", d.open is False)
-    check("1b. it denies on more than one independent ground",
-          len(d.denials) >= 2, f"denials={len(d.denials)}")
-    check("1c. C1 fails: status is not ACTIVE_COLLECTING",
-          d.conditions["C1_status"] is False)
-    check("1d. C2 fails: zero real eligible events against a 193 threshold",
-          d.conditions["C2_threshold"] is False)
-    check("1e. C3 fails: no freeze record exists",
-          d.conditions["C3_frozen"] is False)
-    # C4 CLEARS as of registry v1.2 (2026-08-20) -- the first display-gate
-    # condition ever to clear in this project. This check previously asserted
-    # C4 was False because the decisions were still PENDING, which was true
-    # under v1.1 and became false when the signed lock's resolutions were
-    # recorded in v1.2. A legitimate change in the world, not a regression.
-    #
-    # The surrounding checks are what keep this honest: 1a still requires the
-    # gate CLOSED and 1b still requires at least two independent denials. C4
-    # clearing removed a governance blocker and moved nothing else.
-    check("1f. C4 CLEARS: the decisions are resolved in a signed dated lock",
+    check("1a. the live gate is OPEN", d.open is True, str(d.denials))
+    check("1b. with no denials at all", len(d.denials) == 0, str(d.denials))
+    check("1c. C1 passes: the registry status is ACTIVE_COLLECTING (v1.12)",
+          d.conditions["C1_status"] is True
+          and d.evidence["registry_status"] == "ACTIVE_COLLECTING")
+    check("1d. C2 passes: 214 derived eligible events against a 193 threshold",
+          d.conditions["C2_threshold"] is True
+          and d.evidence["eligible_event_count"] == 214,
+          str(d.evidence["eligible_event_count"]))
+    check("1e. C3 passes: an attested freeze record exists",
+          d.conditions["C3_frozen"] is True
+          and d.evidence["frozen_event_id_count"] == 214)
+    check("1f. C4 passes: the decisions are resolved in a signed dated lock",
           d.conditions["C4_decisions_resolved"] is True, str(d.denials))
     check("1f2. and no decision remains pending",
           d.evidence["pending_analysis_decisions"] == 0)
     check("1f3. while the ledger still carries all four entries -- resolution "
           "is recorded by marking, never by removing",
           d.evidence["decision_ledger_entries"] == 4)
-    check("1f4. C4 clearing did NOT open the gate", d.open is False)
-    check("1g. C5 fails: the linkage is the Phase 0 placeholder",
-          d.conditions["C5_not_placeholder"] is False)
-    check("1h. the registry threshold it read is 193",
+    check("1g. C5 passes: the linkage is DERIVED non-placeholder, not asserted",
+          d.conditions["C5_not_placeholder"] is True
+          and d.evidence["uses_placeholder_linkage"] is False)
+    check("1h. the registry threshold it read is still 193 -- opening the gate "
+          "moved no threshold",
           d.evidence["registered_threshold"] == 193)
+    check("1i. the frozen count and the eligible count are the SAME number -- "
+          "C2 is measured against the frozen set, not a live recount",
+          d.evidence["frozen_event_id_count"]
+          == d.evidence["eligible_event_count"] == 214)
 
 
 def test_2_unknown_inputs_deny_rather_than_default() -> None:
@@ -507,9 +520,27 @@ def test_10_tampered_freeze_records_are_rejected() -> None:
               dbt.open is False and dbt.conditions["C2_threshold"] is False)
 
 
+def _closed_decision():
+    """A CLOSED decision, synthesised rather than borrowed from the live gate.
+
+    These tests are about panel CLASSIFICATION -- which ids are findings and
+    which are progress -- and that question is independent of whether the real
+    gate happens to be open. They used `current_decision()`, so when the gate
+    opened on 2026-09-09 they stopped testing classification and started
+    raising ProvenanceError from the quantum control instead.
+
+    That is the same defect `_registry_variant` documents above: a fixture
+    whose meaning depends on ambient state is not a fixture. Withholding the
+    freeze denies on C2/C3/C5 regardless of what the registry says.
+    """
+    return evaluate_gate(eligible_event_count=0, freeze=None)
+
+
 # ===================== 11. panel classification ==========================
 def test_11_panel_classification_fails_closed() -> None:
-    closed = current_decision()
+    closed = _closed_decision()
+    check("11z. the fixture really is closed", closed.open is False,
+          str(closed.denials))
 
     for p in FINDINGS_PANELS:
         check(f"11a. {p} is classified as a findings panel", is_findings_panel(p))
@@ -541,10 +572,40 @@ def test_11_panel_classification_fails_closed() -> None:
     check("11g. the two panel lists are disjoint",
           not (set(FINDINGS_PANELS) & set(PROGRESS_PANELS)))
 
+    # The two controls COMPOSE, and the live gate being open is what makes this
+    # checkable for the first time. Opening the gate does not clear the quantum
+    # control: a findings panel with no declared method provenance is still
+    # refused, now by ProvenanceError rather than GateError.
+    live = current_decision()
+    if live.open:
+        try:
+            assert_display_allowed(FINDINGS_PANELS[0], live)
+            check("11h. an OPEN gate still refuses undeclared provenance",
+                  False, "it rendered through an open gate")
+        except ProvenanceError:
+            check("11h. an OPEN gate still refuses undeclared provenance", True)
+        except GateError:
+            check("11h. an OPEN gate still refuses undeclared provenance",
+                  False, "denied by the gate, not by the provenance control")
+        try:
+            assert_display_allowed(FINDINGS_PANELS[0], live,
+                                   provenance=CLASSICAL_INTERNAL)
+            check("11i. and PERMITS a declared classical result -- the gate is "
+                  "genuinely open, not merely differently locked", True)
+        except Exception as exc:                   # noqa: BLE001 -- reported
+            check("11i. and PERMITS a declared classical result", False,
+                  f"{type(exc).__name__}: {exc}")
+    else:
+        skip("11h. open-gate provenance composition", "the live gate is closed")
+
 
 def test_12_locked_placeholder_leaks_no_finding() -> None:
-    """A locked panel must not leak magnitude, direction, or a value."""
-    closed = current_decision()
+    """A locked panel must not leak magnitude, direction, or a value.
+
+    Synthesised closed decision, not the live one: what a LOCKED panel renders
+    has to be checkable whether or not the real gate is open.
+    """
+    closed = _closed_decision()
     for p in FINDINGS_PANELS:
         ph = locked_panel_placeholder(p, closed)
         check(f"12a. {p} placeholder is marked LOCKED", ph["state"] == "LOCKED")
@@ -630,7 +691,7 @@ def test_14_offline() -> None:
 
 
 if __name__ == "__main__":
-    test_1_the_live_gate_is_closed_right_now()
+    test_1_the_live_gate_is_open_and_why()
     test_2_unknown_inputs_deny_rather_than_default()
     test_3_c1_alone_closes_the_gate()
     test_4_c2_alone_closes_the_gate()

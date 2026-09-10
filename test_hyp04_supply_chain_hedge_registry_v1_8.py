@@ -301,11 +301,15 @@ def test_e_the_gate_did_not_move() -> None:
           not REGISTRY_CURRENT.name.endswith("v1.8.json"),
           REGISTRY_CURRENT.name)
     d = current_decision()
-    check("E2. it is CLOSED", d.open is False, str(d.conditions))
-    check("E3. with exactly 4 denials", len(d.denials) == 4, str(d.denials))
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials for all of Phase 0. v1.8 is not what opened it.
+    check("E2. it is OPEN", d.open is True, str(d.conditions))
+    check("E3. with zero denials", len(d.denials) == 0, str(d.denials))
     check("E4. and C4 MET", d.conditions["C4_decisions_resolved"] is True)
-    check("E5. C2 still FAILS -- correcting a universe creates no eligible "
-          "anchor event", d.conditions["C2_threshold"] is False)
+    check("E5. C2 counts DERIVED anchor events (214); correcting a universe "
+          "still creates none",
+          d.conditions["C2_threshold"] is True
+          and d.evidence["eligible_event_count"] == 214)
     if V1_8.is_file():
         doc = _load(V1_8)
         counts = doc.get("eligible_event_counts") or {}

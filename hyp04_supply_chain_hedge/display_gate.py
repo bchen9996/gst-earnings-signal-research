@@ -103,7 +103,7 @@ LSE = REPO_ROOT / "Live Signal Engine"
 # signed analysis lock. v1.1 is NOT edited in place and is still governed by its
 # own suite -- test_market_response_hypothesis_registry_v1_1.py keeps pointing
 # at v1.1 on purpose, and must not be repointed here.
-REGISTRY_CURRENT = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.11.json"
+REGISTRY_CURRENT = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json"
 GATES_DOC = LSE / "GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md"
 
 HYPOTHESIS_ID = "HYP-04"
@@ -555,10 +555,50 @@ def locked_panel_placeholder(panel_id: str, decision: GateDecision) -> dict[str,
     }
 
 
+def committed_freeze() -> tuple[int, Optional[FreezeRecord]]:
+    """The newest VALID freeze on disk, and the count it fixes.
+
+    (0, None) whenever there is no freeze, it does not validate, or anything
+    goes wrong reading it -- an unreadable freeze must deny, never pass.
+
+    The count comes from the freeze rather than the panel: once an event set is
+    frozen, the freeze IS the authoritative count for C2, and `validate_freeze`
+    has already cross-checked it against the panel. Taking it from the panel
+    instead would let a later panel rebuild silently change what C2 measures
+    against a fixed set.
+    """
+    from pathlib import Path as _Path
+
+    from .artifacts import newest_in
+
+    draft = newest_in(LSE, "HYP04_FREEZE_DRAFT_*.json")
+    if draft is None:
+        return 0, None
+    try:
+        # Local import: make_freeze_draft imports FreezeRecord from this
+        # module, so a top-level import here would be circular.
+        from .make_freeze_draft import validate_freeze
+
+        panel = newest_in(LSE, "HYP04_EVENT_PANEL_*.json")
+        rec = validate_freeze(_Path(draft),
+                              panel_path=_Path(panel) if panel else None)
+    except Exception:                              # noqa: BLE001 -- fail closed
+        return 0, None
+    return len(rec.eligible_event_ids), rec
+
+
 def current_decision() -> GateDecision:
     """The gate as it stands right now, from committed artifacts.
 
-    No freeze record exists, no real eligible events exist, and the linkage is
-    the Phase 0 placeholder -- so this denies on multiple independent grounds.
+    DERIVED, not hardcoded. This used to be `evaluate_gate(0, None)` under a
+    docstring asserting that no freeze and no real eligible events existed.
+    That was true through 2026-09-08 and became false the moment a freeze was
+    attested -- at which point the one function that claims to report the live
+    gate would have kept reporting it CLOSED forever, `dashboard.py` included.
+    A gate that cannot observe its own preconditions is not a gate.
+
+    It still fails closed: no freeze, an invalid freeze, or any read error all
+    give (0, None), which denies on C2, C3 and C5.
     """
-    return evaluate_gate(eligible_event_count=0, freeze=None)
+    count, freeze = committed_freeze()
+    return evaluate_gate(eligible_event_count=count, freeze=freeze)

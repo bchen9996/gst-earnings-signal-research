@@ -281,10 +281,14 @@ def test_7_the_gate_does_not_move() -> None:
     from hyp04_supply_chain_hedge.display_gate import current_decision
 
     d = current_decision()
-    check("7a. the gate is CLOSED", not d.open, str(d.status))
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials for all of Phase 0. v1.4 is not what opened it.
+    check("7a. the gate is OPEN", d.open, str(d.status))
     check("7b. C4 reads MET", d.conditions.get("C4_decisions_resolved") is True)
-    check("7c. exactly four denials", len(d.denials) == 4, str(len(d.denials)))
-    check("7d. C5 still denies", not d.conditions.get("C5_not_placeholder", True))
+    check("7c. zero denials", len(d.denials) == 0, str(d.denials))
+    check("7d. C5 passes on a derived freeze, not on curated edges",
+          d.conditions.get("C5_not_placeholder") is True
+          and d.evidence.get("uses_placeholder_linkage") is False)
 
 
 def test_8_older_versions_survive_unedited() -> None:

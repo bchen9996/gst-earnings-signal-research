@@ -73,7 +73,7 @@ LSE = REPO_ROOT / "Live Signal Engine"
 
 CANARY = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_CANARY_2026-08-17.json"
 FULL = LSE / "HYP04_PHASE0_COVERAGE_AUDIT_FULL_2026-08-17.json"
-REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.11.json"
+REGISTRY = LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json"
 
 # Suites this page runs.
 #
@@ -893,11 +893,30 @@ def render(tests: dict, audit: dict, registry: dict,
                 "<td><span class='badge %s'>%s</span></td></tr>"
                 % (_e(str(val.get("module", key))),
                    _e(str(val.get("note", ""))),
-                   "fail" if captured is False else "idle",
-                   "no data captured" if captured is False else _e(str(captured))))
+                   "fail" if captured is False else "ok" if captured is True
+                   else "idle",
+                   "no data captured" if captured is False
+                   else "data captured" if captured is True
+                   else _e(str(captured))))
         table = ("<table><thead><tr><th>Capture path</th><th>Note</th>"
                  "<th>Data</th></tr></thead><tbody>%s</tbody></table>"
                  % "".join(rows)) if rows else ""
+        # The caveat is DERIVED from the rows, not asserted. It used to read
+        # "Every one reports no data captured, which is why HYP-04's status
+        # does not move" -- true through registry v1.11 and false from v1.12,
+        # at which point this page would have told a reader the opposite of
+        # what its own table showed.
+        flags = [v.get("data_captured") for v in paths.values()
+                 if isinstance(v, dict)]
+        if flags and all(f is True for f in flags):
+            _state = ("Every path above now reports data captured, which is "
+                      "what let HYP-04's status move to ACTIVE_COLLECTING.")
+        elif any(f is True for f in flags):
+            _state = ("Some paths report data captured and some do not; the "
+                      "table is the authority, row by row.")
+        else:
+            _state = ("Every one reports no data captured, which is why "
+                      "HYP-04's status does not move.")
         capture_block = f"""
           <p class="mt"><strong>Required external measurement</strong> &mdash;
              linkage availability
@@ -905,8 +924,8 @@ def render(tests: dict, audit: dict, registry: dict,
           {table}
           <div class="caveat"><strong>A module that can ingest is not ingested
              data.</strong> The rows above report that a capture path EXISTS.
-             Every one reports no data captured, which is why HYP-04's status
-             does not move. Availability is read from the registry, which is the
+             {_e(_state)} That DISTINCTION still governs any path added later.
+             Availability is read from the registry, which is the
              authority &mdash; this page does not restate it from memory.</div>"""
 
     # --- candidate anchor events -----------------------------------------
