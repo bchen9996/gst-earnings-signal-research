@@ -574,6 +574,100 @@ def _print_attest_template() -> None:
           "including outside this repo.\nIf you have looked, do not type it.")
 
 
+#: What declaring a split asserts. Shorter than the freeze's affirmation
+#: because it claims less: the freeze asserts a fact about the whole world,
+#: this asserts that the rule came before its own result.
+SPLIT_AFFIRMATION = (
+    "This split was chosen by the stated rule and not by looking at any "
+    "HYP-04 outcome, and no part of the holdout has been examined.")
+
+#: Fields declaring a split may move. Everything else is derived.
+SPLIT_FIELDS = ("declared", "declared_by", "declared_date", "status")
+
+
+def declare_split(*, split_path: Path, declared_by: str, affirmation: str,
+                  declared_date: Optional[str] = None) -> dict[str, Any]:
+    """Fill the three owner fields on a validation split. Nothing else moves."""
+    from .make_validation_split import (
+        OWNER_FIELDS as SPLIT_OWNER_FIELDS,
+        load_declared_split,
+    )
+
+    if not split_path.is_file():
+        raise RatifyError(f"no validation split at {split_path}")
+    declared_by = _reject_placeholder("--declared-by", declared_by)
+    declared_date = _iso("--declared-date", declared_date)
+
+    if (affirmation or "").strip() != SPLIT_AFFIRMATION:
+        raise RatifyError(
+            "the affirmation does not match, so nothing was written.\n\n"
+            "A split is only a preregistration if it was drawn before the "
+            "outcome. Nothing in this repository can establish that, so type "
+            "it exactly:\n\n"
+            f'  --affirm "{SPLIT_AFFIRMATION}"\n\n'
+            "If you have looked at how the holdout behaves, do not type it. "
+            "The split is then a description, and that is the finding.")
+
+    before = json.loads(split_path.read_text(encoding="utf-8"))
+    if before.get("declared") is True:
+        raise RatifyError(
+            f"{split_path.name} is already declared by "
+            f"{before.get('declared_by')!r} on {before.get('declared_date')!r}. "
+            "Re-declaring would overwrite the record a later phase cites.")
+    for f in SPLIT_OWNER_FIELDS:
+        if f not in before:
+            raise RatifyError(
+                f"{split_path.name} has no {f!r} key; this does not look like "
+                "a draft from make_validation_split")
+
+    after = dict(before)
+    after["declared"] = True
+    after["declared_by"] = declared_by
+    after["declared_date"] = declared_date
+    after["status"] = f"DECLARED -- by {declared_by} on {declared_date}"
+    after["attestation_text"] = SPLIT_AFFIRMATION
+
+    moved = sorted(k for k in set(before) | set(after)
+                   if before.get(k) != after.get(k))
+    unexpected = [k for k in moved
+                  if k not in SPLIT_FIELDS and k != "attestation_text"]
+    if unexpected:
+        raise RatifyError(
+            f"declaring would move {unexpected}, which are derived fields. "
+            "Refusing.")
+
+    split_path.write_text(json.dumps(after, indent=1) + "\n", encoding="utf-8")
+    try:
+        d = load_declared_split(split_path)
+    except Exception:
+        split_path.write_text(json.dumps(before, indent=1) + "\n",
+                              encoding="utf-8")
+        raise
+    return {
+        "written": split_path.name,
+        "declared_by": declared_by,
+        "declared_date": declared_date,
+        "exploration": d["exploration"]["n_events"],
+        "holdout": d["holdout"]["n_events"],
+        "cut": d["cut_calendar_period"],
+    }
+
+
+def _print_split_template() -> None:
+    """One line, no continuations -- same rule as the other two templates."""
+    from .make_validation_split import OUT_JSON
+    print("Replace <your name>, then paste as ONE line:\n")
+    print("  " + " ".join([
+        "python -m hyp04_supply_chain_hedge.ratify split",
+        '--declared-by "<your name>"',
+        f'--affirm "{SPLIT_AFFIRMATION}"']))
+    p = OUT_JSON
+    print(f"\nSplit: {p.name if p.is_file() else '(none yet -- run '
+                                                'make_validation_split)'}")
+    print("\nThis fixes what Phase 1 may range over, BEFORE it runs. The "
+          "holdout it names\nis not looked at again until Phase 3, once.")
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(
         prog="python -m hyp04_supply_chain_hedge.ratify",
@@ -599,6 +693,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     a.add_argument("--attested-by", default="")
     a.add_argument("--attested-date", default=None)
     a.add_argument("--affirm", default="")
+
+    sp = sub.add_parser("split", help="PHASE 1 (yours): declare the holdout")
+    sp.add_argument("--template", action="store_true")
+    sp.add_argument("--declared-by", default="")
+    sp.add_argument("--declared-date", default=None)
+    sp.add_argument("--affirm", default="")
 
     pn = sub.add_parser("pins", help="STEP 8: repoint the registry pins")
     pn.add_argument("--apply", action="store_true",
@@ -672,6 +772,31 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"  analysis lock : {out['analysis_lock']}")
         print("\nThe event set is now fixed. It is never retroactively "
               "changed.")
+        return 0
+
+    if args.cmd == "split":
+        from .make_validation_split import OUT_JSON as SPLIT_JSON
+        if args.template or not args.affirm:
+            _print_split_template()
+            return 0 if args.template else 1
+        if not SPLIT_JSON.is_file():
+            raise RatifyError(
+                f"no validation split at {SPLIT_JSON.name}. Run "
+                "make_validation_split first -- this signs a derivation, it "
+                "does not perform one.")
+        out = declare_split(split_path=SPLIT_JSON,
+                            declared_by=args.declared_by,
+                            affirmation=args.affirm,
+                            declared_date=args.declared_date)
+        print(f"DECLARED {out['written']}")
+        print(f"  cut          {out['cut']}  (first holdout period)")
+        print(f"  exploration  {out['exploration']} events  -- Phase 1 may "
+              "range over these")
+        print(f"  holdout      {out['holdout']} events  -- untouched until "
+              "Phase 3, once")
+        print(f"  by           {out['declared_by']} on {out['declared_date']}")
+        print("\nThis opens no gate and computes nothing. It fixes what a "
+              "later\ncomputation is allowed to see.")
         return 0
 
     if args.cmd == "pins":

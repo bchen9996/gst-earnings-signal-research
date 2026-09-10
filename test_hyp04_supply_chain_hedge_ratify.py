@@ -222,6 +222,86 @@ def test_1_the_templates_are_pasteable() -> None:
     check("1j. carrying both flags, so nothing is left to be guessed",
           bool(acmd) and "--attested-by" in acmd[0] and "--affirm" in acmd[0])
 
+    # Third template, added with `ratify split`. Held to the same rule from
+    # the start rather than after a paste breaks: the attest template kept its
+    # backslashes for two commits because this check covered one template.
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        R._print_split_template()
+    spl = buf.getvalue()
+    check("1k. the split template carries its affirmation verbatim",
+          R.SPLIT_AFFIRMATION in spl)
+    check("1l. and is a single pasteable line too",
+          not _unpasteable(spl), str(_unpasteable(spl)[:2]))
+    scmd = [ln for ln in spl.splitlines() if "ratify split" in ln]
+    check("1m. one command line, carrying both flags",
+          len(scmd) == 1 and "--declared-by" in scmd[0]
+          and "--affirm" in scmd[0], str(scmd))
+    check("1n. the three affirmations are DIFFERENT sentences -- a signer who "
+          "pastes the wrong one is refused, not silently accepted",
+          len({R.AFFIRMATION, R.SPLIT_AFFIRMATION}) == 2)
+
+
+def test_1b_declaring_a_split_refuses_every_judgement() -> None:
+    """`ratify split` signs a derivation; it may not perform or alter one."""
+    import json as _json
+    import tempfile as _tf
+    from hyp04_supply_chain_hedge import make_validation_split as V
+
+    ids = list(_json.loads(
+        (LSE / "HYP04_EVENT_PANEL_2026-09-08.json").read_text(
+            encoding="utf-8"))["eligible_event_ids"])
+    base = {**V.derive_split(ids), "declared": False, "declared_by": "",
+            "declared_date": ""}
+
+    with _tf.TemporaryDirectory() as td:
+        p = Path(td) / "split.json"
+
+        def _fresh():
+            p.write_text(_json.dumps(base), encoding="utf-8")
+            return p
+
+        refuses("1b-a. a wrong affirmation is refused",
+                 lambda: R.declare_split(split_path=_fresh(),
+                                         declared_by="bchen9996",
+                                         affirmation="I promise",
+                                         declared_date="2026-09-10"),
+                 expect="affirmation does not match")
+        refuses("1b-b. and nothing is written when it is",
+                 lambda: R.declare_split(split_path=_fresh(),
+                                         declared_by="bchen9996",
+                                         affirmation="",
+                                         declared_date="2026-09-10"),
+                 expect="affirmation does not match")
+        check("1b-c. the file is still an undeclared draft after both",
+              _json.loads(p.read_text(encoding="utf-8"))["declared"] is False)
+
+        refuses("1b-d. a placeholder signer is refused",
+                 lambda: R.declare_split(split_path=_fresh(),
+                                         declared_by="<your name>",
+                                         affirmation=R.SPLIT_AFFIRMATION,
+                                         declared_date="2026-09-10"),
+                 expect="declared-by")
+
+        # CONTROL: the right affirmation DOES sign, so the refusals above are
+        # about the affirmation and not about declare_split refusing always.
+        out = R.declare_split(split_path=_fresh(), declared_by="bchen9996",
+                              affirmation=R.SPLIT_AFFIRMATION,
+                              declared_date="2026-09-10")
+        check("1b-e. CONTROL -- the exact sentence signs it",
+              out["exploration"] == 157 and out["holdout"] == 57,
+              f"{out['exploration']}/{out['holdout']}")
+        check("1b-f. and only the signature fields moved",
+              all(_json.loads(p.read_text(encoding="utf-8"))[k] == base[k]
+                  for k in ("cut_calendar_period", "rule",
+                            "holdout_fraction_realized")))
+        refuses("1b-g. re-declaring an already-declared split is refused",
+                 lambda: R.declare_split(split_path=p,
+                                         declared_by="someone else",
+                                         affirmation=R.SPLIT_AFFIRMATION,
+                                         declared_date="2026-09-10"),
+                 expect="already declared")
+
 
 def test_2_it_refuses_every_judgement() -> None:
     """Each refusal must fire for ITS OWN reason.
@@ -570,6 +650,7 @@ def test_9_the_chain_completed_and_each_act_is_attributable() -> None:
 if __name__ == "__main__":
     test_0_the_reason_check_actually_bites()
     test_1_the_templates_are_pasteable()
+    test_1b_declaring_a_split_refuses_every_judgement()
     test_2_it_refuses_every_judgement()
     test_3_underscore_spelling_normalises()
     test_4_it_writes_only_the_three_blanked_fields()
