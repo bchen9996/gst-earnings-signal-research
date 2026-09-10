@@ -196,10 +196,31 @@ def test_8_the_panel_opens_no_gate() -> None:
     live = current_decision()
     check("8g. and the REAL gate, which loads the committed freeze, is OPEN",
           live.open is True and len(live.denials) == 0, str(live.denials))
-    check("8e. the artifact says so itself",
-          "CLOSED" in _art()["opens_no_gate"])
+    # 8e read `"CLOSED" in ...` under the label "the artifact says so itself".
+    # It still passes, and that is the problem worth stating rather than
+    # papering over: the committed panel is dated 2026-09-08 and says CLOSED,
+    # which was true then and is not true now. What is durably true is the
+    # artifact's own scope.
+    text = _art()["opens_no_gate"]
+    check("8e. the artifact states its own scope -- it supplies C2's count",
+          "supplies the count C2 asks for" in text, text[:120])
     check("8f. and does not claim to be a freeze",
-          "does not supply the freeze" in _art()["opens_no_gate"])
+          "does not supply the freeze" in text)
+
+    # The stale half, asserted as DELIBERATE rather than left to be discovered.
+    # This literal cannot be corrected while the freeze is in force: the freeze
+    # pins this artifact's sha256, test_1 above rebuilds the panel and compares
+    # every key to it, and regenerating the file to match a corrected string
+    # would change the pinned hash -- which closes the gate. So the generator
+    # keeps it, carrying a comment saying why, and this records the debt.
+    check("8i. the committed artifact's gate snapshot is SUPERSEDED -- it says "
+          "CLOSED and the live gate is OPEN",
+          "CLOSED" in text and live.open is True)
+    src = (Path(__file__).resolve().parent / "hyp04_supply_chain_hedge"
+           / "make_event_panel.py").read_text(encoding="utf-8")
+    check("8j. and the generator says so, so the next rebuild corrects it "
+          "instead of inheriting it",
+          "STALE ON PURPOSE" in src and "next LEGITIMATE rebuild" in src)
 
 
 #: Fields that exist to SAY no result was computed. A forbidden word inside

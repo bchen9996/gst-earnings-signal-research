@@ -465,6 +465,22 @@ def build(*, out_json: Path = OUT_JSON, force: bool = False) -> dict[str, Any]:
         "coverage_shortfalls": short_detail,
         "pairs_left_unknown": unresolved,
         "linkage_provenance": panel_pair.provenance.as_dict(),
+        # STALE ON PURPOSE -- do not "fix" this string.
+        #
+        # The gate opened 2026-09-09, so "CLOSED, C4 MET, four denials" is no
+        # longer true; it was true on 2026-09-08 when the committed panel was
+        # written. It stays because the panel's bytes are PINNED: the attested
+        # freeze records this artifact's sha256, and
+        # test_..._event_panel_build.py::test_1 rebuilds the panel here and
+        # compares every key against the committed one. Editing this literal
+        # breaks that reproduction, and rebuilding the artifact to match would
+        # change the hash the freeze pins -- which closes the gate.
+        #
+        # Correct it at the next LEGITIMATE rebuild (a new AS_OF and a new
+        # freeze), where the artifact is expected to differ anyway. Until then
+        # a snapshot that has been overtaken is the lesser fault, because the
+        # only way to reach this line is an act that already invalidates the
+        # freeze. Asserted as deliberate by test_8.
         "opens_no_gate": (
             "The display gate is CLOSED, C4 MET, four denials. This artifact "
             "supplies the count C2 asks for; it does not supply the freeze C3 "
