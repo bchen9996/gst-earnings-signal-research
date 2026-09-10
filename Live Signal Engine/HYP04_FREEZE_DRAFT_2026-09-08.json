@@ -2,7 +2,7 @@
  "artifact": "HYP04_FREEZE_DRAFT_2026-09-08.json",
  "hypothesis_id": "HYP-04",
  "freeze_date": "2026-09-08",
- "status": "DRAFT -- INERT UNTIL THE OWNER FIELDS ARE FILLED",
+ "status": "FROZEN -- attested by bchen9996 on 2026-09-09",
  "what_this_is": "A draft freeze record per GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0 section 5. Every derivable field is derived; the attestation is not, and is left null.",
  "consequence_if_completed": "A completed freeze supplies C3, carries the count for C2 and clears C5, taking the display gate from FOUR denials to ONE. The survivor is C1, which is a registry act.",
  "eligible_event_ids": [
@@ -313,15 +313,16 @@
   "all_real_inputs_coexist_from": "2026-09-02",
   "window_note": "Before every real input existed there was no series to compute a peer response from, so the period a signer has to account for starts at all_real_inputs_coexist_from -- not at the beginning of the project."
  },
- "frozen": false,
- "frozen_before_any_result_computed": null,
- "attested_by": "",
- "attested_date": "",
+ "frozen": true,
+ "frozen_before_any_result_computed": true,
+ "attested_by": "bchen9996",
+ "attested_date": "2026-09-09",
  "owner_fields": [
   "frozen",
   "frozen_before_any_result_computed",
   "attested_by",
   "attested_date"
  ],
- "how_to_complete": "Set frozen=true, frozen_before_any_result_computed=true, and fill attested_by / attested_date. Then validate_freeze() will accept it. Editing any derived field above makes it invalid."
+ "how_to_complete": "Set frozen=true, frozen_before_any_result_computed=true, and fill attested_by / attested_date. Then validate_freeze() will accept it. Editing any derived field above makes it invalid.",
+ "attestation_text": "No HYP-04 result has been computed, anywhere, by anyone, including outside this repository."
 }

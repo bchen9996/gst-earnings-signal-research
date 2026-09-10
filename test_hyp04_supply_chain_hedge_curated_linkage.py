@@ -492,8 +492,16 @@ def test_10_no_prose_asserts_a_row_count() -> None:
           f"{live.get('edges', 0)} usable edge(s)" in
           dash.render(tests, audit, reg, dec), str(live))
 
-    # And the gate must not have moved because of any of this.
-    check("10f. rendering never opens the gate", not dec.open)
+    # And the gate must not have MOVED because of any of this. It asserted
+    # `not dec.open`, which stopped being a statement about rendering the
+    # moment the gate legitimately opened on 2026-09-09. Rendering is a
+    # read-only act, so the assertion that survives every gate state is that
+    # the decision is identical before and after.
+    after = dash.current_decision()
+    check("10f. rendering changes nothing about the gate",
+          (after.open, after.denials, after.conditions)
+          == (dec.open, dec.denials, dec.conditions),
+          f"{dec.open}/{len(dec.denials)} -> {after.open}/{len(after.denials)}")
 
 
 def test_11_no_module_restates_a_registry_availability_value() -> None:
@@ -582,7 +590,12 @@ def test_12_the_page_shows_the_capture_state_from_the_registry() -> None:
           "the page cannot show what read_registry does not extract")
     paths = {k: v for k, v in (reg.get("capture_paths") or {}).items()
              if isinstance(v, dict)}
-    check("12b. and the capture-path entries", len(paths) == 2, str(sorted(paths)))
+    # Two through registry v1.11; three since v1.12 registered the panel
+    # assembler as a capture path. Named rather than counted, so adding a path
+    # is a deliberate edit here rather than a number that quietly drifts.
+    check("12b. and the capture-path entries",
+          sorted(paths) == ["event_to_peer_join", "panel_assembly",
+                            "peer_return_ingestion"], str(sorted(paths)))
 
     html = dash.render(blank, blank, reg, dec)
     check("12c. the page shows the availability the registry records",
@@ -593,9 +606,20 @@ def test_12_the_page_shows_the_capture_state_from_the_registry() -> None:
         check(f"12d. {val['module']} is listed", val["module"] in html)
     # Count the BADGES, not the phrase: the caveat prose below the table uses
     # the same words, so a raw substring count conflates the two.
-    badges = html.count(">no data captured<")
-    check("12e. every capture path carries a no-data badge",
-          badges == len(paths), f"{badges} badge(s) vs {len(paths)} path(s)")
+    # The badge must MATCH the registry flag, in whichever direction it points.
+    # This asserted every path carried a no-data badge, which was true through
+    # v1.11 and false from v1.12 -- and a page that kept saying "no data
+    # captured" over a registry that says otherwise is the exact failure this
+    # block exists to catch, just in the other direction.
+    no_data = html.count(">no data captured<")
+    captured = html.count(">data captured<")
+    want_no_data = sum(1 for v in paths.values()
+                       if v.get("data_captured") is False)
+    want_captured = sum(1 for v in paths.values()
+                        if v.get("data_captured") is True)
+    check("12e. every capture path's badge matches its registry flag",
+          no_data == want_no_data and captured == want_captured,
+          f"page {no_data}/{captured} vs registry {want_no_data}/{want_captured}")
 
     # Normalise whitespace before matching prose. The HTML wraps this sentence
     # across a line break, so a contiguous substring check fails against a
@@ -606,8 +630,14 @@ def test_12_the_page_shows_the_capture_state_from_the_registry() -> None:
           flat[flat.find("A module that can ingest"):][:90])
 
     # The page must never claim data exists while the registry says it does not.
-    check("12g. no capture path claims data_captured true",
-          all(v.get("data_captured") is False for v in paths.values()),
+    # The claim is CONSISTENCY, not a fixed value. The page must never assert
+    # data exists where the registry says it does not, nor deny it where the
+    # registry says it does -- the registry is the authority either way.
+    check("12g. the page never contradicts the registry's data_captured flags",
+          all(isinstance(v.get("data_captured"), bool)
+              for v in paths.values())
+          and (">no data captured<" in html) == any(
+              v.get("data_captured") is False for v in paths.values()),
           str({k: v.get("data_captured") for k, v in paths.items()}))
 
     # Degrade cleanly: a registry predating these fields omits the section
@@ -617,7 +647,10 @@ def test_12_the_page_shows_the_capture_state_from_the_registry() -> None:
     check("12h. a pre-v1.3 registry omits the section rather than emptying it",
           "Required external measurement" not in dash.render(blank, blank, older, dec))
 
-    check("12i. rendering it opens no gate", not dec.open)
+    after = dash.current_decision()
+    check("12i. rendering changes nothing about the gate",
+          (after.open, after.denials) == (dec.open, dec.denials),
+          f"{dec.open}/{len(dec.denials)} -> {after.open}/{len(after.denials)}")
 
 
 if __name__ == "__main__":

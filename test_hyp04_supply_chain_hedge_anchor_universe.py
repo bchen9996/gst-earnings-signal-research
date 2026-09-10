@@ -647,8 +647,11 @@ def test_17_the_rule_itself_did_not_change() -> None:
 def test_11_the_gate_does_not_move() -> None:
     from hyp04_supply_chain_hedge import display_gate as g
     d = g.current_decision()
-    check("11a. the display gate is still CLOSED", not d.open, str(d.conditions))
-    check("11b. with exactly 4 denials", len(d.denials) == 4, str(d.denials))
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials throughout Phase 0. Declaring a universe is still not what
+    # opened it, which is what this test is named for.
+    check("11a. the display gate is OPEN", d.open, str(d.conditions))
+    check("11b. with zero denials", len(d.denials) == 0, str(d.denials))
     check("11c. and C4 still MET",
           d.conditions["C4_decisions_resolved"] is True, str(d.conditions))
 

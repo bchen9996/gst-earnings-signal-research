@@ -239,14 +239,21 @@ def test_d_the_gate_did_not_move() -> None:
     check("D1. v1.5 is no longer the current artifact -- v1.6 superseded it",
           not REGISTRY_CURRENT.name.endswith("v1.5.json"), REGISTRY_CURRENT.name)
     d = current_decision()
-    check("D2. it is CLOSED", d.open is False, str(d.conditions))
-    check("D3. with exactly 4 denials", len(d.denials) == 4, str(d.denials))
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials for all of Phase 0. Both claims below are unchanged --
+    # declaring a universe is neither activation nor an eligible event -- so
+    # each is now asserted against the thing that DID move its condition.
+    check("D2. it is OPEN", d.open is True, str(d.conditions))
+    check("D3. with zero denials", len(d.denials) == 0, str(d.denials))
     check("D4. and C4 MET", d.conditions["C4_decisions_resolved"] is True,
           str(d.conditions))
-    check("D5. C1 still FAILS -- declaring a universe is not activation",
-          d.conditions["C1_status"] is False)
-    check("D6. C2 still FAILS -- declaring a universe creates no eligible event",
-          d.conditions["C2_threshold"] is False)
+    check("D5. C1 tracks the registry status, which v1.12 moved -- not v1.5",
+          d.conditions["C1_status"] is True
+          and d.evidence["registry_status"] == "ACTIVE_COLLECTING")
+    check("D6. C2 counts DERIVED events (214), which declaring a universe "
+          "still does not create",
+          d.conditions["C2_threshold"] is True
+          and d.evidence["eligible_event_count"] == 214)
 
     good = FreezeRecord(
         frozen=True,

@@ -339,11 +339,15 @@ def test_e_nothing_was_measured_and_nothing_moved() -> None:
           doc.get("statistical_governance") == src.get("statistical_governance"))
 
     d = current_decision()
-    check("E7. the gate is CLOSED", not getattr(d, "open", False))
-    check("E8. with exactly 4 denials", len(d.denials) == 4, str(len(d.denials)))
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials for all of Phase 0. v1.10 is not what opened it -- the
+    # four conditions below cleared through the freeze and v1.12, in that
+    # order, months after this version.
+    check("E7. the gate is OPEN", getattr(d, "open", False))
+    check("E8. with zero denials", len(d.denials) == 0, str(d.denials))
     check("E9. and C4 is MET", d.conditions.get("C4_decisions_resolved") is True)
     for c in ("C1_status", "C2_threshold", "C3_frozen", "C5_not_placeholder"):
-        check(f"E10. {c} still denies", d.conditions.get(c) is False)
+        check(f"E10. {c} now passes", d.conditions.get(c) is True)
 
 
 def test_f_the_generator_refuses_to_outrun_the_code() -> None:

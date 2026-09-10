@@ -355,12 +355,19 @@ def test_7_the_gate_does_not_move() -> None:
     from hyp04_supply_chain_hedge.display_gate import current_decision
 
     d = current_decision()
-    check("7a. the gate is CLOSED", not d.open, str(d.status))
+    # The gate OPENED 2026-09-09: freeze attested + registry v1.12 moved C1.
+    # It read CLOSED with 4 denials for all of Phase 0. v1.3 is not what opened
+    # it, which is what this block is for.
+    check("7a. the gate is OPEN", d.open, str(d.status))
     check("7b. C4 reads MET", d.conditions.get("C4_decisions_resolved") is True,
           "v1.3 must not disturb a resolved ledger")
-    check("7c. exactly four denials", len(d.denials) == 4, str(len(d.denials)))
-    check("7d. C5 still denies", not d.conditions.get("C5_not_placeholder", True),
-          "curated edges do not clear C5; the pipeline still runs on placeholder")
+    check("7c. zero denials", len(d.denials) == 0, str(d.denials))
+    # The original claim holds: curated edges alone never cleared C5. What
+    # cleared it is a FREEZE whose panel derived uses_placeholder_linkage=false
+    # from the ratified map -- a derivation, not an assertion by any caller.
+    check("7d. C5 passes on a derived freeze, not on curated edges",
+          d.conditions.get("C5_not_placeholder") is True
+          and d.evidence.get("uses_placeholder_linkage") is False)
 
 
 def test_8_v1_2_is_never_modified() -> None:

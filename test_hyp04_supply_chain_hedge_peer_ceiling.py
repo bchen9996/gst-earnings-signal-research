@@ -448,13 +448,16 @@ def test_9_the_gate_is_untouched() -> None:
     print("\n--- 9: nothing here moves the display gate ---")
     from hyp04_supply_chain_hedge.display_gate import current_decision
     d = current_decision()
-    check("9a. the gate is still CLOSED", d.status == "CLOSED", d.status)
+    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
+    # with 4 denials throughout Phase 0. Measuring a ceiling is still not what
+    # opened it -- a ceiling is a bound on what COULD be reached, not events.
+    check("9a. the gate is OPEN", d.status == "OPEN", d.status)
     check("9b. C4 is still MET",
           d.conditions.get("C4_decisions_resolved") is True,
           str(d.conditions.get("C4_decisions_resolved")))
-    check("9c. exactly 4 denials", len(d.denials) == 4, str(len(d.denials)))
-    check("9d. and the eligible count is still zero",
-          d.evidence.get("eligible_event_count") == 0,
+    check("9c. zero denials", len(d.denials) == 0, str(d.denials))
+    check("9d. and the count is the frozen 214, not a ceiling",
+          d.evidence.get("eligible_event_count") == 214,
           str(d.evidence.get("eligible_event_count")))
 
 

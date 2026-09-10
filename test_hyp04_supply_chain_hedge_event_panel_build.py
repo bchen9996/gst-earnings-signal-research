@@ -164,14 +164,38 @@ def test_7_an_unchecked_pair_still_denies() -> None:
 
 
 def test_8_the_panel_opens_no_gate() -> None:
+    """The panel supplies C2's count. It never supplied C3, and still doesn't.
+
+    The gate OPENED 2026-09-09 once the freeze was attested and registry v1.12
+    moved C1. This suite's claim is unchanged: building the panel is not what
+    opened it. Both halves are now asserted, because the difference between
+    them IS the point --
+
+      * with the freeze WITHHELD (bare evaluate_gate), the gate denies. Three
+        denials now rather than four: C1 passes from the registry, C2/C3/C5
+        deny because no freeze was handed in.
+      * with the committed freeze loaded, it is OPEN.
+
+    A panel alone gets you the first. Only an attested freeze gets the second.
+    """
     d = evaluate_gate()
     c = d.conditions
-    check("8a. the display gate is still CLOSED", d.open is False)
+    check("8a. with the freeze withheld, the gate still DENIES", d.open is False)
     check("8b. C4 is still MET", c["C4_decisions_resolved"] is True)
-    check("8c. there are still exactly four denials", len(d.denials) == 4,
-          str(len(d.denials)))
-    check("8d. the eligible count the gate sees is still unset",
-          d.evidence.get("eligible_count") is None)
+    check("8c. on C2, C3 and C5 -- three denials, C1 having moved with v1.12",
+          len(d.denials) == 3
+          and not any(x.startswith("C1") for x in d.denials), str(d.denials))
+    # This read `eligible_count`, which the gate never emits -- so `.get(...)
+    # is None` was true no matter what the gate reported, and the assertion
+    # could not fail. Indexed by the real key now.
+    check("8d. the eligible count a freeze-less gate sees is unset",
+          d.evidence["eligible_event_count"] is None,
+          str(d.evidence["eligible_event_count"]))
+
+    from hyp04_supply_chain_hedge.display_gate import current_decision
+    live = current_decision()
+    check("8g. and the REAL gate, which loads the committed freeze, is OPEN",
+          live.open is True and len(live.denials) == 0, str(live.denials))
     check("8e. the artifact says so itself",
           "CLOSED" in _art()["opens_no_gate"])
     check("8f. and does not claim to be a freeze",

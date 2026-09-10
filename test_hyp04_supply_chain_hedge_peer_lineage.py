@@ -262,11 +262,14 @@ def test_8_the_gate_is_untouched() -> None:
     print("\n--- 8: nothing here moves the display gate ---")
     from hyp04_supply_chain_hedge.display_gate import current_decision
     d = current_decision()
-    check("8a. gate CLOSED", d.status == "CLOSED", d.status)
+    # OPENED 2026-09-09 (freeze attested + registry v1.12). Auditing peer
+    # lineage is still not what opened it.
+    check("8a. gate OPEN", d.status == "OPEN", d.status)
     check("8b. C4 MET", d.conditions.get("C4_decisions_resolved") is True)
-    check("8c. exactly 4 denials", len(d.denials) == 4, str(len(d.denials)))
-    check("8d. eligible count still zero",
-          d.evidence.get("eligible_event_count") == 0)
+    check("8c. zero denials", len(d.denials) == 0, str(d.denials))
+    check("8d. the count is the frozen 214",
+          d.evidence["eligible_event_count"] == 214,
+          str(d.evidence["eligible_event_count"]))
 
 
 if __name__ == "__main__":

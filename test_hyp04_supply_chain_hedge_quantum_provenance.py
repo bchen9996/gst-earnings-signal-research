@@ -161,10 +161,29 @@ def _good_freeze(n: int = 193) -> FreezeRecord:
 
 
 def _open_gate(td: Path):
-    """A fully OPEN five-condition gate. Synthetic; the real one is shut."""
+    """A fully OPEN five-condition gate, synthesised.
+
+    The real gate opened on 2026-09-09, but this stays synthetic: these tests
+    are about the QUANTUM control, and they must keep working whatever the
+    live gate happens to say.
+    """
     reg = _registry_variant(td, status="ACTIVE_COLLECTING", pending=False)
     return evaluate_gate(eligible_event_count=193, freeze=_good_freeze(),
                          registry_path=reg)
+
+
+def _closed_gate():
+    """A CLOSED gate, synthesised rather than borrowed from the live one.
+
+    Several tests here used `current_decision()` as their closed fixture. That
+    held while the real gate was shut and broke on 2026-09-09 when it opened --
+    at which point "clearing the quantum control does not open the gate" was
+    being asserted against a gate that was already open, which proves nothing.
+
+    Withholding the freeze denies on C2/C3/C5 no matter what the registry says,
+    so this is closed by construction.
+    """
+    return evaluate_gate(eligible_event_count=0, freeze=None)
 
 
 EXTERNAL_QUANTUM = MethodProvenance(
@@ -223,7 +242,7 @@ def test_1_nothing_is_validated_today() -> None:
 def test_2_external_quantum_result_is_refused_by_a_finding_panel() -> None:
     """Feed a quantum-sourced result into a finding panel with no validation
     flag set. It must be rejected -- through a closed gate AND an open one."""
-    closed = current_decision()
+    closed = _closed_gate()
 
     raised = []
     for panel in FINDINGS_PANELS:
@@ -423,7 +442,7 @@ def test_6_undeclared_method_family_denies() -> None:
 # ============ 7. progress panels are not a bypass ==========================
 def test_7_progress_panels_are_not_a_bypass() -> None:
     """Progress panels always pass the GATE. They do not bypass this control."""
-    closed = current_decision()
+    closed = _closed_gate()
     for p in PROGRESS_PANELS:
         try:
             assert_display_allowed(p, closed, CLASSICAL_INTERNAL)
@@ -624,8 +643,9 @@ def test_11_the_two_controls_are_independent() -> None:
     # lives in a temp directory, and the real chokepoint resolves paths against
     # the real repo root, so it would be refused by the quantum control for an
     # unrelated reason and prove nothing about the gate.)
-    closed = current_decision()
-    check("11b. precondition -- the real gate is closed", closed.open is False)
+    closed = _closed_gate()
+    check("11b. precondition -- the fixture gate is closed by construction",
+          closed.open is False, str(closed.denials))
     check("11b2. precondition -- this provenance clears the quantum control",
           is_permitted(CLASSICAL_INTERNAL))
     try:

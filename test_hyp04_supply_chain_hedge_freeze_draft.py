@@ -9,10 +9,14 @@ Two things this suite exists to pin:
      well if the guard had been deleted. It is checked both ways: against
      v1.2's unratified edges it must still refuse.
   2. On a fixture where everything is ratified, a completed freeze takes the
-     display gate from four denials to ONE (C1). That is the consequence the
-     module claims in its own docstring, asserted rather than asserted-in-prose.
-  3. The draft that now exists in the repository is INERT: frozen false, the
-     attestation null rather than defaulted, and it does not validate.
+     display gate from four denials to NONE. The module's docstring claims
+     "four to one, the survivor being C1" -- true until registry v1.12 moved
+     C1 on 2026-09-09, which it would only do once a valid freeze existed.
+     The order it insisted on is what turned one into none.
+  3. The draft in the repository is ATTESTED as of 2026-09-09 and validates.
+     It shipped inert, as test_3 still pins on a fresh fixture; what changed
+     is that a human signed it, which is the one thing this module refuses to
+     do and the reason the record names a person.
 
 Repo testing convention (hand-rolled check(), run directly, no pytest).
 Offline: no network, and it never writes into the real Live Signal Engine.
@@ -234,8 +238,13 @@ def test_4_an_unattested_draft_is_not_a_freeze() -> None:
                        expect="is blank")
 
 
-def test_5_a_completed_freeze_leaves_exactly_c1() -> None:
-    """The module's headline claim, asserted."""
+def test_5_a_completed_freeze_now_leaves_nothing() -> None:
+    """The module's headline claim, asserted -- and it has grown.
+
+    "Four denials to one" while C1 had not moved; "four to none" since
+    registry v1.12 moved it on 2026-09-09, which it would only do once a valid
+    freeze existed.
+    """
     with tempfile.TemporaryDirectory() as td:
         f = _fixture(Path(td))
         d = _build(f)
@@ -253,12 +262,22 @@ def test_5_a_completed_freeze_leaves_exactly_c1() -> None:
         check("5c. C3 clears", c["C3_frozen"] is True)
         check("5d. C4 was already met", c["C4_decisions_resolved"] is True)
         check("5e. C5 clears", c["C5_not_placeholder"] is True)
-        check("5f. exactly one denial survives", len(g.denials) == 1,
-              str(g.denials))
-        check("5g. and it is C1", c["C1_status"] is False
-              and g.denials and g.denials[0].startswith("C1"))
-        check("5h. the gate is still CLOSED -- one denial is enough",
-              g.open is False)
+        # This asserted that ONE denial survived and that it was C1 -- true
+        # while HYP-04's registry status was PREREGISTERED_MEASUREMENT_NOT_
+        # IMPLEMENTED, i.e. right up until registry v1.12 moved it on
+        # 2026-09-09. C1 was the survivor by design: the freeze had to come
+        # FIRST, and v1.12 refuses to move C1 until one exists.
+        #
+        # Now that it has, a completed freeze leaves NO denial. The module's
+        # headline claim has gone from "four denials to one" to "four to none",
+        # and the order it insisted on is what earned that.
+        check("5f. no denial survives -- C1 moved once the freeze existed",
+              len(g.denials) == 0, str(g.denials))
+        check("5g. C1 passes from the REGISTRY, not from this freeze",
+              c["C1_status"] is True
+              and g.evidence["registry_status"] == "ACTIVE_COLLECTING")
+        check("5h. so a completed freeze now opens the gate outright",
+              g.open is True)
 
 
 def test_6_a_tampered_derived_field_is_refused() -> None:
@@ -427,30 +446,53 @@ def test_11_a_computed_outcome_blocks_the_freeze() -> None:
           str(live))
 
 
-def test_8_the_real_gate_is_untouched() -> None:
-    """This suite must not have moved anything."""
+def test_8_this_suite_moved_nothing() -> None:
+    """The suite must not move the gate. The OWNER did, on 2026-09-09.
+
+    This asserted the real gate was CLOSED with four denials and that every
+    freeze artifact on disk was an inert draft. Both were true until the owner
+    attested `HYP04_FREEZE_DRAFT_2026-09-08.json` on 2026-09-09, which is the
+    act this whole module exists to make possible and refuses to perform.
+
+    So the assertions invert, and the thing worth pinning is that the
+    attestation is a HUMAN's: the record names one, and no code path here can
+    produce that.
+    """
+    # Withholding the freeze still denies -- three denials, not four, because
+    # C1 now passes from registry v1.12.
     g = evaluate_gate()
-    check("8a. the real gate is still CLOSED", g.open is False)
-    check("8b. still four denials", len(g.denials) == 4, str(len(g.denials)))
-    check("8c. eligible count still unset",
-          g.evidence.get("eligible_count") is None)
-    # A draft now exists on purpose. It must be INERT -- which is the whole
-    # claim this module makes about itself.
+    check("8a. with the freeze withheld the gate still denies", g.open is False)
+    check("8b. on C2, C3 and C5", len(g.denials) == 3
+          and not any(x.startswith("C1") for x in g.denials), str(g.denials))
+    # `eligible_event_count`, not `eligible_count`: the latter is not a key the
+    # gate emits, so `.get(...) is None` passed no matter what it reported.
+    check("8c. and a freeze-less gate sees no count",
+          g.evidence["eligible_event_count"] is None)
+
     drafts = sorted(LSE.glob("HYP04_FREEZE_DRAFT_*.json"))
-    check("8d. any freeze artifact in the repo is a DRAFT, not a freeze",
-          bool(drafts), "none on disk")
+    check("8d. a freeze artifact exists", bool(drafts), "none on disk")
     for d in drafts:
         rec = json.loads(d.read_text(encoding="utf-8"))
-        check(f"8e. {d.name}: frozen is not true",
-              rec.get("frozen") is not True)
-        check(f"8f. {d.name}: the attestation is null, not false",
-              rec.get("frozen_before_any_result_computed") is None)
-        check(f"8g. {d.name}: unattributed",
-              not str(rec.get("attested_by") or "").strip()
-              and not str(rec.get("attested_date") or "").strip())
-        expect_refusal(f"8h. {d.name}: and it does not validate as a freeze",
-                       lambda p=d: F.validate_freeze(p),
-                       expect="'frozen' is not true")
+        check(f"8e. {d.name}: attested, and it validates",
+              rec.get("frozen") is True
+              and F.validate_freeze(d).frozen is True)
+        check(f"8f. {d.name}: the attestation is TRUE, never defaulted",
+              rec.get("frozen_before_any_result_computed") is True)
+        check(f"8g. {d.name}: attributed to a named human on a date",
+              bool(str(rec.get("attested_by") or "").strip())
+              and bool(str(rec.get("attested_date") or "").strip()),
+              f"{rec.get('attested_by')!r} / {rec.get('attested_date')!r}")
+        check(f"8h. {d.name}: and the derived fields still match the panel",
+              len(F.validate_freeze(
+                  d, panel_path=sorted(
+                      LSE.glob("HYP04_EVENT_PANEL_*.json"))[-1]
+              ).eligible_event_ids) == rec["eligible_event_count"])
+
+    # The claim that survives all of it: this MODULE never writes those fields.
+    # A draft it produces is inert, which test_3 pins on a fresh fixture.
+    check("8i. and the module still ships every owner field blank",
+          set(F.OWNER_FIELDS) == {"frozen", "frozen_before_any_result_computed",
+                                  "attested_by", "attested_date"})
 
 
 if __name__ == "__main__":
@@ -458,13 +500,13 @@ if __name__ == "__main__":
     test_2_the_fixture_produces_a_complete_draft()
     test_3_the_owner_fields_are_left_blank()
     test_4_an_unattested_draft_is_not_a_freeze()
-    test_5_a_completed_freeze_leaves_exactly_c1()
+    test_5_a_completed_freeze_now_leaves_nothing()
     test_6_a_tampered_derived_field_is_refused()
     test_7_every_other_precondition_refuses()
     test_9_the_computation_surface_is_evidence_not_a_verdict()
     test_10_the_detector_catches_wiring_and_ignores_mentions()
     test_11_a_computed_outcome_blocks_the_freeze()
-    test_8_the_real_gate_is_untouched()
+    test_8_this_suite_moved_nothing()
 
     print()
     if FAILURES:
