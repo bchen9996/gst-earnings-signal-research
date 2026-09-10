@@ -30,6 +30,7 @@ Run directly: python test_hyp04_supply_chain_hedge_display_gate.py
 from __future__ import annotations
 
 import json
+import re
 import socket
 import sys
 import tempfile
@@ -646,18 +647,49 @@ def test_13_the_dashboard_cannot_bypass_the_gate() -> None:
 
     Tests the CONSUMER, not just the gate. Each probe feeds deliberately
     finding-shaped content into the renderer and asserts it does not come out.
+
+    There are TWO refusal modes now and the content must be suppressed under
+    both. This bound `closed = current_decision()` and asserted the words
+    "GATE CLOSED" came back -- the borrowed-ambient-state defect
+    `_closed_decision` documents. Once the gate opened, the panel was still
+    refused, but on PROVENANCE grounds, so the assertion was looking for the
+    wrong words and passing only because the renderer printed them regardless.
+    That is what put "GATE CLOSED" over an open gate on the published page.
     """
     import re as _re
 
     from hyp04_supply_chain_hedge import dashboard as D
 
-    closed = current_decision()
+    closed = _closed_decision()
+    live = current_decision()
     poisoned = "<p>onset_horizon = 5, beta_h = 0.5500, t = 22.96, p = 0.0033</p>"
+    leaked = ("0.5500", "22.96", "0.0033")
+
+    check("13z. the two fixtures really do differ, or every pair below is one "
+          "test written twice", closed.open is False and live.open is True)
 
     out = D._panel("onset_horizon", "Onset Horizon", poisoned, closed)
-    check("13a. finding content passed to a LOCKED panel is NOT rendered",
-          not any(t in out for t in ("0.5500", "22.96", "0.0033")))
-    check("13b. the panel renders as locked instead", "GATE CLOSED" in out)
+    check("13a. finding content passed through a CLOSED gate is NOT rendered",
+          not any(t in out for t in leaked))
+    check("13b. and the panel says the gate is why", "GATE CLOSED" in out)
+
+    out_open = D._panel("onset_horizon", "Onset Horizon", poisoned, live)
+    check("13a2. the same content through the OPEN gate with no provenance is "
+          "NOT rendered either", not any(t in out_open for t in leaked))
+    check("13b2. and it does not blame a gate that is open",
+          "NO RESULT" in out_open and "GATE CLOSED" not in out_open)
+    check("13b3. it names the refusal that actually fired",
+          "provenance" in out_open.lower())
+    check("13b4. and it does not print '0 independent reasons' over five met "
+          "conditions", "0 independent reasons" not in out_open)
+
+    # The gate is genuinely open, not merely locked somewhere else: declare a
+    # classical provenance and the SAME panel renders.
+    out_ok = D._panel("onset_horizon", "Onset Horizon", poisoned, live,
+                      CLASSICAL_INTERNAL)
+    check("13b5. with provenance declared, the open gate DOES render it -- so "
+          "13a2 is a provenance refusal, not a closed gate wearing a new name",
+          all(t in out_ok for t in leaked))
 
     # Control: without this, 13a could pass simply because _panel drops all
     # content unconditionally, which would prove nothing about the gate.
@@ -670,6 +702,25 @@ def test_13_the_dashboard_cannot_bypass_the_gate() -> None:
     check("13d. an unclassified panel is locked, not shown",
           "GATE CLOSED" in out3 and "0.5500" not in out3)
 
+    # An unrecognised refusal must still fail closed, and must NOT borrow
+    # either explanation -- naming a reason nobody established is the bug.
+    real = D.assert_display_allowed
+
+    def _boom(*a, **k):
+        raise ValueError("something nobody anticipated")
+
+    D.assert_display_allowed = _boom
+    try:
+        out4 = D._panel("onset_horizon", "Onset Horizon", poisoned, live)
+    finally:
+        D.assert_display_allowed = real
+    check("13d2. an unexpected refusal still suppresses the content",
+          not any(t in out4 for t in leaked))
+    check("13d3. and reports it as unrecognised rather than as one of the two "
+          "known reasons",
+          "REFUSED" in out4 and "ValueError" in out4
+          and "GATE CLOSED" not in out4 and "NO RESULT" not in out4)
+
     src = (Path(__file__).resolve().parent
            / "hyp04_supply_chain_hedge" / "dashboard.py").read_text(encoding="utf-8")
     check("13e. the dashboard never constructs its own GateDecision",
@@ -680,6 +731,101 @@ def test_13_the_dashboard_cannot_bypass_the_gate() -> None:
     check("13g. and does not reimplement gate logic locally",
           "def assert_display_allowed" not in src
           and "def evaluate_gate" not in src)
+
+
+#: Live generators that still state "the gate is CLOSED / four denials" as
+#: fact inside the artifacts they write. Every one was TRUE when its artifact
+#: was written and went false on 2026-09-09. None is corrected, and the reason
+#: is the same in all three groups -- reaching the line at all requires an act
+#: that is already forbidden or already invalidating:
+#:
+#:   PINNED    the artifact's sha256 is recorded in the attested freeze, and
+#:             its suite rebuilds it and compares every key. Editing the
+#:             literal breaks that reproduction; regenerating the artifact to
+#:             match changes the hash the freeze pins, which CLOSES the gate.
+#:   DATED     narrative recording what changed in ONE dated version of an
+#:             artifact. Rewriting a version's own changelog entry would
+#:             falsify the history it exists to keep.
+#:   GATED     a live network runner that may not be run without the owner's
+#:             staged go-ahead, so no unattended rebuild can reach it.
+#:
+#: Sites that fit NONE of the three were corrected instead of listed:
+#: `peer_ceiling.rule_description()` and `make_peer_ceiling`'s `opens_no_gate`
+#: are live descriptors nothing pins, and now state the durable claim (a
+#: ceiling moves no gate condition) rather than a verdict. Being on this list
+#: is a reason, not an excuse -- if a site has no reason, fix it.
+#:
+#: Correct the rest at their next LEGITIMATE rebuild. This exists so the debt
+#: is enumerated rather than latent, and so a NEW one cannot appear unnoticed.
+STALE_GATE_VERDICTS = {
+    "make_anchor_calendar.py": "PINNED",   # calendar_sha256
+    "make_anchor_shocks.py": "PINNED",     # shocks_sha256
+    "make_event_panel.py": "PINNED",       # panel
+    "make_peer_ceiling.py": "DATED",       # what_changed_from_v3 entry
+    "run_peer_lineage_audit.py": "GATED",
+    "run_peer_name_search.py": "GATED",
+}
+
+_VERDICT = re.compile(
+    r"(display )?[Gg]ate (is|stays) CLOSED|Gate CLOSED"
+    r"|CLOSED with (C4 MET and )?four denials|CLOSED, C4 MET, four denials")
+#: A verdict states the gate's state. These words make the same sentence a
+#: RULE about what happens in each state, which does not go stale.
+_CONDITIONAL = ("while the gate", "once the gate", "if the gate",
+                "unless the gate")
+
+
+def _verdict_lines(src: str) -> list[int]:
+    return [i for i, ln in enumerate(src.splitlines(), 1)
+            if not ln.strip().startswith("#")
+            and _VERDICT.search(ln)
+            and not any(c in ln for c in _CONDITIONAL)]
+
+
+def test_15_stale_gate_verdicts_are_enumerated_not_latent() -> None:
+    """The gate opened on 2026-09-09 and these sentences did not follow it.
+
+    Registry generators are excluded on purpose: `make_registry_v1_2..v1_11`
+    describe what THEIR version declared, they are append-only governance
+    artifacts, and a superseded one saying the gate was closed is a correct
+    historical record rather than a stale claim.
+    """
+    pkg = Path(__file__).resolve().parent / "hyp04_supply_chain_hedge"
+    found = {p.name: _verdict_lines(p.read_text(encoding="utf-8"))
+             for p in sorted(pkg.glob("*.py"))
+             if not p.name.startswith("make_registry_v")}
+    found = {k: v for k, v in found.items() if v}
+
+    check("15a. the detector finds something at all -- a dead regex would "
+          "make every assertion below vacuous", bool(found))
+    check("15b. exactly the enumerated files carry a stale verdict, no more",
+          set(found) == set(STALE_GATE_VERDICTS),
+          f"unexpected={sorted(set(found) - set(STALE_GATE_VERDICTS))} "
+          f"gone={sorted(set(STALE_GATE_VERDICTS) - set(found))}")
+    check("15c. every one is accounted for as PINNED, DATED or GATED",
+          set(STALE_GATE_VERDICTS.values()) <= {"PINNED", "DATED", "GATED"})
+
+    # Negative control on the detector itself, both directions.
+    check("15d. a bare verdict IS flagged",
+          _verdict_lines('    "The display gate is CLOSED, C4 MET."') == [1])
+    check("15e. and a CONDITIONAL mention is not -- display_gate.py's own "
+          "prose says what happens while closed and once open, which stays "
+          "true in both states",
+          _verdict_lines("    while the gate is CLOSED -- the panel is "
+                         "refused anyway") == []
+          and "display_gate.py" not in found)
+
+    # The claim each PINNED entry rests on: the freeze really does pin it, so
+    # "cannot be corrected without closing the gate" is a fact, not an excuse.
+    freeze = json.loads(
+        sorted((Path(__file__).resolve().parent / "Live Signal Engine")
+               .glob("HYP04_FREEZE_DRAFT_*.json"))[-1]
+        .read_text(encoding="utf-8"))
+    check("15f. the freeze pins the artifacts the PINNED entries write",
+          {"panel", "calendar_sha256", "shocks_sha256"}
+          <= set(freeze["input_hashes"]), str(sorted(freeze["input_hashes"])))
+    check("15g. and the gate that would close is currently OPEN",
+          current_decision().open is True)
 
 
 def test_14_offline() -> None:
@@ -705,6 +851,7 @@ if __name__ == "__main__":
     test_11_panel_classification_fails_closed()
     test_12_locked_placeholder_leaks_no_finding()
     test_13_the_dashboard_cannot_bypass_the_gate()
+    test_15_stale_gate_verdicts_are_enumerated_not_latent()
     test_14_offline()
 
     print()

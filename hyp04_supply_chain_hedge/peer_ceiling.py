@@ -724,8 +724,15 @@ def rule_description() -> dict[str, Any]:
             "delisted, merged-away, taken-private or never-US-listed "
             "counterparty cannot resolve at all. See "
             "`resolution_survivorship`."),
+        # States what a CEILING is, not what the gate happened to read. The
+        # previous wording asserted "CLOSED, C4 MET, four denials", which went
+        # false when the gate opened on 2026-09-09. This is a live rule
+        # descriptor -- not a pinned artifact -- so it is corrected rather
+        # than carried as debt, and it now says something that stays true in
+        # either gate state.
         "opens_no_gate": (
-            "The display gate is CLOSED, C4 MET, four denials. C2 counts "
-            "eligible anchor events and this supplies none; C2 and C3 move "
-            "together or not at all."),
+            "A ceiling is not an eligibility count. C2 counts ELIGIBLE anchor "
+            "events and this supplies none, so it moves no gate condition -- "
+            "whatever the gate reads at the moment this is read. C2 and C3 "
+            "move together or not at all."),
     }

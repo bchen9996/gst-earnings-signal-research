@@ -375,10 +375,15 @@ def build(*, out_json: Path = OUT_JSON, out_csv: Path = OUT_CSV,
             r.as_row(today=day, floor=MINIMUM_ELIGIBLE_EVENTS)
             for r in rows[:12]
         ],
+        # See peer_ceiling.rule_description(): a gate verdict baked into a
+        # dated artifact cannot stay true, and this one stopped being true on
+        # 2026-09-09. Nothing pins this file's bytes, so the next rebuild
+        # should carry the durable claim rather than a stale snapshot.
         "opens_no_gate": (
-            "The display gate is CLOSED, C4 MET, four denials. C2 counts "
-            "ELIGIBLE anchor events; this artifact supplies none, and C2 and "
-            "C3 move together or not at all."),
+            "A ceiling is not an eligibility count. C2 counts ELIGIBLE anchor "
+            "events; this artifact supplies none, so it moves no gate "
+            "condition -- whatever the gate reads at the moment this file is "
+            "read. C2 and C3 move together or not at all."),
     }
 
     n = write_worklist_csv(rows, out_csv, today=day,

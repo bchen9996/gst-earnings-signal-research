@@ -50,6 +50,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -61,11 +62,12 @@ from .display_gate import (
     FINDINGS_PANELS,
     PENDING_TOKEN,
     GateDecision,
+    GateError,
     assert_display_allowed,
     current_decision,
     locked_panel_placeholder,
 )
-from .quantum_provenance import MethodProvenance
+from .quantum_provenance import MethodProvenance, ProvenanceError
 from .quantum_provenance import current_status as quantum_control_status
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -628,6 +630,30 @@ def read_registry() -> dict[str, Any]:
     }
 
 
+_MISSING_MODULE = re.compile(r"No module named ['\"]([^'\"]+)['\"]")
+
+
+def _missing_module(stderr: str) -> Optional[str]:
+    """The module a suite died for want of, or None if that is not why it died.
+
+    The distinction this draws is the whole point: a suite that cannot IMPORT
+    has not failed, it has not run. This repository's harness reports a real
+    failure by printing its own FAILURES list and exiting 1 with no traceback,
+    so a missing module on stderr is never how a genuine check reports itself
+    false.
+
+    Matched anywhere on stderr, not only as a bare `ModuleNotFoundError:`
+    line, because the absence is often re-raised wrapped -- v1.11's generator
+    turns it into `RefusedError: the repository does not implement what v1.11
+    would declare: ... No module named 'exchange_calendars'`. Same fact, and
+    reporting it as a failing check sends the reader after a logic bug that is
+    not there. The caller, not this function, keeps that widening safe: a
+    suite that printed a FAIL: line of its own is never reclassified.
+    """
+    m = _MISSING_MODULE.search(stderr)
+    return m.group(1) if m else None
+
+
 def run_test_suites(skip_run: bool = False) -> dict[str, Any]:
     """Execute the committed suites and count their own reported results.
 
@@ -652,7 +678,7 @@ def run_test_suites(skip_run: bool = False) -> dict[str, Any]:
         p = REPO_ROOT / name
         if not p.is_file():
             results.append({"suite": name, "status": "MISSING",
-                            "passed": 0, "skipped": 0})
+                            "missing_module": None, "passed": 0, "skipped": 0})
             continue
         proc = subprocess.run([sys.executable, str(p)], capture_output=True,
                               text=True, cwd=env_root,
@@ -660,9 +686,18 @@ def run_test_suites(skip_run: bool = False) -> dict[str, Any]:
                                    "PYTHONPATH": env_root},
                               timeout=3600)
         out = proc.stdout or ""
+        # A suite that reported a check false HAS failed, whatever else is on
+        # its stderr. That precedence is what keeps the missing-module search
+        # from ever hiding a real failure -- the only direction of this change
+        # that would matter.
+        said_fail = "\nFAIL:" in out or out.startswith("FAIL:")
+        missing = (_missing_module(proc.stderr or "")
+                   if proc.returncode != 0 and not said_fail else None)
         results.append({
             "suite": name,
-            "status": "PASS" if proc.returncode == 0 else "FAIL",
+            "status": ("PASS" if proc.returncode == 0
+                       else "NOT RUN" if missing else "FAIL"),
+            "missing_module": missing,
             "passed": out.count("\nPASS:") + (1 if out.startswith("PASS:") else 0),
             "skipped": out.count("\nSKIP:") + (1 if out.startswith("SKIP:") else 0),
         })
@@ -671,7 +706,13 @@ def run_test_suites(skip_run: bool = False) -> dict[str, Any]:
         "suites": results,
         "total_passed": sum(r["passed"] for r in results),
         "total_skipped": sum(r["skipped"] for r in results),
+        # Unchanged, and deliberately strict: anything that did not pass keeps
+        # this False. Not running is not passing. What the fields below add is
+        # WHY, so an unrunnable interpreter does not read as a broken repository.
         "all_green": all(r["status"] == "PASS" for r in results),
+        "unrunnable": [r["suite"] for r in results if r["status"] == "NOT RUN"],
+        "missing_modules": sorted({r["missing_module"] for r in results
+                                   if r.get("missing_module")}),
     }
 
 
@@ -736,14 +777,15 @@ def _panel(panel_id: str, title: str, body: str, decision: GateDecision,
     classical-validation attestation is refused there, for every panel,
     whatever the gate says.
 
-    Findings panels below pass nothing, because none of them has a number: the
-    gate is closed on five independent grounds. If it ever opens, an
-    undeclared provenance raises rather than renders, which is the intended
-    behaviour -- an unattributed figure should stop the page, not appear on it.
+    Findings panels below pass nothing, because none of them has a number.
+    Which refusal that produces has CHANGED: until 2026-09-09 the gate itself
+    denied, and now the gate is open and the undeclared provenance denies
+    instead. Both are refusals and both render a locked panel, but they are
+    not the same fact and this no longer reports them as if they were.
     """
     try:
         assert_display_allowed(panel_id, decision, provenance)
-    except Exception:
+    except GateError:
         ph = locked_panel_placeholder(panel_id, decision)
         reasons = "".join(f"<li>{_e(r)}</li>" for r in ph["why"])
         conds = "".join(
@@ -762,6 +804,47 @@ def _panel(panel_id: str, title: str, body: str, decision: GateDecision,
           </details>
           <p class="muted small">{_e(ph['note'])}</p>
         </section>"""
+    except ProvenanceError as e:
+        # The gate is OPEN and this panel is still empty. Saying "GATE CLOSED"
+        # here was false, and the placeholder it drew was self-refuting: five
+        # green condition chips over the words "Why it is locked (0
+        # independent reasons)", above an "Unlocks when" list every item of
+        # which already held. The honest statement is narrower -- nothing was
+        # computed, so nothing was passed, so there is no provenance to
+        # attribute and no figure to show.
+        ph = locked_panel_placeholder(panel_id, decision)
+        conds = "".join(
+            f'<span class="cond {"ok" if v else "no"}">{_e(k)}</span>'
+            for k, v in ph["conditions_met"].items())
+        return f"""
+        <section class="panel locked" id="{_e(panel_id)}">
+          <h3><span class="lock">&#128274;</span> {_e(title)}
+              <span class="badge idle">NO RESULT</span></h3>
+          <p class="muted">The result-display gate is <strong>OPEN</strong>. This panel
+             is empty because no result was passed to it and no method provenance was
+             declared for one &mdash; not because a condition is unmet. An
+             unattributed figure stops this page rather than appearing on it.</p>
+          <div class="conds">{conds}</div>
+          <details><summary>The exact refusal</summary>
+            <p class="muted small mono">{_e(e)}</p>
+          </details>
+          <p class="muted small">{_e(ph['note'])}</p>
+          <p class="muted small">{_e(ph['separately_blocked'])}</p>
+        </section>"""
+    except Exception as e:                             # noqa: BLE001
+        # Still fail closed -- an unrecognised refusal must never fall through
+        # to the display branch. What it must ALSO not do is borrow one of the
+        # two explanations above: naming a reason we have not established is
+        # how "GATE CLOSED" came to sit over a gate that was open.
+        return f"""
+        <section class="panel locked" id="{_e(panel_id)}">
+          <h3><span class="lock">&#128274;</span> {_e(title)}
+              <span class="badge fail">REFUSED</span></h3>
+          <p class="muted">Display was refused for a reason this page does not
+             recognise, so it states the refusal rather than explaining it. No
+             value, direction or magnitude is shown.</p>
+          <p class="muted small mono">{_e(type(e).__name__)}: {_e(e)}</p>
+        </section>"""
     return f"""
         <section class="panel" id="{_e(panel_id)}">
           <h3>{_e(title)}</h3>
@@ -777,19 +860,50 @@ def render(tests: dict, audit: dict, registry: dict,
 
     # --- build/test ---
     if tests.get("available"):
+        # NOT RUN is the only status that softens. MISSING keeps the fail
+        # badge on purpose: a suite whose file has gone is a real problem, and
+        # the exemption being added here is for an absent dependency, not an
+        # absent test.
+        _badge = {"PASS": "pass", "NOT RUN": "idle"}
         rows = "".join(
             f"<tr><td class='mono'>{_e(r['suite'])}</td>"
-            f"<td><span class='badge {'pass' if r['status']=='PASS' else 'fail'}'>"
-            f"{_e(r['status'])}</span></td>"
+            f"<td><span class='badge {_badge.get(r['status'], 'fail')}'>"
+            f"{_e(r['status'])}</span>"
+            + (f" <span class='muted small'>{_e(r['missing_module'])}"
+               f" not importable</span>" if r.get("missing_module") else "")
+            + "</td>"
             f"<td class='num'>{r['passed']}</td>"
             f"<td class='num'>{r['skipped'] or '&mdash;'}</td></tr>"
             for r in tests["suites"])
+        # Three states, not two. A suite that could not run has reported
+        # nothing, and calling that FAILING sends the reader after a logic bug
+        # that is not there. It still is not ALL GREEN.
+        _unrunnable = tests.get("unrunnable") or []
+        # Written as "anything not PASS and not NOT RUN" rather than "any
+        # FAIL", so a status this code has not anticipated -- MISSING today,
+        # whatever a later version adds -- reads as FAILING rather than
+        # slipping quietly into the softest of the three words.
+        _status_kpi = ("ALL GREEN" if tests["all_green"]
+                       else "FAILING"
+                       if any(r["status"] not in ("PASS", "NOT RUN")
+                              for r in tests["suites"])
+                       else "NOT RUN")
+        _unrunnable_note = (
+            f"""<p class="muted small"><strong>{len(_unrunnable)} suite(s) did not
+             run</strong> &mdash; the interpreter that generated this page could not
+             import {_e(', '.join(tests.get('missing_modules') or []))}. That is an
+             environment gap, not a failing check: these suites asserted nothing
+             either way, and their checks are absent from the counts above rather
+             than counted false. Install <span class="mono">requirements-hyp04.txt</span>
+             into the interpreter that runs this page and regenerate.</p>"""
+            if _unrunnable else "")
         tests_body = f"""
           <div class="kpis">
             <div class="kpi"><div class="v">{tests['total_passed']}</div><div class="l">checks passed</div></div>
             <div class="kpi"><div class="v">{tests['total_skipped']}</div><div class="l">skipped</div></div>
-            <div class="kpi"><div class="v">{'ALL GREEN' if tests['all_green'] else 'FAILING'}</div><div class="l">suite status</div></div>
+            <div class="kpi"><div class="v">{_status_kpi}</div><div class="l">suite status</div></div>
           </div>
+          {_unrunnable_note}
           <table><thead><tr><th>Suite</th><th>Status</th><th>Passed</th><th>Skipped</th></tr></thead>
           <tbody>{rows}</tbody></table>
           <p class="muted small">Skips are counted separately and never as passes.

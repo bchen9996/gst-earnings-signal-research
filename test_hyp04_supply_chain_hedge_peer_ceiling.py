@@ -351,8 +351,18 @@ def test_7_a_ceiling_is_not_an_eligibility_count() -> None:
     rd = rule_description()
     check("7d. the rule says outright it is not eligibility",
           "eligibility" in rd["what_the_ceiling_is_not"].lower())
-    check("7e. and that it opens no gate",
-          "closed" in rd["opens_no_gate"].lower())
+    # This read `"closed" in ...`, which asserted the gate's STATE was named
+    # in the text. It passed until 2026-09-09 and then kept passing for the
+    # wrong reason: it was checking that a superseded verdict was still there.
+    # What the rule actually claims -- and what stays true whether the gate is
+    # open or closed -- is that a ceiling moves no gate condition.
+    check("7e. and that it opens no gate, without naming a gate state that "
+          "can go stale",
+          "moves no gate condition" in rd["opens_no_gate"],
+          rd["opens_no_gate"][:140])
+    check("7e2. it no longer asserts a verdict the gate has since contradicted",
+          "four denials" not in rd["opens_no_gate"]
+          and "gate is CLOSED" not in rd["opens_no_gate"])
     check("7f. the rule id is stable", r.rule_id == PEER_CEILING_RULE_ID)
 
 

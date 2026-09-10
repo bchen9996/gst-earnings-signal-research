@@ -15,10 +15,25 @@ These come from the project's governance and are not negotiable by any pass.
 If a step in this contract conflicts with one of these, the rule wins and you
 write `BLOCKED.md`.
 
-1. **The display gate stays CLOSED.** After every change that touches HYP-04
-   code, assert: gate CLOSED, C4 MET, exactly 4 denials, eligible count 0. If
-   any of those moves, stop and write `BLOCKED.md`. Never open a gate
-   unattended.
+1. **The display gate does not MOVE — in either direction.** It is **OPEN** as
+   of 2026-09-09: all five conditions MET, 0 denials, 214 frozen events. The
+   owner opened it through the governed chain; ratifying the map, attesting the
+   freeze and writing registry v1.12 are acts only they may perform.
+
+   This rule used to read "the gate stays CLOSED … assert exactly 4 denials,
+   eligible count 0". That was the state, not the principle, and it went false
+   on 2026-09-09. **Do not restore it.** A pass that found the gate open and
+   "fixed" it would be undoing a signed attestation.
+
+   At the start of every pass record `current_decision()`; after every change
+   that touches HYP-04 code, assert it is **unchanged**. If it moved either
+   way, stop and write `BLOCKED.md`. Never run `ratify map`, `ratify attest`,
+   `ratify pins --apply`, or any `make_registry_v*.py --write` unattended.
+
+   An open gate licenses **reporting a measurement**. It is not a finding, not
+   a validated strategy, and not permission to compute one unattended: writing
+   the first panel-to-estimator path is a governance act and a morning
+   decision.
 2. **Never push.** Not to `origin`, not anywhere. Commit only. Pushing is a
    morning decision. (`git push` in any form is out of scope for every pass.)
 3. **Never fabricate data.** A guessed peer ticker, a filled-in owner field, an
