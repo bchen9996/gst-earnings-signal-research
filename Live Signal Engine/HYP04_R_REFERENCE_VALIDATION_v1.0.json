@@ -1,0 +1,970 @@
+{
+ "artifact": "GST HYP-04 independent R reference validation",
+ "classification_counts": {
+  "INTERCHANGE_OR_SPECIFICATION_DEFECT": 0,
+  "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18": 8,
+  "PYTHON_IMPLEMENTATION_DEFECT": 0,
+  "REFERENCE_BEHAVIOR_DIFFERENCE": 1,
+  "REFUSED_BY_BOTH": 5,
+  "UNRESOLVED": 0
+ },
+ "cr2_validated_generically_by": "tools/hyp01_r_reference (commit 97705ed) -- this PR validates HYP-04's USAGE, not the arithmetic itself, which was already validated there",
+ "d10_satisfied": true,
+ "fixture_generator_sha256": "e49af4bfca0e99c438d3fa307657bd1952d59faa54cd2b2a83b88b15007d0095",
+ "fixture_source": {
+  "fixtures_regenerated_in_r": false,
+  "generator": "tools/hyp04_r_reference/fixtures.py::make_fixture",
+  "master_seed": 20260910,
+  "note": "R must never rebuild 'equivalent' fixtures; it reads these values.",
+  "runner_sha256": "e49af4bfca0e99c438d3fa307657bd1952d59faa54cd2b2a83b88b15007d0095"
+ },
+ "fixtures_matched": [
+  "G01_balanced_70c_300n",
+  "G02_unbalanced_40c_150n",
+  "G03_thin_singleton_8c_9n",
+  "G09_one_dominant_cluster",
+  "G11_sign_reversed_effect",
+  "G12_null_effect",
+  "G13_positive_effect",
+  "G14_heavy_tailed_errors"
+ ],
+ "fixtures_regenerated_in_r": false,
+ "implementation_validation": {
+  "cr2_covariance_se_t_p_for_hyp04_usage": "VALIDATED_UNDER_REUSED_PR17_TOLERANCES",
+  "cr2_satterthwaite_overall": "HYP04_USAGE_VALIDATED_TOLERANCE_PROVENANCE_REUSED",
+  "gate_status_changed": false,
+  "production_selection_approved": false,
+  "satterthwaite_df_for_hyp04_usage": "VALIDATED_UNDER_REUSED_PR18_TOLERANCE"
+ },
+ "method_approved": false,
+ "preregistered_tolerances": {
+  "covariance_matrix": {
+   "atol": 1e-12,
+   "rtol": 1e-10
+  },
+  "degrees_of_freedom": {
+   "exact_integer_equality": true
+  },
+  "p_value": {
+   "atol": 1e-12,
+   "rtol": 1e-09
+  },
+  "standard_error": {
+   "atol": 1e-12,
+   "rtol": 1e-10
+  },
+  "t_statistic": {
+   "atol": 1e-11,
+   "rtol": 1e-09
+  }
+ },
+ "preregistered_tolerances_used_as_written": true,
+ "production_module_sha256": "376c0fa90e5e8a49c9fbabb32dce1338ff5ad765339ccefc639649aa86015032",
+ "production_module_under_test": "hyp04_supply_chain_hedge/clustered_se.py",
+ "reference": {
+  "environment": {
+   "clubSandwich": "0.7.0",
+   "digest": "0.6.39",
+   "jsonlite": "2.0.0",
+   "platform": "x86_64-w64-mingw32",
+   "r_version": "4.6.1",
+   "r_version_string": "R version 4.6.1 (2026-06-24 ucrt)",
+   "sandwich": "3.1.3",
+   "zoo": "1.9.0"
+  },
+  "independently_maintained": true,
+  "package": "clubSandwich",
+  "resolved_defaults": {
+   "form": "\"sandwich\"",
+   "inverse_var": "NULL",
+   "target": "NULL",
+   "type": ""
+  },
+  "specification": {
+   "cluster_ordering": "cluster labels are used in the exported row order and converted with factor(labels, levels = unique(labels)) so factor levels follow first appearance rather than locale-dependent alphabetical sorting",
+   "coefficient_ordering": "as exported: column j of X <-> coefficient_names[j], no reordering",
+   "conf_int_call": "clubSandwich::conf_int(fit, vcov = <CR2>, test = 'Satterthwaite', level = 0.95)",
+   "confidence_level": 0.95,
+   "cr2_call": "clubSandwich::vcovCR(fit, cluster = <factor>, type = 'CR2')",
+   "intercept_handling": "The design matrix carries its OWN intercept column (all ones) as column 1. The model is fitted with `y ~ 0 + .` so R does NOT add a second intercept. Coefficient order therefore matches the exported coefficient_names exactly.",
+   "leverage_adjustment": "CR2 is the bias-reduced linearisation of Bell & McCaffrey / Pustejovsky & Tipton: A_g is the symmetric inverse square root of (I - H_gg) under the identity working model. clubSandwich computes this internally; this script does not supply or override the adjustment matrices.",
+   "matrix_tolerance": "clubSandwich's own internal inversion tolerance is used and is NOT overridden here. The Python side clips eigenvalues of (I - H_gg) at 1e-12. These are different mechanisms; any disagreement they cause is a finding, not something to be tuned away.",
+   "missing_value_behaviour": "na.action = na.fail. R's default (na.omit) would SILENTLY DROP the row with a missing outcome and return a number, which would be a false agreement. Failing is the correct reference behaviour to compare against.",
+   "null_value": 0,
+   "satterthwaite_call": "clubSandwich::coef_test(fit, vcov = <CR2>, test = 'Satterthwaite')",
+   "target_coefficient": "coefficient_names[target_index_0based + 1] (the slope on x)",
+   "working_model_target": "target is left NULL, which for an unweighted lm is the identity working model -- the same homoskedastic-independent working model the Python side assumes. The resolved defaults are recorded in `reference_defaults`."
+  },
+  "written_for_this_study": false
+ },
+ "repository_research_artifact_loaded": false,
+ "results": [
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 3.885780586188048e-16,
+     "max_rel_difference": 1.8706349043638723e-14,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.5612511283791264e-17,
+     "max_rel_difference": 8.236191452225481e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.249000902703301e-16,
+     "max_rel_difference": 1.6938266893629616e-15,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 2.842170943040401e-14,
+     "max_rel_difference": 8.715294392810292e-16,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 4.163336342344337e-17,
+     "max_rel_difference": 6.041492672229006e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 1.1102230246251565e-15,
+     "max_rel_difference": 6.00877782076891e-16,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 6.071532165918825e-18,
+     "max_rel_difference": 1.2785090637604133e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G01_balanced_70c_300n",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.07373841199615534,
+    "satterthwaite_df": 32.61130163755634,
+    "standard_error": 0.0689123792449834,
+    "t_statistic": -1.84766862370539,
+    "target_estimate": -0.12732724091584238,
+    "target_variance": 0.00474891601320442
+   },
+   "reference_conf_int": [
+    -0.2675940419208947,
+    0.012939560089209934
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.07373841199615547,
+    "satterthwaite_df": 32.611301637556366,
+    "standard_error": 0.06891237924498345,
+    "t_statistic": -1.847668623705389,
+    "target_estimate": -0.12732724091584238,
+    "target_variance": 0.004748916013204426
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 4.85722573273506e-17,
+     "max_rel_difference": 8.830244469807453e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.1102230246251565e-16,
+     "max_rel_difference": 1.8836613251000935e-13,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 3.3306690738754696e-16,
+     "max_rel_difference": 4.606601271664774e-16,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.9539925233402755e-14,
+     "max_rel_difference": 2.133078171776105e-15,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 3.3306690738754696e-16,
+     "max_rel_difference": 2.213235671399477e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 4.996003610813204e-16,
+     "max_rel_difference": 1.3668189995239222e-15,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 9.367506770274758e-17,
+     "max_rel_difference": 4.1363413266747756e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G02_unbalanced_40c_150n",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.7230209166055744,
+    "satterthwaite_df": 9.160435605195294,
+    "standard_error": 0.15048867668798302,
+    "t_statistic": -0.3655204977801274,
+    "target_estimate": -0.05500669601326421,
+    "target_variance": 0.02264684181130028
+   },
+   "reference_conf_int": [
+    -0.3945290370142446,
+    0.2845156449877162
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.7230209166055741,
+    "satterthwaite_df": 9.160435605195314,
+    "standard_error": 0.1504886766879827,
+    "t_statistic": -0.3655204977801279,
+    "target_estimate": -0.05500669601326416,
+    "target_variance": 0.022646841811300188
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 2.7755575615628914e-16,
+     "max_rel_difference": 9.245273364252273e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 2.220446049250313e-16,
+     "max_rel_difference": 1.5164330953497591e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 1.215226070198555e-15,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.7763568394002505e-15,
+     "max_rel_difference": 7.136510698739768e-16,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.220446049250313e-16,
+     "max_rel_difference": 5.116948490021474e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 0.0,
+     "max_rel_difference": 0.0,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 1.6653345369377348e-16,
+     "max_rel_difference": 8.843885846170381e-16,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G03_thin_singleton_8c_9n",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.36543752700886606,
+    "satterthwaite_df": 2.4891111558396948,
+    "standard_error": 0.43393949608451005,
+    "t_statistic": -1.102199642877636,
+    "target_estimate": -0.47828795761484827,
+    "target_variance": 0.1883034862620785
+   },
+   "reference_conf_int": [
+    -2.0343376514004348,
+    1.0777617361707386
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.3654375270088656,
+    "satterthwaite_df": 2.4891111558396966,
+    "standard_error": 0.4339394960845098,
+    "t_statistic": -1.102199642877636,
+    "target_estimate": -0.47828795761484805,
+    "target_variance": 0.18830348626207832
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "G04_near_collinear_full_rank",
+   "python_refusal_reason": "ILL_CONDITIONED_DESIGN",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "lm() could not estimate: days_to_peer_earnings",
+   "reference_refusal_reason": "RANK_DEFICIENT_ALIASED_COEFFICIENT",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "G05_exactly_rank_deficient",
+   "python_refusal_reason": "RANK_DEFICIENT_DESIGN",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "lm() could not estimate: days_to_peer_earnings",
+   "reference_refusal_reason": "RANK_DEFICIENT_ALIASED_COEFFICIENT",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "G06_zero_variance_control",
+   "python_refusal_reason": "ZERO_VARIANCE_PREDICTOR",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "lm() could not estimate: days_to_peer_earnings",
+   "reference_refusal_reason": "RANK_DEFICIENT_ALIASED_COEFFICIENT",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "G07_missing_value",
+   "python_refusal_reason": "NONFINITE_VALUE_PRESENT",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "missing values in object",
+   "reference_refusal_reason": "R_ERROR",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "classification": "REFUSED_BY_BOTH",
+   "explanation": "Both implementations declined to produce a number. The stated reasons need not be identical: they are different diagnostics reaching the same refusal.",
+   "fixture_id": "G08_below_min_two_clusters",
+   "python_refusal_reason": "FEWER_THAN_TWO_CLUSTERS",
+   "python_status": "PYTHON_REFUSED",
+   "reasons_identical": false,
+   "reference_message": "Cluster-robust variance estimation will not work when the data only includes a single cluster.",
+   "reference_refusal_reason": "R_ERROR",
+   "reference_status": "REFERENCE_REFUSED",
+   "reference_warned": false,
+   "reference_warnings": []
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 2.7755575615628914e-16,
+     "max_rel_difference": 3.584574748380171e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 8.326672684688674e-16,
+     "max_rel_difference": 1.007598425128353e-14,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 8.881784197001252e-16,
+     "max_rel_difference": 1.0302646090799831e-15,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 7.993605777301127e-15,
+     "max_rel_difference": 3.830698188478225e-15,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 8.881784197001252e-16,
+     "max_rel_difference": 4.864839509192973e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 1.1379786002407855e-15,
+     "max_rel_difference": 5.807666879245643e-15,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 3.191891195797325e-16,
+     "max_rel_difference": 9.576011968731462e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G09_one_dominant_cluster",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.8620876732757621,
+    "satterthwaite_df": 2.086722937699412,
+    "standard_error": 0.18257096005361645,
+    "t_statistic": -0.19594419306442568,
+    "target_estimate": -0.03577371944470337,
+    "target_variance": 0.03333215545489921
+   },
+   "reference_conf_int": [
+    -0.7908428684255946,
+    0.7192954295361877
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.8620876732757612,
+    "satterthwaite_df": 2.08672293769942,
+    "standard_error": 0.18257096005361556,
+    "t_statistic": -0.1959441930644268,
+    "target_estimate": -0.0357737194447034,
+    "target_variance": 0.03333215545489889
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "classification": "REFERENCE_BEHAVIOR_DIFFERENCE",
+   "explanation": "Python refuses before fitting; the reference returns a value after warning. The reference was NOT forced to refuse and Python was NOT relaxed to match it. Reported as a behaviour difference.",
+   "fixture_id": "G10_perfect_fit",
+   "python_refusal_reason": "DEGENERATE_FIT_RESIDUAL_VARIANCE_AT_NOISE_FLOOR",
+   "python_status": "PYTHON_REFUSED",
+   "reference_standard_error": "8.4398269966869596e-17",
+   "reference_status": "COMPUTED",
+   "reference_target_estimate": "1.9999999999999991",
+   "reference_warned": true,
+   "reference_warnings": [
+    "essentially perfect fit: summary may be unreliable"
+   ]
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 7.216449660063518e-16,
+     "max_rel_difference": 2.0436681925768385e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.2836953722228372e-16,
+     "max_rel_difference": 1.8433213064677203e-14,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.9081958235744878e-16,
+     "max_rel_difference": 1.9617665788067507e-14,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 4.1744385725905886e-14,
+     "max_rel_difference": 8.03936717165061e-15,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 2.0907350246230652e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 2.6645352591003757e-15,
+     "max_rel_difference": 6.689315451928138e-16,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 1.0408340855860843e-17,
+     "max_rel_difference": 5.905803851430812e-16,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G11_sign_reversed_effect",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.00972692594618037,
+    "satterthwaite_df": 5.19249647821904,
+    "standard_error": 0.13275510903459856,
+    "t_statistic": -3.9832704530810314,
+    "target_estimate": -0.5287995033130671,
+    "target_variance": 0.017623918974788152
+   },
+   "reference_conf_int": [
+    -0.8662870834754108,
+    -0.19131192315072382
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.009726925946180178,
+    "satterthwaite_df": 5.1924964782190814,
+    "standard_error": 0.13275510903459853,
+    "t_statistic": -3.983270453081034,
+    "target_estimate": -0.5287995033130674,
+    "target_variance": 0.01762391897478814
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 8.326672684688674e-17,
+     "max_rel_difference": 3.97006484234998e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.5612511283791264e-17,
+     "max_rel_difference": 2.0050105355631348e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 1.3877787807814457e-16,
+     "max_rel_difference": 9.264596278553826e-16,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.7763568394002505e-15,
+     "max_rel_difference": 1.5163791129330044e-16,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 8.326672684688674e-17,
+     "max_rel_difference": 7.912757346684021e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 1.1102230246251565e-15,
+     "max_rel_difference": 7.202815390881619e-16,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 1.5612511283791264e-17,
+     "max_rel_difference": 1.4098907930828017e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G12_null_effect",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.14979376748385115,
+    "satterthwaite_df": 11.714463911101973,
+    "standard_error": 0.10523098737734078,
+    "t_statistic": 1.541373705107922,
+    "target_estimate": 0.16220027690597671,
+    "target_variance": 0.011073560704410056
+   },
+   "reference_conf_int": [
+    -0.06769971106495748,
+    0.39210026487691096
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.1497937674838513,
+    "satterthwaite_df": 11.714463911101971,
+    "standard_error": 0.10523098737734086,
+    "t_statistic": 1.5413737051079208,
+    "target_estimate": 0.16220027690597674,
+    "target_variance": 0.011073560704410072
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 2.220446049250313e-16,
+     "max_rel_difference": 6.431086483937509e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 1.249000902703301e-16,
+     "max_rel_difference": 9.204346563872007e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 7.806255641895632e-18,
+     "max_rel_difference": 6.73930788848368e-15,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 1.2434497875801753e-14,
+     "max_rel_difference": 8.813159654349584e-16,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 2.7755575615628914e-17,
+     "max_rel_difference": 2.1888373962913392e-16,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 2.6645352591003757e-15,
+     "max_rel_difference": 6.566783373047461e-16,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 3.469446951953614e-18,
+     "max_rel_difference": 2.1576787010974817e-16,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G13_positive_effect",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.0011583171107577871,
+    "satterthwaite_df": 14.109012389971761,
+    "standard_error": 0.1268051051332393,
+    "t_statistic": 4.0575957934544125,
+    "target_estimate": 0.5145238611771763,
+    "target_variance": 0.016079534687851876
+   },
+   "reference_conf_int": [
+    0.2427509694032851,
+    0.786296752951067
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.001158317110757795,
+    "satterthwaite_df": 14.109012389971749,
+    "standard_error": 0.12680510513323934,
+    "t_statistic": 4.05759579345441,
+    "target_estimate": 0.5145238611771761,
+    "target_variance": 0.01607953468785188
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  },
+  {
+   "all_pr17_covered_fields_within_tolerance": true,
+   "classification": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "fields": {
+    "coefficients": {
+     "max_abs_difference": 1.6653345369377348e-16,
+     "max_rel_difference": 3.1460968708357616e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "cr2_covariance": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 4.625747034703929e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "p_value": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 4.843094196047635e-16,
+     "tolerance": "p_value",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "satterthwaite_df": {
+     "max_abs_difference": 2.3092638912203256e-14,
+     "max_rel_difference": 1.9936664378790817e-15,
+     "tolerance": "PR18_satterthwaite_df (reused verbatim from HYP-01's PR #18, NOT preregistered for HYP-04)",
+     "tolerance_provenance": "PR18_REUSED",
+     "within": true
+    },
+    "standard_error": {
+     "max_abs_difference": 1.6653345369377348e-16,
+     "max_rel_difference": 1.0058395871528888e-15,
+     "tolerance": "standard_error",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "t_statistic": {
+     "max_abs_difference": 4.440892098500626e-16,
+     "max_rel_difference": 4.167108825282808e-15,
+     "tolerance": "t_statistic",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    },
+    "target_variance": {
+     "max_abs_difference": 5.551115123125783e-17,
+     "max_rel_difference": 2.0250451238549374e-15,
+     "tolerance": "covariance_matrix",
+     "tolerance_provenance": "PR17_REUSED",
+     "within": true
+    }
+   },
+   "fixture_id": "G14_heavy_tailed_errors",
+   "overall_implementation_agreement_status": "MATCH_WITHIN_TOLERANCES_REUSED_FROM_HYP01_PR17_AND_PR18",
+   "pr17_covered_fields": [
+    "coefficients",
+    "cr2_covariance",
+    "target_variance",
+    "standard_error",
+    "t_statistic",
+    "p_value"
+   ],
+   "pr17_covered_fields_status": "PASS_UNDER_REUSED_PR17_TOLERANCES",
+   "python_status": "COMPUTED",
+   "python_values": {
+    "p_value": 0.9169534844324851,
+    "satterthwaite_df": 11.583000282017993,
+    "standard_error": 0.16556661302739123,
+    "t_statistic": -0.10657010135076657,
+    "target_estimate": -0.01764445073063223,
+    "target_variance": 0.027412303349361917
+   },
+   "reference_conf_int": [
+    -0.37982876287688805,
+    0.34453986141562365
+   ],
+   "reference_status": "COMPUTED",
+   "reference_values": {
+    "p_value": 0.9169534844324856,
+    "satterthwaite_df": 11.583000282018016,
+    "standard_error": 0.1655666130273914,
+    "t_statistic": -0.10657010135076612,
+    "target_estimate": -0.017644450730632175,
+    "target_variance": 0.027412303349361972
+   },
+   "reference_warned": false,
+   "reference_warnings": [],
+   "satterthwaite_df_status": "PASS_UNDER_REUSED_PR18_TOLERANCE",
+   "satterthwaite_df_within_pr18_tolerance": true
+  }
+ ],
+ "satisfies_lock_decision": "D10 (Authoritative CR2 implementation) of the HYP-04 analysis lock",
+ "status": "SYNTHETIC_IMPLEMENTATION_VALIDATION_ONLY_VALIDATES_D10_USAGE_NOT_A_SCIENTIFIC_FINDING",
+ "supported_claim": "HYP-04's production CR2 covariance, standard-error, t-statistic, and p-value outputs (hyp04_supply_chain_hedge.clustered_se, on HYP-04's own 3-column design matrix and calendar_period clustering) agree with clubSandwich on HYP-04's own synthetic fixture matrix, under tolerances reused verbatim from HYP-01's PR #17. The continuous Satterthwaite degrees of freedom agree under the tolerance reused verbatim from HYP-01's PR #18. Neither tolerance was preregistered specifically for HYP-04; both are reused by citation because the underlying arithmetic is identical mirrored code.",
+ "synthetic_data_only": true,
+ "tolerance_provenance": {
+  "note": "Both tolerance sets are HYP-01's own numbers, reused here by citation because the arithmetic under test is identical mirrored code. No field is governed by both sets.",
+  "pr17_covered_fields": [
+   "coefficients",
+   "cr2_covariance",
+   "target_variance",
+   "standard_error",
+   "t_statistic",
+   "p_value"
+  ],
+  "pr17_tolerances_reused_from_hyp01": {
+   "covariance_matrix": {
+    "atol": 1e-12,
+    "rtol": 1e-10
+   },
+   "degrees_of_freedom": {
+    "exact_integer_equality": true
+   },
+   "p_value": {
+    "atol": 1e-12,
+    "rtol": 1e-09
+   },
+   "standard_error": {
+    "atol": 1e-12,
+    "rtol": 1e-10
+   },
+   "t_statistic": {
+    "atol": 1e-11,
+    "rtol": 1e-09
+   }
+  },
+  "pr17_tolerances_used_as_written": true,
+  "pr18_covered_fields": [
+   "satterthwaite_df"
+  ],
+  "pr18_satterthwaite_df_tolerance_reused_from_hyp01": {
+   "atol": 1e-10,
+   "preregistered_for_hyp04": false,
+   "reused_verbatim_from": "PR #18 (HYP-01's independent R reference validation)",
+   "rtol": 1e-08,
+   "why_not_the_pr17_df_rule": "The PR #17 rule is exact_integer_equality, written for CR1's integer G-1. The Satterthwaite df is continuous; exact equality is not a meaningful cross-implementation criterion for it.",
+   "why_reused_rather_than_prespecified_fresh": "The CR2/Satterthwaite arithmetic under test is the identical mirrored code HYP-01's bridge already validated; a different tolerance for identical arithmetic would imply a difference that does not exist."
+  },
+  "preregistered_specifically_for_hyp04": false
+ },
+ "unresolved_fixtures": [],
+ "version": "1.0",
+ "what_this_is": "An implementation-agreement check between HYP-04's production CR2 / Satterthwaite code (hyp04_supply_chain_hedge.clustered_se), exercised on HYP-04's own design matrix shape and calendar_period clustering, and clubSandwich, on a purpose-built HYP-04 synthetic fixture matrix, under tolerances reused from HYP-01's cross-check. When d10_satisfied is true, it satisfies D10 of the HYP-04 analysis lock. It is not evidence that supply-chain transmission exists, and it approves no method beyond confirming this specific usage is correctly implemented."
+}

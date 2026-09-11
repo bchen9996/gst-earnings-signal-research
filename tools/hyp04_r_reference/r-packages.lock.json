@@ -1,0 +1,172 @@
+{
+ "dependency_class_note": "Only the classes required to RUN the reference are installed. Suggests would pull test-only packages that this validation never loads and that the lockfile does not pin.",
+ "dependency_classes_excluded": [
+  "Suggests",
+  "Enhances"
+ ],
+ "dependency_classes_installed": [
+  "Depends",
+  "Imports",
+  "LinkingTo"
+ ],
+ "github_action_pinning_note": "Every external action is pinned to a full immutable commit SHA; a tag can be moved, a commit SHA cannot. Tags are recorded for human readability only. Same actions, same SHAs as tools/hyp01_r_reference -- both bridges share one CI toolchain and there is no reason for these to differ.",
+ "github_actions": [
+  {
+   "pinned_commit_sha": "11d5960a326750d5838078e36cf38b85af677262",
+   "tag": "v4",
+   "uses": "actions/checkout"
+  },
+  {
+   "pinned_commit_sha": "a26af69be951a213d495a4c3e4e4022e16d87065",
+   "tag": "v5",
+   "uses": "actions/setup-python"
+  },
+  {
+   "pinned_commit_sha": "d3c5be51b12e724e68f33216ca3c148b66d5f0b6",
+   "tag": "v2",
+   "uses": "r-lib/actions/setup-r"
+  }
+ ],
+ "not_installed_deliberately": {
+  "fwildclusterboot": "would be a wild-cluster-bootstrap reference; NOT installed, so the bootstrap stays unvalidated",
+  "note": "Only the CR2/Satterthwaite reference is added. CR3 and the bootstrap remain independently unvalidated."
+ },
+ "observed_snapshot_binary_instability": {
+  "what_was_observed": "This bridge installed the identical package NAMES and VERSIONS as tools/hyp01_r_reference (verified with numeric_version(), not a string compare), from the identical dated CRAN snapshot URL (https://packagemanager.posit.co/cran/2026-08-11). All 10 installed binaries were re-downloaded separately on 2026-09-10 to compute their own SHA-256, and EVERY one differs in both byte size and SHA-256 from the value recorded in tools/hyp01_r_reference/r-packages.lock.json for the same (package, version) pair.",
+  "example": "clubSandwich 0.7.0: HYP-01 recorded 657114 bytes / sha256 3506c23e646d328f4d870076df956948395b018c3ea920d0181e20d42ab1482a. This bridge measured 656607 bytes / sha256 042c62495aa24cc8ab57345c8aa67f2d2e295365d23285c11940fe7115538292, fetched from the SAME snapshot URL roughly one month later.",
+  "not_claimed": "No explanation for the byte difference is asserted here -- it was not investigated beyond confirming the version string and package name are unchanged. It could be repackaging on the snapshot server, a compression/metadata difference, or something else; this file does not guess.",
+  "what_this_does_and_does_not_affect": "Version pinning is UNAFFECTED and still holds exactly (verified below). Byte-level local authentication is affected: the SHA-256 values in THIS file authenticate only what was actually downloaded onto THIS workstation on 2026-09-10, not tools/hyp01_r_reference's recorded values, and the two must not be assumed interchangeable.",
+  "relevance_beyond_hyp04": "This observation was made in the course of building this bridge, not as a scheduled audit of tools/hyp01_r_reference. It is recorded here because it is what this bridge's own install actually showed; it is not a corrective edit to any other hypothesis's already-committed lockfile."
+ },
+ "package_count": 10,
+ "packages": [
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 1403918,
+    "file": "cli_3.6.6.zip",
+    "sha256": "6d5e4c84f4aab8ecac4adec37f61188d2d2b50eb293edfed2d50d8d2f775aa18"
+   },
+   "package": "cli",
+   "version": "3.6.6"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 656607,
+    "file": "clubSandwich_0.7.0.zip",
+    "sha256": "042c62495aa24cc8ab57345c8aa67f2d2e295365d23285c11940fe7115538292"
+   },
+   "package": "clubSandwich",
+   "version": "0.7.0"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 225720,
+    "file": "digest_0.6.39.zip",
+    "sha256": "b6cb91c374a7865a952aafe287007b5e69663013bc3475b3eceacf899fe67b00"
+   },
+   "package": "digest",
+   "version": "0.6.39"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 190917,
+    "file": "glue_1.8.1.zip",
+    "sha256": "74a0de06a0bf6417094efe774b819ca9508876d4b51914ad620e3af66f7344eb"
+   },
+   "package": "glue",
+   "version": "1.8.1"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 1108648,
+    "file": "jsonlite_2.0.0.zip",
+    "sha256": "f951bdef28176d3b8602c60533e4dcf837dc7498d9ca327108c29dca361e539d"
+   },
+   "package": "jsonlite",
+   "version": "2.0.0"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 1442195,
+    "file": "lattice_0.22-9.zip",
+    "sha256": "3b3b55c90f66982cda03897b31df915820f218cbad259e24640e1e53613b65f6"
+   },
+   "package": "lattice",
+   "version": "0.22-9"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 150567,
+    "file": "lifecycle_1.0.5.zip",
+    "sha256": "655116bf33a554a5272dfd21e95c2b3044fc3bf0ce530697bc0f5bd71ecc31e5"
+   },
+   "package": "lifecycle",
+   "version": "1.0.5"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 1640128,
+    "file": "rlang_1.3.0.zip",
+    "sha256": "3984228e435466149ee50c27ba77dc21bb0373710f20773dda0861a7ce1c3f9c"
+   },
+   "package": "rlang",
+   "version": "1.3.0"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 1541869,
+    "file": "sandwich_3.1-3.zip",
+    "sha256": "19355ed1cb00f2f760730d5335167470aac5997ed7d3177cb282b2b838c9b50d"
+   },
+   "package": "sandwich",
+   "version": "3.1-3"
+  },
+  {
+   "local_windows_binary": {
+    "authenticates": "the Windows x86_64 binary used on the developer workstation only, downloaded 2026-09-10",
+    "bytes": 1001254,
+    "file": "zoo_1.9-0.zip",
+    "sha256": "43674c936674676a1b695b3f2b10f6f4658841824aa94298fcc0216f54326556"
+   },
+   "package": "zoo",
+   "version": "1.9-0"
+  }
+ ],
+ "pinning_model": {
+  "ci_linux": "Pinned by (dated CRAN snapshot + exact version). CI installs from the snapshot below and then verifies the INSTALLED version of every package in this file against `version`, failing closed on any absence or difference. A Windows binary SHA-256 is NOT used, and does not authenticate, the Linux installation.",
+  "local_windows": "Pinned by (version + SHA-256 of the CRAN Windows binary actually downloaded to this workstation on 2026-09-10). Those hashes are platform- AND download-time-specific -- see observed_snapshot_binary_instability above -- and authenticate only this install, not any other download of the same (name, version) from the same URL.",
+  "not_claimed": "This lockfile does not claim byte-level authentication of the Linux packages, and -- per observed_snapshot_binary_instability -- does not claim the recorded Windows binary hashes are stable across time even from the identical snapshot URL. It claims exact version pinning, enforced by a CI check over every package listed here, and verified locally with numeric_version() on 2026-09-10."
+ },
+ "purpose": "Pinned R runtime and package versions for HYP-04's D10 independent CR2/Satterthwaite reference. Installing these approves no statistical method.",
+ "r": {
+  "ci_pinned_version": "4.6.1",
+  "ci_verifies_exact_r_version": true,
+  "installer_sha256": "c5424c40cd70ef85765a55d2ff96bb602b5f30ed536938ff004f14db5db3c2df",
+  "installer_sha256_note": "Identical to tools/hyp01_r_reference's recorded value -- verified by direct comparison on 2026-09-10. Unlike the CRAN package binaries above, the R installer itself DID reproduce byte-for-byte.",
+  "local_install_scope": "per-user (HKCU only; no elevation, no system PATH change)",
+  "source": "https://cran.r-project.org/bin/windows/base/R-4.6.1-win.exe",
+  "version": "4.6.1",
+  "version_string": "R version 4.6.1 (2026-06-24 ucrt)"
+ },
+ "reference_package": "clubSandwich",
+ "schema": "GST_HYP04_R_REFERENCE_LOCK_v1",
+ "shares_r_install_with": "tools/hyp01_r_reference -- same R 4.6.1 interpreter, same per-user install location, installed once on this workstation and used by both bridges.",
+ "sources": {
+  "ci_snapshot": "https://packagemanager.posit.co/cran/2026-08-11",
+  "ci_snapshot_linux_binary_path": "https://packagemanager.posit.co/cran/__linux__/noble/2026-08-11",
+  "ci_snapshot_note": "Same dated snapshot URL as tools/hyp01_r_reference, reused deliberately so CI resolves the identical package VERSIONS for both bridges -- not a claim that it resolves identical BYTES; see observed_snapshot_binary_instability.",
+  "ci_snapshot_reproduces_every_locked_version": true,
+  "ci_snapshot_verified_http_200": true,
+  "ci_snapshot_version_check_performed_on": "2026-09-10, locally, via numeric_version() over the installed set against this file's `packages[].version`; all 10 matched",
+  "local_windows_binaries": "https://cran.r-project.org/bin/windows/contrib/4.6/"
+ }
+}
