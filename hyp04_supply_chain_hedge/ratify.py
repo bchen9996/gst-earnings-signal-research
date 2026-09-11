@@ -152,6 +152,20 @@ def _reject_placeholder(label: str, value: str) -> str:
             raise RatifyError(
                 f"{label} is still the template placeholder {v!r}. This is the "
                 "field where the judgement goes; fill it in.")
+    # Catches the actual failure mode, not just the literal template string.
+    # `--declared-by "<bchen9996>"` is not the placeholder `<your name>`, so
+    # the exact-match loop above waves it through -- and it landed in a
+    # SIGNED validation-split artifact this way on 2026-09-10: the angle
+    # brackets from `<your name>` were kept and a real name typed inside
+    # them, rather than replacing the whole token. Every template in this
+    # module uses `<...>` for the blank a signer fills in, so a surviving
+    # bracket is evidence the substitution was partial, whatever is inside it.
+    if v.startswith("<") and v.endswith(">") and len(v) > 2:
+        raise RatifyError(
+            f"{label} is {v!r}, which still carries the template's angle "
+            "brackets. Replace the WHOLE placeholder token, brackets "
+            f"included -- not just the words inside it: {v[1:-1]!r} without "
+            "the < >.")
     return v
 
 

@@ -303,6 +303,26 @@ def test_1b_declaring_a_split_refuses_every_judgement() -> None:
                  expect="already declared")
 
 
+def test_1c_a_partially_filled_placeholder_is_refused() -> None:
+    """`<bchen9996>` is not `<your name>`, and the exact-match guard let it
+    through -- into a SIGNED split declaration on 2026-09-10, keeping the
+    template's angle brackets around a real name typed inside them rather
+    than replacing the whole token. Fixed to catch the shape, not just the
+    literal string.
+    """
+    refuses("1c-a. the failure mode itself is refused",
+            R._reject_placeholder, "--declared-by", "<bchen9996>",
+            expect="angle brackets")
+    refuses("1c-b. any bracket-wrapped value is refused, not just this name",
+            R._reject_placeholder, "--curated-by", "<anything at all>",
+            expect="angle brackets")
+    check("1c-c. CONTROL -- a real name with no brackets still passes",
+          R._reject_placeholder("--declared-by", "bchen9996") == "bchen9996")
+    check("1c-d. CONTROL -- a name that merely CONTAINS '<' is not "
+          "penalised for it (only a full wrap is)",
+          R._reject_placeholder("--declared-by", "a < b") == "a < b")
+
+
 def test_2_it_refuses_every_judgement() -> None:
     """Each refusal must fire for ITS OWN reason.
 
@@ -651,6 +671,7 @@ if __name__ == "__main__":
     test_0_the_reason_check_actually_bites()
     test_1_the_templates_are_pasteable()
     test_1b_declaring_a_split_refuses_every_judgement()
+    test_1c_a_partially_filled_placeholder_is_refused()
     test_2_it_refuses_every_judgement()
     test_3_underscore_spelling_normalises()
     test_4_it_writes_only_the_three_blanked_fields()

@@ -306,6 +306,54 @@ def build_draft(*, panel_path: Path, out_path: Path,
     return doc
 
 
+def annotate_correction(path: Path, *, note: str) -> dict[str, Any]:
+    """Append a correction note to an already-DECLARED split. Once.
+
+    Not a re-declaration. `declared`, `declared_by`, `declared_date` and
+    `attestation_text` stay exactly what they were signed as -- this adds one
+    field recording something noticed about the signature's FORM afterwards,
+    without touching what was signed.
+
+    Written for a real case: `ratify split`'s placeholder guard checked for an
+    exact match against the literal template string, so `--declared-by
+    "<bchen9996>"` -- the template's angle brackets, kept, with a real name
+    typed inside them rather than the whole token replaced -- was accepted on
+    2026-09-10. The guard is fixed so this cannot happen again; this function
+    exists to say so on the one record where it already did, without silently
+    editing a signed field to make the mistake disappear.
+
+    Refuses if a correction already exists: one note per document, written
+    once, the same append-only discipline as everything else in this module.
+    """
+    if not path.is_file():
+        raise SplitError(f"no validation split at {path}")
+    d = json.loads(path.read_text(encoding="utf-8"))
+    if d.get("declared") is not True:
+        raise SplitError(
+            "cannot annotate a document that was never declared -- there is "
+            "no signature yet for a correction to be ABOUT")
+    if d.get("correction_note"):
+        raise SplitError(
+            f"{path.name} already carries a correction_note; refusing to "
+            "overwrite one record with another")
+    if not (note or "").strip():
+        raise SplitError("a blank correction note documents nothing")
+
+    before = dict(d)
+    after = dict(d)
+    after["correction_note"] = note.strip()
+
+    moved = sorted(k for k in set(before) | set(after)
+                   if before.get(k) != after.get(k))
+    if moved != ["correction_note"]:
+        raise SplitError(
+            f"annotating would move {moved}, not just 'correction_note'. "
+            "Refusing.")
+
+    path.write_text(json.dumps(after, indent=1) + "\n", encoding="utf-8")
+    return after
+
+
 def load_declared_split(path: Path) -> dict[str, Any]:
     """Read a SIGNED split. Refuses a draft.
 
