@@ -682,6 +682,101 @@ def _print_split_template() -> None:
           "holdout it names\nis not looked at again until Phase 3, once.")
 
 
+PHASE2_AFFIRMATION = (
+    "This lock's target definition, feature set, and model spec were fixed "
+    "without looking at how they perform against the holdout, and no part "
+    "of the holdout has been examined.")
+
+#: Fields declaring a Phase 2 lock may move. Everything else is derived.
+PHASE2_FIELDS = ("declared", "declared_by", "declared_date", "status")
+
+
+def declare_phase2_lock(*, lock_path: Path, declared_by: str,
+                        affirmation: str,
+                        declared_date: Optional[str] = None
+                        ) -> dict[str, Any]:
+    """Fill the three owner fields on a Phase 2 lock. Nothing else moves."""
+    from .make_phase2_lock import (
+        OWNER_FIELDS as PHASE2_OWNER_FIELDS,
+        load_declared_phase2_lock,
+    )
+
+    if not lock_path.is_file():
+        raise RatifyError(f"no Phase 2 lock at {lock_path}")
+    declared_by = _reject_placeholder("--declared-by", declared_by)
+    declared_date = _iso("--declared-date", declared_date)
+
+    if (affirmation or "").strip() != PHASE2_AFFIRMATION:
+        raise RatifyError(
+            "the affirmation does not match, so nothing was written.\n\n"
+            "A lock is only a preregistration if it was fixed before the "
+            "holdout was examined. Nothing in this repository can establish "
+            "that, so type it exactly:\n\n"
+            f'  --affirm "{PHASE2_AFFIRMATION}"\n\n'
+            "If you have looked at how the model performs on the holdout, "
+            "do not type it. The lock is then a description, and that is "
+            "the finding.")
+
+    before = json.loads(lock_path.read_text(encoding="utf-8"))
+    if before.get("declared") is True:
+        raise RatifyError(
+            f"{lock_path.name} is already declared by "
+            f"{before.get('declared_by')!r} on {before.get('declared_date')!r}. "
+            "Re-declaring would overwrite the record Phase 3 cites.")
+    for f in PHASE2_OWNER_FIELDS:
+        if f not in before:
+            raise RatifyError(
+                f"{lock_path.name} has no {f!r} key; this does not look "
+                "like a draft from make_phase2_lock")
+
+    after = dict(before)
+    after["declared"] = True
+    after["declared_by"] = declared_by
+    after["declared_date"] = declared_date
+    after["status"] = f"DECLARED -- by {declared_by} on {declared_date}"
+    after["attestation_text"] = PHASE2_AFFIRMATION
+
+    moved = sorted(k for k in set(before) | set(after)
+                   if before.get(k) != after.get(k))
+    unexpected = [k for k in moved
+                  if k not in PHASE2_FIELDS and k != "attestation_text"]
+    if unexpected:
+        raise RatifyError(
+            f"declaring would move {unexpected}, which are derived fields. "
+            "Refusing.")
+
+    lock_path.write_text(json.dumps(after, indent=1) + "\n", encoding="utf-8")
+    try:
+        d = load_declared_phase2_lock(lock_path)
+    except Exception:
+        lock_path.write_text(json.dumps(before, indent=1) + "\n",
+                             encoding="utf-8")
+        raise
+    return {
+        "written": lock_path.name,
+        "declared_by": declared_by,
+        "declared_date": declared_date,
+        "feature_set": d["feature_set"]["locked"],
+        "cluster_key": d["model_spec"]["cluster_key"],
+    }
+
+
+def _print_phase2_template() -> None:
+    """One line, no continuations -- same rule as the other templates."""
+    from .make_phase2_lock import OUT_JSON
+    print("Replace <your name>, then paste as ONE line:\n")
+    print("  " + " ".join([
+        "python -m hyp04_supply_chain_hedge.ratify phase2",
+        '--declared-by "<your name>"',
+        f'--affirm "{PHASE2_AFFIRMATION}"']))
+    p = OUT_JSON
+    print(f"\nLock: {p.name if p.is_file() else '(none yet -- run '
+                                               'make_phase2_lock)'}")
+    print("\nThis fixes target definition, feature set, and model spec "
+          "BEFORE the holdout\nis touched. Phase 3, later, is the one "
+          "locked run against it.")
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(
         prog="python -m hyp04_supply_chain_hedge.ratify",
@@ -713,6 +808,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     sp.add_argument("--declared-by", default="")
     sp.add_argument("--declared-date", default=None)
     sp.add_argument("--affirm", default="")
+
+    p2 = sub.add_parser("phase2", help="PHASE 2 (yours): declare the lock")
+    p2.add_argument("--template", action="store_true")
+    p2.add_argument("--declared-by", default="")
+    p2.add_argument("--declared-date", default=None)
+    p2.add_argument("--affirm", default="")
 
     pn = sub.add_parser("pins", help="STEP 8: repoint the registry pins")
     pn.add_argument("--apply", action="store_true",
@@ -811,6 +912,28 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"  by           {out['declared_by']} on {out['declared_date']}")
         print("\nThis opens no gate and computes nothing. It fixes what a "
               "later\ncomputation is allowed to see.")
+        return 0
+
+    if args.cmd == "phase2":
+        from .make_phase2_lock import OUT_JSON as PHASE2_JSON
+        if args.template or not args.affirm:
+            _print_phase2_template()
+            return 0 if args.template else 1
+        if not PHASE2_JSON.is_file():
+            raise RatifyError(
+                f"no Phase 2 lock at {PHASE2_JSON.name}. Run "
+                "make_phase2_lock first -- this signs a derivation, it "
+                "does not perform one.")
+        out = declare_phase2_lock(lock_path=PHASE2_JSON,
+                                  declared_by=args.declared_by,
+                                  affirmation=args.affirm,
+                                  declared_date=args.declared_date)
+        print(f"DECLARED {out['written']}")
+        print(f"  feature set  {out['feature_set']}")
+        print(f"  cluster key  {out['cluster_key']}")
+        print(f"  by           {out['declared_by']} on {out['declared_date']}")
+        print("\nThis opens no gate and computes nothing against the "
+              "holdout. Phase 3,\nlater, is the one locked run.")
         return 0
 
     if args.cmd == "pins":

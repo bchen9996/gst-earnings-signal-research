@@ -233,13 +233,21 @@ def test_5_residualization_excludes_anchor_adjacent_windows() -> None:
           wide.retained_fraction < b.retained_fraction,
           f"{wide.retained_fraction:.3f} vs {b.retained_fraction:.3f}")
 
-    # And with no anchors at all, nothing is excluded.
+    # And with no anchors at all, no ANCHOR-adjacency history is excluded.
+    # retained_fraction no longer implies 1.0 here -- it also reflects the
+    # pre-earnings-history exclusion added for the BB coverage-gap fix (see
+    # test_10), which zero anchors does nothing to silence. With zero
+    # anchors, the only source of loss left IS that one, exactly.
     none_excluded = estimate_earnings_cycle_baseline(
         peer, panel.returns[peer], panel.peer_earnings_days[peer],
         [], horizon=10, exclusion=excl)
-    check("5d. with zero anchors, zero history is excluded",
-          none_excluded.excluded_days == 0
-          and none_excluded.retained_fraction == 1.0)
+    check("5d. with zero anchors, zero ANCHOR-adjacency history is excluded",
+          none_excluded.excluded_days == 0)
+    check("5d2. and the only remaining loss is exactly the "
+          "pre-earnings-history exclusion",
+          abs((1.0 - none_excluded.retained_fraction)
+              - none_excluded.excluded_pre_earnings_history_days
+                / none_excluded.n_candidates) < 1e-9)
 
 
 def test_6_retained_history_and_bucket_population_reported_separately() -> None:
@@ -318,6 +326,73 @@ def test_9_dte_buckets_are_fixed_and_monotone() -> None:
           _dte_bucket(30) == _dte_bucket(60) == 4)
 
 
+def test_10_pre_first_earnings_observations_are_excluded_not_extrapolated() -> None:
+    """The BB coverage-gap bug found while scoping the Phase 2 lock: a peer
+    whose earnings history is only known from partway through the panel must
+    not be residualized against a baseline blended from AFTER that point and
+    silently applied to events BEFORE it. `_days_to_next_earnings` looks
+    forward only with no lower bound, so an unguarded pipeline would compute
+    a large-but-finite "days to own earnings" for a pre-history day, land it
+    in the same catch-all bucket as genuine later observations, and predict
+    against a mean that was never observed to hold at that point in time.
+    """
+    panel = make_panel("PRE_EARNINGS_GAP", n_anchors=6, n_quarters=12,
+                       n_peers_per_anchor=3, injected_lag=None,
+                       injected_effect=0.0, earnings_ramp_amplitude=0.6,
+                       seed=31)
+    peer = sorted(panel.peer_earnings_days)[0]
+    other_peer = sorted(panel.peer_earnings_days)[1]
+    original = sorted(panel.peer_earnings_days[peer])
+    cutoff = original[len(original) // 2]
+    panel.peer_earnings_days[peer] = [d for d in original if d >= cutoff]
+    # The control peer's own earnings offset is randomized like every peer's
+    # (see make_panel), so it can itself carry a few days before its first
+    # entry. Pin day 0 explicitly so this peer has NO pre-earnings-history
+    # gap at all, making it a genuine, not merely lighter-touched, control.
+    panel.peer_earnings_days[other_peer] = sorted(
+        set(panel.peer_earnings_days[other_peer]) | {0})
+
+    built = build_feature_table(panel)
+    table = built["table"]
+    baselines = built["baselines"]
+
+    any_baseline = next(b for (p, h), b in baselines.items() if p == peer)
+    check("10a. the baseline records the peer's own first earnings day",
+          any_baseline.first_earnings_day == cutoff,
+          str(any_baseline.first_earnings_day))
+    check("10b. at least one fitting-side candidate day was excluded as "
+          "pre-earnings-history",
+          any_baseline.excluded_pre_earnings_history_days > 0)
+
+    mask = table["peer"] == peer
+    pre_cutoff_rows = int(np.sum(mask & (table["anchor_day"] < cutoff)))
+    check("10c. no surviving row for this peer predates its own first "
+          "known earnings", pre_cutoff_rows == 0, f"found {pre_cutoff_rows}")
+    check("10c2. and the fixture actually had pre-cutoff events to exclude "
+          "-- otherwise 10c would pass vacuously",
+          int(np.sum((panel_anchor_day_for(panel, peer) < cutoff))) > 0)
+
+    check("10d. the exclusion is reported, distinctly from bucket_population",
+          built["pre_earnings_history"]["n_excluded"] > 0)
+    check("10e. and named as its own category, not folded into "
+          "bucket_population's count",
+          built["pre_earnings_history"] is not built["bucket_population"])
+
+    check("10f. an unaffected peer -- earnings history covers the whole "
+          "panel -- contributes zero pre-earnings-history exclusions",
+          all(b.excluded_pre_earnings_history_days == 0
+              for (p, h), b in baselines.items() if p == other_peer))
+    check("10g. and some of that peer's rows do survive, so 10f is not "
+          "vacuous either",
+          int(np.sum(table["peer"] == other_peer)) > 0)
+
+
+def panel_anchor_day_for(panel, peer: str) -> np.ndarray:
+    """Every anchor_day for events this peer is linked to. Test-only helper."""
+    return np.asarray([ev["anchor_day"] for ev in panel.anchor_events
+                       if peer in ev["peers"]], dtype=int)
+
+
 if __name__ == "__main__":
     test_1_rvar_is_a_normalized_variance()
     test_2_log_floor_prevents_negative_infinity()
@@ -328,6 +403,7 @@ if __name__ == "__main__":
     test_7_underpopulated_buckets_are_excluded_not_imputed()
     test_8_residualization_actually_changes_the_target()
     test_9_dte_buckets_are_fixed_and_monotone()
+    test_10_pre_first_earnings_observations_are_excluded_not_extrapolated()
 
     print()
     if SKIPS:
