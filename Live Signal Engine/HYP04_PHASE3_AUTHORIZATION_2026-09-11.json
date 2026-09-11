@@ -10,7 +10,7 @@
  "pinned_commit_sha": "56ea6467c5156b69681c67b5e986a0316bf5a2ce",
  "pinned_phase2_lock_sha256": "4052bc9a7fc08769e5fe9946d6303d488952c011ee713c79d376cea429e76b5e",
  "pinned_phase2_lock": "HYP04_PHASE2_LOCK_2026-09-10.json",
- "consumed": false,
- "consumed_by_result": null,
+ "consumed": true,
+ "consumed_by_result": "HYP04_PHASE3_RESULT_2026-09-11.json",
  "how_it_is_used": "make_phase3_run.py verifies: exactly one authorization exists, declared is true, consumed is false, pinned_commit_sha matches HEAD, and pinned_phase2_lock_sha256 matches the lock on disk. It marks this consumed the instant a real run succeeds."
 }
