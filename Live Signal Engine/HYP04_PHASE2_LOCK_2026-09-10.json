@@ -86,14 +86,15 @@
  },
  "smoke_test": "validate_phase2_lock() re-runs the locked pipeline over the EXPLORATION set only and confirms it reproduces this lock's own declared feature set, cluster key, and hash pins -- a tamper/drift check, never a result, and it never touches the holdout.",
  "opens_no_gate": "This is a computed Phase 2 lock, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read.",
- "declared": false,
- "declared_by": "",
- "declared_date": "",
+ "declared": true,
+ "declared_by": "bchen9996",
+ "declared_date": "2026-09-10",
  "owner_fields": [
   "declared",
   "declared_by",
   "declared_date"
  ],
  "how_to_complete": "python -m hyp04_supply_chain_hedge.ratify phase2 --template",
- "status": "DRAFT -- inert until declared"
+ "status": "DECLARED -- by bchen9996 on 2026-09-10",
+ "attestation_text": "This lock's target definition, feature set, and model spec were fixed without looking at how they perform against the holdout, and no part of the holdout has been examined."
 }
