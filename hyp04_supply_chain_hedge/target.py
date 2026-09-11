@@ -42,7 +42,7 @@ rediscover the earnings calendar and call it supply-chain transmission.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 
@@ -146,6 +146,8 @@ class EarningsCycleBaseline:
     n_used: int
     n_candidates: int
     excluded_days: int
+    first_earnings_day: Optional[int]
+    excluded_pre_earnings_history_days: int
 
     @property
     def retained_fraction(self) -> float:
@@ -177,6 +179,23 @@ class EarningsCycleBaseline:
         """
         b = _dte_bucket(days_to_own_earnings)
         return self.bucket_counts.get(b, 0) >= MIN_BUCKET_COUNT
+
+    def has_earnings_history_at(self, day: int) -> bool:
+        """Is `day` on or after this peer's OWN first recorded earnings?
+
+        `_days_to_next_earnings` looks forward only, with no lower bound: a
+        day decades before a peer's first known release still resolves to a
+        large but finite gap and lands in the same catch-all bucket as a
+        genuine near-term observation. Left unguarded, that observation gets
+        residualized against a baseline blended from the peer's history AFTER
+        its first known earnings, applied to a day that predates any earnings
+        record at all -- an unstated assumption that the peer's future
+        earnings-cycle pattern represents its past. Checked separately from
+        `bucket_is_populated`: a well-populated bucket does not mean the
+        observations in it are all evidentially grounded.
+        """
+        return (self.first_earnings_day is not None
+                and day >= self.first_earnings_day)
 
     def predict(self, days_to_own_earnings: float) -> float:
         return self.bucket_means.get(_dte_bucket(days_to_own_earnings), self.global_mean)
@@ -214,11 +233,14 @@ def estimate_earnings_cycle_baseline(
     """Estimate one peer's unconditional log-ratio vs. days-to-own-earnings.
 
     Sweeps pseudo-anchor days across the peer's history, drops any within
-    `exclusion` sessions of a REAL anchor event, and averages the resulting
-    raw log-ratios within days-to-own-earnings buckets.
+    `exclusion` sessions of a REAL anchor event, drops any before the peer's
+    OWN first recorded earnings (nothing to condition "days to own earnings"
+    on before that), and averages the resulting raw log-ratios within
+    days-to-own-earnings buckets.
     """
     n = peer_returns.size
     dte = _days_to_next_earnings(n, peer_earnings_days)
+    first_earnings_day = min(peer_earnings_days) if peer_earnings_days else None
     excluded = np.zeros(n, dtype=bool)
     for a in anchor_days:
         lo, hi = max(0, a - exclusion), min(n, a + exclusion + 1)
@@ -233,9 +255,13 @@ def estimate_earnings_cycle_baseline(
     hi_day = n - horizon - 1
     buckets: dict[int, list[float]] = {}
     n_used = n_candidates = 0
+    n_excluded_pre_earnings_history = 0
 
     for day in range(lo_day, max(lo_day, hi_day)):
         n_candidates += 1
+        if first_earnings_day is not None and day < first_earnings_day:
+            n_excluded_pre_earnings_history += 1
+            continue
         if excluded[day]:
             continue
         val = raw_log_ratio_target(peer_returns, day, horizon,
@@ -259,6 +285,9 @@ def estimate_earnings_cycle_baseline(
         n_used=n_used,
         n_candidates=n_candidates,
         excluded_days=int(excluded.sum()),
+        first_earnings_day=(int(first_earnings_day)
+                            if first_earnings_day is not None else None),
+        excluded_pre_earnings_history_days=n_excluded_pre_earnings_history,
     )
 
 
@@ -307,6 +336,7 @@ def build_feature_table(
 
     n_candidate_obs = 0
     n_excluded_underpopulated_bucket = 0
+    n_excluded_pre_earnings_history = 0
 
     for ev_i, ev in enumerate(panel.anchor_events):
         for peer in ev["peers"]:
@@ -320,6 +350,13 @@ def build_feature_table(
                 dte_val = float(dte_cache[peer][ev["anchor_day"]])
                 if residualize:
                     baseline = baselines[(peer, h)]
+                    # Excluded BEFORE the bucket-population check, and kept a
+                    # distinct reason from it: a well-populated bucket can
+                    # still be blended from history the event itself predates
+                    # (see EarningsCycleBaseline.has_earnings_history_at).
+                    if not baseline.has_earnings_history_at(ev["anchor_day"]):
+                        n_excluded_pre_earnings_history += 1
+                        continue
                     # Patch 12, accept-and-report: an observation whose
                     # days-to-own-earnings bucket is under-populated is treated
                     # as MISSING and dropped from the regression sample. Never
@@ -404,6 +441,30 @@ def build_feature_table(
                 "accept-and-report (Patch 12 option c): excluded from the Stage 1 "
                 "regression sample, not imputed. Buckets are NOT widened and the "
                 "threshold is NOT lowered to recover sample size."
+            ),
+        },
+        # Distinct from bucket_population on purpose -- see
+        # EarningsCycleBaseline.has_earnings_history_at. A bucket can be
+        # well-populated and still be the wrong thing to apply, if what
+        # populates it postdates the observation it is being applied to.
+        "pre_earnings_history": {
+            "what_it_measures": (
+                "observations dropped because the event predates this peer's "
+                "own FIRST recorded earnings release, so no days-to-own-"
+                "earnings figure at that point is evidentially grounded -- "
+                "computing one anyway would residualize against the peer's "
+                "LATER history as if it applied to an earlier era"
+            ),
+            "n_candidate_observations": n_candidate_obs,
+            "n_excluded": n_excluded_pre_earnings_history,
+            "excluded_fraction": (
+                n_excluded_pre_earnings_history / n_candidate_obs
+                if n_candidate_obs else 0.0
+            ),
+            "policy": (
+                "excluded from the Stage 1 regression sample, not imputed and "
+                "not extrapolated backward, matching bucket_population's own "
+                "accept-and-report policy."
             ),
         },
     }
