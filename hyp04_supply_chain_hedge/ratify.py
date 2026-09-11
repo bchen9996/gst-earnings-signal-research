@@ -777,6 +777,114 @@ def _print_phase2_template() -> None:
           "locked run against it.")
 
 
+PHASE3_AFFIRMATION = (
+    "I authorize the one, single holdout run against HYP-04's frozen "
+    "57-event holdout set. I understand this cannot be undone or repeated: "
+    "whatever the result, it will be reported as computed, and no future "
+    "run against this holdout will be made to look for a better one.")
+
+def declare_phase3_authorization(*, out_path: Path, phase2_lock_path: Path,
+                                  declared_by: str, affirmation: str,
+                                  declared_date: Optional[str] = None,
+                                  repo: Path = REPO_ROOT
+                                  ) -> dict[str, Any]:
+    """Write the Phase 3 authorization -- BEFORE any holdout computation.
+
+    Every earlier ratify step signs something already derived. This one does
+    not: there is nothing to derive before you decide to authorize the run,
+    so this writes the complete, signed document in one step, pinned to
+    whatever the commit and the Phase 2 lock hash actually are right now.
+    """
+    from .make_freeze_draft import _commit_sha, _sha256
+    from .make_phase2_lock import load_declared_phase2_lock, Phase2LockError
+    from .make_phase3_run import RESULT_PATTERN
+
+    if out_path.exists():
+        raise RatifyError(
+            f"{out_path.name} already exists. At most one authorization "
+            "exists at a time -- see make_phase3_run.AUTHORIZATION_PATTERN. "
+            "If it was never consumed and you need to re-authorize against "
+            "new code, delete it deliberately first.")
+    existing = sorted(out_path.parent.glob("HYP04_PHASE3_AUTHORIZATION_*.json"))
+    if existing:
+        raise RatifyError(
+            f"an authorization already exists ({[p.name for p in existing]}"
+            f"). Refusing to write a second one under a different name.")
+    existing_results = sorted(out_path.parent.glob(RESULT_PATTERN))
+    if existing_results:
+        raise RatifyError(
+            f"a Phase 3 result already exists ({[p.name for p in existing_results]}"
+            "). The holdout has already been run once; authorizing another "
+            "run would not be honest about what this is for.")
+
+    try:
+        load_declared_phase2_lock(phase2_lock_path)
+    except Phase2LockError as e:
+        raise RatifyError(
+            f"cannot authorize Phase 3: {e}") from e
+
+    declared_by = _reject_placeholder("--declared-by", declared_by)
+    declared_date = _iso("--declared-date", declared_date)
+
+    if (affirmation or "").strip() != PHASE3_AFFIRMATION:
+        raise RatifyError(
+            "the affirmation does not match, so nothing was written.\n\n"
+            "This authorizes the one irreversible act in this whole "
+            "project. Type it exactly:\n\n"
+            f'  --affirm "{PHASE3_AFFIRMATION}"\n\n'
+            "If you are not ready to spend the holdout, do not type it.")
+
+    doc: dict[str, Any] = {
+        "artifact": out_path.name,
+        "hypothesis_id": "HYP-04",
+        "what_this_is": (
+            "Authorization for the one, single holdout run -- typed and "
+            "pinned BEFORE any computation against the holdout happens. "
+            "make_phase3_run.py refuses to run without it."),
+        "what_this_is_not": (
+            "Not a result, not a retroactive declaration, and not itself a "
+            "computation. It authorizes exactly one future run of "
+            "make_phase3_run.py, pinned to the exact code and lock that "
+            "exist right now."),
+        "declared": True,
+        "declared_by": declared_by,
+        "declared_date": declared_date,
+        "attestation_text": PHASE3_AFFIRMATION,
+        "pinned_commit_sha": _commit_sha(repo),  # refuses a dirty tree
+        "pinned_phase2_lock_sha256": _sha256(phase2_lock_path),
+        "pinned_phase2_lock": phase2_lock_path.name,
+        "consumed": False,
+        "consumed_by_result": None,
+        "how_it_is_used": (
+            "make_phase3_run.py verifies: exactly one authorization exists, "
+            "declared is true, consumed is false, pinned_commit_sha matches "
+            "HEAD, and pinned_phase2_lock_sha256 matches the lock on disk. "
+            "It marks this consumed the instant a real run succeeds."),
+    }
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+    return {
+        "written": out_path.name,
+        "declared_by": declared_by,
+        "declared_date": declared_date,
+        "pinned_commit_sha": doc["pinned_commit_sha"],
+    }
+
+
+def _print_phase3_template() -> None:
+    """One line, no continuations -- same rule as the other templates."""
+    from datetime import date as _date
+    print("Replace <your name>, then paste as ONE line:\n")
+    print("  " + " ".join([
+        "python -m hyp04_supply_chain_hedge.ratify phase3",
+        '--declared-by "<your name>"',
+        f'--affirm "{PHASE3_AFFIRMATION}"']))
+    print(f"\nWill write: HYP04_PHASE3_AUTHORIZATION_{_date.today().isoformat()}.json")
+    print("\nThis authorizes the ONE holdout run. Read PHASE3_AFFIRMATION "
+          "above before typing\nit -- there is no undo, and no second run.")
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(
         prog="python -m hyp04_supply_chain_hedge.ratify",
@@ -814,6 +922,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     p2.add_argument("--declared-by", default="")
     p2.add_argument("--declared-date", default=None)
     p2.add_argument("--affirm", default="")
+
+    p3 = sub.add_parser("phase3", help="PHASE 3 (yours): authorize the one "
+                                       "holdout run, BEFORE it happens")
+    p3.add_argument("--template", action="store_true")
+    p3.add_argument("--declared-by", default="")
+    p3.add_argument("--declared-date", default=None)
+    p3.add_argument("--affirm", default="")
 
     pn = sub.add_parser("pins", help="STEP 8: repoint the registry pins")
     pn.add_argument("--apply", action="store_true",
@@ -934,6 +1049,25 @@ def main(argv: Optional[list[str]] = None) -> int:
         print(f"  by           {out['declared_by']} on {out['declared_date']}")
         print("\nThis opens no gate and computes nothing against the "
               "holdout. Phase 3,\nlater, is the one locked run.")
+        return 0
+
+    if args.cmd == "phase3":
+        from .make_phase2_lock import OUT_JSON as PHASE2_JSON
+        from datetime import date as _date
+        if args.template or not args.affirm:
+            _print_phase3_template()
+            return 0 if args.template else 1
+        out = LSE / f"HYP04_PHASE3_AUTHORIZATION_{_date.today().isoformat()}.json"
+        result = declare_phase3_authorization(
+            out_path=out, phase2_lock_path=PHASE2_JSON,
+            declared_by=args.declared_by, affirmation=args.affirm,
+            declared_date=args.declared_date)
+        print(f"AUTHORIZED {result['written']}")
+        print(f"  by             {result['declared_by']} on {result['declared_date']}")
+        print(f"  pinned commit  {result['pinned_commit_sha'][:12]}")
+        print("\nThe holdout has NOT been touched. Run "
+              "make_phase3_run.py to spend this\nauthorization -- it will "
+              "be consumed and cannot authorize a second run.")
         return 0
 
     if args.cmd == "pins":
