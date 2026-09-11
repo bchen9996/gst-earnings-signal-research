@@ -279,14 +279,16 @@
   "Peer coverage is thin early and complete late: every pair dropped for insufficient reference/horizon windows falls in exploration, so the holdout carries complete peer coverage."
  ],
  "opens_no_gate": "Declaring a split moves no gate condition. It does not supply a count, a freeze, a linkage ratification or a registry status, and it is not displayable as a HYP-04 result.",
- "declared": false,
- "declared_by": "",
- "declared_date": "",
+ "declared": true,
+ "declared_by": "<bchen9996>",
+ "declared_date": "2026-09-10",
  "owner_fields": [
   "declared",
   "declared_by",
   "declared_date"
  ],
  "how_to_complete": "python -m hyp04_supply_chain_hedge.ratify split --template",
- "status": "DRAFT -- inert until declared"
+ "status": "DECLARED -- by <bchen9996> on 2026-09-10",
+ "attestation_text": "This split was chosen by the stated rule and not by looking at any HYP-04 outcome, and no part of the holdout has been examined.",
+ "correction_note": "declared_by reads '<bchen9996>', with the template's angle brackets still around it. That is a copy-paste artifact of an incompletely filled placeholder -- the signer replaced the words inside <your name> rather than the whole token -- and not a different identity. This declaration is understood to be by bchen9996, the same person who ratified the linkage map and attested the freeze. The guard that let this through (an exact-match check against the literal placeholder string) was fixed the same day in ratify.py:_reject_placeholder, which now also rejects any value still wrapped in angle brackets."
 }

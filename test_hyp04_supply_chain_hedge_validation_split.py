@@ -296,6 +296,48 @@ def test_9_the_cluster_key_is_declared_not_assumed() -> None:
           V.CLUSTER_KEY == LOCKED_CLUSTER_KEY, LOCKED_CLUSTER_KEY)
 
 
+def test_9b_a_correction_annotates_without_re_declaring() -> None:
+    """The real case: `declared_by` carries stray brackets from an
+    incompletely-filled template. `annotate_correction` must record that
+    without touching what was actually signed."""
+    s = V.derive_split(_frozen_ids())
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "split.json"
+
+        draft = {**s, "declared": False, "declared_by": "", "declared_date": ""}
+        p.write_text(json.dumps(draft), encoding="utf-8")
+        _refuses("9b-a. cannot annotate an undeclared draft -- there is no "
+                 "signature yet for a note to be about",
+                 lambda: V.annotate_correction(p, note="x"), "never declared")
+
+        signed = {**s, "declared": True, "declared_by": "<bchen9996>",
+                  "declared_date": "2026-09-10",
+                  "attestation_text": "the real affirmation"}
+        p.write_text(json.dumps(signed), encoding="utf-8")
+        _refuses("9b-b. a blank note documents nothing",
+                 lambda: V.annotate_correction(p, note="   "), "documents nothing")
+
+        after = V.annotate_correction(
+            p, note="The angle brackets are a copy-paste artifact from the "
+                    "template, not part of the name. This declaration is by "
+                    "bchen9996.")
+        check("9b-c. the note is written",
+              "bchen9996" in after["correction_note"])
+        check("9b-d. and what was SIGNED is untouched -- same value, warts "
+              "and all",
+              after["declared_by"] == "<bchen9996>"
+              and after["declared_date"] == "2026-09-10"
+              and after["attestation_text"] == "the real affirmation")
+        check("9b-e. nothing else moved",
+              {k: v for k, v in after.items() if k != "correction_note"}
+              == signed)
+
+        _refuses("9b-f. a second correction on the same record is refused -- "
+                 "one note per document",
+                 lambda: V.annotate_correction(p, note="another note"),
+                 "already carries a correction_note")
+
+
 def test_10_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -315,6 +357,7 @@ if __name__ == "__main__":
     test_7_order_is_enforced_before_anything_is_written()
     test_8_declaring_a_split_opens_no_gate()
     test_9_the_cluster_key_is_declared_not_assumed()
+    test_9b_a_correction_annotates_without_re_declaring()
     test_10_offline()
 
     print()
