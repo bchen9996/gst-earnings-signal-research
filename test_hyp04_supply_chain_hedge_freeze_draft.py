@@ -414,8 +414,17 @@ def test_10_the_detector_catches_wiring_and_ignores_mentions() -> None:
         check("10c. nor is an import that never calls",
               "imports_but_never_calls.py" not in found)
 
-    check("10d. and the real repository has no such path today",
-          F._estimator_paths(ROOT) == [], str(F._estimator_paths(ROOT)))
+    # Phase 1 (plan step 4) legitimately built the one file that wires the
+    # real panel to an estimator -- make_phase1_diagnostics.py. Its own
+    # refusals keep it from ever running against the real committed panel
+    # (see that module's suite), but its mere EXISTENCE is now a true fact
+    # about the repo, and _estimator_paths exists to surface exactly that,
+    # not to stay empty forever. Pin the new state instead of a stale one.
+    real_paths = F._estimator_paths(ROOT)
+    check("10d. the real repository now shows the Phase 1 diagnostic module, "
+          "and nothing else, as a panel-to-estimator path",
+          real_paths == ["hyp04_supply_chain_hedge/make_phase1_diagnostics.py"],
+          str(real_paths))
 
 
 def test_11_a_computed_outcome_blocks_the_freeze() -> None:
