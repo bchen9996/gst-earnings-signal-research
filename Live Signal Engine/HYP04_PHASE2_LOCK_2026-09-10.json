@@ -1,0 +1,99 @@
+{
+ "artifact": "HYP04_PHASE2_LOCK_2026-09-10.json",
+ "as_of_date": "2026-09-10",
+ "hypothesis_id": "HYP-04",
+ "what_this_is": "The Phase 2 preregistration lock: target definition, feature set, and model spec, fixed before the holdout is touched. Validation split is referenced, not re-declared -- it was already fixed at Phase 1 step 1.",
+ "what_this_is_not": "Not a result, not Phase 3's one real holdout run, and not permission to compute anything against the holdout. It constrains what that later, separate, explicitly-authorized run may do; it performs none.",
+ "governing_documents": {
+  "plan": "HYP04_SupplyChain_HedgeLag_MODEL_PLAN_v0.2.md section 5.3",
+  "analysis_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json",
+  "which_decisions": "target definition, feature set, model specification -- the three items GST_HYP04_ANALYSIS_LOCK_v1.0.json's own scope.does_not_fix names"
+ },
+ "pins": {
+  "validation_split": "HYP04_VALIDATION_SPLIT_2026-09-09.json",
+  "validation_split_sha256": "9a388df0395361239ffef759f2400a83c9fb88e9ea0e45aab5b22196ed54289c",
+  "target_py_sha256": "240994a81ba39e4164f5c2a3cb8166c88e2bf7d2980f960cea0955452dd5034f",
+  "constants_py_sha256": "cf6cab1307439b9fad441811e283591985504222d16f39f9a328927240ce0fd4",
+  "lock_declared_at_commit": "70c0f73209c2c65831d78fa99b2de6389f0ebaed",
+  "exploration_event_count": 157,
+  "holdout_event_count": 57
+ },
+ "target_definition": {
+  "formula": "RVar(h) = (1/h) * sum_{i=1..h} r_i^2 over [t+1, t+h]; RVar_ref = (1/20) * sum r_i^2 over the trailing 20 sessions ending at the anchor's earnings date; raw = log(RVar(h)) - log(RVar_ref); target = raw - earnings_cycle_baseline(peer, days_to_own_earnings)",
+  "horizon_grid": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "residualization": "REQUIRED, not optional -- section 3.2's own definition subtracts earnings_cycle_baseline unconditionally. Phase 1's unresidualized_sensitivity treatment was an ad hoc diagnostic aid for the BB coverage question, never a preregistered alternate spec, and is not carried forward here.",
+  "min_bucket_count": 20,
+  "min_retained_history_fraction": 0.1,
+  "anchor_adjacent_exclusion_trading_days": 25,
+  "pre_earnings_history_exclusion": "an observation before a peer's own first recorded earnings release is excluded from both baseline fitting and application, never extrapolated backward. Fixed in target.py while scoping this lock -- see EarningsCycleBaseline.has_earnings_history_at -- and pinned here as part of the locked spec, not a separate footnote.",
+  "source": "target.py, hash-pinned above"
+ },
+ "feature_set": {
+  "locked": [
+   "shock_magnitude",
+   "days_to_peer_earnings"
+  ],
+  "source": "_design_matrix in inference.py",
+  "deferred_candidates": [
+   {
+    "name": "peer_anchor_correlation_beta",
+    "reason": "requires new computation over historical peer/anchor return series; nothing in the current inference layer produces it"
+   },
+   {
+    "name": "relationship_type",
+    "reason": "the data already exists on every curated linkage edge (CuratedEdge.relationship_type) and would be cheap to read, but wiring it into the regression -- dummy or interaction terms -- is unexercised code with no end-to-end run behind it; deferred rather than locking a path that has never actually run"
+   },
+   {
+    "name": "peer_coverage_thinness_proxy",
+    "reason": "needs GST/GDELT infrastructure integration; nothing in hyp04_supply_chain_hedge currently touches that data source"
+   }
+  ],
+  "deviation_from_plan": "plan section 3.4 names five candidate features; only the two above are implemented and locked. The other three are named as a stated, documented deviation -- not silently dropped, not built for this lock."
+ },
+ "model_spec": {
+  "estimator": "local projections with CR2 clustered standard errors, Satterthwaite degrees of freedom, and max-T permutation multiplicity correction -- fixed by the D1-D10 analysis lock and referenced here, not restated",
+  "analysis_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json",
+  "cluster_key": "calendar_period",
+  "residualize": true,
+  "n_permutations": 2000,
+  "random_seed": 42
+ },
+ "validation_split": {
+  "referenced_not_redeclared": true,
+  "exploration_event_count": 157,
+  "holdout_event_count": 57
+ },
+ "smoke_test": "validate_phase2_lock() re-runs the locked pipeline over the EXPLORATION set only and confirms it reproduces this lock's own declared feature set, cluster key, and hash pins -- a tamper/drift check, never a result, and it never touches the holdout.",
+ "opens_no_gate": "This is a computed Phase 2 lock, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read.",
+ "declared": false,
+ "declared_by": "",
+ "declared_date": "",
+ "owner_fields": [
+  "declared",
+  "declared_by",
+  "declared_date"
+ ],
+ "how_to_complete": "python -m hyp04_supply_chain_hedge.ratify phase2 --template",
+ "status": "DRAFT -- inert until declared"
+}
