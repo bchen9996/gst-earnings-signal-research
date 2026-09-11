@@ -586,7 +586,7 @@ def _run_treatment(panel: SyntheticPanel, *, residualize: bool,
 def build_diagnostics(*, out_path: Path, panel_path: Path = DEFAULT_PANEL,
                       split_path: Path = DEFAULT_SPLIT,
                       peer_earnings_path: Path = DEFAULT_PEER_EARNINGS,
-                      freeze_path: Optional[Path] = None,
+                      freeze_path: Optional[Path] = None, lse: Path = LSE,
                       n_permutations: int = 2000, seed: int = 42,
                       today: Optional[date] = None) -> dict[str, Any]:
     if out_path.exists():
@@ -594,8 +594,13 @@ def build_diagnostics(*, out_path: Path, panel_path: Path = DEFAULT_PANEL,
             f"{out_path.name} already exists. Dated artifacts are never "
             "overwritten -- delete it deliberately first.")
 
+    # `lse` is where the freeze, pinned calendar/shocks/map, and peer closes
+    # actually live -- NOT necessarily out_path's directory. A --dry-run
+    # writes out_path into a throwaway tempdir while every real input still
+    # lives under the real Live Signal Engine; conflating the two left the
+    # dry-run unable to find any of them.
     j = _rejoin(panel_path=panel_path, split_path=split_path,
-               freeze_path=freeze_path, lse=out_path.parent)
+               freeze_path=freeze_path, lse=lse)
 
     panel_pair = j["panel_pair"]
     exploration_events = [ev for ev in panel_pair.anchor_events if ev["peers"]]

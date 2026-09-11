@@ -434,7 +434,7 @@ def test_11_full_wiring_end_to_end() -> None:
         doc = P.build_diagnostics(
             out_path=f["out"], panel_path=f["panel"], split_path=f["split"],
             peer_earnings_path=f["earnings"], freeze_path=f["freeze"],
-            n_permutations=N_PERM_FAST, seed=42)
+            lse=f["lse"], n_permutations=N_PERM_FAST, seed=42)
 
         check("11a. both treatments are present",
               set(doc["treatments"]) == {"residualized_primary",
@@ -475,7 +475,8 @@ def test_11_full_wiring_end_to_end() -> None:
             lambda: P.build_diagnostics(
                 out_path=f["out"], panel_path=f["panel"],
                 split_path=f["split"], peer_earnings_path=f["earnings"],
-                freeze_path=f["freeze"], n_permutations=N_PERM_FAST),
+                freeze_path=f["freeze"], lse=f["lse"],
+                n_permutations=N_PERM_FAST),
             "already exists")
 
 
