@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Cluster-robust covariance and Satterthwaite dof for HYP-04's local projections.
 
+Also reused by HYP-05 (same package) for `dual_cluster_report` below -- see
+that function's docstring for HYP-05's own re-decision on two-way clustering.
+
 PROVENANCE -- THIS IS A COPY, NOT AN IMPORT.
 
 `cr_vcov` and `satterthwaite_df` below are mirrored from
@@ -63,6 +66,27 @@ TWO_WAY_LIMITATION_NOTE = (
     "validated or otherwise, and standing up an unvalidated one would "
     "contradict this project's own treatment of unvalidated inference "
     "machinery. Recorded as a stated Phase 0 limitation."
+)
+
+HYP05_TWO_WAY_LIMITATION_NOTE = (
+    "HYP-05 re-decided this question on its own terms (2026-09-12) rather "
+    "than inheriting HYP-04's conclusion unexamined -- the underlying "
+    "constraint is unchanged (no multiway/Satterthwaite CR2 implementation "
+    "exists anywhere in this repository, validated or otherwise), but "
+    "HYP-05's peer sets are structurally different from HYP-04's: the "
+    "competitor/supplier extractor now walks full comma/'and'-separated "
+    "lists (edgar_linkage.py, fixed 2026-09-12) rather than capturing only "
+    "the first name, so a single anchor's filing can name several peers at "
+    "once, and those peers are more likely to share a reporting calendar "
+    "with each other than HYP-04's smaller, hand-curated peer set was. That "
+    "makes the omitted calendar-period dimension a larger open question "
+    "here, not a smaller one. Rather than silently ship one-way and record "
+    "the same limitation text, HYP-05 additionally reports a SECOND "
+    "one-way clustering (by calendar period) alongside the primary "
+    "anchor-event one -- see `dual_cluster_report()`. This is two ONE-WAY "
+    "lenses shown side by side, not a two-way estimator: it bounds how much "
+    "the calendar dimension could move the SE without claiming to correct "
+    "for it jointly with the anchor-event dimension."
 )
 
 
@@ -186,4 +210,40 @@ def intraclass_correlation(values: np.ndarray, cluster: np.ndarray) -> dict:
         "n0_unequal_size_correction": float(n0),
         "ms_between": float(ms_between),
         "ms_within": float(ms_within),
+    }
+
+
+def dual_cluster_report(X: np.ndarray, y: np.ndarray, g_primary: np.ndarray,
+                         g_secondary: np.ndarray, kind: str = "CR2") -> dict:
+    """Two ONE-WAY clusterings, reported side by side. NOT two-way clustering.
+
+    See `HYP05_TWO_WAY_LIMITATION_NOTE` for why this exists: no multiway CR2
+    implementation exists in this repository, so the two dimensions cannot be
+    combined into a single, formally correct joint estimator. What this DOES
+    give is an honest bound -- the primary (`g_primary`, expected to be
+    anchor-event) result is HYP-05's actual inferential result, unchanged
+    from what one-way clustering alone would produce; the secondary
+    (`g_secondary`, expected to be calendar-period) result is a robustness
+    lens only, showing how much the SE would move under a differently-shaped
+    but equally valid single clustering choice. Report both; do not silently
+    prefer whichever one is smaller.
+    """
+    beta, V_primary, G_primary = cr_vcov(X, y, g_primary, kind=kind)
+    _, V_secondary, G_secondary = cr_vcov(X, y, g_secondary, kind=kind)
+    se_primary = np.sqrt(np.diag(V_primary))
+    se_secondary = np.sqrt(np.diag(V_secondary))
+    ratio = np.divide(se_secondary, se_primary,
+                       out=np.full_like(se_primary, float("nan")),
+                       where=se_primary != 0)
+    return {
+        "kind": kind,
+        "beta": beta,
+        "primary": {"dimension": "anchor_event", "se": se_primary,
+                    "n_clusters": int(G_primary)},
+        "secondary": {"dimension": "calendar_period", "se": se_secondary,
+                      "n_clusters": int(G_secondary)},
+        "se_ratio_secondary_over_primary": ratio,
+        "note": ("Two ONE-WAY clusterings, not a two-way estimator. "
+                 "`primary` (anchor_event) is HYP-05's inferential result; "
+                 "`secondary` (calendar_period) is a robustness lens only."),
     }
