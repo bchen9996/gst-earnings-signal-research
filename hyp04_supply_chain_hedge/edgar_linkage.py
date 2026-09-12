@@ -403,13 +403,33 @@ NEGATIVE_PATTERN = re.compile(
 
 # Generic placeholders that are NOT company names. A disclosure naming
 # "Customer A" is compliant and complete, and completely useless as an edge.
+#
+# "other(s)?|various|several|many|some|numerous" added 2026-09-12, measured
+# against real text for the first time by the 24-anchor competitor/supplier
+# calibration (HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_2026-09-12.md):
+# TTWO's 10-K reads "we compete with: * Other interactive entertainment
+# companies that range in size..." -- a bulleted, descriptive clause, not a
+# named company, but "Other" is capitalized (bullet-initial) and otherwise
+# passes clean_party()'s Title-Case shape test. Anchoring
+# (_extract_party_names, added earlier the same day) fixes captures that
+# wander INTO the wrong window; it does not by itself validate that
+# whatever sits immediately after the anchor phrase is actually a proper
+# noun rather than a common English determiner/quantifier heading a
+# descriptive clause. This is a small, closed class of function words --
+# not a domain-specific stoplist like the location-name idea considered and
+# rejected earlier the same day -- so it is safe to add here, shared by
+# both extraction paths: purely additive (can only reject more, never
+# accept something clean_party() previously rejected), and no real
+# ASC-280-disclosed customer is plausibly named, after stripping, just
+# "Other" or "Various" with nothing else.
 UNNAMED_TOKENS = re.compile(
     r"^(?:customers?|clients?|distributors?|resellers?|one|a single|our largest|"
     r"two|three|another|certain|the largest|"
     r"customer\s+[a-z1-9]|company|the company|our company|"
     r"this customer|such customer|each|no customer|"
     r"concentration|revenue|revenues|sales|net sales|total|segment|"
-    r"gross margin|accounts receivable)\b\.?$", re.I)
+    r"gross margin|accounts receivable|"
+    r"others?|various|several|many|some|numerous)\b\.?$", re.I)
 
 CORP_SUFFIX = re.compile(
     r"\b(inc|corp|corporation|company|co|ltd|limited|plc|llc|lp|holdings|"
@@ -1405,39 +1425,57 @@ def extract_edges_from_text(
 
 
 # ==========================================================================
-# COMPETITOR / SUPPLIER-CONTEXT PROSE -- UNCALIBRATED. Read this before using it.
+# COMPETITOR / SUPPLIER-CONTEXT PROSE -- CALIBRATED 2026-09-12, WIRED IN
 # ==========================================================================
-# `CONCENTRATION_ANCHORS` above reached its current shape only by being
-# "measured 2026-08-27 over a controlled grid" and "measured again 2026-08-28
-# over the cached corpus" -- real filing text, iterated against, more than
-# once. The anchors below have NOT been through that. They are a real,
-# working, offline-testable function (exercised in
-# test_hyp04_supply_chain_hedge_edgar_linkage.py against synthetic fixtures
-# only, same discipline every extractor test here follows) -- not a stub --
-# but "passes on synthetic fixtures I wrote myself" is a much weaker claim
-# than "measured on the cached corpus of real filings", and conflating the
-# two is exactly the failure mode this module's own docstring warns about:
-# "prose-parsing is what produced the false edges in BOTH EDGAR extractors."
+# `CONCENTRATION_ANCHORS` above reached its current shape by being "measured
+# 2026-08-27 over a controlled grid" and "measured again 2026-08-28 over the
+# cached corpus". This function has now been through the same discipline,
+# twice: first against 5 real 10-Ks (INTC/JBL/NVDA/AAPL/MSFT,
+# HYP05_EXTRACTOR_CALIBRATION_2026-09-12.md), which found and fixed a
+# 57%-false-positive-rate defect (unanchored name matching) and a
+# list-truncation recall gap; then against all 24 of HYP-04's
+# LOCKED_24_ANCHORS filings (HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_
+# 2026-09-12.md), which found and fixed three more real defects (a generic
+# determiner captured as a name; "competition includes X such as Y" missed
+# entirely; a parenthetical short-name annotation breaking list capture).
+# Final measured result: 39 edges across 7 of 24 real anchor filings, 0
+# false positives, 1 accepted malformed-name limitation (documented, not
+# silently hidden), a handful of documented recall gaps that all fail
+# closed (never fabricate).
 #
-# Consequently this function is deliberately NOT called from
-# `extract_for_universe()`. Wiring it into that default path would make it
-# start producing "candidate" edges from real filings under the same
-# confidence banner as the calibrated ASC 280 path, which it has not earned.
-# Calibrating it means pulling and reading real 10-K Competition-section
-# text -- a live-EDGAR act, out of scope for the pass that added this
-# function. Do that calibration, measure it the way CONCENTRATION_ANCHORS was
-# measured, and only then wire this into extract_for_universe().
+# Wired into `extract_for_universe()` on that evidence. It still carries its
+# own distinct source tag (`SOURCE_10K_COMPETITION_SECTION_PROSE`, not the
+# ASC 280 path's `"EDGAR_10K_ASC280"`) -- wiring it in does not claim equal
+# confidence with a percentage-backed ASC 280 disclosure, only that it is no
+# longer unmeasured. And everything `extract_for_universe()` produces stays
+# a `CANDIDATE_REVIEW_QUEUE` regardless of source -- `reconcile()` never
+# merges, so a residual defect here has the same bounded blast radius any
+# ASC 280 candidate already has: a human reviews it before it becomes part
+# of any linkage map.
 DIRECTION_COMPETITOR = "competitor"
 
-SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED = (
-    "EDGAR_10K_COMPETITION_SECTION_UNCALIBRATED")
+SOURCE_10K_COMPETITION_SECTION_PROSE = (
+    "EDGAR_10K_COMPETITION_SECTION_PROSE")
 
 # Deliberately narrow and conservative -- naming the relationship directly
 # rather than trying to cover every phrasing a real Competition section might
 # use. Widening this is exactly the kind of change that needs real-filing
 # measurement, not a guess at what else might work.
+#
+# "competitors?|competition" (rather than just "competitors?") widened
+# 2026-09-12, measured against real text by the 24-anchor calibration
+# (HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_2026-09-12.md): NCLH's 10-K
+# reads "Our primary competition includes operators such as Carnival and
+# Royal Caribbean..." -- a real, named-competitor sentence that the
+# unwidened pattern (requiring "competitor(s)", not "competition") missed
+# entirely. Safe to widen: the verb still has to follow immediately
+# ("competition include/includes/are/is"), and a real name still has to
+# follow that for any edge to result -- "primary competition is intense"
+# matches the anchor but yields nothing, because "intense" is lowercase and
+# _PARTY_NAME requires an initial capital, the same fail-closed behaviour
+# every other near-miss in this module relies on.
 COMPETITOR_ANCHORS: tuple[tuple[str, str], ...] = (
-    (r"\b(?:our\s+)?(?:principal|primary|main)\s+competitors?\s+"
+    (r"\b(?:our\s+)?(?:principal|primary|main)\s+(?:competitors?|competition)\s+"
      r"(?:include|includes|are|is)\b", "principal_competitors"),
     (r"\bwe\s+compete\s+(?:directly\s+)?(?:with|against)\b",
      "we_compete_with"),
@@ -1476,6 +1514,36 @@ _PARTY_NAME = re.compile(
 # and the first party name -- ": ", a bullet from PDF-to-text conversion,
 # a stray dash. Stripped once, before the FIRST name only.
 _LEADING_CONNECTOR = re.compile(r"^[\s:;••‣◦*–—\"'-]+")
+
+# A short descriptive-noun-phrase-then-example-cue preamble -- "operators
+# such as ", "companies including " -- between an anchor's trailing verb and
+# the first real name. Added 2026-09-12, measured against real text (same
+# calibration as the COMPETITOR_ANCHORS widening above): NCLH's "Our primary
+# competition includes operators such as Carnival and Royal Caribbean" has
+# a real name sitting after "operators such as", not immediately after
+# "includes". This is still bounded, anchored matching, not a return to
+# scanning the whole window: at most 4 lowercase words, and only stripped
+# when they are immediately followed by the literal cue "such as"/
+# "including" -- a sentence with no such cue (e.g. "suppliers are located in
+# Asia") is untouched by this, and _PARTY_NAME still requires whatever comes
+# after to start with a capital letter, so this only ever creates NEW
+# captures where a real name genuinely follows the cue phrase.
+_EXAMPLE_CUE = re.compile(
+    r"^(?:[a-z]+(?:\s+[a-z]+){0,3}\s+)?(?:such as|including)\s+", re.I)
+
+# A short-name parenthetical annotation immediately after a just-captured
+# name -- 'Walmart Stores, Inc. ("Walmart"), Target Corporation...' -- one
+# of the single most common constructions in 10-K competitor/customer
+# lists (define a short form once, then use it). Added 2026-09-12, measured
+# against real text (same calibration as the two fixes above): GME's own
+# first sentence names Walmart, then Target, then Best Buy, then Amazon.com,
+# but only Walmart was ever captured, because `_LIST_SEPARATOR` requires a
+# comma or "and" IMMEDIATELY after a name, and the parenthetical sat in the
+# way. Bounded to 40 chars with no nested parens, so this can only ever
+# strip a short annotation right after a name -- not scan forward into
+# unrelated text.
+_PARENTHETICAL_ANNOTATION = re.compile(r"^\s*\([^()]{0,40}\)")
+
 # "<name>, <name> and <name>" / "<name> and <name>" -- consumed between
 # successive names in a list. Matching at the very start of the remaining
 # text (not searched for) is what keeps this from ever skipping into an
@@ -1509,6 +1577,25 @@ def _extract_party_names(window: str) -> list[str]:
     stopping the moment the next token doesn't start with a capital letter
     (a real list continuation always does; unrelated prose essentially
     never does at a comma boundary) or list-separator syntax isn't found.
+
+    A second measurement (24-anchor calibration, same day) found a real
+    name sitting behind a descriptive-noun-phrase-then-cue preamble instead
+    -- "competition includes operators such as Carnival and Royal
+    Caribbean" -- which `_EXAMPLE_CUE` strips, bounded to a handful of
+    lowercase words and only when the literal cue "such as"/"including"
+    follows them. Only applied before the FIRST name: a list's later items
+    are reached through `_LIST_SEPARATOR`, which does not (yet) understand
+    a second, nested "such as" clause mid-list -- a real, disclosed
+    limitation, not silently patched over (see the calibration report).
+
+    A third finding, same calibration: GME's 10-K names Walmart, Target,
+    Best Buy and Amazon.com in one sentence, but each is immediately
+    followed by a parenthetical short-name annotation -- 'Walmart Stores,
+    Inc. ("Walmart"), Target Corporation...' -- which sat between a
+    captured name and `_LIST_SEPARATOR`'s comma, breaking the walk after
+    the first name every time. `_PARENTHETICAL_ANNOTATION` strips one such
+    annotation immediately after EVERY captured name (not just the first),
+    bounded to 40 chars with no nested parens.
     """
     names: list[str] = []
     remainder = window
@@ -1516,6 +1603,7 @@ def _extract_party_names(window: str) -> list[str]:
     while remainder:
         if first:
             stripped = _LEADING_CONNECTOR.sub("", remainder)
+            stripped = _EXAMPLE_CUE.sub("", stripped)
         else:
             sep = _LIST_SEPARATOR.match(remainder)
             if sep is None:
@@ -1525,7 +1613,7 @@ def _extract_party_names(window: str) -> list[str]:
         if nm is None:
             break
         names.append(nm.group("name"))
-        remainder = stripped[nm.end():]
+        remainder = _PARENTHETICAL_ANNOTATION.sub("", stripped[nm.end():])
         first = False
     return names
 
@@ -1589,7 +1677,7 @@ def extract_competitor_edges_from_text(
                         as_of_date=filing_date,
                         accession=accession,
                         form=form,
-                        source=SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED,
+                        source=SOURCE_10K_COMPETITION_SECTION_PROSE,
                         pattern=label,
                         context=context,
                     ))
@@ -1982,7 +2070,21 @@ def extract_for_universe(
     tickers: Iterable[str], *, contact: Optional[str],
     max_requests: Optional[int] = None,
 ) -> ExtractionResult:
-    """Run extraction across a ticker universe. MAKES REAL SEC REQUESTS."""
+    """Run extraction across a ticker universe. MAKES REAL SEC REQUESTS.
+
+    Runs BOTH extraction paths against the same fetched filing text -- the
+    calibrated ASC 280 concentration-disclosure path (`extract_edges_from_
+    text`), and, as of 2026-09-12, the now-also-calibrated competitor/
+    supplier-context path (`extract_competitor_edges_from_text`; see the
+    module comment above it for the calibration this decision rests on).
+    One filing fetch, no extra network call. The `companies_with_*` coverage
+    counters below stay ASC-280-specific -- they measure concentration-
+    disclosure coverage, not competitor-context coverage, and folding the
+    two together would silently change what an existing, already-relied-on
+    statistic means. `res.edges` and `coverage()`'s `total_edges`/
+    `named_edges` DO include both sources -- every edge still carries its
+    own `source` field, so a reader can always tell which path produced it.
+    """
     client = EdgarClient(contact, max_requests=max_requests)
     res = ExtractionResult()
 
@@ -2010,6 +2112,9 @@ def extract_for_universe(
             if no_conc:
                 res.companies_with_explicit_no_concentration.append(t)
             res.edges.extend(edges)
+            res.edges.extend(extract_competitor_edges_from_text(
+                text, ticker=t, cik=cik, filing_date=filing["filing_date"],
+                accession=filing["accession"], form=filing["form"]))
         except Exception as e:                     # noqa: BLE001 -- recorded, not raised
             res.errors[t] = f"{type(e).__name__}: {str(e)[:160]}"
 

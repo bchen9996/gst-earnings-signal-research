@@ -33,6 +33,21 @@ codebase (`anchor_universe.py`'s `CONCENTRATION_THRESHOLD_PCT`). The figure
 itself, and the reasoning above, are unchanged from the original
 implementation -- only its status moved from provisional to decided.
 
+=== THE TARGET ANCHOR/PEER UNIVERSE (RATIFIED 2026-09-12) ===
+
+The fourth and last of HYP-05's `unresolved_analysis_decisions`. Anchors =
+`LOCKED_24_ANCHORS`, reused unchanged from HYP-04 -- HYP-05 does not select
+new anchors. This was already implicit in `NEVER_CONDITIONS` below (a
+candidate already IN `LOCKED_24_ANCHORS` is forbidden as a peer), made
+explicit here: HYP-05's novelty is in who counts as a peer, not in which
+anchors produce the shocks, exactly parallel to reusing HYP-04's `target.py`
+construction for the outcome side. See `calibrate_competitor_extractor_
+full_anchors.py`'s module docstring for the full reasoning, and
+`HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_2026-09-12.md` for the calibration
+this decision doubled as evidence for (candidate peers now come from running
+the competitor/supplier extractor -- wired into `extract_for_universe()` as
+of this same date -- and the ASC 280 path across exactly this anchor set).
+
 === WHAT THIS MODULE DOES NOT DO ===
 
 It does not compute market cap (see `point_in_time_market_cap.py`) or fetch

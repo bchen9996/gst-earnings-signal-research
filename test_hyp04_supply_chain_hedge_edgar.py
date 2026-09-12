@@ -51,7 +51,7 @@ from hyp04_supply_chain_hedge.edgar_linkage import (  # noqa: E402
     DIRECTION_COMPETITOR,
     DIRECTION_CUSTOMER,
     DIRECTION_SUPPLIER,
-    SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED,
+    SOURCE_10K_COMPETITION_SECTION_PROSE,
     EdgarClient,
     EdgarContactError,
     ExtractionResult,
@@ -1337,21 +1337,27 @@ def _extract_competitor(text: str):
 
 # ============ 12. competitor/supplier-context extraction (UNCALIBRATED) ====
 def test_12_competitor_supplier_context_extraction() -> None:
-    """A real, working, offline-testable function -- and a much weaker claim
-    than CONCENTRATION_ANCHORS's "measured over the cached corpus of real
-    filings". This has NOT been measured against real filing text, is NOT
-    wired into extract_for_universe(), and must not be treated as
-    production-grade until it is. See the module comment above its
-    definition in edgar_linkage.py."""
+    """Offline, synthetic-fixture coverage of a function that HAS ALSO been
+    measured against real filing text (24-anchor calibration, 2026-09-12: 0
+    false positives across 39 real edges) and is now wired into extract_for_
+    universe(). Every fixture below marked "real X gap/defect, fixed" is the
+    synthetic reproduction of an actual real-filing finding from that
+    calibration -- this file still tests the pure function offline, exactly
+    like every other extractor test here, but the cases it covers are no
+    longer hypothetical. See the module comment above its definition in
+    edgar_linkage.py, and HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_
+    2026-09-12.md for the live-filing evidence itself."""
     e1 = _extract_competitor(
         "We compete with Broadcom Inc. and other semiconductor companies "
         "in this market.")
     check("12a. a direct 'we compete with' sentence yields a candidate edge",
           len(e1) == 1 and e1[0].named_counterparty == "Broadcom Inc"
           and e1[0].direction == DIRECTION_COMPETITOR, str(e1))
-    check("12b. it is tagged with the uncalibrated source, not the "
-          "calibrated ASC 280 one",
-          e1[0].source == SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED)
+    check("12b. it is tagged with its own distinct source, not the ASC 280 "
+          "one -- wiring this path in does not claim equal confidence with "
+          "a percentage-backed ASC 280 disclosure",
+          e1[0].source == SOURCE_10K_COMPETITION_SECTION_PROSE
+          and e1[0].source != "EDGAR_10K_ASC280")
     check("12c. and carries no percentage -- this path never has one",
           e1[0].concentration_pct is None)
 
@@ -1419,9 +1425,104 @@ def test_12_competitor_supplier_context_extraction() -> None:
           {e.named_counterparty for e in e9}
           == {"Apple", "Google", "Microsoft"} and len(e9) == 3, str(e9))
 
-    check("12i. this function is NOT wired into extract_for_universe -- "
-          "grep the source rather than trust a comment",
-          "extract_competitor_edges_from_text" not in
+    # 12m is the exact shape of a real false positive found by the LARGER
+    # (24-anchor) calibration run, 2026-09-12 same day: TTWO's 10-K reads
+    # "we compete with: * Other interactive entertainment companies that
+    # range in size..." -- anchoring (which fixed 12j/12k) does not by
+    # itself catch this, because "Other" genuinely IS the first capitalized
+    # token right after the anchor phrase; the defect is that it is a
+    # common English determiner heading a descriptive clause, not a company
+    # name. Fixed by extending the shared UNNAMED_TOKENS blocklist.
+    e10 = _extract_competitor(
+        "In our business, we compete with: Other interactive entertainment "
+        "companies that range in size and cost structure.")
+    check("12m. a generic determiner ('Other') starting a descriptive "
+          "clause is not captured as a competitor (real TTWO false "
+          "positive, fixed)", e10 == [], str(e10))
+
+    # 12n guards the fix's precision: the new UNNAMED_TOKENS entries match
+    # the ENTIRE captured name after stripping, not a prefix -- a genuine
+    # company whose name happens to START with one of the new stopwords
+    # must still be captured.
+    e11 = _extract_competitor(
+        "We compete with Otherworld Games and Roblox in this market.")
+    check("12n. a real company name that merely starts with a stopword "
+          "('Otherworld Games') is still captured, not rejected as a "
+          "prefix match",
+          {e.named_counterparty for e in e11}
+          == {"Otherworld Games", "Roblox"} and len(e11) == 2, str(e11))
+
+    # 12o/12p are the exact shape of a real RECALL gap found by the same
+    # 24-anchor calibration: NCLH's 10-K reads "Our primary competition
+    # includes operators such as Carnival and Royal Caribbean, as well as
+    # other cruise lines such as MSC Cruises..." -- two real defects
+    # compound here: "competition" (not "competitors") wasn't in the anchor
+    # pattern at all, and even once widened, "operators such as" sits
+    # between the anchor's verb and the first real name. Fixed by widening
+    # COMPETITOR_ANCHORS's first pattern and adding _EXAMPLE_CUE.
+    e12 = _extract_competitor(
+        "Our primary competition includes operators such as Carnival and "
+        "Royal Caribbean, as well as other cruise lines.")
+    check("12o. 'primary competition includes' (not 'competitors') is "
+          "recognized as an anchor phrase (real NCLH gap, fixed)",
+          len(e12) > 0, str(e12))
+    check("12p. and the descriptive-noun-phrase-then-'such as' preamble is "
+          "skipped to reach the first two real names",
+          {e.named_counterparty for e in e12}
+          == {"Carnival", "Royal Caribbean"}, str(e12))
+
+    # 12q: the SAME real NCLH sentence, in full, documents the accepted
+    # residual limitation named in _extract_party_names's docstring -- a
+    # SECOND, nested "such as" clause mid-list ("other cruise lines such as
+    # MSC Cruises, Viking Ocean Cruises and Virgin Voyages") is not walked
+    # into. Two real names recovered (up from zero) is the honest claim;
+    # this pins it so a future change to _LIST_SEPARATOR is deliberate, not
+    # an accidental silent behavior change either direction.
+    e13 = _extract_competitor(
+        "Our primary competition includes operators such as Carnival and "
+        "Royal Caribbean, as well as other cruise lines such as MSC "
+        "Cruises, Viking Ocean Cruises and Virgin Voyages.")
+    check("12q. the nested second 'such as' clause is NOT walked into "
+          "(documented limitation, not silently dropped or guessed at)",
+          {e.named_counterparty for e in e13}
+          == {"Carnival", "Royal Caribbean"}, str(e13))
+
+    # 12r: the widened anchor still fails closed when nothing capitalized
+    # genuinely follows -- "primary competition is intense" must not
+    # fabricate a name out of "intense".
+    e14 = _extract_competitor(
+        "Our primary competition is intense and comes from many sources.")
+    check("12r. 'primary competition is <lowercase>' yields nothing -- the "
+          "widened anchor doesn't fabricate a name where none follows",
+          e14 == [], str(e14))
+
+    # 12s is the exact shape of a real recall gap found by the same
+    # 24-anchor calibration: GME's 10-K names four real competitors in one
+    # sentence, each followed by a parenthetical short-name annotation,
+    # which previously broke the list walk after the very first name.
+    e15 = _extract_competitor(
+        "In the United States, we compete with Walmart Stores, Inc. "
+        '("Walmart"), Target Corporation ("Target"), Best Buy Co., Inc. '
+        '("Best Buy") and Amazon.com, Inc.')
+    check("12s. a parenthetical short-name annotation after each list item "
+          "no longer breaks the walk (real GME gap, fixed)",
+          {e.named_counterparty for e in e15}
+          == {"Walmart Stores, Inc", "Target Corporation", "Best Buy Co., Inc",
+              "Amazon.com, Inc"}, str(e15))
+
+    # 12i previously asserted this function was NOT wired into
+    # extract_for_universe -- true when this module was first added, and
+    # deliberately re-checked here (grep the source, don't trust a comment)
+    # rather than just deleted, so the switch from "not wired" to "wired"
+    # is a visible, deliberate test change and not a silent drift. It
+    # flipped 2026-09-12 on the strength of the calibration cited in the
+    # module comment above COMPETITOR_ANCHORS: 0 false positives across 39
+    # real edges, 24 real anchor filings, 3 independent real-evidence-driven
+    # fix rounds.
+    check("12i. this function IS now wired into extract_for_universe, on "
+          "the strength of the 24-anchor calibration -- grep the source "
+          "rather than trust a comment",
+          "extract_competitor_edges_from_text" in
           __import__("inspect").getsource(
               __import__("hyp04_supply_chain_hedge.edgar_linkage",
                          fromlist=["extract_for_universe"]).extract_for_universe))
