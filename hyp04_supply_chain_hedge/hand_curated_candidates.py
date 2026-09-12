@@ -354,3 +354,227 @@ PROPOSED_CANDIDATES = PROPOSED_CANDIDATES + (
                        "Small-cap automotive-chip company, plausible "
                        "competitor in Nvidia's automotive segment."),
 )
+
+
+# ==========================================================================
+# ROUND 3 -- a different METHOD, not just more of round 2's. Rounds 1-2
+# mostly guessed "a smaller company in the same industry" and hoped it was
+# named; the hit rate for that kind of guess was low (INTC: 0 of 10
+# proposed competitors/suppliers confirmed across both rounds, with no
+# rich sentence found to mine -- deliberately NOT extended further here,
+# since there's no specific citable reason left to try, only more
+# guessing). This round instead MINES real sentences round 1-2's own
+# verification already confirmed and captured, for names not yet
+# proposed as their own candidates -- a specific, citable reason for
+# every entry, not a size-matched guess:
+#
+#   * NKE's own 2002 10-K "BY WAY OF ILLUSTRATION ONLY, examples of NIKE
+#     competitors include..." sentence names 23 companies; only three
+#     (Puma, Li Ning were read from a different, later sentence; Columbia
+#     Sportswear) had been proposed before this round.
+#   * CTSH's own 2007 10-K "Peer Group Index of other information
+#     technology consulting firms" sentence names 12 companies; only
+#     three (iGate, Sapient, Syntel) had been proposed before this round.
+#   * NVDA's own 10-K competitor sentences (2007, 2015) name several
+#     companies not yet proposed (Freescale Semiconductor, Imagination
+#     Technologies, ARM Holdings).
+#   * ADBE's own 10-K names Citrix in the same sentence as the already-
+#     confirmed DocuSign.
+#   * JBL's own 2017 10-K "our largest customers include..." sentence
+#     names two more real, ADR-listed companies (Ericsson, Nokia) --
+#     both very likely too large, included for completeness the same way
+#     Marvell/ST Microelectronics were in round 2, not because they're
+#     expected to qualify.
+#   * MCK's own 2001 receivables-purchase-agreement exhibit -- the SAME
+#     real document Rite Aid's round-2 evidence came from -- names
+#     Albertson's (American Stores and Osco Drug) as a "Special Obligor"
+#     alongside Rite Aid and CVS, read directly by fetching and reading
+#     the fuller document rather than guessing (Wal-Mart, also named
+#     there, is excluded -- always too large to be worth a request).
+#
+# Several of the NKE names below were real, independently public
+# companies at the time (2002) that were LATER acquired or taken private
+# (Reebok by Adidas 2006, Oakley by Luxottica 2007, Converse by NIKE
+# itself 2003, Saucony by Stride Rite 2005, Tommy Hilfiger Corp by Apparel
+# Corp/PVH 2010, Sports Authority by KKR 2006 then bankrupt 2016) -- real
+# history, not a defect in the proposal; the lineage/tradeability test
+# will report each honestly.
+# ==========================================================================
+PROPOSED_CANDIDATES = PROPOSED_CANDIDATES + (
+    # ---- NKE (Nike) -- mined from the real 2002 10-K sentence ----
+    ProposedCandidate("NKE", "Reebok", "competitor",
+                       "Named in NKE's own 2002 10-K 'examples of NIKE "
+                       "competitors' sentence. Was independently US-"
+                       "listed (Reebok International Ltd) until Adidas "
+                       "acquired it in 2006."),
+    ProposedCandidate("NKE", "Oakley", "competitor",
+                       "Named in the same NKE sentence. Was "
+                       "independently US-listed (NYSE: OO) until "
+                       "Luxottica acquired it in 2007; historically a "
+                       "small/mid-cap."),
+    ProposedCandidate("NKE", "Converse", "competitor",
+                       "Named in the same NKE sentence. Was "
+                       "independently US-listed until NIKE itself "
+                       "acquired Converse in 2003 -- interesting "
+                       "specifically because NKE's own 10-K names its "
+                       "own future acquisition target as a competitor."),
+    ProposedCandidate("NKE", "Saucony", "competitor",
+                       "Named in the same NKE sentence. Was "
+                       "independently US-listed (Nasdaq: SCNY) until "
+                       "Stride Rite acquired it in 2005; small-cap."),
+    ProposedCandidate("NKE", "Tommy Hilfiger", "competitor",
+                       "Named in the same NKE sentence. Tommy Hilfiger "
+                       "Corporation was independently US-listed (NYSE: "
+                       "TOM) until Apparel Corp/PVH acquired it in 2010."),
+    ProposedCandidate("NKE", "Foot Locker", "customer",
+                       "Originally proposed as a competitor (named in "
+                       "the same NKE sentence as 'Venator "
+                       "(Footlockers)'), but round-3 verification found "
+                       "the real, genuine evidence is a DIFFERENT, "
+                       "stronger sentence -- a real customer-"
+                       "concentration disclosure: 'Foot Locker, Inc. ... "
+                       "accounted for approximately 11 percent of global "
+                       "net sales of NIKE brand products during fiscal "
+                       "2002.' Corrected to 'customer' to match what the "
+                       "filed text actually says, not the original "
+                       "guess. Real, currently-trading company, market "
+                       "cap has been volatile enough to dip near or "
+                       "below $2B at various points."),
+    ProposedCandidate("NKE", "Sports Authority", "competitor",
+                       "Named in the same NKE sentence. The Sports "
+                       "Authority, Inc. was independently US-listed "
+                       "(NYSE: TSA) until taken private (KKR) in 2006, "
+                       "later bankrupt in 2016; historically small/"
+                       "mid-cap."),
+    ProposedCandidate("NKE", "Callaway Golf", "competitor",
+                       "Named in the same NKE sentence. Independently "
+                       "US-listed (NYSE: ELY, now Topgolf Callaway "
+                       "Brands); golf-equipment niche, historically "
+                       "small/mid-cap."),
+    ProposedCandidate("NKE", "Titleist", "competitor",
+                       "Named in the same NKE sentence. Titleist's "
+                       "parent, Acushnet Company, did not IPO "
+                       "independently (Acushnet Holdings Corp, NYSE: "
+                       "GOLF) until 2016 -- well after this 2002 filing, "
+                       "so this is expected to fail the disclosure-date "
+                       "lineage test rather than qualify; included for "
+                       "an honest, complete accounting of the sentence."),
+    ProposedCandidate("NKE", "Adidas", "competitor",
+                       "Named in the same NKE sentence. German company; "
+                       "US SEC registration status genuinely unknown -- "
+                       "worth checking rather than assumed."),
+    ProposedCandidate("NKE", "FILA", "competitor",
+                       "Named in the same NKE sentence. US SEC "
+                       "registration status genuinely unknown -- worth "
+                       "checking rather than assumed."),
+    ProposedCandidate("NKE", "DKNY", "competitor",
+                       "Named in the same NKE sentence. Donna Karan "
+                       "International was independently US-listed until "
+                       "LVMH acquired it in a deal that closed shortly "
+                       "before this filing -- likely to fail the "
+                       "disclosure-date lineage test, included for a "
+                       "complete accounting of the sentence."),
+    ProposedCandidate("NKE", "Asics", "competitor",
+                       "Named in the same NKE sentence. Japanese "
+                       "company; US SEC registration status genuinely "
+                       "unknown -- worth checking rather than assumed."),
+    ProposedCandidate("NKE", "Umbro", "competitor",
+                       "Named in the same NKE sentence. UK company; US "
+                       "SEC registration status genuinely unknown -- "
+                       "worth checking rather than assumed."),
+
+    # ---- CTSH (Cognizant) -- mined from the real 2007 10-K sentence ----
+    ProposedCandidate("CTSH", "Computer Horizons", "competitor",
+                       "Named in CTSH's own 2007 10-K 'Peer Group Index "
+                       "of other information technology consulting "
+                       "firms' sentence. Computer Horizons Corp was a "
+                       "real, small-cap IT-staffing/services company, "
+                       "later dissolved (~2007)."),
+    ProposedCandidate("CTSH", "Computer Task Group", "competitor",
+                       "Named in the same CTSH sentence. Computer Task "
+                       "Group, Inc. (CTG) was a real, small-cap Nasdaq-"
+                       "listed IT-services company, later acquired by "
+                       "Cegeka (2023)."),
+    ProposedCandidate("CTSH", "Covansys", "competitor",
+                       "Named in the same CTSH sentence. Covansys "
+                       "Corporation was a real, small-cap IT-services "
+                       "company, later acquired by CSC (2007)."),
+    ProposedCandidate("CTSH", "Diamond Cluster", "competitor",
+                       "Named in the same CTSH sentence. DiamondCluster "
+                       "International, Inc. was a real, small-cap "
+                       "management/IT-consulting firm."),
+    ProposedCandidate("CTSH", "Keane", "competitor",
+                       "Named in the same CTSH sentence. Keane, Inc. was "
+                       "a real, small-cap IT-services company, later "
+                       "acquired by Caritor (2007)."),
+
+    # ---- NVDA (Nvidia) -- mined from the real competitor sentences ----
+    ProposedCandidate("NVDA", "Freescale Semiconductor", "competitor",
+                       "Named in NVDA's own 2007 10-K competitor "
+                       "sentence. Was independently NYSE-listed (FSL) "
+                       "2011-2015 before merging into NXP "
+                       "Semiconductors; smaller-mid-cap during its "
+                       "independent years."),
+    ProposedCandidate("NVDA", "Imagination Technologies", "competitor",
+                       "Named in the same NVDA sentence. UK company "
+                       "(LSE: IMG), taken private in 2017; US SEC "
+                       "registration status genuinely unknown -- worth "
+                       "checking rather than assumed."),
+    ProposedCandidate("NVDA", "ARM Holdings", "competitor",
+                       "Named in the same NVDA sentence. Was "
+                       "independently public until SoftBank acquired it "
+                       "in 2016, then re-IPO'd in 2023 (Nasdaq: ARM) -- "
+                       "the 2007 as_of_date predates any US listing, so "
+                       "this is expected to fail the disclosure-date "
+                       "lineage test; included for a complete accounting "
+                       "of the sentence."),
+
+    # ---- ADBE (Adobe) -- mined from the real DocuSign sentence ----
+    ProposedCandidate("ADBE", "Citrix", "competitor",
+                       "Named in the same ADBE sentence as the already-"
+                       "confirmed DocuSign ('DocuSign, Citrix, and "
+                       "others are incorporating competitive e-"
+                       "signature...'). Citrix Systems, Inc. was "
+                       "independently NYSE-listed until taken private "
+                       "in 2022; likely too large to pass the market-cap "
+                       "threshold, included for completeness."),
+
+    # ---- JBL (Jabil) -- mined from the real GoPro customer sentence ----
+    ProposedCandidate("JBL", "LM Ericsson", "customer",
+                       "Named in the same JBL 'our largest customers "
+                       "include...' sentence as the already-confirmed "
+                       "GoPro. Telefonaktiebolaget LM Ericsson trades as "
+                       "an ADR (ERIC); likely too large to pass the "
+                       "market-cap threshold, included for completeness."),
+    ProposedCandidate("JBL", "Nokia Networks", "customer",
+                       "Named in the same JBL sentence. Nokia "
+                       "Corporation trades as an ADR (NOK); likely too "
+                       "large to pass the market-cap threshold, included "
+                       "for completeness."),
+
+    # ---- MCK (McKesson) -- mined from the real receivables-purchase-
+    # agreement document (the SAME filing Rite Aid's round-2 evidence
+    # came from; read in full rather than guessed) ----
+    ProposedCandidate("MCK", "Albertson's", "customer",
+                       "Named as a 'Special Obligor' alongside Rite Aid "
+                       "and CVS Corp. in MCK's own 2001 receivables-"
+                       "purchase-agreement exhibit. Albertsons Companies "
+                       "has a complex real history (went private 2006, "
+                       "re-IPO'd as ACI in 2020) -- worth checking "
+                       "rather than assumed."),
+    ProposedCandidate("MCK", "American Stores", "customer",
+                       "Named parenthetically alongside Albertson's in "
+                       "the same MCK exhibit ('Albertson's (American "
+                       "Stores and Osco Drug)'). American Stores Company "
+                       "was a real, independently US-listed company "
+                       "before Albertson's acquired it in 1999 -- likely "
+                       "to fail the disclosure-date lineage test given "
+                       "this 2001 filing postdates that acquisition, "
+                       "included for a complete accounting of the "
+                       "exhibit."),
+    ProposedCandidate("MCK", "Osco Drug", "customer",
+                       "Named in the same parenthetical as American "
+                       "Stores above. A drugstore chain/brand, not "
+                       "independently SEC-registered as far as is known "
+                       "-- worth checking rather than assumed."),
+)

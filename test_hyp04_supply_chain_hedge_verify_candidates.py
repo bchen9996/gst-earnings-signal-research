@@ -80,6 +80,20 @@ def test_2_biographical_year_range_rejected() -> None:
           reason is not None and "biograph" in reason)
 
 
+def test_2b_board_membership_bio_rejected() -> None:
+    # The real ADBE/Citrix sentence from round 3.
+    sentence = (
+        "Mr. Demo is a member of the Board of Directors of Citrix "
+        "Systems, Inc. and is the Vice Chairman of the national Board "
+        "of Directors of AeA, the nation's largest high-tech trade "
+        "association.")
+    reason = classify_context(sentence)
+    check("2c. board-membership bio sentence is rejected",
+          reason is not None, f"got: {reason!r}")
+    check("2d. rejection reason mentions board/officer affiliation",
+          reason is not None and "board-membership" in reason)
+
+
 def test_3_genuine_relationship_sentences_pass_through() -> None:
     # Real, GOOD sentences from the same live run -- must NOT be rejected.
     gopro = (
@@ -118,6 +132,7 @@ def test_5_offline() -> None:
 if __name__ == "__main__":
     test_1_stock_index_comembership_rejected()
     test_2_biographical_year_range_rejected()
+    test_2b_board_membership_bio_rejected()
     test_3_genuine_relationship_sentences_pass_through()
     test_4_empty_context_is_not_misclassified()
     test_5_offline()

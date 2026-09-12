@@ -1,0 +1,660 @@
+{
+  "artifact": "HYP05_PEER_NAME_SEARCH_HAND_CURATED_ROUND3_2026-09-12.json",
+  "as_of_date": "2026-09-12",
+  "hypothesis_id": "HYP-05",
+  "rule": {
+    "rule_id": "HYP04-PEER-NAME-SEARCH-RULE-v1",
+    "question": "Which registrant did this counterparty name refer to, when SEC's list of current filers does not contain it?",
+    "the_search_only_generates_candidates": "EDGAR's company search is an undocumented prefix match; it returned different results for 'Marconi' and 'Marconi Communications', and its multi-hit XML carries ARRAY(0x...) where the company name should be. Nothing is accepted on its say-so.",
+    "acceptance_is_the_lineage_test": "A candidate CIK is accepted only if peer_lineage.assess returns CONTINUOUS against that registrant's own submissions record: filing on the disclosure date, under a matching name. Two accepted registrants is AMBIGUOUS and resolves to nothing.",
+    "no_form_type_filter": "type=10-K silently excludes foreign private issuers, who file 20-F. Filtering would make 'no such registrant' indistinguishable from 'files a different form'.",
+    "a_resolved_registrant_may_not_trade": "Identifying the registrant and finding it has no current ticker is a RESULT, not a failure: it converts an inference about the method into a documented fact about a named company, which is what a survivorship statement needs.",
+    "curates_nothing": "No edge is written and no candidate is promoted. The display gate is untouched."
+  },
+  "input": "HYP05_CANDIDATE_LINKAGE_HAND_CURATED_ROUND3_2026-09-12.json",
+  "what_this_is": "Which registrant each of 37 extracted competitor/supplier counterparty names (from the input above) referred to, and whether that registrant still trades.",
+  "what_this_is_not": "Curation. No edge is written to any linkage map, no peer universe is derived here. peer_selection.py's evaluate_peer() is the next, separate step, and needs point-in-time market cap (shares_outstanding.py + point_in_time_market_cap.py) for whatever resolves here first.",
+  "sources": {
+    "endpoint": "www.sec.gov company search + data.sec.gov submissions",
+    "names_searched": 37,
+    "registrants_examined": 97,
+    "requests_made": 75
+  },
+  "counts_by_status": {
+    "registrant_resolved_but_no_current_ticker": 8,
+    "hits_found_but_none_matched_at_the_disclosure_date": 17,
+    "registrant_resolved": 5,
+    "no_registrant_matched": 7
+  },
+  "names_unanswered": 0,
+  "unanswered_is_not_a_negative": "A name whose search failed is UNANSWERED, not evidence the company doesn't exist -- an endpoint outage deciding a result is the failure this project refuses everywhere else.",
+  "ticker_map_fallback_used_for": [
+    "Columbia Sportswear"
+  ],
+  "ticker_map_fallback_note": "browse-edgar's company search returned zero candidates for these names despite a successful (non-failed) request; company_tickers.json resolved a currently-trading match instead. See ticker_map_fallback_ciks()'s docstring for a reproduced live example of browse-edgar's own malfunction (a genuinely empty feed for an exact real company name, and a corrupted-name response for a broader query).",
+  "names_identified": 13,
+  "names_now_tradeable": 5,
+  "results": [
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "ARM Holdings",
+      "as_of_date": "2007-03-16",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0001057997",
+      "registrant_name_at_as_of": "ARM HOLDINGS PLC",
+      "candidates_examined": 5,
+      "accepted_ciks": [
+        "0001057997"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Adidas",
+      "as_of_date": "2001-08-09",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 2,
+      "accepted_ciks": [],
+      "detail": "2 registrant(s) matched the name but none was filing on 2001-08-09 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty": "Albertson's",
+      "as_of_date": "2001-06-01",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2001-06-01 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "Ambarella",
+      "as_of_date": "2016-03-17",
+      "status": "registrant_resolved",
+      "peer_ticker": "AMBA",
+      "registrant_cik": "0001280263",
+      "registrant_name_at_as_of": "AMBARELLA INC",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001280263"
+      ],
+      "detail": "the registrant was filing on 2016-03-17 as 'AMBARELLA INC' and trades today as AMBA.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty": "American Stores",
+      "as_of_date": "2001-06-01",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 3,
+      "accepted_ciks": [],
+      "detail": "3 registrant(s) matched the name but none was filing on 2001-06-01 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Asics",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Callaway Golf",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Columbia Sportswear",
+      "as_of_date": "2002-08-14",
+      "status": "registrant_resolved",
+      "peer_ticker": "COLM",
+      "registrant_cik": "0001050797",
+      "registrant_name_at_as_of": "COLUMBIA SPORTSWEAR CO",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001050797"
+      ],
+      "detail": "the registrant was filing on 2002-08-14 as 'COLUMBIA SPORTSWEAR CO' and trades today as COLM.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Converse",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 8,
+      "accepted_ciks": [],
+      "detail": "8 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "DKNY",
+      "as_of_date": "2002-08-14",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty": "Diamond Cluster",
+      "as_of_date": "2007-02-16",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "ADBE",
+      "counterparty": "DocuSign",
+      "as_of_date": "2015-01-20",
+      "status": "registrant_resolved",
+      "peer_ticker": "DOCU",
+      "registrant_cik": "0001261333",
+      "registrant_name_at_as_of": "DOCUSIGN INC",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001261333"
+      ],
+      "detail": "the registrant was filing on 2015-01-20 as 'DOCUSIGN INC' and trades today as DOCU.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty": "ExlService",
+      "as_of_date": "2009-03-02",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 4,
+      "accepted_ciks": [],
+      "detail": "4 registrant(s) matched the name but none was filing on 2009-03-02 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "FILA",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 8,
+      "accepted_ciks": [],
+      "detail": "8 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Foot Locker",
+      "as_of_date": "2002-08-14",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0000850209",
+      "registrant_name_at_as_of": "FOOT LOCKER INC",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0000850209"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "Freescale Semiconductor",
+      "as_of_date": "2007-03-16",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0001272547",
+      "registrant_name_at_as_of": "FREESCALE SEMICONDUCTOR INC",
+      "candidates_examined": 6,
+      "accepted_ciks": [
+        "0001272547"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty": "GoPro",
+      "as_of_date": "2017-10-19",
+      "status": "registrant_resolved",
+      "peer_ticker": "GPRO",
+      "registrant_cik": "0001500435",
+      "registrant_name_at_as_of": "GoPro, Inc.",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001500435"
+      ],
+      "detail": "the registrant was filing on 2017-10-19 as 'GoPro, Inc.' and trades today as GPRO.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "Imagination Technologies",
+      "as_of_date": "2006-03-16",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2006-03-16 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty": "LM Ericsson",
+      "as_of_date": "2015-10-16",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Li Ning",
+      "as_of_date": "2013-07-23",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0001447629",
+      "registrant_name_at_as_of": "Li Ning Co. Ltd.",
+      "candidates_examined": 4,
+      "accepted_ciks": [
+        "0001447629"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "Marvell Technology Group",
+      "as_of_date": "2007-03-16",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0001058057",
+      "registrant_name_at_as_of": "MARVELL TECHNOLOGY GROUP LTD",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001058057"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "Mobileye",
+      "as_of_date": "2015-03-12",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 2,
+      "accepted_ciks": [],
+      "detail": "2 registrant(s) matched the name but none was filing on 2015-03-12 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty": "Nokia Networks",
+      "as_of_date": "2017-10-19",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Oakley",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 8,
+      "accepted_ciks": [],
+      "detail": "8 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty": "Osco Drug",
+      "as_of_date": "2001-06-01",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Puma",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 8,
+      "accepted_ciks": [],
+      "detail": "8 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Reebok",
+      "as_of_date": "2001-08-09",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2001-08-09 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty": "Rite Aid",
+      "as_of_date": "2001-06-01",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0000084129",
+      "registrant_name_at_as_of": "RITE AID CORP",
+      "candidates_examined": 8,
+      "accepted_ciks": [
+        "0000084129"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "ST Microelectronics",
+      "as_of_date": "2007-03-16",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Saucony",
+      "as_of_date": "2002-08-14",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0000049401",
+      "registrant_name_at_as_of": "SAUCONY INC",
+      "candidates_examined": 2,
+      "accepted_ciks": [
+        "0000049401"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Sports Authority",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 2,
+      "accepted_ciks": [],
+      "detail": "2 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Titleist",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 2,
+      "accepted_ciks": [],
+      "detail": "2 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Tommy Hilfiger",
+      "as_of_date": "2002-08-14",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2002-08-14 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Umbro",
+      "as_of_date": "2002-08-14",
+      "status": "no_registrant_matched",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 0,
+      "accepted_ciks": [],
+      "detail": "EDGAR's company search returned no registrant for this name. It is a prefix match, so a name that does not start the registrant's own name will not be found.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Under Armour",
+      "as_of_date": "2013-07-23",
+      "status": "registrant_resolved",
+      "peer_ticker": "UA",
+      "registrant_cik": "0001336917",
+      "registrant_name_at_as_of": "Under Armour, Inc.",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001336917"
+      ],
+      "detail": "the registrant was filing on 2013-07-23 as 'Under Armour, Inc.' and trades today as UA.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty": "WNS",
+      "as_of_date": "2009-03-02",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 6,
+      "accepted_ciks": [],
+      "detail": "6 registrant(s) matched the name but none was filing on 2009-03-02 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty": "iGate",
+      "as_of_date": "2007-02-16",
+      "status": "registrant_resolved_but_no_current_ticker",
+      "peer_ticker": "",
+      "registrant_cik": "0001024732",
+      "registrant_name_at_as_of": "IGATE CORP",
+      "candidates_examined": 6,
+      "accepted_ciks": [
+        "0001024732"
+      ],
+      "detail": "the registrant is identified and its lineage confirmed, but it carries no ticker in SEC's current company list -- it no longer trades. This is a MEASURED survivorship loss, not an unresolved name.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": false
+    }
+  ],
+  "search_matched_conformed_names": {
+    "Albertson's": [
+      "ALBERTSON'S LLC"
+    ],
+    "Ambarella": [
+      "AMBARELLA INC"
+    ],
+    "Asics": [
+      "ASICS Corporation/ADR"
+    ],
+    "Callaway Golf": [
+      "Callaway Golf Co"
+    ],
+    "DocuSign": [
+      "DOCUSIGN, INC."
+    ],
+    "Foot Locker": [
+      "FOOT LOCKER, INC."
+    ],
+    "GoPro": [
+      "GoPro, Inc."
+    ],
+    "Imagination Technologies": [
+      "Imagination Technologies Group/ADR"
+    ],
+    "Marvell Technology Group": [
+      "MARVELL TECHNOLOGY GROUP LTD"
+    ],
+    "Reebok": [
+      "REEBOK INTERNATIONAL LTD"
+    ],
+    "Tommy Hilfiger": [
+      "TOMMY HILFIGER HOLDING SARL"
+    ],
+    "Under Armour": [
+      "Under Armour, Inc."
+    ]
+  },
+  "errors": {},
+  "curates_nothing": "No edge is written and no candidate is promoted. Neither HYP-04's nor HYP-05's display gate is touched."
+}

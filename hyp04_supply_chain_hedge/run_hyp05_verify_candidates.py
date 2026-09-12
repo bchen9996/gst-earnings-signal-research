@@ -83,6 +83,21 @@ STOCK_INDEX_COMEMBERSHIP = re.compile(
 # exactly this kind of biographical entry, not specific to this one hit.
 BIOGRAPHICAL_YEAR_RANGE = re.compile(r"\(\s*\d{4}\s*[-–—]\s*\d{4}\s*\)")
 
+# A third false-signal category, same FAMILY as the one above (a person's
+# governance affiliation, not a business relationship) but a different
+# phrasing round 2's filter did not catch: round 3's ADBE/Citrix "hit"
+# read "Mr. Demo is a member of the Board of Directors of Citrix Systems,
+# Inc. and is the Vice Chairman of the national Board of Directors of
+# AeA..." -- an Adobe director's OTHER board seat, not an Adobe/Citrix
+# business relationship. Generalised (not left as a one-off Citrix
+# patch) because it is the second distinct phrasing of the same
+# underlying problem found this session.
+BOARD_OR_OFFICER_AFFILIATION = re.compile(
+    r"(?:member|chairman|vice\s+chairman|director)\s+of\s+the\s+"
+    r"(?:board\s+of\s+directors|board)\s+of\b"
+    r"|(?:is|was|serves?(?:d)?)\s+(?:a\s+)?(?:director|officer)\s+of\b",
+    re.I)
+
 REJECTION_PATTERNS: tuple[tuple[re.Pattern, str], ...] = (
     (STOCK_INDEX_COMEMBERSHIP,
      "name found only inside a stock-performance-graph benchmark-index "
@@ -92,6 +107,10 @@ REJECTION_PATTERNS: tuple[tuple[re.Pattern, str], ...] = (
      "name found only inside what reads as a director/officer's prior-"
      "employment biography (a \"(YYYY - YYYY)\" year range immediately "
      "after the company name), not a business-relationship claim"),
+    (BOARD_OR_OFFICER_AFFILIATION,
+     "name found only inside what reads as a person's board-membership "
+     "or officer-role biography at the named company, not a business-"
+     "relationship claim between the anchor and that company"),
 )
 
 
