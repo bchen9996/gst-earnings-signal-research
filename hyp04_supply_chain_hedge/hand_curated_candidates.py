@@ -163,3 +163,194 @@ PROPOSED_CANDIDATES: tuple[ProposedCandidate, ...] = (
                        "market cap uncertain -- worth checking rather than "
                        "assumed either way."),
 )
+
+
+# ==========================================================================
+# ROUND 2 -- appended after Pass 2's first live run confirmed 6 of the 26
+# proposals above and qualified one real peer (AMBA/NVDA). This batch
+# widens coverage rather than re-litigating round 1: round-1 entries above
+# are left exactly as written.
+#
+# Three of these (Marvell Technology Group, Mobileye, STMicroelectronics
+# for NVDA; Puma, Li Ning, Crocs for NKE) are not blind proposals -- they
+# were read directly in the ACTUAL filed context sentences round 1's
+# verification step already captured and committed
+# (HYP05_HAND_CURATED_VERIFICATION_2026-09-12.json): NVDA's own 10-K names
+# "...Ambarella, Inc., AMD, Apple, Inc., Avago Technologies Ltd., Intel,
+# Marvell Technology Group Ltd., Mediatek, Mobileye N.V., Qualcomm
+# Incorporated, Renesas Electronics Corporation, Samsung, ST
+# Microelectronics, and Texas Instruments..." as SOC-product competitors,
+# and NKE's own 10-K names "...Corp., Puma, Li Ning and Under Armour..."
+# as apparel/footwear competitors, with Crocs (like Wolverine World Wide)
+# co-listed in the Dow Jones U.S. Footwear Index performance-graph table
+# rather than a competition-section sentence -- same weak-evidence caveat
+# as Wolverine applies to Crocs specifically. These six still go through
+# the same full-text re-verification step as everything else (a name
+# already seen in one filing must still resolve to a real, continuous
+# registrant, and this script's own job is to fetch the citable accession,
+# not to shortcut on a memory of what was read once).
+# ==========================================================================
+PROPOSED_CANDIDATES = PROPOSED_CANDIDATES + (
+    # ---- ADBE (Adobe) ----
+    ProposedCandidate("ADBE", "Box", "competitor",
+                       "Cloud content-management company, adjacent to "
+                       "Adobe Document Cloud; small/mid-cap."),
+    ProposedCandidate("ADBE", "DocuSign", "competitor",
+                       "E-signature competitor to Adobe Acrobat Sign; "
+                       "market cap has fallen sharply since 2021, worth "
+                       "checking at specific dates rather than assumed."),
+    ProposedCandidate("ADBE", "Wix.com", "competitor",
+                       "Website-building competitor, adjacent to Adobe's "
+                       "web-design tools."),
+    ProposedCandidate("ADBE", "Squarespace", "competitor",
+                       "Website-building competitor, adjacent to Adobe's "
+                       "web-design tools; later taken private (2024)."),
+    ProposedCandidate("ADBE", "Monotype", "competitor",
+                       "Typography/font company, adjacent to Adobe Fonts; "
+                       "later taken private (2019)."),
+    ProposedCandidate("ADBE", "Asana", "competitor",
+                       "Work-management software, adjacent to Adobe "
+                       "Workfront; market cap has at times been under $2B."),
+
+    # ---- CTSH (Cognizant) ----
+    ProposedCandidate("CTSH", "Perficient", "competitor",
+                       "Smaller digital/IT consulting competitor to "
+                       "Cognizant; small-cap."),
+    ProposedCandidate("CTSH", "Endava", "competitor",
+                       "Smaller IT-services competitor to Cognizant."),
+    ProposedCandidate("CTSH", "Globant", "competitor",
+                       "IT-services/digital competitor to Cognizant; "
+                       "smaller historically than today."),
+    ProposedCandidate("CTSH", "iGate", "competitor",
+                       "Smaller IT-services competitor to Cognizant; "
+                       "later acquired by Capgemini (2015)."),
+    ProposedCandidate("CTSH", "Sapient", "competitor",
+                       "Smaller digital/IT consulting competitor to "
+                       "Cognizant; later acquired by Publicis (2015)."),
+
+    # ---- INTC (Intel) ----
+    ProposedCandidate("INTC", "Lattice Semiconductor", "competitor",
+                       "Smaller FPGA semiconductor competitor to parts of "
+                       "Intel's product line."),
+    ProposedCandidate("INTC", "Cirrus Logic", "competitor",
+                       "Smaller analog-semiconductor competitor to parts "
+                       "of Intel's product line."),
+    ProposedCandidate("INTC", "Synaptics", "competitor",
+                       "Smaller semiconductor (human-interface chip) "
+                       "competitor to parts of Intel's product line."),
+    ProposedCandidate("INTC", "Diodes Incorporated", "competitor",
+                       "Small-cap discrete/analog semiconductor company, "
+                       "plausible competitor in some product lines."),
+    ProposedCandidate("INTC", "Axcelis Technologies", "supplier",
+                       "Semiconductor-fab ion-implantation equipment "
+                       "maker; smaller company plausibly in Intel's supply "
+                       "chain."),
+    ProposedCandidate("INTC", "Nova Ltd", "supplier",
+                       "Semiconductor metrology/inspection equipment "
+                       "maker; smaller company plausibly in Intel's supply "
+                       "chain."),
+    ProposedCandidate("INTC", "FormFactor", "supplier",
+                       "Semiconductor wafer-test equipment maker; smaller "
+                       "company plausibly in Intel's supply chain."),
+    ProposedCandidate("INTC", "Veeco Instruments", "supplier",
+                       "Semiconductor-process equipment maker; smaller "
+                       "company plausibly in Intel's supply chain."),
+
+    # ---- JBL (Jabil) ----
+    ProposedCandidate("JBL", "Vizio", "customer",
+                       "Consumer-electronics (TV) company that has used "
+                       "contract manufacturing; small/mid-cap; later "
+                       "acquired by Walmart (2024)."),
+    ProposedCandidate("JBL", "Turtle Beach", "customer",
+                       "Consumer-hardware (gaming headset) company that "
+                       "outsources manufacturing; small-cap."),
+    ProposedCandidate("JBL", "Nautilus", "customer",
+                       "Fitness-equipment company that outsources "
+                       "manufacturing; small-cap."),
+    ProposedCandidate("JBL", "Tandem Diabetes Care", "customer",
+                       "Medical-device company; Jabil has a real medical-"
+                       "device contract-manufacturing business, worth "
+                       "checking rather than assumed."),
+
+    # ---- MCK (McKesson) ----
+    ProposedCandidate("MCK", "Rite Aid", "customer",
+                       "Major US pharmacy chain; McKesson has been a "
+                       "longtime pharmaceutical-distribution partner, "
+                       "but the exact wholesaler relationship at any "
+                       "given date is worth checking rather than assumed."),
+    ProposedCandidate("MCK", "Owens & Minor", "customer",
+                       "Medical/surgical supply distributor, adjacent "
+                       "sector to McKesson's pharma distribution; "
+                       "small/mid-cap."),
+    ProposedCandidate("MCK", "Option Care Health", "customer",
+                       "Home-infusion pharmacy company formed from the "
+                       "2019 BioScrip merger; worth checking rather than "
+                       "assumed."),
+
+    # ---- NKE (Nike) ----
+    ProposedCandidate("NKE", "Deckers Outdoor", "competitor",
+                       "Footwear company (UGG, Hoka); was materially "
+                       "smaller historically than its recent market cap."),
+    ProposedCandidate("NKE", "Genesco", "competitor",
+                       "Small-cap footwear retailer/wholesaler (Journeys, "
+                       "Schuh)."),
+    ProposedCandidate("NKE", "Columbia Sportswear", "competitor",
+                       "Mid-cap outdoor-apparel competitor."),
+    ProposedCandidate("NKE", "Skechers", "competitor",
+                       "Athletic-footwear competitor; mid-cap."),
+    ProposedCandidate("NKE", "Steven Madden", "competitor",
+                       "Footwear competitor; mid-cap."),
+    ProposedCandidate("NKE", "Caleres", "competitor",
+                       "Small-cap footwear company (formerly Brown Shoe "
+                       "Company)."),
+    ProposedCandidate("NKE", "Rocky Brands", "competitor",
+                       "Small-cap footwear company."),
+    ProposedCandidate("NKE", "Puma", "competitor",
+                       "Directly read in NKE's own 10-K competitor "
+                       "sentence during round-1 verification (\"...Corp., "
+                       "Puma, Li Ning and Under Armour, among others.\"); "
+                       "not previously proposed as its own candidate."),
+    ProposedCandidate("NKE", "Li Ning", "competitor",
+                       "Directly read in the same NKE 10-K sentence as "
+                       "Puma (see above); Chinese company, US SEC "
+                       "registration status genuinely unknown -- worth "
+                       "checking rather than assumed."),
+    ProposedCandidate("NKE", "Crocs", "competitor",
+                       "Co-listed with Wolverine World Wide in the same "
+                       "Dow Jones U.S. Footwear Index performance-graph "
+                       "table round 1 found -- same weak-evidence caveat "
+                       "as Wolverine applies here, not a competition-"
+                       "section claim."),
+
+    # ---- NVDA (Nvidia) ----
+    ProposedCandidate("NVDA", "Mobileye", "competitor",
+                       "Directly read in NVDA's own 10-K competitor "
+                       "sentence during round-1 verification. Was public "
+                       "(NYSE: MBLY) from its 2014 IPO until Intel's 2017 "
+                       "acquisition, then re-IPO'd independently in 2022 "
+                       "-- a genuinely interesting lineage case for the "
+                       "point-in-time test."),
+    ProposedCandidate("NVDA", "Marvell Technology Group", "competitor",
+                       "Directly read in NVDA's own 10-K competitor "
+                       "sentence during round-1 verification; likely too "
+                       "large to pass the market-cap threshold, included "
+                       "for completeness rather than because it's "
+                       "expected to qualify."),
+    ProposedCandidate("NVDA", "ST Microelectronics", "competitor",
+                       "Directly read in NVDA's own 10-K competitor "
+                       "sentence during round-1 verification; likely too "
+                       "large to pass the market-cap threshold, included "
+                       "for completeness rather than because it's "
+                       "expected to qualify."),
+    ProposedCandidate("NVDA", "Cerence", "competitor",
+                       "Automotive AI/voice company spun off from Nuance "
+                       "(2019); adjacent to Nvidia's automotive Drive "
+                       "platform; small-cap."),
+    ProposedCandidate("NVDA", "Credo Technology", "supplier",
+                       "AI-data-center connectivity-chip company, "
+                       "adjacent to Nvidia's own supply/ecosystem (same "
+                       "category as Astera Labs above); recently IPO'd."),
+    ProposedCandidate("NVDA", "indie Semiconductor", "competitor",
+                       "Small-cap automotive-chip company, plausible "
+                       "competitor in Nvidia's automotive segment."),
+)

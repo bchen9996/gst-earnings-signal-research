@@ -44,6 +44,38 @@ SEARCH_ATTEMPTS = 3
 SEARCH_BACKOFF = 2.0
 
 
+def ticker_map_fallback_ciks(tmap: dict[str, Any], name: str) -> list[str]:
+    """Fallback candidate discovery for when EDGAR's browse-edgar company
+    search returns zero candidates for a name that is a real, findable
+    company. Found live, not speculatively: 'Columbia Sportswear' (a
+    real, currently-trading NKE-scale candidate, CIK 0001050797, ticker
+    COLM) returned a genuinely empty search feed; a broader one-word
+    query ('Columbia') returned entries, but with the conformed company
+    name replaced by a literal Perl array-reference dump
+    ('ARRAY(0x55a888699870)') instead of an actual name -- a defect on
+    SEC's own browse-edgar side, reproduced directly against the live
+    endpoint, not a bug in this project's request construction.
+
+    `company_tickers.json` (already used elsewhere in this package, e.g.
+    AgreementSearchClient.cik_for() in edgar_agreements.py) is a
+    different, independently-maintained SEC endpoint. Any CURRENTLY-
+    TRADING company whose registered title starts with `name`
+    (case-insensitive) is returned. This only helps a name that is ALSO
+    a current ticker's registered company -- it has none of browse-
+    edgar's broader coverage of delisted, private, or historically-named
+    entities, so it is tried ONLY as a fallback, after a zero-candidate
+    search, never in place of the primary search."""
+    name_lower = name.strip().lower()
+    if not name_lower:
+        return []
+    out: list[str] = []
+    for v in tmap.values():
+        title = str(v.get("title", ""))
+        if title.lower().startswith(name_lower):
+            out.append(str(v["cik_str"]).zfill(10))
+    return out
+
+
 def _candidates(in_json: Path) -> list[dict[str, str]]:
     """One row per DISTINCT named_counterparty from the wired extraction
     output. A name that recurs under more than one anchor keeps the
@@ -140,6 +172,7 @@ def main(argv: list[str] | None = None) -> int:
 
     out = []
     matched_names: dict[str, list[str]] = {}
+    fallback_names_used: list[str] = []
     for r in rows:
         name = r["counterparty"]
         as_of = r["as_of_date"]
@@ -158,6 +191,18 @@ def main(argv: list[str] | None = None) -> int:
         conformed = parse_conformed_names(xml)
         if conformed:
             matched_names[name] = conformed
+
+        # A real search (no exception, no retry-exhausted failure) that
+        # still found zero candidates may be this project's own request
+        # being wrong -- or it may be browse-edgar itself malfunctioning
+        # for this query (see ticker_map_fallback_ciks()'s docstring for
+        # a reproduced live example). Try the independent ticker-map
+        # endpoint before concluding "no registrant" for a real company.
+        if not ciks and not failure:
+            fallback = ticker_map_fallback_ciks(tmap, name)
+            if fallback:
+                ciks = fallback
+                fallback_names_used.append(name)
 
         accepted: list[tuple[str, str]] = []
         for cik in ciks:
@@ -210,6 +255,15 @@ def main(argv: list[str] | None = None) -> int:
             "A name whose search failed is UNANSWERED, not evidence the "
             "company doesn't exist -- an endpoint outage deciding a result "
             "is the failure this project refuses everywhere else."),
+        "ticker_map_fallback_used_for": fallback_names_used,
+        "ticker_map_fallback_note": (
+            "browse-edgar's company search returned zero candidates for "
+            "these names despite a successful (non-failed) request; "
+            "company_tickers.json resolved a currently-trading match "
+            "instead. See ticker_map_fallback_ciks()'s docstring for a "
+            "reproduced live example of browse-edgar's own malfunction "
+            "(a genuinely empty feed for an exact real company name, and "
+            "a corrupted-name response for a broader query)."),
         "names_identified": len(identified),
         "names_now_tradeable": len(tradeable),
         "results": [r.as_dict() for r in out],
