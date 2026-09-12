@@ -1,0 +1,163 @@
+{
+ "artifact": "HYP05_PHASE2_LOCK_2026-09-12.json",
+ "as_of_date": "2026-09-12",
+ "hypothesis_id": "HYP-05",
+ "what_this_is": "The Phase 2 preregistration lock: the exact locked (peer, anchor-event) set, target definition, and model spec, fixed before any target/outcome value has been computed for AMBA around any NVDA event. See 'LOOK-AHEAD DISCLOSURE' below for exactly what has and has not already been touched.",
+ "what_this_is_not": "Not a result, not the one locked run (that is make_hyp05_phase3_run.py, separate and not yet executed), and not permission to compute anything. It constrains what that later, separate, explicitly-authorized run may do; it performs none.",
+ "governing_documents": {
+  "hyp04_phase2_lock_shape": "make_phase2_lock.py (mirrored in shape, not modified or extended)",
+  "sample_size_gate": "HYP05_SAMPLE_SIZE_GATE_2026-09-11.md",
+  "clustering_redecision": "clustered_se.HYP05_TWO_WAY_LIMITATION_NOTE"
+ },
+ "pins": {
+  "peer_universe": "HYP05_PEER_UNIVERSE_HAND_CURATED_2026-09-12.json",
+  "peer_universe_sha256": "a02f7387564d27515df9cbf4edda98bfba5d28138da369225ffceadfcb95ba73",
+  "anchor_shocks": "HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+  "anchor_shocks_sha256": "d9f59a06c4db222a7dd29fa3a7d95aa151e12523498e64f17d1072d67188a870",
+  "peer_closes": "HYP05_PEER_CLOSES_AMBA_2026-09-12.csv",
+  "peer_closes_sha256": "02fc69b0e64da1f53132e38f35ae0ce473f188c252cec592c11f9346112c9492",
+  "peer_earnings": "HYP05_PEER_EARNINGS_AMBA_2026-09-12.json",
+  "peer_earnings_sha256": "2e14704d3c03ac9d421f5f8c9a8265fe3e748b9a6f94370e519a1d9407874602",
+  "target_py_sha256": "240994a81ba39e4164f5c2a3cb8166c88e2bf7d2980f960cea0955452dd5034f",
+  "constants_py_sha256": "cf6cab1307439b9fad441811e283591985504222d16f39f9a328927240ce0fd4",
+  "clustered_se_py_sha256": "397356dce181d55d1183e883236dc68bce2d1ea6daf37b257c7e9dc23be876f4",
+  "lock_declared_at_commit": "02340477d159fdc96b63014e13ffbd0f628e19bf"
+ },
+ "locked_peer": "AMBA",
+ "locked_anchor": "NVDA",
+ "locked_events": [
+  {
+   "event_id": "NVDA-2016-05-12",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2016-05-12",
+   "attributed_session": "2016-05-13",
+   "shock": 0.1503344045
+  },
+  {
+   "event_id": "NVDA-2016-11-10",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2016-11-10",
+   "attributed_session": "2016-11-11",
+   "shock": 0.2631839961
+  },
+  {
+   "event_id": "NVDA-2017-02-09",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2017-02-09",
+   "attributed_session": "2017-02-10",
+   "shock": 0.0279395061
+  },
+  {
+   "event_id": "NVDA-2017-05-09",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2017-05-09",
+   "attributed_session": "2017-05-10",
+   "shock": 0.1622441303
+  },
+  {
+   "event_id": "NVDA-2017-08-10",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2017-08-10",
+   "attributed_session": "2017-08-11",
+   "shock": 0.0562447078
+  },
+  {
+   "event_id": "NVDA-2018-02-08",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2018-02-08",
+   "attributed_session": "2018-02-09",
+   "shock": 0.0498815123
+  },
+  {
+   "event_id": "NVDA-2020-05-21",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2020-05-21",
+   "attributed_session": "2020-05-22",
+   "shock": 0.026304364
+  },
+  {
+   "event_id": "NVDA-2020-08-19",
+   "anchor_ticker": "NVDA",
+   "peer_ticker": "AMBA",
+   "release_date": "2020-08-19",
+   "attributed_session": "2020-08-20",
+   "shock": 0.0029026414
+  }
+ ],
+ "n_locked_events": 8,
+ "target_definition": {
+  "formula": "RVar(h) = (1/h) * sum_{i=1..h} r_i^2 over [t+1, t+h]; RVar_ref = (1/20) * sum r_i^2 over the trailing 20 sessions ending at the anchor's earnings date; raw = log(RVar(h)) - log(RVar_ref); target = raw - earnings_cycle_baseline(peer, days_to_own_earnings) -- IDENTICAL to HYP-04's own locked formula, reused unchanged, not re-derived.",
+  "horizon_grid": [
+   1,
+   2,
+   3,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20
+  ],
+  "residualization": "REQUIRED, not optional -- same as HYP-04.",
+  "min_bucket_count": 20,
+  "min_retained_history_fraction": 0.1,
+  "anchor_adjacent_exclusion_trading_days": 25,
+  "source": "target.py, hash-pinned above, reused unmodified"
+ },
+ "model_spec": {
+  "estimator": "local projections with CR2 clustered standard errors, Satterthwaite degrees of freedom, and max-T permutation multiplicity correction -- reused unmodified from inference.py/clustered_se.py",
+  "primary_cluster_key": "event_id",
+  "primary_cluster_key_note": "HYP-05's own re-decision (clustered_se.HYP05_TWO_WAY_LIMITATION_NOTE), NOT HYP-04's D1-locked calendar_period. With one peer and one anchor, event_id clustering here means exactly 8 clusters (one per locked event) -- a small-sample scenario, consistent with the exploratory framing below.",
+  "secondary_cluster_key_robustness_lens": "calendar_period",
+  "secondary_cluster_key_note": "Reported via clustered_se.dual_cluster_report -- two ONE-WAY clusterings shown side by side, never a two-way estimator. The primary result above is HYP-05's actual inferential result; this is a robustness lens only.",
+  "residualize": true,
+  "n_permutations": 2000,
+  "random_seed": 42,
+  "n_permutations_note": "Reused from HYP-04's own constants -- permutation-test validity does not depend on N being large, only power does, and power is already disclosed as inadequate below."
+ },
+ "sample_size_disclosure": {
+  "n_locked_events": 8,
+  "n_peers": 1,
+  "max_rows_before_exclusions": 160,
+  "provisional_operative_floor_anchor_events": 195,
+  "floor_source": "HYP05_SAMPLE_SIZE_GATE_2026-09-11.md",
+  "framing": "EXPLORATORY, NOT CONFIRMATORY",
+  "why": "8 locked events is roughly 24x short of HYP-05's own provisional 195-event operative floor. Decided with the repo owner 2026-09-12: proceed anyway, but every downstream result must state this plainly rather than let silence imply adequate power. This is not a claim the floor is wrong or waived."
+ },
+ "look_ahead_disclosure": {
+  "already_touched": "AMBA's raw close prices (auto_adjust=False) were fetched and used ONLY to compute point-in-time MARKET CAP for PS-3 eligibility screening in run_hyp05_peer_market_cap.py (committed 751d9c5 / 3d7a240 / abf4527). That computation never touched AMBA's returns, realized variance, or any quantity resembling this hypothesis's target measure.",
+  "not_touched": "No log return, no realized-variance ratio, and no residualized target value has been computed for AMBA around any NVDA event, at any horizon, before this lock. This lock is written before that computation happens for the first time.",
+  "why_this_replaces_a_holdout_split": "HYP-04's exploration/holdout split guards against tuning a spec after seeing how it performs on some data. With one peer and one anchor there is no second candidate to explore a spec against, so a further split of these 8 events would not buy that property; it would only shrink an already-tiny sample. The disclosure above closes the actual risk directly: the spec below was fixed before AMBA's outcome data was ever computed, not merely before some OTHER data was computed."
+ },
+ "peer_relationship_note": "AMBA's qualifying edge is sourced from HYP05_PEER_UNIVERSE_HAND_CURATED_2026-09-12.json as relationship_type='sector_competitor', from a real, filed NVDA 10-K sentence (EDGAR_10K_FULLTEXT_SEARCH_HAND_CURATED_VERIFIED) naming Ambarella among SOC-product competitors -- not an independently verified claim beyond what that sentence itself says.",
+ "opens_no_gate": "This is a computed HYP-05 Phase 2 lock, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read.",
+ "declared": true,
+ "declared_by": "bchen9996",
+ "declared_date": "2026-09-12",
+ "owner_fields": [
+  "declared",
+  "declared_by",
+  "declared_date"
+ ],
+ "how_to_complete": "python -m hyp04_supply_chain_hedge.ratify_hyp05 phase2 --template",
+ "status": "DECLARED -- by bchen9996 on 2026-09-12",
+ "attestation_text": "HYP-05's Phase 2 lock -- target definition, model spec, and the locked 8-event (AMBA, NVDA) set -- was fixed before any return, realized-variance, or target value was computed for AMBA around any NVDA event. AMBA's raw closes were touched only to compute point-in-time market cap for peer-eligibility screening, never its returns or outcome."
+}
