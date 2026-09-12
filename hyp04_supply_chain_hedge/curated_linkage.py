@@ -83,6 +83,18 @@ EXPECTED_HEADERS: tuple[str, ...] = (
     "review_status",
 )
 
+# --- v2 schema: additive only, appends a structured linkage-strength field --
+# Every dated HYP-04 map (v1.0-v1.3.csv) targets EXPECTED_HEADERS above and is
+# NOT edited to add this column -- they are closed artifacts of a closed
+# hypothesis. This is a SECOND valid exact header shape, not a replacement,
+# so `check_headers` accepts either. A future curated map (e.g. HYP-05's) may
+# use this shape to carry the disclosed concentration percentage (e.g. "13.0%
+# of consolidated_revenue") as a structured, queryable number instead of only
+# inside free-text notes.
+EXPECTED_HEADERS_WITH_CONCENTRATION: tuple[str, ...] = (
+    *EXPECTED_HEADERS, "concentration_pct",
+)
+
 # --- Enums, verbatim and CASE-SENSITIVE ------------------------------------
 RELATIONSHIP_TYPES = (
     "direct_supplier", "direct_customer", "sector_competitor",
@@ -151,6 +163,7 @@ REQUIRED_FIELDS: tuple[str, ...] = (
 # validator. Requiring the citation is what makes an edge auditable.
 OPTIONAL_FIELDS: tuple[str, ...] = (
     "relationship_direction_notes", "source_url", "notes_caveats",
+    "concentration_pct",
 )
 
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -190,6 +203,11 @@ class CuratedEdge:
     relationship_direction_notes: str    # stored, NEVER read programmatically
     notes_caveats: str
     row_number: int
+    # Optional, v2-schema only. The disclosed concentration percentage (e.g.
+    # 13.0 for "13.0% of consolidated_revenue"), as a structured number.
+    # None for any row loaded under the original 15-column schema, and for a
+    # v2-schema row that leaves the column blank.
+    concentration_pct: Optional[float] = None
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -266,7 +284,7 @@ def check_headers(actual: Iterable[str]) -> tuple[bool, dict[str, Any]]:
     """
     actual = [h.strip().lstrip("﻿") for h in actual]
     expected = list(EXPECTED_HEADERS)
-    if actual == expected:
+    if actual == expected or actual == list(EXPECTED_HEADERS_WITH_CONCENTRATION):
         return True, {}
     return False, {
         "expected": expected,
@@ -375,6 +393,25 @@ def load_curated_linkage(
                         i, "error", fname,
                         f"{v!r} is not a valid YYYY-MM-DD date"))
 
+            # v2-schema only: absent for a v1-schema row (not in `cols`), so
+            # row.get(...) returns "" -- identical to a blank v2 cell. Blank
+            # is valid (Optional); a present value must be a real percentage.
+            concentration_pct: Optional[float] = None
+            cp_raw = row.get("concentration_pct", "")
+            if cp_raw:
+                try:
+                    concentration_pct = float(cp_raw)
+                except ValueError:
+                    row_errors.append(RowIssue(
+                        i, "error", "concentration_pct",
+                        f"{cp_raw!r} is not a number"))
+                else:
+                    if not (0.0 <= concentration_pct <= 100.0):
+                        row_errors.append(RowIssue(
+                            i, "error", "concentration_pct",
+                            f"{concentration_pct!r} is not a percentage in "
+                            "[0, 100]"))
+
             anchor = row.get("anchor_ticker", "").upper()
             peer = row.get("peer_ticker", "").upper()
             if anchor and peer:
@@ -430,6 +467,7 @@ def load_curated_linkage(
                     "relationship_direction_notes", ""),
                 notes_caveats=row.get("notes_caveats", ""),
                 row_number=i,
+                concentration_pct=concentration_pct,
             ))
 
     return res

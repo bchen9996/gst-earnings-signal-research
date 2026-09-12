@@ -48,14 +48,17 @@ from hyp04_supply_chain_hedge.edgar_linkage import (  # noqa: E402
     BASIS_UNKNOWN,
     CONCENTRATION_BASES,
     CONTACT_REQUIRED_MESSAGE,
+    DIRECTION_COMPETITOR,
     DIRECTION_CUSTOMER,
     DIRECTION_SUPPLIER,
+    SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED,
     EdgarClient,
     EdgarContactError,
     ExtractionResult,
     LinkageEdge,
     classify_concentration_basis,
     clean_party,
+    extract_competitor_edges_from_text,
     extract_edges_from_text,
     infer_direction,
     reconcile,
@@ -1326,6 +1329,73 @@ def test_11_offline() -> None:
         check("11a. network blocked", type(e).__name__ == "NetworkBlocked")
 
 
+def _extract_competitor(text: str):
+    return extract_competitor_edges_from_text(
+        text, ticker="TEST", cik="0000000001", filing_date="2026-02-14",
+        accession="0000000001-26-000001")
+
+
+# ============ 12. competitor/supplier-context extraction (UNCALIBRATED) ====
+def test_12_competitor_supplier_context_extraction() -> None:
+    """A real, working, offline-testable function -- and a much weaker claim
+    than CONCENTRATION_ANCHORS's "measured over the cached corpus of real
+    filings". This has NOT been measured against real filing text, is NOT
+    wired into extract_for_universe(), and must not be treated as
+    production-grade until it is. See the module comment above its
+    definition in edgar_linkage.py."""
+    e1 = _extract_competitor(
+        "We compete with Broadcom Inc. and other semiconductor companies "
+        "in this market.")
+    check("12a. a direct 'we compete with' sentence yields a candidate edge",
+          len(e1) == 1 and e1[0].named_counterparty == "Broadcom Inc"
+          and e1[0].direction == DIRECTION_COMPETITOR, str(e1))
+    check("12b. it is tagged with the uncalibrated source, not the "
+          "calibrated ASC 280 one",
+          e1[0].source == SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED)
+    check("12c. and carries no percentage -- this path never has one",
+          e1[0].concentration_pct is None)
+
+    e2 = _extract_competitor(
+        "Our principal competitors include Intel Corporation and AMD in "
+        "the CPU market.")
+    check("12d. 'principal competitors include' yields exactly one edge, "
+          "not two, even though it also matches the plainer "
+          "'competitors include' anchor",
+          len(e2) == 1 and e2[0].named_counterparty == "Intel Corporation",
+          str(e2))
+
+    e3 = _extract_competitor("We purchase memory chips from Micron "
+                             "Technology, Inc.")
+    check("12e. supplier-context prose (no percentage, unlike the ASC 280 "
+          "path) is captured with DIRECTION_SUPPLIER",
+          len(e3) == 1 and e3[0].named_counterparty == "Micron Technology, Inc"
+          and e3[0].direction == DIRECTION_SUPPLIER, str(e3))
+
+    e4 = _extract_competitor(
+        "Our contract manufacturers include Foxconn and Pegatron.")
+    check("12f. contract-manufacturer prose is captured",
+          len(e4) == 1 and e4[0].named_counterparty == "Foxconn", str(e4))
+
+    # Adversarial: the same discipline test_6/test_6b-h hold the calibrated
+    # path to -- a near-miss must not fabricate a named counterparty.
+    e5 = _extract_competitor("We compete with many companies in this "
+                             "industry.")
+    check("12g. an unnamed competitor ('many companies') is not fabricated "
+          "into a company name", e5 == [], str(e5))
+
+    e6 = _extract_competitor("The industry in which we operate is highly "
+                             "competitive.")
+    check("12h. generic competitive-landscape prose with no anchor phrase "
+          "yields nothing", e6 == [], str(e6))
+
+    check("12i. this function is NOT wired into extract_for_universe -- "
+          "grep the source rather than trust a comment",
+          "extract_competitor_edges_from_text" not in
+          __import__("inspect").getsource(
+              __import__("hyp04_supply_chain_hedge.edgar_linkage",
+                         fromlist=["extract_for_universe"]).extract_for_universe))
+
+
 if __name__ == "__main__":
     test_1_client_refuses_without_a_real_contact()
     test_2_named_counterparty_with_percentage()
@@ -1351,6 +1421,7 @@ if __name__ == "__main__":
     test_9_coverage_is_reported_as_a_floor()
     test_10_reconcile_flags_and_never_merges()
     test_11_offline()
+    test_12_competitor_supplier_context_extraction()
 
     print()
     if SKIPS:
