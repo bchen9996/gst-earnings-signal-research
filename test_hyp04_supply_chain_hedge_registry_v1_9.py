@@ -243,10 +243,11 @@ def test_e_the_gate_did_not_move() -> None:
           not REGISTRY_CURRENT.name.endswith("v1.9.json"),
           REGISTRY_CURRENT.name)
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
-    # with 4 denials for all of Phase 0. v1.9 is not what opened it.
-    check("E2. it is OPEN", d.open is True, str(d.conditions))
-    check("E3. with zero denials", len(d.denials) == 0, str(d.denials))
+    # NARROWED again: E2/E3 asserted the gate was OPEN with zero denials
+    # from 2026-09-09 (freeze + v1.12 moved C1) until v1.13 closed HYP-04 and
+    # C1 denied again on 2026-09-11. v1.9 opened nothing and closed nothing;
+    # it needs no opinion on open/closed at all, only on what it itself
+    # moved (E4, E5 below, both unaffected by any later status change).
     check("E4. and C4 MET", d.conditions["C4_decisions_resolved"] is True)
     check("E5. C2 counts DERIVED events (214); defining a shock still creates "
           "none",

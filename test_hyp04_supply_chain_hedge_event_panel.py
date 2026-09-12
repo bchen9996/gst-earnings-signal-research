@@ -320,14 +320,14 @@ def test_6_the_whole_chain_composes() -> None:
     # 5. and the whole thing still displays nothing
     from hyp04_supply_chain_hedge.display_gate import current_decision
     d = current_decision()
-    # The gate OPENED 2026-09-09 on the attested freeze and registry v1.12.
-    # THIS chain ran on synthetic peer returns and contributed nothing to that:
-    # C5 now passes because the committed freeze derives non-placeholder
-    # linkage from the ratified map, not because anything here did.
-    check("6h. the gate reports its committed state", d.open, str(d.status))
+    # NARROWED, not retargeted -- the gate went OPEN (2026-09-09, freeze +
+    # v1.12) then CLOSED again (2026-09-11, v1.13 closed HYP-04 as
+    # HOLDOUT_TESTED_NULL). THIS chain ran on synthetic peer returns and
+    # contributed to neither move: C5 passes because the committed freeze
+    # derives non-placeholder linkage from the ratified map, not because
+    # anything here did, and that claim is unaffected by C1's status.
     check("6i. C5 passes on the FROZEN linkage, which this run is not part of",
           d.conditions.get("C5_not_placeholder") is True)
-    check("6j. zero denials", len(d.denials) == 0, str(d.denials))
 
 
 def test_7_offline() -> None:

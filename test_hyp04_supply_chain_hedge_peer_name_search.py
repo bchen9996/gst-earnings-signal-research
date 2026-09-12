@@ -285,11 +285,12 @@ def test_8_the_gate_is_untouched() -> None:
     print("\n--- 8: nothing here moves the display gate ---")
     from hyp04_supply_chain_hedge.display_gate import current_decision
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12). Searching for peer
-    # names is still not what opened it -- a candidate is not a curated edge.
-    check("8a. gate OPEN", d.status == "OPEN", d.status)
+    # NARROWED, not retargeted -- the gate went OPEN (2026-09-09, freeze +
+    # v1.12) then CLOSED again (2026-09-11, v1.13 closed HYP-04 as
+    # HOLDOUT_TESTED_NULL). Searching for peer names is not what moved the
+    # gate in either direction -- a candidate is not a curated edge -- so
+    # this asserts only C4, which nothing here touches.
     check("8b. C4 MET", d.conditions.get("C4_decisions_resolved") is True)
-    check("8c. zero denials", len(d.denials) == 0, str(d.denials))
     check("8d. the count is the frozen 214",
           d.evidence["eligible_event_count"] == 214,
           str(d.evidence["eligible_event_count"]))

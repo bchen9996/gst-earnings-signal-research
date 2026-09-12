@@ -47,6 +47,7 @@ from pathlib import Path  # noqa: E402
 
 from hyp04_supply_chain_hedge import make_registry_v1_12 as R  # noqa: E402
 from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
+    REGISTRY_CURRENT,
     FreezeRecord,
     evaluate_gate,
 )
@@ -202,22 +203,24 @@ def test_4_the_rehearsal_opens_the_gate() -> None:
 
 
 def test_5_the_real_gate_is_untouched() -> None:
-    g = evaluate_gate()
-    check("5a. the real gate is still CLOSED", g.open is False)
-    check("5b. with the freeze withheld it denies on C2/C3/C5 -- three, not "
-          "four, C1 having moved", len(g.denials) == 3
-          and not any(x.startswith("C1") for x in g.denials), str(g.denials))
-    check("5c. v1.12 was written on 2026-09-09 by the owner, not by this suite",
+    """v1.12 was the version the gate read from 2026-09-09 until HYP-04 was
+    closed on 2026-09-11. Inherited from v1.11's suite when v1.12 superseded
+    it (that suite's own A6 records the same rule): exactly one suite may
+    hold the live "the gate reads OPEN/CLOSED with N denials" claim -- the
+    CURRENT version's, now test_hyp04_supply_chain_hedge_registry_v1_13.py's
+    test_5. What stays true forever here is the direction: v1.12 is
+    superseded, never un-superseded, and never edited in place."""
+    check("5a. v1.12 was written on 2026-09-09 by the owner, not by this suite",
           (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json").is_file())
-    check("5d. and the gate now reads v1.12",
-          "v1.12" in str(__import__(
-              "hyp04_supply_chain_hedge.display_gate",
-              fromlist=["REGISTRY_CURRENT"]).REGISTRY_CURRENT))
-    from hyp04_supply_chain_hedge.display_gate import current_decision
-    live = current_decision()
-    check("5e. so the REAL gate is OPEN with zero denials",
-          live.open is True and len(live.denials) == 0, str(live.denials))
-    check("5f. and this suite wrote nothing to get there -- v1.12 is built in "
+    # Deliberately version-agnostic -- pinning to a SPECIFIC next version (as
+    # this check once did, to "v1.13.json") breaks again the moment a further
+    # version comes along. It did: v1.14 superseded v1.13 the same day. What
+    # stays true forever is the direction: v1.12 is superseded, never
+    # un-superseded, whatever it has moved to since.
+    check("5b. v1.12 has been superseded -- the gate has moved past it",
+          REGISTRY_CURRENT.name != "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.12.json",
+          REGISTRY_CURRENT.name)
+    check("5c. and this suite wrote nothing to get there -- v1.12 is built in "
           "memory and evaluated through registry_path",
           True)
 

@@ -237,13 +237,12 @@ def test_4_the_attributed_session_is_never_the_release_date_for_AMC() -> None:
 def test_5_a_measurement_is_not_an_open_gate() -> None:
     print("\n--- 5: the gate did not move ---")
     d = current_decision()
-    # The gate OPENED 2026-09-09: the freeze was attested and registry v1.12
-    # moved C1. It read CLOSED with 4 denials for all of Phase 0. The claim in
-    # this test's name is unchanged and still true -- computing shocks is not
-    # what opened it -- so what is asserted is that the gate reports its real
-    # committed state and that this suite did not produce it.
-    check("5a. the gate is OPEN", getattr(d, "open", False))
-    check("5b. with zero denials", len(d.denials) == 0, str(d.denials))
+    # NARROWED, not retargeted -- the gate went OPEN (2026-09-09, freeze +
+    # v1.12) then CLOSED again (2026-09-11, v1.13 closed HYP-04 as
+    # HOLDOUT_TESTED_NULL). The claim in this test's name is unchanged either
+    # way -- computing shocks is not what moved the gate in either direction
+    # -- so this asserts only what this suite's own business is: C4, which
+    # nothing here touches.
     check("5c. C4 still MET", d.conditions["C4_decisions_resolved"] is True)
     # `eligible_event_count`, not `eligible_count` -- the latter is not a key
     # the gate ever emits, so `.get("eligible_count") is None` passes whatever

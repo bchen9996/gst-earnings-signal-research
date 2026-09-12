@@ -154,15 +154,19 @@ def test_a_the_chain() -> None:
     check("A5. the artifact re-derives from its generator",
           again == doc, "generator output differs from the file on disk")
 
-    # Inherited from v1.10's suite when v1.11 superseded it. Exactly one suite
-    # may hold this claim -- the current version's -- and it is the only test
-    # anywhere that would catch a registry written but never repointed to.
-    # v1.11 was the version the gate read until 2026-09-09, when v1.12
-    # superseded it to move C1. What stays true forever is the direction:
-    # v1.11 is superseded, never un-superseded, and never edited in place.
-    check("A6. v1.11 has been superseded -- the gate has moved past it",
-          REGISTRY_CURRENT.name != V1_11.name
-          and REGISTRY_CURRENT.name.endswith("v1.12.json"),
+    # Inherited from v1.10's suite when v1.11 superseded it, and weakened
+    # again now that v1.13 supersedes v1.12: pinning this to a SPECIFIC next
+    # version ("...endswith v1.12.json") is exactly what broke the moment a
+    # further version came along, despite this comment already saying the
+    # direction "stays true forever" -- the wording said it, the assertion
+    # didn't enforce it. What actually stays true forever, and is all this
+    # suite should claim, is the direction: v1.11 is superseded, never
+    # un-superseded, and never edited in place. The live gate's actual state
+    # (open/closed, denial count) belongs to exactly one suite at a time --
+    # the CURRENT version's, now
+    # test_hyp04_supply_chain_hedge_registry_v1_13.py's test_5.
+    check("A6. v1.11 has been superseded -- the gate has moved past it, "
+          "whatever it has moved to", REGISTRY_CURRENT.name != V1_11.name,
           REGISTRY_CURRENT.name)
 
 
@@ -285,17 +289,18 @@ def test_e_nothing_was_measured_and_nothing_moved() -> None:
               col.get("this_is_availability_not_eligibility", "")).lower())
 
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
-    # with 4 denials for all of Phase 0. v1.11 recorded a DATA SOURCE and said
-    # in its own text that C1 was "a later version's to move, once that
-    # assembler exists". v1.12 is that version. This block asserts v1.11 is
-    # not what opened the gate.
-    check("E7. the gate is OPEN", getattr(d, "open", False))
-    check("E8. with zero denials", len(d.denials) == 0, str(d.denials))
+    # E7, E8 and E10 used to assert the live gate was OPEN with zero denials.
+    # That is a live-gate claim, which belongs to exactly one suite at a
+    # time -- the CURRENT version's, now
+    # test_hyp04_supply_chain_hedge_registry_v1_13.py's test_5 -- and it
+    # silently went stale the moment v1.13 closed HYP-04 and C1 denied again.
+    # v1.11 itself only recorded a DATA SOURCE and said C1 was "a later
+    # version's to move"; it never claimed to open anything, so it needs no
+    # live-gate opinion at all. C4 (E9) and the frozen count (E11) are not
+    # live-gate claims -- they describe facts this version's own text and the
+    # freeze established, unaffected by any later status change -- and stay.
     check("E9. and C4 is MET",
           d.conditions.get("C4_decisions_resolved") is True)
-    for c in ("C1_status", "C2_threshold", "C3_frozen", "C5_not_placeholder"):
-        check(f"E10. {c} now passes", d.conditions.get(c) is True)
     check("E11. the eligible count is the frozen 214, not zero",
           d.evidence["eligible_event_count"] == 214,
           str(d.evidence["eligible_event_count"]))

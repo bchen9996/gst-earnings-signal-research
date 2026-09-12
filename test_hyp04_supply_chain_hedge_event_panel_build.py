@@ -182,9 +182,16 @@ def test_8_the_panel_opens_no_gate() -> None:
     c = d.conditions
     check("8a. with the freeze withheld, the gate still DENIES", d.open is False)
     check("8b. C4 is still MET", c["C4_decisions_resolved"] is True)
-    check("8c. on C2, C3 and C5 -- three denials, C1 having moved with v1.12",
-          len(d.denials) == 3
-          and not any(x.startswith("C1") for x in d.denials), str(d.denials))
+    # NARROWED, not retargeted: this used to also assert C1 was NOT among the
+    # denials (true while v1.12 held ACTIVE_COLLECTING) and an exact count of
+    # three. v1.13 closed HYP-04 as HOLDOUT_TESTED_NULL on 2026-09-11, so C1
+    # denies again too -- for a reason entirely outside this suite's business
+    # (a closed hypothesis, not a freeze-less gate call). What this suite
+    # actually demonstrates -- that a bare call with no freeze structurally
+    # denies on C2, C3 and C5 -- is what is asserted; C1's live value is not.
+    check("8c. C2, C3 and C5 all deny with no freeze supplied",
+          all(any(x.startswith(c) for x in d.denials)
+              for c in ("C2", "C3", "C5")), str(d.denials))
     # This read `eligible_count`, which the gate never emits -- so `.get(...)
     # is None` was true no matter what the gate reported, and the assertion
     # could not fail. Indexed by the real key now.
@@ -194,8 +201,17 @@ def test_8_the_panel_opens_no_gate() -> None:
 
     from hyp04_supply_chain_hedge.display_gate import current_decision
     live = current_decision()
-    check("8g. and the REAL gate, which loads the committed freeze, is OPEN",
-          live.open is True and len(live.denials) == 0, str(live.denials))
+    # NARROWED, not retargeted: this used to assert the REAL gate was fully
+    # OPEN once the committed freeze was loaded. v1.13's closure means C1
+    # denies again regardless of the freeze -- a fact about HYP-04's status,
+    # not about whether this committed freeze/panel data is good. What this
+    # suite's business actually is -- that the committed freeze clears every
+    # condition A PANEL AND FREEZE CAN AFFECT -- is asserted directly instead.
+    check("8g. and the REAL gate, loading the committed freeze, clears "
+          "C2/C3/C4/C5 -- everything a panel and freeze can affect",
+          all(live.conditions[c] is True for c in
+              ("C2_threshold", "C3_frozen", "C4_decisions_resolved",
+               "C5_not_placeholder")), str(live.conditions))
     # 8e read `"CLOSED" in ...` under the label "the artifact says so itself".
     # It still passes, and that is the problem worth stating rather than
     # papering over: the committed panel is dated 2026-09-08 and says CLOSED,
@@ -213,9 +229,17 @@ def test_8_the_panel_opens_no_gate() -> None:
     # every key to it, and regenerating the file to match a corrected string
     # would change the pinned hash -- which closes the gate. So the generator
     # keeps it, carrying a comment saying why, and this records the debt.
-    check("8i. the committed artifact's gate snapshot is SUPERSEDED -- it says "
-          "CLOSED and the live gate is OPEN",
-          "CLOSED" in text and live.open is True)
+    # NARROWED, not retargeted: this used to compare the literal against
+    # TODAY's live gate (OPEN, when this was written). The live gate has
+    # since closed again for an unrelated reason (v1.13's HYP-04 closure),
+    # so "CLOSED" now coincidentally matches the live state too -- which
+    # would make a live comparison assert the OPPOSITE of what this check is
+    # for. The actual, durable point is that the literal is FIXED (dated
+    # 2026-09-08) and never re-derived from whatever the live gate says on
+    # any later day, which a live comparison cannot demonstrate by
+    # construction -- it needs no live gate at all.
+    check("8i. the committed artifact's gate snapshot is a fixed 2026-09-08 "
+          "literal, not live-derived", "CLOSED" in text)
     src = (Path(__file__).resolve().parent / "hyp04_supply_chain_hedge"
            / "make_event_panel.py").read_text(encoding="utf-8")
     check("8j. and the generator says so, so the next rebuild corrects it "
