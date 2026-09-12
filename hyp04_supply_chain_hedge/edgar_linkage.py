@@ -91,6 +91,10 @@ ARCHIVE_DOC_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
 # Every document of a filing, concatenated. The only route to pre-2001
 # filings, whose per-document path does not exist.
 FULL_SUBMISSION_URL = "https://www.sec.gov/Archives/edgar/data/{cik}/{acc}.txt"
+# Every XBRL fact a filer has ever tagged, across every form and period. Used
+# by shares_outstanding.py for the dei:EntityCommonStockSharesOutstanding
+# series -- not fetched here, just the endpoint.
+COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
 
 SOURCE_PRIMARY_DOCUMENT = "primary_document"
 SOURCE_FULL_SUBMISSION = "full_submission_text"
@@ -1859,6 +1863,13 @@ class EdgarClient:
         # every filing more recent than where it stopped.
         out.sort(key=lambda f: f["filing_date"], reverse=True)
         return out
+
+    def companyfacts(self, cik: str) -> dict[str, Any]:
+        """Every XBRL fact this filer has ever tagged. Used by
+        shares_outstanding.py; kept here rather than reimplemented so a
+        companyfacts pull gets the same caching, rate limiting and contact
+        validation as every other request this client makes."""
+        return self._get_json(COMPANYFACTS_URL.format(cik=cik))
 
     def filing_text_with_source(self, cik: str, accession: str,
                                 document: str) -> tuple[str, str]:
