@@ -35,7 +35,6 @@ from typing import Any
 LSE = Path("Live Signal Engine")
 IN_JSON = LSE / "HYP05_CANDIDATE_LINKAGE_LOCKED24ANCHORS_2026-09-12.json"
 AS_OF = "2026-09-12"
-OUT_JSON = LSE / f"HYP05_PEER_NAME_SEARCH_{AS_OF}.json"
 
 CONTACT = "bchen9996 bchen9996@gmail.com"
 CACHE_DIR = Path(".edgar_cache")
@@ -86,6 +85,16 @@ def main(argv: list[str] | None = None) -> int:
     if not a.in_json.is_file():
         print(f"REFUSED: {a.in_json} does not exist", file=sys.stderr)
         return 1
+
+    # Output filename is derived from the input's own scope label, not a
+    # fixed constant -- two different candidate-linkage inputs (e.g.
+    # LOCKED24ANCHORS vs REAL_ANCHORS) must never write to, or be confused
+    # with, the same output file.
+    scope = a.in_json.stem
+    for prefix in ("HYP05_CANDIDATE_LINKAGE_",):
+        if scope.startswith(prefix):
+            scope = scope[len(prefix):]
+    out_json = LSE / f"HYP05_PEER_NAME_SEARCH_{scope}.json"
 
     rows = _candidates(a.in_json)
     print(f"input: {a.in_json.name}")
@@ -174,15 +183,15 @@ def main(argv: list[str] | None = None) -> int:
     unanswered = [r for r in out if r.status == "SEARCH_FAILED_question_unanswered"]
 
     payload = {
-        "artifact": OUT_JSON.name,
+        "artifact": out_json.name,
         "as_of_date": AS_OF,
         "hypothesis_id": "HYP-05",
         "rule": rule_description(),
         "input": a.in_json.name,
         "what_this_is": (
-            "Which registrant each of HYP-05's 39 extracted competitor/"
-            "supplier counterparty names referred to, and whether that "
-            "registrant still trades."),
+            f"Which registrant each of {len(rows)} extracted competitor/"
+            "supplier counterparty names (from the input above) referred "
+            "to, and whether that registrant still trades."),
         "what_this_is_not": (
             "Curation. No edge is written to any linkage map, no peer "
             "universe is derived here. peer_selection.py's evaluate_peer() "
@@ -210,7 +219,7 @@ def main(argv: list[str] | None = None) -> int:
             "No edge is written and no candidate is promoted. Neither "
             "HYP-04's nor HYP-05's display gate is touched."),
     }
-    OUT_JSON.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+    out_json.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
                         encoding="utf-8")
 
     print(f"\nrequests made: {client.requests_made}")
@@ -218,7 +227,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {v:3}  {k}")
     if errors:
         print(f"  errors: {list(errors)[:5]}")
-    print(f"wrote {OUT_JSON}")
+    print(f"wrote {out_json}")
     return 0
 
 

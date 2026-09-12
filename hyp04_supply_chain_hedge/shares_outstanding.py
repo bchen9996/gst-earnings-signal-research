@@ -53,7 +53,20 @@ SHARES_TAG = "EntityCommonStockSharesOutstanding"
 SHARES_UNIT = "shares"
 # Cover-page shares outstanding appears on both annual and quarterly reports
 # and their amendments -- prefix match catches 10-K/10-K-A and 10-Q/10-Q-A.
-QUALIFYING_FORM_PREFIXES: tuple[str, ...] = ("10-K", "10-Q")
+#
+# "20-F" added 2026-09-12, found via a real HYP-05 candidate: GlobalFoundries
+# (CIK 0001709048, a foreign private issuer) files 20-F, not 10-K -- its real
+# `dei:EntityCommonStockSharesOutstanding` facts (2021-2025, real filed
+# values) were being silently excluded, making every point-in-time market
+# cap for it "missing_shares" instead of a real computed number. Safe to
+# widen: `dei:EntityCommonStockSharesOutstanding` is a standardized
+# cover-page fact in EDGAR's Document and Entity Information taxonomy,
+# defined the same way regardless of which annual-report form disclosed it
+# -- unlike a us-gaap financial-statement tag, it does not depend on GAAP
+# vs. IFRS. Only 20-F is added here because only 20-F has been measured
+# against a real filer; other foreign-issuer forms (40-F, 6-K) may carry
+# the same tag but are not yet verified, so they are not assumed.
+QUALIFYING_FORM_PREFIXES: tuple[str, ...] = ("10-K", "10-Q", "20-F")
 
 
 def _valid_iso_date(value: Any) -> Optional[date]:
