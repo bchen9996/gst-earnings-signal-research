@@ -67,6 +67,26 @@ def test_1_parses_qualifying_forms_only() -> None:
     check("1c. ticker is upper-cased", all(f.ticker == "ABC" for f in facts))
 
 
+def test_1b_foreign_private_issuers_file_20f_not_10k() -> None:
+    """Real gap found 2026-09-12 via HYP-05's first real candidate,
+    GlobalFoundries (CIK 0001709048): it files 20-F, not 10-K, and its real
+    dei:EntityCommonStockSharesOutstanding facts (2021-2025) were being
+    silently excluded, making every point-in-time market cap for it
+    'missing_shares' regardless of the target date. Fixture shaped exactly
+    like GFS's real companyfacts response (same values, same form)."""
+    doc = _companyfacts([
+        _fact("2021-12-31", "2022-03-31", 531845744, form="20-F", accn="a1"),
+        _fact("2022-12-31", "2023-04-14", 547754986, form="20-F", accn="a2"),
+        _fact("2020-01-31", "2020-02-05", 999.0, form="6-K"),
+    ])
+    facts = facts_from_companyfacts("GFS", doc)
+    check("1d. both 20-F facts are parsed",
+          {f.shares for f in facts} == {531845744, 547754986}, str(facts))
+    check("1e. a 6-K entry is still excluded -- only 20-F was measured and "
+          "added, not every foreign-issuer form",
+          999.0 not in [f.shares for f in facts])
+
+
 def test_2_malformed_or_missing_structure_returns_empty() -> None:
     check("2a. wrong taxonomy returns empty",
           facts_from_companyfacts("ABC", _companyfacts([_fact("2020-01-31", "2020-02-05", 1.0)], taxonomy="us-gaap")) == ())
@@ -164,6 +184,7 @@ def test_8_offline() -> None:
 
 if __name__ == "__main__":
     test_1_parses_qualifying_forms_only()
+    test_1b_foreign_private_issuers_file_20f_not_10k()
     test_2_malformed_or_missing_structure_returns_empty()
     test_3_non_numeric_or_bad_date_entries_skipped()
     test_4_as_of_picks_the_latest_qualifying_fact()
