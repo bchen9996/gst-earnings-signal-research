@@ -17,6 +17,22 @@ market cap is computed -- the same reasoning `anchor_universe.py` gives for
 citing ASC 280-10-50-42 rather than fitting `CONCENTRATION_THRESHOLD_PCT` to
 HYP-04's own candidates.
 
+RATIFIED (2026-09-12), not merely provisional. This was one of HYP-05's four
+`unresolved_analysis_decisions`, and two alternatives were considered and
+rejected before ratifying the fixed figure below: (1) calibrating the dollar
+cutoff off a percentile of the repo's existing 789-ticker Russell-1000-proxy
+universe (`Russell1000Proxy_Filtered_Universe.csv`) -- rejected because that
+universe is a TODAY snapshot (current `yfinance` market cap), not
+point-in-time, so it could only ever calibrate the fixed figure once, not
+replace it with a genuine point-in-time percentile; and (2) building a real
+point-in-time percentile system (point-in-time market cap for a broad
+reference universe across every anchor event date) -- rejected as a
+substantial new data-engineering task disproportionate to the benefit, given
+the external-convention approach already has a direct precedent in this same
+codebase (`anchor_universe.py`'s `CONCENTRATION_THRESHOLD_PCT`). The figure
+itself, and the reasoning above, are unchanged from the original
+implementation -- only its status moved from provisional to decided.
+
 === WHAT THIS MODULE DOES NOT DO ===
 
 It does not compute market cap (see `point_in_time_market_cap.py`) or fetch
@@ -41,8 +57,8 @@ RULE_ID = "HYP05-PEER-SELECTION-RULE-v1"
 # ==========================================================================
 # The conventional boundary between small-cap and mid-cap (e.g. the
 # small/mid split used by S&P's own cap-range documentation and widely
-# adopted elsewhere). Provisional and citable, not measured, not fit to any
-# candidate pool -- see the module docstring.
+# adopted elsewhere). Ratified 2026-09-12 -- externally cited, not measured,
+# not fit to any candidate pool -- see the module docstring.
 MARKET_CAP_THRESHOLD_USD = 2_000_000_000
 
 # Each candidate record must carry these to be evaluable at all.
