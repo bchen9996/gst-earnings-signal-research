@@ -1,0 +1,145 @@
+{
+  "artifact": "HYP05_PEER_NAME_SEARCH_HAND_CURATED_2026-09-12.json",
+  "as_of_date": "2026-09-12",
+  "hypothesis_id": "HYP-05",
+  "rule": {
+    "rule_id": "HYP04-PEER-NAME-SEARCH-RULE-v1",
+    "question": "Which registrant did this counterparty name refer to, when SEC's list of current filers does not contain it?",
+    "the_search_only_generates_candidates": "EDGAR's company search is an undocumented prefix match; it returned different results for 'Marconi' and 'Marconi Communications', and its multi-hit XML carries ARRAY(0x...) where the company name should be. Nothing is accepted on its say-so.",
+    "acceptance_is_the_lineage_test": "A candidate CIK is accepted only if peer_lineage.assess returns CONTINUOUS against that registrant's own submissions record: filing on the disclosure date, under a matching name. Two accepted registrants is AMBIGUOUS and resolves to nothing.",
+    "no_form_type_filter": "type=10-K silently excludes foreign private issuers, who file 20-F. Filtering would make 'no such registrant' indistinguishable from 'files a different form'.",
+    "a_resolved_registrant_may_not_trade": "Identifying the registrant and finding it has no current ticker is a RESULT, not a failure: it converts an inference about the method into a documented fact about a named company, which is what a survivorship statement needs.",
+    "curates_nothing": "No edge is written and no candidate is promoted. The display gate is untouched."
+  },
+  "input": "HYP05_CANDIDATE_LINKAGE_HAND_CURATED_2026-09-12.json",
+  "what_this_is": "Which registrant each of 6 extracted competitor/supplier counterparty names (from the input above) referred to, and whether that registrant still trades.",
+  "what_this_is_not": "Curation. No edge is written to any linkage map, no peer universe is derived here. peer_selection.py's evaluate_peer() is the next, separate step, and needs point-in-time market cap (shares_outstanding.py + point_in_time_market_cap.py) for whatever resolves here first.",
+  "sources": {
+    "endpoint": "www.sec.gov company search + data.sec.gov submissions",
+    "names_searched": 6,
+    "registrants_examined": 14,
+    "requests_made": 20
+  },
+  "counts_by_status": {
+    "registrant_resolved": 3,
+    "hits_found_but_none_matched_at_the_disclosure_date": 3
+  },
+  "names_unanswered": 0,
+  "unanswered_is_not_a_negative": "A name whose search failed is UNANSWERED, not evidence the company doesn't exist -- an endpoint outage deciding a result is the failure this project refuses everywhere else.",
+  "names_identified": 3,
+  "names_now_tradeable": 3,
+  "results": [
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty": "Ambarella",
+      "as_of_date": "2016-03-17",
+      "status": "registrant_resolved",
+      "peer_ticker": "AMBA",
+      "registrant_cik": "0001280263",
+      "registrant_name_at_as_of": "AMBARELLA INC",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001280263"
+      ],
+      "detail": "the registrant was filing on 2016-03-17 as 'AMBARELLA INC' and trades today as AMBA.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty": "ExlService",
+      "as_of_date": "2009-03-02",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 4,
+      "accepted_ciks": [],
+      "detail": "4 registrant(s) matched the name but none was filing on 2009-03-02 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty": "GoPro",
+      "as_of_date": "2017-10-19",
+      "status": "registrant_resolved",
+      "peer_ticker": "GPRO",
+      "registrant_cik": "0001500435",
+      "registrant_name_at_as_of": "GoPro, Inc.",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001500435"
+      ],
+      "detail": "the registrant was filing on 2017-10-19 as 'GoPro, Inc.' and trades today as GPRO.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Under Armour",
+      "as_of_date": "2013-07-23",
+      "status": "registrant_resolved",
+      "peer_ticker": "UA",
+      "registrant_cik": "0001336917",
+      "registrant_name_at_as_of": "Under Armour, Inc.",
+      "candidates_examined": 1,
+      "accepted_ciks": [
+        "0001336917"
+      ],
+      "detail": "the registrant was filing on 2013-07-23 as 'Under Armour, Inc.' and trades today as UA.",
+      "incremental_anchor_events": 0,
+      "resolved": true,
+      "tradeable": true
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty": "WNS",
+      "as_of_date": "2009-03-02",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 6,
+      "accepted_ciks": [],
+      "detail": "6 registrant(s) matched the name but none was filing on 2009-03-02 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty": "Wolverine World Wide",
+      "as_of_date": "2007-07-27",
+      "status": "hits_found_but_none_matched_at_the_disclosure_date",
+      "peer_ticker": "",
+      "registrant_cik": "",
+      "registrant_name_at_as_of": "",
+      "candidates_examined": 1,
+      "accepted_ciks": [],
+      "detail": "1 registrant(s) matched the name but none was filing on 2007-07-27 under it. The lineage test refused them, the same way it refused INGM.",
+      "incremental_anchor_events": 0,
+      "resolved": false,
+      "tradeable": false
+    }
+  ],
+  "search_matched_conformed_names": {
+    "Ambarella": [
+      "AMBARELLA INC"
+    ],
+    "GoPro": [
+      "GoPro, Inc."
+    ],
+    "Under Armour": [
+      "Under Armour, Inc."
+    ],
+    "Wolverine World Wide": [
+      "WOLVERINE WORLD WIDE INC /DE/"
+    ]
+  },
+  "errors": {},
+  "curates_nothing": "No edge is written and no candidate is promoted. Neither HYP-04's nor HYP-05's display gate is touched."
+}

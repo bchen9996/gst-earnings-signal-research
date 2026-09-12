@@ -1,0 +1,258 @@
+{
+  "artifact": "HYP05_HAND_CURATED_VERIFICATION_2026-09-12.json",
+  "what_this_is": "Whether each hand-proposed HYP-05 candidate (see hand_curated_candidates.py -- proposals from general knowledge, not extracted from a filing) actually appears, by name, in a real 10-K filed by its proposed anchor -- WITH a readable sentence of context actually confirming it, not just a raw search-index hit. `filed_mention_confirmed: true` requires both: efts.sec.gov reported a hit AND this script independently located the name inside the fetched document text. A hit with no readable context (common for pre-2001 filings with non-standard archive paths, or 10-Ks whose indexed document is a PDF that strip_markup cannot parse) is marked `search_hit_found_but_context_unreadable: true` and kept OUT of filed_mention_confirmed and out of the linkage edges file -- a real index hit is not the same claim as a readable, checkable sentence. Confirmation of the NAME does NOT independently confirm the claimed direction (competitor/supplier/customer) -- read `context` for that.",
+  "what_this_is_not": "Curation. Confirmation here only gates entry into the existing name-resolution + point-in-time market-cap pipeline (run_hyp05_peer_name_search.py, run_hyp05_peer_market_cap.py) -- no edge here is a production linkage-map row.",
+  "unconfirmed_is_not_a_negative": "A candidate with no full-text hit may still be a real relationship that was simply never named in a 10-K, or named using different wording than proposed here. filed_mention_confirmed: false means unconfirmed by this evidence standard, not disproven.",
+  "proposed_count": 26,
+  "confirmed_count": 6,
+  "requests_made": 36,
+  "errors": {
+    "CTSH:Syntel:document": "HTTPError: 404 Client Error: Not Found for url: https://www.sec.gov/Archives/edgar/data/1058290/000090310001000038/0001.txt"
+  },
+  "verifications": [
+    {
+      "anchor_ticker": "ADBE",
+      "counterparty_name": "Shutterstock",
+      "direction": "competitor",
+      "basis": "Stock-content/creative-asset rival to Adobe Stock; publicly traded (SSTK), smaller than Adobe.",
+      "filed_mention_confirmed": false,
+      "search_hit_found_but_context_unreadable": true,
+      "accession": "0000796343-16-000224",
+      "filing_date": "2016-01-19",
+      "all_hits": 12,
+      "reason": "document fetched but the name could not be located in the extracted text (often means the indexed document is a PDF or other format strip_markup cannot parse)"
+    },
+    {
+      "anchor_ticker": "ADBE",
+      "counterparty_name": "Figma",
+      "direction": "competitor",
+      "basis": "Design-tool competitor; Adobe attempted to acquire Figma (deal blocked by regulators), Figma later IPO'd independently.",
+      "filed_mention_confirmed": false,
+      "search_hit_found_but_context_unreadable": true,
+      "accession": "0000796343-20-000013",
+      "filing_date": "2020-01-21",
+      "all_hits": 8,
+      "reason": "document fetched but the name could not be located in the extracted text (often means the indexed document is a PDF or other format strip_markup cannot parse)"
+    },
+    {
+      "anchor_ticker": "ADBE",
+      "counterparty_name": "Smartsheet",
+      "direction": "competitor",
+      "basis": "Work-management SaaS, adjacent to Adobe's creative-collaboration/Workfront line.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty_name": "Syntel",
+      "direction": "competitor",
+      "basis": "Smaller IT-services/BPO competitor to Cognizant; later acquired by Atos (2018).",
+      "filed_mention_confirmed": false,
+      "search_hit_found_but_context_unreadable": true,
+      "accession": "0000903100-01-000038",
+      "filing_date": "2001-03-15",
+      "all_hits": 21,
+      "reason": "document fetch failed: HTTPError: 404 Client Error: Not Found for url: https://www.sec.gov/Archives/edgar/data/1058290/000090310001000038/0001.txt"
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty_name": "Virtusa",
+      "direction": "competitor",
+      "basis": "Smaller IT-services competitor to Cognizant; later taken private (2021).",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty_name": "WNS",
+      "direction": "competitor",
+      "basis": "Business-process-management competitor, smaller than Cognizant.",
+      "filed_mention_confirmed": true,
+      "accession": "0001193125-09-042103",
+      "filing_date": "2009-03-02",
+      "form": "10-K",
+      "context": "In 2008, we updated Peer Group A and added Exlservice Holdings Inc, Genpact Ltd and WNS Holdings LTD in our definition of a peer group company as they are peer companies performing business process outsourcing services.",
+      "all_hits": 18
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty_name": "ExlService",
+      "direction": "competitor",
+      "basis": "BPO/analytics-services competitor, smaller than Cognizant.",
+      "filed_mention_confirmed": true,
+      "accession": "0001193125-09-042103",
+      "filing_date": "2009-03-02",
+      "form": "10-K",
+      "context": "In 2008, we updated Peer Group A and added Exlservice Holdings Inc, Genpact Ltd and WNS Holdings LTD in our definition of a peer group company as they are peer companies performing business process outsourcing services.",
+      "all_hits": 13
+    },
+    {
+      "anchor_ticker": "CTSH",
+      "counterparty_name": "Mastech Digital",
+      "direction": "competitor",
+      "basis": "IT-staffing competitor, materially smaller than Cognizant.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "INTC",
+      "counterparty_name": "MaxLinear",
+      "direction": "competitor",
+      "basis": "Smaller semiconductor (networking/connectivity chip) competitor to parts of Intel's product line.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "INTC",
+      "counterparty_name": "Ambarella",
+      "direction": "competitor",
+      "basis": "Smaller semiconductor (edge-AI/vision chip) competitor to parts of Intel's product line.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "INTC",
+      "counterparty_name": "Ichor",
+      "direction": "supplier",
+      "basis": "Semiconductor-fab-equipment subsystem supplier; smaller company plausibly in Intel's supply chain.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "INTC",
+      "counterparty_name": "Ultra Clean Holdings",
+      "direction": "supplier",
+      "basis": "Semiconductor-equipment/services supplier; smaller company plausibly in Intel's supply chain.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "INTC",
+      "counterparty_name": "Kulicke",
+      "direction": "supplier",
+      "basis": "Semiconductor packaging/assembly equipment maker (Kulicke & Soffa); smaller company plausibly in Intel's supply chain.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty_name": "iRobot",
+      "direction": "customer",
+      "basis": "Consumer-robotics company that has historically outsourced manufacturing; small-cap.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty_name": "GoPro",
+      "direction": "customer",
+      "basis": "Consumer-hardware company that outsources manufacturing; small-cap.",
+      "filed_mention_confirmed": true,
+      "accession": "0001193125-17-313834",
+      "filing_date": "2017-10-19",
+      "form": "10-K",
+      "context": "Based on net revenue, for the fiscal year ended August 31, 2017, our largest customers include Apple, Inc., Cisco Systems, Inc., GoPro, Inc., Hewlett-Packard Company, Ingenico S.A., LM Ericsson Telephone Company, NetApp, Inc., Nokia Networks, Valeo S.A.",
+      "all_hits": 2
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty_name": "Sonos",
+      "direction": "customer",
+      "basis": "Consumer-hardware company that outsources manufacturing; small/mid-cap.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty_name": "Fossil Group",
+      "direction": "customer",
+      "basis": "Consumer wearables/watch company that outsources manufacturing; small-cap.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "JBL",
+      "counterparty_name": "Cricut",
+      "direction": "customer",
+      "basis": "Consumer-hardware company that outsources manufacturing; small/mid-cap.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty_name": "Diplomat Pharmacy",
+      "direction": "customer",
+      "basis": "Smaller specialty-pharmacy distribution customer; later acquired by OptumRx (2020).",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty_name": "PharMerica",
+      "direction": "customer",
+      "basis": "Smaller long-term-care pharmacy distribution customer.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "MCK",
+      "counterparty_name": "BioScrip",
+      "direction": "customer",
+      "basis": "Smaller specialty/home-infusion pharmacy distribution customer; later merged into Option Care Health (2019).",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty_name": "Allbirds",
+      "direction": "competitor",
+      "basis": "Smaller, directly competing athletic-footwear company; small-cap.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty_name": "Wolverine World Wide",
+      "direction": "competitor",
+      "basis": "Smaller footwear company (owns Merrell, Sperry); small/mid-cap.",
+      "filed_mention_confirmed": true,
+      "accession": "0001193125-07-164166",
+      "filing_date": "2007-07-27",
+      "form": "10-K",
+      "context": "19 Table of Contents COMPARISON OF 5-YEAR CUMULATIVE TOTAL RETURN AMONG NIKE, INC., S&P 500 INDEX, S&P APPAREL, ACCESSORIES & LUXURY GOODS INDEX, AND THE DOW JONES U.S. FOOTWEAR INDEX The Dow Jones U.S. Footwear Index consists of NIKE, Stride Rite Corp., Timberland Co., Wolverine World Wide, Inc., and Crocs, Inc. Because NIKE is part of the Dow Jones U.S. Footwear Index, the price and returns of N",
+      "all_hits": 14
+    },
+    {
+      "anchor_ticker": "NKE",
+      "counterparty_name": "Under Armour",
+      "direction": "competitor",
+      "basis": "Athletic-apparel competitor; once large, materially smaller today -- worth checking at specific anchor-event dates rather than assumed either way.",
+      "filed_mention_confirmed": true,
+      "accession": "0000320187-13-000092",
+      "filing_date": "2013-07-23",
+      "form": "10-K",
+      "context": "Corp., Puma, Li Ning and Under Armour, among others.",
+      "all_hits": 14
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty_name": "Ambarella",
+      "direction": "competitor",
+      "basis": "Smaller edge-AI/vision-chip competitor to parts of Nvidia's product line.",
+      "filed_mention_confirmed": true,
+      "accession": "0001045810-16-000205",
+      "filing_date": "2016-03-17",
+      "form": "10-K",
+      "context": "• suppliers of SOC products that are embedded into automobiles and smart devices such as televisions, monitors, set-top boxes, gaming devices and automobiles, such as Ambarella, Inc., AMD, Apple, Inc., Avago Technologies Ltd., Intel, Marvell Technology Group Ltd., Mediatek, Mobileye N.V., Qualcomm Incorporated, Renesas Electronics Corporation, Samsung, ST Microelectronics, and Texas Instruments In",
+      "all_hits": 11
+    },
+    {
+      "anchor_ticker": "NVDA",
+      "counterparty_name": "Astera Labs",
+      "direction": "supplier",
+      "basis": "AI-data-center connectivity-chip company, adjacent to Nvidia's own supply/ecosystem; recently IPO'd, market cap uncertain -- worth checking rather than assumed either way.",
+      "filed_mention_confirmed": false,
+      "reason": "no full-text hit in this anchor's 10-K filings"
+    }
+  ]
+}
