@@ -196,3 +196,127 @@ The 20-name resolution attempt, both rounds, and the reasoning above are
 recorded in `HYP05_PEER_NAME_SEARCH_HISTORICAL_WALK_2026-09-12.json`. No
 market-cap pass was run against this batch -- with zero tradeable tickers
 resolved, there was nothing left to evaluate.
+
+---
+
+## Update: hand curation (same day) -- the first real qualifying HYP-05 peer
+
+The recommended next step above was hand curation: naming a specific
+real-world relationship from general knowledge instead of waiting for a
+filer's own prose to name it. That is a DIFFERENT KIND of claim than
+everything else in this report -- an assertion from training knowledge,
+not something extracted from a filing read this session -- so it was
+built and gated differently, and only proceeded after checking with the
+owner on approach.
+
+### The gate: nothing proposed is trusted until EDGAR confirms it independently
+
+`hand_curated_candidates.py` lists 26 proposed (anchor, counterparty,
+direction) triples across all 7 real anchors, deliberately favouring
+companies believed smaller than everything the automated passes above
+already found. Every entry is labelled a proposal, not a fact, in the
+module's own docstring.
+
+`run_hyp05_verify_candidates.py` is the actual gate: for each proposal, it
+searches EDGAR's own full-text index (`efts.sec.gov`, reusing
+`AgreementSearchClient` from `edgar_agreements.py` unchanged) for the
+counterparty's name RESTRICTED to the anchor's own 10-K filings, then
+fetches the real document and extracts the actual sentence the name
+appears in. A candidate only counts as `filed_mention_confirmed` if BOTH
+the search index reports a hit AND this script independently locates and
+reads the name inside real filing text -- a raw index hit with no
+readable context is tracked separately
+(`search_hit_found_but_context_unreadable`) and excluded from the
+confirmed set, not counted either way. This distinction was not
+theoretical: the first live run confirmed 9 of 26 candidates, but hand-
+inspecting the context sentences (the same "read the raw snippet, don't
+trust the aggregate" discipline this project has used all session) found
+two ADBE hits (Shutterstock, Figma) whose indexed document was an
+"unofficial pdf" copy `strip_markup` cannot parse, and one CTSH hit
+(Syntel) whose archive URL 404'd (a pre-2001 filing with a non-standard
+path) -- all three had empty context and were silently being counted as
+confirmed. The script was corrected to require readable context before
+confirming anything, and re-run. Final, honest result: **6 of 26
+confirmed with readable evidence.**
+
+Of those 6, hand-reading the context mattered again:
+
+| Candidate | Anchor | Context found | Assessment |
+|---|---|---|---|
+| GoPro | JBL | "our largest customers include Apple, Inc., Cisco Systems, Inc., GoPro, Inc., Hewlett-Packard Company, ..." | Strong -- textbook customer-concentration sentence. |
+| Ambarella | NVDA | "...suppliers of SOC products...such as Ambarella, Inc., AMD, Apple, Inc., ...Intel, ...Qualcomm..." | Strong -- Nvidia's own named competitor list. |
+| Under Armour | NKE | "Corp., Puma, Li Ning and Under Armour, among others." | Reasonable -- a real competitor-listing sentence. |
+| WNS | CTSH | "...added Exlservice Holdings Inc, Genpact Ltd and WNS Holdings LTD in our definition of a peer group company..." | Moderate -- a compensation peer-group disclosure (BPO-industry peer), not a product-market "Competition" section. |
+| ExlService | CTSH | (same sentence as WNS) | Moderate, same caveat. |
+| Wolverine World Wide | NKE | "...The Dow Jones U.S. Footwear Index consists of NIKE, Stride Rite Corp., Timberland Co., Wolverine World Wide, Inc., and Crocs, Inc..." | Weak -- stock-index co-membership in a performance-graph table, not a competition claim. Kept in the artifact rather than silently dropped, flagged here instead. |
+
+### Name resolution and market cap
+
+Fed through the existing, unchanged pipeline
+(`run_hyp05_peer_name_search.py`, `run_hyp05_peer_market_cap.py`,
+`--out HYP05_PEER_UNIVERSE_HAND_CURATED_2026-09-12.json` to avoid
+overwriting this file's own artifact):
+
+- **Resolved to a tradeable ticker (3 of 6):** Ambarella -> AMBA, GoPro ->
+  GPRO, Under Armour -> UA.
+- **Hits found but none matched at the disclosure date (2 of 6):** WNS,
+  ExlService -- a real, honest name-resolution outcome, not an endpoint
+  failure, so not retried.
+- **Failed lineage resolution (1 of 6):** Wolverine World Wide -- also the
+  one flagged weak on evidence grounds above; consistent finding.
+
+Point-in-time market cap was evaluated against every real anchor event
+for each resolved ticker's anchor (45 NVDA events for AMBA, 89 JBL events
+for GPRO, 4 NKE events for UA -- NKE genuinely has only 6 total registered
+anchor-event rows in `HYP04_ANCHOR_SHOCKS_2026-08-31.csv`, a pre-existing
+characteristic of that frozen artifact, not a new bug). UA's 4 events
+(2003-2004) predate Under Armour's actual 2005 IPO and correctly failed
+with a real `yfinance` "data doesn't exist" error; GPRO's early events
+likewise correctly denied on missing pre-IPO price/shares data.
+
+**AMBA (Ambarella) qualifies at 8 of 45 NVDA anchor events -- HYP-05's
+first real qualifying peer.** All 8 fall between 2016-05-12 and
+2020-08-19, with real, computed point-in-time market caps between $1.14B
+and $1.94B, all below the $2B threshold. The rule's own boundary behaviour
+confirms this isn't an artifact of the code: the very next adjacent
+events it evaluated -- 2016-08-11 ($2.03B) and 2020-11-18 ($2.16B) --
+were correctly DENIED for being just above threshold, and 2021-02-24
+($4.26B, after Ambarella's post-2020 run-up) was correctly denied by a
+wide margin. Pre-IPO dates (2003-2012, before Ambarella's October 2012
+IPO) were correctly denied for missing shares/price data rather than
+silently treated as zero.
+
+### What this does and does not establish
+
+This confirms AMBA passes HYP-05's own eligibility rule (`peer_selection.
+py`'s PS-1..PS-3, `MARKET_CAP_THRESHOLD_USD`) as a real, tradeable,
+sub-$2B, EDGAR-named counterparty of NVDA at 8 real anchor-event dates. It
+does NOT confirm delayed transmission actually happened at those events --
+that is Phase 2/3 machinery, not run here. It also does not independently
+verify "competitor" is the right characterization of the NVDA/Ambarella
+relationship beyond what the filed sentence itself says (which is
+explicit: Nvidia's own 10-K lists Ambarella among named SOC-product
+competitors).
+
+Artifacts: `hand_curated_candidates.py` (proposals),
+`HYP05_HAND_CURATED_VERIFICATION_2026-09-12.json` (full-text verification,
+including the unconfirmed and context-unreadable entries),
+`HYP05_CANDIDATE_LINKAGE_HAND_CURATED_2026-09-12.json` (the 6 confirmed
+edges), `HYP05_PEER_NAME_SEARCH_HAND_CURATED_2026-09-12.json` (name
+resolution), `HYP05_PEER_UNIVERSE_HAND_CURATED_2026-09-12.json` (market
+cap + derivation -- kept separate from this file's own
+`HYP05_PEER_UNIVERSE_2026-09-12.json` artifact rather than overwriting
+it).
+
+### Honest headline, updated
+
+Pass 1 (automated extraction) found zero qualifying peers. Pass 2 (hand
+curation, gated by real EDGAR full-text confirmation before anything was
+trusted) found one: **AMBA, a real, verified, sub-$2B peer of NVDA, at 8
+real anchor events.** The remaining 20 of 26 proposals were either
+genuinely unconfirmed by a readable filing (17) or confirmed but did not
+resolve to a currently tradeable, eligible ticker (2: WNS, ExlService
+unmatched at the disclosure date; Wolverine World Wide failed lineage).
+That is a small, real result, not a large one -- eight (peer, event)
+pairs across one ticker, out of 138 evaluated -- and it is reported at
+exactly that size, not rounded up or generalized beyond what was found.
