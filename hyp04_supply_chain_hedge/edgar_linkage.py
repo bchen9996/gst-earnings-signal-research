@@ -1504,11 +1504,25 @@ _PARTY_LOOKAHEAD_CHARS = 120
 # etc. already consumed by the anchor itself). Reuses the same corporate-
 # suffix-or-Title-Case shape clean_party() validates, so a sentence fragment
 # is rejected the same way it already is for the concentration path.
+#
+# `\b` after the suffix alternation added 2026-09-12, found by the first
+# HISTORICAL (multi-year) competitor/supplier walk against real filings
+# (run_competitor_history_walk.py, HYP-04's real anchors): ADBE's 10-K
+# lists "...Apple, Autodesk, Avid, Corel, Microsoft, Quark..." and the
+# unbounded suffix alternative "Co" matched as a bare PREFIX of "Corel"
+# (no boundary required after it), merging two names into one malformed
+# "Avid, Co" and silently dropping Corel, Microsoft and Quark entirely --
+# the list-walk's separator never got a chance to fire because the
+# capture consumed part of the very token it needed to see next. `\b`
+# requires a real word boundary after the suffix (a period, comma, space,
+# or end of string all qualify; another letter, as in "Corel", does not),
+# so "Best Buy Co." and "Foo Corp" still match correctly while "Corel"
+# is left alone for the next list item to pick up.
 _PARTY_NAME = re.compile(
     r"(?P<name>[A-Z][A-Za-z0-9.&'’\-]*"
     r"(?:\s+(?:[A-Z][A-Za-z0-9.&'’\-]*|of|de|van|der))*"
     r"(?:,?\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|"
-    r"AG|SA)\.?)?)")
+    r"AG|SA)\b\.?)?)")
 
 # Connector punctuation/formatting between an anchor phrase's trailing verb
 # and the first party name -- ": ", a bullet from PDF-to-text conversion,

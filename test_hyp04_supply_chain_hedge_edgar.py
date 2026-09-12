@@ -1510,6 +1510,26 @@ def test_12_competitor_supplier_context_extraction() -> None:
           == {"Walmart Stores, Inc", "Target Corporation", "Best Buy Co., Inc",
               "Amazon.com, Inc"}, str(e15))
 
+    # 12t is the exact shape of a real defect found by the FIRST HISTORICAL
+    # (multi-year) competitor walk, 2026-09-12: ADBE's 10-K lists
+    # "...Apple, Autodesk, Avid, Corel, Microsoft, Quark..." and the
+    # unbounded suffix alternative "Co" matched as a bare prefix of
+    # "Corel" (no word boundary required), merging two names into one
+    # malformed "Avid, Co" and silently dropping Corel, Microsoft and
+    # Quark -- the list-walk's separator never got a chance to fire
+    # because the capture had already consumed part of the token it
+    # needed to see next. Fixed with \b after the suffix alternation.
+    e16 = _extract_competitor(
+        "Our competitors include offerings from companies such as Apple, "
+        "Autodesk, Avid, Corel, Microsoft, Quark and others, as well as "
+        "from many lower-cost providers.")
+    check("12t. a company name immediately followed by another name "
+          "starting with a corp-suffix PREFIX ('Corel' after 'Co') is not "
+          "truncated or merged (real ADBE defect, fixed)",
+          {e.named_counterparty for e in e16}
+          == {"Apple", "Autodesk", "Avid", "Corel", "Microsoft", "Quark"},
+          str(e16))
+
     # 12i previously asserted this function was NOT wired into
     # extract_for_universe -- true when this module was first added, and
     # deliberately re-checked here (grep the source, don't trust a comment)
