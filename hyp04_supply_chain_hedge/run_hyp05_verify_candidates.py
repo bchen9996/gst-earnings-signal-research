@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -54,6 +55,56 @@ LSE = Path("Live Signal Engine")
 CONTACT = "bchen9996 bchen9996@gmail.com"
 
 SOURCE_HAND_CURATED = "EDGAR_10K_FULLTEXT_SEARCH_HAND_CURATED_VERIFIED"
+
+# Round 2's first live run surfaced a genuine, recurring false-signal
+# pattern: a stock-performance-graph table ("COMPARISON OF 5-YEAR
+# CUMULATIVE TOTAL RETURN AMONG ... AND THE DOW JONES U.S. FOOTWEAR
+# INDEX") lists every company Dow Jones happened to bucket into the same
+# benchmark index alongside the anchor -- five NKE candidates (Wolverine
+# World Wide, Crocs, Deckers Outdoor, Skechers, Steven Madden) all
+# "confirmed" purely from this boilerplate, none of it a claim NKE's own
+# prose makes about who it competes with. This is a real gap in the same
+# kind, not degree, as the false positives edgar_linkage.py's extractor
+# found in real filings all session: a name genuinely present in the
+# filing, in a context that does not support the claimed relationship.
+# Excluded from filed_mention_confirmed and from the edges file -- kept
+# out, not silently miscounted as ordinary evidence, same as a context-
+# unreadable hit above.
+STOCK_INDEX_COMEMBERSHIP = re.compile(
+    r"cumulative\s+total\s+return|dow\s+jones\s+u\.?s\.?\s+footwear\s+index",
+    re.I)
+
+# A second false-signal category the same run surfaced: "Group Vice
+# President and Corporate Officer, Owens & Minor (1994 - 1996)." is a
+# director/officer's PRIOR EMPLOYMENT bio, not a McKesson business
+# relationship -- the name match landed on a person's resume, not a
+# counterparty. The "(YYYY - YYYY)" parenthetical immediately after a
+# company name is a standard, generalisable proxy-statement idiom for
+# exactly this kind of biographical entry, not specific to this one hit.
+BIOGRAPHICAL_YEAR_RANGE = re.compile(r"\(\s*\d{4}\s*[-–—]\s*\d{4}\s*\)")
+
+REJECTION_PATTERNS: tuple[tuple[re.Pattern, str], ...] = (
+    (STOCK_INDEX_COMEMBERSHIP,
+     "name found only inside a stock-performance-graph benchmark-index "
+     "table, not a claim the anchor's own prose makes about who it "
+     "competes with"),
+    (BIOGRAPHICAL_YEAR_RANGE,
+     "name found only inside what reads as a director/officer's prior-"
+     "employment biography (a \"(YYYY - YYYY)\" year range immediately "
+     "after the company name), not a business-relationship claim"),
+)
+
+
+def classify_context(context: str) -> str | None:
+    """Pure function: the rejection reason if `context` matches a known
+    non-relationship false-signal pattern, else None. Split out from
+    main() so each pattern gets a real regression test on the exact real
+    sentence that motivated it, the same discipline every extractor fix
+    in edgar_linkage.py used this session."""
+    for pattern, reason in REJECTION_PATTERNS:
+        if pattern.search(context):
+            return reason
+    return None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -144,7 +195,20 @@ def main(argv: list[str] | None = None) -> int:
                 errors[f"{key}:document"] = f"{type(exc).__name__}: {exc}"
                 fetch_note = f"document fetch failed: {errors[f'{key}:document']}"
 
-        if context:
+        rejection_reason = classify_context(context) if context else None
+
+        if context and rejection_reason:
+            verifications.append({
+                **c._asdict(),
+                "filed_mention_confirmed": False,
+                "context_rejected_as_non_relationship_evidence": True,
+                "accession": earliest["adsh"],
+                "filing_date": earliest.get("file_date", ""),
+                "context": context[:400],
+                "all_hits": len(hits),
+                "reason": rejection_reason,
+            })
+        elif context:
             verifications.append({
                 **c._asdict(),
                 "filed_mention_confirmed": True,
@@ -204,9 +268,16 @@ def main(argv: list[str] | None = None) -> int:
             "marked `search_hit_found_but_context_unreadable: true` and "
             "kept OUT of filed_mention_confirmed and out of the linkage "
             "edges file -- a real index hit is not the same claim as a "
-            "readable, checkable sentence. Confirmation of the NAME does "
-            "NOT independently confirm the claimed direction (competitor/"
-            "supplier/customer) -- read `context` for that."),
+            "readable, checkable sentence. A THIRD case: readable context "
+            "that names the counterparty for a reason that has nothing to "
+            "do with a business relationship (a stock-performance-graph "
+            "benchmark-index table; a director/officer's prior-employment "
+            "biography) is marked "
+            "`context_rejected_as_non_relationship_evidence: true` -- see "
+            "classify_context() in this module, and its dedicated test, "
+            "for exactly which patterns and why. Confirmation of the NAME "
+            "does NOT independently confirm the claimed direction "
+            "(competitor/supplier/customer) -- read `context` for that."),
         "what_this_is_not": (
             "Curation. Confirmation here only gates entry into the "
             "existing name-resolution + point-in-time market-cap pipeline "

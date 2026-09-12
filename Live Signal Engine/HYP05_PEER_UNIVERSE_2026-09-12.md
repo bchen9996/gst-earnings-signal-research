@@ -320,3 +320,118 @@ unmatched at the disclosure date; Wolverine World Wide failed lineage).
 That is a small, real result, not a large one -- eight (peer, event)
 pairs across one ticker, out of 138 evaluated -- and it is reported at
 exactly that size, not rounded up or generalized beyond what was found.
+
+---
+
+## Update: round 2 -- 42 more proposals, two real tooling fixes, still one qualifying peer
+
+The owner asked for more proposals, with the intent of moving to Phase 2
+with a bigger sample if they cleared. `hand_curated_candidates.py` grew
+from 26 to 68 entries (42 new, none duplicating round 1). Six of the new
+ones were not blind guesses: NVDA's and NKE's own confirmed round-1
+context sentences already named other companies in the same list
+(Marvell Technology Group, Mobileye, ST Microelectronics; Puma, Li Ning)
+that had not been proposed as their own candidates -- added here rather
+than left on the table.
+
+### Two more real false-signal patterns caught by hand-reading, both fixed in code
+
+The first live verification run confirmed 20 of 68. Hand-reading every
+context sentence (same discipline as round 1, and as every extractor fix
+this project made this session) found two RECURRING false-signal
+patterns, not one-offs to patch by hand:
+
+1. **Stock-performance-graph benchmark-index tables.** Five NKE
+   candidates (Wolverine World Wide, Crocs, Deckers Outdoor, Skechers,
+   Steven Madden) all "confirmed" purely because Dow Jones happened to
+   bucket them into the same footwear index as NIKE in a proxy-statement
+   performance graph -- not because NIKE's own prose named them as
+   competitors.
+2. **Director/officer biography mentions.** MCK's "confirmed" hit on
+   Owens & Minor was actually "Group Vice President and Corporate
+   Officer, Owens & Minor (1994 - 1996)." -- a director's PRIOR
+   EMPLOYER, not a McKesson business relationship.
+
+Both are now real, tested code: `classify_context()` in
+`run_hyp05_verify_candidates.py`, with a dedicated regression test
+(`test_hyp04_supply_chain_hedge_verify_candidates.py`) built on the exact
+real sentences above, not paraphrases. Re-running with the fix in place
+correctly dropped all six: **14 of 68 confirmed** with genuine,
+on-topic evidence.
+
+### A live SEC endpoint defect found and worked around
+
+Resolving the 14 confirmed names surfaced a third, unrelated issue: EDGAR's
+own `browse-edgar` company search returned a completely empty result for
+the exact query "Columbia Sportswear" -- despite Columbia Sportswear
+Company being a real, currently-trading company (CIK 0001050797, ticker
+COLM). Investigating rather than accepting the negative found that a
+broader query ("Columbia") DID return entries, but with the company name
+replaced by a literal Perl array-reference dump
+(`ARRAY(0x55a888699870)`) instead of an actual name -- a defect on SEC's
+own legacy CGI script, reproduced directly against the live endpoint by
+hand, not assumed. Manually confirmed Columbia Sportswear's lineage using
+its independently-obtained CIK and the project's own `peer_lineage.assess()`
+machinery (`continuous_under_this_name`) before building a permanent fix:
+`ticker_map_fallback_ciks()`, a fallback in `run_hyp05_peer_name_search.py`
+that tries `company_tickers.json` (the same endpoint `edgar_agreements.
+AgreementSearchClient.cik_for()` already uses) whenever `browse-edgar`
+returns zero candidates for a real, non-failed search -- tested offline
+against a synthetic ticker-map fixture
+(`test_hyp04_supply_chain_hedge_hyp05_name_search_fallback.py`), then
+re-run live. Result: Columbia Sportswear resolves correctly (COLM) via
+the fallback path; the fallback is recorded explicitly in the output
+(`ticker_map_fallback_used_for`) so it is never confused with an ordinary
+browse-edgar hit.
+
+(One further candidate, "ST Microelectronics", still failed to resolve --
+this is a genuine data-entry gap in the proposal itself: the real
+registrant name has no space, "STMicroelectronics". Confirmed directly
+against the live endpoint. Not re-run: NVDA's own 10-K already places it
+alongside AMD/Qualcomm/TI-scale competitors, so it was proposed "for
+completeness rather than because it's expected to qualify" and is very
+unlikely to pass the $2B threshold even if resolved.)
+
+### Name resolution and market cap, round 2
+
+5 of 14 confirmed candidates resolved to a tradeable ticker: Ambarella
+(AMBA, same as round 1), **Columbia Sportswear (COLM, new)**, **DocuSign
+(DOCU, new)**, GoPro (GPRO, same as round 1), Under Armour (UA, same as
+round 1). Evaluated against every real anchor event for each one's anchor
+(171 total pairs). COLM's 4 available NKE events (2003-2004) and DOCU's 29
+available ADBE events (2008-2014) both predate real, structural facts --
+Columbia Sportswear's pre-2009 filings predate when `dei:
+EntityCommonStockSharesOutstanding` XBRL tagging became standard (missing
+shares data, not a code defect), and DocuSign's actual IPO was 2018, years
+after every available ADBE event window closes (correctly denied for
+missing price AND shares, with a real `yfinance` "data doesn't exist"
+error as independent confirmation). UA repeated round 1's pre-IPO result.
+
+**Result: still exactly one qualifying peer, AMBA, at the same 8 of 45
+NVDA events found in round 1.** Round 2 substantially widened the search
+(68 proposals vs. 26, 14 confirmed with genuine evidence vs. 6, 5 resolved
+tradeable tickers vs. 3) and fixed three real tooling gaps along the way,
+but did not surface a second qualifying peer or add to AMBA's own 8-event
+sample -- the two new resolved tickers (COLM, DOCU) both had real,
+structural reasons their available anchor-event windows couldn't produce
+a computable market cap, not a near-miss on the $2B threshold.
+
+Artifacts: `HYP05_HAND_CURATED_VERIFICATION_ROUND2_2026-09-12.json` (all 68,
+including the two new rejection categories),
+`HYP05_CANDIDATE_LINKAGE_HAND_CURATED_ROUND2_2026-09-12.json` (14 confirmed
+edges), `HYP05_PEER_NAME_SEARCH_HAND_CURATED_ROUND2_2026-09-12.json` (name
+resolution, including the ticker-map fallback), `HYP05_PEER_UNIVERSE_
+HAND_CURATED_ROUND2_2026-09-12.json` (market cap + derivation).
+
+### Honest headline after two rounds
+
+68 hand-curated proposals across both rounds, 14 with genuine filed
+evidence after fixing three real false-signal/tooling gaps, 5 resolved to
+tradeable tickers, 1 -- AMBA -- actually qualifies, at 8 real NVDA anchor
+events. The sample available for a Phase 2 move is the same size it was
+after round 1: 8 (peer, event) pairs, one ticker. Widening the proposal
+list further is possible (both rounds together have covered a minority of
+plausible smaller counterparties for the 7 anchors), but round 2's own
+result argues it isn't guaranteed to produce more -- the two new resolved
+tickers both failed for structural data-availability reasons specific to
+their own histories, not for being close misses on size.
