@@ -1358,11 +1358,12 @@ def test_12_competitor_supplier_context_extraction() -> None:
     e2 = _extract_competitor(
         "Our principal competitors include Intel Corporation and AMD in "
         "the CPU market.")
-    check("12d. 'principal competitors include' yields exactly one edge, "
-          "not two, even though it also matches the plainer "
-          "'competitors include' anchor",
-          len(e2) == 1 and e2[0].named_counterparty == "Intel Corporation",
-          str(e2))
+    check("12d. 'principal competitors include' yields exactly the two "
+          "listed names, deduplicated across BOTH anchors it matches "
+          "('principal_competitors' and the plainer 'competitors_include' "
+          "substring) -- not four, and not silently truncated to one",
+          {e.named_counterparty for e in e2} == {"Intel Corporation", "AMD"}
+          and len(e2) == 2, str(e2))
 
     e3 = _extract_competitor("We purchase memory chips from Micron "
                              "Technology, Inc.")
@@ -1373,8 +1374,10 @@ def test_12_competitor_supplier_context_extraction() -> None:
 
     e4 = _extract_competitor(
         "Our contract manufacturers include Foxconn and Pegatron.")
-    check("12f. contract-manufacturer prose is captured",
-          len(e4) == 1 and e4[0].named_counterparty == "Foxconn", str(e4))
+    check("12f. contract-manufacturer prose captures BOTH listed names, "
+          "not just the first",
+          {e.named_counterparty for e in e4} == {"Foxconn", "Pegatron"}
+          and len(e4) == 2, str(e4))
 
     # Adversarial: the same discipline test_6/test_6b-h hold the calibrated
     # path to -- a near-miss must not fabricate a named counterparty.
@@ -1387,6 +1390,34 @@ def test_12_competitor_supplier_context_extraction() -> None:
                              "competitive.")
     check("12h. generic competitive-landscape prose with no anchor phrase "
           "yields nothing", e6 == [], str(e6))
+
+    # 12j/12k are the exact shape of two real false positives found in
+    # HYP05_EXTRACTOR_CALIBRATION_2026-09-12.md (NVDA's 10-K): a region name
+    # ("Asia") and a product-category noun ("GPUs") captured as if either
+    # were a company, because the OLD extractor searched the whole
+    # lookahead window instead of anchoring at the start of it. Both must
+    # now yield nothing -- no real company name immediately follows the
+    # anchor phrase in either sentence.
+    e7 = _extract_competitor(
+        "Some of our suppliers are located in Asia, making our operations "
+        "vulnerable to natural disasters.")
+    check("12j. a bare region name after 'suppliers are' is not captured "
+          "as a supplier (real NVDA false positive, fixed)", e7 == [], str(e7))
+
+    e8 = _extract_competitor(
+        "Our current competitors include: suppliers and licensors of "
+        "hardware and software for discrete and integrated GPUs, custom "
+        "chips and other accelerators.")
+    check("12k. a product-category noun deep in a descriptive sentence is "
+          "not captured as a competitor (real NVDA false positive, fixed)",
+          e8 == [], str(e8))
+
+    e9 = _extract_competitor(
+        "We compete with Apple, Google and Microsoft in this market.")
+    check("12l. a three-item list captures all three names, not just the "
+          "first",
+          {e.named_counterparty for e in e9}
+          == {"Apple", "Google", "Microsoft"} and len(e9) == 3, str(e9))
 
     check("12i. this function is NOT wired into extract_for_universe -- "
           "grep the source rather than trust a comment",

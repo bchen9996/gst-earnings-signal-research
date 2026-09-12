@@ -1472,6 +1472,63 @@ _PARTY_NAME = re.compile(
     r"(?:,?\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|"
     r"AG|SA)\.?)?)")
 
+# Connector punctuation/formatting between an anchor phrase's trailing verb
+# and the first party name -- ": ", a bullet from PDF-to-text conversion,
+# a stray dash. Stripped once, before the FIRST name only.
+_LEADING_CONNECTOR = re.compile(r"^[\s:;••‣◦*–—\"'-]+")
+# "<name>, <name> and <name>" / "<name> and <name>" -- consumed between
+# successive names in a list. Matching at the very start of the remaining
+# text (not searched for) is what keeps this from ever skipping into an
+# unrelated later sentence.
+_LIST_SEPARATOR = re.compile(r"^\s*,\s*(?:and\s+)?|^\s+and\s+")
+
+
+def _extract_party_names(window: str) -> list[str]:
+    """One or more list-separated party names, anchored at the START of
+    `window` -- never searched for anywhere within it.
+
+    Measured defect this exists to fix (calibration against 5 real 10-Ks,
+    2026-09-12, HYP05_EXTRACTOR_CALIBRATION_2026-09-12.md): the previous
+    `_PARTY_NAME.search(window)` scanned the whole lookahead window, so on
+    prose where no company name immediately follows the anchor phrase (e.g.
+    "competitors include: [bullet] suppliers and licensors of hardware ...
+    integrated GPUs, custom chips") it walked past the lowercase description
+    and latched onto the first capitalized-looking token it found regardless
+    of what it was -- "GPUs", or a bare region name like "Asia"/"Israel" in
+    "suppliers ... located in Asia". Anchoring at the start means a name is
+    only ever captured when one genuinely, immediately follows the anchor;
+    the four false positives in that calibration run all involved zero
+    genuine names starting the window, and all four are correctly rejected
+    (no match) with this anchoring.
+
+    The same measurement showed a real true positive stopping too early:
+    "competitors include GlobalFoundries, UMC and SMIC" and "we purchase
+    memory from SK Hynix Inc., Micron Technology, Inc., and Samsung" each
+    name three counterparties, and only the first was ever captured. This
+    walks the ", " / "X, Y and Z" list structure to collect all of them,
+    stopping the moment the next token doesn't start with a capital letter
+    (a real list continuation always does; unrelated prose essentially
+    never does at a comma boundary) or list-separator syntax isn't found.
+    """
+    names: list[str] = []
+    remainder = window
+    first = True
+    while remainder:
+        if first:
+            stripped = _LEADING_CONNECTOR.sub("", remainder)
+        else:
+            sep = _LIST_SEPARATOR.match(remainder)
+            if sep is None:
+                break
+            stripped = remainder[sep.end():]
+        nm = _PARTY_NAME.match(stripped)
+        if nm is None:
+            break
+        names.append(nm.group("name"))
+        remainder = stripped[nm.end():]
+        first = False
+    return names
+
 
 def extract_competitor_edges_from_text(
     text: str, *, ticker: str, cik: str, filing_date: str,
@@ -1499,38 +1556,43 @@ def extract_competitor_edges_from_text(
                 if sentence_break != -1:
                     window = window[:sentence_break]
 
-                nm = _PARTY_NAME.search(window)
-                if not nm:
+                raw_names = _extract_party_names(window)
+                if not raw_names:
                     continue
-                party = clean_party(nm.group("name"))
-                if party is None:
-                    continue
-
-                # Deduplicate by (party, direction) alone, not by which
-                # anchor matched -- "principal competitors include Intel"
-                # trips both the "principal_competitors" and
-                # "competitors_include" anchors, and a candidate list gains
-                # nothing from recording the same party twice over that.
-                key = (party, direction)
-                if key in seen:
-                    continue
-                seen.add(key)
 
                 ctx_start = max(0, m.start() - 60)
-                edges.append(LinkageEdge(
-                    reporting_company=ticker,
-                    reporting_cik=cik,
-                    named_counterparty=party,
-                    counterparty_is_named=True,
-                    direction=direction,
-                    concentration_pct=None,
-                    as_of_date=filing_date,
-                    accession=accession,
-                    form=form,
-                    source=SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED,
-                    pattern=label,
-                    context=text[ctx_start:fwd_end][:400],
-                ))
+                context = text[ctx_start:fwd_end][:400]
+
+                for raw in raw_names:
+                    party = clean_party(raw)
+                    if party is None:
+                        continue
+
+                    # Deduplicate by (party, direction) alone, not by which
+                    # anchor matched -- "principal competitors include Intel"
+                    # trips both the "principal_competitors" and
+                    # "competitors_include" anchors, and a candidate list
+                    # gains nothing from recording the same party twice over
+                    # that.
+                    key = (party, direction)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+
+                    edges.append(LinkageEdge(
+                        reporting_company=ticker,
+                        reporting_cik=cik,
+                        named_counterparty=party,
+                        counterparty_is_named=True,
+                        direction=direction,
+                        concentration_pct=None,
+                        as_of_date=filing_date,
+                        accession=accession,
+                        form=form,
+                        source=SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED,
+                        pattern=label,
+                        context=context,
+                    ))
 
     return edges
 
