@@ -1,0 +1,423 @@
+{
+ "artifact": "HYP05_PHASE3_RESULT_2026-09-12.json",
+ "as_of_date": "2026-09-12",
+ "hypothesis_id": "HYP-05",
+ "phase": "Phase 3 -- the one exploratory run against AMBA's real returns (see HYP05_PHASE2_LOCK's sample_size_disclosure)",
+ "what_this_is": "The single, preregistered, exploratory run of the Phase 2-locked spec against AMBA's real returns around NVDA's 8 locked anchor events. Reported once, regardless of outcome.",
+ "what_this_is_not": "NOT confirmatory (8 events is roughly 24x short of HYP-05's own 195-event provisional floor -- see sample_size_disclosure below), NOT repeatable, and NOT a license to iterate on the spec having seen this. A disappointing or a striking result gets reported exactly the same way.",
+ "reported_regardless_of_outcome": true,
+ "no_rerun_permitted": true,
+ "point_estimate_permitted": false,
+ "is_a_confidence_interval": false,
+ "sample_size_disclosure": {
+  "n_locked_events": 8,
+  "n_peers": 1,
+  "max_rows_before_exclusions": 160,
+  "provisional_operative_floor_anchor_events": 195,
+  "floor_source": "HYP05_SAMPLE_SIZE_GATE_2026-09-11.md",
+  "framing": "EXPLORATORY, NOT CONFIRMATORY",
+  "why": "8 locked events is roughly 24x short of HYP-05's own provisional 195-event operative floor. Decided with the repo owner 2026-09-12: proceed anyway, but every downstream result must state this plainly rather than let silence imply adequate power. This is not a claim the floor is wrong or waived."
+ },
+ "look_ahead_disclosure": {
+  "already_touched": "AMBA's raw close prices (auto_adjust=False) were fetched and used ONLY to compute point-in-time MARKET CAP for PS-3 eligibility screening in run_hyp05_peer_market_cap.py (committed 751d9c5 / 3d7a240 / abf4527). That computation never touched AMBA's returns, realized variance, or any quantity resembling this hypothesis's target measure.",
+  "not_touched": "No log return, no realized-variance ratio, and no residualized target value has been computed for AMBA around any NVDA event, at any horizon, before this lock. This lock is written before that computation happens for the first time.",
+  "why_this_replaces_a_holdout_split": "HYP-04's exploration/holdout split guards against tuning a spec after seeing how it performs on some data. With one peer and one anchor there is no second candidate to explore a spec against, so a further split of these 8 events would not buy that property; it would only shrink an already-tiny sample. The disclosure above closes the actual risk directly: the spec below was fixed before AMBA's outcome data was ever computed, not merely before some OTHER data was computed."
+ },
+ "authorization": {
+  "artifact": "HYP05_PHASE3_AUTHORIZATION_2026-09-12.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-12"
+ },
+ "phase2_lock": {
+  "artifact": "HYP05_PHASE2_LOCK_2026-09-12.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-12",
+  "sha256": "205ced2614e4a247c264fadf4897527b34ced63cc101f0ae5d7f7d4f0d28bb6a"
+ },
+ "locked_peer": "AMBA",
+ "locked_anchor": "NVDA",
+ "n_locked_events": 8,
+ "locked_event_ids": [
+  "NVDA-2016-05-12",
+  "NVDA-2016-11-10",
+  "NVDA-2017-02-09",
+  "NVDA-2017-05-09",
+  "NVDA-2017-08-10",
+  "NVDA-2018-02-08",
+  "NVDA-2020-05-21",
+  "NVDA-2020-08-19"
+ ],
+ "treatment": {
+  "residualize": true,
+  "n_rows": 160,
+  "retained_history": {
+   "what_it_measures": "anchor-adjacent history removed from baseline ESTIMATION",
+   "min": 0.8770610355799826,
+   "mean": 0.877397612582992,
+   "threshold": 0.1,
+   "peers_below_threshold": [],
+   "n_peers_below_threshold": 0,
+   "n_peers": 1,
+   "structural_ceiling_note": "Excluding +/-25 sessions around each anchor removes roughly (2*25+1)/63 of a peer's calendar when anchors report quarterly, so retention has a structural ceiling near 0.20-0.30. The threshold is set below that ceiling by arithmetic, not tuned to the observed value."
+  },
+  "bucket_population": {
+   "what_it_measures": "observations dropped because their days-to-own-earnings bucket was under-populated once that history was in hand",
+   "min_bucket_count_threshold": 20,
+   "min_bucket_count_observed": 132,
+   "n_candidate_observations": 160,
+   "n_excluded": 0,
+   "excluded_fraction": 0.0,
+   "policy": "accept-and-report (Patch 12 option c): excluded from the Stage 1 regression sample, not imputed. Buckets are NOT widened and the threshold is NOT lowered to recover sample size."
+  },
+  "fits_by_horizon": [
+   {
+    "horizon": 1,
+    "beta": -0.16136247281355764,
+    "se": 9.113500062894317,
+    "t_stat": -0.01770587279310461,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 2,
+    "beta": 1.2427335899624814,
+    "se": 10.539141619078997,
+    "t_stat": 0.11791601582739548,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 3,
+    "beta": -3.240998120921989,
+    "se": 6.247896417848885,
+    "t_stat": -0.5187342913789608,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 4,
+    "beta": -3.5232956687849324,
+    "se": 5.399967764692041,
+    "t_stat": -0.6524660557831802,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 5,
+    "beta": -3.6559761431746787,
+    "se": 4.2255899764615625,
+    "t_stat": -0.865198981335177,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 6,
+    "beta": -5.911446755993977,
+    "se": 3.3185531937898345,
+    "t_stat": -1.7813325298073712,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 7,
+    "beta": -6.202158148514915,
+    "se": 3.2932570108920354,
+    "t_stat": -1.8832900462982551,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 8,
+    "beta": -3.2755474301062844,
+    "se": 3.941702078635581,
+    "t_stat": -0.8309982248176692,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 9,
+    "beta": -2.858717022702387,
+    "se": 4.205302315018592,
+    "t_stat": -0.6797887068648829,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 10,
+    "beta": -3.5470762748081217,
+    "se": 4.587201761887406,
+    "t_stat": -0.7732549076604548,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 11,
+    "beta": -4.07978577009388,
+    "se": 4.897807943570873,
+    "t_stat": -0.8329819823680974,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 12,
+    "beta": -4.828757781281753,
+    "se": 5.374920824036113,
+    "t_stat": -0.8983867743108004,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 13,
+    "beta": -5.800762448590656,
+    "se": 4.510542793563869,
+    "t_stat": -1.2860453196160364,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 14,
+    "beta": -1.2806691561831036,
+    "se": 4.165288954157343,
+    "t_stat": -0.30746226018842643,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 15,
+    "beta": -4.9226945644511675,
+    "se": 7.365207743188199,
+    "t_stat": -0.6683714480428581,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 16,
+    "beta": -5.124378621676338,
+    "se": 7.113769394011442,
+    "t_stat": -0.7203464630144146,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 17,
+    "beta": -4.812967415973534,
+    "se": 6.403727127462982,
+    "t_stat": -0.7515884609343633,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 18,
+    "beta": -4.869769336603551,
+    "se": 6.407705582608033,
+    "t_stat": -0.7599864372391282,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 19,
+    "beta": -5.042861400651185,
+    "se": 5.832627804180532,
+    "t_stat": -0.8645950967481103,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   },
+   {
+    "horizon": 20,
+    "beta": -5.619637331689333,
+    "se": 5.910733448507352,
+    "t_stat": -0.9507512698121195,
+    "satterthwaite_dof": 1.987400646641509,
+    "n_obs": 8,
+    "n_clusters": 8
+   }
+  ],
+  "horizons_dropped": [],
+  "peak_horizon": 7,
+  "peak_abs_t": 1.8832900462982551,
+  "max_abs_t": 1.8832900462982551,
+  "max_t_critical_value": 5.751772527559137,
+  "max_t_p_value": 0.6411794102948526,
+  "peak_significant": false,
+  "effective_independent_tests": 5808152.932159167,
+  "n_permutations": 2000,
+  "clustering": "one-way (event_id) -- SENSITIVITY, NOT THE D1 PRIMARY",
+  "onset_horizon_raw": null,
+  "onset_interval": null,
+  "onset_refused": null,
+  "point_estimate_permitted": false,
+  "d2_residual_limitation": "SEs are clustered ONE WAY, on event_id (D1). At horizon 5: 8 distinct event_id values, 1 distinct anchors over 8 pairs. The same anchor recurring within a cluster is NOT covered by this standard error -- see clustered_se.TWO_WAY_LIMITATION_NOTE. Two-way clustering is not implemented anywhere in this repository, validated or otherwise.",
+  "d6_disclosures": [
+   {
+    "horizon": 5,
+    "total_cluster_count": 8,
+    "n_singleton_clusters": 8,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 8,
+    "n_events": 8,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 8,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 8.0
+   },
+   {
+    "horizon": 7,
+    "total_cluster_count": 8,
+    "n_singleton_clusters": 8,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 8,
+    "n_events": 8,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 8,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 8.0
+   },
+   {
+    "horizon": 10,
+    "total_cluster_count": 8,
+    "n_singleton_clusters": 8,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 8,
+    "n_events": 8,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 8,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 8.0
+   },
+   {
+    "horizon": 20,
+    "total_cluster_count": 8,
+    "n_singleton_clusters": 8,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 8,
+    "n_events": 8,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 8,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 8.0
+   }
+  ]
+ },
+ "clustering_label_note": "treatment.clustering below reads '-- SENSITIVITY, NOT THE D1 PRIMARY' because inference.local_projection_analysis stamps that label whenever cluster_key != constants.LOCKED_CLUSTER_KEY ('calendar_period', HYP-04's own D1). That label describes HYP-04's decision, not HYP-05's: clustered_se.HYP05_TWO_WAY_LIMITATION_NOTE records HYP-05's own re-decision (2026-09-12) that event_id IS its primary clustering dimension. Read the label as HYP-04 vocabulary surfacing through reused code, not as a statement that this is a sensitivity check -- it is HYP-05's actual inferential result.",
+ "secondary_cluster_robustness_lens": {
+  "dimension": "calendar_period",
+  "per_horizon": [
+   {
+    "horizon": 5,
+    "n_rows": 8,
+    "beta_shock": -3.6559761431746787,
+    "primary_se": 4.2255899764615625,
+    "primary_n_clusters": 8,
+    "secondary_se": 4.2255899764615625,
+    "secondary_n_clusters": 8,
+    "se_ratio_secondary_over_primary": 1.0,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 7,
+    "n_rows": 8,
+    "beta_shock": -6.202158148514915,
+    "primary_se": 3.2932570108920354,
+    "primary_n_clusters": 8,
+    "secondary_se": 3.2932570108920354,
+    "secondary_n_clusters": 8,
+    "se_ratio_secondary_over_primary": 1.0,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 10,
+    "n_rows": 8,
+    "beta_shock": -3.5470762748081217,
+    "primary_se": 4.587201761887406,
+    "primary_n_clusters": 8,
+    "secondary_se": 4.587201761887406,
+    "secondary_n_clusters": 8,
+    "se_ratio_secondary_over_primary": 1.0,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 20,
+    "n_rows": 8,
+    "beta_shock": -5.619637331689333,
+    "primary_se": 5.910733448507352,
+    "primary_n_clusters": 8,
+    "secondary_se": 5.910733448507352,
+    "secondary_n_clusters": 8,
+    "se_ratio_secondary_over_primary": 1.0,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   }
+  ],
+  "note": "Two ONE-WAY clusterings shown side by side, never a two-way estimator -- see clustered_se.dual_cluster_report and HYP05_TWO_WAY_LIMITATION_NOTE. The primary result above is HYP-05's actual inferential result; this is a robustness lens only, computed at exactly the horizons the primary result already discloses under D6."
+ },
+ "peer_data_provenance": {
+  "peer_closes_sha256": "02fc69b0e64da1f53132e38f35ae0ce473f188c252cec592c11f9346112c9492",
+  "n_sessions": 3499,
+  "first_session": "2012-10-10",
+  "last_session": "2026-09-11",
+  "peer_earnings_coverage": {
+   "AMBA": {
+    "n_releases_total": 56,
+    "n_attributed": 54,
+    "n_unknown_session": 2,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2012-12-06",
+    "latest_attributed_date": "2026-09-04"
+   }
+  }
+ },
+ "sources": {
+  "phase2_lock_sha256": "205ced2614e4a247c264fadf4897527b34ced63cc101f0ae5d7f7d4f0d28bb6a",
+  "peer_closes": "HYP05_PEER_CLOSES_AMBA_2026-09-12.csv",
+  "peer_closes_sha256": "02fc69b0e64da1f53132e38f35ae0ce473f188c252cec592c11f9346112c9492",
+  "peer_earnings": "HYP05_PEER_EARNINGS_AMBA_2026-09-12.json",
+  "peer_earnings_sha256": "2e14704d3c03ac9d421f5f8c9a8265fe3e748b9a6f94370e519a1d9407874602"
+ },
+ "opens_no_gate": "This is a computed HYP-05 Phase 3 result, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read."
+}
