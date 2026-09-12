@@ -12,10 +12,12 @@ Three jobs:
      `evaluate_gate`, asserting C1 now DENIES and the gate reads CLOSED. That
      is the intended effect of closing HYP-04, not a regression -- the gate
      protects a not-yet-computed result, and HYP-04 has none pending.
-  3. The real, live gate is asserted directly once display_gate.py/
-     dashboard.py are repointed to v1.13: CLOSED, denying on C1 alone. This
-     is now the CURRENT version, so this suite holds that live claim --
-     exactly one suite holds it at a time.
+  3. The real, live gate (which read v1.13, CLOSED, from 2026-09-11 until
+     v1.14 superseded it the same day) is asserted only as having moved past
+     v1.13 -- NARROWED, not retargeted, the same treatment v1.12's own suite
+     got from this version. Exactly one suite holds the live "gate reads X"
+     claim at a time: the CURRENT version's, now
+     test_hyp04_supply_chain_hedge_registry_v1_14.py's own test.
 
 Nothing real is written by this file: v1.13 is built in memory and evaluated
 through `evaluate_gate(registry_path=...)`, exactly as v1.12's suite did.
@@ -188,26 +190,29 @@ def test_4_closing_the_hypothesis_closes_the_gate() -> None:
 
 
 def test_5_the_live_gate_is_now_closed() -> None:
-    """v1.13 is real, on disk, and is what display_gate.py/dashboard.py
-    currently read. `evaluate_gate()` with no arguments is a bare call with
-    no real freeze or panel supplied -- it always shows C2/C3/C5 failing
-    regardless of registry version, which is why v1.12's own suite used
-    `current_decision()` for the real answer instead. This does the same.
+    """v1.13 is real, on disk, and was what display_gate.py/dashboard.py read
+    from 2026-09-11 until v1.14 (registering HYP-05, touching nothing about
+    HYP-04) superseded it the same day. `evaluate_gate()` with no arguments
+    is a bare call with no real freeze or panel supplied -- it always shows
+    C2/C3/C5 failing regardless of registry version, which is why v1.12's
+    own suite used `current_decision()` for the real answer instead. This
+    does the same.
 
-    This is now the CURRENT version, so this suite holds the live "gate
-    reads X" claim -- exactly one suite holds it at a time."""
+    NARROWED, not retargeted, once v1.14 superseded this version -- the same
+    treatment v1.12's own suite got from v1.13. Exactly one suite holds the
+    live "gate reads X" claim at a time: the CURRENT version's, now
+    test_hyp04_supply_chain_hedge_registry_v1_14.py's own test."""
     check("5a. v1.13 was written by this session's generator, not this suite",
           (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.13.json").is_file())
-    from hyp04_supply_chain_hedge.display_gate import (
-        REGISTRY_CURRENT,
-        current_decision,
-    )
-    check("5b. the gate now reads v1.13",
-          REGISTRY_CURRENT.name.endswith("v1.13.json"))
-    live = current_decision()
-    check("5c. so the REAL gate is CLOSED, denying on C1 alone",
-          live.open is False and len(live.denials) == 1
-          and live.denials[0].startswith("C1"), str(live.denials))
+    # Deliberately version-agnostic -- pinning to a SPECIFIC next version
+    # (as v1.11's suite once did to "v1.12.json") breaks again the moment a
+    # further version comes along. What stays true forever is the
+    # direction: v1.13 is superseded, never un-superseded.
+    from hyp04_supply_chain_hedge.display_gate import REGISTRY_CURRENT
+    check("5b. v1.13 has been superseded -- the gate has moved past it",
+          REGISTRY_CURRENT.name
+          != "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.13.json",
+          REGISTRY_CURRENT.name)
 
 
 if __name__ == "__main__":

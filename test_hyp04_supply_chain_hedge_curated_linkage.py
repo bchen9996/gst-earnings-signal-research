@@ -37,6 +37,7 @@ from hyp04_supply_chain_hedge.curated_linkage import (  # noqa: E402
     DIRECTION_NOT_APPLICABLE,
     DIRECTION_SUPPLIER,
     EXPECTED_HEADERS,
+    EXPECTED_HEADERS_WITH_CONCENTRATION,
     RELATIONSHIP_TYPE_TO_DIRECTION,
     RELATIONSHIP_TYPES,
     REVIEW_STATUSES,
@@ -94,6 +95,15 @@ def _write(tmp: Path, *rows: str, header: str = HEADER) -> Path:
     p = tmp / "curated.csv"
     p.write_text("\n".join([header, *rows]) + "\n", encoding="utf-8")
     return p
+
+
+HEADER_V2 = ",".join(EXPECTED_HEADERS_WITH_CONCENTRATION)
+
+# v2-schema rows: one extra trailing column, concentration_pct.
+GOOD_CUSTOMER_WITH_PCT = GOOD_CUSTOMER + ",13.0"
+GOOD_CUSTOMER_BLANK_PCT = GOOD_CUSTOMER + ","
+BAD_NONNUMERIC_PCT = GOOD_SUPPLIER + ",not-a-number"
+BAD_OUT_OF_RANGE_PCT = GOOD_SUPPLIER + ",150"
 
 
 # ===================== 1. the required smoke test =========================
@@ -653,6 +663,68 @@ def test_12_the_page_shows_the_capture_state_from_the_registry() -> None:
           f"{dec.open}/{len(dec.denials)} -> {after.open}/{len(after.denials)}")
 
 
+# ================ 13. concentration_pct (v2 schema, additive) =============
+def test_13_concentration_pct_is_optional_and_additive() -> None:
+    """The v2 header (one extra trailing column) is a SECOND valid exact
+    shape, not a replacement -- every dated v1-schema HYP-04 map keeps
+    loading exactly as before, unaffected."""
+    check("13a. the v1 (15-column) header still matches on its own",
+          check_headers(EXPECTED_HEADERS)[0])
+    check("13b. the v2 (16-column, +concentration_pct) header also matches",
+          check_headers(EXPECTED_HEADERS_WITH_CONCENTRATION)[0])
+
+    with tempfile.TemporaryDirectory() as td:
+        v1 = _write(Path(td), GOOD_CUSTOMER)
+        res_v1 = load_curated_linkage(v1)
+        check("13c. a v1-schema row still loads",
+              res_v1.header_matched and len(res_v1.edges) == 1, str(res_v1.issues))
+        check("13d. and carries concentration_pct=None -- the column simply "
+              "does not exist for this schema",
+              res_v1.edges[0].concentration_pct is None)
+
+    with tempfile.TemporaryDirectory() as td:
+        v2 = _write(Path(td), GOOD_CUSTOMER_WITH_PCT, header=HEADER_V2)
+        res_v2 = load_curated_linkage(v2)
+        check("13e. a v2-schema row with a value loads",
+              res_v2.header_matched and len(res_v2.edges) == 1, str(res_v2.issues))
+        check("13f. and parses the disclosed percentage as a float",
+              res_v2.edges[0].concentration_pct == 13.0)
+
+    with tempfile.TemporaryDirectory() as td:
+        blank = _write(Path(td), GOOD_CUSTOMER_BLANK_PCT, header=HEADER_V2)
+        res_blank = load_curated_linkage(blank)
+        check("13g. a v2-schema row with the column left blank is valid "
+              "(Optional) and carries None, not an error",
+              len(res_blank.edges) == 1
+              and res_blank.edges[0].concentration_pct is None
+              and not res_blank.errors)
+
+    with tempfile.TemporaryDirectory() as td:
+        bad = _write(Path(td), BAD_NONNUMERIC_PCT, header=HEADER_V2)
+        res_bad = load_curated_linkage(bad)
+        check("13h. a non-numeric concentration_pct is rejected, not "
+              "silently dropped", len(res_bad.edges) == 0 and any(
+                  i.field == "concentration_pct" for i in res_bad.errors),
+              str(res_bad.issues))
+
+    with tempfile.TemporaryDirectory() as td:
+        oor = _write(Path(td), BAD_OUT_OF_RANGE_PCT, header=HEADER_V2)
+        res_oor = load_curated_linkage(oor)
+        check("13i. an out-of-[0,100] concentration_pct is rejected",
+              len(res_oor.edges) == 0 and any(
+                  i.field == "concentration_pct" for i in res_oor.errors),
+              str(res_oor.issues))
+
+    # And the header-drift insurance (test_6) is untouched: a renamed or
+    # reordered v1 header is still detected exactly as before, diffed
+    # against the base (v1) schema.
+    renamed = list(EXPECTED_HEADERS)
+    renamed[9] = "as_of_basis"
+    ok, diff = check_headers(renamed)
+    check("13j. renamed-column detection is unaffected by the v2 addition",
+          not ok and "as_of_date_basis" in diff["missing"], str(diff))
+
+
 if __name__ == "__main__":
     test_1_smoke_good_rows_accepted_bad_row_rejected()
     test_2_direction_comes_from_the_lookup_not_from_notes()
@@ -667,6 +739,7 @@ if __name__ == "__main__":
     test_10_no_prose_asserts_a_row_count()
     test_11_no_module_restates_a_registry_availability_value()
     test_12_the_page_shows_the_capture_state_from_the_registry()
+    test_13_concentration_pct_is_optional_and_additive()
 
     print()
     if SKIPS:

@@ -1401,6 +1401,137 @@ def extract_edges_from_text(
 
 
 # ==========================================================================
+# COMPETITOR / SUPPLIER-CONTEXT PROSE -- UNCALIBRATED. Read this before using it.
+# ==========================================================================
+# `CONCENTRATION_ANCHORS` above reached its current shape only by being
+# "measured 2026-08-27 over a controlled grid" and "measured again 2026-08-28
+# over the cached corpus" -- real filing text, iterated against, more than
+# once. The anchors below have NOT been through that. They are a real,
+# working, offline-testable function (exercised in
+# test_hyp04_supply_chain_hedge_edgar_linkage.py against synthetic fixtures
+# only, same discipline every extractor test here follows) -- not a stub --
+# but "passes on synthetic fixtures I wrote myself" is a much weaker claim
+# than "measured on the cached corpus of real filings", and conflating the
+# two is exactly the failure mode this module's own docstring warns about:
+# "prose-parsing is what produced the false edges in BOTH EDGAR extractors."
+#
+# Consequently this function is deliberately NOT called from
+# `extract_for_universe()`. Wiring it into that default path would make it
+# start producing "candidate" edges from real filings under the same
+# confidence banner as the calibrated ASC 280 path, which it has not earned.
+# Calibrating it means pulling and reading real 10-K Competition-section
+# text -- a live-EDGAR act, out of scope for the pass that added this
+# function. Do that calibration, measure it the way CONCENTRATION_ANCHORS was
+# measured, and only then wire this into extract_for_universe().
+DIRECTION_COMPETITOR = "competitor"
+
+SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED = (
+    "EDGAR_10K_COMPETITION_SECTION_UNCALIBRATED")
+
+# Deliberately narrow and conservative -- naming the relationship directly
+# rather than trying to cover every phrasing a real Competition section might
+# use. Widening this is exactly the kind of change that needs real-filing
+# measurement, not a guess at what else might work.
+COMPETITOR_ANCHORS: tuple[tuple[str, str], ...] = (
+    (r"\b(?:our\s+)?(?:principal|primary|main)\s+competitors?\s+"
+     r"(?:include|includes|are|is)\b", "principal_competitors"),
+    (r"\bwe\s+compete\s+(?:directly\s+)?(?:with|against)\b",
+     "we_compete_with"),
+    (r"\bcompetitors?\s+(?:include|includes)\b", "competitors_include"),
+)
+
+# Supplier-context prose OUTSIDE a concentration disclosure -- no percentage
+# attached, unlike SUPPLIER_HINT's use inside infer_direction(). Reuses the
+# same trigger words for consistency, not by coincidence.
+SUPPLIER_CONTEXT_ANCHORS: tuple[tuple[str, str], ...] = (
+    (r"\bour\s+(?:primary\s+|principal\s+|sole\s+)?suppliers?\s+"
+     r"(?:include|includes|is|are)\b", "our_supplier_is"),
+    (r"\bwe\s+(?:purchase|source)\s+(?:[\w\s]{0,20}?)from\b",
+     "we_purchase_from"),
+    (r"\bour\s+contract\s+manufacturers?\s+(?:include|includes|is|are)\b",
+     "our_contract_manufacturer_is"),
+)
+
+# Bounded forward lookahead for the party name following an anchor phrase.
+# Never crosses a sentence boundary -- same discipline as PARTY_LOOKBACK_CHARS
+# above, just forward instead of backward, since these anchors name the
+# party AFTER the trigger phrase ("we compete with X"), not before it.
+_PARTY_LOOKAHEAD_CHARS = 120
+
+# One party name, immediately after the anchor phrase (allowing "with"/"from"
+# etc. already consumed by the anchor itself). Reuses the same corporate-
+# suffix-or-Title-Case shape clean_party() validates, so a sentence fragment
+# is rejected the same way it already is for the concentration path.
+_PARTY_NAME = re.compile(
+    r"(?P<name>[A-Z][A-Za-z0-9.&'’\-]*"
+    r"(?:\s+(?:[A-Z][A-Za-z0-9.&'’\-]*|of|de|van|der))*"
+    r"(?:,?\s+(?:Inc|Corp|Corporation|Company|Co|Ltd|Limited|PLC|LLC|LP|NV|"
+    r"AG|SA)\.?)?)")
+
+
+def extract_competitor_edges_from_text(
+    text: str, *, ticker: str, cik: str, filing_date: str,
+    accession: str, form: str = "10-K",
+) -> list[LinkageEdge]:
+    """Extract candidate competitor/supplier-context edges. UNCALIBRATED --
+    read the module comment immediately above before calling this anywhere
+    that is not a test against a synthetic fixture.
+
+    Pure function, no I/O -- same contract as extract_edges_from_text, and
+    for the same reason: testable offline against fixtures.
+    """
+    edges: list[LinkageEdge] = []
+    seen: set[tuple] = set()
+
+    for anchors, direction in (
+        (COMPETITOR_ANCHORS, DIRECTION_COMPETITOR),
+        (SUPPLIER_CONTEXT_ANCHORS, DIRECTION_SUPPLIER),
+    ):
+        for pattern, label in anchors:
+            for m in re.finditer(pattern, text, re.I):
+                fwd_end = min(len(text), m.end() + _PARTY_LOOKAHEAD_CHARS)
+                window = text[m.end():fwd_end]
+                sentence_break = _first_sentence_break(window)
+                if sentence_break != -1:
+                    window = window[:sentence_break]
+
+                nm = _PARTY_NAME.search(window)
+                if not nm:
+                    continue
+                party = clean_party(nm.group("name"))
+                if party is None:
+                    continue
+
+                # Deduplicate by (party, direction) alone, not by which
+                # anchor matched -- "principal competitors include Intel"
+                # trips both the "principal_competitors" and
+                # "competitors_include" anchors, and a candidate list gains
+                # nothing from recording the same party twice over that.
+                key = (party, direction)
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                ctx_start = max(0, m.start() - 60)
+                edges.append(LinkageEdge(
+                    reporting_company=ticker,
+                    reporting_cik=cik,
+                    named_counterparty=party,
+                    counterparty_is_named=True,
+                    direction=direction,
+                    concentration_pct=None,
+                    as_of_date=filing_date,
+                    accession=accession,
+                    form=form,
+                    source=SOURCE_10K_COMPETITION_SECTION_UNCALIBRATED,
+                    pattern=label,
+                    context=text[ctx_start:fwd_end][:400],
+                ))
+
+    return edges
+
+
+# ==========================================================================
 # Live EDGAR client -- refuses to run without an owner-supplied contact
 # ==========================================================================
 class _CachedHTTPError(Exception):
