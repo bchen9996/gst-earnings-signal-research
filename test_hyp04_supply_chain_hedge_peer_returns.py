@@ -422,16 +422,15 @@ def test_9_nothing_here_opens_the_gate():
     from hyp04_supply_chain_hedge.display_gate import current_decision
 
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1). The claim
-    # in 9b is unchanged and still true -- peer returns are not linkage. C5
-    # passes because the committed freeze derives non-placeholder linkage from
-    # the ratified map v1.3, which is a different artifact entirely.
-    check("9a. the display gate is OPEN", d.open, str(d.status))
+    # NARROWED, not retargeted -- the gate went OPEN (2026-09-09, freeze +
+    # v1.12) then CLOSED again (2026-09-11, v1.13 closed HYP-04 as
+    # HOLDOUT_TESTED_NULL). The claim in 9b is unchanged either way -- peer
+    # returns are not linkage. C5 passes because the committed freeze
+    # derives non-placeholder linkage from the ratified map v1.3, which is a
+    # different artifact entirely, and that claim is unaffected by C1.
     check("9b. C5 passes on the ratified MAP -- peer returns are not linkage",
           d.conditions.get("C5_not_placeholder") is True
           and d.evidence.get("uses_placeholder_linkage") is False)
-    check("9c. zero denials", len(d.denials) == 0,
-          f"{len(d.denials)}: {d.denials}")
 
 
 def test_10_derived_availability_actually_satisfies_p5():

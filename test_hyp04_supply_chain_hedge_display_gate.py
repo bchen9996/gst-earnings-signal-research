@@ -145,28 +145,43 @@ def _good_freeze(n: int = 193) -> FreezeRecord:
     )
 
 
-# ===================== 1. today's real gate is OPEN =======================
-def test_1_the_live_gate_is_open_and_why() -> None:
-    """The gate OPENED on 2026-09-09. Every condition is pinned to its cause.
+# ============= 1. today's real gate is CLOSED again, on C1 alone ==========
+def test_1_the_live_gate_is_closed_again_and_why() -> None:
+    """The gate OPENED on 2026-09-09, then CLOSED again on 2026-09-11. Every
+    condition is pinned to its cause, in both directions.
 
     It was CLOSED with four denials from the beginning of this project until
-    then, and this test asserted exactly that. The conditions cleared one at a
-    time, each for a stated reason, and the ORDER was enforced in code: C4 in
-    registry v1.2 (2026-08-20), then C2 when `make_event_panel` first derived a
-    count, then C3 and C5 together when a freeze was attested over the ratified
-    map, and C1 LAST in registry v1.12 -- `make_registry_v1_12` refuses to move
-    it while the map is unratified or the freeze invalid.
+    2026-09-09. The conditions cleared one at a time, each for a stated
+    reason, and the ORDER was enforced in code: C4 in registry v1.2
+    (2026-08-20), then C2 when `make_event_panel` first derived a count, then
+    C3 and C5 together when a freeze was attested over the ratified map, and
+    C1 LAST in registry v1.12 -- `make_registry_v1_12` refuses to move it
+    while the map is unratified or the freeze invalid.
 
-    What an open gate means is unchanged and is asserted at the end: it
-    licenses REPORTING a measurement. It is not a finding, and this test does
-    not assert one exists. At the moment it opened, none did.
+    It then read OPEN, zero denials, from 2026-09-09 until 2026-09-11, when
+    HYP-04's own one-time holdout run (Phase 3) completed and reported a
+    null result. `make_registry_v1_13` closed HYP-04 as HOLDOUT_TESTED_NULL,
+    which is not ACTIVE_COLLECTING, so C1 denies again -- this time for the
+    opposite reason from before: not because the hypothesis isn't ready to
+    be looked at, but because it has already been looked at, once, and that
+    look is spent. C2-C5 are UNCHANGED by this and still clear (1d-1i below);
+    only C1 moved, and only because the registry's status field did.
+
+    What a closed gate means is unchanged: it does not license reporting a
+    NEW measurement through this path. HYP-04's one measurement was already
+    taken and reported directly (HYP04_PHASE3_RESULT_2026-09-11.json), not
+    through this gate -- the gate governs looking, and HYP-04 has nothing
+    left to look at.
     """
     d = current_decision()
-    check("1a. the live gate is OPEN", d.open is True, str(d.denials))
-    check("1b. with no denials at all", len(d.denials) == 0, str(d.denials))
-    check("1c. C1 passes: the registry status is ACTIVE_COLLECTING (v1.12)",
-          d.conditions["C1_status"] is True
-          and d.evidence["registry_status"] == "ACTIVE_COLLECTING")
+    check("1a. the live gate is CLOSED again", d.open is False, str(d.denials))
+    check("1b. with exactly one denial, and it is C1",
+          len(d.denials) == 1 and d.denials[0].startswith("C1"),
+          str(d.denials))
+    check("1c. C1 fails: the registry status is HOLDOUT_TESTED_NULL (v1.13), "
+          "not ACTIVE_COLLECTING",
+          d.conditions["C1_status"] is False
+          and d.evidence["registry_status"] == "HOLDOUT_TESTED_NULL")
     check("1d. C2 passes: 214 derived eligible events against a 193 threshold",
           d.conditions["C2_threshold"] is True
           and d.evidence["eligible_event_count"] == 214,
@@ -537,6 +552,24 @@ def _closed_decision():
     return evaluate_gate(eligible_event_count=0, freeze=None)
 
 
+def _open_decision():
+    """An OPEN decision, synthesised rather than borrowed from the live gate.
+
+    test_13 below used `current_decision()` for this -- the same defect
+    `_closed_decision()` documents above, just on the open side: it worked
+    only while the live gate happened to read OPEN (2026-09-09 to
+    2026-09-11), and broke the moment v1.13 closed HYP-04 as
+    HOLDOUT_TESTED_NULL and the live gate went back to CLOSED. A fixture
+    whose meaning depends on ambient state is not a fixture -- true in
+    either direction.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        reg = _registry_variant(Path(td), status="ACTIVE_COLLECTING",
+                                pending=False)
+        return evaluate_gate(eligible_event_count=193, freeze=_good_freeze(),
+                             registry_path=reg)
+
+
 # ===================== 11. panel classification ==========================
 def test_11_panel_classification_fails_closed() -> None:
     closed = _closed_decision()
@@ -573,31 +606,34 @@ def test_11_panel_classification_fails_closed() -> None:
     check("11g. the two panel lists are disjoint",
           not (set(FINDINGS_PANELS) & set(PROGRESS_PANELS)))
 
-    # The two controls COMPOSE, and the live gate being open is what makes this
-    # checkable for the first time. Opening the gate does not clear the quantum
-    # control: a findings panel with no declared method provenance is still
-    # refused, now by ProvenanceError rather than GateError.
-    live = current_decision()
-    if live.open:
-        try:
-            assert_display_allowed(FINDINGS_PANELS[0], live)
-            check("11h. an OPEN gate still refuses undeclared provenance",
-                  False, "it rendered through an open gate")
-        except ProvenanceError:
-            check("11h. an OPEN gate still refuses undeclared provenance", True)
-        except GateError:
-            check("11h. an OPEN gate still refuses undeclared provenance",
-                  False, "denied by the gate, not by the provenance control")
-        try:
-            assert_display_allowed(FINDINGS_PANELS[0], live,
-                                   provenance=CLASSICAL_INTERNAL)
-            check("11i. and PERMITS a declared classical result -- the gate is "
-                  "genuinely open, not merely differently locked", True)
-        except Exception as exc:                   # noqa: BLE001 -- reported
-            check("11i. and PERMITS a declared classical result", False,
-                  f"{type(exc).__name__}: {exc}")
-    else:
-        skip("11h. open-gate provenance composition", "the live gate is closed")
+    # The two controls COMPOSE. This used the LIVE gate to make that
+    # checkable, with a skip fallback for whenever it happened to read
+    # closed -- which is exactly the ambient-state defect `_closed_decision`
+    # documents, just reached through a skip instead of a wrong assertion.
+    # It fell into that skip for real once v1.13 closed HYP-04 again on
+    # 2026-09-11. `_open_decision()` makes this checkable unconditionally,
+    # the same fix already applied to test_13 above: opening the gate does
+    # not clear the quantum control -- a findings panel with no declared
+    # method provenance is still refused, now by ProvenanceError rather than
+    # GateError.
+    live = _open_decision()
+    try:
+        assert_display_allowed(FINDINGS_PANELS[0], live)
+        check("11h. an OPEN gate still refuses undeclared provenance",
+              False, "it rendered through an open gate")
+    except ProvenanceError:
+        check("11h. an OPEN gate still refuses undeclared provenance", True)
+    except GateError:
+        check("11h. an OPEN gate still refuses undeclared provenance",
+              False, "denied by the gate, not by the provenance control")
+    try:
+        assert_display_allowed(FINDINGS_PANELS[0], live,
+                               provenance=CLASSICAL_INTERNAL)
+        check("11i. and PERMITS a declared classical result -- the gate is "
+              "genuinely open, not merely differently locked", True)
+    except Exception as exc:                         # noqa: BLE001 -- reported
+        check("11i. and PERMITS a declared classical result", False,
+              f"{type(exc).__name__}: {exc}")
 
 
 def test_12_locked_placeholder_leaks_no_finding() -> None:
@@ -655,13 +691,18 @@ def test_13_the_dashboard_cannot_bypass_the_gate() -> None:
     refused, but on PROVENANCE grounds, so the assertion was looking for the
     wrong words and passing only because the renderer printed them regardless.
     That is what put "GATE CLOSED" over an open gate on the published page.
+
+    NARROWED again since: this used `live = current_decision()` for the open
+    half, which is the SAME ambient-state defect on the open side --
+    `_open_decision()` now supplies a synthesised open decision instead, for
+    the reason `_closed_decision`'s docstring already gives.
     """
     import re as _re
 
     from hyp04_supply_chain_hedge import dashboard as D
 
     closed = _closed_decision()
-    live = current_decision()
+    live = _open_decision()
     poisoned = "<p>onset_horizon = 5, beta_h = 0.5500, t = 22.96, p = 0.0033</p>"
     leaked = ("0.5500", "22.96", "0.0033")
 
@@ -824,8 +865,20 @@ def test_15_stale_gate_verdicts_are_enumerated_not_latent() -> None:
     check("15f. the freeze pins the artifacts the PINNED entries write",
           {"panel", "calendar_sha256", "shocks_sha256"}
           <= set(freeze["input_hashes"]), str(sorted(freeze["input_hashes"])))
-    check("15g. and the gate that would close is currently OPEN",
-          current_decision().open is True)
+    # NARROWED, not retargeted: this used to require the live gate be OPEN,
+    # true from 2026-09-09 to 2026-09-11. v1.13 closed HYP-04 again on
+    # 2026-09-11, so that is no longer the reason these verdicts are stale.
+    # They still are, for a different and still-checkable reason: every
+    # matched sentence says specifically "four denials" (see _VERDICT), and
+    # today's real state is either zero or one denial (C1 alone, for
+    # HYP-04's tested-and-closed status) -- never the four-denial Phase 0
+    # state these sentences describe.
+    live = current_decision()
+    check("15g. and the gate's real denial count is not the 'four denials' "
+          "these stale sentences describe",
+          len(live.denials) in (0, 1)
+          and live.conditions["C4_decisions_resolved"] is True,
+          str(live.denials))
 
 
 def test_14_offline() -> None:
@@ -837,7 +890,7 @@ def test_14_offline() -> None:
 
 
 if __name__ == "__main__":
-    test_1_the_live_gate_is_open_and_why()
+    test_1_the_live_gate_is_closed_again_and_why()
     test_2_unknown_inputs_deny_rather_than_default()
     test_3_c1_alone_closes_the_gate()
     test_4_c2_alone_closes_the_gate()

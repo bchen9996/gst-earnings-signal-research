@@ -235,19 +235,19 @@ def test_e_the_gate_did_not_move() -> None:
           not REGISTRY_CURRENT.name.endswith("v1.7.json"),
           REGISTRY_CURRENT.name)
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
-    # with 4 denials for all of Phase 0. Both claims below are unchanged --
-    # correcting a universe is neither an eligible event nor activation.
-    check("E2. it is OPEN", d.open is True, str(d.conditions))
-    check("E3. with zero denials", len(d.denials) == 0, str(d.denials))
+    # NARROWED again: E2/E3/E6 asserted the gate was OPEN with zero denials
+    # and a live registry_status of ACTIVE_COLLECTING, true from 2026-09-09
+    # (freeze + v1.12 moved C1) until v1.13 closed HYP-04 on 2026-09-11 and
+    # C1 denied again under a NEW status, HOLDOUT_TESTED_NULL. v1.7 opened
+    # nothing and closed nothing -- correcting a universe is neither an
+    # eligible event nor activation -- so it needs no live open/closed or
+    # status opinion at all, only on what it itself moved (E4, E5 below,
+    # both unaffected by any later status change).
     check("E4. and C4 MET", d.conditions["C4_decisions_resolved"] is True)
     check("E5. C2 counts DERIVED events (214); correcting a universe still "
           "creates none",
           d.conditions["C2_threshold"] is True
           and d.evidence["eligible_event_count"] == 214)
-    check("E6. C1 tracks the registry status, which v1.12 moved -- not v1.7",
-          d.conditions["C1_status"] is True
-          and d.evidence["registry_status"] == "ACTIVE_COLLECTING")
 
     good = FreezeRecord(
         frozen=True,

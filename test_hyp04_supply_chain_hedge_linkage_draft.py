@@ -198,13 +198,13 @@ def test_5_the_gate_is_untouched() -> None:
     print("\n--- 5: nothing here moves the display gate ---")
     from hyp04_supply_chain_hedge.display_gate import current_decision
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12). CLOSED with 4
-    # denials throughout Phase 0. Writing an INERT draft is still not what
-    # opened it -- a draft with blank owner fields does not validate as a
-    # freeze, which is exactly what test_2 in this suite pins.
-    check("5a. gate OPEN", d.status == "OPEN", d.status)
+    # NARROWED, not retargeted -- the gate went OPEN (2026-09-09, freeze +
+    # v1.12) then CLOSED again (2026-09-11, v1.13 closed HYP-04 as
+    # HOLDOUT_TESTED_NULL). Writing an INERT draft is not what moved the
+    # gate in either direction -- a draft with blank owner fields does not
+    # validate as a freeze, which is exactly what test_2 in this suite pins
+    # -- so this asserts only C4, which nothing here touches.
     check("5b. C4 MET", d.conditions.get("C4_decisions_resolved") is True)
-    check("5c. zero denials", len(d.denials) == 0, str(d.denials))
     # Indexed, not .get(): a typo'd key silently returns None and passes.
     check("5d. the count comes from the FROZEN set, not from any draft",
           d.evidence["eligible_event_count"] == 214,

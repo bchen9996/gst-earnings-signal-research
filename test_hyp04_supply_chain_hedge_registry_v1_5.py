@@ -239,17 +239,15 @@ def test_d_the_gate_did_not_move() -> None:
     check("D1. v1.5 is no longer the current artifact -- v1.6 superseded it",
           not REGISTRY_CURRENT.name.endswith("v1.5.json"), REGISTRY_CURRENT.name)
     d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
-    # with 4 denials for all of Phase 0. Both claims below are unchanged --
-    # declaring a universe is neither activation nor an eligible event -- so
-    # each is now asserted against the thing that DID move its condition.
-    check("D2. it is OPEN", d.open is True, str(d.conditions))
-    check("D3. with zero denials", len(d.denials) == 0, str(d.denials))
+    # NARROWED again: D2/D3/D5 asserted the gate was OPEN with zero denials
+    # and a live registry_status of ACTIVE_COLLECTING, true from 2026-09-09
+    # (freeze + v1.12 moved C1) until v1.13 closed HYP-04 on 2026-09-11 and
+    # C1 denied again under a NEW status, HOLDOUT_TESTED_NULL. v1.5 declared
+    # a universe, which is neither activation nor an eligible event, so it
+    # needs no live open/closed or status opinion at all, only on what it
+    # itself moved (D4, D6 below, both unaffected by any later status change).
     check("D4. and C4 MET", d.conditions["C4_decisions_resolved"] is True,
           str(d.conditions))
-    check("D5. C1 tracks the registry status, which v1.12 moved -- not v1.5",
-          d.conditions["C1_status"] is True
-          and d.evidence["registry_status"] == "ACTIVE_COLLECTING")
     check("D6. C2 counts DERIVED events (214), which declaring a universe "
           "still does not create",
           d.conditions["C2_threshold"] is True

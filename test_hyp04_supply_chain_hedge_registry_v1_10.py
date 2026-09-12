@@ -338,16 +338,17 @@ def test_e_nothing_was_measured_and_nothing_moved() -> None:
     check("E6. statistical_governance is untouched",
           doc.get("statistical_governance") == src.get("statistical_governance"))
 
-    d = current_decision()
-    # OPENED 2026-09-09 (freeze attested + registry v1.12 moved C1); CLOSED
-    # with 4 denials for all of Phase 0. v1.10 is not what opened it -- the
-    # four conditions below cleared through the freeze and v1.12, in that
-    # order, months after this version.
-    check("E7. the gate is OPEN", getattr(d, "open", False))
-    check("E8. with zero denials", len(d.denials) == 0, str(d.denials))
-    check("E9. and C4 is MET", d.conditions.get("C4_decisions_resolved") is True)
-    for c in ("C1_status", "C2_threshold", "C3_frozen", "C5_not_placeholder"):
-        check(f"E10. {c} now passes", d.conditions.get(c) is True)
+    # E7-E10 used to hold a live "the gate is OPEN, zero denials" claim here.
+    # That claim belongs to exactly one suite at a time -- the CURRENT
+    # version's, now test_hyp04_supply_chain_hedge_registry_v1_13.py's test_5
+    # -- and holding it in more than one place is what broke silently when
+    # v1.13 closed HYP-04 and C1 denied again: this test kept asserting OPEN
+    # long after the live answer changed, which the "exactly one suite"
+    # discipline (stated explicitly in v1_11's own suite) exists to prevent.
+    # v1.10 itself measured and moved nothing (E1-E6 above are what this
+    # version actually claims), so it needs no live-gate opinion at all.
+    check("E7. this version measured and moved nothing, and asserts no "
+          "live gate state -- see test_a's supersession check instead", True)
 
 
 def test_f_the_generator_refuses_to_outrun_the_code() -> None:

@@ -355,13 +355,13 @@ def test_7_the_gate_does_not_move() -> None:
     from hyp04_supply_chain_hedge.display_gate import current_decision
 
     d = current_decision()
-    # The gate OPENED 2026-09-09: freeze attested + registry v1.12 moved C1.
-    # It read CLOSED with 4 denials for all of Phase 0. v1.3 is not what opened
-    # it, which is what this block is for.
-    check("7a. the gate is OPEN", d.open, str(d.status))
+    # NARROWED again: 7a/7c asserted the gate was OPEN with zero denials
+    # from 2026-09-09 (freeze + v1.12 moved C1) until v1.13 closed HYP-04 and
+    # C1 denied again on 2026-09-11. v1.3 opened nothing and closed nothing;
+    # it needs no opinion on open/closed at all, only on what it itself
+    # moved (7b, 7d below, both unaffected by any later status change).
     check("7b. C4 reads MET", d.conditions.get("C4_decisions_resolved") is True,
           "v1.3 must not disturb a resolved ledger")
-    check("7c. zero denials", len(d.denials) == 0, str(d.denials))
     # The original claim holds: curated edges alone never cleared C5. What
     # cleared it is a FREEZE whose panel derived uses_placeholder_linkage=false
     # from the ratified map -- a derivation, not an assertion by any caller.

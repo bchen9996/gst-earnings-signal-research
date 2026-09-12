@@ -223,13 +223,16 @@ def test_5_c5_clears_through_the_real_gate() -> None:
               ff["eligible_event_ids"] == ("E-2020",), str(ff["eligible_event_ids"]))
         check("5c. C2 still fails -- one event is not 193",
               d.conditions["C2_threshold"] is False)
-        # C1 read False until registry v1.12 moved it on 2026-09-09. The claim
-        # this line was making -- linkage is not activation -- is unchanged and
-        # is now asserted at its source: C1 tracks the REGISTRY's status field,
-        # which nothing in this fixture touches.
+        # C1 read False until registry v1.12 moved it on 2026-09-09, then
+        # False again once v1.13 closed HYP-04 as HOLDOUT_TESTED_NULL on
+        # 2026-09-11. The claim this line was making -- linkage is not
+        # activation -- is unchanged either way: C1 tracks the REGISTRY's
+        # status field exactly, whatever it currently reads, and nothing in
+        # this fixture touches it.
+        from hyp04_supply_chain_hedge.display_gate import REQUIRED_STATUS
         check("5d. C1 tracks the registry, not linkage",
-              d.conditions["C1_status"] is True
-              and d.evidence["registry_status"] == "ACTIVE_COLLECTING",
+              d.conditions["C1_status"]
+              == (d.evidence["registry_status"] == REQUIRED_STATUS),
               str(d.evidence.get("registry_status")))
         # And the gate is STILL closed on this fixture, for the reason 5c
         # gives: one event is not 193. An open C1 changes nothing about that.

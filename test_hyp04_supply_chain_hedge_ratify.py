@@ -618,9 +618,11 @@ def test_9_the_chain_completed_and_each_act_is_attributable() -> None:
     """
     from hyp04_supply_chain_hedge.display_gate import current_decision
     g = current_decision()
-    check("9a. the gate is OPEN", g.open is True, str(g.denials))
+    # NARROWED, not retargeted -- the gate went OPEN (2026-09-09, this
+    # chain) then CLOSED again (2026-09-11, v1.13 closed HYP-04 as
+    # HOLDOUT_TESTED_NULL). That later closure is not this chain's business
+    # to assert either way; C4 is.
     check("9b. C4 is still MET", g.conditions["C4_decisions_resolved"] is True)
-    check("9c. zero denials", len(g.denials) == 0, str(g.denials))
     # `eligible_event_count`, not `eligible_count` -- the latter is not a key
     # the gate emits, so `.get(...) is None` passed no matter what it said.
     check("9d. the count is the frozen 214",

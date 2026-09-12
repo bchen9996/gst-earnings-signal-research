@@ -51,7 +51,10 @@ from datetime import date  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 from hyp04_supply_chain_hedge import make_freeze_draft as F  # noqa: E402
-from hyp04_supply_chain_hedge.display_gate import evaluate_gate  # noqa: E402
+from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
+    REQUIRED_STATUS,
+    evaluate_gate,
+)
 
 ROOT = Path(__file__).resolve().parent
 LSE = ROOT / "Live Signal Engine"
@@ -268,16 +271,18 @@ def test_5_a_completed_freeze_now_leaves_nothing() -> None:
         # 2026-09-09. C1 was the survivor by design: the freeze had to come
         # FIRST, and v1.12 refuses to move C1 until one exists.
         #
-        # Now that it has, a completed freeze leaves NO denial. The module's
-        # headline claim has gone from "four denials to one" to "four to none",
-        # and the order it insisted on is what earned that.
-        check("5f. no denial survives -- C1 moved once the freeze existed",
-              len(g.denials) == 0, str(g.denials))
-        check("5g. C1 passes from the REGISTRY, not from this freeze",
-              c["C1_status"] is True
-              and g.evidence["registry_status"] == "ACTIVE_COLLECTING")
-        check("5h. so a completed freeze now opens the gate outright",
-              g.open is True)
+        # NARROWED again, not retargeted: from 2026-09-09 a completed freeze
+        # left NO denial ("four to none"), until v1.13 closed HYP-04 as
+        # HOLDOUT_TESTED_NULL on 2026-09-11 and C1 denied again -- for a
+        # reason entirely outside THIS freeze's business (a closed
+        # hypothesis, not a bad freeze). What this suite's own business is,
+        # and stays true regardless of C1's live value, is C2-C5 above: a
+        # completed freeze is what makes every ONE OF THOSE clear, which
+        # 5b-5e already assert directly.
+        check("5g. C1 tracks the registry's status field exactly, not this "
+              "freeze", c["C1_status"]
+              == (g.evidence["registry_status"] == REQUIRED_STATUS),
+              str(g.evidence.get("registry_status")))
 
 
 def test_6_a_tampered_derived_field_is_refused() -> None:
@@ -543,8 +548,17 @@ def test_13_the_committed_freeze_still_validates() -> None:
           != "")
     from hyp04_supply_chain_hedge.display_gate import current_decision
     live = current_decision()
-    check("13c. and the live gate is still OPEN with zero denials",
-          live.open is True and len(live.denials) == 0, str(live.denials))
+    # NARROWED, not retargeted: this used to assert the live gate was fully
+    # OPEN. v1.13 closed HYP-04 as HOLDOUT_TESTED_NULL on 2026-09-11, which
+    # is not this suite's edit and not this freeze's business either way.
+    # What IS this suite's business -- that changing scan machinery
+    # underneath an attested freeze does not retroactively break what the
+    # owner signed -- is C2/C3/C5, all of which this committed freeze can
+    # still affect.
+    check("13c. and the committed freeze still clears C2/C3/C5",
+          all(live.conditions[c] is True for c in
+              ("C2_threshold", "C3_frozen", "C5_not_placeholder")),
+          str(live.conditions))
 
 
 def test_8_this_suite_moved_nothing() -> None:
@@ -559,12 +573,16 @@ def test_8_this_suite_moved_nothing() -> None:
     attestation is a HUMAN's: the record names one, and no code path here can
     produce that.
     """
-    # Withholding the freeze still denies -- three denials, not four, because
-    # C1 now passes from registry v1.12.
+    # NARROWED, not retargeted: this used to also assert C1 was NOT among
+    # the denials (true while v1.12 held ACTIVE_COLLECTING) with an exact
+    # count of three. v1.13 closed HYP-04 as HOLDOUT_TESTED_NULL on
+    # 2026-09-11, so C1 denies again too -- for a reason outside this
+    # suite's business (a closed hypothesis, not a freeze-less gate call).
     g = evaluate_gate()
     check("8a. with the freeze withheld the gate still denies", g.open is False)
-    check("8b. on C2, C3 and C5", len(g.denials) == 3
-          and not any(x.startswith("C1") for x in g.denials), str(g.denials))
+    check("8b. on C2, C3 and C5 -- whatever C1 currently says",
+          all(any(x.startswith(c) for x in g.denials)
+              for c in ("C2", "C3", "C5")), str(g.denials))
     # `eligible_event_count`, not `eligible_count`: the latter is not a key the
     # gate emits, so `.get(...) is None` passed no matter what it reported.
     check("8c. and a freeze-less gate sees no count",
