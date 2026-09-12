@@ -105,3 +105,94 @@ a first, fully-automated, single-snapshot pass actually found: real
 tooling, real data, real fixes along the way, and a candidate pool that
 (correctly, unsurprisingly) skewed too large to produce a qualifying peer
 yet.
+
+---
+
+## Update: the historical walk (same day), and where this leaves HYP-05
+
+Step 1 above was done same day: `run_competitor_history_walk.py` walked
+EVERY 10-K on record (not just the latest) for all 7 real anchors,
+entirely from the existing `.edgar_cache` (0 new SEC requests). It found
+34 distinct (counterparty, direction) pairs -- genuinely smaller,
+less-obvious real companies the latest-10-K pass never surfaced: Corel,
+Jasc Software, Macromedia, Coremetrics, Nedstat, Quark, Getty Images,
+Shutterstock, Foundry, Quixel, Unity, C4D (ADBE's competitors, 2000-2021);
+IMFT, an Intel-Micron joint venture (INTC); Unimicron Technology
+Corporation, Ibiden Co. Ltd (three string variants across years), Nanya
+Technology Corporation, Kinsus Interconnect Technology Corporation (NVDA's
+suppliers). Reviewing that raw output for data-quality sanity also
+surfaced a real 4th extractor defect (an unbounded corporate-suffix
+match swallowing part of the next name in a list -- "Avid, Corel" merging
+into a malformed "Avid, Co" and silently dropping three real companies),
+fixed the same day.
+
+A fixed, hand-picked allowlist of 20 of those 34 names -- the genuinely
+smaller/less-obvious ones, deliberately excluding names already known to
+be large (Apple, Microsoft, Google, Samsung, TSMC, Micron, SK Hynix,
+GlobalFoundries, SMIC, UMC, AMD, Oracle, IBM) -- went through EDGAR name
+resolution, twice (SEC's company-search endpoint was flaky both times;
+retried once, not a third time, same discipline as every other name-search
+this session).
+
+**Final result across both attempts: zero of the 20 resolved to a
+currently-tradeable ticker.** Two resolved to a real, identified,
+lineage-confirmed registrant that no longer trades:
+
+- **Corel** -- was a real, publicly traded company (historically Nasdaq:
+  CORL) before going private. Correctly identified, correctly excluded --
+  no current ticker means no current price, means no computable market
+  cap, means it cannot be evaluated against PS-3 either way.
+- **Macromedia** -- was acquired by Adobe itself in 2005. Same outcome,
+  same reason, and a nice confirmation the lineage test is working as
+  intended: it found the real company and correctly reported it as
+  untradeable rather than silently dropping it or guessing.
+
+The rest split between genuinely UNANSWERED (SEC 503s, both attempts --
+Jasc Software, Nanya Technology Corporation, Quixel, Shutterstock never
+got a real answer and remain open questions, not negative findings), and
+NO_REGISTRANT_MATCHED (Coremetrics, IMFT, all three Ibiden variants,
+Kinsus, Unimicron Technology Corporation, Nedstat -- plausible for a
+private/foreign/JV entity that was never independently SEC-registered),
+and hits-found-but-lineage-refused (Avid, C4D, Foundry, Getty Images,
+Quark, Unity -- Unity's case is worth noting specifically: the disclosure
+date, 2020-01-21, predates Unity's actual September 2020 IPO, so "not
+filing under this name on that date" is the CORRECT answer, not a search
+failure).
+
+### The honest headline: zero real HYP-05 peers qualify yet, after real effort
+
+Across every method tried today -- HYP-04's real anchor set (corrected
+mid-session from a wrong premise), the calibrated and now-wired
+competitor/supplier extractor, both a latest-10-K pass and a full
+historical multi-year walk, real EDGAR name resolution attempted twice --
+**no candidate has yet resolved to both a currently-tradeable ticker AND a
+market cap under the $2B threshold.** One candidate (GlobalFoundries)
+computed a real market cap and was correctly denied for being too large
+($25-30B). Two more (Corel, Macromedia) were correctly identified as real
+companies that no longer trade at all. Everything else is either a
+confirmed-large mega-cap, a genuinely foreign/private/JV entity with no
+US listing, or a real SEC endpoint failure still waiting on an answer.
+
+This is not a failure of today's work -- it is what the work actually
+found, reported the same way every null result this project produces has
+been reported. It does point at something worth naming plainly: **both
+extraction methods tried so far (ASC 280 concentration disclosures, and
+competitor/supplier Competition-section prose) structurally tend to
+surface a filer's most PROMINENT named counterparties**, whether the
+filer itself is large or small -- a company names its biggest rival or
+customer far more often than an obscure one, in both a single filing and
+across two decades of filings. Reaching further back in time (what the
+historical walk did) surfaced real, smaller companies, but most of those
+turned out to be either defunct/acquired or never independently
+SEC-registered in the first place -- not because the method is wrong, but
+because genuinely thin, still-independently-trading micro/small-cap peers
+are, definitionally, not the kind of company that gets NAMED prominently
+by a large anchor's own prose. A different discovery method -- hand
+curation informed by domain knowledge, or a structurally different
+disclosure source -- is the more promising next step, not a third pass of
+the same two extraction paths over a still-longer history.
+
+The 20-name resolution attempt, both rounds, and the reasoning above are
+recorded in `HYP05_PEER_NAME_SEARCH_HISTORICAL_WALK_2026-09-12.json`. No
+market-cap pass was run against this batch -- with zero tradeable tickers
+resolved, there was nothing left to evaluate.
