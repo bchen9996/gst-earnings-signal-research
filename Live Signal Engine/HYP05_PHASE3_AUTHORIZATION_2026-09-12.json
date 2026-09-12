@@ -1,0 +1,16 @@
+{
+ "artifact": "HYP05_PHASE3_AUTHORIZATION_2026-09-12.json",
+ "hypothesis_id": "HYP-05",
+ "what_this_is": "Authorization for the one, single exploratory run -- typed and pinned BEFORE any computation against AMBA's real returns happens. make_hyp05_phase3_run.py refuses to run without it.",
+ "what_this_is_not": "Not a result, not a retroactive declaration, and not itself a computation. It authorizes exactly one future run of make_hyp05_phase3_run.py, pinned to the exact code and lock that exist right now.",
+ "declared": true,
+ "declared_by": "bchen9996",
+ "declared_date": "2026-09-12",
+ "attestation_text": "I authorize the one, single exploratory run of HYP-05's locked spec against AMBA's real returns around NVDA's 8 locked anchor events. I understand this sample is roughly 24x short of HYP-05's own 195-event provisional floor, that this cannot be undone or repeated, and that whatever the result, it will be reported as computed and explicitly labeled exploratory, not confirmatory.",
+ "pinned_commit_sha": "7178773012b6c9280fed441760dd4466aa0aaad5",
+ "pinned_phase2_lock_sha256": "205ced2614e4a247c264fadf4897527b34ced63cc101f0ae5d7f7d4f0d28bb6a",
+ "pinned_phase2_lock": "HYP05_PHASE2_LOCK_2026-09-12.json",
+ "consumed": false,
+ "consumed_by_result": null,
+ "how_it_is_used": "make_hyp05_phase3_run.py verifies: exactly one authorization exists, declared is true, consumed is false, and pinned_phase2_lock_sha256 matches the lock on disk. It marks this consumed the instant a real run succeeds."
+}
