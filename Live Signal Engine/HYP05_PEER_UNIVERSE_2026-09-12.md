@@ -435,3 +435,121 @@ plausible smaller counterparties for the 7 anchors), but round 2's own
 result argues it isn't guaranteed to produce more -- the two new resolved
 tickers both failed for structural data-availability reasons specific to
 their own histories, not for being close misses on size.
+
+---
+
+## Update: round 3 -- mine real sentences instead of guessing; still one qualifying peer, for a structural reason now made explicit
+
+The owner asked for a differently-targeted round rather than more of round
+2's size-matched guessing, given INTC's own 0-of-10 confirmation rate
+across both rounds with no rich sentence to mine (deliberately NOT
+extended further -- there was no specific citable reason left to try, only
+more guessing). Round 3's method: mine round 1-2's OWN already-confirmed
+real sentences for additional named companies not yet proposed, plus read
+the full MCK receivables-agreement document (the same filing Rite Aid's
+evidence came from) rather than only the narrow snippet already captured.
+28 new proposals (96 total), every one with a specific, citable reason
+(the exact sentence or document it was mined from), not a size-matched
+guess.
+
+### The method worked: 24 of 28 confirmed (86%), vs. round 2's much lower rate
+
+NKE alone: 14 of 14 mined from its own "BY WAY OF ILLUSTRATION ONLY,
+examples of NIKE competitors include..." sentence and its "Significant
+Customers" sentence -- 100%. CTSH, NVDA, JBL, MCK candidates mined from
+their own real sentences/documents also confirmed at a high rate. Reading
+the real disclosure first and proposing names FROM it, instead of guessing
+names and hoping they were in there, is a materially better method --
+worth recording plainly since it changes how a future round should be
+built.
+
+### Two more things caught by hand-reading, one fixed as a generalized filter, one as a data correction
+
+1. **ADBE/Citrix was a false positive, same FAMILY as round 2's Owens &
+   Minor catch but a different phrasing.** The context: "Mr. Demo is a
+   member of the Board of Directors of Citrix Systems, Inc. and is the
+   Vice Chairman of the national Board of Directors of AeA..." -- an
+   Adobe director's OTHER board seat, not an Adobe/Citrix business
+   relationship. `classify_context()` gained a third pattern,
+   `BOARD_OR_OFFICER_AFFILIATION`, generalized rather than left as a
+   Citrix-specific patch (it is the second distinct phrasing of the same
+   underlying "governance mention, not a business relationship" problem
+   found this session), with its own regression test on this exact real
+   sentence. Re-run: Citrix correctly dropped.
+2. **NKE/Foot Locker was mis-classified, not a false positive.** Proposed
+   as a competitor (it was named in the same "examples of competitors"
+   sentence as a parenthetical, "Venator (Footlockers)"), but the REAL,
+   stronger evidence the verification step actually found was a
+   different sentence entirely -- a genuine ASC-280-style customer-
+   concentration disclosure: "Foot Locker, Inc. ... accounted for
+   approximately 11 percent of global net sales of NIKE brand products
+   during fiscal 2002." Corrected `direction` from "competitor" to
+   "customer" in `hand_curated_candidates.py` to match what the filed
+   text actually says, with the correction documented in the entry
+   itself rather than silently changed.
+
+### Name resolution: real companies, mostly no longer trading -- and why that is the actual finding, not noise
+
+37 confirmed candidates resolved through the same pipeline. Result: **zero
+new tradeable tickers.** Every round-3-specific name resolved to one of:
+a real registrant with no current ticker (Reebok -> acquired by Adidas
+2006; Oakley -> acquired by Luxottica 2007; Saucony -> acquired by Stride
+Rite 2005; Freescale Semiconductor -> merged into NXP 2015; Foot Locker --
+see below), hits found but none matched at the specific historical
+disclosure date (Adidas, Converse, Asics, Callaway Golf, Titleist, Tommy
+Hilfiger, Sports Authority, FILA, Puma, Mobileye, Imagination
+Technologies), or no registrant matched at all (DKNY, Diamond Cluster,
+LM Ericsson, Nokia Networks, Osco Drug, Umbro -- plausibly foreign,
+private, or a brand name never independently SEC-registered).
+
+**Foot Locker's own result was investigated by hand rather than accepted
+at face value**, since Foot Locker is a well-known, currently-recognizable
+retail name and "no current ticker" looked surprising: its CIK
+(0000850209) is confirmed real with a filing as recent as 2025-11-13, but
+carries no ticker in SEC's current company list -- consistent with Dick's
+Sporting Goods' 2025 acquisition of Foot Locker having closed. A real,
+measured survivorship loss, not a tooling defect; investigating it
+directly (rather than assuming either "bug" or "correct") is the same
+discipline every other surprising result this session got.
+
+### The structural reason now made explicit
+
+Across three rounds, the SAME pattern keeps appearing: real, well-
+evidenced, genuinely smaller counterparties from 15-25 years ago have
+overwhelmingly been ACQUIRED, taken private, merged, or gone bankrupt by
+now -- Reebok, Oakley, Converse, Saucony, Tommy Hilfiger, Sports
+Authority, Freescale Semiconductor, Marvell Technology Group (via
+redomiciliation), iGate, Rite Aid, Foot Locker (most recently). This is
+not a coincidence or a tooling gap: a company that STAYED small enough to
+clear a $2B threshold for 15+ years, without being acquired, going
+bankrupt, or growing past the threshold, is comparatively rare among
+real, historically-named competitors and customers of giant anchors --
+most real small companies in a given competitive set either get bought
+(the successful ones) or fail (the unsuccessful ones) well before a
+20-year mark. AMBA (Ambarella) remains the one qualifying peer precisely
+because it did neither: it IPO'd in 2012 and has traded independently,
+at a genuinely sub-$2B market cap, at multiple real NVDA anchor events
+since.
+
+Artifacts: `HYP05_HAND_CURATED_VERIFICATION_ROUND3_2026-09-12.json` (all
+96, including the board-affiliation rejection category),
+`HYP05_CANDIDATE_LINKAGE_HAND_CURATED_ROUND3_2026-09-12.json` (37
+confirmed edges, Foot Locker's direction corrected to "customer").
+No new market-cap run was needed -- the 5 resolved tradeable tickers
+(AMBA, COLM, DOCU, GPRO, UA) are identical to round 2's, against the same
+anchors, so the result is unchanged by construction, not re-verified
+redundantly.
+
+### Honest headline after three rounds
+
+96 hand-curated proposals across three rounds (26 + 42 + 28), 37 with
+genuine filed evidence, 5 resolved to tradeable tickers, 1 -- AMBA --
+actually qualifies, unchanged since round 1: 8 of 45 real NVDA anchor
+events, market caps $1.14B-$1.94B. Round 3's much better-targeted method
+(mining real sentences: 86% confirmation rate vs. guessing's much lower
+rate) still did not add a second qualifying peer, and the reason is now a
+structural, explained finding rather than an open question: real,
+smaller, historically-named counterparties of giant anchors are
+survivorship-selected against staying both small AND independently
+tradeable for long. The Phase-2-eligible sample remains 8 (peer, event)
+pairs across one ticker.
