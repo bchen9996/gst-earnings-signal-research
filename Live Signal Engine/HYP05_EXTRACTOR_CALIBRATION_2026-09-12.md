@@ -114,3 +114,49 @@ it did. The multi-item-list recall gap is lower priority -- it loses real
 edges but never fabricates one, which is the direction of error this
 project's own discipline treats as less severe. The module stays unwired
 from `extract_for_universe()` until both are addressed and re-measured.
+
+## Re-measurement after the fix (same day, 2026-09-12)
+
+Both defects were fixed the same day: `_PARTY_NAME` is now anchored at the
+start of the lookahead window (via `_extract_party_names()`) instead of
+searched for anywhere within it, and list continuations (", " / "X, Y and
+Z") are walked instead of stopping at the first name. This script was then
+re-run **unmodified**, against the **same 5 tickers**, replaying the same
+cached filing text -- nothing about the input changed, only the extraction
+logic.
+
+| Ticker | Before | After |
+|---|---|---|
+| INTC | AMD (TP), Asi (FP), GlobalFoundries (TP) -- 3 edges, 1 FP | AMD, GlobalFoundries, **UMC**, **SMIC** -- 4 edges, 0 FP |
+| JBL | Israel (FP) -- 1 edge, 1 FP | *(none)* -- 0 edges, 0 FP |
+| NVDA | GPUs (FP), Asia (FP), SK Hynix Inc (TP) -- 3 edges, 2 FP | SK Hynix Inc, **Micron Technology, Inc**, **Samsung** -- 3 edges, 0 FP |
+| AAPL | 0 edges | 0 edges (unchanged) |
+| MSFT | 0 edges | 0 edges (unchanged) |
+| **Total** | **7 edges, 3 TP, 4 FP (57% FP rate)** | **7 edges, 7 TP, 0 FP (0% FP rate)** |
+
+Every one of the 4 false positives is gone, with no new ones introduced.
+JBL's single edge was the false positive itself, so JBL correctly drops to
+zero rather than losing a real one. The 4 previously-missed list members
+(UMC, SMIC, Micron Technology Inc, Samsung) are now captured -- the total
+edge count stayed at 7 by coincidence; the composition is completely
+different, and every one of the 7 is now a genuine, correct company name
+matching what each filing actually says.
+
+This is a small sample (5 filings) and does not establish the extractor is
+correct on prose shapes these 5 filings don't happen to contain -- a
+location/generic-noun could still slip through in a sentence structure not
+represented here, and the fix relies on the anchor phrase's trailing verb
+sitting immediately next to the name, which will not hold for every
+filer's phrasing. But on the only real evidence gathered so far, both
+identified defects are resolved with zero regressions.
+
+**Updated recommendation.** Still **not** wiring this into
+`extract_for_universe()`'s default path on the strength of a 5-filing
+sample -- that bar should be a materially larger, still-real-filing
+measurement (mirroring HYP-04's own "measured over the cached corpus of
+real filings" standard for the ASC 280 path, `CONCENTRATION_ANCHORS`'s own
+comment), not five tickers picked to include the ones already known to
+work. But the specific defects this calibration found are fixed and
+verified fixed on the evidence that found them, and the synthetic test
+suite (`test_hyp04_supply_chain_hedge_edgar.py`, checks 12d/12f/12j/12k/12l)
+now encodes both the original bug shapes and the fix as regression tests.
