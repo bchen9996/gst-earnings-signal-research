@@ -1,5 +1,21 @@
 # HYP-05 competitor/supplier extractor calibration (2026-09-12)
 
+**CORRECTION (added same day, after the Assessment below was first
+written):** the Assessment section originally described these 24 tickers
+as "HYP-04's own frozen anchor set." That is wrong. `anchor_universe.py`'s
+own `NEVER_CONDITIONS` states that `LOCKED_24_ANCHORS` is HYP-01
+confirmatory infrastructure, not HYP-04's anchors; HYP-04's real anchors
+(verified against `HYP04_ANCHOR_SHOCKS_2026-08-31.csv`, the artifact that
+fed the real, completed Phase 3 test) are a different seven tickers: ADBE,
+CTSH, INTC, JBL, MCK, NKE, NVDA. See `peer_selection.py`'s docstring for
+the full correction. Everything below about the extractor itself -- the
+three defects found and fixed, the 0%-false-positive result, the decision
+to wire it into `extract_for_universe()` -- is UNAFFECTED: it was measured
+on real filing text and stands regardless of which ticker set motivated
+pulling that text. What is wrong is only the claim that this run also
+constitutes HYP-05's real anchor-universe curation. It does not; that is a
+separate run against the seven tickers above.
+
 **Status: raw findings only. No pass/fail judgment is asserted by this script.** A human reads the context snippets below and writes the assessment.
 
 Tickers: AAPL, ABBV, ADBE, AMZN, BKR, BRK-B, CTSH, DELL, DVN, GME, GOOGL, GPN, INTC, LDOS, MSFT, NCLH, NKE, QCOM, SBUX, STZ, SYK, TSLA, TTWO, UAL -- fixed before running, not chosen after seeing results (see module docstring). Real SEC requests made: 0.

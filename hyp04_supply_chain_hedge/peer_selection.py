@@ -33,20 +33,47 @@ codebase (`anchor_universe.py`'s `CONCENTRATION_THRESHOLD_PCT`). The figure
 itself, and the reasoning above, are unchanged from the original
 implementation -- only its status moved from provisional to decided.
 
-=== THE TARGET ANCHOR/PEER UNIVERSE (RATIFIED 2026-09-12) ===
+=== THE TARGET ANCHOR/PEER UNIVERSE (RATIFIED 2026-09-12, CORRECTED SAME DAY) ===
 
-The fourth and last of HYP-05's `unresolved_analysis_decisions`. Anchors =
-`LOCKED_24_ANCHORS`, reused unchanged from HYP-04 -- HYP-05 does not select
-new anchors. This was already implicit in `NEVER_CONDITIONS` below (a
-candidate already IN `LOCKED_24_ANCHORS` is forbidden as a peer), made
-explicit here: HYP-05's novelty is in who counts as a peer, not in which
-anchors produce the shocks, exactly parallel to reusing HYP-04's `target.py`
-construction for the outcome side. See `calibrate_competitor_extractor_
-full_anchors.py`'s module docstring for the full reasoning, and
-`HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_2026-09-12.md` for the calibration
-this decision doubled as evidence for (candidate peers now come from running
-the competitor/supplier extractor -- wired into `extract_for_universe()` as
-of this same date -- and the ASC 280 path across exactly this anchor set).
+The fourth and last of HYP-05's `unresolved_analysis_decisions`. This
+section originally claimed "anchors = `LOCKED_24_ANCHORS`, reused unchanged
+from HYP-04" -- WRONG, caught and corrected the same day before any peer
+was actually curated against it. `LOCKED_24_ANCHORS` is NOT HYP-04's anchor
+set: `anchor_universe.py`'s own `NEVER_CONDITIONS` says so explicitly --
+"the locked universe is HYP-01 confirmatory infrastructure... HYP-04 is
+exploratory and does not modify it" -- membership in it is a deliberately
+REJECTED requirement for HYP-04's own anchors, not a description of them.
+
+HYP-04's REAL anchors -- verified against `HYP04_ANCHOR_SHOCKS_2026-08-31.
+csv`, the artifact that actually fed the real, completed Phase 3 test
+(342 events, matching the registered anchor-event ceiling) -- are exactly
+seven tickers: ADBE, CTSH, INTC, JBL, MCK, NKE, NVDA. Four of those
+(ADBE, CTSH, INTC, NKE) happen to also sit in `LOCKED_24_ANCHORS`; the
+other three (JBL, MCK, NVDA) do not and come instead from `run_canary_
+audit.candidate_peer_universe()`. Neither constant alone equals HYP-04's
+anchor set -- this specific seven-ticker list, empirically read off the
+shocks artifact, is what "reuse HYP-04's anchor universe unchanged" now
+means for HYP-05.
+
+`NEVER_CONDITIONS` below still excludes `LOCKED_24_ANCHORS` members from
+being counted as a PEER -- that rule survives this correction on its own,
+independent merits (they are uniformly large, heavily-covered mega-caps
+under HYP-01's own confirmatory study, regardless of which hypothesis
+"owns" them), not because they were mistakenly believed to be HYP-04's
+anchors.
+
+The 24-anchor competitor/supplier-extractor calibration
+(`calibrate_competitor_extractor_full_anchors.py`,
+`HYP05_EXTRACTOR_CALIBRATION_FULL24ANCHORS_2026-09-12.md`) is UNAFFECTED by
+this correction as a piece of extractor-quality work -- the three defects
+it found and fixed, and the decision to wire the extractor into
+`extract_for_universe()`, were measured on real filing text and stand on
+their own regardless of which ticker set motivated pulling that text. What
+was wrong was calling `LOCKED_24_ANCHORS` "HYP-04's anchor set" in that
+calibration's own framing -- corrected there too. It is NOT, and was never
+claimed after this correction to be, HYP-05's actual target anchor
+universe; that real curation run is separate and uses the seven tickers
+above.
 
 === WHAT THIS MODULE DOES NOT DO ===
 

@@ -1,6 +1,29 @@
 #!/usr/bin/env python3
 """Extend the competitor/supplier extractor calibration from 5 tickers to
-HYP-04's full 24-ticker LOCKED_24_ANCHORS universe. MAKES REAL SEC REQUESTS.
+LOCKED_24_ANCHORS, a large, real, non-outcome-adjacent ticker universe.
+MAKES REAL SEC REQUESTS.
+
+CORRECTION (2026-09-12, same day, caught before any peer was curated
+against it): this module's docstring originally called `LOCKED_24_ANCHORS`
+"HYP-04's full anchor universe". That is WRONG -- `anchor_universe.py`'s own
+`NEVER_CONDITIONS` states plainly that `LOCKED_24_ANCHORS` is "HYP-01
+confirmatory infrastructure" that "HYP-04 is exploratory and does not
+modify"; HYP-04's REAL anchors (read off `HYP04_ANCHOR_SHOCKS_2026-08-31.
+csv`, the artifact that fed the actual completed Phase 3 test) are a
+DIFFERENT seven tickers: ADBE, CTSH, INTC, JBL, MCK, NKE, NVDA -- four of
+which happen to also sit in `LOCKED_24_ANCHORS`, three of which (JBL, MCK,
+NVDA) do not. See `peer_selection.py`'s docstring for the full correction
+and HYP-05's actual (corrected) target-anchor-universe decision.
+
+What survives this correction: everything below about `LOCKED_24_ANCHORS`
+being a large, real, non-outcome-adjacent CALIBRATION sample is still true
+-- it was fixed by a different hypothesis (HYP-01) weeks before HYP-05
+existed, so using it to calibrate the extractor is still not outcome-
+adjacent to that calibration, no matter which names are on it. What does
+NOT survive: the claim that this calibration run also constitutes HYP-05's
+real target-anchor-universe curation. It does not. It is extractor
+calibration only; real HYP-05 curation is a separate run against the
+seven tickers above.
 
 WHY THIS EXISTS, AND WHY IT IS A NEW SCRIPT RATHER THAN AN EDIT TO
 `calibrate_competitor_extractor.py`.
@@ -13,21 +36,17 @@ discipline exists to prevent. This script does not touch that file or its
 tuple; it reuses `run_calibration()` and `render_findings_markdown()`
 UNCHANGED (same functions, same logic, zero duplication) against a
 DIFFERENT, independently-justified ticker set: `LOCKED_24_ANCHORS`, which
-was fixed by HYP-04 on 2026-08-17 -- weeks before HYP-05 existed and long
-before this extractor was written -- so using it here cannot be outcome-
-adjacent to THIS calibration no matter which names are on it.
+was fixed weeks before HYP-05 existed and long before this extractor was
+written -- so using it here cannot be outcome-adjacent to THIS calibration
+no matter which names are on it.
 
-WHY THIS SET, AND WHY NOW. Two independent reasons converge on the same
-action:
+WHY THIS SET, AND WHY NOW.
 
-  1. HYP-05's own "target anchor/peer universe" decision (one of its four
-     `unresolved_analysis_decisions`, 2026-09-12): `peer_selection.py`'s
-     `NEVER_CONDITIONS` already assumes candidates are drawn from filings
-     naming one of `LOCKED_24_ANCHORS` as the anchor -- that assumption is
-     ratified here, explicitly, rather than left implicit. HYP-05 does NOT
-     select new anchors; it reuses HYP-04's frozen 24, exactly as it reuses
-     HYP-04's target/outcome construction. Its novelty is in who counts as
-     a peer, not in which anchors produce the shocks.
+  1. It is a large (24-ticker), real, already-frozen (2026-08-17, by a
+     different hypothesis entirely) ticker set -- exactly the kind of
+     non-outcome-adjacent sample a bigger calibration needs, whether or not
+     it turns out to also be HYP-05's own anchor universe (it does not,
+     see the correction above).
 
   2. HYP05_EXTRACTOR_CALIBRATION_2026-09-12.md's own updated recommendation:
      "not wiring this into extract_for_universe()'s default path on the

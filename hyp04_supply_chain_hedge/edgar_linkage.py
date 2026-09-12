@@ -2283,7 +2283,9 @@ def write_report(res: ExtractionResult, path: Path,
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({
         "artifact": "HYP-04 EDGAR-derived CANDIDATE linkage",
-        "source": "SEC EDGAR 10-K ASC 280 concentration disclosures",
+        "source": ("SEC EDGAR 10-K ASC 280 concentration disclosures, and "
+                    "(as of 2026-09-12) competitor/supplier-context prose -- "
+                    "each edge's own `source` field says which"),
         "is_production_linkage_map": False,
         "status": "CANDIDATE_SOURCE_FOR_RECONCILIATION",
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -2296,7 +2298,13 @@ def write_report(res: ExtractionResult, path: Path,
             "ASC 280 requires naming a customer only at >=10% of revenue. This "
             "source systematically misses smaller-but-real relationships, most "
             "supplier relationships, and every disclosure that says 'Customer A' "
-            "without naming. An absent edge is NOT evidence of no relationship."),
+            "without naming. An absent edge is NOT evidence of no relationship. "
+            "The competitor/supplier-context source is prose-based, not a "
+            "disclosure requirement -- it depends on the filer choosing to name "
+            "rivals or suppliers in its Item 1 Business section at all, which "
+            "many large, diversified filers do not (see HYP05_EXTRACTOR_"
+            "CALIBRATION_FULL24ANCHORS_2026-09-12.md: 17 of 24 anchors named "
+            "none). Absence here is equally not evidence of no relationship."),
         "as_of_date_provenance": (
             "Each edge's as_of_date is the filing date of the 10-K that "
             "disclosed it, satisfying Patch 11 structurally: the relationship "
