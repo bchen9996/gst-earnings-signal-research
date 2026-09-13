@@ -1,10 +1,22 @@
 #!/usr/bin/env python3
-"""ratify_hyp06.py tests -- offline, hermetic, no network, no git (unlike
-ratify_hyp05.py's phase3 tests, declare_phase2_lock never reaches
-_commit_sha, so no real git fixture is needed here either).
+"""ratify_hyp06.py tests -- offline except LOCAL git subprocess calls (no
+network), the same pattern test_hyp04_supply_chain_hedge_ratify_hyp05.py
+already uses for `_commit_sha` (declare_phase2_lock never reaches it, so
+no git fixture is needed for the phase2 tests; declare_phase3_authorization
+does, so those tests run inside a real, throwaway git repo).
 
-Also asserts the STRUCTURAL boundary this module exists to enforce: there
-is no phase3 subcommand at all, not merely an unfinished one.
+  DECLARE PHASE2 REFUSES EVERY JUDGEMENT (test_1). DECLARE PHASE2 WRITES
+  ONLY THE OWNER FIELDS (test_2).
+
+  DECLARE PHASE3 REFUSES EVERY JUDGEMENT (test_3) -- wrong affirmation, an
+  undeclared Phase 2 lock, missing peer-closes/earnings files, an existing
+  authorization, and an existing result all refuse.
+
+  DECLARE PHASE3 WRITES A CORRECTLY PINNED AUTHORIZATION (test_4) -- pins
+  the real commit sha and the real lock/peer-closes/peer-earnings sha256
+  values, unconsumed.
+
+  THE TEMPLATES ARE PASTEABLE (test_5).
 
 Run directly: python test_hyp04_supply_chain_hedge_ratify_hyp06.py
 """
@@ -27,12 +39,16 @@ socket.socket.connect_ex = _no_net
 socket.create_connection = _no_net
 socket.getaddrinfo = _no_net
 
+import io  # noqa: E402
 import json  # noqa: E402
+import subprocess  # noqa: E402
 import tempfile  # noqa: E402
+from contextlib import redirect_stdout  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 from hyp04_supply_chain_hedge import ratify_hyp06 as R  # noqa: E402
 from hyp04_supply_chain_hedge.ratify import RatifyError  # noqa: E402
+from hyp04_supply_chain_hedge.make_freeze_draft import _sha256  # noqa: E402
 
 FAILURES: list[str] = []
 
@@ -43,6 +59,10 @@ def check(label: str, ok: bool, detail: str = "") -> None:
     if not ok:
         FAILURES.append(label)
 
+
+# --------------------------------------------------------------------------
+# fixtures
+# --------------------------------------------------------------------------
 
 def _draft_lock(tmp: Path) -> Path:
     """A syntactically-valid, undeclared HYP-06 Phase 2 lock draft."""
@@ -62,6 +82,38 @@ def _draft_lock(tmp: Path) -> Path:
     }, indent=1), encoding="utf-8")
     return p
 
+
+def _git_repo(tmp: Path) -> Path:
+    """A real, clean, throwaway git repo so _commit_sha is exercised for
+    real -- same pattern test_hyp04_supply_chain_hedge_ratify_hyp05.py
+    already uses."""
+    for cmd in (("init", "-q"), ("config", "user.email", "t@t"),
+               ("config", "user.name", "t")):
+        subprocess.run(("git", *cmd), cwd=str(tmp), capture_output=True)
+    (tmp / "README").write_text("fixture\n", encoding="utf-8")
+    _commit_all(tmp)
+    return tmp
+
+
+def _commit_all(tmp: Path) -> None:
+    subprocess.run(("git", "add", "-A"), cwd=str(tmp), capture_output=True)
+    subprocess.run(("git", "commit", "-q", "-m", "fixture step"), cwd=str(tmp),
+                   capture_output=True)
+
+
+def _peer_data(tmp: Path) -> tuple[Path, Path]:
+    closes = tmp / "closes.csv"
+    earnings = tmp / "earnings.json"
+    closes.write_text("ticker,session_date,close\nCKX,2016-01-04,10.0\n",
+                      encoding="utf-8")
+    earnings.write_text(json.dumps({"per_peer_earnings_releases": {}}),
+                        encoding="utf-8")
+    return closes, earnings
+
+
+# --------------------------------------------------------------------------
+# phase2
+# --------------------------------------------------------------------------
 
 def test_1_declare_phase2_refuses_every_judgement() -> None:
     with tempfile.TemporaryDirectory() as td:
@@ -121,39 +173,151 @@ def test_2_declare_phase2_writes_only_owner_fields() -> None:
                   if k not in moved), "mismatch")
 
 
-def test_3_there_is_no_phase3_subcommand() -> None:
-    """The structural boundary this module exists to enforce -- see
-    module docstring. Not an oversight; asserted directly so a future
-    edit that quietly adds one is caught here, not discovered live."""
-    import io
-    from contextlib import redirect_stderr
+# --------------------------------------------------------------------------
+# phase3
+# --------------------------------------------------------------------------
 
-    err = io.StringIO()
-    try:
-        with redirect_stderr(err):
-            R.main(["phase3"])
-        check("3a. 'phase3' is not a recognized subcommand", False,
-              "argparse accepted it")
-    except SystemExit as e:
-        check("3a. 'phase3' is not a recognized subcommand", e.code != 0,
-              str(e.code))
-        check("3b. argparse's own error names it as invalid",
-              "invalid choice" in err.getvalue().lower(), err.getvalue())
+def test_3_declare_phase3_refuses_every_judgement() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        tmp = _git_repo(Path(td))
+        lock = _draft_lock(tmp)
+        closes, earnings = _peer_data(tmp)
+
+        # undeclared lock -> refuses before the affirmation is even checked
+        try:
+            R.declare_phase3_authorization(
+                out_path=tmp / "auth.json", phase2_lock_path=lock,
+                peer_closes_path=closes, peer_earnings_path=earnings,
+                declared_by="bchen9996", affirmation=R.HYP06_PHASE3_AFFIRMATION,
+                repo=tmp)
+            check("3a. undeclared Phase 2 lock refuses", False)
+        except RatifyError:
+            check("3a. undeclared Phase 2 lock refuses", True)
+
+        R.declare_phase2_lock(lock_path=lock, declared_by="bchen9996",
+                              affirmation=R.HYP06_PHASE2_AFFIRMATION)
+        _commit_all(tmp)  # _commit_sha requires a clean tree from here on
+
+        # missing peer-closes file
+        try:
+            R.declare_phase3_authorization(
+                out_path=tmp / "auth_missing.json", phase2_lock_path=lock,
+                peer_closes_path=tmp / "nope.csv", peer_earnings_path=earnings,
+                declared_by="bchen9996", affirmation=R.HYP06_PHASE3_AFFIRMATION,
+                repo=tmp)
+            check("3b. missing peer-closes file refuses", False)
+        except RatifyError as e:
+            check("3b. missing peer-closes file refuses",
+                  "peer closes" in str(e), str(e))
+
+        try:
+            R.declare_phase3_authorization(
+                out_path=tmp / "auth2.json", phase2_lock_path=lock,
+                peer_closes_path=closes, peer_earnings_path=earnings,
+                declared_by="bchen9996", affirmation="not it", repo=tmp)
+            check("3c. wrong affirmation refuses", False)
+        except RatifyError:
+            check("3c. wrong affirmation refuses", True)
+        check("3c-untouched. nothing written on refusal",
+              not (tmp / "auth2.json").exists())
+
+        auth = tmp / "HYP06_PHASE3_AUTHORIZATION_2026-09-13.json"
+        R.declare_phase3_authorization(
+            out_path=auth, phase2_lock_path=lock, peer_closes_path=closes,
+            peer_earnings_path=earnings, declared_by="bchen9996",
+            affirmation=R.HYP06_PHASE3_AFFIRMATION, repo=tmp)
+
+        try:
+            R.declare_phase3_authorization(
+                out_path=tmp / "HYP06_PHASE3_AUTHORIZATION_2026-09-14.json",
+                phase2_lock_path=lock, peer_closes_path=closes,
+                peer_earnings_path=earnings, declared_by="bchen9996",
+                affirmation=R.HYP06_PHASE3_AFFIRMATION, repo=tmp)
+            check("3d. a second authorization file refuses", False)
+        except RatifyError:
+            check("3d. a second authorization file refuses", True)
+
+        (tmp / "HYP06_PHASE3_RESULT_2026-09-14.json").write_text("{}")
+        auth.unlink()
+        try:
+            R.declare_phase3_authorization(
+                out_path=auth, phase2_lock_path=lock, peer_closes_path=closes,
+                peer_earnings_path=earnings, declared_by="bchen9996",
+                affirmation=R.HYP06_PHASE3_AFFIRMATION, repo=tmp)
+            check("3e. an existing result refuses a fresh authorization", False)
+        except RatifyError:
+            check("3e. an existing result refuses a fresh authorization", True)
 
 
-def test_4_offline() -> None:
+def test_4_declare_phase3_writes_correct_pins() -> None:
+    with tempfile.TemporaryDirectory() as td:
+        tmp = _git_repo(Path(td))
+        lock = _draft_lock(tmp)
+        closes, earnings = _peer_data(tmp)
+        R.declare_phase2_lock(lock_path=lock, declared_by="bchen9996",
+                              affirmation=R.HYP06_PHASE2_AFFIRMATION)
+        _commit_all(tmp)  # _commit_sha requires a clean tree from here on
+
+        auth = tmp / "HYP06_PHASE3_AUTHORIZATION_2026-09-13.json"
+        out = R.declare_phase3_authorization(
+            out_path=auth, phase2_lock_path=lock, peer_closes_path=closes,
+            peer_earnings_path=earnings, declared_by="bchen9996",
+            affirmation=R.HYP06_PHASE3_AFFIRMATION, repo=tmp)
+
+        doc = json.loads(auth.read_text())
+        check("4a. declared is true", doc["declared"] is True)
+        check("4b. consumed starts false", doc["consumed"] is False)
+        check("4c. pinned commit sha is a real 40-char sha",
+              len(doc["pinned_commit_sha"]) == 40, doc["pinned_commit_sha"])
+        check("4d. pinned lock hash matches the lock on disk",
+              doc["pinned_phase2_lock_sha256"] == _sha256(lock))
+        check("4e. pinned peer-closes hash matches the file on disk",
+              doc["pinned_peer_closes_sha256"] == _sha256(closes))
+        check("4f. pinned peer-earnings hash matches the file on disk",
+              doc["pinned_peer_earnings_sha256"] == _sha256(earnings))
+        check("4g. attestation text is the real affirmation",
+              doc["attestation_text"] == R.HYP06_PHASE3_AFFIRMATION)
+        check("4h. return value echoes the pinned commit",
+              out["pinned_commit_sha"] == doc["pinned_commit_sha"])
+
+
+# --------------------------------------------------------------------------
+# templates
+# --------------------------------------------------------------------------
+
+def test_5_templates_are_pasteable() -> None:
+    for name, fn, affirm in (
+        ("phase2", R._print_phase2_template, R.HYP06_PHASE2_AFFIRMATION),
+        ("phase3", R._print_phase3_template, R.HYP06_PHASE3_AFFIRMATION),
+    ):
+        out = io.StringIO()
+        with redirect_stdout(out):
+            fn()
+        text = out.getvalue()
+        check(f"5a. {name} template reproduces the affirmation verbatim",
+              affirm in text)
+        check(f"5b. {name} template names its own module",
+              "ratify_hyp06" in text, text[:200])
+        check(f"5c. {name} template leaves no <your name> unresolved "
+              "as the command to run",
+              '--declared-by "<your name>"' in text, text[:200])
+
+
+def test_6_offline() -> None:
     try:
         socket.socket().connect(("example.invalid", 80))
-        check("4a. network blocked", False, "connect() did not raise")
+        check("6a. network blocked", False, "connect() did not raise")
     except NetworkBlocked:
-        check("4a. network blocked", True)
+        check("6a. network blocked", True)
 
 
 if __name__ == "__main__":
     test_1_declare_phase2_refuses_every_judgement()
     test_2_declare_phase2_writes_only_owner_fields()
-    test_3_there_is_no_phase3_subcommand()
-    test_4_offline()
+    test_3_declare_phase3_refuses_every_judgement()
+    test_4_declare_phase3_writes_correct_pins()
+    test_5_templates_are_pasteable()
+    test_6_offline()
 
     print()
     if FAILURES:
