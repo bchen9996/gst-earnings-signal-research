@@ -42,10 +42,7 @@ import json  # noqa: E402
 from pathlib import Path  # noqa: E402
 
 from hyp04_supply_chain_hedge import make_registry_v1_14 as R  # noqa: E402
-from hyp04_supply_chain_hedge.display_gate import (  # noqa: E402
-    REGISTRY_CURRENT,
-    current_decision,
-)
+from hyp04_supply_chain_hedge.display_gate import REGISTRY_CURRENT  # noqa: E402
 from hyp04_supply_chain_hedge.make_registry_v1_6 import (  # noqa: E402
     IMMOVABLE_HYP04_FIELDS,
 )
@@ -166,20 +163,26 @@ def test_4_the_rehearsal_does_not_open_a_new_gate() -> None:
               and g.denials[0].startswith("C1"), str(g.denials))
 
 
-def test_5_the_live_gate_reads_v1_14_and_is_closed() -> None:
-    """The CURRENT version's suite holds this claim. v1.14 changes nothing
-    about HYP-04's gate state -- it is closed for the same reason v1.13
-    closed it (HOLDOUT_TESTED_NULL), and this asserts that directly against
-    the real, live, committed registry."""
+def test_5_the_live_gate_is_now_closed() -> None:
+    """v1.14 is real, on disk, and was what display_gate.py/dashboard.py
+    read from 2026-09-11 until v1.15 (recording HYP-05's exploratory pilot
+    result, touching nothing about HYP-04) superseded it on 2026-09-12.
+
+    NARROWED, not retargeted, once v1.15 superseded this version -- the
+    same treatment v1.12's own suite got from v1.13, and v1.13's own suite
+    got from this version. Exactly one suite holds the live "gate reads X"
+    claim at a time: the CURRENT version's, now
+    test_hyp04_supply_chain_hedge_registry_v1_15.py's own test."""
     check("5a. v1.14 was written by this session's generator, not this suite",
           (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.14.json").is_file())
-    check("5b. the gate now reads v1.14",
-          REGISTRY_CURRENT.name.endswith("v1.14.json"))
-    live = current_decision()
-    check("5c. the REAL gate is CLOSED, denying on C1 alone -- unchanged "
-          "from v1.13, since v1.14 touches nothing about HYP-04",
-          live.open is False and len(live.denials) == 1
-          and live.denials[0].startswith("C1"), str(live.denials))
+    # Deliberately version-agnostic -- pinning to a SPECIFIC next version
+    # breaks again the moment a further version comes along. What stays
+    # true forever is the direction: v1.14 is superseded, never
+    # un-superseded.
+    check("5b. v1.14 has been superseded -- the gate has moved past it",
+          REGISTRY_CURRENT.name
+          != "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.14.json",
+          REGISTRY_CURRENT.name)
 
 
 def test_6_offline() -> None:
@@ -195,7 +198,7 @@ if __name__ == "__main__":
     test_2_no_exception_is_claimed()
     test_3_hyp04_is_untouched_and_hyp05_is_light()
     test_4_the_rehearsal_does_not_open_a_new_gate()
-    test_5_the_live_gate_reads_v1_14_and_is_closed()
+    test_5_the_live_gate_is_now_closed()
     test_6_offline()
 
     print()
