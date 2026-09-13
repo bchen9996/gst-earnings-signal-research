@@ -133,6 +133,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args(argv)
 
+    out_path = a.out or (LSE / "HYP05_PEER_UNIVERSE_2026-09-12.json")
+    if out_path.exists():
+        # Missing until 2026-09-12: this script's OWN default --out
+        # silently overwrote a real, already-committed governance
+        # artifact from an earlier pass (the first, pre-hand-curation
+        # extraction-based run) because nothing here ever checked. Every
+        # OTHER dated-output script in this project refuses up front;
+        # this one now does too.
+        print(f"REFUSED: {out_path} already exists. Dated artifacts are "
+              "never overwritten.", file=sys.stderr)
+        return 1
+
     for p in (a.name_search, a.candidate_linkage, a.anchor_shocks_csv):
         if not p.is_file():
             print(f"REFUSED: {p} does not exist", file=sys.stderr)
@@ -214,7 +226,6 @@ def main(argv: list[str] | None = None) -> int:
 
     derivation = derive_peer_universe(candidates_for_rule, market_caps)
 
-    out_path = a.out or (LSE / "HYP05_PEER_UNIVERSE_2026-09-12.json")
     payload = {
         "artifact": out_path.name,
         "hypothesis_id": "HYP-05",

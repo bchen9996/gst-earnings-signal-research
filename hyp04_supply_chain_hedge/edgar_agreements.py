@@ -422,6 +422,22 @@ class AgreementSearchClient:
                              for v in data.values()}
         return self._cik_map.get(ticker.upper())
 
+    def ticker_for(self, cik: str) -> Optional[str]:
+        """Reverse of `cik_for` -- built from the same map, one fetch shared.
+
+        `company_tickers.json` occasionally lists more than one row for the
+        same CIK (a class-A/class-B share pair, e.g.); the first match by
+        insertion order is returned rather than an arbitrary dict-iteration
+        pick, so this is deterministic across calls in the same process.
+        """
+        if self._cik_map is None:
+            self.cik_for(cik)  # populates self._cik_map as a side effect
+        want = str(cik).zfill(10)
+        for tkr, c in self._cik_map.items():
+            if c == want:
+                return tkr
+        return None
+
     def search(self, cik: str, phrase: str, forms: str = "8-K") -> list[dict]:
         """Search hits with `_id` PRESERVED.
 
@@ -432,6 +448,32 @@ class AgreementSearchClient:
         """
         d = self._get(FULL_TEXT_SEARCH_URL,
                       params={"q": phrase, "ciks": cik, "forms": forms}).json()
+        out = []
+        for h in d.get("hits", {}).get("hits", []):
+            src = dict(h.get("_source") or {})
+            src["_id"] = h.get("_id")
+            out.append(src)
+        return out
+
+    def search_unscoped(self, phrase: str, forms: str = "10-K") -> list[dict]:
+        """Like `search`, but across the WHOLE EDGAR full-text corpus --
+        no `ciks` restriction.
+
+        This is the reverse-direction search HYP-05's hand curation never
+        used: instead of searching one already-chosen anchor's OWN filings
+        for a candidate peer's name (which the anchor's own prose may or may
+        not ever mention), this searches EVERY filer's filings for a phrase
+        combination -- typically an anchor's name AND a customer-
+        concentration tail-phrase (e.g. '"Apple Inc." "of our net revenue"')
+        -- so a SMALL company's own 10-K, disclosing that a large anchor is
+        its customer, surfaces directly. The caller supplies the FULL
+        combined query string (EDGAR FTS ANDs space-separated quoted
+        phrases); this method adds no quoting of its own, since the right
+        phrase combination is a per-anchor decision the caller makes, not
+        something this generic method should guess.
+        """
+        d = self._get(FULL_TEXT_SEARCH_URL,
+                      params={"q": phrase, "forms": forms}).json()
         out = []
         for h in d.get("hits", {}).get("hits", []):
             src = dict(h.get("_source") or {})

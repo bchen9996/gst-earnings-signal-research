@@ -1,0 +1,1607 @@
+{
+  "artifact": "HYP05_PEER_UNIVERSE_REVERSE_SEARCH_HANDREVIEWED_2026-09-12.json",
+  "hypothesis_id": "HYP-05",
+  "inputs": {
+    "name_search": "Live Signal Engine\\HYP05_PEER_NAME_SEARCH_REVERSE_SEARCH_HANDREVIEWED_2026-09-12.json",
+    "candidate_linkage": "Live Signal Engine\\HYP05_CANDIDATE_LINKAGE_REVERSE_SEARCH_HANDREVIEWED_2026-09-12.json",
+    "anchor_shocks_csv": "Live Signal Engine\\HYP04_ANCHOR_SHOCKS_2026-08-31.csv"
+  },
+  "what_this_is": "Real point-in-time market-cap evaluation of every resolved, tradeable HYP-05 candidate peer, against EVERY real HYP-04 anchor event (not a sample) for its anchor.",
+  "adjustment_note": "Closes fetched with auto_adjust=False -- raw historical price, matching shares_outstanding.py's raw, as-disclosed share count. See module docstring for why auto_adjust=True would silently understate market cap after any later split.",
+  "candidates_evaluated": 83,
+  "peer_tickers": [
+    "AMAT",
+    "SHOE"
+  ],
+  "errors": {
+    "CNXN": "anchor has zero shock_computed events",
+    "NGS": "anchor has zero shock_computed events",
+    "TTWO": "anchor has zero shock_computed events"
+  },
+  "derivation": {
+    "derived": true,
+    "rule_id": "HYP05-PEER-SELECTION-RULE-v1",
+    "refusals": [],
+    "members": []
+  },
+  "qualifications": [
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-07-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-07-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-10-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-10-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-01-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-01-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-07-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-07-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-10-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-10-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-01-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-01-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-04-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-04-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-07-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-07-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-10-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-10-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-01-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-04-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-04-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-07-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-07-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-10-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-10-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-01-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-04-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-04-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-07-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-07-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $17,925,115,627 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-10-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 17925115627.23133,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,247,067,635 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-01-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19247067635.199715,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,537,129,541 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-04-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18537129540.608467,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,814,100,988 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-07-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16814100987.527119,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $15,979,373,486 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-10-12",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15979373486.446949,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,906,237,058 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-01-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18906237058.036972,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,276,539,060 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19276539060.437477,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,843,884,569 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-05-09",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19843884568.548607,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,728,593,990 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-07-20",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16728593989.930218,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $15,362,416,832 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-10-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15362416832.44065,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,072,393,237 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-01-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16072393236.557129,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $15,532,195,282 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-04-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15532195282.163277,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $13,316,996,578 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-07-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13316996577.501173,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $13,859,945,455 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-10-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13859945455.16653,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $14,850,979,873 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-01-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14850979872.72908,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,152,597,104 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-04-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16152597104.45806,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $20,054,715,924 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-07-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 20054715924.163994,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,434,367,631 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-10-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21434367631.266487,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,229,753,513 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-01-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21229753512.61902,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,840,747,934 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-04-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22840747934.1774,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $27,866,317,303 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-07-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 27866317302.957153,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $23,563,746,257 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-10-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23563746257.35222,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $28,496,941,270 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-01-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 28496941270.19908,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $27,277,068,166 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-04-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 27277068165.821205,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,870,779,647 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-07-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22870779646.606033,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,177,378,386 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-10-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18177378385.579964,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,316,931,655 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-01-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19316931655.38656,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $23,971,361,937 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23971361937.474392,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $29,025,684,626 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-07-20",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 29025684626.124573,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $30,286,646,340 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-10-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 30286646339.91394,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $36,581,852,661 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 36581852660.5053,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $44,629,417,331 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-04-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 44629417331.21962,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $49,476,044,820 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-07-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 49476044820.17471,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $59,648,627,464 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-10-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 59648627463.91605,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $58,901,556,440 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-01-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 58901556439.607185,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $53,049,213,689 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-04-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 53049213689.03409,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $47,549,611,088 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-07-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 47549611087.74942,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $32,084,810,005 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-10-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 32084810005.4702,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $36,254,482,145 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-01-24",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 36254482144.71664,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $42,200,502,194 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-04-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 42200502194.379074,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $47,572,852,206 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-07-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 47572852206.10345,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $50,871,119,061 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-10-24",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 50871119061.012726,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $58,478,778,263 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-01-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 58478778262.56271,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $46,741,731,704 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-04-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 46741731703.8224,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $58,315,578,392 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-07-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 58315578392.4955,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $56,349,547,236 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-10-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 56349547235.57945,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $98,721,743,202 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-01-21",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 98721743202.47281,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $120,901,814,616 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-04-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 120901814616.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $125,379,873,414 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-07-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 125379873413.88501,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $120,464,627,791 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 120464627790.75635,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $101,263,525,042 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-04-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 101263525042.25415,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $91,483,658,835 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-07-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 91483658835.16208,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $74,451,174,273 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-10-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 74451174273.21677,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $97,565,670,614 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 97565670614.426,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $94,382,826,185 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-04-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 94382826185.26968,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $122,720,686,716 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-07-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 122720686715.55885,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $109,452,086,132 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-10-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 109452086132.20154,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $143,467,118,394 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-01-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 143467118394.09485,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $164,102,227,810 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-04-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 164102227810.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $162,531,461,263 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-08-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 162531461263.17865,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $147,862,773,411 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2025-01-30",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 147862773410.62738,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-09-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2003-09-18",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-12-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2003-12-18",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-03-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2004-03-18",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-06-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2004-06-24",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    }
+  ],
+  "report": "rule: HYP05-PEER-SELECTION-RULE-v1\nderived: True\nqualifying peers: 0\ndenied candidates: 83"
+}

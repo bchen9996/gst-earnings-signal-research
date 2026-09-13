@@ -553,3 +553,105 @@ smaller, historically-named counterparties of giant anchors are
 survivorship-selected against staying both small AND independently
 tradeable for long. The Phase-2-eligible sample remains 8 (peer, event)
 pairs across one ticker.
+
+## Round 4 (2026-09-12): reverse the search direction, not the guessing
+
+Rounds 1-3 all shared one bottleneck: every candidate name had to occur
+to Claude first, then EDGAR either confirmed or denied it. That is a hard
+recall ceiling regardless of which anchor it is pointed at. At the
+owner's direction, round 4 tried a genuinely different mechanism instead
+of a fourth round of guessing: `run_hyp05_reverse_concentration_search.py`
+searches the WHOLE EDGAR full-text corpus, unscoped by CIK, for [an
+anchor's name] AND [a customer-concentration tail-phrase] -- so a SMALL
+company's OWN 10-K, disclosing that a large anchor is a material share of
+ITS revenue (an ASC 280 disclosure, close to mandatory and formulaic),
+surfaces directly. No guessing involved. Anchors covered: the original 7
+plus 20 members of HYP-01's `LOCKED_24_ANCHORS` never mined this way (27
+total, 34 name variants, 4 tail-phrases, 136 searches, 360 total requests).
+
+**Raw result: 223 distinct (anchor, peer) leads discovered, 17 confirmed**
+(real, readable, sentence contains both the anchor's name and a
+percent-style figure) -- `HYP05_REVERSE_SEARCH_RAW_HITS_2026-09-12.json`.
+That is already more confirmed leads than three rounds of hand curation
+produced from 96 proposals, and none of the 17 were ever proposed by
+Claude in rounds 1-3 -- direct evidence the mechanism reaches real
+companies personal recall does not.
+
+**Hand review, same discipline as every prior round -- read every
+sentence before trusting the count.** Two real defects surfaced, neither
+patched by editing the raw output (append-only; see
+`run_hyp05_reverse_search_handreview.py`'s own docstring for the full
+per-entry reasoning):
+
+- **4 of 17 were false positives**, none of which happened to matter
+    for eligibility (all 4 CIKs carry no current ticker either way) but
+    are still wrong and are documented as such: a bond coupon rate
+    ("2.875% Convertible Senior Notes") mistaken for a concentration
+    percentage (PDL Biopharma/ABBV); two market-share-among-competitors
+    statements mistaken for customer concentration (Movie Gallery/GME,
+    Carnival PLC/NCLH); one name collision where the FILER's own name
+    ("Global Payments Technology Inc.") contained the short anchor-name
+    variant used for GPN (Global Payment Technologies Inc/GPN).
+- **10 of the remaining 13 carried the wrong relationship direction.**
+    The search module hardcoded `direction: "customer"` for every hit,
+    assuming every concentration sentence means the filer sells TO the
+    anchor. Two disclosure genres share identical tail-phrases: "our
+    sales TO [anchor] ... X% of our net revenue" (the peer is the
+    anchor's SUPPLIER) versus "our purchases FROM [anchor]" or "[anchor],
+    a supplier, accounted for X% of OUR sales" (the peer is the anchor's
+    CUSTOMER, same direction as the Foot Locker/NKE correction in round
+    3). Corrected by hand, per sentence, not patched into the search
+    module as an untested heuristic.
+- One more (Micron Technology/INTC) named a real, well-documented
+    relationship (the IMFT/IMFS joint ventures) by OWNERSHIP PERCENTAGE,
+    not a customer/supplier/competitor disclosure this schema has a
+    category for -- left out rather than miscoded into the nearest label.
+
+**12 genuine, hand-verified relationships survived review** -- a 71% true-
+positive rate on this pass, comparable to round 3's 86% on mined
+sentences and far above blind guessing. 5 resolved to a currently
+tradeable ticker (Micron was the 6th raw "tradeable" but is excluded per
+the schema-mismatch above): CNXN (PC Connection, DELL's customer), NGS
+(Natural Gas Services Group, DVN's supplier), TTWO (Take-Two Interactive,
+GOOGL's supplier), AMAT (Applied Materials, INTC's supplier), and SHOE
+(Shoe Carnival -- renamed Shoe Station Group Inc 2026-06-11, confirmed a
+plain rename via SEC `formerNames`, not an acquisition -- NKE's
+customer).
+
+**Eligibility check: 0 of 83 (peer, event) pairs qualify, for THREE
+distinct, explainable reasons, not one structural finding:**
+
+  1. **CNXN/DELL, NGS/DVN, TTWO/GOOGL: zero usable anchor events, full
+     stop.** `HYP04_ANCHOR_SHOCKS_2026-08-31.csv` has never had earnings-
+     shock computation run for DELL, DVN, or GOOGL -- those three anchors
+     were added to round 4's SEARCH list (as sources of peer-discovery
+     text) without also extending HYP-04's own anchor-shock pipeline to
+     them. This is not a peer-side finding at all; it is a prerequisite
+     this pass did not do.
+  2. **AMAT/INTC: genuinely, definitively too large throughout.** 61 of
+     79 real events resolve a real market cap, all of them $109B-$164B --
+     multiple orders of magnitude above the $2B cutoff. The remaining 18
+     (2005-2009) predate SEC XBRL shares-outstanding coverage.
+  3. **SHOE/NKE: unresolved by data availability, not disqualified by
+     size.** NKE's only 4 shock-computed anchor events in the current CSV
+     all fall in 2003-2004 -- entirely before `dei:
+     EntityCommonStockSharesOutstanding` XBRL tagging existed for most
+     filers. Point-in-time market cap is honestly reported as NOT
+     COMPUTABLE (PS-2), never guessed at or defaulted through. Shoe
+     Carnival may or may not have qualified; the current pipeline simply
+     cannot say for these 4 dates.
+
+### Honest headline after round 4
+
+The mechanism is validated: reversing the search direction found 12 real,
+hand-verified relationships from one run, where three rounds of guessing
+found one. None of this pass's specific candidates cleared eligibility,
+but for reasons that are fixable in principle and distinct from rounds
+1-3's structural survivorship finding: (a) three anchors need their own
+earnings-shock computation before their peers can be evaluated at all,
+and (b) one promising candidate (Shoe Carnival/NKE) is blocked by a pre-
+XBRL data gap, not by size. The Phase-2-eligible sample remains 8 (peer,
+event) pairs across one ticker (AMBA/NVDA) -- unchanged by round 4 -- but
+the path to a larger sample now looks like "compute anchor shocks for a
+few more anchors and find a pre-XBRL shares-outstanding source," not
+"guess harder."

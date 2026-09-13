@@ -51,6 +51,7 @@ from hyp04_supply_chain_hedge.edgar_agreements import (  # noqa: E402
     STATUS_TERMINATED,
     STATUS_UNKNOWN,
     AgreementResult,
+    AgreementSearchClient,
     extract_agreements_from_text,
 )
 
@@ -418,6 +419,60 @@ def test_9_coverage_reports_rejections() -> None:
     check("9c. request count is reported", "requests_made" in cov)
 
 
+class _FakeResponse:
+    def __init__(self, payload: dict) -> None:
+        self._payload = payload
+
+    def json(self) -> dict:
+        return self._payload
+
+
+def test_11_search_unscoped_omits_ciks() -> None:
+    """The whole point of the reverse-direction search: no `ciks` key at
+    all, so the query runs across every filer, not one chosen anchor's own
+    filings."""
+    client = AgreementSearchClient("bchen9996 bchen9996@gmail.com")
+    seen: dict = {}
+
+    def fake_get(url, params=None, timeout=40):
+        seen["url"], seen["params"] = url, params
+        return _FakeResponse({"hits": {"hits": [
+            {"_id": "acc:doc.htm", "_source": {"ciks": ["0000000042"]}}
+        ]}})
+
+    client._get = fake_get
+    out = client.search_unscoped('"Apple Inc." "of our net revenue"',
+                                 forms="10-K")
+    check("11a. no ciks key in the request params", "ciks" not in seen["params"],
+          str(seen["params"]))
+    check("11b. q and forms are passed through",
+          seen["params"]["q"] == '"Apple Inc." "of our net revenue"'
+          and seen["params"]["forms"] == "10-K")
+    check("11c. _id is preserved on the returned hit, same as search()",
+          out[0]["_id"] == "acc:doc.htm")
+
+
+def test_12_ticker_for_reverses_cik_for() -> None:
+    client = AgreementSearchClient("bchen9996 bchen9996@gmail.com")
+
+    def fake_get(url, params=None, timeout=40):
+        client.requests_made += 1
+        return _FakeResponse({
+            "AAPL_ROW": {"ticker": "AAPL", "cik_str": 320193},
+            "NVDA_ROW": {"ticker": "NVDA", "cik_str": 1045810},
+        })
+
+    client._get = fake_get
+    check("12a. ticker_for resolves a real CIK to its ticker",
+          client.ticker_for("320193") == "AAPL")
+    check("12b. works with an unpadded numeric CIK too",
+          client.ticker_for(320193) == "AAPL")
+    check("12c. an unknown CIK returns None, not a guess",
+          client.ticker_for("999999999") is None)
+    check("12d. the map is fetched once and reused (cik_for and ticker_for "
+          "share it)", client.requests_made == 1)
+
+
 def test_10_offline() -> None:
     try:
         socket.getaddrinfo("example.com", 443)
@@ -440,6 +495,8 @@ if __name__ == "__main__":
     test_7_provenance_and_shape()
     test_8_independence_from_source_a()
     test_9_coverage_reports_rejections()
+    test_11_search_unscoped_omits_ciks()
+    test_12_ticker_for_reverses_cik_for()
     test_10_offline()
 
     print()
