@@ -250,25 +250,15 @@ def test_5_the_rehearsal_does_not_move_hyp04s_gate() -> None:
               and g.denials[0].startswith("C1"), str(g.denials))
 
 
-def test_6_the_live_gate_is_now_closed() -> None:
-    """v1.15 is real, on disk, and is what display_gate.py/dashboard.py
-    read as of 2026-09-12. The CURRENT version's suite holds the live
-    "gate reads X" claim -- see test_hyp04_supply_chain_hedge_registry_
-    v1_14.py's own test_5, narrowed once this version superseded it."""
-    from hyp04_supply_chain_hedge.display_gate import (
-        REGISTRY_CURRENT,
-        current_decision,
-    )
-
+def test_6_this_version_has_moved_past() -> None:
+    """NARROWED: v1.16 (2026-09-13, registering HYP-06) now supersedes
+    v1.15 and holds the live "gate reads X" claim -- see
+    test_hyp04_supply_chain_hedge_registry_v1_16.py's own test. This
+    suite keeps only what is still true regardless of which version is
+    CURRENT: v1.15 itself is real, on disk, and was written by this
+    session's own generator."""
     check("6a. v1.15 was written by this session's generator, not this suite",
           (LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.15.json").is_file())
-    check("6b. the gate now reads v1.15",
-          REGISTRY_CURRENT.name.endswith("v1.15.json"))
-    live = current_decision()
-    check("6c. the REAL gate is CLOSED, denying on C1 alone -- unchanged "
-          "from v1.14, since v1.15 touches nothing about HYP-04",
-          live.open is False and len(live.denials) == 1
-          and live.denials[0].startswith("C1"), str(live.denials))
 
 
 def test_7_offline() -> None:
@@ -285,7 +275,7 @@ if __name__ == "__main__":
     test_3_the_built_document_moves_only_what_it_claims()
     test_4_cannot_mislabel_a_significant_or_floor_clearing_result()
     test_5_the_rehearsal_does_not_move_hyp04s_gate()
-    test_6_the_live_gate_is_now_closed()
+    test_6_this_version_has_moved_past()
     test_7_offline()
 
     print()
