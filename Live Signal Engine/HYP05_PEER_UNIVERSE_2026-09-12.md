@@ -655,3 +655,149 @@ event) pairs across one ticker (AMBA/NVDA) -- unchanged by round 4 -- but
 the path to a larger sample now looks like "compute anchor shocks for a
 few more anchors and find a pre-XBRL shares-outstanding source," not
 "guess harder."
+
+## Round 5 (2026-09-12/13): computed the missing anchor shocks, found a real look-ahead bug, and got a real eligible universe
+
+Went ahead on the two fixable-in-principle follow-ups round 4 named,
+after explicit go-ahead: compute anchor shocks for DELL, DVN, and GOOGL.
+The pre-XBRL shares-outstanding task for SHOE was started but turned out
+to be moot -- see below.
+
+### DELL/DVN/GOOGL earnings-shock computation
+
+New: `run_hyp05_additional_anchor_shocks.py`. Reuses HYP-04's own
+earnings-event/shock machinery exactly -- `earnings_events`'s era-aware
+Item 12/2.02 selection and dedup rule, `anchor_closes`'s request-building
+and shock computation, `anchor_shock`'s fixed-beta excess-return formula,
+`sessions`'s XNYS session index -- but WITHOUT `anchor_universe.py`'s
+membership-interval filter. That filter answers "does this ticker's OWN
+10-K disclose a named counterparty concentration," which is why DELL, DVN
+and GOOGL -- despite being in the locked-24 screening frame -- have zero
+rows in `HYP04_ANCHOR_SHOCKS_2026-08-31.csv`: their own 10-Ks never made
+that disclosure. Round 4's reverse search asks the opposite-direction
+question (does some SMALL company's own 10-K name one of these as ITS
+customer/supplier), which needs nothing from DELL/DVN/GOOGL's own
+filings. Evaluating `anchor_universe.py`'s rule against them would be
+answering an irrelevant question; this module computes real, computable
+earnings-event shocks for them directly instead, writing an entirely
+separate, HYP-05-dated artifact
+(`HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-12.{json,csv}`) that never
+touches, reads as authoritative, or is merged into either HYP-04-named
+file.
+
+Checked, not assumed, for the merger/rename lineage hazard this project
+treats as a hard rule: CNXN's DELL relationship (as_of 2022-03-14) sits
+inside CIK 0001571996's continuous history since the 2013 Dell LBO
+(renamed "Denali Holding Inc." -> "Dell Technologies Inc" in 2016, not
+re-incorporated); TTWO's GOOGL relationship (as_of 2023-05-26) sits
+entirely inside Alphabet Inc's CIK 0001652044, which only exists from the
+October 2015 holding-company restructuring forward -- its earliest
+candidate event is 2015-10-22, so no pre-restructuring Google Inc. filing
+can be mixed in; NGS's DVN relationship (as_of 2010-03-04) sits inside
+Devon Energy Corp/DE's one continuous CIK since 1999. Read each CIK's
+actual `formerNames` history to confirm this rather than assuming the
+current ticker mapping was safe.
+
+Result: 181 candidate events across the 3 tickers, 139 real shocks
+computed (DELL 38/41, DVN 61/95, GOOGL 40/45 -- the rest denied on
+session resolution or, once, a missing close, every one recorded rather
+than dropped, same discipline as `make_anchor_shocks.py`).
+`run_hyp05_peer_market_cap.py`'s `_anchor_event_dates()` and its
+`--anchor-shocks-csv` flag were generalized (backward compatibbly -- a
+bare Path still works) to accept a list of CSVs, unioned, so HYP-04's
+original file and this new one are read side by side without ever being
+merged into a third file or edited in place.
+
+### A real bug this surfaced: `peer_selection.py` had no point-in-time check at all
+
+Re-running eligibility with real events for CNXN/NGS/TTWO available for
+the first time immediately produced a suspicious result: CNXN qualified
+at **all 38** of its real DELL-anchor events, including ones from 2016 --
+six years before CNXN's own disclosure of the DELL relationship
+(as_of_date 2022-03-14). `peer_selection.py`'s conditions table (PS-1..
+PS-3) required `as_of_date` to be PRESENT (PS-1) but never once compared
+its VALUE against `anchor_event_date`. HYP-04's own `pair_eligibility.py`
+has carried exactly this check since early in the project (its P3:
+`as_of_date < event_date`, strictly, "an edge established on or after the
+event cannot have been known to an observer at the event") -- it simply
+never made it into HYP-05's newer, parallel module. The gap was invisible
+through rounds 1-4 because AMAT's and SHOE's as_of_dates happened to
+predate essentially all of their real anchor events; it became
+load-bearing the moment a candidate's disclosure postdated a meaningful
+share of its anchor's real event history.
+
+Fixed by adding **PS-4** to `peer_selection.py`, mirroring
+`pair_eligibility.py`'s P3 exactly (same `_valid_date` helper, same
+strict `<` comparison, same reasoning), not by inventing a second,
+possibly-divergent point-in-time rule. Regression test added
+(`test_9_ps4_strict_point_in_time_mirrors_pair_eligibility_p3`) using the
+literal CNXN/DELL shape (as_of 2022-03-14, event 2016-09-06) as one of
+its cases.
+
+Effect: CNXN's qualifying count dropped from 38/38 to 16/38 (the 22
+removed are exactly its pre-disclosure events -- look-ahead, correctly
+excluded now). NGS's count was unchanged at 53/61 -- its 8 PS-4-denied
+events were already denied for other reasons (missing point-in-time
+share data in the early 2000s), so the fix added a more fundamental
+reason to rows that were already excluded rather than removing anything
+that had been genuinely eligible.
+
+### The corrected SHOE finding: not a data gap, a dead end
+
+Round 4 reported SHOE as "unresolved by data availability, not
+disqualified by size." That was incomplete. SHOE's disclosure of its NKE
+relationship is dated 2016-04-04 -- but NKE's only 4 real shock-computed
+anchor events are all in 2003-2004, over a decade earlier. PS-4 now
+correctly denies all 4 of SHOE's candidate pairs on that basis alone,
+before PS-2's missing-shares denial is even reached. **Finding a pre-XBRL
+shares-outstanding source for Shoe Carnival would not change this
+result** -- the relationship's own evidence postdates every available
+NKE anchor event, so no amount of price/shares data can make these 4
+pairs eligible. The pre-XBRL data-source task named in round 4 is
+therefore not pursued; it would have been effort spent on a candidate
+that is dead for an unrelated, more fundamental reason.
+
+### The real result: 69 of 222 (peer, event) pairs now qualify
+
+| peer | anchor | qualifying / total | qualifying range |
+|---|---|---|---|
+| CNXN (PC Connection) | DELL | 16 / 38 | 2022-05-26 .. 2026-05-28 |
+| NGS (Natural Gas Services Group) | DVN | 53 / 61 | spans most of 2003-2026 |
+| TTWO (Take-Two Interactive) | GOOGL | 0 / 40 | never -- $2.8B at its smallest (2015), $46B by 2025 |
+| AMAT (Applied Materials) | INTC | 0 / 79 | never -- $109B-$164B (unchanged from round 4) |
+| SHOE (Shoe Carnival) | NKE | 0 / 4 | never -- PS-4 dead, see above |
+
+TTWO joins AMAT as a second, independent, genuine size disqualification
+-- not a data gap, a real market cap far above the $2B cutoff throughout
+its entire real anchor-event history. Written to
+`HYP05_PEER_UNIVERSE_AUGMENTED_ANCHORS_2026-09-12.json`, alongside (not
+replacing) the round-4 `HYP05_PEER_UNIVERSE_REVERSE_SEARCH_HANDREVIEWED_
+2026-09-12.json`, whose own AMAT/SHOE rows are superseded in explanatory
+completeness by this section (SHOE now carries a second, more
+fundamental denial reason) but not in their `qualifies` bottom line,
+which does not change.
+
+### The governance point that matters most here
+
+**This newly-found eligible universe cannot be fed back into HYP-05's
+Phase 3 result.** That result already ran, for real, against the
+Phase-2-locked 8-event sample, and the holdout is spent -- [[hyp04-
+curation-binds-before-prices]]'s discipline ("never re-run it") applies
+here exactly as it does to HYP-04's own completed test. Discovering 69
+new eligible (peer, event) pairs AFTER a preregistered test already
+produced a null result, and then using them to extend or rerun that same
+test, is precisely the post-hoc data-mining this project's entire
+Phase-2-lock / Phase-3-authorization sequence exists to prevent -- it
+would let a null result be revised away by looking harder after the
+fact, which is indistinguishable from p-hacking regardless of how
+genuine or well-verified the newly-found data is.
+
+What this round actually validates is the DISCOVERY METHODOLOGY: reverse
+search plus targeted anchor-shock computation for a handful of
+additional anchors can produce a real, sizeable, point-in-time-correct
+eligible universe (69 pairs, 2 tickers) where hand-guessing produced
+almost none. That is evidence worth having for a FUTURE hypothesis --
+one that would need its own fresh registration, its own Phase 2 lock over
+this (or a further-expanded) universe, and its own, not-yet-spent
+holdout. It is not, and must not be treated as, new evidence about HYP-05
+as registered and already tested.

@@ -75,6 +75,23 @@ claimed after this correction to be, HYP-05's actual target anchor
 universe; that real curation run is separate and uses the seven tickers
 above.
 
+=== PS-4, ADDED 2026-09-12: THE STRICT POINT-IN-TIME CHECK WAS MISSING ===
+
+`as_of_date` was a REQUIRED field (PS-1) from the start, but nothing ever
+compared its VALUE against `anchor_event_date` -- so a candidate whose
+relationship was only disclosed AFTER an anchor event still qualified for
+that event, exactly the look-ahead `pair_eligibility.py`'s own P3 exists to
+forbid ("An edge established on or after the event cannot have been known
+to an observer at the event"). The gap was invisible while this module's
+only two candidates (AMAT/INTC as_of 2004-01-13, SHOE/NKE) had as_of_dates
+that predated essentially every real anchor event anyway. It became
+visible, and load-bearing, the moment CNXN/NGS/TTWO were evaluated: CNXN's
+DELL relationship is as_of 2022-03-14 but DELL's real anchor events run
+2016-2026, so most of them precede the disclosure and must be excluded.
+Fixed by adding PS-4, mirroring `pair_eligibility.py`'s P3 exactly (same
+`_valid_date` helper, same strict `<` comparison, same reasoning) rather
+than inventing a second, potentially-divergent point-in-time rule.
+
 === WHAT THIS MODULE DOES NOT DO ===
 
 It does not compute market cap (see `point_in_time_market_cap.py`) or fetch
@@ -91,6 +108,8 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence
+
+from .curated_linkage import _valid_date
 
 RULE_ID = "HYP05-PEER-SELECTION-RULE-v1"
 
@@ -116,6 +135,10 @@ CONDITIONS: tuple[tuple[str, str], ...] = (
     ("PS-2", "a point-in-time market cap is computable for the peer as of "
              "the anchor event date"),
     ("PS-3", f"that market cap is below ${MARKET_CAP_THRESHOLD_USD:,}"),
+    ("PS-4", "the peer's as_of_date strictly precedes the anchor_event_date "
+             "-- mirrors pair_eligibility.py's P3 exactly: an edge "
+             "established on or after the event cannot have been known to "
+             "an observer at the event"),
 )
 
 # The conditions that were considered and DELIBERATELY REJECTED, recorded so
@@ -177,6 +200,28 @@ def evaluate_peer(
         denials.append(
             f"PS-1: candidate record is missing required field(s): "
             f"{', '.join(sorted(missing))}")
+
+    # ---- PS-4: STRICT point-in-time (mirrors pair_eligibility.py's P3) ---
+    # Both dates are format-checked before comparison, exactly as P3 does --
+    # ISO YYYY-MM-DD compares correctly as strings, but only once the format
+    # is known, so a malformed date denies rather than silently mis-comparing.
+    as_of_date = candidate.get("as_of_date")
+    event_date = candidate.get("anchor_event_date")
+    as_of_ok = _valid_date(as_of_date or "")
+    event_ok = _valid_date(event_date or "")
+    if not as_of_ok:
+        denials.append(
+            f"PS-4: as_of_date {as_of_date!r} is not a valid YYYY-MM-DD date")
+    if not event_ok:
+        denials.append(
+            f"PS-4: anchor_event_date {event_date!r} is not a valid "
+            "YYYY-MM-DD date")
+    if as_of_ok and event_ok and not (as_of_date < event_date):
+        denials.append(
+            f"PS-4: as_of_date ({as_of_date}) does not strictly precede "
+            f"the anchor_event_date ({event_date}). An edge established on "
+            "or after the event cannot have been known to an observer at "
+            "the event.")
 
     mc_value = None
     if market_cap is None:

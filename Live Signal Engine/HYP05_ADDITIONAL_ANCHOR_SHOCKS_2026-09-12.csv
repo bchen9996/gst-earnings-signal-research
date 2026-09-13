@@ -1,0 +1,182 @@
+event_id,anchor_ticker,release_date,release_session,attributed_session,prior_session,anchor_return,benchmark_return,excess_return,shock,status,denial_reasons
+DELL-2016-06-10,DELL,2016-06-10,BMO,2016-06-10,2016-06-09,,,,,denied_closes,"DELL has no close for the prior session 2016-06-09; it is absent, not zero"
+DELL-2016-09-06,DELL,2016-09-06,AMC,2016-09-07,2016-09-06,0.0545882482,-0.0000913354,0.0546795836,0.0546795836,shock_computed,
+DELL-2016-12-08,DELL,2016-12-08,BMO,2016-12-08,2016-12-07,0.0003710187,0.0024457502,-0.0020747314,0.0020747314,shock_computed,
+DELL-2017-03-30,DELL,2017-03-30,BMO,2017-03-30,2017-03-29,0.0014075207,0.0031791139,-0.0017715932,0.0017715932,shock_computed,
+DELL-2017-06-08,DELL,2017-06-08,BMO,2017-06-08,2017-06-07,-0.0410800299,0.0004923483,-0.0415723782,0.0415723782,shock_computed,
+DELL-2017-09-07,DELL,2017-09-07,BMO,2017-09-07,2017-09-06,-0.0028159592,-0.0001215091,-0.0026944501,0.0026944501,shock_computed,
+DELL-2017-12-07,DELL,2017-12-07,BMO,2017-12-07,2017-12-06,0.0109971652,0.0031481208,0.0078490445,0.0078490445,shock_computed,
+DELL-2018-03-08,DELL,2018-03-08,BMO,2018-03-08,2018-03-07,0.0015511395,0.0048274206,-0.0032762811,0.0032762811,shock_computed,
+DELL-2018-06-04,DELL,2018-06-04,BMO,2018-06-04,2018-06-01,0.0021191554,0.0047401649,-0.0026210095,0.0026210095,shock_computed,
+DELL-2018-09-06,DELL,2018-09-06,BMO,2018-09-06,2018-09-05,0.0019835931,-0.0030145906,0.0049981837,0.0049981837,shock_computed,
+DELL-2018-11-29,DELL,2018-11-29,AMC,2018-11-30,2018-11-29,-0.0049176811,0.0060767718,-0.0109944529,0.0109944529,shock_computed,
+DELL-2019-02-28,DELL,2019-02-28,AMC,2019-03-01,2019-02-28,0.0147597570,0.0062243833,0.0085353737,0.0085353737,shock_computed,
+DELL-2019-05-30,DELL,2019-05-30,AMC,2019-05-31,2019-05-30,-0.1090313411,-0.0135669043,-0.0954644368,0.0954644368,shock_computed,
+DELL-2019-08-29,DELL,2019-08-29,AMC,2019-08-30,2019-08-29,0.0969221684,-0.0004443340,0.0973665025,0.0973665025,shock_computed,
+DELL-2019-11-26,DELL,2019-11-26,AMC,2019-11-27,2019-11-26,-0.0554677922,0.0044476356,-0.0599154278,0.0599154278,shock_computed,
+DELL-2020-02-24,DELL,2020-02-24,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DELL-2020-05-28,DELL,2020-05-28,AMC,2020-05-29,2020-05-28,0.0853279080,0.0044460087,0.0808818993,0.0808818993,shock_computed,
+DELL-2020-08-27,DELL,2020-08-27,AMC,2020-08-28,2020-08-27,0.0587855450,0.0064386197,0.0523469253,0.0523469253,shock_computed,
+DELL-2020-11-24,DELL,2020-11-24,AMC,2020-11-25,2020-11-24,-0.0140323712,-0.0015429483,-0.0124894229,0.0124894229,shock_computed,
+DELL-2021-02-25,DELL,2021-02-25,AMC,2021-02-26,2021-02-25,0.0172943373,-0.0051659407,0.0224602781,0.0224602781,shock_computed,
+DELL-2021-05-27,DELL,2021-05-27,AMC,2021-05-28,2021-05-27,-0.0106888465,0.0017871402,-0.0124759867,0.0124759867,shock_computed,
+DELL-2021-08-26,DELL,2021-08-26,AMC,2021-08-27,2021-08-26,-0.0463559698,0.0089012204,-0.0552571902,0.0552571902,shock_computed,
+DELL-2021-11-23,DELL,2021-11-23,AMC,2021-11-24,2021-11-23,0.0469855310,0.0026662985,0.0443192325,0.0443192325,shock_computed,
+DELL-2022-02-24,DELL,2022-02-24,AMC,2022-02-25,2022-02-24,-0.0816856721,0.0218241150,-0.1035097872,0.1035097872,shock_computed,
+DELL-2022-05-26,DELL,2022-05-26,AMC,2022-05-27,2022-05-26,0.1209900986,0.0242526532,0.0967374454,0.0967374454,shock_computed,
+DELL-2022-08-25,DELL,2022-08-25,AMC,2022-08-26,2022-08-25,-0.1451102728,-0.0344351864,-0.1106750864,0.1106750864,shock_computed,
+DELL-2022-11-21,DELL,2022-11-21,AMC,2022-11-22,2022-11-21,0.0654967635,0.0133672587,0.0521295048,0.0521295048,shock_computed,
+DELL-2023-02-26,DELL,2023-02-26,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DELL-2023-06-01,DELL,2023-06-01,AMC,2023-06-02,2023-06-01,0.0390430562,0.0143575935,0.0246854627,0.0246854627,shock_computed,
+DELL-2023-08-31,DELL,2023-08-31,AMC,2023-09-01,2023-08-31,0.1926696850,0.0018634704,0.1908062145,0.1908062145,shock_computed,
+DELL-2023-11-30,DELL,2023-11-30,AMC,2023-12-01,2023-11-30,-0.0533279574,0.0058984599,-0.0592264174,0.0592264174,shock_computed,
+DELL-2024-02-29,DELL,2024-02-29,AMC,2024-03-01,2024-02-29,0.2747367538,0.0093444681,0.2653922857,0.2653922857,shock_computed,
+DELL-2024-05-30,DELL,2024-05-30,AMC,2024-05-31,2024-05-30,-0.1968331285,0.0090669203,-0.2059000487,0.2059000487,shock_computed,
+DELL-2024-08-29,DELL,2024-08-29,AMC,2024-08-30,2024-08-29,0.0424317062,0.0095007394,0.0329309667,0.0329309667,shock_computed,
+DELL-2024-11-26,DELL,2024-11-26,AMC,2024-11-27,2024-11-26,-0.1306530585,-0.0030346628,-0.1276183958,0.1276183958,shock_computed,
+DELL-2025-02-27,DELL,2025-02-27,AMC,2025-02-28,2025-02-27,-0.0481597368,0.0154849986,-0.0636447355,0.0636447355,shock_computed,
+DELL-2025-05-29,DELL,2025-05-29,AMC,2025-05-30,2025-05-29,-0.0209878818,-0.0011191298,-0.0198687520,0.0198687520,shock_computed,
+DELL-2025-08-28,DELL,2025-08-28,AMC,2025-08-29,2025-08-28,-0.0929630773,-0.0059816020,-0.0869814753,0.0869814753,shock_computed,
+DELL-2025-11-25,DELL,2025-11-25,AMC,2025-11-26,2025-11-25,0.0566552958,0.0068797394,0.0497755564,0.0497755564,shock_computed,
+DELL-2026-02-26,DELL,2026-02-26,AMC,2026-02-27,2026-02-26,0.1982500503,-0.0048135361,0.2030635864,0.2030635864,shock_computed,
+DELL-2026-05-28,DELL,2026-05-28,AMC,2026-05-29,2026-05-28,0.2833595912,0.0024882943,0.2808712968,0.2808712968,shock_computed,
+DVN-2003-08-06,DVN,2003-08-06,AMC,2003-08-07,2003-08-06,0.0282157002,0.0104626724,0.0177530279,0.0177530279,shock_computed,
+DVN-2003-11-06,DVN,2003-11-06,AMC,2003-11-07,2003-11-06,-0.0075673281,-0.0074525217,-0.0001148064,0.0001148064,shock_computed,
+DVN-2004-02-05,DVN,2004-02-05,AMC,2004-02-06,2004-02-05,-0.0041206506,0.0111585453,-0.0152791959,0.0152791959,shock_computed,
+DVN-2004-05-06,DVN,2004-05-06,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2004-08-05,DVN,2004-08-05,AMC,2004-08-06,2004-08-05,-0.0189471379,-0.0144021356,-0.0045450023,0.0045450023,shock_computed,
+DVN-2004-11-04,DVN,2004-11-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2005-02-02,DVN,2005-02-02,AMC,2005-02-03,2005-02-02,-0.0266683125,-0.0026025080,-0.0240658045,0.0240658045,shock_computed,
+DVN-2005-05-04,DVN,2005-05-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2005-08-03,DVN,2005-08-03,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2005-11-02,DVN,2005-11-02,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2006-02-01,DVN,2006-02-01,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2006-05-03,DVN,2006-05-03,AMC,2006-05-04,2006-05-03,-0.0162995053,0.0035843792,-0.0198838845,0.0198838845,shock_computed,
+DVN-2006-08-02,DVN,2006-08-02,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2006-11-01,DVN,2006-11-01,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2007-02-07,DVN,2007-02-07,AMC,2007-02-08,2007-02-07,-0.0059475917,-0.0013093234,-0.0046382683,0.0046382683,shock_computed,
+DVN-2007-05-02,DVN,2007-05-02,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2007-08-01,DVN,2007-08-01,AMC,2007-08-02,2007-08-01,0.0112852198,0.0079585050,0.0033267148,0.0033267148,shock_computed,
+DVN-2007-11-07,DVN,2007-11-07,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2008-02-06,DVN,2008-02-06,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2008-05-07,DVN,2008-05-07,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2008-08-06,DVN,2008-08-06,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2008-11-05,DVN,2008-11-05,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2009-02-04,DVN,2009-02-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2009-05-06,DVN,2009-05-06,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2009-08-05,DVN,2009-08-05,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2009-11-04,DVN,2009-11-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2010-02-17,DVN,2010-02-17,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2010-05-04,DVN,2010-05-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2010-08-04,DVN,2010-08-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2010-11-03,DVN,2010-11-03,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2011-02-16,DVN,2011-02-16,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2011-05-04,DVN,2011-05-04,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2011-08-03,DVN,2011-08-03,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2011-11-02,DVN,2011-11-02,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2012-02-15,DVN,2012-02-15,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2012-05-02,DVN,2012-05-02,BMO,2012-05-02,2012-05-01,-0.0373484975,-0.0029886747,-0.0343598228,0.0343598228,shock_computed,
+DVN-2012-08-01,DVN,2012-08-01,BMO,2012-08-01,2012-07-31,-0.0354658887,-0.0008718517,-0.0345940371,0.0345940371,shock_computed,
+DVN-2012-11-07,DVN,2012-11-07,BMO,2012-11-07,2012-11-06,-0.0732309902,-0.0229244891,-0.0503065011,0.0503065011,shock_computed,
+DVN-2013-02-20,DVN,2013-02-20,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2013-05-01,DVN,2013-05-01,BMO,2013-05-01,2013-04-30,0.0032638343,-0.0088061579,0.0120699922,0.0120699922,shock_computed,
+DVN-2013-08-07,DVN,2013-08-07,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2013-11-06,DVN,2013-11-06,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2014-02-19,DVN,2014-02-19,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2014-05-07,DVN,2014-05-07,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2014-08-06,DVN,2014-08-06,BMO,2014-08-06,2014-08-05,-0.0028193493,0.0003125017,-0.0031318510,0.0031318510,shock_computed,
+DVN-2014-11-04,DVN,2014-11-04,AMC,2014-11-05,2014-11-04,0.0952776978,0.0062962901,0.0889814077,0.0889814077,shock_computed,
+DVN-2015-02-17,DVN,2015-02-17,AMC,2015-02-18,2015-02-17,-0.0413535296,0.0000952040,-0.0414487336,0.0414487336,shock_computed,
+DVN-2015-05-05,DVN,2015-05-05,AMC,2015-05-06,2015-05-05,0.0123762379,-0.0041253027,0.0165015406,0.0165015406,shock_computed,
+DVN-2015-08-04,DVN,2015-08-04,AMC,2015-08-05,2015-08-04,-0.0374168607,0.0032900372,-0.0407068979,0.0407068979,shock_computed,
+DVN-2015-11-03,DVN,2015-11-03,AMC,2015-11-04,2015-11-03,0.0276977780,-0.0030377819,0.0307355598,0.0307355598,shock_computed,
+DVN-2016-02-16,DVN,2016-02-16,AMC,2016-02-17,2016-02-16,-0.0447297598,0.0162027591,-0.0609325189,0.0609325189,shock_computed,
+DVN-2016-05-03,DVN,2016-05-03,AMC,2016-05-04,2016-05-03,-0.0449654438,-0.0055938525,-0.0393715913,0.0393715913,shock_computed,
+DVN-2016-08-02,DVN,2016-08-02,AMC,2016-08-03,2016-08-02,0.0507394607,0.0029184448,0.0478210160,0.0478210160,shock_computed,
+DVN-2016-11-01,DVN,2016-11-01,AMC,2016-11-02,2016-11-01,0.0481709041,-0.0060368051,0.0542077092,0.0542077092,shock_computed,
+DVN-2016-11-02,DVN,2016-11-02,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2017-02-14,DVN,2017-02-14,AMC,2017-02-15,2017-02-14,-0.0379328858,0.0052067944,-0.0431396802,0.0431396802,shock_computed,
+DVN-2017-05-02,DVN,2017-05-02,AMC,2017-05-03,2017-05-02,-0.0176582188,-0.0012153319,-0.0164428868,0.0164428868,shock_computed,
+DVN-2017-08-01,DVN,2017-08-01,AMC,2017-08-02,2017-08-01,0.0126546424,0.0004850639,0.0121695785,0.0121695785,shock_computed,
+DVN-2017-10-31,DVN,2017-10-31,AMC,2017-11-01,2017-10-31,0.0573992816,0.0013212980,0.0560779836,0.0560779836,shock_computed,
+DVN-2018-02-20,DVN,2018-02-20,AMC,2018-02-21,2018-02-20,-0.1252786438,-0.0049866431,-0.1202920007,0.1202920007,shock_computed,
+DVN-2018-05-01,DVN,2018-05-01,AMC,2018-05-02,2018-05-01,0.0545613958,-0.0067401471,0.0613015429,0.0613015429,shock_computed,
+DVN-2018-07-31,DVN,2018-07-31,AMC,2018-08-01,2018-07-31,-0.0348135769,-0.0016720374,-0.0331415395,0.0331415395,shock_computed,
+DVN-2018-10-16,DVN,2018-10-16,BMO,2018-10-16,2018-10-15,0.0265079379,0.0216302598,0.0048776781,0.0048776781,shock_computed,
+DVN-2018-11-06,DVN,2018-11-06,AMC,2018-11-07,2018-11-06,0.0278502891,0.0211829423,0.0066673468,0.0066673468,shock_computed,
+DVN-2019-02-19,DVN,2019-02-19,AMC,2019-02-20,2019-02-19,0.0669420579,0.0020134388,0.0649286191,0.0649286191,shock_computed,
+DVN-2019-04-30,DVN,2019-04-30,AMC,2019-05-01,2019-04-30,-0.0093779756,-0.0075448577,-0.0018331179,0.0018331179,shock_computed,
+DVN-2019-08-06,DVN,2019-08-06,AMC,2019-08-07,2019-08-06,-0.0024803430,0.0005905602,-0.0030709033,0.0030709033,shock_computed,
+DVN-2019-11-05,DVN,2019-11-05,AMC,2019-11-06,2019-11-05,-0.0399520345,0.0002279886,-0.0401800232,0.0401800232,shock_computed,
+DVN-2020-02-18,DVN,2020-02-18,AMC,2020-02-19,2020-02-18,0.0249567086,0.0047698413,0.0201868673,0.0201868673,shock_computed,
+DVN-2020-05-05,DVN,2020-05-05,AMC,2020-05-06,2020-05-05,0.0273505769,-0.0068018018,0.0341523787,0.0341523787,shock_computed,
+DVN-2020-08-04,DVN,2020-08-04,AMC,2020-08-05,2020-08-04,0.0821906216,0.0061917465,0.0759988751,0.0759988751,shock_computed,
+DVN-2020-10-29,DVN,2020-10-29,AMC,2020-10-30,2020-10-29,0.0552500103,-0.0104796010,0.0657296113,0.0657296113,shock_computed,
+DVN-2021-02-16,DVN,2021-02-16,AMC,2021-02-17,2021-02-16,0.0403810119,0.0002294584,0.0401515535,0.0401515535,shock_computed,
+DVN-2021-05-04,DVN,2021-05-04,AMC,2021-05-05,2021-05-04,0.0731632171,0.0003127486,0.0728504685,0.0728504685,shock_computed,
+DVN-2021-08-03,DVN,2021-08-03,AMC,2021-08-04,2021-08-03,-0.0357318855,-0.0049310609,-0.0308008247,0.0308008247,shock_computed,
+DVN-2021-11-02,DVN,2021-11-02,AMC,2021-11-03,2021-11-02,-0.0002381971,0.0060866721,-0.0063248691,0.0063248691,shock_computed,
+DVN-2022-02-15,DVN,2022-02-15,AMC,2022-02-16,2022-02-15,0.0461752090,0.0011201973,0.0450550118,0.0450550118,shock_computed,
+DVN-2022-05-02,DVN,2022-05-02,AMC,2022-05-03,2022-05-02,0.0967891893,0.0045735676,0.0922156217,0.0922156217,shock_computed,
+DVN-2022-08-01,DVN,2022-08-01,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+DVN-2022-11-01,DVN,2022-11-01,AMC,2022-11-02,2022-11-01,-0.1364556452,-0.0254164885,-0.1110391567,0.1110391567,shock_computed,
+DVN-2023-02-14,DVN,2023-02-14,AMC,2023-02-15,2023-02-14,-0.1108668937,0.0032421124,-0.1141090061,0.1141090061,shock_computed,
+DVN-2023-05-08,DVN,2023-05-08,AMC,2023-05-09,2023-05-08,-0.0365419885,-0.0043949652,-0.0321470233,0.0321470233,shock_computed,
+DVN-2023-08-01,DVN,2023-08-01,AMC,2023-08-02,2023-08-01,-0.0762310262,-0.0140084708,-0.0622225555,0.0622225555,shock_computed,
+DVN-2023-11-07,DVN,2023-11-07,AMC,2023-11-08,2023-11-07,-0.0248140729,0.0007321315,-0.0255462043,0.0255462043,shock_computed,
+DVN-2024-02-27,DVN,2024-02-27,AMC,2024-02-28,2024-02-27,-0.0065648435,-0.0013225219,-0.0052423216,0.0052423216,shock_computed,
+DVN-2024-05-01,DVN,2024-05-01,AMC,2024-05-02,2024-05-01,-0.0011912126,0.0093099653,-0.0105011779,0.0105011779,shock_computed,
+DVN-2024-08-06,DVN,2024-08-06,AMC,2024-08-07,2024-08-06,0.0279524637,-0.0067064389,0.0346589026,0.0346589026,shock_computed,
+DVN-2024-11-05,DVN,2024-11-05,AMC,2024-11-06,2024-11-05,0.0171375238,0.0245614380,-0.0074239143,0.0074239143,shock_computed,
+DVN-2025-02-18,DVN,2025-02-18,AMC,2025-02-19,2025-02-18,0.0742922218,0.0023521392,0.0719400826,0.0719400826,shock_computed,
+DVN-2025-05-06,DVN,2025-05-06,AMC,2025-05-07,2025-05-06,-0.0098555079,0.0041966874,-0.0140521953,0.0140521953,shock_computed,
+DVN-2025-08-05,DVN,2025-08-05,AMC,2025-08-06,2025-08-05,0.0043236443,0.0076305087,-0.0033068644,0.0033068644,shock_computed,
+DVN-2025-11-05,DVN,2025-11-05,AMC,2025-11-06,2025-11-05,0.0027790709,-0.0107873639,0.0135664347,0.0135664347,shock_computed,
+DVN-2026-02-17,DVN,2026-02-17,AMC,2026-02-18,2026-02-17,0.0090416012,0.0050250665,0.0040165347,0.0040165347,shock_computed,
+DVN-2026-05-05,DVN,2026-05-05,AMC,2026-05-06,2026-05-05,-0.0900290596,0.0138037281,-0.1038327877,0.1038327877,shock_computed,
+DVN-2026-08-04,DVN,2026-08-04,AMC,2026-08-05,2026-08-04,-0.0455151487,-0.0019985979,-0.0435165508,0.0435165508,shock_computed,
+GOOGL-2015-10-22,GOOGL,2015-10-22,AMC,2015-10-23,2015-10-22,0.0545523628,0.0109020634,0.0436502994,0.0436502994,shock_computed,
+GOOGL-2016-02-01,GOOGL,2016-02-01,AMC,2016-02-02,2016-02-01,0.0130698898,-0.0181865321,0.0312564219,0.0312564219,shock_computed,
+GOOGL-2016-04-21,GOOGL,2016-04-21,AMC,2016-04-22,2016-04-21,-0.0556617910,0.0000000000,-0.0556617910,0.0556617910,shock_computed,
+GOOGL-2016-07-28,GOOGL,2016-07-28,AMC,2016-07-29,2016-07-28,0.0327544791,0.0016132703,0.0311412089,0.0311412089,shock_computed,
+GOOGL-2016-10-27,GOOGL,2016-10-27,AMC,2016-10-28,2016-10-27,0.0027002194,-0.0029597865,0.0056600059,0.0056600059,shock_computed,
+GOOGL-2017-01-26,GOOGL,2017-01-26,AMC,2017-01-27,2017-01-26,-0.0140424481,-0.0015710263,-0.0124714218,0.0124714218,shock_computed,
+GOOGL-2017-04-27,GOOGL,2017-04-27,AMC,2017-04-28,2017-04-27,0.0364366203,-0.0021817759,0.0386183962,0.0386183962,shock_computed,
+GOOGL-2017-07-19,GOOGL,2017-07-19,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+GOOGL-2017-10-26,GOOGL,2017-10-26,AMC,2017-10-27,2017-10-26,0.0417325823,0.0081429410,0.0335896413,0.0335896413,shock_computed,
+GOOGL-2018-01-31,GOOGL,2018-01-31,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+GOOGL-2018-04-23,GOOGL,2018-04-23,AMC,2018-04-24,2018-04-23,-0.0488255227,-0.0135588753,-0.0352666474,0.0352666474,shock_computed,
+GOOGL-2018-07-23,GOOGL,2018-07-23,AMC,2018-07-24,2018-07-23,0.0381959555,0.0050194055,0.0331765500,0.0331765500,shock_computed,
+GOOGL-2018-10-25,GOOGL,2018-10-25,AMC,2018-10-26,2018-10-25,-0.0181412635,-0.0177438780,-0.0003973854,0.0003973854,shock_computed,
+GOOGL-2019-02-04,GOOGL,2019-02-04,AMC,2019-02-05,2019-02-04,0.0091135916,0.0041830856,0.0049305060,0.0049305060,shock_computed,
+GOOGL-2019-04-29,GOOGL,2019-04-29,AMC,2019-04-30,2019-04-29,-0.0779823239,0.0005102788,-0.0784926027,0.0784926027,shock_computed,
+GOOGL-2019-07-25,GOOGL,2019-07-25,AMC,2019-07-26,2019-07-25,0.0918517290,0.0066776871,0.0851740419,0.0851740419,shock_computed,
+GOOGL-2019-10-28,GOOGL,2019-10-28,AMC,2019-10-29,2019-10-28,-0.0222157607,-0.0002967679,-0.0219189929,0.0219189929,shock_computed,
+GOOGL-2020-02-03,GOOGL,2020-02-03,AMC,2020-02-04,2020-02-03,-0.0254042453,0.0151262950,-0.0405305403,0.0405305403,shock_computed,
+GOOGL-2020-04-28,GOOGL,2020-04-28,AMC,2020-04-29,2020-04-28,0.0851775066,0.0258416993,0.0593358074,0.0593358074,shock_computed,
+GOOGL-2020-07-30,GOOGL,2020-07-30,AMC,2020-07-31,2020-07-30,-0.0333241294,0.0078711439,-0.0411952734,0.0411952734,shock_computed,
+GOOGL-2020-10-29,GOOGL,2020-10-29,AMC,2020-10-30,2020-10-29,0.0373381389,-0.0104796010,0.0478177399,0.0478177399,shock_computed,
+GOOGL-2021-02-02,GOOGL,2021-02-02,AMC,2021-02-03,2021-02-02,0.0702953870,0.0007860056,0.0695093814,0.0695093814,shock_computed,
+GOOGL-2021-04-27,GOOGL,2021-04-27,AMC,2021-04-28,2021-04-27,0.0292750811,-0.0002874410,0.0295625221,0.0295625221,shock_computed,
+GOOGL-2021-07-27,GOOGL,2021-07-27,AMC,2021-07-28,2021-07-27,0.0313017670,-0.0004101504,0.0317119173,0.0317119173,shock_computed,
+GOOGL-2021-10-26,GOOGL,2021-10-26,AMC,2021-10-27,2021-10-26,0.0484043168,-0.0044400315,0.0528443483,0.0528443483,shock_computed,
+GOOGL-2022-02-01,GOOGL,2022-02-01,AMC,2022-02-02,2022-02-01,0.0725416523,0.0096672044,0.0628744480,0.0628744480,shock_computed,
+GOOGL-2022-04-26,GOOGL,2022-04-26,AMC,2022-04-27,2022-04-26,-0.0373995253,0.0028078373,-0.0402073626,0.0402073626,shock_computed,
+GOOGL-2022-07-26,GOOGL,2022-07-26,AMC,2022-07-27,2022-07-26,0.0737678534,0.0256349663,0.0481328871,0.0481328871,shock_computed,
+GOOGL-2022-10-25,GOOGL,2022-10-25,AMC,2022-10-26,2022-10-25,-0.0958559165,-0.0075626209,-0.0882932957,0.0882932957,shock_computed,
+GOOGL-2023-02-02,GOOGL,2023-02-02,AMC,2023-02-03,2023-02-02,-0.0278579951,-0.0106859836,-0.0171720115,0.0171720115,shock_computed,
+GOOGL-2023-04-20,GOOGL,2023-04-20,AMC,2023-04-21,2023-04-20,0.0011390864,0.0007766414,0.0003624450,0.0003624450,shock_computed,
+GOOGL-2023-04-25,GOOGL,2023-04-25,AMC,2023-04-26,2023-04-25,-0.0013490019,-0.0042446174,0.0028956155,0.0028956155,shock_computed,
+GOOGL-2023-07-20,GOOGL,2023-07-20,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+GOOGL-2023-10-18,GOOGL,2023-10-18,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+GOOGL-2024-01-30,GOOGL,2024-01-30,AMC,2024-01-31,2024-01-30,-0.0779651111,-0.0164519143,-0.0615131968,0.0615131968,shock_computed,
+GOOGL-2024-04-25,GOOGL,2024-04-25,AMC,2024-04-26,2024-04-25,0.0973477119,0.0094293153,0.0879183966,0.0879183966,shock_computed,
+GOOGL-2024-07-23,GOOGL,2024-07-23,AMC,2024-07-24,2024-07-23,-0.0517015337,-0.0229232578,-0.0287782759,0.0287782759,shock_computed,
+GOOGL-2024-10-29,GOOGL,2024-10-29,AMC,2024-10-30,2024-10-29,0.0277812604,-0.0030298526,0.0308111130,0.0308111130,shock_computed,
+GOOGL-2025-02-04,GOOGL,2025-02-04,AMC,2025-02-05,2025-02-04,-0.0757194579,0.0040463428,-0.0797658007,0.0797658007,shock_computed,
+GOOGL-2025-04-23,GOOGL,2025-04-23,UNKNOWN,,,,,,,denied_session,"release session 'UNKNOWN' is unresolved. AS-1 needs the session the release is attributed to; this module refuses to guess it, for the same reason earnings_events refuses to classify it."
+GOOGL-2025-07-23,GOOGL,2025-07-23,AMC,2025-07-24,2025-07-23,0.0101465435,0.0003310042,0.0098155393,0.0098155393,shock_computed,
+GOOGL-2025-10-29,GOOGL,2025-10-29,AMC,2025-10-30,2025-10-29,0.0248551719,-0.0110590460,0.0359142179,0.0359142179,shock_computed,
+GOOGL-2026-02-04,GOOGL,2026-02-04,AMC,2026-02-05,2026-02-04,-0.0053892512,-0.0125679092,0.0071786580,0.0071786580,shock_computed,
+GOOGL-2026-04-29,GOOGL,2026-04-29,AMC,2026-04-30,2026-04-29,0.0949619689,0.0099004558,0.0850615131,0.0850615131,shock_computed,
+GOOGL-2026-07-22,GOOGL,2026-07-22,AMC,2026-07-23,2026-07-22,-0.0739977774,-0.0124261734,-0.0615716040,0.0615716040,shock_computed,

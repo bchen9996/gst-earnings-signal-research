@@ -1,0 +1,83 @@
+{
+  "artifact": "HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-12.json",
+  "as_of_date": "2026-09-12",
+  "hypothesis_id": "HYP-05",
+  "what_this_is": "Real earnings-event shocks for DELL, DVN and GOOGL -- the 3 anchor tickers HYP-05's round-4 reverse search sourced peers (CNXN, NGS, TTWO respectively) for, and which have zero rows in HYP-04's own HYP04_ANCHOR_SHOCKS_2026-08-31.csv because they never qualified under anchor_universe.py's DIFFERENT, own-disclosure-direction rule. See module docstring.",
+  "what_this_is_not": "This does NOT add DELL, DVN or GOOGL to HYP-04's anchor universe, does not touch HYP04_ANCHOR_EVENT_CALENDAR_*.csv or HYP04_ANCHOR_SHOCKS_2026-08-31.csv (neither read nor writable by this module), and moves no HYP-04 gate condition. It is HYP-05-side evidence only.",
+  "rules": {
+    "shock_rule_id": "HYP04-ANCHOR-SHOCK-RULE-v1",
+    "event_rule_id": "HYP04-ANCHOR-EVENT-RULE-v1",
+    "dedup_rule": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession -- the identical rule anchor_calendar.DEDUP_RULE states, applied here directly to unwrapped CandidateEvents because there is no membership interval to place them into",
+    "shock_definition": "abs(anchor_return - beta * benchmark_return)",
+    "benchmark_ticker": "SPY",
+    "benchmark_beta": 1.0,
+    "beta_is_estimated": false,
+    "return_basis": "log"
+  },
+  "lineage_check": "CNXN/DELL as_of 2022-03-14 -> CIK 0001571996, one continuous filer since the 2013 Dell LBO, RENAMED (not re-incorporated) from 'Denali Holding Inc.' to 'Dell Technologies Inc' in 2016 -- 2022 is 6 years inside the renamed era. TTWO/GOOGL as_of 2023-05-26 -> Alphabet Inc, CIK 0001652044, created by the October 2015 holding-company restructuring; candidate events start exactly there (2015-10-22) with nothing earlier, so no pre-restructuring Google Inc. filing is mixed in. NGS/DVN as_of 2010-03-04 -> Devon Energy Corp/DE, CIK 0001090012, one continuous filer since 1999. Checked against each CIK's actual formerNames history, not assumed. The current ticker->CIK mapping is the correct entity in all three cases.",
+  "sources": {
+    "edgar_cache": ".edgar_cache",
+    "live_requests_made": 0,
+    "tickers_requested": [
+      "DELL",
+      "DVN",
+      "GOOGL"
+    ],
+    "candidate_events_per_ticker": {
+      "DELL": 41,
+      "DVN": 95,
+      "GOOGL": 45
+    },
+    "duplicate_filings_superseded": {
+      "DELL": [],
+      "DVN": [
+        {
+          "event_id": "DVN-2007-08-01",
+          "anchor_ticker": "DVN",
+          "release_date": "2007-08-01",
+          "superseded_accession": "0000950134-07-016738",
+          "kept_accession": "0000950134-07-016453",
+          "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession -- the identical rule anchor_calendar.DEDUP_RULE states, applied here directly to unwrapped CandidateEvents because there is no membership interval to place them into"
+        },
+        {
+          "event_id": "DVN-2015-02-17",
+          "anchor_ticker": "DVN",
+          "release_date": "2015-02-17",
+          "superseded_accession": "0001193125-15-056337",
+          "kept_accession": "0000950123-15-003326",
+          "reason": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession -- the identical rule anchor_calendar.DEDUP_RULE states, applied here directly to unwrapped CandidateEvents because there is no membership interval to place them into"
+        }
+      ],
+      "GOOGL": []
+    },
+    "fetch_errors": {}
+  },
+  "session_index": {
+    "calendar_id": "XNYS_exchange_calendars_v4.13.2",
+    "index_start": "1995-01-01",
+    "wide_first_session": "1995-01-03",
+    "authoritative_first_session": "2006-09-12",
+    "overlap_first": "2006-09-12",
+    "overlap_last": "2027-09-10",
+    "overlap_sessions": 5281,
+    "disagreements": 0,
+    "only_in_wide": [],
+    "only_in_authoritative": [],
+    "agrees": true,
+    "why_wider": "The authoritative instance is built with no `start`, so its first session is a package default rather than a data limit. HYP-04's anchor calendar reaches earlier, and dropping those events would let data availability decide membership.",
+    "requested_first": "2003-07-17",
+    "requested_last": "2026-08-24",
+    "sessions_returned": 5813,
+    "earliest_release_date": "2003-08-06",
+    "latest_release_date": "2026-08-04",
+    "pad_days": 20
+  },
+  "counts": {
+    "events_total": 181,
+    "shock_computed": 139,
+    "denied_session": 41,
+    "denied_closes": 1,
+    "denied_other": 0
+  },
+  "every_event_has_a_row": "All candidate events appear, computed or denied -- same discipline as make_anchor_shocks.py."
+}

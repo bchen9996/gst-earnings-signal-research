@@ -1,0 +1,4157 @@
+{
+  "artifact": "HYP05_PEER_UNIVERSE_AUGMENTED_ANCHORS_2026-09-12.json",
+  "hypothesis_id": "HYP-05",
+  "inputs": {
+    "name_search": "Live Signal Engine\\HYP05_PEER_NAME_SEARCH_REVERSE_SEARCH_HANDREVIEWED_2026-09-12.json",
+    "candidate_linkage": "Live Signal Engine\\HYP05_CANDIDATE_LINKAGE_REVERSE_SEARCH_HANDREVIEWED_2026-09-12.json",
+    "anchor_shocks_csv": [
+      "Live Signal Engine\\HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+      "Live Signal Engine\\HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-12.csv"
+    ]
+  },
+  "what_this_is": "Real point-in-time market-cap evaluation of every resolved, tradeable HYP-05 candidate peer, against EVERY real HYP-04 anchor event (not a sample) for its anchor.",
+  "adjustment_note": "Closes fetched with auto_adjust=False -- raw historical price, matching shares_outstanding.py's raw, as-disclosed share count. See module docstring for why auto_adjust=True would silently understate market cap after any later split.",
+  "candidates_evaluated": 222,
+  "peer_tickers": [
+    "AMAT",
+    "CNXN",
+    "NGS",
+    "SHOE",
+    "TTWO"
+  ],
+  "errors": {},
+  "derivation": {
+    "derived": true,
+    "rule_id": "HYP05-PEER-SELECTION-RULE-v1",
+    "refusals": [],
+    "members": [
+      "CNXN",
+      "NGS"
+    ]
+  },
+  "qualifications": [
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2016-09-06). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2016-09-06",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 674221135.0812798,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2016-12-08). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2016-12-08",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 764376988.8168316,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2017-03-30). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-03-30",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 772718832.238512,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2017-06-08). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-06-08",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 710506547.3829193,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2017-09-07). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-09-07",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 687826276.3339844,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2017-12-07). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-12-07",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 714636635.8706474,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2018-03-08). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-03-08",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 702301468.7810936,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2018-06-04). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-06-04",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 799966011.3253441,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2018-09-06). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-09-06",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1043266940.3410416,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2018-11-29). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-11-29",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 839591211.9313164,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2019-02-28). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-02-28",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1062162328.2242775,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2019-05-30). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-05-30",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 866956012.4215851,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2019-08-29). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-08-29",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 929027956.8209038,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2019-11-26). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-11-26",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1312128889.2421722,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2020-05-28). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2020-05-28",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1133846604.8973618,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2020-08-27). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2020-08-27",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1145872253.0258484,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2020-11-24). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2020-11-24",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1215066244.2912445,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2021-02-25). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-02-25",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1220824884.2637482,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2021-05-27). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-05-27",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1290503952.0332336,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2021-08-26). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-08-26",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1270298565.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2021-11-23). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-11-23",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1248352797.394638,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2022-03-14) does not strictly precede the anchor_event_date (2022-02-24). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-02-24",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1257526040.402298,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-05-26",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1154962176.5942688,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-08-25",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1367015479.987732,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-11-21",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1422988738.3589935,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2023-06-01",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1168301938.5621414,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2023-08-31",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1394760338.034729,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2023-11-30",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1566570825.2910118,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-02-29",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1743903491.8231125,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-05-30",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1738668193.9951935,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-08-29",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1893373532.1883392,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-11-26",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1938849150.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-02-27",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1638663260.9931946,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-05-29",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1664280975.1375122,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-08-28",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1628450636.9237823,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-11-25",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1475078446.024231,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2026-02-26",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1537358734.4252014,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNXN",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNXN",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2026-05-28",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2022-03-14",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1714109816.666214,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2003-08-06). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-08-06"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2003-08-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2003-11-06). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-11-06"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2003-11-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2004-02-05). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-02-05"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2004-02-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2004-08-05). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-08-05"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2004-08-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2005-02-02). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-02-02"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2005-02-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2006-05-03). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-05-03"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2006-05-03",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2007-02-07). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-02-07"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2007-02-07",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2010-03-04) does not strictly precede the anchor_event_date (2007-08-01). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-08-01"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2007-08-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2012-05-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 154444032.59981632,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2012-08-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 173616283.46798038,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2012-11-07",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 195339669.91146564,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2013-05-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 247739816.79163742,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2014-08-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 383298978.65208626,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2014-11-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 295958726.5587616,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2015-02-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 253768345.0809288,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2015-05-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 303210780.79940796,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2015-08-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 249322457.688509,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2015-11-03",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 293828997.8831558,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2016-02-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 209289304.55244255,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2016-05-03",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 289291646.87312126,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2016-08-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 312600681.98537445,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2016-11-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 276002007.51691437,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2017-02-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 368688994.9909706,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2017-05-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 347864599.9978523,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2017-08-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 319552875.97042465,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2017-10-31",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 359658681.52957535,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2018-02-20",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 339060419.2733803,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2018-05-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 310925184.8046799,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2018-07-31",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 289191919.6917629,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2018-10-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 263431354.7973671,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2018-11-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 248905350.11052704,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2019-02-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 245028440.72303772,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2019-04-30",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 212012213.0538025,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2019-08-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 188457347.25,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2019-11-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 167850256.4397421,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2020-02-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 146692627.9546938,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2020-05-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 72265873.87626123,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2020-08-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 90717665.32766008,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2020-10-29",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 116755110.9074173,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2021-02-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 135900183.96517563,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2021-05-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 122452227.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2021-08-03",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 138832126.0039091,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2021-11-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 155868295.91253662,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2022-02-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 152422619.63873577,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2022-05-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 157060956.9513359,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2022-11-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 140205139.97881222,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2023-02-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 139894535.60363388,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2023-05-08",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 128459372.68128967,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2023-08-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 129391533.71898079,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2023-11-07",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 171634631.9722252,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2024-02-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 205837173.11109924,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2024-05-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 279087947.2021141,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2024-08-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 217275674.240139,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2024-11-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 253202224.59197044,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2025-02-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 346029311.9449234,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2025-05-06",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 237123645.66993713,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2025-08-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 304602567.298296,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2025-11-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 353316986.3369026,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2026-02-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 468192158.25,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2026-05-05",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 516848022.96647644,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "NGS",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "NGS",
+          "anchor_ticker": "DVN",
+          "anchor_event_date": "2026-08-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2010-03-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 469037123.1829262,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2015-10-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,797,818,156 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2015-10-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2797818156.2930794,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2016-02-01). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,929,627,501 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-02-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2929627501.473522,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2016-04-21). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $3,104,139,384 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-04-21",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3104139383.5863113,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2016-07-28). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $3,420,511,652 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-07-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3420511652.1906815,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2016-10-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $3,879,290,440 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-10-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3879290439.95105,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2017-01-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $4,652,617,039 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2017-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 4652617038.75,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2017-04-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $6,404,054,158 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2017-04-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 6404054158.439682,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2017-10-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $11,231,227,463 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2017-10-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 11231227462.529709,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2018-04-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $11,224,760,235 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2018-04-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 11224760234.64428,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2018-07-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $14,503,336,672 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2018-07-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14503336672.258911,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2018-10-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $13,739,065,445 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2018-10-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13739065444.52385,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2019-02-04). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $12,104,601,920 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-02-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 12104601920.009995,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2019-04-29). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $10,993,682,449 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-04-29",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 10993682449.371414,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2019-07-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $13,420,573,994 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-07-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13420573994.25,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2019-10-28). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $13,896,007,348 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-10-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13896007348.183136,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2020-02-03). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $14,094,692,065 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-02-03",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14094692064.746292,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2020-04-28). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $13,668,765,407 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-04-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13668765407.030495,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2020-07-30). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $18,180,706,507 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-07-30",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18180706507.419434,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2020-10-29). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $18,610,933,150 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-10-29",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18610933149.76822,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2021-02-02). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $23,822,127,996 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-02-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23822127995.513626,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2021-04-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $20,073,160,701 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-04-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 20073160701.402283,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2021-07-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $19,372,395,578 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-07-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19372395577.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2021-10-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $21,269,255,358 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-10-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21269255358.4514,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2022-02-01). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $18,476,790,706 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-02-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18476790706.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2022-04-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $14,428,174,658 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-04-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14428174658.175522,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2022-07-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $15,182,536,222 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-07-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15182536222.240906,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2022-10-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $20,841,337,892 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-10-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 20841337892.490143,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2023-02-02). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $19,252,210,340 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2023-02-02",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19252210339.57733,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2023-04-20). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $21,107,930,456 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2023-04-20",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21107930456.109238,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2023-05-26) does not strictly precede the anchor_event_date (2023-04-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $21,423,352,289 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2023-04-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21423352288.61767,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $28,391,088,898 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-01-30",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 28391088898.00415,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $24,467,207,680 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-04-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 24467207680.31781,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $26,000,878,061 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-07-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 26000878060.71872,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $28,444,888,351 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-10-29",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 28444888350.75177,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $32,234,650,165 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2025-02-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 32234650165.001022,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $40,582,398,449 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2025-07-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 40582398448.79901,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $46,436,685,679 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2025-10-29",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 46436685678.618225,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $37,175,823,529 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2026-02-04",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 37175823529.36084,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $39,875,682,017 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2026-04-29",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 39875682016.90723,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "TTWO",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $43,368,019,484 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "TTWO",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2026-07-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2023-05-26",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 43368019483.50581,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-07-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-07-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-10-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-10-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-01-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-01-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-07-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-07-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-10-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-10-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-01-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-01-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-04-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-04-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-07-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-07-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-10-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-10-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-01-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-04-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-04-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-07-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-07-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-10-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-10-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-01-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-04-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-04-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-07-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-07-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $17,925,115,627 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-10-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 17925115627.23133,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,247,067,635 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-01-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19247067635.199715,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,537,129,541 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-04-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18537129540.608467,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,814,100,988 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-07-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16814100987.527119,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $15,979,373,486 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-10-12",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15979373486.446949,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,906,237,058 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-01-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18906237058.036972,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,276,539,060 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19276539060.437477,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,843,884,569 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-05-09",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19843884568.548607,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,728,593,990 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-07-20",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16728593989.930218,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $15,362,416,832 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-10-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15362416832.44065,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,072,393,237 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-01-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16072393236.557129,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $15,532,195,282 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-04-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 15532195282.163277,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $13,316,996,578 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-07-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13316996577.501173,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $13,859,945,455 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-10-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13859945455.16653,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $14,850,979,873 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-01-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14850979872.72908,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $16,152,597,104 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-04-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 16152597104.45806,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $20,054,715,924 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-07-17",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 20054715924.163994,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,434,367,631 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-10-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21434367631.266487,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,229,753,513 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-01-16",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21229753512.61902,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,840,747,934 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-04-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22840747934.1774,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $27,866,317,303 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-07-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 27866317302.957153,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $23,563,746,257 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-10-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23563746257.35222,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $28,496,941,270 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-01-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 28496941270.19908,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $27,277,068,166 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-04-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 27277068165.821205,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,870,779,647 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-07-15",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22870779646.606033,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,177,378,386 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-10-13",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18177378385.579964,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,316,931,655 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-01-14",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19316931655.38656,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $23,971,361,937 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-04-19",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23971361937.474392,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $29,025,684,626 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-07-20",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 29025684626.124573,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $30,286,646,340 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-10-18",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 30286646339.91394,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $36,581,852,661 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 36581852660.5053,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $44,629,417,331 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-04-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 44629417331.21962,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $49,476,044,820 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-07-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 49476044820.17471,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $59,648,627,464 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-10-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 59648627463.91605,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $58,901,556,440 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-01-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 58901556439.607185,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $53,049,213,689 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-04-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 53049213689.03409,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $47,549,611,088 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-07-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 47549611087.74942,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $32,084,810,005 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-10-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 32084810005.4702,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $36,254,482,145 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-01-24",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 36254482144.71664,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $42,200,502,194 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-04-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 42200502194.379074,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $47,572,852,206 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-07-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 47572852206.10345,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $50,871,119,061 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-10-24",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 50871119061.012726,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $58,478,778,263 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-01-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 58478778262.56271,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $46,741,731,704 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-04-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 46741731703.8224,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $58,315,578,392 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-07-23",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 58315578392.4955,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $56,349,547,236 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-10-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 56349547235.57945,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $98,721,743,202 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-01-21",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 98721743202.47281,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $120,901,814,616 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-04-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 120901814616.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $125,379,873,414 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-07-22",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 125379873413.88501,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $120,464,627,791 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 120464627790.75635,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $101,263,525,042 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-04-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 101263525042.25415,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $91,483,658,835 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-07-28",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 91483658835.16208,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $74,451,174,273 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-10-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 74451174273.21677,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $97,565,670,614 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-01-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 97565670614.426,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $94,382,826,185 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-04-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 94382826185.26968,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $122,720,686,716 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-07-27",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 122720686715.55885,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $109,452,086,132 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-10-26",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 109452086132.20154,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $143,467,118,394 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-01-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 143467118394.09485,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $164,102,227,810 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-04-25",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 164102227810.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $162,531,461,263 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-08-01",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 162531461263.17865,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "AMAT",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $147,862,773,411 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "AMAT",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2025-01-30",
+          "relationship_type": "direct_supplier",
+          "as_of_date": "2004-01-13",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 147862773410.62738,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-04-04) does not strictly precede the anchor_event_date (2003-09-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-09-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2003-09-18",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-04-04) does not strictly precede the anchor_event_date (2003-12-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-12-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2003-12-18",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-04-04) does not strictly precede the anchor_event_date (2004-03-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-03-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2004-03-18",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SHOE",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-04-04) does not strictly precede the anchor_event_date (2004-06-24). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-06-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SHOE",
+          "anchor_ticker": "NKE",
+          "anchor_event_date": "2004-06-24",
+          "relationship_type": "direct_customer",
+          "as_of_date": "2016-04-04",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    }
+  ],
+  "report": "rule: HYP05-PEER-SELECTION-RULE-v1\nderived: True\nqualifying peers: 2\n  - CNXN\n  - NGS\ndenied candidates: 153"
+}
