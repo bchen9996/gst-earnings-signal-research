@@ -54,11 +54,27 @@ EARNINGS_OUT = LSE / f"HYP06_PEER_EARNINGS_{AS_OF}.json"
 CONTACT = "bchen9996 bchen9996@gmail.com"
 CACHE_DIR = Path(".edgar_cache")
 
-# Well before any HYP-06 locked peer's real anchor-event history (round 6's
-# own qualifying ranges reach back into the early-to-mid 2000s -- NGS/DVN,
-# CKX/EOG, SIG/SPG) -- bounded by what the provider actually returns, not
-# by an assumption about when any individual ticker's own history starts.
-CLOSES_START = date(1995, 1, 1)
+# Well before HYP-06's real universe needs (the earliest locked anchor
+# event, across all 778, is 2009-07-15 -- read directly from the signed
+# lock, not assumed), with real margin from `sessions.py`'s own supported
+# calendar floor (`DEFAULT_INDEX_START = "1995-01-01"`).
+#
+# CORRECTED 2026-09-13: an earlier version of this constant was
+# `date(1995, 1, 1)` -- deliberately "well before any real need," but
+# that reasoning only accounted for the peers' own history, not
+# `make_event_panel._session_index`'s own `INDEX_PAD_DAYS = 200` padding
+# around the EARLIEST observed date (event dates AND every observed close
+# date together). Several peers' real yfinance history reaches back to
+# exactly 1995-01-03 (this constant's own old floor, not a coincidence),
+# so padding 200 days further back landed before the calendar's own
+# supported start and `make_hyp06_phase3_run.py`'s real run refused
+# outright (correctly -- a clipped calendar is exactly what that refusal
+# exists to prevent). Since no locked event needs data before 2009, this
+# is bounded to 2000-01-01 instead: real margin past the calendar floor,
+# real margin before the earliest genuine need, and no analysis anywhere
+# reads bytes at this bound as meaningful. The superseded 1995-bound fetch
+# (commit 9753844) was never consumed by any successful Phase 3 run.
+CLOSES_START = date(2000, 1, 1)
 
 
 def _load_locked_peers(lock_path: Path) -> list[str]:
