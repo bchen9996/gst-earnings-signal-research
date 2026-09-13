@@ -1,0 +1,1946 @@
+{
+ "artifact": "HYP05_PEER_NAME_SEARCH_REVERSE_SEARCH_SCALED_2026-09-13.json",
+ "as_of_date": "2026-09-13",
+ "hypothesis_id": "HYP-05",
+ "results": [
+  {
+   "counterparty": "Avago Technologies LTD  (CIK 0001441634)",
+   "anchor_ticker": "AAPL",
+   "registrant_cik": "0001441634",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AUDIENCE INC  (CIK 0001201663)",
+   "anchor_ticker": "AAPL",
+   "registrant_cik": "0001201663",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PDL BIOPHARMA, INC.  (CIK 0000882104)",
+   "anchor_ticker": "ABBV",
+   "registrant_cik": "0000882104",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "LUXURBAN HOTELS INC.  (LUXH, LUXHP)  (CIK 0001893311)",
+   "anchor_ticker": "ABNB",
+   "registrant_cik": "0001893311",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ICU MEDICAL INC/DE  (ICUI)  (CIK 0000883984)",
+   "anchor_ticker": "ABT",
+   "registrant_cik": "0000883984",
+   "peer_ticker": "ICUI",
+   "tradeable": true
+  },
+  {
+   "counterparty": "AVATECH SOLUTIONS INC  (CIK 0000852437)",
+   "anchor_ticker": "ADSK",
+   "registrant_cik": "0000852437",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ADVANCED POWER TECHNOLOGY INC  (CIK 0001114973)",
+   "anchor_ticker": "AEIS",
+   "registrant_cik": "0001114973",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Dresser-Rand Group Inc.  (CIK 0001316656)",
+   "anchor_ticker": "AEIS",
+   "registrant_cik": "0001316656",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CCA INDUSTRIES INC  (CIK 0000721447)",
+   "anchor_ticker": "AEP",
+   "registrant_cik": "0000721447",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CENTRUS ENERGY CORP  (LEU)  (CIK 0001065059)",
+   "anchor_ticker": "AEP",
+   "registrant_cik": "0001065059",
+   "peer_ticker": "LEU",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SUNEDISON, INC.  (CIK 0000945436)",
+   "anchor_ticker": "AES",
+   "registrant_cik": "0000945436",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "INTERCLOUD SYSTEMS, INC.  (CIK 0001128725)",
+   "anchor_ticker": "AFG",
+   "registrant_cik": "0001128725",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "THANKSGIVING COFFEE CO INC  (CIK 0000949852)",
+   "anchor_ticker": "ALLY",
+   "registrant_cik": "0000949852",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "GOOD TIMES RESTAURANTS INC  (GTIM)  (CIK 0000825324)",
+   "anchor_ticker": "ALLY",
+   "registrant_cik": "0000825324",
+   "peer_ticker": "GTIM",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SUNTRON CORP  (CIK 0001160513)",
+   "anchor_ticker": "AMAT",
+   "registrant_cik": "0001160513",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "HELIX TECHNOLOGY CORP  (CIK 0000046709)",
+   "anchor_ticker": "AMAT",
+   "registrant_cik": "0000046709",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PRIORITY HEALTHCARE CORP  (CIK 0001037975)",
+   "anchor_ticker": "AMGN",
+   "registrant_cik": "0001037975",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MEMSIC Inc  (CIK 0001386198)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0001386198",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "METALS USA HOLDINGS CORP.  (CIK 0001362491)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0001362491",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "INTER PARFUMS INC  (IPAR)  (CIK 0000822663)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0000822663",
+   "peer_ticker": "IPAR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Poshmark, Inc.  (CIK 0001825480)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0001825480",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "GLOBAL DEFENSE TECHNOLOGY & SYSTEMS, INC.  (CIK 0001471038)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0001471038",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "OPEN TEXT CORP  (OTEX)  (CIK 0001002638)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0001002638",
+   "peer_ticker": "OTEX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "TELEWEST GLOBAL INC  (CIK 0001270400)",
+   "anchor_ticker": "AMP",
+   "registrant_cik": "0001270400",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BERLINER COMMUNICATIONS INC  (CIK 0000826773)",
+   "anchor_ticker": "AMT",
+   "registrant_cik": "0000826773",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AIRGAS INC  (CIK 0000804212)",
+   "anchor_ticker": "APD",
+   "registrant_cik": "0000804212",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "RED D ARC INC  (CIK 0001158062)",
+   "anchor_ticker": "APD",
+   "registrant_cik": "0001158062",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Affinion Group, Inc.  (CIK 0001361394)",
+   "anchor_ticker": "APO",
+   "registrant_cik": "0001361394",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Floor & Decor Holdings, Inc.  (FND)  (CIK 0001507079)",
+   "anchor_ticker": "ARES",
+   "registrant_cik": "0001507079",
+   "peer_ticker": "FND",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ADUROMED INDUSTRIES, INC.  (CIK 0000040528)",
+   "anchor_ticker": "ARMK",
+   "registrant_cik": "0000040528",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ALTERA CORP  (CIK 0000768251)",
+   "anchor_ticker": "ARW",
+   "registrant_cik": "0000768251",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CYPRESS SEMICONDUCTOR CORP /DE/  (CIK 0000791915)",
+   "anchor_ticker": "ARW",
+   "registrant_cik": "0000791915",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CYPRESS SEMICONDUCTOR CORP /DE/  (CIK 0000791915)",
+   "anchor_ticker": "AVT",
+   "registrant_cik": "0000791915",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ARUBA NETWORKS, INC.  (CIK 0001173752)",
+   "anchor_ticker": "AVT",
+   "registrant_cik": "0001173752",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "IMPINJ INC  (PI)  (CIK 0001114995)",
+   "anchor_ticker": "AVY",
+   "registrant_cik": "0001114995",
+   "peer_ticker": "PI",
+   "tradeable": true
+  },
+  {
+   "counterparty": "US DATAWORKS INC  (CIK 0001049505)",
+   "anchor_ticker": "AXP",
+   "registrant_cik": "0001049505",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BROADCOM CORP  (CIK 0001054374)",
+   "anchor_ticker": "BAC",
+   "registrant_cik": "0001054374",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Talecris Biotherapeutics Holdings Corp.  (CIK 0001405197)",
+   "anchor_ticker": "BAX",
+   "registrant_cik": "0001405197",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "OWENS & MINOR INC/VA/  (OMI)  (CIK 0000075252)",
+   "anchor_ticker": "BDX",
+   "registrant_cik": "0000075252",
+   "peer_ticker": "ACH",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PENWEST PHARMACEUTICALS CO  (CIK 0001047188)",
+   "anchor_ticker": "BEN",
+   "registrant_cik": "0001047188",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "JAKKS PACIFIC INC  (JAKK)  (CIK 0001009829)",
+   "anchor_ticker": "BEN",
+   "registrant_cik": "0001009829",
+   "peer_ticker": "JAKK",
+   "tradeable": true
+  },
+  {
+   "counterparty": "MEDICINES CO /DE  (CIK 0001113481)",
+   "anchor_ticker": "BEN",
+   "registrant_cik": "0001113481",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CommScope Holding Company, Inc.  (COMM)  (CIK 0001517228)",
+   "anchor_ticker": "BEN",
+   "registrant_cik": "0001517228",
+   "peer_ticker": "VISN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "INTEGRATED CIRCUIT SYSTEMS INC  (CIK 0000874689)",
+   "anchor_ticker": "BEN",
+   "registrant_cik": "0000874689",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "SJW GROUP  (SJW)  (CIK 0000766829)",
+   "anchor_ticker": "BHF",
+   "registrant_cik": "0000766829",
+   "peer_ticker": "HTO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SERACARE LIFE SCIENCES INC  (CIK 0001156295)",
+   "anchor_ticker": "BIIB",
+   "registrant_cik": "0001156295",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Liberty TripAdvisor Holdings, Inc.  (LTRPA, LTRPB)  (CIK 0001606745)",
+   "anchor_ticker": "BKNG",
+   "registrant_cik": "0001606745",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Super Micro Computer, Inc.  (SMCI)  (CIK 0001375365)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0001375365",
+   "peer_ticker": "SMCI",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ATMEL CORP  (CIK 0000872448)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0000872448",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Autodesk, Inc.  (ADSK)  (CIK 0000769397)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0000769397",
+   "peer_ticker": "ADSK",
+   "tradeable": true
+  },
+  {
+   "counterparty": "McAfee, Inc.  (CIK 0000890801)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0000890801",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AKORN INC  (CIK 0000003116)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0000003116",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "NATUS MEDICAL INC  (CIK 0000878526)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0000878526",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "FutureFuel Corp.  (FF)  (CIK 0001337298)",
+   "anchor_ticker": "BLK",
+   "registrant_cik": "0001337298",
+   "peer_ticker": "FF",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Avery Dennison Corp  (AVY)  (CIK 0000008818)",
+   "anchor_ticker": "BNY",
+   "registrant_cik": "0000008818",
+   "peer_ticker": "AVY",
+   "tradeable": true
+  },
+  {
+   "counterparty": "STEVEN MADDEN, LTD.  (SHOO)  (CIK 0000913241)",
+   "anchor_ticker": "BURL",
+   "registrant_cik": "0000913241",
+   "peer_ticker": "SHOO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "MGM MIRAGE  (MGM)  (CIK 0000789570)",
+   "anchor_ticker": "BYD",
+   "registrant_cik": "0000789570",
+   "peer_ticker": "MGM",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Adams Respiratory Therapeutics, Inc.  (CIK 0001319439)",
+   "anchor_ticker": "CAH",
+   "registrant_cik": "0001319439",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "HEMOSENSE INC  (CIK 0001127393)",
+   "anchor_ticker": "CAH",
+   "registrant_cik": "0001127393",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ROYAL GOLD INC  (RGLD)  (CIK 0000085535)",
+   "anchor_ticker": "CDE",
+   "registrant_cik": "0000085535",
+   "peer_ticker": "RGLD",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Carbon Black, Inc.  (CIK 0001366527)",
+   "anchor_ticker": "CDW",
+   "registrant_cik": "0001366527",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Ormat Funding Corp.  (CIK 0001312500)",
+   "anchor_ticker": "CEG",
+   "registrant_cik": "0001312500",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "SPESCOM SOFTWARE INC  (CIK 0000813747)",
+   "anchor_ticker": "CEG",
+   "registrant_cik": "0000813747",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "HUB INTERNATIONAL LTD  (CIK 0001133016)",
+   "anchor_ticker": "CFG",
+   "registrant_cik": "0001133016",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "FASTENAL CO  (FAST)  (CIK 0000815556)",
+   "anchor_ticker": "CHRW",
+   "registrant_cik": "0000815556",
+   "peer_ticker": "FAST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CSG SYSTEMS INTERNATIONAL INC  (CSGS)  (CIK 0001005757)",
+   "anchor_ticker": "CHTR",
+   "registrant_cik": "0001005757",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AVANEX CORP  (CIK 0001056794)",
+   "anchor_ticker": "CIEN",
+   "registrant_cik": "0001056794",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "WEIRTON STEEL CORP  (CIK 0000849979)",
+   "anchor_ticker": "CLF",
+   "registrant_cik": "0000849979",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ROUGE INDUSTRIES INC  (CIK 0000918577)",
+   "anchor_ticker": "CLF",
+   "registrant_cik": "0000918577",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "KEY TRONIC CORP  (KTCC)  (CIK 0000719733)",
+   "anchor_ticker": "CLX",
+   "registrant_cik": "0000719733",
+   "peer_ticker": "KTCC",
+   "tradeable": true
+  },
+  {
+   "counterparty": "DYCOM INDUSTRIES INC  (DY)  (CIK 0000067215)",
+   "anchor_ticker": "CMCSA",
+   "registrant_cik": "0000067215",
+   "peer_ticker": "DY",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Support.com, Inc.  (CIK 0001104855)",
+   "anchor_ticker": "CMCSA",
+   "registrant_cik": "0001104855",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "INSIGHT MIDWEST LP  (CIK 0001110458)",
+   "anchor_ticker": "CMCSA",
+   "registrant_cik": "0001110458",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "FGI Industries Ltd.  (FGI, FGIWW)  (CIK 0001864943)",
+   "anchor_ticker": "CME",
+   "registrant_cik": "0001864943",
+   "peer_ticker": "FGI",
+   "tradeable": true
+  },
+  {
+   "counterparty": "NEXSTAR MEDIA GROUP, INC.  (NXST)  (CIK 0001142417)",
+   "anchor_ticker": "CME",
+   "registrant_cik": "0001142417",
+   "peer_ticker": "NXST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Astrana Health, Inc.  (ASTH)  (CIK 0001083446)",
+   "anchor_ticker": "CME",
+   "registrant_cik": "0001083446",
+   "peer_ticker": "ASTH",
+   "tradeable": true
+  },
+  {
+   "counterparty": "DOLLAR GENERAL CORP  (DG)  (CIK 0000029534)",
+   "anchor_ticker": "CME",
+   "registrant_cik": "0000029534",
+   "peer_ticker": "DG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Clearfield, Inc.  (CLFD)  (CIK 0000796505)",
+   "anchor_ticker": "CME",
+   "registrant_cik": "0000796505",
+   "peer_ticker": "CLFD",
+   "tradeable": true
+  },
+  {
+   "counterparty": "BreitBurn Energy Partners L.P.  (CIK 0001357371)",
+   "anchor_ticker": "COP",
+   "registrant_cik": "0001357371",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Amneal Pharmaceuticals, Inc.  (AMRX)  (CIK 0001723128)",
+   "anchor_ticker": "COR",
+   "registrant_cik": "0001723128",
+   "peer_ticker": "AMRX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Elanco Animal Health Inc  (ELAN)  (CIK 0001739104)",
+   "anchor_ticker": "COR",
+   "registrant_cik": "0001739104",
+   "peer_ticker": "ELAN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Bridgeline Digital, Inc.  (BLIN)  (CIK 0001378590)",
+   "anchor_ticker": "CRM",
+   "registrant_cik": "0001378590",
+   "peer_ticker": "BLIN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "STRATOS LIGHTWAVE INC  (CIK 0001111721)",
+   "anchor_ticker": "CSCO",
+   "registrant_cik": "0001111721",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MERIX CORP  (CIK 0000921365)",
+   "anchor_ticker": "CSCO",
+   "registrant_cik": "0000921365",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "WESTINGHOUSE AIR BRAKE TECHNOLOGIES CORP  (WAB)  (CIK 0000943452)",
+   "anchor_ticker": "CSX",
+   "registrant_cik": "0000943452",
+   "peer_ticker": "WAB",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Strategic Storage Trust VI, Inc.  (CIK 0001852575)",
+   "anchor_ticker": "CUBE",
+   "registrant_cik": "0001852575",
+   "peer_ticker": "SGST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "DISC INC/CA  (CIK 0000891788)",
+   "anchor_ticker": "CVLT",
+   "registrant_cik": "0000891788",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TRITON ENERGY LTD  (CIK 0001009404)",
+   "anchor_ticker": "CVX",
+   "registrant_cik": "0001009404",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CHICAGO BRIDGE & IRON CO N V  (CIK 0001027884)",
+   "anchor_ticker": "CVX",
+   "registrant_cik": "0001027884",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Regency Energy Partners LP  (CIK 0001338613)",
+   "anchor_ticker": "CVX",
+   "registrant_cik": "0001338613",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TIDEWATER INC  (TDW, TDDWW, TDGMW, TDW-WT)  (CIK 0000098222)",
+   "anchor_ticker": "CVX",
+   "registrant_cik": "0000098222",
+   "peer_ticker": "TDW",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "anchor_ticker": "DELL",
+   "registrant_cik": "0001050377",
+   "peer_ticker": "CNXN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "KITE REALTY GROUP TRUST  (KRG)  (CIK 0001286043)",
+   "anchor_ticker": "DKS",
+   "registrant_cik": "0001286043",
+   "peer_ticker": "KRG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "HERITAGE PROPERTY INVESTMENT TRUST INC  (CIK 0001158265)",
+   "anchor_ticker": "DKS",
+   "registrant_cik": "0001158265",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "WEINGARTEN REALTY INVESTORS /TX/  (CIK 0000828916)",
+   "anchor_ticker": "DLTR",
+   "registrant_cik": "0000828916",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Aquestive Therapeutics, Inc.  (AQST)  (CIK 0001398733)",
+   "anchor_ticker": "DOCU",
+   "registrant_cik": "0001398733",
+   "peer_ticker": "AQST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "STONE ENERGY CORP  (CIK 0000904080)",
+   "anchor_ticker": "DUK",
+   "registrant_cik": "0000904080",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TRANSCAT INC  (TRNS)  (CIK 0000099302)",
+   "anchor_ticker": "DUK",
+   "registrant_cik": "0000099302",
+   "peer_ticker": "TRNS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "BURKE MILLS INC  (CIK 0000015486)",
+   "anchor_ticker": "DUK",
+   "registrant_cik": "0000015486",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MASSEY ENERGY CO  (CIK 0000037748)",
+   "anchor_ticker": "DUK",
+   "registrant_cik": "0000037748",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CORPORATE OFFICE PROPERTIES TRUST  (CDP)  (CIK 0000860546)",
+   "anchor_ticker": "DUK",
+   "registrant_cik": "0000860546",
+   "peer_ticker": "CDP",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CONSOL Energy Inc.  (CEIX)  (CIK 0001710366)",
+   "anchor_ticker": "DUK",
+   "registrant_cik": "0001710366",
+   "peer_ticker": "CNR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "NATURAL GAS SERVICES GROUP INC  (NGS)  (CIK 0001084991)",
+   "anchor_ticker": "DVN",
+   "registrant_cik": "0001084991",
+   "peer_ticker": "NGS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PayPal Holdings, Inc.  (PYPL)  (CIK 0001633917)",
+   "anchor_ticker": "EBAY",
+   "registrant_cik": "0001633917",
+   "peer_ticker": "PYPL",
+   "tradeable": true
+  },
+  {
+   "counterparty": "FAIRMARKET INC  (CIK 0001053676)",
+   "anchor_ticker": "EBAY",
+   "registrant_cik": "0001053676",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ALCIDE CORP  (CIK 0000708484)",
+   "anchor_ticker": "ECL",
+   "registrant_cik": "0000708484",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CKX LANDS, INC.  (CKX)  (CIK 0000352955)",
+   "anchor_ticker": "EOG",
+   "registrant_cik": "0000352955",
+   "peer_ticker": "CKX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ENTERGY CORP /DE/  (ETR)  (CIK 0000065984)",
+   "anchor_ticker": "ETR",
+   "registrant_cik": "0000202584",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CKX LANDS, INC.  (CKX)  (CIK 0000352955)",
+   "anchor_ticker": "ETR",
+   "registrant_cik": "0000352955",
+   "peer_ticker": "CKX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "USG CORP  (CIK 0000757011)",
+   "anchor_ticker": "EVR",
+   "registrant_cik": "0000757011",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CENTRUS ENERGY CORP  (LEU)  (CIK 0001065059)",
+   "anchor_ticker": "EXC",
+   "registrant_cik": "0001065059",
+   "peer_ticker": "LEU",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ASPIRITY HOLDINGS LLC  (CIK 0001541354)",
+   "anchor_ticker": "EXC",
+   "registrant_cik": "0001541354",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "OPOWER, INC.  (CIK 0001412043)",
+   "anchor_ticker": "EXC",
+   "registrant_cik": "0001412043",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CORELOGIC, INC.  (CIK 0000036047)",
+   "anchor_ticker": "FAF",
+   "registrant_cik": "0000036047",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "American Realty Capital Trust, Inc.  (CIK 0001410997)",
+   "anchor_ticker": "FDXF",
+   "registrant_cik": "0001410997",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Peraso Inc.  (PRSO)  (CIK 0000890394)",
+   "anchor_ticker": "FFIV",
+   "registrant_cik": "0000890394",
+   "peer_ticker": "PRSO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CASI Pharmaceuticals, Inc.  (CIK 0000895051)",
+   "anchor_ticker": "FHI",
+   "registrant_cik": "0000895051",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ALTIGEN COMMUNICATIONS INC  (CIK 0001003607)",
+   "anchor_ticker": "FISV",
+   "registrant_cik": "0001003607",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "RAMCO GERSHENSON PROPERTIES TRUST  (CIK 0000842183)",
+   "anchor_ticker": "FIVE",
+   "registrant_cik": "0000842183",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "REMY INTERNATIONAL, INC.  (CIK 0001046859)",
+   "anchor_ticker": "FNF",
+   "registrant_cik": "0001046859",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Altra Industrial Motion Corp.  (CIK 0001374535)",
+   "anchor_ticker": "FTV",
+   "registrant_cik": "0001374535",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MOVIE GALLERY INC  (CIK 0000925178)",
+   "anchor_ticker": "GME",
+   "registrant_cik": "0000925178",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TAKE TWO INTERACTIVE SOFTWARE INC  (TTWO)  (CIK 0000946581)",
+   "anchor_ticker": "GOOGL",
+   "registrant_cik": "0000946581",
+   "peer_ticker": "TTWO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Vertro, Inc.  (CIK 0001094808)",
+   "anchor_ticker": "GOOGL",
+   "registrant_cik": "0001094808",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MANHATTAN ASSOCIATES INC  (MANH)  (CIK 0001056696)",
+   "anchor_ticker": "GPK",
+   "registrant_cik": "0001056696",
+   "peer_ticker": "MANH",
+   "tradeable": true
+  },
+  {
+   "counterparty": "GLOBAL PAYMENT TECHNOLOGIES INC  (CIK 0000933020)",
+   "anchor_ticker": "GPN",
+   "registrant_cik": "0000933020",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CAVIUM, INC.  (CIK 0001175609)",
+   "anchor_ticker": "GWRE",
+   "registrant_cik": "0001175609",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Quotient Ltd  (CIK 0001596946)",
+   "anchor_ticker": "HAE",
+   "registrant_cik": "0001596946",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "SKY FINANCIAL GROUP INC  (CIK 0000855876)",
+   "anchor_ticker": "HBAN",
+   "registrant_cik": "0000855876",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AMERIPATH INC  (CIK 0001027532)",
+   "anchor_ticker": "HCA",
+   "registrant_cik": "0001027532",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "anchor_ticker": "HPQ",
+   "registrant_cik": "0001050377",
+   "peer_ticker": "CNXN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "JTH Holding, Inc.  (CIK 0001528930)",
+   "anchor_ticker": "HRB",
+   "registrant_cik": "0001528930",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CONTINUCARE CORP  (CIK 0000803352)",
+   "anchor_ticker": "HUM",
+   "registrant_cik": "0000803352",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CARPENTER TECHNOLOGY CORP  (CRS)  (CIK 0000017843)",
+   "anchor_ticker": "HWM",
+   "registrant_cik": "0000017843",
+   "peer_ticker": "CRS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "VOLTERRA SEMICONDUCTOR CORP  (CIK 0001050550)",
+   "anchor_ticker": "IBM",
+   "registrant_cik": "0001050550",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MICRON TECHNOLOGY INC  (MU)  (CIK 0000723125)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000723125",
+   "peer_ticker": "MU",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CREDENCE SYSTEMS CORP  (CIK 0000893162)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000893162",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "NOVELLUS SYSTEMS INC  (CIK 0000836106)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000836106",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "APPLIED MATERIALS INC /DE  (AMAT)  (CIK 0000006951)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000006951",
+   "peer_ticker": "AMAT",
+   "tradeable": true
+  },
+  {
+   "counterparty": "LIGHTPATH TECHNOLOGIES INC  (LPTH)  (CIK 0000889971)",
+   "anchor_ticker": "IPGP",
+   "registrant_cik": "0000889971",
+   "peer_ticker": "LPTH",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ACETO CORP  (CIK 0000002034)",
+   "anchor_ticker": "IQV",
+   "registrant_cik": "0000002034",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ALFACELL CORP  (CIK 0000708717)",
+   "anchor_ticker": "IRM",
+   "registrant_cik": "0000708717",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DIVIDEND CAPITAL TRUST INC  (CIK 0001170991)",
+   "anchor_ticker": "IRM",
+   "registrant_cik": "0001170991",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TECHDYNE INC  (CIK 0000764039)",
+   "anchor_ticker": "ITW",
+   "registrant_cik": "0000764039",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "HANGER, INC.  (CIK 0000722723)",
+   "anchor_ticker": "IVZ",
+   "registrant_cik": "0000722723",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Fuel Systems Solutions, Inc.  (CIK 0001340786)",
+   "anchor_ticker": "IVZ",
+   "registrant_cik": "0001340786",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ALERE INC.  (CIK 0001145460)",
+   "anchor_ticker": "IVZ",
+   "registrant_cik": "0001145460",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Performant Financial Corp  (PFMT)  (CIK 0001550695)",
+   "anchor_ticker": "IVZ",
+   "registrant_cik": "0001550695",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Danimer Scientific, Inc.  (DNMR, DNMRW)  (CIK 0001779020)",
+   "anchor_ticker": "IVZ",
+   "registrant_cik": "0001779020",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "FOAMEX L P  (CIK 0000890080)",
+   "anchor_ticker": "JCI",
+   "registrant_cik": "0000890080",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "SHERIDAN GROUP INC  (CIK 0001056035)",
+   "anchor_ticker": "JEF",
+   "registrant_cik": "0001056035",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TELEX COMMUNICATIONS INC /DE/  (CIK 0001038185)",
+   "anchor_ticker": "JEF",
+   "registrant_cik": "0001038185",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "INVESTMENT TECHNOLOGY GROUP INC  (CIK 0000920424)",
+   "anchor_ticker": "JEF",
+   "registrant_cik": "0000920424",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Altimmune, Inc.  (ALT)  (CIK 0001326190)",
+   "anchor_ticker": "JHG",
+   "registrant_cik": "0001326190",
+   "peer_ticker": "ALT",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Westlake Chemical Partners LP  (WLKP)  (CIK 0001604665)",
+   "anchor_ticker": "JHG",
+   "registrant_cik": "0001604665",
+   "peer_ticker": "WLKP",
+   "tradeable": true
+  },
+  {
+   "counterparty": "HILLMAN COMPANIES INC  (CIK 0001029831)",
+   "anchor_ticker": "JHG",
+   "registrant_cik": "0001029831",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "NATUS MEDICAL INC  (CIK 0000878526)",
+   "anchor_ticker": "JHG",
+   "registrant_cik": "0000878526",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MAMMOTH ENERGY SERVICES, INC.  (TUSK)  (CIK 0001679268)",
+   "anchor_ticker": "JHG",
+   "registrant_cik": "0001679268",
+   "peer_ticker": "TUSK",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PURE CYCLE CORP  (PCYO)  (CIK 0000276720)",
+   "anchor_ticker": "KBH",
+   "registrant_cik": "0000276720",
+   "peer_ticker": "PCYO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Allison Transmission Holdings Inc  (ALSN)  (CIK 0001411207)",
+   "anchor_ticker": "KEX",
+   "registrant_cik": "0001411207",
+   "peer_ticker": "ALSN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Western Refining, Inc.  (CIK 0001339048)",
+   "anchor_ticker": "KMI",
+   "registrant_cik": "0001339048",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DONNELLY CORP  (CIK 0000805583)",
+   "anchor_ticker": "LEA",
+   "registrant_cik": "0000805583",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DURA AUTOMOTIVE SYSTEMS INC  (CIK 0001016177)",
+   "anchor_ticker": "LEA",
+   "registrant_cik": "0001016177",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Verso Paper Holdings LLC  (CIK 0001395864)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0001395864",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Rexnord Corp  (ZWS)  (CIK 0001439288)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0001439288",
+   "peer_ticker": "ZWS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "METALS USA HOLDINGS CORP.  (CIK 0001362491)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0001362491",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Affinion Group Holdings, Inc.  (CIK 0001404624)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0001404624",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Affinion Group, Inc.  (CIK 0001361394)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0001361394",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CLAIRES STORES INC  (CIK 0000034115)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0000034115",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "QUALITY DISTRIBUTION INC  (CIK 0000922863)",
+   "anchor_ticker": "LYB",
+   "registrant_cik": "0000922863",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CHIPOTLE MEXICAN GRILL INC  (CMG)  (CIK 0001058090)",
+   "anchor_ticker": "MCD",
+   "registrant_cik": "0001058090",
+   "peer_ticker": "CMG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "KEANE INC  (CIK 0000054883)",
+   "anchor_ticker": "MCD",
+   "registrant_cik": "0000054883",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MEDICINES CO /DE  (CIK 0001113481)",
+   "anchor_ticker": "MCK",
+   "registrant_cik": "0001113481",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AMERICAN SOFTWARE INC  (AMSWA)  (CIK 0000713425)",
+   "anchor_ticker": "MDLZ",
+   "registrant_cik": "0000713425",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Umami Sustainable Seafood Inc.  (CIK 0001368765)",
+   "anchor_ticker": "MMM",
+   "registrant_cik": "0001368765",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Andersons, Inc.  (ANDE)  (CIK 0000821026)",
+   "anchor_ticker": "MPC",
+   "registrant_cik": "0000821026",
+   "peer_ticker": "ANDE",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ev3 Inc.  (CIK 0001318310)",
+   "anchor_ticker": "MRK",
+   "registrant_cik": "0001318310",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ZONES INC  (CIK 0001013786)",
+   "anchor_ticker": "MSFT",
+   "registrant_cik": "0001013786",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CORELOGIC, INC.  (CIK 0000036047)",
+   "anchor_ticker": "MTG",
+   "registrant_cik": "0000036047",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DIRECTVIEW HOLDINGS INC  (CIK 0001441769)",
+   "anchor_ticker": "MTZ",
+   "registrant_cik": "0001441769",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CARNIVAL PLC  (CUK, CUKPF)  (CIK 0001125259)",
+   "anchor_ticker": "NCLH",
+   "registrant_cik": "0001125259",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "FIRST SOLAR, INC.  (FSLR)  (CIK 0001274494)",
+   "anchor_ticker": "NEE",
+   "registrant_cik": "0001274494",
+   "peer_ticker": "FSLR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "TRANSCAT INC  (TRNS)  (CIK 0000099302)",
+   "anchor_ticker": "NEE",
+   "registrant_cik": "0000099302",
+   "peer_ticker": "TRNS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SHOE CARNIVAL INC  (SCVL)  (CIK 0000895447)",
+   "anchor_ticker": "NKE",
+   "registrant_cik": "0000895447",
+   "peer_ticker": "SHOE",
+   "tradeable": true
+  },
+  {
+   "counterparty": "NORTECH SYSTEMS INC  (NSYS)  (CIK 0000722313)",
+   "anchor_ticker": "NOC",
+   "registrant_cik": "0000722313",
+   "peer_ticker": "NSYS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CIPRICO INC  (CIK 0000720145)",
+   "anchor_ticker": "NOC",
+   "registrant_cik": "0000720145",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ENTRX CORP  (CIK 0000013547)",
+   "anchor_ticker": "NRG",
+   "registrant_cik": "0000013547",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Strategic Storage Trust VI, Inc.  (CIK 0001852575)",
+   "anchor_ticker": "NSA",
+   "registrant_cik": "0001852575",
+   "peer_ticker": "SGST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "FreightCar America, Inc.  (RAIL)  (CIK 0001320854)",
+   "anchor_ticker": "NSC",
+   "registrant_cik": "0001320854",
+   "peer_ticker": "RAIL",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SMART Global Holdings, Inc.  (SGH)  (CIK 0001616533)",
+   "anchor_ticker": "NTNX",
+   "registrant_cik": "0001616533",
+   "peer_ticker": "PENG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "COHU INC  (COHU)  (CIK 0000021535)",
+   "anchor_ticker": "NXPI",
+   "registrant_cik": "0000021535",
+   "peer_ticker": "COHU",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SCM MICROSYSTEMS INC  (INVE)  (CIK 0001036044)",
+   "anchor_ticker": "NXPI",
+   "registrant_cik": "0001036044",
+   "peer_ticker": "INVE",
+   "tradeable": true
+  },
+  {
+   "counterparty": "QUIPP INC  (CIK 0000796577)",
+   "anchor_ticker": "NYT",
+   "registrant_cik": "0000796577",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CHASE GENERAL CORP  (CIK 0000015357)",
+   "anchor_ticker": "ODFL",
+   "registrant_cik": "0000015357",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Evercore Partners Inc.  (EVR)  (CIK 0001360901)",
+   "anchor_ticker": "OXY",
+   "registrant_cik": "0001360901",
+   "peer_ticker": "EVR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "HEARTLAND PAYMENT SYSTEMS INC  (CIK 0001144354)",
+   "anchor_ticker": "PAYX",
+   "registrant_cik": "0001144354",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Crimson Wine Group, Ltd  (CWGL)  (CIK 0001562151)",
+   "anchor_ticker": "PCG",
+   "registrant_cik": "0001562151",
+   "peer_ticker": "CWGL",
+   "tradeable": true
+  },
+  {
+   "counterparty": "BOSTON SCIENTIFIC CORP  (BSX)  (CIK 0000885725)",
+   "anchor_ticker": "PEN",
+   "registrant_cik": "0000885725",
+   "peer_ticker": "BSX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PEPSIAMERICAS INC/IL/  (CIK 0001084230)",
+   "anchor_ticker": "PEP",
+   "registrant_cik": "0001084230",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Animal Health International, Inc.  (CIK 0001372813)",
+   "anchor_ticker": "PFE",
+   "registrant_cik": "0001372813",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PHARSIGHT CORP  (CIK 0001040853)",
+   "anchor_ticker": "PFE",
+   "registrant_cik": "0001040853",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "QUINSTREET, INC  (QNST)  (CIK 0001117297)",
+   "anchor_ticker": "PGR",
+   "registrant_cik": "0001117297",
+   "peer_ticker": "QNST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Taylor Morrison Home Corp  (TMHC)  (CIK 0001562476)",
+   "anchor_ticker": "PHM",
+   "registrant_cik": "0001562476",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "VIRTUSA CORP  (CIK 0001207074)",
+   "anchor_ticker": "PII",
+   "registrant_cik": "0001207074",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CYBEX INTERNATIONAL INC  (CIK 0000060876)",
+   "anchor_ticker": "PLNT",
+   "registrant_cik": "0000060876",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ALDILA INC  (CIK 0000902272)",
+   "anchor_ticker": "PNC",
+   "registrant_cik": "0000902272",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ICON INCOME FUND EIGHT /DE  (CIK 0001061134)",
+   "anchor_ticker": "POR",
+   "registrant_cik": "0001061134",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BuzzFeed, Inc.  (BZFD, BZFDW)  (CIK 0001828972)",
+   "anchor_ticker": "POST",
+   "registrant_cik": "0001828972",
+   "peer_ticker": "BZFD",
+   "tradeable": true
+  },
+  {
+   "counterparty": "APOGEE ENTERPRISES INC  (APOG)  (CIK 0000006845)",
+   "anchor_ticker": "PPG",
+   "registrant_cik": "0000006845",
+   "peer_ticker": "APOG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "VILLAGEEDOCS INC  (CIK 0001122099)",
+   "anchor_ticker": "PRI",
+   "registrant_cik": "0001122099",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MARVELL TECHNOLOGY GROUP LTD  (CIK 0001058057)",
+   "anchor_ticker": "PRU",
+   "registrant_cik": "0001058057",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BreitBurn Energy Partners L.P.  (CIK 0001357371)",
+   "anchor_ticker": "PSX",
+   "registrant_cik": "0001357371",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "California Resources Corp  (CRC, CRCQW)  (CIK 0001609253)",
+   "anchor_ticker": "PSX",
+   "registrant_cik": "0001609253",
+   "peer_ticker": "CRC",
+   "tradeable": true
+  },
+  {
+   "counterparty": "STONE ENERGY CORP  (CIK 0000904080)",
+   "anchor_ticker": "PSX",
+   "registrant_cik": "0000904080",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BUCKEYE PARTNERS, L.P.  (CIK 0000805022)",
+   "anchor_ticker": "PSX",
+   "registrant_cik": "0000805022",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Oasis Petroleum Inc.  (CHRD, OASPW, WLLAW, WLLBW)  (CIK 0001486159)",
+   "anchor_ticker": "PSX",
+   "registrant_cik": "0001486159",
+   "peer_ticker": "CHRD",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Altra Industrial Motion Corp.  (CIK 0001374535)",
+   "anchor_ticker": "RBC",
+   "registrant_cik": "0001374535",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "LAW ENFORCEMENT ASSOCIATES CORP  (CIK 0001165921)",
+   "anchor_ticker": "RJF",
+   "registrant_cik": "0001165921",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MONROE BANCORP  (CIK 0000745456)",
+   "anchor_ticker": "RJF",
+   "registrant_cik": "0000745456",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Aspect Software Group Holdings Ltd.  (CIK 0001506546)",
+   "anchor_ticker": "ROK",
+   "registrant_cik": "0001506546",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "STEVEN MADDEN, LTD.  (SHOO)  (CIK 0000913241)",
+   "anchor_ticker": "ROST",
+   "registrant_cik": "0000913241",
+   "peer_ticker": "SHOO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Hiland Partners, LP  (CIK 0001306527)",
+   "anchor_ticker": "RRC",
+   "registrant_cik": "0001306527",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Woodward, Inc.  (WWD)  (CIK 0000108312)",
+   "anchor_ticker": "RTX",
+   "registrant_cik": "0000108312",
+   "peer_ticker": "WWD",
+   "tradeable": true
+  },
+  {
+   "counterparty": "WEINGARTEN REALTY INVESTORS /TX/  (CIK 0000828916)",
+   "anchor_ticker": "SFM",
+   "registrant_cik": "0000828916",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BWAY CORP  (CIK 0000943897)",
+   "anchor_ticker": "SHW",
+   "registrant_cik": "0000943897",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BWAY Holding CO  (CIK 0001392179)",
+   "anchor_ticker": "SHW",
+   "registrant_cik": "0001392179",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DUCOMMUN INC /DE/  (DCO)  (CIK 0000030305)",
+   "anchor_ticker": "SLB",
+   "registrant_cik": "0000030305",
+   "peer_ticker": "DCO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ASSOCIATED BANC-CORP  (ASB, ASBA, ASB-PE, ASB-PF)  (CIK 0000007789)",
+   "anchor_ticker": "SLM",
+   "registrant_cik": "0000007789",
+   "peer_ticker": "ASB",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "anchor_ticker": "SNX",
+   "registrant_cik": "0001050377",
+   "peer_ticker": "CNXN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Autodesk, Inc.  (ADSK)  (CIK 0000769397)",
+   "anchor_ticker": "SNX",
+   "registrant_cik": "0000769397",
+   "peer_ticker": "ADSK",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SIGNET JEWELERS LTD  (SIG)  (CIK 0000832988)",
+   "anchor_ticker": "SPG",
+   "registrant_cik": "0000832988",
+   "peer_ticker": "SIG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Chatham Lodging Trust  (CLDT, CLDT-PA)  (CIK 0001476045)",
+   "anchor_ticker": "STWD",
+   "registrant_cik": "0001476045",
+   "peer_ticker": "CLDT",
+   "tradeable": true
+  },
+  {
+   "counterparty": "MERIX CORP  (CIK 0000921365)",
+   "anchor_ticker": "TER",
+   "registrant_cik": "0000921365",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "UNITED INSURANCE HOLDINGS CORP.  (ACIC)  (CIK 0001401521)",
+   "anchor_ticker": "TFC",
+   "registrant_cik": "0001401521",
+   "peer_ticker": "ACIC",
+   "tradeable": true
+  },
+  {
+   "counterparty": "STEVEN MADDEN, LTD.  (SHOO)  (CIK 0000913241)",
+   "anchor_ticker": "TGT",
+   "registrant_cik": "0000913241",
+   "peer_ticker": "SHOO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PRIMUS KNOWLEDGE SOLUTIONS INC  (CIK 0001067797)",
+   "anchor_ticker": "TGT",
+   "registrant_cik": "0001067797",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Lumexa Imaging Holdings, Inc.  (LMRI)  (CIK 0002071288)",
+   "anchor_ticker": "THC",
+   "registrant_cik": "0002071288",
+   "peer_ticker": "LMRI",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PATRICK INDUSTRIES INC  (PATK)  (CIK 0000076605)",
+   "anchor_ticker": "THO",
+   "registrant_cik": "0000076605",
+   "peer_ticker": "PATK",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CHAUS BERNARD INC  (CIK 0000793983)",
+   "anchor_ticker": "TJX",
+   "registrant_cik": "0000793983",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PUGET ENERGY INC /WA  (CIK 0001085392)",
+   "anchor_ticker": "TLN",
+   "registrant_cik": "0001085392",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "LUMINEX CORP  (CIK 0001033905)",
+   "anchor_ticker": "TMO",
+   "registrant_cik": "0001033905",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AGCO CORP /DE  (AGCO)  (CIK 0000880266)",
+   "anchor_ticker": "TRMB",
+   "registrant_cik": "0000880266",
+   "peer_ticker": "AGCO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Centerplate, Inc.  (CIK 0001086774)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0001086774",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ENTEGRIS INC  (ENTG)  (CIK 0001101302)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0001101302",
+   "peer_ticker": "ENTG",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Tumi Holdings, Inc.  (CIK 0001535031)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0001535031",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "US XPRESS ENTERPRISES INC  (CIK 0000923571)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0000923571",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "WEBTRENDS CORP  (CIK 0001075316)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0001075316",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "COMSCORE, INC.  (SCOR)  (CIK 0001158172)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0001158172",
+   "peer_ticker": "SCOR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PDF SOLUTIONS INC  (PDFS)  (CIK 0001120914)",
+   "anchor_ticker": "TROW",
+   "registrant_cik": "0001120914",
+   "peer_ticker": "PDFS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "PILGRIMS PRIDE CORP  (PPC)  (CIK 0000802481)",
+   "anchor_ticker": "TSN",
+   "registrant_cik": "0000802481",
+   "peer_ticker": "PPC",
+   "tradeable": true
+  },
+  {
+   "counterparty": "EMERGE INTERACTIVE INC  (CIK 0001092605)",
+   "anchor_ticker": "TSN",
+   "registrant_cik": "0001092605",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ATEL Capital Equipment Fund XI, LLC  (CIK 0001297667)",
+   "anchor_ticker": "TSN",
+   "registrant_cik": "0001297667",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PARK ELECTROCHEMICAL CORP  (PKE)  (CIK 0000076267)",
+   "anchor_ticker": "TTMI",
+   "registrant_cik": "0000076267",
+   "peer_ticker": "PKE",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ASYST TECHNOLOGIES INC /CA/  (CIK 0000909326)",
+   "anchor_ticker": "TXN",
+   "registrant_cik": "0000909326",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AXCELIS TECHNOLOGIES INC  (ACLS)  (CIK 0001113232)",
+   "anchor_ticker": "TXN",
+   "registrant_cik": "0001113232",
+   "peer_ticker": "ACLS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "AEHR TEST SYSTEMS  (AEHR)  (CIK 0001040470)",
+   "anchor_ticker": "TXN",
+   "registrant_cik": "0001040470",
+   "peer_ticker": "AEHR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "LTX-CREDENCE CORP  (CIK 0000357020)",
+   "anchor_ticker": "TXN",
+   "registrant_cik": "0000357020",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "WEINGARTEN REALTY INVESTORS /TX/  (CIK 0000828916)",
+   "anchor_ticker": "ULTA",
+   "registrant_cik": "0000828916",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MEDCO HEALTH SOLUTIONS INC  (CIK 0001170650)",
+   "anchor_ticker": "UNH",
+   "registrant_cik": "0001170650",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ELOYALTY CORP  (CIK 0001094348)",
+   "anchor_ticker": "UNH",
+   "registrant_cik": "0001094348",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ELOYALTY CORP  (CIK 0001094348)",
+   "anchor_ticker": "URI",
+   "registrant_cik": "0001094348",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "G&G RETAIL INC  (CIK 0001088811)",
+   "anchor_ticker": "USB",
+   "registrant_cik": "0001088811",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "JACOBS ENGINEERING GROUP INC /DE/  (J)  (CIK 0000052988)",
+   "anchor_ticker": "VLO",
+   "registrant_cik": "0000052988",
+   "peer_ticker": "J",
+   "tradeable": true
+  },
+  {
+   "counterparty": "EMERSON ELECTRIC CO  (EMR)  (CIK 0000032604)",
+   "anchor_ticker": "VRT",
+   "registrant_cik": "0000032604",
+   "peer_ticker": "EMR",
+   "tradeable": true
+  },
+  {
+   "counterparty": "BranchOut Food Inc.  (BOF)  (CIK 0001962481)",
+   "anchor_ticker": "VTR",
+   "registrant_cik": "0001962481",
+   "peer_ticker": "BOF",
+   "tradeable": true
+  },
+  {
+   "counterparty": "NEXSTAR MEDIA GROUP, INC.  (NXST)  (CIK 0001142417)",
+   "anchor_ticker": "WBD",
+   "registrant_cik": "0001142417",
+   "peer_ticker": "NXST",
+   "tradeable": true
+  },
+  {
+   "counterparty": "KOMAG INC /DE/  (CIK 0000813347)",
+   "anchor_ticker": "WDC",
+   "registrant_cik": "0000813347",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "KEANE INC  (CIK 0000054883)",
+   "anchor_ticker": "WMB",
+   "registrant_cik": "0000054883",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TRANS WORLD ENTERTAINMENT CORP  (CIK 0000795212)",
+   "anchor_ticker": "WMG",
+   "registrant_cik": "0000795212",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TANDY BRANDS ACCESSORIES INC  (CIK 0000869487)",
+   "anchor_ticker": "WMT",
+   "registrant_cik": "0000869487",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Corporate Property Associates 17 - Global INC  (CIK 0001390213)",
+   "anchor_ticker": "WPC",
+   "registrant_cik": "0001390213",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CORPORATE PROPERTY ASSOCIATES 18 GLOBAL INC  (CIK 0001558235)",
+   "anchor_ticker": "WPC",
+   "registrant_cik": "0001558235",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "UNITED TECHNOLOGIES CORP /DE/  (RTX)  (CIK 0000101829)",
+   "anchor_ticker": "WSO",
+   "registrant_cik": "0000101829",
+   "peer_ticker": "RTX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ENGLOBAL CORP  (ENG)  (CIK 0000933738)",
+   "anchor_ticker": "XOM",
+   "registrant_cik": "0000933738",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PRINTRONIX INC  (CIK 0000311505)",
+   "anchor_ticker": "ZBRA",
+   "registrant_cik": "0000311505",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "KEY TRONIC CORP  (KTCC)  (CIK 0000719733)",
+   "anchor_ticker": "ZBRA",
+   "registrant_cik": "0000719733",
+   "peer_ticker": "KTCC",
+   "tradeable": true
+  },
+  {
+   "counterparty": "QUOTESMITH COM INC  (CIK 0001079996)",
+   "anchor_ticker": "ZION",
+   "registrant_cik": "0001079996",
+   "peer_ticker": null,
+   "tradeable": false
+  }
+ ]
+}

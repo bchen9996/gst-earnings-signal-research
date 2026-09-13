@@ -801,3 +801,142 @@ one that would need its own fresh registration, its own Phase 2 lock over
 this (or a further-expanded) universe, and its own, not-yet-spent
 holdout. It is not, and must not be treated as, new evidence about HYP-05
 as registered and already tested.
+
+## Round 6 (2026-09-13): scaling discovery from 27 anchors to 788, and its consequences
+
+Explicit direction: scale the reverse search before deciding whether to
+register anything new. Round 4/5's 27-anchor set (the locked-24 plus 3
+more) is not remotely the ceiling of what a pre-existing, unrelated-
+purpose reference universe can cover.
+
+### The scaled search
+
+New: `run_hyp05_reverse_concentration_search_scaled.py`, reusing round 4's
+`discover_leads()`/`verify_lead()` unchanged. The anchor set merges round
+4's 27 hand-curated names with every one of the 788 tickers in
+`Small-Mid Cap Universe Expansion/Russell1000Proxy_Filtered_Universe.csv`
+-- built earlier, for an unrelated liquidity screen, so it predates this
+decision the same way `anchor_universe.py`'s own screening frame does.
+Every one of the 761 net-new tickers is searched unconditionally, no
+plausibility filter, using that file's own `company` column as its single
+name variant (a real, disclosed recall reduction against the hand-curated
+anchors' 1-2 hand-picked variants -- breadth over depth, made explicitly).
+
+3,180 searches, 7,409 total requests, 4,210 raw (anchor, peer_cik) leads,
+**277 confirmed** (real, readable, concentration-shaped sentences) -- 16x
+round 4's 17.
+
+### Hand-reviewing 277 sentences found real, generalizable problems
+
+Every one of the 277 was read, not sampled -- same discipline as every
+prior round. Two things emerged that only show up at this scale:
+
+**New false-positive genres**, beyond round 4's known four (bond coupon,
+market-share-among-competitors, name collision, wrong-schema JV):
+institutional-ownership tables (an asset-manager anchor -- BlackRock,
+Ameriprise, Franklin Resources, Invesco, Janus Henderson, T. Rowe Price,
+Prudential, Raymond James -- appearing in the FILER's OWN 5%-beneficial-
+owner table, by far the largest single category); SOFR-benchmark-rate
+citations (CME Group as a rate administrator, not a counterparty);
+debt/loan/trustee references; a mandated Iran Threat Reduction Act
+disclosure that recites the SAME sentence verbatim across seven unrelated
+Apollo-sponsored portfolio companies' 10-Ks because they share a private-
+equity sponsor, not a business relationship with the named company; REIT
+mall-tenant directories; aggregate multi-company lists with no anchor-
+specific percentage; and percentages that ARE anchor-specific but fall
+below the 10% ASC-280 materiality bar this project uses elsewhere
+(`anchor_universe.CONCENTRATION_THRESHOLD_PCT`), applied here for the
+same reason.
+
+**A real schema gap**: round 4's `Decision` keyed by `peer_cik` alone,
+safe only because no peer happened to repeat across two anchors in 17
+leads. At 277 leads it breaks for a real case: CIK 0001113481 (The
+Medicines Company) is a genuine McKesson supplier AND a false positive
+under Franklin Resources (an ownership-table mismatch) -- one CIK, two
+anchors, two different correct answers. New module `run_hyp05_reverse_
+search_handreview_scaled.py` keys `Decision` by `(anchor_ticker,
+peer_cik)` instead, with its own `apply_review()` (round 4's own module
+is untouched -- its data never needed this). A control test proves the
+decision set matches the real raw file's confirmed set exactly, and a
+second test proves the same peer CIK gets independent, correct decisions
+under two different anchors.
+
+**101 of 277 kept** (36% -- lower than round 4's 71%, expected given how
+much broader and noisier the anchor set is): 48 institutional-ownership,
+39 unreadable/no-relationship extraction noise, 21 aggregate-no-specific-
+%, 14 JV/ownership, 10 debt, 10 market-share, 7 M&A-transaction, 7
+sanctions-boilerplate, 6 REIT, 5 SOFR, 5 comp-peer-group, 4 below-10%
+rejected. 39 of the 101 resolved to a tradeable ticker, across 37 distinct
+anchors.
+
+### 32 new anchors, each lineage-checked before any shock was computed
+
+Of the 37 anchors, 5 already had shock data (INTC, NKE from HYP-04;
+DELL, DVN, GOOGL from round 5). The other 32 needed `run_hyp05_
+additional_anchor_shocks.py`'s `LINEAGE_NOTES` entries -- each one's real
+`formerNames` history fetched and checked against its earliest-needed
+peer disclosure date, not assumed. Four are the same "surviving entity
+renamed after a merger" pattern already seen for DELL/GOOGL (RTX/United
+Technologies absorbing Raytheon; TFC/BB&T absorbing SunTrust; SNX/SYNNEX
+absorbing Tech Data; HWM/Alcoa's rename chain through Arconic to Howmet)
+-- all four have peer disclosure dates safely inside the post-restructuring
+era, on the same continuous, surviving CIK throughout. Three initially
+flagged by an automated date check (CLX, SPG, ZBRA) turned out to be
+cosmetic "/DE/"-suffix drops in 2025-2026, years after the relevant
+disclosure -- false alarms, confirmed by reading the actual date ranges
+rather than trusting the flag.
+
+3,022 candidate events across the 32 tickers, 2,424 real shocks computed,
+zero fetch errors -- written to `HYP05_ADDITIONAL_ANCHOR_SHOCKS_
+2026-09-13.{json,csv}`, never touching any HYP-04-named file or the
+round-5 additional-anchor file.
+
+### The real result: 778 of 2,753 pairs qualify, across 25 distinct peer tickers
+
+| peer | qualifying / total | peer | qualifying / total |
+|---|---|---|---|
+| KTCC (Key Tronic) | 114/164 | RAIL (FreightCar America) | 36/84 |
+| CKX (CKX Lands) | 87/190 | ACH (Owens & Minor) | 32/95 |
+| LEU (Centrus Energy) | 57/183 | PATK (Patrick Industries) | 33/64 |
+| NSYS (Nortech Systems) | 57/91 | PKE (Park Electrochemical) | 33/96 |
+| NGS (Natural Gas Services) | 53/61 | ICUI (ICU Medical) | 31/95 |
+| CNXN (PC Connection) | 47/205 | QNST (QuinStreet) | 23/60 |
+| AEHR (Aehr Test Systems) | 34/98 | PENG (SMART Global) | 22/39 |
+| TDW (Tidewater) | 24/124 | PCYO (Pure Cycle) | 15/66 |
+| CNR (CONSOL Energy) | 16/77 | PI (Impinj) | 14/78 |
+| ACIC (United Insurance Hldgs) | 14/37 | PRSO (Peraso) | 10/90 |
+| SIG (Signet Jewelers) | 7/88 | COHU | 4/6 |
+| CHRD (Oasis Petroleum) | 3/26 | CRC (California Resources) | 3/26 |
+| ADSK, ALSN, AMAT, ELAN, FSLR, J, SHOE, TTWO, WWD | 0 (each) | | |
+
+Hand-verified a sample before trusting the aggregate: CKX's qualifying
+market caps are $21-23M (2016, EOG-anchored) with its 2003-era events
+correctly PS-4-denied (its EOG disclosure is as_of 2016-03-29, over a
+decade after those events); KTCC's are $94-137M (2012, CLX-anchored);
+SIG's are $946M-1.2B (2019, SPG-anchored) with 2003-2004 events correctly
+denied by both PS-4 and the pre-XBRL PS-2 gap; COHU's grow from
+$565-788M (2020) past the $2B cutoff by 2026 (correctly PS-3-denied from
+then on). All real, all verifiable, all behaving exactly as the rules
+require. The 9 zero-qualifying tickers are each large/mega-caps
+throughout their real anchor-event history (ADSK, AMAT, FSLR, TTWO, WWD)
+or already-known dead ends (SHOE's PS-4 block, documented in round 5).
+
+### The governance point, restated because it is the one that matters
+
+**This is the same finding as round 5's, sixteen times over, and the same
+rule applies unchanged: none of these 778 pairs can be fed back into
+HYP-05's Phase 3 result.** That test already ran, for real, against the
+Phase-2-locked 8-event sample, and the holdout is spent. Using a
+newly-discovered, real, hand-verified, point-in-time-correct eligible
+universe to revisit an already-closed null result is still exactly the
+post-hoc data mining this project's Phase-2-lock/Phase-3-authorization
+sequence exists to prevent -- the fact that this universe is 11x larger
+and far more rigorously found than round 5's changes nothing about that.
+
+What round 6 actually establishes is that the discovery methodology
+scales: 27 anchors found 12 genuine relationships; 788 anchors found 101,
+of which 25 distinct tickers and 778 (peer, event) pairs clear real,
+point-in-time-correct eligibility. That is a substantial, reusable
+finding for a FUTURE hypothesis with its own fresh registration and its
+own, not-yet-spent holdout. It remains, as it was after round 5, not new
+evidence about HYP-05 as registered and already tested.

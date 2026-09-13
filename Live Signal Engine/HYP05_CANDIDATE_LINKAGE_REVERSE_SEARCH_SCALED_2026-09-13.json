@@ -1,0 +1,2500 @@
+{
+ "artifact": "HYP05_CANDIDATE_LINKAGE_REVERSE_SEARCH_SCALED_2026-09-13.json",
+ "as_of_date": "2026-09-13",
+ "hypothesis_id": "HYP-05",
+ "edges": [
+  {
+   "anchor_ticker": "AAPL",
+   "counterparty_is_named": true,
+   "named_counterparty": "Avago Technologies LTD  (CIK 0001441634)",
+   "direction": "customer",
+   "as_of_date": "2013-12-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For example, we believe our aggregate sales to Apple Inc. and Cisco Systems, Inc., when direct sales are combined with indirect sales to them through the respective contract manufacturers that they utilize, each accounted for more than 10% of our net revenues, respectively, for fiscal year 2013 ."
+  },
+  {
+   "anchor_ticker": "AAPL",
+   "counterparty_is_named": true,
+   "named_counterparty": "AUDIENCE INC  (CIK 0001201663)",
+   "direction": "customer",
+   "as_of_date": "2013-03-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2012, 2011 and 2010, one of our largest OEMs, Apple Inc. (“Apple”) and its CMs, Foxconn International Holdings, Ltd. and its affiliates (collectively “Foxconn”) and Protek (Shanghai) Limited and its affiliates (collectively, “Protek”), represented 46%, 75% and 82% of our total revenue, respectively."
+  },
+  {
+   "anchor_ticker": "ABBV",
+   "counterparty_is_named": true,
+   "named_counterparty": "PDL BIOPHARMA, INC.  (CIK 0000882104)",
+   "direction": "customer",
+   "as_of_date": "2013-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In April 2010, Abbott acquired Facet and later renamed the company Abbott Biotherapeutics Corp., and in January 2013, Abbott Biotherapeutics Corp. was renamed AbbVie Biotherapeutics, Inc. and spun off from Abbott as a subsidiary of AbbVie Inc. FASB Financial Accounting Standards Board FDA U.S. Food and Drug Administration February 2015 Notes 2.875% Convertible Senior Notes due February 15, 2015 GA"
+  },
+  {
+   "anchor_ticker": "ABNB",
+   "counterparty_is_named": true,
+   "named_counterparty": "LUXURBAN HOTELS INC.  (LUXH, LUXHP)  (CIK 0001893311)",
+   "direction": "customer",
+   "as_of_date": "2023-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Historically, more than 90% of our revenues have been generated from bookings of our accommodations made by guests through third-party booking portals such as Booking.com, VRBO, Airbnb, and Expedia."
+  },
+  {
+   "anchor_ticker": "ABT",
+   "counterparty_is_named": true,
+   "named_counterparty": "ICU MEDICAL INC/DE  (ICUI)  (CIK 0000883984)",
+   "direction": "customer",
+   "as_of_date": "2003-03-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our largest customer is Abbott Laboratories (\"Abbott\"), who accounted for 57% of our revenues in 2002."
+  },
+  {
+   "anchor_ticker": "ADSK",
+   "counterparty_is_named": true,
+   "named_counterparty": "AVATECH SOLUTIONS INC  (CIK 0000852437)",
+   "direction": "customer",
+   "as_of_date": "2004-09-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "More than 90% of our total revenue arises from the resale of design software developed by Autodesk, Inc. (Autodesk) for the building design and land development, manufacturing, utilities, and telecommunications industries, and the delivery of related services from the sales of these products."
+  },
+  {
+   "anchor_ticker": "AEIS",
+   "counterparty_is_named": true,
+   "named_counterparty": "ADVANCED POWER TECHNOLOGY INC  (CIK 0001114973)",
+   "direction": "customer",
+   "as_of_date": "2001-03-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Advanced Energy Industries, Inc. accounted for approximately 17% of our net sales in 2000, 15% of our net sales in 1999 and 8% of our net sales in 1998."
+  },
+  {
+   "anchor_ticker": "AEIS",
+   "counterparty_is_named": true,
+   "named_counterparty": "Dresser-Rand Group Inc.  (CIK 0001316656)",
+   "direction": "customer",
+   "as_of_date": "2013-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "e tax rate to income before income taxes as a result of the following differences: Year Ended December 31, 2012 2011 2010 U.S. statutory rate 35.0 % 35.0 % 35.0 % (Decrease) increase in rates resulting from: Foreign operations (4.2 ) (3.6 ) (5.1 ) State and local income taxes, net of U.S. tax 1.1 1.2 0.3 Valuation allowances 1.9 2.8 2.7 Export / manufacturing deductions (0.9 ) — (0.5 ) Qualifying "
+  },
+  {
+   "anchor_ticker": "AEP",
+   "counterparty_is_named": true,
+   "named_counterparty": "CCA INDUSTRIES INC  (CIK 0000721447)",
+   "direction": "customer",
+   "as_of_date": "2011-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "E Name of Issuer and Title of Each Issue Maturity Date Interest Rate Number of Units-Principal Amount of Bonds and Notes Cost of Each Issue Market Value of Each Issue at Balance Sheet Date Amount at Which Each Portfolio of Equity Security Issue and Each Other Security Issue Carried in Balance Sheet Common Stock: American Electric Power Co 5.256 % 7,500 254,263 267,000 267,000 Consolidate Edison In"
+  },
+  {
+   "anchor_ticker": "AEP",
+   "counterparty_is_named": true,
+   "named_counterparty": "CENTRUS ENERGY CORP  (LEU)  (CIK 0001065059)",
+   "direction": "customer",
+   "as_of_date": "2018-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In our LEU segment, revenue from Synatom, Entergy, American Electric Power and South Carolina Electric & Gas Company represented approximately 16%, 14%, 12% and 11%, respectively, of total revenue in 2017."
+  },
+  {
+   "anchor_ticker": "AES",
+   "counterparty_is_named": true,
+   "named_counterparty": "SUNEDISON, INC.  (CIK 0000945436)",
+   "direction": "customer",
+   "as_of_date": "2015-03-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "(“Riverstone”) and 50% by SunEdison, who acquired all of AES US Solar, LLC (“AES Solar”), a subsidiary of The AES Corporation, equity ownership interest in SRP (see \"Silver Ridge Power, LLC\" section below)."
+  },
+  {
+   "anchor_ticker": "AFG",
+   "counterparty_is_named": true,
+   "named_counterparty": "INTERCLOUD SYSTEMS, INC.  (CIK 0001128725)",
+   "direction": "customer",
+   "as_of_date": "2013-10-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "k Munro (1) 2,266,914 44.8 % Mark F. Durfee (2) 3,075,151 52.6 % Charles K. Miller (3) 110,886 3.8 % Neal Oristano (4) 207,734 6.9 % Daniel J. Sullivan — — Lawrence B. Sands 37,318 * Roger Ponder — — All named executive officers and directors as a group 5,698,003 67.6 % 5% or More Stockholders Forward Investment LLC (5) 3,352,463 54.5 % Mark Munro 1996 Charitable Remainder Trust (6) 304,308 9.8 % "
+  },
+  {
+   "anchor_ticker": "ALLY",
+   "counterparty_is_named": true,
+   "named_counterparty": "THANKSGIVING COFFEE CO INC  (CIK 0000949852)",
+   "direction": "customer",
+   "as_of_date": "2020-10-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "11,131 16,810 Ally Financial, payable in monthly installments of $237, including interest at 5.89%, collateralized by equipment, final payment due July 1, 2024."
+  },
+  {
+   "anchor_ticker": "ALLY",
+   "counterparty_is_named": true,
+   "named_counterparty": "GOOD TIMES RESTAURANTS INC  (GTIM)  (CIK 0000825324)",
+   "direction": "customer",
+   "as_of_date": "2013-12-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Debt and Capital Leases : 2013 2012 Note payable with PFGI II, LLC was paid in full in January 2013 $ 0 $ 1,319,000 Note payable with Wells Fargo Bank, NA was paid in full in October 2012 0 232,000 Capital signage leases with Yesco, LLC with payments of principal and interest (8%) due monthly 102,000 129,000 Notes payable with Ally Financial with payments of principal and interest (1.9% to 3.9%) d"
+  },
+  {
+   "anchor_ticker": "AMAT",
+   "counterparty_is_named": true,
+   "named_counterparty": "SUNTRON CORP  (CIK 0001160513)",
+   "direction": "customer",
+   "as_of_date": "2003-04-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Sales to Honeywell International, Inc, Applied Materials, Inc. and Emulex Corporation represented approximately 42%, 22% and 9%, respectively, of our net sales for 2002."
+  },
+  {
+   "anchor_ticker": "AMAT",
+   "counterparty_is_named": true,
+   "named_counterparty": "HELIX TECHNOLOGY CORP  (CIK 0000046709)",
+   "direction": "customer",
+   "as_of_date": "2002-02-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2001, our ten largest customers accounted for approximately 37% of our net sales and a single customer, Applied Materials, accounted for approximately 21% of our net sales."
+  },
+  {
+   "anchor_ticker": "AMGN",
+   "counterparty_is_named": true,
+   "named_counterparty": "PRIORITY HEALTHCARE CORP  (CIK 0001037975)",
+   "direction": "customer",
+   "as_of_date": "2002-03-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 1999, 2000 and 2001, one of the Company's largest suppliers, Amgen, accounted for approximately 21%, 21% and 13%, respectively, of the Company's total net sales."
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "MEMSIC Inc  (CIK 0001386198)",
+   "direction": "customer",
+   "as_of_date": "2009-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": " 2,798,336 — 2,798,336 11.8 % c/o IDG VC Management Ltd. Unit 1509, The Center 99 Queen’s Road Central, Hong Kong Entities Affiliated with InveStar Capital, Inc. (3) 2,508,014 — 2,508,014 10.6 % 333 W. San Carlos Street San Jose, California 95110 Celtic House Venture Partners Fund IIA LP (4) 2,315,455 — 2,315,455 9.8 % 303 Terry Fox Drive, Suite 120 Ottawa, Ontario K2K3J1 Entities Affiliated with "
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "METALS USA HOLDINGS CORP.  (CIK 0001362491)",
+   "direction": "customer",
+   "as_of_date": "2012-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "107 Table of Contents Name of Beneficial Owner Common Stock Beneficially Owned (1) Percentage of Shares Outstanding (2) Apollo Funds(3) 23,728,650 63.7 % Tempus Quo Capital Management, LLC(4) 2,925,615 7.8 % Ameriprise Financial Inc.(5) 1,988,003 5.3 % C. Lourenco Goncalves 1,331,816 3.6 % Robert C. McPherson, III 77,904 * Roger Krohn 152,092 * Eric L. Press(6) 80,974 * M. Ali Rashid(6) 80,974 * M"
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "INTER PARFUMS INC  (IPAR)  (CIK 0000822663)",
+   "direction": "customer",
+   "as_of_date": "2021-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Malvern, PA 19355 1,919,970 14 6.1 % Ameriprise Financial, Inc. 145 Ameriprise Financial Center Minneapolis, MN 55474 1,891,241 15 6.0 % All Directors and Officers (As a Group 10 Persons) 14,151,650 16 44.7 % 1 All shares of common stock are directly held with sole voting power and sole power to dispose, unless otherwise stated."
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "Poshmark, Inc.  (CIK 0001825480)",
+   "direction": "customer",
+   "as_of_date": "2021-03-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Shares Beneficially Owned % Total Class A Class B Voting Shares % Shares % Power Name of Beneficial Owner: Entities affiliated with Ameriprise Financial, Inc. (1) 821,800 7.4 % — — * Entities affiliated with Mayfield (2) — — 17,253,647 27.0 % 26.5 % Entities affiliated with GGV Capital (3) — — 5,126,167 8.0 % 7.9 % Entities affiliated with Menlo Ventures (4) — — 10,319,197 16.1 % 15.9 % Entities a"
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "GLOBAL DEFENSE TECHNOLOGY & SYSTEMS, INC.  (CIK 0001471038)",
+   "direction": "customer",
+   "as_of_date": "2011-03-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "55 Table of Contents Options Currently Exercisable or Percentage of Exercisable Total Shares Outstanding Within 60 Beneficially Shares Name of Beneficial Owner Common Days Owned Owned(1) 5% stockholders Contego Systems LLC 3,803,274 (2) — 3,803,274 41.14 % 1501 Farm Credit Drive Suite 2300 McLean, VA 22102-5011 Ameriprise Financial, Inc. 963,166 (3) — 963,166 10.42 % 145 Ameriprise Financial Cente"
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "OPEN TEXT CORP  (OTEX)  (CIK 0001002638)",
+   "direction": "customer",
+   "as_of_date": "2009-08-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Name and Address of Beneficial Owner Amount and Nature of Beneficial Ownership Percent of Common Shares Outstanding FMR LLC (1) 82 Devonshire Street Boston, Massachusetts, 02109 6,804,282 12.56 % Ameriprise Financial Inc. (1) 145 Ameriprise Financial Center Minneapolis, MN 55474 5,358,406 6.53 % TAL Global Asset Management Inc. (1) 1000 de la Gauchetiere West, Suite 3100 Montreal, Quebec, H3B 4W5 "
+  },
+  {
+   "anchor_ticker": "AMP",
+   "counterparty_is_named": true,
+   "named_counterparty": "TELEWEST GLOBAL INC  (CIK 0001270400)",
+   "direction": "customer",
+   "as_of_date": "2006-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Based on SEC filings to date, Ameriprise Financial Inc., or Ameriprise Financial, beneficially owned approximately 11.4%, FMR Corp. beneficially owned approximately 7.2%, Franklin Mutual Advisers beneficially owned approximately 8.1%, and William R. Huff beneficially owned approximately 8.6% of NTL's common stock, and FMR Corp. beneficially owned approximately 4.7%, Franklin Mutual Advisers benefi"
+  },
+  {
+   "anchor_ticker": "AMT",
+   "counterparty_is_named": true,
+   "named_counterparty": "BERLINER COMMUNICATIONS INC  (CIK 0000826773)",
+   "direction": "customer",
+   "as_of_date": "2010-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During the six months ended December 31, 2008, American Tower, Cricket Corporation and Ericsson, Inc. each individually represented greater than 5%, T-Mobile (and its subsidiaries) represented 13% , Sprint Nextel Corporation represented 17% and Metro PCS, Inc. (and its subsidiaries) represented 25% of our net revenue for the period."
+  },
+  {
+   "anchor_ticker": "APD",
+   "counterparty_is_named": true,
+   "named_counterparty": "AIRGAS INC  (CIK 0000804212)",
+   "direction": "customer",
+   "as_of_date": "2003-06-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In February 2002, the Company entered into a 15-year take-or-pay supply agreement under which Air Products and Chemicals, Inc. (“Air Products”) will supply at least 35% of the Company’s bulk liquid nitrogen, oxygen and argon requirements."
+  },
+  {
+   "anchor_ticker": "APD",
+   "counterparty_is_named": true,
+   "named_counterparty": "RED D ARC INC  (CIK 0001158062)",
+   "direction": "customer",
+   "as_of_date": "2002-06-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In connection with the acquisition of the U.S. packaged gas operations of Air Products and Chemical (\"Air Products\"), the Company entered into a 15-year supply agreement under which Air Products will supply at least 35% of the Company's bulk liquid nitrogen, oxygen and argon requirements."
+  },
+  {
+   "anchor_ticker": "APO",
+   "counterparty_is_named": true,
+   "named_counterparty": "Affinion Group, Inc.  (CIK 0001361394)",
+   "direction": "customer",
+   "as_of_date": "2010-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Approximately 97% of the common stock of Holdings is held by investment funds affiliated with Apollo Global Management, LLC (“Apollo”)."
+  },
+  {
+   "anchor_ticker": "ARES",
+   "counterparty_is_named": true,
+   "named_counterparty": "Floor & Decor Holdings, Inc.  (FND)  (CIK 0001507079)",
+   "direction": "customer",
+   "as_of_date": "2020-02-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "(“Ares”), a fund affiliated with Ares Management Corporation (“Ares Management”), beneficially owns, in the aggregate, approximately 12.1% of our outstanding Class A common stock, and FS Equity Partners VI, L.P."
+  },
+  {
+   "anchor_ticker": "ARMK",
+   "counterparty_is_named": true,
+   "named_counterparty": "ADUROMED INDUSTRIES, INC.  (CIK 0000040528)",
+   "direction": "customer",
+   "as_of_date": "2008-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Dependence on a few Major Customers It is anticipated that between 30% and 40% of the prospective one-time sales business of Aduromed during the ensuing six years will be derived from Aramark Management Services Partnership, a Delaware limited partnership (\"Aramark\") and an affiliate of Aramark Corporation, located in Philadelphia, Pennsylvania, pursuant to the Aramark Agreement."
+  },
+  {
+   "anchor_ticker": "ARW",
+   "counterparty_is_named": true,
+   "named_counterparty": "ALTERA CORP  (CIK 0000768251)",
+   "direction": "customer",
+   "as_of_date": "2005-03-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2004, three distributors, Arrow Electronics, Inc., Altima Corporation, and Paltek Corporation, each accounted for more than 10% of sales."
+  },
+  {
+   "anchor_ticker": "ARW",
+   "counterparty_is_named": true,
+   "named_counterparty": "CYPRESS SEMICONDUCTOR CORP /DE/  (CIK 0000791915)",
+   "direction": "customer",
+   "as_of_date": "2011-02-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "margin-bottom: 0px;\"><font style=\"font-family: Times New Roman;\" class=\"_mt\" size=\"2\">Two global distributors, Avnet, Inc. and Arrow Electronics, Inc., accounted for 15% and 10%, respectively, of our total revenues for fiscal 2010."
+  },
+  {
+   "anchor_ticker": "AVT",
+   "counterparty_is_named": true,
+   "named_counterparty": "CYPRESS SEMICONDUCTOR CORP /DE/  (CIK 0000791915)",
+   "direction": "customer",
+   "as_of_date": "2011-02-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "margin-bottom: 0px;\"><font style=\"font-family: Times New Roman;\" class=\"_mt\" size=\"2\">One global distributor, Avnet, Inc., accounted for 17% of consolidated accounts receivable as of January&nbsp;2, 2011."
+  },
+  {
+   "anchor_ticker": "AVT",
+   "counterparty_is_named": true,
+   "named_counterparty": "ARUBA NETWORKS, INC.  (CIK 0001173752)",
+   "direction": "customer",
+   "as_of_date": "2012-10-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The table below represents the percentage of total revenue from our top channel partners (*represents less than 10%): Years Ended July 31, 2012 2011 2010 ScanSource, Inc. (“Catalyst”) 21.4 % 19.4 % 17.1 % Avnet Logistics U.S. LP 14.1 % 17.1 % 16.6 % Alcatel-Lucent * 13.9 % 10.4 % Our agreements with our partners provide that they use reasonable commercial efforts to sell our products on a perpetua"
+  },
+  {
+   "anchor_ticker": "AVY",
+   "counterparty_is_named": true,
+   "named_counterparty": "IMPINJ INC  (PI)  (CIK 0001114995)",
+   "direction": "customer",
+   "as_of_date": "2019-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The following table presents total revenue concentrations to Avery Dennison Corporation, or Avery Dennison, Smartrac NV, or Smartrac, Arizon RFID Technology (Yangzhou) Co., LTD, or Arizon, Shang Yang RFID Technology Yangzhou Co. Ltd., or Shang Yang, and Blue Star, Inc., or Blue Star, for the periods presented: 8 Table of Contents Year Ended December 31, 2018 2017 2016 Revenue: Avery Dennison 22 % "
+  },
+  {
+   "anchor_ticker": "AXP",
+   "counterparty_is_named": true,
+   "named_counterparty": "US DATAWORKS INC  (CIK 0001049505)",
+   "direction": "customer",
+   "as_of_date": "2009-06-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Three of our customers, American Express, the Federal Reserve Bank of Cleveland and Regulus accounted for 47%, 22%, and 9%, respectively, of our net revenue for the year ended March 31, 2009."
+  },
+  {
+   "anchor_ticker": "BAC",
+   "counterparty_is_named": true,
+   "named_counterparty": "BROADCOM CORP  (CIK 0001054374)",
+   "direction": "customer",
+   "as_of_date": "2002-03-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "We may choose the rate at which the credit facility bears interest at the rate of either (a) the higher of (i) 0.5% plus the Federal Reserve rate and (ii) the Bank of America prime rate or (b) LIBOR plus 1% (selected in one, two or three month periods)."
+  },
+  {
+   "anchor_ticker": "BAX",
+   "counterparty_is_named": true,
+   "named_counterparty": "Talecris Biotherapeutics Holdings Corp.  (CIK 0001405197)",
+   "direction": "customer",
+   "as_of_date": "2010-02-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "According to MRB, our principal plasma derivatives competitors are Baxter International, Inc., CSL Behring, Octapharma AG and Grifols, representing 22%, 18%, 9% and 8%, respectively, of worldwide plasma derivative sales in 2007."
+  },
+  {
+   "anchor_ticker": "BDX",
+   "counterparty_is_named": true,
+   "named_counterparty": "OWENS & MINOR INC/VA/  (OMI)  (CIK 0000075252)",
+   "direction": "customer",
+   "as_of_date": "2017-02-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Sales of products supplied by Becton Dickinson were approximately 9% of our consolidated net revenue for 2016 ."
+  },
+  {
+   "anchor_ticker": "BEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "PENWEST PHARMACEUTICALS CO  (CIK 0001047188)",
+   "direction": "customer",
+   "as_of_date": "2008-04-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "590 Madison Avenue, 34 th Floor New York, NY 10022 3,117,866 (2) 9.9 % Franklin Resources, Inc. One Franklin Parkway San Mateo, CA 94403-1906 2,727,485 (3) 8.6 % D.E."
+  },
+  {
+   "anchor_ticker": "BEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "JAKKS PACIFIC INC  (JAKK)  (CIK 0001009829)",
+   "direction": "customer",
+   "as_of_date": "2004-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Amount and Nature of Percent of Name and Address of Beneficial Outstanding Beneficial Owner(1)(2) Ownership(s)(3) Shares FMR Corp. 2,672,300 (4) 11.0 % Heartland Advisors, Inc. 1,404,500 (5) 6.1 Royce & Associates, LLC 3,044,400 (6) 9.3 Franklin Resources, Inc. 1,424,707 (7) 5.6 Third Avenue Management LLC 2,855,211 (8) 11.3 Dimensional Fund Advisors, Inc. 1,633,402 (9) 6.5 Jack Friedman 760,797 ("
+  },
+  {
+   "anchor_ticker": "BEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "MEDICINES CO /DE  (CIK 0001113481)",
+   "direction": "customer",
+   "as_of_date": "2005-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Beneficial Owner: Number of Shares Beneficially Owned Percentage of Outstanding Common Stock Wellington Management Company, LLP(1) 6,687,270 13.7 % BB Biotech AG(2) 4,727,854 9.6 % T. Rowe Price Associates, Inc.(3) 3,739,210 7.7 % Sectoral Asset Management, Inc.(4) 3,489,860 7.2 % Franklin Resources, Inc.(5) 2,974,800 6.1 % Barclays Global Investors, N.A.(6) 2,427,557 5.0 % Clive A. Meanwell(7) 48"
+  },
+  {
+   "anchor_ticker": "BEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "CommScope Holding Company, Inc.  (COMM)  (CIK 0001517228)",
+   "direction": "customer",
+   "as_of_date": "2019-04-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Malvern, PA 19355 17,497,023 9.04% Franklin Resources, Inc.(3) One Franklin Parkway San Mateo, CA 94403 14,767,744 7.63% Wellington Management Company LLP(4) 280 Congress Street Boston, MA 02210 11,359,471 5.87% FPR Partners, LLC(5) 199 Fremont Street, Suite 2500 San Francisco, CA 94105 11,177,830 5.78% BlackRock, Inc.(6) 55 East 52nd Street New York, NY 10055 10,791,649 5.58% Maverick Capital, Lt"
+  },
+  {
+   "anchor_ticker": "BEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "INTEGRATED CIRCUIT SYSTEMS INC  (CIK 0000874689)",
+   "direction": "customer",
+   "as_of_date": "2002-09-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Unless otherwise noted, to its knowledge, each of the following shareholders has sole voting and investment power as to the shares shown: Shares Beneficially owned Name and Address Number of Shares Percentage of Class Principal Shareholders: FMR Corp.(1) 82 Devonshire Street Boston, MA 02109 6,180,365 9.0 % Franklin Resources, Inc.(2) One Franklin Parkway San Mateo, CA 94403 6,215,181 9.1 % Direct"
+  },
+  {
+   "anchor_ticker": "BHF",
+   "counterparty_is_named": true,
+   "named_counterparty": "SJW GROUP  (SJW)  (CIK 0000766829)",
+   "direction": "customer",
+   "as_of_date": "2020-03-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On March 28, 2019, SJWC entered into a note purchase agreement with certain affiliates of MetLife, Inc., Brighthouse Financial, Inc. and New York Life Insurance (collectively the “Purchasers”), pursuant to which the company sold an aggregate principal amount of $ 80,000 of its 4.29 % Senior Notes, Series M (“Series M Notes”) to the Purchasers."
+  },
+  {
+   "anchor_ticker": "BIIB",
+   "counterparty_is_named": true,
+   "named_counterparty": "SERACARE LIFE SCIENCES INC  (CIK 0001156295)",
+   "direction": "customer",
+   "as_of_date": "2002-12-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Co., Ltd. and 16% of our net sales were to Wyeth Pharmaceuticals, Inc. Biogen, Inc. represented approximately 28% of accounts receivable as of September 30, 2002, however they represented less than 10% of our net sales for the fiscal year ended September 30, 2002."
+  },
+  {
+   "anchor_ticker": "BKNG",
+   "counterparty_is_named": true,
+   "named_counterparty": "Liberty TripAdvisor Holdings, Inc.  (LTRPA, LTRPB)  (CIK 0001606745)",
+   "direction": "customer",
+   "as_of_date": "2019-02-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the years ended December 31, 2018, 2017 and 2016, TripAdvisor’s two most significant travel partners were Expedia Inc. (and its subsidiaries) (“Expedia”) and Booking Holdings Inc. (and its subsidiaries) (“Booking Holdings”), each of which accounted for more than 10% of TripAdvisor’s consolidated revenue and together accounted for approximately 37%, 43% and 46%, respectively, of its consolidate"
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "Super Micro Computer, Inc.  (SMCI)  (CIK 0001375365)",
+   "direction": "customer",
+   "as_of_date": "2015-09-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "ectors: Charles Liang(4) 8,890,675 18.3 % Howard Hideshima(5) 219,654 * Phidias Chou(5) 132,499 * Chiu-Chu (Sara) Liang(6) 8,890,675 18.3 % Yih-Shyan (Wally) Liaw(7) 2,265,741 4.8 % Laura Black(5) 5,625 * Michael S. McAndrews — * Hwei-Ming (Fred) Tsai(8) 321,000 * Sherman Tuan(5) 54,500 * All directors and executive officers as a group (9 persons)(9) 11,889,694 24.2 % 5% Holders Not Listed Above: "
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "ATMEL CORP  (CIK 0000872448)",
+   "direction": "customer",
+   "as_of_date": "2016-02-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Beneficial Owner(1) Common Stock Beneficially Owned(2) Approximate Percent Beneficially Owned(2) T. Rowe Price Associates, Inc.(3) 34,526,548 8.18% Janus Capital Management LLC(4) 31,084,075 7.36% BlackRock, Inc.(5) 28,414,924 6.73% Vanguard Group, Inc.(6) 28,134,695 6.66% Steven Laub(7) 2,200,951 * Steve Skaggs(8) 505,097 * Reza Kazerounian(9) 336,197 * Rob Valiton(10) 433,911 * Tsung-Ching Wu(11"
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "Autodesk, Inc.  (ADSK)  (CIK 0000769397)",
+   "direction": "customer",
+   "as_of_date": "2024-06-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "5% Stockholders, Directors and Officers (1) Common Stock Beneficially Owned (2) Percentage Beneficially Owned (3) Principal Stockholders: The Vanguard Group, Inc. (4) 19,038,582 8.8 % BlackRock, Inc. (5) 19,233,480 8.9 % Non-Employee Directors (6): Stacy J. Smith 19,934 * Karen Blasing 7,237 * Reid French (7) 12,958 * Dr. Ayanna Howard 2,241 * Blake Irving 8,261 * Mary T. McDowell 33,766 * Stephen"
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "McAfee, Inc.  (CIK 0000890801)",
+   "direction": "customer",
+   "as_of_date": "2011-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "bert W. Pangia 59 — * Charles J. Robel — — * Anthony Zingale — — * Jonathan C. Chadwick — 30,012 * Michael P. DeCesare 54,848 (2) 130,766 * Todd W. Gebhart 10,463 29,135 * Gerhard Watzinger 63,115 132,391 * T. Rowe Price Associates, Inc.(6) 100 E. Pratt Street, Baltimore, Maryland 21202 8,683,932 — 5.6 % Paulson & Co. Inc.(7) 1251 Avenue of the Americas, New York, New York 10020 8,000,000 — 5.1 % "
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "AKORN INC  (CIK 0000003116)",
+   "direction": "customer",
+   "as_of_date": "2018-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "28,451,983 (2) 22.7 % FMR LLC 11,618,549 (3) 9.3 % BlackRock, Inc. 7,958,348 (4) 6.4 % The Vanguard Group 7,484,355 (5) 6.0% Directors: Alan Weinstein 92,943 (6) * Kenneth S. Abramowitz 46,570 (7) * Adrienne L. Graves, Ph.D."
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "NATUS MEDICAL INC  (CIK 0000878526)",
+   "direction": "customer",
+   "as_of_date": "2018-07-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "SECURITY OWNERSHIP OF CERTAIN BENEFICIAL OWNERS AND MANAGEMENT 62 Table of Contents Name and Address of Beneficial Owner Shares Beneficially Owned Right to acquire beneficial ownership under options exercisable within 60 days Total Beneficially Owned Percent of Class Principal Stockholders BlackRock, Inc. 55 East 52nd Street New York, NY 10055 (1) 4,032,681 -- 4,032,681 12.2% Dimensional Fund Advi"
+  },
+  {
+   "anchor_ticker": "BLK",
+   "counterparty_is_named": true,
+   "named_counterparty": "FutureFuel Corp.  (FF)  (CIK 0001337298)",
+   "direction": "customer",
+   "as_of_date": "2021-03-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Amount of Percent of Beneficial Common Name and Address of Beneficial Owner Ownership Stock Paul A. Novelly (a) 17,725,100 40.5 % 8235 Forsyth Blvd., 4 th Floor Clayton, MO 63105 BlackRock, Inc. (b) 4,043,313 9.2 % 55 East 52 nd Street New York, NY 10055 Dimensional Fund Advisors LP (c) 2,811,492 6.4 % 6300 Bee Cave Road, Building One Austin, TX 78746 The Vanguard Group (d) 2,726,360 6.2 % 100 Van"
+  },
+  {
+   "anchor_ticker": "BNY",
+   "counterparty_is_named": true,
+   "named_counterparty": "Avery Dennison Corp  (AVY)  (CIK 0000008818)",
+   "direction": "customer",
+   "as_of_date": "2021-02-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "(“BNY Mellon”) as Trustee (including Form of 1.250% Senior Notes due 2025 on Exhibit A thereto) 4.2 Current Report on Form 8-K, filed March 3, 2017 4.13 Fifth Supplemental Indenture, dated as of December 6, 2018, between Registrant and BNY Melon, as Trustee (including Form of 4.875% Senior Notes due 2028 on Exhibit A thereto) 4.2 Current Report on Form 8-K, filed December 6, 2018 4.14 Sixth Supple"
+  },
+  {
+   "anchor_ticker": "BURL",
+   "counterparty_is_named": true,
+   "named_counterparty": "STEVEN MADDEN, LTD.  (SHOO)  (CIK 0000913241)",
+   "direction": "customer",
+   "as_of_date": "2020-03-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "These customers, in no particular order, include: Nordstrom, Inc. The TJX Companies, Inc. Dillard's, Inc. Burlington Stores, Inc. Macy's, Inc. Ross Stores, Inc. Designer Brands, Inc. Wal-Mart Stores, Inc. Kohl's Corporation Target Corporation For the year ended December 31, 2019 , Wal-Mart Stores, Inc. represented 11.9% of total revenue."
+  },
+  {
+   "anchor_ticker": "BYD",
+   "counterparty_is_named": true,
+   "named_counterparty": "MGM MIRAGE  (MGM)  (CIK 0000789570)",
+   "direction": "customer",
+   "as_of_date": "2006-03-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Boyd Gaming Corporation (“Boyd”) owns the other 50% and also operates the resort."
+  },
+  {
+   "anchor_ticker": "CAH",
+   "counterparty_is_named": true,
+   "named_counterparty": "Adams Respiratory Therapeutics, Inc.  (CIK 0001319439)",
+   "direction": "customer",
+   "as_of_date": "2005-09-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The following table sets forth a list of our primary distribution channels and our principal customers for each channel: Channel of Distribution Customers Wholesale Drug AmerisourceBergen Cardinal Health McKesson* Drug CVS* Brooks/Eckerd Rite Aid Walgreens* Food Albertsons Kroger Safeway Mass Kmart Target Wal-Mart* * Represents customers who each accounted for greater than 10% of our gross sales f"
+  },
+  {
+   "anchor_ticker": "CAH",
+   "counterparty_is_named": true,
+   "named_counterparty": "HEMOSENSE INC  (CIK 0001127393)",
+   "direction": "customer",
+   "as_of_date": "2005-12-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our distributors Quality Assured Services, Medline and Cardinal Health accounted for approximately 24%, 19% and 13%, respectively, of our total revenue in fiscal 2005."
+  },
+  {
+   "anchor_ticker": "CDE",
+   "counterparty_is_named": true,
+   "named_counterparty": "ROYAL GOLD INC  (RGLD)  (CIK 0000085535)",
+   "direction": "customer",
+   "as_of_date": "2015-08-06",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "andard United States 144.988 0.014 1.997 Pinson 3.0% NSR (13) Atna United States 7.557 0.064 0.483 2.94% NSR (14) Robinson 3.0% NSR KGHM United States 131.586 0.004 0.579 Ruby Hill 3.0% NSR Barrick United States 1.726 0.014 0.024 Soledad Mountain (DEV) 3.0% NSR (15) Golden Queen United States 51.052 0.019 0.984 Twin Creeks 2.0% GPR Newmont United States 1.461 0.108 0.158 Wharf 0.0 - 2.0% NSR (16) "
+  },
+  {
+   "anchor_ticker": "CDW",
+   "counterparty_is_named": true,
+   "named_counterparty": "Carbon Black, Inc.  (CIK 0001366527)",
+   "direction": "customer",
+   "as_of_date": "2019-03-08",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "To date, we have partnerships with more than 500 leading security-focused VARs, such as Optiv Security, Inc., CDW Corporation, Dimension Data 16 Table of Contents Holding Plc and SHI International, and global distributors, such as Arrow Electronics, Inc. Optiv Security, Inc., one of our channel partners, accounted for approximately 19%, 27%, and 31% of our revenue in the years ended December 31, 2"
+  },
+  {
+   "anchor_ticker": "CEG",
+   "counterparty_is_named": true,
+   "named_counterparty": "Ormat Funding Corp.  (CIK 0001312500)",
+   "direction": "customer",
+   "as_of_date": "2005-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "** Constellation Energy Group is not an affiliate of ours and holds its 50% interest through certain of its subsidiaries."
+  },
+  {
+   "anchor_ticker": "CEG",
+   "counterparty_is_named": true,
+   "named_counterparty": "SPESCOM SOFTWARE INC  (CIK 0000813747)",
+   "direction": "customer",
+   "as_of_date": "2004-12-06",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Network Rail and Constellation Energy Group accounted for 23% and 15%, respectively of revenues for fiscal 2004 while Network Rail accounted for 19% of revenue for fiscal 2003 and 2002."
+  },
+  {
+   "anchor_ticker": "CFG",
+   "counterparty_is_named": true,
+   "named_counterparty": "HUB INTERNATIONAL LTD  (CIK 0001133016)",
+   "direction": "customer",
+   "as_of_date": "2007-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On April 1, 2006, we acquired 100% of the issued and outstanding membership interests of three brokerages (the “CFG Brokerages” or “CFGB”) from Citizens Financial Group Inc., for approximately $80.8 million."
+  },
+  {
+   "anchor_ticker": "CHRW",
+   "counterparty_is_named": true,
+   "named_counterparty": "FASTENAL CO  (FAST)  (CIK 0000815556)",
+   "direction": "customer",
+   "as_of_date": "2015-02-05",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": ", TRAINING, & INSPECTION EVENTS 79,000+ SALES GROWTH TO CUSTOMERS WITH VENDING 20.6% VENDING MACHINES INSTALLED 46,855 D A IL Y 2,637 MICHAEL J. DOLAN Self-Employed Business Consultant, Former Executive Vice President and Chief Operating Officer, The Smead Manufacturing Company GARY A. POLIPNICK Executive Vice President - Sales SCOTT A. SATTERLEE President of North America Surface Transportation, "
+  },
+  {
+   "anchor_ticker": "CHTR",
+   "counterparty_is_named": true,
+   "named_counterparty": "CSG SYSTEMS INTERNATIONAL INC  (CSGS)  (CIK 0001005757)",
+   "direction": "customer",
+   "as_of_date": "2021-02-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "A partial list of our key customers as of December 31, 2020 is included below: Airtel Africa Maximus América Móvil Mediacom AT&T Microsoft Charter Communications Mobily Comcast MTN DISH New Leaf Service Contracts Formula 1 State of California DMW Hutchison 3 Indonesia TalkTalk Inmarsat Telstra Mastercard 5 Customers that represented 10% or more of our revenue for 2020 and 2019 were as follows (in "
+  },
+  {
+   "anchor_ticker": "CIEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "AVANEX CORP  (CIK 0001056794)",
+   "direction": "customer",
+   "as_of_date": "2004-09-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During fiscal year 2004, Alcatel, Cisco Systems and Ciena Corporation (including sales to their contract manufacturers) each accounted for greater than 10% of our net revenue, and combined accounted for 61% of our fiscal year 2004 net revenue."
+  },
+  {
+   "anchor_ticker": "CLF",
+   "counterparty_is_named": true,
+   "named_counterparty": "WEIRTON STEEL CORP  (CIK 0000849979)",
+   "direction": "customer",
+   "as_of_date": "2002-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "RAW MATERIALS AND ENERGY We have a contract with a subsidiary of Cleveland-Cliffs Inc. to purchase 100% of our standard and flux grade iron ore pellet requirements."
+  },
+  {
+   "anchor_ticker": "CLF",
+   "counterparty_is_named": true,
+   "named_counterparty": "ROUGE INDUSTRIES INC  (CIK 0000918577)",
+   "direction": "customer",
+   "as_of_date": "2003-02-18",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Approximately 65% of the Company’s requirements for pellets during this period was obtained under a trade arrangement with Stelco, Inc (“Stelco”) or The Cleveland-Cliffs Iron Company (“Cleveland-Cliffs”)."
+  },
+  {
+   "anchor_ticker": "CLX",
+   "counterparty_is_named": true,
+   "named_counterparty": "KEY TRONIC CORP  (KTCC)  (CIK 0000719733)",
+   "direction": "customer",
+   "as_of_date": "2002-09-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During fiscal year 2002, the Company performed product design, plastic injection molding, and manufacturing for Clorox Products Manufacturing Company, a new customer who accounted for 39% of consolidated revenue."
+  },
+  {
+   "anchor_ticker": "CMCSA",
+   "counterparty_is_named": true,
+   "named_counterparty": "DYCOM INDUSTRIES INC  (DY)  (CIK 0000067215)",
+   "direction": "customer",
+   "as_of_date": "2013-09-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "ncentrationOfRiskByRiskFactorTextBlock us-gaap_ true na duration false false false false false false false false verboseLabel 1 false false false 0 0 <div style=\"font-family:Times New Roman;font-size:10pt;\"><div style=\"line-height:120%;text-align:left;text-indent:24px;font-size:10pt;\"><font style=\"font-family:inherit;font-size:10pt;\"> AT&amp;T Inc. (\"AT&amp;T\"), CenturyLink, Inc. (\"CenturyLink\"), "
+  },
+  {
+   "anchor_ticker": "CMCSA",
+   "counterparty_is_named": true,
+   "named_counterparty": "Support.com, Inc.  (CIK 0001104855)",
+   "direction": "customer",
+   "as_of_date": "2021-07-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Pursuant to a comment letter of the SEC dated June 7, 2021, this Amendment is being filed solely to (i) include additional information related to the Company’s business with Comcast Cable Communications Management, LLC in Management’s Discussion and Analysis of Financial Condition and Results of Operations Revenue under Item 7 and (ii) to add individual revenue percentage breakouts for customers g"
+  },
+  {
+   "anchor_ticker": "CMCSA",
+   "counterparty_is_named": true,
+   "named_counterparty": "INSIGHT MIDWEST LP  (CIK 0001110458)",
+   "direction": "customer",
+   "as_of_date": "2007-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Insight Midwest We are a limited partnership owned 50% by our manager and 50% by an indirect subsidiary of Comcast Cable Holdings, LLC, which is a subsidiary of Comcast Corporation, the largest cable operator in the United States."
+  },
+  {
+   "anchor_ticker": "CME",
+   "counterparty_is_named": true,
+   "named_counterparty": "FGI Industries Ltd.  (FGI, FGIWW)  (CIK 0001864943)",
+   "direction": "customer",
+   "as_of_date": "2026-04-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The loan bears interest at a rate equal to, at the Company’s option, either (i) 0.25 percentage points less than the Prime Rate quoted by the Wall Street Journal or (ii) the SOFR Rate (as administered by CME Group Benchmark Administration Limited and displayed by Bloomberg LP) plus 2.20% per annum (in either case, subject to a minimum rate of 4.500% per annum) ."
+  },
+  {
+   "anchor_ticker": "CME",
+   "counterparty_is_named": true,
+   "named_counterparty": "NEXSTAR MEDIA GROUP, INC.  (NXST)  (CIK 0001142417)",
+   "direction": "customer",
+   "as_of_date": "2023-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The term SOFR for any interest period is the sum of the term SOFR screen rate published by the CME Group Benchmark Administration Limited (“CME”) term SOFR administrator plus a spread adjustment of 0.10 %."
+  },
+  {
+   "anchor_ticker": "CME",
+   "counterparty_is_named": true,
+   "named_counterparty": "Astrana Health, Inc.  (ASTH)  (CIK 0001083446)",
+   "direction": "customer",
+   "as_of_date": "2026-03-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The loans under the Second Amended and Restated Credit Agreement bear interest at an annual rate equal to either, at our option, (a) the rate for term SOFR published by the CME Group Benchmark Administration Limited two days prior to the first day of the applicable interest period, plus a spread of 1.25% to 2.50%, as determined on a quarterly basis based on our leverage ratio, or (b) a base rate, "
+  },
+  {
+   "anchor_ticker": "CME",
+   "counterparty_is_named": true,
+   "named_counterparty": "DOLLAR GENERAL CORP  (DG)  (CIK 0000029534)",
+   "direction": "customer",
+   "as_of_date": "2023-03-24",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "​ Borrowings under the Revolving Facility bear interest at a rate equal to an applicable interest rate margin plus, at our option, either (a) Adjusted Term SOFR (which is Term SOFR (as published by CME Group Benchmark Administration Limited) plus a credit spread adjustment of 0.10%) or (b) a base rate (which is usually equal to the prime rate)."
+  },
+  {
+   "anchor_ticker": "CME",
+   "counterparty_is_named": true,
+   "named_counterparty": "Clearfield, Inc.  (CLFD)  (CIK 0000796505)",
+   "direction": "customer",
+   "as_of_date": "2022-11-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The line of credit matures on April 27, 2025 and borrowed amounts will bear interest at a variable rate of the CME Group one-month term Secured Overnight Financing Rate (“SOFR”) plus 1.85%, but not less than 1.80% per annum."
+  },
+  {
+   "anchor_ticker": "COP",
+   "counterparty_is_named": true,
+   "named_counterparty": "BreitBurn Energy Partners L.P.  (CIK 0001357371)",
+   "direction": "customer",
+   "as_of_date": "2012-02-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During 2011 , our largest purchasers were ConocoPhillips in California and Michigan, which accounted for approximately 30% of net sales revenues, Plains Marketing & Transportation LLC in Florida, which accounted for approximately 16% of net sales revenues, Marathon Oil Company in 11 Wyoming, which accounted for approximately 15% of net sales revenues and Sunoco Partners Marketing and Terminals L.P"
+  },
+  {
+   "anchor_ticker": "COR",
+   "counterparty_is_named": true,
+   "named_counterparty": "Amneal Pharmaceuticals, Inc.  (AMRX)  (CIK 0001723128)",
+   "direction": "customer",
+   "as_of_date": "2024-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the year ended December 31, 2023, on a consolidated basis, our four largest customers, Cencora, Inc., McKesson Drug Co., Cardinal Health, Inc., and CVS Health Corporation, accounted for approximately 70% of our net revenue."
+  },
+  {
+   "anchor_ticker": "COR",
+   "counterparty_is_named": true,
+   "named_counterparty": "Elanco Animal Health Inc  (ELAN)  (CIK 0001739104)",
+   "direction": "customer",
+   "as_of_date": "2025-02-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our largest customer, an affiliate of Cencora, Inc., is a third-party veterinary distributor and represented approximately 11% of our total revenue in 2024."
+  },
+  {
+   "anchor_ticker": "CRM",
+   "counterparty_is_named": true,
+   "named_counterparty": "Bridgeline Digital, Inc.  (BLIN)  (CIK 0001378590)",
+   "direction": "customer",
+   "as_of_date": "2020-12-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "3 OrchestraCMS, delivered through a cloud-based SaaS, is the only content and digital experience platform built 100% native on Salesforce and helps customers create compelling digital experiences for their customers, partners, and employees;"
+  },
+  {
+   "anchor_ticker": "CSCO",
+   "counterparty_is_named": true,
+   "named_counterparty": "STRATOS LIGHTWAVE INC  (CIK 0001111721)",
+   "direction": "customer",
+   "as_of_date": "2001-07-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the fiscal year ended April 30, 2001, our three largest customers and their respective contract manufacturers accounted for 32% of our net sales, with McData Corporation, Alcatel Network Systems and Cisco Systems accounting for 11%, 11% and 10% of our net sales, respectively."
+  },
+  {
+   "anchor_ticker": "CSCO",
+   "counterparty_is_named": true,
+   "named_counterparty": "MERIX CORP  (CIK 0000921365)",
+   "direction": "customer",
+   "as_of_date": "2001-08-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "following table shows, for the periods indicated, the percentage of our net sales to the principal market segments we serve: Fiscal Years 2001 2000 1999 Ma rket Segments: Co mmunications 59.4 % 51.7 % 37.9 % Co mputing 19.2 21.3 32.8 Te st and Measurement 19.3 24.2 25.4 Oth er 2.1 2.8 3.9 To tal 100.0 % 100.0 % 100.0 % Our five largest OEM customers during fiscal 2001, in alphabetical order, were "
+  },
+  {
+   "anchor_ticker": "CSX",
+   "counterparty_is_named": true,
+   "named_counterparty": "WESTINGHOUSE AIR BRAKE TECHNOLOGIES CORP  (WAB)  (CIK 0000943452)",
+   "direction": "customer",
+   "as_of_date": "2014-02-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the fiscal year ended December 31, 2013 , our top five customers accounted for 15% of net sales: The Massachusetts Bay Transportation Authority, General Electric Transportation, CSX Corporation, Trinity Industries, and Union Pacific Corporation."
+  },
+  {
+   "anchor_ticker": "CUBE",
+   "counterparty_is_named": true,
+   "named_counterparty": "Strategic Storage Trust VI, Inc.  (CIK 0001852575)",
+   "direction": "customer",
+   "as_of_date": "2024-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The five publicly listed self storage companies are Public Storage, Extra Space Storage Inc., AMERCO (the parent company of U-Haul), CubeSmart, and National Storage Affiliates Trust, which collectively operate approximately 22% of all U.S.-based self storage properties."
+  },
+  {
+   "anchor_ticker": "CVLT",
+   "counterparty_is_named": true,
+   "named_counterparty": "DISC INC/CA  (CIK 0000891788)",
+   "direction": "customer",
+   "as_of_date": "2001-04-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "OTHER MATTERS Compaq Computer Corporation and Commvault Systems Inc., two OEM customers, accounted for 14% and 13%, respectively, of our total revenue in 2000."
+  },
+  {
+   "anchor_ticker": "CVX",
+   "counterparty_is_named": true,
+   "named_counterparty": "TRITON ENERGY LTD  (CIK 0001009404)",
+   "direction": "customer",
+   "as_of_date": "2001-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our partners in this area are subsidiaries of Chevron Corporation, with a 65% interest, and Sasol Limited, a South African company, with a 10% interest."
+  },
+  {
+   "anchor_ticker": "CVX",
+   "counterparty_is_named": true,
+   "named_counterparty": "CHICAGO BRIDGE & IRON CO N V  (CIK 0001027884)",
+   "direction": "customer",
+   "as_of_date": "2010-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The Company is a limited liability company organized in the State of Delaware which was formed on January 1, 2000 and is owned by Lummus Catalyst Company Ltd (“Lummus”), an indirect wholly-owned subsidiary of Chicago Bridge & Iron Company (“CB&I”) and Chevron USA Inc. (“Chevron”), an indirect wholly-owned subsidiary of Chevron Corporation, with each having a 50% interest in the Company."
+  },
+  {
+   "anchor_ticker": "CVX",
+   "counterparty_is_named": true,
+   "named_counterparty": "Regency Energy Partners LP  (CIK 0001338613)",
+   "direction": "customer",
+   "as_of_date": "2015-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the year ended December 31, 2013, ONEOK, Inc. and Chevron Corporation, Eagle Rock Midstream's largest customers, represented 25% and 14%, respectively, of its total sales revenue (including realized and unrealized gains on commodity derivatives)."
+  },
+  {
+   "anchor_ticker": "CVX",
+   "counterparty_is_named": true,
+   "named_counterparty": "TIDEWATER INC  (TDW, TDDWW, TDGMW, TDW-WT)  (CIK 0000098222)",
+   "direction": "customer",
+   "as_of_date": "2008-05-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Although Chevron Corporation (including its worldwide subsidiaries and affiliates) accounted for approximately 16.3% and Petroleo Brasileiro SA accounted for approximately 10.5% of revenues during the year ended March 31, 2008, the five largest customers accounted for approximately 45.5% of the company’s revenues."
+  },
+  {
+   "anchor_ticker": "DELL",
+   "counterparty_is_named": true,
+   "named_counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "direction": "customer",
+   "as_of_date": "2022-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "​ PURCHASING AND VENDOR RELATIONS ​ Product purchases from Ingram Micro, Inc., TD Synnex Corporation and Dell Inc. accounted for approximately 23%, 23% and 12% respectively, of our total product purchases in 2021."
+  },
+  {
+   "anchor_ticker": "DKS",
+   "counterparty_is_named": true,
+   "named_counterparty": "KITE REALTY GROUP TRUST  (KRG)  (CIK 0001286043)",
+   "direction": "customer",
+   "as_of_date": "2016-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "3 95.4 % 100.0 % 82.6 % 15.90 Gander Mountain, PetSmart, Michaels Target Bolton Plaza Jacksonville 1986/2014 165,555 136,195 29,360 93.4 % 100.0 % 62.5 % 9.48 LA Fitness, Academy Sports, Marshalls Burnt Store Promenade Punta Gorda 1989 95,543 45,600 49,943 76.8 % 100.0 % 55.6 % 8.66 Publix Home Depot Centre Point Commons Bradenton 2007 119,275 93,574 25,701 100.0 % 100.0 % 100.0 % 16.98 Best Buy, "
+  },
+  {
+   "anchor_ticker": "DKS",
+   "counterparty_is_named": true,
+   "named_counterparty": "HERITAGE PROPERTY INVESTMENT TRUST INC  (CIK 0001158265)",
+   "direction": "customer",
+   "as_of_date": "2003-03-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "At December 31, 2002, the center was 96% leased and anchored by Best Buy, Dick's Sporting Goods and Petsmart and included a separately owned Wal-Mart Supercenter (214,000 square feet) and Kohl's (89,000 square feet)."
+  },
+  {
+   "anchor_ticker": "DLTR",
+   "counterparty_is_named": true,
+   "named_counterparty": "WEINGARTEN REALTY INVESTORS /TX/  (CIK 0000828916)",
+   "direction": "customer",
+   "as_of_date": "2018-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "ned by others Operating Properties Arizona Broadway Marketplace Phoenix-Mesa-Scottsdale, AZ 100.0 % 87,379 Office Max, Ace Hardware Camelback Village Square Phoenix-Mesa-Scottsdale, AZ 100.0 % 240,951 Fry’s Supermarket Office Max Desert Village Shopping Center Phoenix-Mesa-Scottsdale, AZ 100.0 % 107,071 AJ Fine Foods CVS Fountain Plaza Phoenix-Mesa-Scottsdale, AZ 100.0 % 305,588 Fry’s Supermarket "
+  },
+  {
+   "anchor_ticker": "DOCU",
+   "counterparty_is_named": true,
+   "named_counterparty": "Aquestive Therapeutics, Inc.  (AQST)  (CIK 0001398733)",
+   "direction": "customer",
+   "as_of_date": "2024-03-05",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "tanding the foregoing, if, at any time after the end of the fourth contract year of this Agreement, Pharmanovia can establish by competent evidence that its Profit/Net Sales in respect of the Product on a rolling 12 month basis has fallen below 30% for all countries in the Original Territory (as hereinafter defined) then at Pharmanovia’s request, the Parties agree that for future Purchase Orders: "
+  },
+  {
+   "anchor_ticker": "DUK",
+   "counterparty_is_named": true,
+   "named_counterparty": "STONE ENERGY CORP  (CIK 0000904080)",
+   "direction": "customer",
+   "as_of_date": "2003-03-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "We derived 10%, 24% and 11% of our total oil and natural gas revenue from Conoco, Inc., Duke Energy Trading and Marketing LLC, and Reliant Services, Inc., respectively, for the year ended December 31, 2002."
+  },
+  {
+   "anchor_ticker": "DUK",
+   "counterparty_is_named": true,
+   "named_counterparty": "TRANSCAT INC  (TRNS)  (CIK 0000099302)",
+   "direction": "customer",
+   "as_of_date": "2008-06-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Among our customers, and representing approximately 33% of our consolidated revenue, are Fortune 500/Global 500 companies, including Wyeth, Johnson & Johnson, DuPont, Exxon Mobil, Dow Chemical, and Duke Energy."
+  },
+  {
+   "anchor_ticker": "DUK",
+   "counterparty_is_named": true,
+   "named_counterparty": "BURKE MILLS INC  (CIK 0000015486)",
+   "direction": "customer",
+   "as_of_date": "2007-04-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "MANAGEMENT'S DISCUSSION AND ANALYSIS OF FINANCIAL CONDITION AND RESULTS OF OPERATIONS EXECUTIVE SUMMARY (continued) Duke Energy, the Company's supplier of electricity, has notified the Company that there will be a rate increase effective July 1, 2007 of 14% to 18%."
+  },
+  {
+   "anchor_ticker": "DUK",
+   "counterparty_is_named": true,
+   "named_counterparty": "MASSEY ENERGY CO  (CIK 0000037748)",
+   "direction": "customer",
+   "as_of_date": "2003-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In addition, sales to Duke Energy Corporation and its affiliate, Duke Energy Merchants, a Massey customer for over thirty years with agreements in place to supply coal through June 2003, accounted for 11% of Massey's total fiscal year 2002 produced coal revenue."
+  },
+  {
+   "anchor_ticker": "DUK",
+   "counterparty_is_named": true,
+   "named_counterparty": "CORPORATE OFFICE PROPERTIES TRUST  (CDP)  (CIK 0000860546)",
+   "direction": "customer",
+   "as_of_date": "2001-03-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "100%) TOTAL GREATER PHILADELPHIA GREATER HARRISBURG: Harrisburg, PA -------------- 2605 Interstate Drive Commonwealth of Pennsylvania (56%) Health Central (38%) 6345 Flank Drive Allstate Insurance (30%) First Health Services (24%) Coventry Health Care (18%) LWN Enterprises (15%) 6340 Flank Drive Lancaster Lebanon (73%) Merkert Enterprises (27%) 2601 Market Place Penn State Geisinger Systems (37%) "
+  },
+  {
+   "anchor_ticker": "DUK",
+   "counterparty_is_named": true,
+   "named_counterparty": "CONSOL Energy Inc.  (CEIX)  (CIK 0001710366)",
+   "direction": "customer",
+   "as_of_date": "2018-02-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2017, we derived greater than 10% of our total coal sales revenue from two customers: Duke Energy Corporation (“Duke Energy”) and Xcoal Energy & Resources (“Xcoal”)."
+  },
+  {
+   "anchor_ticker": "DVN",
+   "counterparty_is_named": true,
+   "named_counterparty": "NATURAL GAS SERVICES GROUP INC  (NGS)  (CIK 0001084991)",
+   "direction": "customer",
+   "as_of_date": "2010-03-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Major Customers Sales and rental income to Devon Energy Production Inc. and XTO Energy Inc. in the year ended December 31, 2009 amounted to a total of 21% and 21% of revenue, respectively."
+  },
+  {
+   "anchor_ticker": "EBAY",
+   "counterparty_is_named": true,
+   "named_counterparty": "PayPal Holdings, Inc.  (PYPL)  (CIK 0001633917)",
+   "direction": "customer",
+   "as_of_date": "2016-02-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Exhibits and Financial Statement Schedules 58 Presentation of Information On July 17, 2015, PayPal Holdings, Inc. (“PayPal Holdings”) became an independent publicly-traded company through the pro rata distribution by eBay Inc. (“eBay”) of 100% of the outstanding common stock of PayPal to eBay’s stockholders (which we refer to as the “separation” or the “distribution”)."
+  },
+  {
+   "anchor_ticker": "EBAY",
+   "counterparty_is_named": true,
+   "named_counterparty": "FAIRMARKET INC  (CIK 0001053676)",
+   "direction": "customer",
+   "as_of_date": "2003-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "888 Seventh Avenue, 17th Floor New York, NY 10019 3,485,500 (10) 13.2 % Lloyd I. Miller, III 4550 Gordon Drive Naples, FL 34102 3,687,988 (11) 13.9 % Sierra Ventures Associates VII LLC 3000 Sand Hill Road Menlo Park, CA 94025 4,925,334 (12) 18.6 % Ticketmaster 3701 Wilshire Boulevard Los Angeles, CA 90010 2,250,000 (13) 8.5 % Series B Preferred Stock: eBay Inc. 2145 Hamilton Avenue San Jose, CA 95"
+  },
+  {
+   "anchor_ticker": "ECL",
+   "counterparty_is_named": true,
+   "named_counterparty": "ALCIDE CORP  (CIK 0000708484)",
+   "direction": "customer",
+   "as_of_date": "2003-08-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Domestically, where teat dips are not highly regulated, there are a large number of competitors but the top four who control over 60% of the market are West Agro/DeLaval, IBA, Westalia Surge and Ecolab."
+  },
+  {
+   "anchor_ticker": "EOG",
+   "counterparty_is_named": true,
+   "named_counterparty": "CKX LANDS, INC.  (CKX)  (CIK 0000352955)",
+   "direction": "customer",
+   "as_of_date": "2016-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During 2015, the Company received approximately 72.210% of its total revenues from the following customers: Customer Revenue Type % of Total Revenue EOG Resources, Inc. Oil & Gas 15.73% Riceland Petroleum Company Oil & Gas 10.80% Pintail Oil & Gas LLC Oil & Gas 10.60% Midstates Petroleum Company Oil & Gas 8.83% Swift Energy Operating, LLC Oil & Gas 7.71% Arcadia Operating, LLC Oil & Gas 7.15% Came"
+  },
+  {
+   "anchor_ticker": "ETR",
+   "counterparty_is_named": true,
+   "named_counterparty": "ENTERGY CORP /DE/  (ETR)  (CIK 0000065984)",
+   "direction": "customer",
+   "as_of_date": "2019-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "40 Echelon Parkway Jackson, Mississippi 39213 Telephone (601) 368-5000 72-0752777 1-31508 ENTERGY MISSISSIPPI, LLC (a Texas limited liability company) 308 East Pearl Street Jackson, Mississippi 39201 Telephone (601) 368-5000 83-1950019 Table of Contents Table of Contents Securities registered pursuant to Section 12(b) of the Act: Registrant Title of Class Name of Each Exchange on Which Registered "
+  },
+  {
+   "anchor_ticker": "ETR",
+   "counterparty_is_named": true,
+   "named_counterparty": "CKX LANDS, INC.  (CKX)  (CIK 0000352955)",
+   "direction": "customer",
+   "as_of_date": "2015-03-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During 2014, the Company received approximately 74.42% of its total revenues from the following customers: Customer Revenue Type % of Total Revenue Midstates Petroleum Company Oil & Gas 25.96 % Georgia Pacific Timber 23.84 % Swift Energy Operating LLC Oil & Gas 6.62 % Enterprise Pipeline Surface 6.61 % Riceland Petroleum Company Oil & Gas 6.11 % Entergy Corporation Surface 5.29 % Loss of cash rece"
+  },
+  {
+   "anchor_ticker": "EVR",
+   "counterparty_is_named": true,
+   "named_counterparty": "USG CORP  (CIK 0000757011)",
+   "direction": "customer",
+   "as_of_date": "2011-02-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The Contributed Shares were valued for purposes of crediting the contribution to the Trust at a discounted value of $12.38 per share ($13.03 less 5%), or approximately $40.5 million in the aggregate, by an independent appraiser retained by Evercore Trust Company, N.A., or Evercore, an independent fiduciary that has been appointed as investment manager with respect to the Contributed Shares."
+  },
+  {
+   "anchor_ticker": "EXC",
+   "counterparty_is_named": true,
+   "named_counterparty": "CENTRUS ENERGY CORP  (LEU)  (CIK 0001065059)",
+   "direction": "customer",
+   "as_of_date": "2017-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In our LEU segment, revenue from Exelon Corporation, South Carolina Electric & Gas and American Electric Power represented approximately 15%, 12% and 11%, respectively, of total revenue in 2016."
+  },
+  {
+   "anchor_ticker": "EXC",
+   "counterparty_is_named": true,
+   "named_counterparty": "ASPIRITY HOLDINGS LLC  (CIK 0001541354)",
+   "direction": "customer",
+   "as_of_date": "2016-04-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Enterprises Krieger Enterprises, LLC, a former first tier subsidiary of Aspirity, the equity interests of which were distributed to the then members of the Company on the Distribution Date ERCOT Electric Reliability Council of Texas, an ISO managing about 85% of the electric Load of Texas and subject to oversight by the Public Utility Commission of Texas and the Texas Legislature but not FERC Exel"
+  },
+  {
+   "anchor_ticker": "EXC",
+   "counterparty_is_named": true,
+   "named_counterparty": "OPOWER, INC.  (CIK 0001412043)",
+   "direction": "customer",
+   "as_of_date": "2016-03-07",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the year ended December 31, 2015, our ten largest clients by revenue represented 62% of our total revenue, with two clients, Exelon and National Grid, each representing at least 10% of our total revenue at 15% and 10%, respectively."
+  },
+  {
+   "anchor_ticker": "FAF",
+   "counterparty_is_named": true,
+   "named_counterparty": "CORELOGIC, INC.  (CIK 0000036047)",
+   "direction": "customer",
+   "as_of_date": "2021-04-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "GROUP Company Name Revenue 1 ($MM) Market Value (12/31/2020) ($MM) EBITDA Margin 1 (%) Comparator Group Rationale Comparable Revenue Size 2 Comparable Market Value 2 Data Analytics Mortgage Origination Direct Talent Competitor Fidelity National Information Services, Inc. $ 12,578 $ 87,777 35 % ✓ Fidelity National Financial, Inc. $ 9,413 $ 11,480 18 % ✓ ✓ Global Payments Inc. $ 7,481 $ 64,483 38 % "
+  },
+  {
+   "anchor_ticker": "FDXF",
+   "counterparty_is_named": true,
+   "named_counterparty": "American Realty Capital Trust, Inc.  (CIK 0001410997)",
+   "direction": "customer",
+   "as_of_date": "2011-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "2028 15.0 3 five year options $ 6,570 $ 5.70 FedEx Freight 12 824,803 15.5 % Jun."
+  },
+  {
+   "anchor_ticker": "FFIV",
+   "counterparty_is_named": true,
+   "named_counterparty": "Peraso Inc.  (PRSO)  (CIK 0000890394)",
+   "direction": "customer",
+   "as_of_date": "2023-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During the year ended December 31, 2022, four customers accounted for 10% or more of our net revenues, including Nokia Corporation at 26%, WeLink Communications LLC, or WeLink, at 21%, CEAC International Limited, or CEAC, a distributer selling to Ubiquiti Inc., at 16%, and F5, Inc. at 11%."
+  },
+  {
+   "anchor_ticker": "FHI",
+   "counterparty_is_named": true,
+   "named_counterparty": "CASI Pharmaceuticals, Inc.  (CIK 0000895051)",
+   "direction": "customer",
+   "as_of_date": "2021-04-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Jianguomennei Avenue Beijing, 100005, China 10,198,518 7.30 % Wealth Strategy Holdings Limited (9) Level 12, International Commerce Centre 1 Austin Road West, Kowloon, Hong Kong 10,017,959 7.12 % Emerging Technology Partners LLC (10) 4919 Rebel Ridge Drive Sugar Land, TX 77478 12,207,986 8.66 % Consonance Capman GP LLC (11) 1370 Avenue of the Americas, Floor 33 New York, NY 10019 7,576,431 5.42 % "
+  },
+  {
+   "anchor_ticker": "FISV",
+   "counterparty_is_named": true,
+   "named_counterparty": "ALTIGEN COMMUNICATIONS INC  (CIK 0001003607)",
+   "direction": "customer",
+   "as_of_date": "2009-12-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "9 Table of Contents The following table sets forth our net revenue by customers that individually accounted for more than 10% of our revenue for the periods indicated: Fiscal Year Ended September 30, 2009 2008 2007 Synnex 30 % 34 % 50 % Jenne(1) 15 % 12 % — Fiserv(2) 10 % — — Altisys(3) — 12 % 16 % Graybar(4) — — 15 % Total 55 % 58 % 81 % (1) We did not generate revenue from Jenne during fiscal ye"
+  },
+  {
+   "anchor_ticker": "FIVE",
+   "counterparty_is_named": true,
+   "named_counterparty": "RAMCO GERSHENSON PROPERTIES TRUST  (CIK 0000842183)",
+   "direction": "customer",
+   "as_of_date": "2018-02-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "za Mount Prospect IL 100 % 1962/2013/2013 227,785 88.3 % 14.94 Aldi, LA Fitness, Marshalls, Ross Dress for Less, (Walgreens) Webster Place Lincoln Park IL 100 % 1987/2017/NA 134,918 95.0 % 25.23 Barnes & Noble, Regal Cinema, Webster Place Athletic Club Cincinnati [MSA Rank 28] Bridgewater Falls Hamilton OH 100 % 2005/2014/NA 503,366 92.5 % 14.52 Bed Bath & Beyond, Best Buy, Dick's Sporting Goods, "
+  },
+  {
+   "anchor_ticker": "FNF",
+   "counterparty_is_named": true,
+   "named_counterparty": "REMY INTERNATIONAL, INC.  (CIK 0001046859)",
+   "direction": "customer",
+   "as_of_date": "2013-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our major stockholder, Fidelity National Special Opportunities, Inc. (a subsidiary of Fidelity National Financial, Inc. or NYSE:FNF), owned approximately 51% of our outstanding common stock as of December 31, 2012."
+  },
+  {
+   "anchor_ticker": "FTV",
+   "counterparty_is_named": true,
+   "named_counterparty": "Altra Industrial Motion Corp.  (CIK 0001374535)",
+   "direction": "customer",
+   "as_of_date": "2019-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our large installed base generates significant aftermarket replacement demand, which we estimate accounted for approximately 32% of revenues in 2018 on a pro forma basis giving effect to the Fortive Transaction."
+  },
+  {
+   "anchor_ticker": "GME",
+   "counterparty_is_named": true,
+   "named_counterparty": "MOVIE GALLERY INC  (CIK 0000925178)",
+   "direction": "customer",
+   "as_of_date": "2006-03-24",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "With the possible exception of Wal-Mart and GameStop, we believe no major player holds more than a 20% share of the market."
+  },
+  {
+   "anchor_ticker": "GOOGL",
+   "counterparty_is_named": true,
+   "named_counterparty": "TAKE TWO INTERACTIVE SOFTWARE INC  (TTWO)  (CIK 0000946581)",
+   "direction": "customer",
+   "as_of_date": "2023-05-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Sales to our five largest customers during the fiscal year ended March 31, 2023, accounted for 79.6% of our net revenue, with Sony, Google, Apple, and Microsoft each accounting for more than 10.0% of our net revenue."
+  },
+  {
+   "anchor_ticker": "GOOGL",
+   "counterparty_is_named": true,
+   "named_counterparty": "Vertro, Inc.  (CIK 0001094808)",
+   "direction": "customer",
+   "as_of_date": "2010-03-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the year ended December 31, 2009, search revenue from Google accounted for approximately 91% of our consolidated revenue from continuing operations."
+  },
+  {
+   "anchor_ticker": "GPK",
+   "counterparty_is_named": true,
+   "named_counterparty": "MANHATTAN ASSOCIATES INC  (MANH)  (CIK 0001056696)",
+   "direction": "customer",
+   "as_of_date": "2003-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Tone Brothers Bristol-Myers Squibb Company Hiram Walker & Sons Limited Ocular Sciences, Ltd. Monrovia Growers, Inc. Pfizer Canada, Inc. Sysco Corporation Stiefel Laboratories, Inc. Sainsbury’s Supermarkets Ltd. Stryker Endoscopy Third-Party Logistics Transportation APL AAA Cooper Transportation, Inc. ClientLogic Corporation Carrier Corporation Exel plc Dayton Freight Lines, Inc. Langham Logistics "
+  },
+  {
+   "anchor_ticker": "GPN",
+   "counterparty_is_named": true,
+   "named_counterparty": "GLOBAL PAYMENT TECHNOLOGIES INC  (CIK 0000933020)",
+   "direction": "customer",
+   "as_of_date": "2003-01-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "eCash Pty Limited is owned 35% by Global Payments Technology Inc., 35% by the private trust of the Managing Director of the Company, and 30% by an unrelated third person."
+  },
+  {
+   "anchor_ticker": "GWRE",
+   "counterparty_is_named": true,
+   "named_counterparty": "CAVIUM, INC.  (CIK 0001175609)",
+   "direction": "customer",
+   "as_of_date": "2018-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "e following companies: • Ambarella, Inc. • Infinera Corporation • Palo Alto Networks, Inc. • Cirrus Logic, Inc. • Integrated Device Technology, Inc. • Proofpoint, Inc. • Cree, Inc. • MACOM Technology Solutions Holdings, Inc. • Silicon Laboratories Inc. • Cypress Semiconductor Corporation • FireEye, Inc. • Mellanox Technologies, Ltd. • Microsemi Corporation • Splunk Inc. • Synaptics Incorporated • "
+  },
+  {
+   "anchor_ticker": "HAE",
+   "counterparty_is_named": true,
+   "named_counterparty": "Quotient Ltd  (CIK 0001596946)",
+   "direction": "customer",
+   "as_of_date": "2015-06-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Interest expense in the year ended March 31, 2014 primarily consisted of interest charges on $3.0 million of borrowings from Haemonetics, Inc., which bore interest at 7.5% per annum."
+  },
+  {
+   "anchor_ticker": "HBAN",
+   "counterparty_is_named": true,
+   "named_counterparty": "SKY FINANCIAL GROUP INC  (CIK 0000855876)",
+   "direction": "customer",
+   "as_of_date": "2007-02-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On December 20, 2006, Sky Financial Group and Huntington Bancshares Incorporated (Huntington) announced the signing of a definitive agreement to merge the two companies in a stock (90%) and cash (10%) transaction valued at approximately $3.6 billion."
+  },
+  {
+   "anchor_ticker": "HCA",
+   "counterparty_is_named": true,
+   "named_counterparty": "AMERIPATH INC  (CIK 0001027532)",
+   "direction": "customer",
+   "as_of_date": "2002-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During the year ended December 31, 2001, approximately $50.5 million, or 12%, of our net revenue was derived from 31 hospitals operated by HCA--The Healthcare Company (\"HCA\"), formerly known as Columbia/HCA Healthcare Corporation."
+  },
+  {
+   "anchor_ticker": "HPQ",
+   "counterparty_is_named": true,
+   "named_counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "direction": "customer",
+   "as_of_date": "2021-03-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "​ PURCHASING AND VENDOR RELATIONS ​ Product purchases from Ingram Micro, Inc., our largest supplier, Synnex and HP Inc. accounted for approximately 21%, 15% and 12% respectively, of our total product purchases in 2020."
+  },
+  {
+   "anchor_ticker": "HRB",
+   "counterparty_is_named": true,
+   "named_counterparty": "JTH Holding, Inc.  (CIK 0001528930)",
+   "direction": "customer",
+   "as_of_date": "2012-07-09",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "We believe, based on available data, that less than 25% of the paid tax preparation market was represented by the national retail tax preparation companies: Liberty Tax and our two national competitors, H&R Block and Jackson Hewitt, each operating under a different business model."
+  },
+  {
+   "anchor_ticker": "HUM",
+   "counterparty_is_named": true,
+   "named_counterparty": "CONTINUCARE CORP  (CIK 0000803352)",
+   "direction": "customer",
+   "as_of_date": "2002-09-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our Percentage of Premium Contracts Require Us to Assume the Responsibility of Providing Medical Care to our Managed Care Patients Approximately 96% of our net medical services revenue is determined under the terms of our managed care agreements with Foundation Health Corporation Affiliates and Humana Medical Plans, Inc. (collectively, the “HMOs”)."
+  },
+  {
+   "anchor_ticker": "HWM",
+   "counterparty_is_named": true,
+   "named_counterparty": "CARPENTER TECHNOLOGY CORP  (CRS)  (CIK 0000017843)",
+   "direction": "customer",
+   "as_of_date": "2020-09-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "One customer, Howmet Aerospace Inc. (formerly Arconic Inc.), accounted for approximately 10 percent , 11 percent and 12 percent of net sales for the years ended June 30, 2020 , 2019 and 2018 , respectively."
+  },
+  {
+   "anchor_ticker": "IBM",
+   "counterparty_is_named": true,
+   "named_counterparty": "VOLTERRA SEMICONDUCTOR CORP  (CIK 0001050550)",
+   "direction": "customer",
+   "as_of_date": "2005-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2004, Lite-On Technologies, Metatech, nVidia, and IBM each accounted for over 10% of our net revenue, and collectively accounted for 67% of our net revenue."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "MICRON TECHNOLOGY INC  (MU)  (CIK 0000723125)",
+   "direction": "customer",
+   "as_of_date": "2010-10-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Partnering Arrangements The following is a summary of our partnering arrangements as of September 2, 2010: Partner(s) Approximate Micron Ownership Interest Formed/ Acquired Product Market Consolidated Entities: IMFT Intel Corporation 51 % 2006 NAND Flash (1 ) IMFS Intel Corporation 57 % 2007 NAND Flash (1 ) TECH Canon Inc. and Hewlett-Packard Corporation 87 % 1998 DRAM (2 ) MP Mask Photronics, Inc"
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "CREDENCE SYSTEMS CORP  (CIK 0000893162)",
+   "direction": "customer",
+   "as_of_date": "2007-01-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Intel Corporation, headquartered in the United States, accounted for 15% and 25% of our net sales in fiscal years 2006 and 2005, respectively."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "NOVELLUS SYSTEMS INC  (CIK 0000836106)",
+   "direction": "customer",
+   "as_of_date": "2003-03-05",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the year ended December 31, 2002, Samsung Electronics, Intel Corporation, Taiwan Semiconductor Manufacturing Company and International Business Machines Corporation accounted for 17%, 11%, 11% and 10% of our net sales, respectively."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "APPLIED MATERIALS INC /DE  (AMAT)  (CIK 0000006951)",
+   "direction": "customer",
+   "as_of_date": "2004-01-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Net sales to Intel Corporation represented 12 percent of Applied’s fiscal 2001 net sales, and 10 percent of Applied’s fiscal 2002 net sales."
+  },
+  {
+   "anchor_ticker": "IPGP",
+   "counterparty_is_named": true,
+   "named_counterparty": "LIGHTPATH TECHNOLOGIES INC  (LPTH)  (CIK 0000889971)",
+   "direction": "customer",
+   "as_of_date": "2013-09-05",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Concentration of Customer Risk In fiscal 2013, we had sales to five customers that individually comprised at least 5% of our annual revenue: Crimson Trace at 7%, Thorlabs at 9%, AMS at 10%, IPG Photonics at 6% and Red Digital at 6%."
+  },
+  {
+   "anchor_ticker": "IQV",
+   "counterparty_is_named": true,
+   "named_counterparty": "ACETO CORP  (CIK 0000002034)",
+   "direction": "customer",
+   "as_of_date": "2018-09-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Based on a report issued by IQVIA Institute on April 19, 2018, “Spending on medicines grew by 0.6% in 2017 after off-invoice discounts and rebates."
+  },
+  {
+   "anchor_ticker": "IRM",
+   "counterparty_is_named": true,
+   "named_counterparty": "ALFACELL CORP  (CIK 0000708717)",
+   "direction": "customer",
+   "as_of_date": "2009-11-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "r director, each current executive officer named in the Summary Compensation Table and all directors and current executive officers of the Company as a group: Security Ownership of Certain Beneficial Owners Name and address of beneficial owner or identity of group Amount and Nature of Beneficial Ownership Percent of shares outstanding (1) McCash Family Limited Partnership N3810 S. Grand Oak Drive "
+  },
+  {
+   "anchor_ticker": "IRM",
+   "counterparty_is_named": true,
+   "named_counterparty": "DIVIDEND CAPITAL TRUST INC  (CIK 0001170991)",
+   "direction": "customer",
+   "as_of_date": "2004-03-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "% of Annual % of Lease Market Building Tenant SF Portfolio Rents(2) Portfolio Expiration Nashville Bridgestone/Firestone Bridgestone/Firestone 756,030 20.67 % $ 1,924,000 16.71 % 5/31/2013 Dallas Pinnacle C International Truck & Engine Corp 280,000 7.66 % 882,000 7.92 % 12/18/2012 Chicago Mallard Lake Iron Mountain 222,122 6.07 % 950,000 7.64 % 5/17/2014 Houston West by Northwest Inventec (1) 189,"
+  },
+  {
+   "anchor_ticker": "ITW",
+   "counterparty_is_named": true,
+   "named_counterparty": "TECHDYNE INC  (CIK 0000764039)",
+   "direction": "customer",
+   "as_of_date": "2001-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Percentage of Sales ------------------- 2000 1999 1998 ---- ---- ---- Illinois Tool Works (formerly PMI Food Equipment Group) 19% 15% 18% Trilithic 12% * * Alcatel 12% * * Motorola, Inc. * 13% 10% --------------- * less than 10% for that year Techdyne sells to approximately 100 additional other companies, which comprise the remaining 57% of sales for 2000."
+  },
+  {
+   "anchor_ticker": "IVZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "HANGER, INC.  (CIK 0000722723)",
+   "direction": "customer",
+   "as_of_date": "2018-01-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "8) 22,270 * Thomas E. Kiraly (9) 42,655 * Samuel M. Liang (10) 23,592 * Cynthia L. Lucchese (11) 18,673 * Richard R. Pettingill (12) 28,957 * Kathryn M. Sullivan (13) 12,848 * Kenneth W. Wilson (14) 25,195 * All directors, nominees and officers as a group (17 persons) (15) 595,042 1.6 % 5% Shareholders: FMR LLC (16) 5,293,641 14.6 % Hotchkis and Wiley Capital Management, LLC (17) 4,770,359 13.1 % "
+  },
+  {
+   "anchor_ticker": "IVZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "Fuel Systems Solutions, Inc.  (CIK 0001340786)",
+   "direction": "customer",
+   "as_of_date": "2008-04-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Shares Beneficially Owned Name of Beneficial Owner Number Percentage 5% Stockholders: FMR LLC 1,436,769 (1) 9.3 % Invesco Ltd. 1,415,450 (2) 9.1 % Franklin Resources, Inc. 933,580 (3) 6.0 % Directors and Executive Officers: Matthew Beale — * Norman L. Bryan 51,636 (4) * Thomas M. Costales 279 (5) * Mariano Costamagna 3,491,283 (6)(7) 22.5 % Pier Antonio Costamagna 3,491,283 (6)(8) 22.5 % Marco Di "
+  },
+  {
+   "anchor_ticker": "IVZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "ALERE INC.  (CIK 0001145460)",
+   "direction": "customer",
+   "as_of_date": "2016-08-08",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Security Ownership of Certain Beneficial Owners and Management Common Stock Name and Address of Beneficial Owner (1) Amount and Nature of Beneficial Ownership (2) Percent of Class (3) FMR LLC (4) 9,504,227 10.74 % Invesco Ltd. (5) 7,250,709 8.19 % EdgePoint Investment Group Inc. (6) 7,189,916 8.13 % The Vanguard Group (7) 5,789,159 6.54 % Gregg Powers (8) 931,983 1.05 % Håkan Björklund, Ph.D (9) 5"
+  },
+  {
+   "anchor_ticker": "IVZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "Performant Financial Corp  (PFMT)  (CIK 0001550695)",
+   "direction": "customer",
+   "as_of_date": "2017-03-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Parthenon Capital Partners and Invesco Ltd. beneficially owned approximately 26.9% and 19.1% of our common stock, respectively, as of December 31, 2016."
+  },
+  {
+   "anchor_ticker": "IVZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "Danimer Scientific, Inc.  (DNMR, DNMRW)  (CIK 0001779020)",
+   "direction": "customer",
+   "as_of_date": "2022-03-08",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "n A. Dowdy III (4) 1,306,961 1.3 Michael Smith (5) 900,454 * Phillip Van Trump (6) 957,215 * Scott Tuten (7) 816,796 * Dr. Isao Noda (8) 356,071 * Gregory Hunt (9) 65,531 * Christy Basco - - John P. Amboian (10) 923,418 * Richard J. Hendrix (11) 598,789 * Directors and Executive Officers as a Group (12 Individuals) (12) 15,411,848 14.6 Five Percent Holders: - The Vanguard Group (13) 8,028,738 7.8 "
+  },
+  {
+   "anchor_ticker": "JCI",
+   "counterparty_is_named": true,
+   "named_counterparty": "FOAMEX L P  (CIK 0000890080)",
+   "direction": "customer",
+   "as_of_date": "2003-03-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Major Customers Sales to Johnson Controls, which are included in Automotive Products, accounted for approximately 17.3% of our net sales in 2002, 15.7% of our net sales in 2001, and 12.3% of our net sales in 2000."
+  },
+  {
+   "anchor_ticker": "JEF",
+   "counterparty_is_named": true,
+   "named_counterparty": "SHERIDAN GROUP INC  (CIK 0001056035)",
+   "direction": "customer",
+   "as_of_date": "2006-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "(“BRS”), Jefferies Capital Partners (“JCP”) and their respective affiliates together beneficially own about 84.8% of TSG Holdings Corp.’s outstanding capital stock."
+  },
+  {
+   "anchor_ticker": "JEF",
+   "counterparty_is_named": true,
+   "named_counterparty": "TELEX COMMUNICATIONS INC /DE/  (CIK 0001038185)",
+   "direction": "customer",
+   "as_of_date": "2003-03-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Over 50% of the voting power of our outstanding securities is held by GSCP Recovery, Inc., GSC Partners 19 CDO Fund, Limited, and a group of stockholders controlled by Jefferies Capital Partners."
+  },
+  {
+   "anchor_ticker": "JEF",
+   "counterparty_is_named": true,
+   "named_counterparty": "INVESTMENT TECHNOLOGY GROUP INC  (CIK 0000920424)",
+   "direction": "customer",
+   "as_of_date": "2001-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "BUSINESS Investment Technology Group, Inc. (\"ITG\" or the \"Company\") was formed as a Delaware corporation under the name Jefferies Group, Inc. (\"Jefferies Group\") on July 22, 1983 and its principal subsidiaries include: (1) ITG Inc. and AlterNet Securities, Inc., broker-dealers in equity securities, (2) Investment Technology Group International Limited, which is a 50% partner in the ITG Europe join"
+  },
+  {
+   "anchor_ticker": "JHG",
+   "counterparty_is_named": true,
+   "named_counterparty": "Altimmune, Inc.  (ALT)  (CIK 0001326190)",
+   "direction": "customer",
+   "as_of_date": "2023-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "​ ​ ​ ​ ​ ​ ​ Number of Percentage of ​ ​ Shares ​ Shares ​ ​ Beneficially ​ Beneficially Name of Beneficial Owner ​ Owned ​ Owned 5% or Greater Stockholders: ​ ​ State Street Corporation (1) ​ 5,914,588 ​ 12.0 % Avidity Partners Management LP (2) 3,990,000 8.1 ​ Janus Henderson Group PLC (3) ​ 3,833,579 ​ 7.8 ​ TIAA-CREF Investment Management LLC (4) ​ 3,265,963 ​ 6.6 ​ Tang Capital Partners, LP "
+  },
+  {
+   "anchor_ticker": "JHG",
+   "counterparty_is_named": true,
+   "named_counterparty": "Westlake Chemical Partners LP  (WLKP)  (CIK 0001604665)",
+   "direction": "customer",
+   "as_of_date": "2019-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Name of Beneficial Owner Common Units Beneficially Owned Percentage of Common Units Beneficially Owned Oppenheimer Funds, Inc. 225 Liberty Street New York, NY 10281 6,047,866 (1) 18.75 % Janus Henderson Group plc 201 Bishopsgate EC2M 3AE United Kingdom 1,757,713 (2) 5.45 % ____________________________ (1) Based on an Amendment No. 5 to a Schedule 13G filed on January 10, 2019."
+  },
+  {
+   "anchor_ticker": "JHG",
+   "counterparty_is_named": true,
+   "named_counterparty": "HILLMAN COMPANIES INC  (CIK 0001029831)",
+   "direction": "customer",
+   "as_of_date": "2018-03-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The available investment choices are the same as the primary investment choices available under the Defined Contribution Plan, which are as follows (with 2017 annual rates of return indicated for each): 76 Aberdeen Emerging Markets Institutional (30.24%) Janus Henderson Small Cap Value T (12.61%) Vanguard Target Retirement 2020 Fund (14.08%) American Beacon Large Cap Value Fund Investor Class (16."
+  },
+  {
+   "anchor_ticker": "JHG",
+   "counterparty_is_named": true,
+   "named_counterparty": "NATUS MEDICAL INC  (CIK 0000878526)",
+   "direction": "customer",
+   "as_of_date": "2018-07-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "and Address of Beneficial Owner Shares Beneficially Owned Right to acquire beneficial ownership under options exercisable within 60 days Total Beneficially Owned Percent of Class Principal Stockholders BlackRock, Inc. 55 East 52nd Street New York, NY 10055 (1) 4,032,681 -- 4,032,681 12.2% Dimensional Fund Advisors LP Building One 6300 Bee Cave Road Austin, TX 78746 (2) 1,619,337 -- 1,619,337 4.9% "
+  },
+  {
+   "anchor_ticker": "JHG",
+   "counterparty_is_named": true,
+   "named_counterparty": "MAMMOTH ENERGY SERVICES, INC.  (TUSK)  (CIK 0001679268)",
+   "direction": "customer",
+   "as_of_date": "2018-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "MAJOR STOCKHOLDER TABLE Name and Address of Beneficial Owner (1) Amount and Nature of Beneficial Ownership Percent of Class Mammoth Energy Holdings LLC 25,013,764 (2) 56.1 % c/o Wexford Capital LP 411 West Putnam Avenue Greenwich, CT 06830 Gulfport Energy Corporation 11,176,332 (3) 25.1 % 3001 Quail Springs Parkway Oklahoma City, OK 73134 Janus Henderson Group PLC 2,528,488 (4) 5.7 % 201 Bishopsga"
+  },
+  {
+   "anchor_ticker": "KBH",
+   "counterparty_is_named": true,
+   "named_counterparty": "PURE CYCLE CORP  (PCYO)  (CIK 0000276720)",
+   "direction": "customer",
+   "as_of_date": "2022-11-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "​ ​ ​ ​ ​ ​ Year Ended % of Total Revenue Generated From: August 31, 2022 ​ August 31, 2021 Sky Ranch homes and Sky Ranch CAB in the aggregate 5 % ​ 14 % Two oil & gas operators 16 % ​ — Lennar 18 % ​ — Challenger 14 % ​ — KB Home 10 % ​ 20 % Richmond 6 % ​ 16 % Taylor Morrison — ​ 17 % ​ Additionally, at August 31, 2022, 34 % of the trade accounts receivable balance was owed by Challenger for fin"
+  },
+  {
+   "anchor_ticker": "KEX",
+   "counterparty_is_named": true,
+   "named_counterparty": "Allison Transmission Holdings Inc  (ALSN)  (CIK 0001411207)",
+   "direction": "customer",
+   "as_of_date": "2018-02-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "% of accounts receivable As of December 31, 2017 As of December 31, 2016 Kirby Corporation 1 15 % 4 % Volvo Group 11 % 6 % Daimler AG 7 % 19 % 1 As of December 31, 2017, Kirby Corporation (“Kirby”) was the parent company of customers United Engines LLC and Stewart & Stevenson LLC. As of December 31, 2016, Kirby was the parent company of United Engines LLC. No other customers accounted for more tha"
+  },
+  {
+   "anchor_ticker": "KMI",
+   "counterparty_is_named": true,
+   "named_counterparty": "Western Refining, Inc.  (CIK 0001339048)",
+   "direction": "customer",
+   "as_of_date": "2013-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Oils 119,196 111,465 118,126 93.9 % Other Feedstocks and Blendstocks: Intermediates and other 4,852 3,928 4,359 3.8 % Blendstocks 2,882 2,752 4,692 2.3 % Total Other Feedstocks and Blendstocks 7,734 6,680 9,051 6.1 % Total Crude Oils and Other Feedstocks and Blendstocks 126,930 118,145 127,177 100.0 % Our El Paso refinery receives crude oil from a 450 mile crude oil pipeline owned and operated by "
+  },
+  {
+   "anchor_ticker": "LEA",
+   "counterparty_is_named": true,
+   "named_counterparty": "DONNELLY CORP  (CIK 0000805583)",
+   "direction": "customer",
+   "as_of_date": "2001-09-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Adjusted for foreign currency exchange rates and the impact of the reduction in net sales associated with Lear Donnelly, the Company experienced a growth in sales of approximately 7% for the year ended 2000."
+  },
+  {
+   "anchor_ticker": "LEA",
+   "counterparty_is_named": true,
+   "named_counterparty": "DURA AUTOMOTIVE SYSTEMS INC  (CIK 0001016177)",
+   "direction": "customer",
+   "as_of_date": "2006-03-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In addition, the trend toward module sourcing has enabled us to expand our customer base to include large Tier 1 automotive suppliers, including Lear Corporation (\"Lear\") and Johnson Controls, Inc. (\"JCI\") which accounted for approximately 11% of our revenues in 2005."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "Verso Paper Holdings LLC  (CIK 0001395864)",
+   "direction": "customer",
+   "as_of_date": "2013-03-07",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Disclosure pursuant to Section 219 of the Iran Threat Reduction & Syria Human Rights Act On February 12, 2013, certain investment funds affiliated with Apollo Global Management, LLC beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V., or “LyondellBasell,” and have certain director nomination rights."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "Rexnord Corp  (ZWS)  (CIK 0001439288)",
+   "direction": "customer",
+   "as_of_date": "2013-05-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "* * * * * Disclosure pursuant to Section 219 of the Iran Threat Reduction and Syria Human Rights Act On February 12, 2013, certain investment funds affiliated with Apollo beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "METALS USA HOLDINGS CORP.  (CIK 0001362491)",
+   "direction": "customer",
+   "as_of_date": "2013-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Disclosure pursuant to Section 219 of the Iran Threat Reduction and Syria Human Rights Act On February 12, 2013, certain investment funds affiliated with Apollo Global Management, LLC beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "Affinion Group Holdings, Inc.  (CIK 0001404624)",
+   "direction": "customer",
+   "as_of_date": "2013-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Disclosure pursuant to Section 219 of the Iran Threat Reduction and Syria Human Rights Act On February 12, 2013, certain investment funds affiliated with Apollo Global Management, LLC beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "Affinion Group, Inc.  (CIK 0001361394)",
+   "direction": "customer",
+   "as_of_date": "2013-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Disclosure pursuant to Section 219 of the Iran Threat Reduction and Syria Human Rights Act On February 12, 2013, certain investment funds affiliated with Apollo Global Management, LLC beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "CLAIRES STORES INC  (CIK 0000034115)",
+   "direction": "customer",
+   "as_of_date": "2013-04-03",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Other Information Disclosure pursuant to Section 219 of the Iran Threat Reduction and Syria Human Rights Act On February 12, 2013, certain investment funds affiliated with Apollo Global Management, LLC beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V."
+  },
+  {
+   "anchor_ticker": "LYB",
+   "counterparty_is_named": true,
+   "named_counterparty": "QUALITY DISTRIBUTION INC  (CIK 0000922863)",
+   "direction": "customer",
+   "as_of_date": "2013-03-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On February 12, 2013, certain investment funds affiliated with Apollo Global Management, LLC beneficially owned approximately 19.6% of the ordinary shares of LyondellBasell Industries N.V."
+  },
+  {
+   "anchor_ticker": "MCD",
+   "counterparty_is_named": true,
+   "named_counterparty": "CHIPOTLE MEXICAN GRILL INC  (CMG)  (CIK 0001058090)",
+   "direction": "customer",
+   "as_of_date": "2006-03-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "McDonald's Corporation (\"McDonald's\") is our majority owner (with beneficial ownership of approximately 87% of the combined voting power of our outstanding stock and 65% of our economic interest after the initial public offering)."
+  },
+  {
+   "anchor_ticker": "MCD",
+   "counterparty_is_named": true,
+   "named_counterparty": "KEANE INC  (CIK 0000054883)",
+   "direction": "customer",
+   "as_of_date": "2002-04-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "----------- Manufacturing 21.7% Financial Services 21.6% Government 16.5% Healthcare 12.3% Energy/Utilities 9.5% High Technology/Software 8.9% Retail/Consumer Goods 5.2% Other 2.8% Telecommunications 1.5% The following table is a representative list of clients for which Keane provided services in 2001: -------------------------------------------------------------------------------- 3M Corporation "
+  },
+  {
+   "anchor_ticker": "MCK",
+   "counterparty_is_named": true,
+   "named_counterparty": "MEDICINES CO /DE  (CIK 0001113481)",
+   "direction": "customer",
+   "as_of_date": "2007-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In the United States, AmerisourceBergen Drug Corporation, McKesson Corporation and Cardinal Health accounted for more than 88% of our revenues for the year ended December 31, 2006."
+  },
+  {
+   "anchor_ticker": "MDLZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "AMERICAN SOFTWARE INC  (AMSWA)  (CIK 0000713425)",
+   "direction": "customer",
+   "as_of_date": "2021-07-09",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": " Era Cap Co., Inc. Process & Chemical Hansells Food Australia Parker Hannifin Corporation Patagonia Allnex Hostess Brands Pattonair Ltd. PVH Corp. Amcor Rigid Plastics USA, LLC J. R. Simplot Company Sandvik Red Wing Shoe Company Ansell Limited Jackson Family Wines Savant Technologies LLC (GE Lighting) Renfro Avery Dennison Corporation Mazoon Dairy Company SAOC Southwire SPANX BERICAP Holding GMBH "
+  },
+  {
+   "anchor_ticker": "MMM",
+   "counterparty_is_named": true,
+   "named_counterparty": "Umami Sustainable Seafood Inc.  (CIK 0001368765)",
+   "direction": "customer",
+   "as_of_date": "2012-10-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Kali Tuna JPY 180,000 3M JPY LIBOR+6.5% n/a — 2,219 Erste&Steiermaerkische bank d.d."
+  },
+  {
+   "anchor_ticker": "MPC",
+   "counterparty_is_named": true,
+   "named_counterparty": "Andersons, Inc.  (ANDE)  (CIK 0000821026)",
+   "direction": "customer",
+   "as_of_date": "2020-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "As a result of the merger, the Company and Marathon Petroleum Corporation (\"Marathon\") own 50.1% and 49.9% of TAMH equity, respectively."
+  },
+  {
+   "anchor_ticker": "MRK",
+   "counterparty_is_named": true,
+   "named_counterparty": "ev3 Inc.  (CIK 0001318310)",
+   "direction": "customer",
+   "as_of_date": "2008-03-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The following represents net sales (in thousands) by our two business segments and revenues from our research collaboration with Merck & Co. Inc. as well as by geography during the periods indicated: For the Year Ended For the Year Ended December 31, Percent December 31, Percent Net Sales by Segment 2007 2006 Change 2006 2005 Change Peripheral vascular $ 173,775 $ 121,104 43.5 % $ 121,104 $ 79,881"
+  },
+  {
+   "anchor_ticker": "MSFT",
+   "counterparty_is_named": true,
+   "named_counterparty": "ZONES INC  (CIK 0001013786)",
+   "direction": "customer",
+   "as_of_date": "2003-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Sales to one of the Company’s customers, Microsoft Corporation, represented 14.7% and 28.7% of total sales for the twelve months ended December 31, 2002 and 2001, respectively."
+  },
+  {
+   "anchor_ticker": "MTG",
+   "counterparty_is_named": true,
+   "named_counterparty": "CORELOGIC, INC.  (CIK 0000036047)",
+   "direction": "customer",
+   "as_of_date": "2021-04-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "llow Group, Inc. $ 3,495 $ 30,611 -1 % ✓ Verisk Analytics, Inc. $ 2,748 $ 33,752 45 % ✓ ✓ Mr. Cooper Group Inc. $ 2,520 $ 2,819 42 % ✓ ✓ ✓ FLEETCOR Technologies, Inc. $ 2,470 $ 22,754 52 % ✓ ✓ ✓ Euronet Worldwide, Inc. $ 2,470 $ 7,581 13 % ✓ ✓ Jack Henry & Associates, Inc. $ 1,711 $ 12,362 26 % ✓ ✓ ✓ Radian Group Inc. $ 1,457 $ 3,879 42 % ✓ ✓ ✓ Fair Isaac Corporation $ 1,295 $ 14,870 29 % ✓ ✓ ✓ ✓ "
+  },
+  {
+   "anchor_ticker": "MTZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "DIRECTVIEW HOLDINGS INC  (CIK 0001441769)",
+   "direction": "customer",
+   "as_of_date": "2011-04-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2010 four clients, Diebold Enterprise Security Systems, Inc., Niscayah, Inc., Mastec Inc. and Tech Systems, Inc. accounted for in excess of 87% of our total consolidated revenues."
+  },
+  {
+   "anchor_ticker": "NCLH",
+   "counterparty_is_named": true,
+   "named_counterparty": "CARNIVAL PLC  (CUK, CUKPF)  (CIK 0001125259)",
+   "direction": "customer",
+   "as_of_date": "2017-01-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Wild Cruise Industry Statistical Review, we, along with our principal cruise competitors Royal Caribbean Cruises Ltd., Norwegian Cruise Line Holdings, Ltd. and MSC Cruises, carry approximately 87% of all global cruise guests."
+  },
+  {
+   "anchor_ticker": "NEE",
+   "counterparty_is_named": true,
+   "named_counterparty": "FIRST SOLAR, INC.  (FSLR)  (CIK 0001274494)",
+   "direction": "customer",
+   "as_of_date": "2014-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During 2013, AES , MidAmerican Renewables, LLC and NextEra Energy individually accounted for more than 10% of our components segment’s net sales, which includes the solar modules used in our systems projects."
+  },
+  {
+   "anchor_ticker": "NEE",
+   "counterparty_is_named": true,
+   "named_counterparty": "TRANSCAT INC  (TRNS)  (CIK 0000099302)",
+   "direction": "customer",
+   "as_of_date": "2011-06-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Among our customers, and representing 29% of our consolidated revenue, are Fortune 500/Global 500 companies, including Wyeth, Johnson & Johnson, General Electric, DuPont, Exxon Mobil, Dow Chemical, Nestle and NextEra Energy."
+  },
+  {
+   "anchor_ticker": "NKE",
+   "counterparty_is_named": true,
+   "named_counterparty": "SHOE CARNIVAL INC  (SCVL)  (CIK 0000895447)",
+   "direction": "customer",
+   "as_of_date": "2016-04-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In fiscal 2015, two branded suppliers, Nike, Inc. and Skechers USA, Inc., collectively accounted for approximately 43% of our net sales."
+  },
+  {
+   "anchor_ticker": "NOC",
+   "counterparty_is_named": true,
+   "named_counterparty": "NORTECH SYSTEMS INC  (NSYS)  (CIK 0000722313)",
+   "direction": "customer",
+   "as_of_date": "2007-03-09",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Additionally, Northrop Grumman Corp. accounted for 10% of net sales for the years ended December 31, 2006 and 2005."
+  },
+  {
+   "anchor_ticker": "NOC",
+   "counterparty_is_named": true,
+   "named_counterparty": "CIPRICO INC  (CIK 0000720145)",
+   "direction": "customer",
+   "as_of_date": "2002-11-05",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For fiscal 2002, sales to Grass Valley Group, Pinnacle Systems, a department of the U.S. Navy, and Northrop Grumman accounted for 17%, 12%, 11% and 10% of net sales, respectively."
+  },
+  {
+   "anchor_ticker": "NRG",
+   "counterparty_is_named": true,
+   "named_counterparty": "ENTRX CORP  (CIK 0000013547)",
+   "direction": "customer",
+   "as_of_date": "2010-03-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During 2009, BP West Coast Products LLC, Southern California Edison and NRG Energy accounted for 15.2%, 10.8% and 10.7% of our revenues, respectively."
+  },
+  {
+   "anchor_ticker": "NSA",
+   "counterparty_is_named": true,
+   "named_counterparty": "Strategic Storage Trust VI, Inc.  (CIK 0001852575)",
+   "direction": "customer",
+   "as_of_date": "2023-03-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The six publicly listed self storage companies are Public Storage, Extra Space Storage Inc., AMERCO (the parent company of U-Haul), CubeSmart, LifeStorage, Inc. and National Storage Affiliates Trust, which collectively operate approximately 21.9% of all U.S.-based self storage properties."
+  },
+  {
+   "anchor_ticker": "NSC",
+   "counterparty_is_named": true,
+   "named_counterparty": "FreightCar America, Inc.  (RAIL)  (CIK 0001320854)",
+   "direction": "customer",
+   "as_of_date": "2017-03-03",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In 2016, revenue from three customers, CIT Rail, Norfolk Southern Railway Company and ECN Capital Corporation, accounted for approximately 23%, 16% and 15%, respectively, of total revenue."
+  },
+  {
+   "anchor_ticker": "NTNX",
+   "counterparty_is_named": true,
+   "named_counterparty": "SMART Global Holdings, Inc.  (SGH)  (CIK 0001616533)",
+   "direction": "customer",
+   "as_of_date": "2020-10-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Nutanix, Inc., or Nutanix, accounted for 11% of net sales in fiscal 2020;"
+  },
+  {
+   "anchor_ticker": "NXPI",
+   "counterparty_is_named": true,
+   "named_counterparty": "COHU INC  (COHU)  (CIK 0000021535)",
+   "direction": "customer",
+   "as_of_date": "2016-02-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During the last three years, the following customers comprised 10% or greater of our consolidated net sales: 2015 2014 2013 Intel 18.0 % 15.7 % 18.5 % NXP Semiconductors N.V."
+  },
+  {
+   "anchor_ticker": "NXPI",
+   "counterparty_is_named": true,
+   "named_counterparty": "SCM MICROSYSTEMS INC  (INVE)  (CIK 0001036044)",
+   "direction": "customer",
+   "as_of_date": "2009-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Estimates from NXP Semiconductors predict that the growth of electronic identification solutions between 2006 and 2012 will be overwhelmingly contactless (an 80% growth rate) compared to a 37% growth rate for contact electronic identification."
+  },
+  {
+   "anchor_ticker": "NYT",
+   "counterparty_is_named": true,
+   "named_counterparty": "QUIPP INC  (CIK 0000796577)",
+   "direction": "customer",
+   "as_of_date": "2006-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Newspapers owned by Gannett Co, Inc. and The New York Times Company each accounted for 11% of our net sales in 2005."
+  },
+  {
+   "anchor_ticker": "ODFL",
+   "counterparty_is_named": true,
+   "named_counterparty": "CHASE GENERAL CORP  (CIK 0000015357)",
+   "direction": "customer",
+   "as_of_date": "2015-09-22",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In the United States, Old Dominion has approximately 80% of the market share of the peanut candy business in which the Seasonal Candy Products division operates."
+  },
+  {
+   "anchor_ticker": "OXY",
+   "counterparty_is_named": true,
+   "named_counterparty": "Evercore Partners Inc.  (EVR)  (CIK 0001360901)",
+   "direction": "customer",
+   "as_of_date": "2015-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "agement • Cable & Wireless Communications Plc on its acquisition of Columbus International Inc • Macquarie Infrastructure Fund IV and Wren House Infrastructure on the acquisition of E.ON’s operations in Spain and Portugal • AstraZeneca on its successful defense against Pfizer’s unsolicited approach • The Special Committee of Sirius XM Radio on the sale of its outstanding shares to Liberty Media • "
+  },
+  {
+   "anchor_ticker": "PAYX",
+   "counterparty_is_named": true,
+   "named_counterparty": "HEARTLAND PAYMENT SYSTEMS INC  (CIK 0001144354)",
+   "direction": "customer",
+   "as_of_date": "2013-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "While large national payroll service firms such as ADP, Paychex, Ceridian, and Intuit are highly recognized, their combined market share in the industry approximates only 15%."
+  },
+  {
+   "anchor_ticker": "PCG",
+   "counterparty_is_named": true,
+   "named_counterparty": "Crimson Wine Group, Ltd  (CWGL)  (CIK 0001562151)",
+   "direction": "customer",
+   "as_of_date": "2024-03-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Other income, net, increased $2.7 million, or 653%, in 2023 as compared to 2022 primarily driven by a settlement payout for $1.9 million received from the Fire Victim Trust, formed in connection with PG&E Corporation and Pacific Gas and Electric Company’s joint plan of reorganization under Chapter 11, related to the 2017 wildfires with the remainder due to increased investment income correlated wi"
+  },
+  {
+   "anchor_ticker": "PEN",
+   "counterparty_is_named": true,
+   "named_counterparty": "BOSTON SCIENTIFIC CORP  (BSX)  (CIK 0000885725)",
+   "direction": "customer",
+   "as_of_date": "2026-02-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On January 15, 2026, we announced our entry into a definitive agreement to acquire 100 percent of Penumbra, Inc. (Penumbra), a publicly traded medical technology company primarily focused on innovative medical thrombectomy products for use in peripheral vascular procedures in the removal of blood clots and blockages."
+  },
+  {
+   "anchor_ticker": "PEP",
+   "counterparty_is_named": true,
+   "named_counterparty": "PEPSIAMERICAS INC/IL/  (CIK 0001084230)",
+   "direction": "customer",
+   "as_of_date": "2003-03-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "We sell a variety of brands that we bottle under licenses from PepsiCo, Inc. (“PepsiCo”) or PepsiCo joint ventures which accounted for approximately 91 percent of our total volume in 2002."
+  },
+  {
+   "anchor_ticker": "PFE",
+   "counterparty_is_named": true,
+   "named_counterparty": "Animal Health International, Inc.  (CIK 0001372813)",
+   "direction": "customer",
+   "as_of_date": "2010-09-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For our fiscal year ended June 30, 2010, our top manufacturer, Pfizer, Inc. (Pfizer), supplied products that accounted for approximately 20% of our net sales."
+  },
+  {
+   "anchor_ticker": "PFE",
+   "counterparty_is_named": true,
+   "named_counterparty": "PHARSIGHT CORP  (CIK 0001040853)",
+   "direction": "customer",
+   "as_of_date": "2006-06-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In fiscal 2006, Pfizer Inc., or Pfizer, our largest customer, accounted for 25% of our total revenue, and Eli Lilly and Company, or Eli Lilly, also accounted for 17% of our total revenue."
+  },
+  {
+   "anchor_ticker": "PGR",
+   "counterparty_is_named": true,
+   "named_counterparty": "QUINSTREET, INC  (QNST)  (CIK 0001117297)",
+   "direction": "customer",
+   "as_of_date": "2017-09-08",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Clients In fiscal years 2017 and 2016, we had one client, The Progressive Corporation, that accounted for 17% and 12% of net revenue."
+  },
+  {
+   "anchor_ticker": "PHM",
+   "counterparty_is_named": true,
+   "named_counterparty": "Taylor Morrison Home Corp  (TMHC)  (CIK 0001562476)",
+   "direction": "customer",
+   "as_of_date": "2014-02-24",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The fair value of the Class J Units at the date of modification has been estimated using a Black-Scholes model with the following key assumptions: (1) volatility of 40%, based on a comparable peer set of companies, which includes Standard Pacific Corp., Lennar Corporation, Ryland Group Inc., KB Home, PulteGroup Inc., Hovnanian Enterprises Inc., Beazer Homes USA Inc., Meritage Homes Corporation, M/"
+  },
+  {
+   "anchor_ticker": "PII",
+   "counterparty_is_named": true,
+   "named_counterparty": "VIRTUSA CORP  (CIK 0001207074)",
+   "direction": "customer",
+   "as_of_date": "2017-05-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On March 3, 2016, pursuant to a share purchase agreement dated as of November 5, 2015, by and among Virtusa Consulting Services Private Limited (\"Virtusa India\"), a subsidiary of the Company, Polaris Consulting & Services Limited, a global IT services company focused on banking and financial services (\"Polaris\"), and the promoter sellers named therein, as amended on February 25, 2016 (the \"SPA\"), "
+  },
+  {
+   "anchor_ticker": "PLNT",
+   "counterparty_is_named": true,
+   "named_counterparty": "CYBEX INTERNATIONAL INC  (CIK 0000060876)",
+   "direction": "customer",
+   "as_of_date": "2009-03-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Sales to Planet Fitness Equipment, LLC represented 10.4%, 5.6%, and 2.9% of the Company’s net sales for 2008, 2007, and 2006, respectively."
+  },
+  {
+   "anchor_ticker": "PNC",
+   "counterparty_is_named": true,
+   "named_counterparty": "ALDILA INC  (CIK 0000902272)",
+   "direction": "customer",
+   "as_of_date": "2010-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Common Stock Beneficially Owned Name Beneficial Ownership Percent(1) Certain Beneficial Owners Lloyd I. Miller III(2) 1,375,993 26.5 % The PNC Financial Services Group, Inc.(5) 606,057 11.7 % Dimensional Fund Advisors LP(3) 435,878 8.4 % Renaissance Technologies LLC(4) 324,300 6.2 % Directors and Officers Peter R. Mathewson(6) 95,987 1.8 % Thomas A. Brand(7) 16,504 * Bryant R. Riley(8) 81,872 1.6 "
+  },
+  {
+   "anchor_ticker": "POR",
+   "counterparty_is_named": true,
+   "named_counterparty": "ICON INCOME FUND EIGHT /DE  (CIK 0001061134)",
+   "direction": "customer",
+   "as_of_date": "2001-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "A lease of a coal-handling facility to Portland General Electric and an aircraft leased to KLM Royal Dutch Airlines generated 19% and 29%, respectively, of total revenue during the year ended December 31, 2000."
+  },
+  {
+   "anchor_ticker": "POST",
+   "counterparty_is_named": true,
+   "named_counterparty": "BuzzFeed, Inc.  (BZFD, BZFDW)  (CIK 0001828972)",
+   "direction": "customer",
+   "as_of_date": "2022-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "BuzzFeed Japan is a joint venture owned 51 % by the Company, through its wholly-owned subsidiaries, BuzzFeed UK Limited, and The Huffington Post Holdings LLC and 24.5 % by Z Holdings Corporation and 24.5 % by Asahi Shimbun Company."
+  },
+  {
+   "anchor_ticker": "PPG",
+   "counterparty_is_named": true,
+   "named_counterparty": "APOGEE ENTERPRISES INC  (APOG)  (CIK 0000006845)",
+   "direction": "customer",
+   "as_of_date": "2001-05-18",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In an effort to enhance efficiency, geographic coverage and customer service in the distribution of auto replacement glass, the Company and PPG Industries combined their U.S. automotive replacement glass distribution businesses in July 2000 to create a new entity, PPG Auto Glass, LLC (PPG Auto Glass), of which the Company has a 34 percent interest."
+  },
+  {
+   "anchor_ticker": "PRI",
+   "counterparty_is_named": true,
+   "named_counterparty": "VILLAGEEDOCS INC  (CIK 0001122099)",
+   "direction": "customer",
+   "as_of_date": "2009-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For 2008, 60% of GoSolutions’ revenue (24% of consolidated net revenues) was derived from independent representatives of Primerica Life Insurance Company (“PLIC”)."
+  },
+  {
+   "anchor_ticker": "PRU",
+   "counterparty_is_named": true,
+   "named_counterparty": "MARVELL TECHNOLOGY GROUP LTD  (CIK 0001058057)",
+   "direction": "customer",
+   "as_of_date": "2007-07-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Shares Beneficially Owned(1) Name and Address of Beneficial Owner Number Percent** 5% Shareholders FMR Corp.(2) 88,610,928 15.1 % 82 Devonshire Street Boston, MA 02109 T. Rowe Price Associates, Inc.(3) 63,086,655 10.7 % 100 E. Pratt Street Baltimore, MD 21202 Prudential Financial, Inc.(4) 35,906,062 6.1 % 751 Broad Street Newark, NJ 07102 Weili Dai(5) 73,294,531 12.5 % Directors and Executive Offi"
+  },
+  {
+   "anchor_ticker": "PSX",
+   "counterparty_is_named": true,
+   "named_counterparty": "BreitBurn Energy Partners L.P.  (CIK 0001357371)",
+   "direction": "customer",
+   "as_of_date": "2014-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During 2013 , our largest purchasers were Phillips 66, which accounted for approximately 15% of our net sales revenues;"
+  },
+  {
+   "anchor_ticker": "PSX",
+   "counterparty_is_named": true,
+   "named_counterparty": "California Resources Corp  (CRC, CRCQW)  (CIK 0001609253)",
+   "direction": "customer",
+   "as_of_date": "2015-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the years ended December 31, 2014, 2013 and 2012, ConocoPhillips/Phillips 66 Company and Tesoro Refining & Marketing Company LLC each accounted for more than 10% of our revenue."
+  },
+  {
+   "anchor_ticker": "PSX",
+   "counterparty_is_named": true,
+   "named_counterparty": "STONE ENERGY CORP  (CIK 0000904080)",
+   "direction": "customer",
+   "as_of_date": "2013-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Shell Trading (US) Company, Phillips 66 Company and Conoco, Inc. accounted for approximately 41%, 18% and 13%, respectively, of our oil and natural gas revenue generated during the year ended December 31, 2012."
+  },
+  {
+   "anchor_ticker": "PSX",
+   "counterparty_is_named": true,
+   "named_counterparty": "BUCKEYE PARTNERS, L.P.  (CIK 0000805022)",
+   "direction": "customer",
+   "as_of_date": "2019-02-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": " of Contents South Texas Transactions In April 2018, as part of our strategy to serve the production growth in crude oil and related products from the Permian Basin, we expanded our marine terminal presence in Corpus Christi, Texas through the following transactions: (i) acquired our business partner’s 20% interest in our Buckeye Texas consolidated subsidiary, and (ii) formed a joint venture with "
+  },
+  {
+   "anchor_ticker": "PSX",
+   "counterparty_is_named": true,
+   "named_counterparty": "Oasis Petroleum Inc.  (CHRD, OASPW, WLLAW, WLLBW)  (CIK 0001486159)",
+   "direction": "customer",
+   "as_of_date": "2021-03-08",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Market conditions or operational impediments could hinder our access to crude oil, natural gas or NGL markets, delay our production or reduce the realized prices we receive.” For the Successor period of November 20, 2020 through December 31, 2020, sales to ExxonMobil Oil Corporation and Phillips 66 Company accounted for approximately 22% and 15%, respectively, of our total product sales."
+  },
+  {
+   "anchor_ticker": "RBC",
+   "counterparty_is_named": true,
+   "named_counterparty": "Altra Industrial Motion Corp.  (CIK 0001374535)",
+   "direction": "customer",
+   "as_of_date": "2015-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The Peer Group Index consists of the following publicly traded companies: Franklin Electric Co. Inc., RBC Bearings, Inc., and Regal Beloit Corp. 25 Table of Contents Quarter Ended 26 Table of Contents 12/31/2009 3/31/2010 6/30/2010 9/30/2010 12/31/2010 3/31/2011 6/30/2011 9/30/2011 12/31/2011 Altra Industrial Motion Corp. — % 11.17 % 5.43 % 19.27 % 60.81 % 91.26 % 94.25 % (6.32 )% 52.47 % S&P Smal"
+  },
+  {
+   "anchor_ticker": "RJF",
+   "counterparty_is_named": true,
+   "named_counterparty": "LAW ENFORCEMENT ASSOCIATES CORP  (CIK 0001165921)",
+   "direction": "customer",
+   "as_of_date": "2009-03-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Approximately 51% of our outstanding common stock is beneficially owned or controlled by the Raymond James Financial, Inc. As a result, this shareholder is able to determine the outcome of elections of our directors and thereby control the management of our business."
+  },
+  {
+   "anchor_ticker": "RJF",
+   "counterparty_is_named": true,
+   "named_counterparty": "MONROE BANCORP  (CIK 0000745456)",
+   "direction": "customer",
+   "as_of_date": "2002-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The Company also offers a full service brokerage operation offered through Raymond James Financial Services, Inc. Platform-based investment sales and brokerage operations generated $770,000 of commission income in 2001 compared to $648,000 in 2000, an increase of 18.8 percent."
+  },
+  {
+   "anchor_ticker": "ROK",
+   "counterparty_is_named": true,
+   "named_counterparty": "Aspect Software Group Holdings Ltd.  (CIK 0001506546)",
+   "direction": "customer",
+   "as_of_date": "2012-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Name Number of Voting Shares Percentage of Total Voting Shares Total Number of Shares Percentage of Total Shares 5% Stockholders: Funds managed by Golden Gate Capital(1) 120,242,304 67.0 % 121,757,944 52.9 % Funds managed by Oak Investment Partners(2) 59,297,536 33.0 % 60,044,976 26.1 % Rockwell Automation Holdings(3) — — 21,800,200 9.5 % Executive Officers and Directors: James D. Foy(4) — — 12,99"
+  },
+  {
+   "anchor_ticker": "ROST",
+   "counterparty_is_named": true,
+   "named_counterparty": "STEVEN MADDEN, LTD.  (SHOO)  (CIK 0000913241)",
+   "direction": "customer",
+   "as_of_date": "2021-03-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "These customers, in no particular order, include: Nordstrom, Inc. The TJX Companies, Inc. Dillard's, Inc. Amazon.com, Inc. Macy's, Inc. Ross Stores, Inc. Designer Brands, Inc. Walmart Inc. Kohl's Corporation Target Corporation For the year ended December 31, 2020, Walmart Inc. represented approximately 13.9% of total revenue."
+  },
+  {
+   "anchor_ticker": "RRC",
+   "counterparty_is_named": true,
+   "named_counterparty": "Hiland Partners, LP  (CIK 0001306527)",
+   "direction": "customer",
+   "as_of_date": "2005-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The primary suppliers of natural gas to the Matli gathering system are Range Resources Corporation and Continental Resources, Inc., which represented approximately 47.9% and 42.6%, respectively, of the Matli gathering system’s natural gas supply for the year ended December 31, 2004."
+  },
+  {
+   "anchor_ticker": "RTX",
+   "counterparty_is_named": true,
+   "named_counterparty": "Woodward, Inc.  (WWD)  (CIK 0000108312)",
+   "direction": "customer",
+   "as_of_date": "2023-11-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The customers who account for approximately 10% or more of our consolidated net sales are the General Electric Company (\"GE\") and RTX Corporation."
+  },
+  {
+   "anchor_ticker": "SFM",
+   "counterparty_is_named": true,
+   "named_counterparty": "WEINGARTEN REALTY INVESTORS /TX/  (CIK 0000828916)",
+   "direction": "customer",
+   "as_of_date": "2017-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "owned by others Other Anchors ( ) indicates owned by others Red Mountain Gateway Phoenix-Mesa-Scottsdale, AZ 100.0 % 199,013 (Target), Bed Bath & Beyond, Famous Footwear Scottsdale Horizon Phoenix-Mesa-Scottsdale, AZ 100.0 % 155,093 Safeway CVS Scottsdale Waterfront Phoenix-Mesa-Scottsdale, AZ 100.0 % 93,334 Olive & Ivy, Urban Outfitters Squaw Peak Plaza Phoenix-Mesa-Scottsdale, AZ 100.0 % 60,728 "
+  },
+  {
+   "anchor_ticker": "SHW",
+   "counterparty_is_named": true,
+   "named_counterparty": "BWAY CORP  (CIK 0000943897)",
+   "direction": "customer",
+   "as_of_date": "2008-12-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Of the fiscal 2008 metal packaging segment net sales, approximately 16% were to The Sherwin-Williams Company."
+  },
+  {
+   "anchor_ticker": "SHW",
+   "counterparty_is_named": true,
+   "named_counterparty": "BWAY Holding CO  (CIK 0001392179)",
+   "direction": "customer",
+   "as_of_date": "2007-12-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Of the fiscal 2007 segment net sales, approximately 16% were to The Sherwin-Williams Company."
+  },
+  {
+   "anchor_ticker": "SLB",
+   "counterparty_is_named": true,
+   "named_counterparty": "DUCOMMUN INC /DE/  (DCO)  (CIK 0000030305)",
+   "direction": "customer",
+   "as_of_date": "2013-03-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In fiscal 2012, our net sales to Boeing, Raytheon, Spirit AeroSystems, Owens-Illinois, and Schlumberger were 16.8%, 7.2%, 5.4%, 4.5%, and 4.1%, of our total net sales, respectively."
+  },
+  {
+   "anchor_ticker": "SLM",
+   "counterparty_is_named": true,
+   "named_counterparty": "ASSOCIATED BANC-CORP  (ASB, ASBA, ASB-PE, ASB-PF)  (CIK 0000007789)",
+   "direction": "customer",
+   "as_of_date": "2011-02-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Asset-backed Securities: At December 31, 2010, asset-backed securities were $299 million (which is largely comprised of senior, floating rate, tranches of student loan securities issued by SLM Corp and guaranteed under the Federal Family Education Loan Program) and represented 5% of total investment securities based on fair value."
+  },
+  {
+   "anchor_ticker": "SNX",
+   "counterparty_is_named": true,
+   "named_counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "direction": "customer",
+   "as_of_date": "2022-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "​ PURCHASING AND VENDOR RELATIONS ​ Product purchases from Ingram Micro, Inc., TD Synnex Corporation and Dell Inc. accounted for approximately 23%, 23% and 12% respectively, of our total product purchases in 2021."
+  },
+  {
+   "anchor_ticker": "SNX",
+   "counterparty_is_named": true,
+   "named_counterparty": "Autodesk, Inc.  (ADSK)  (CIK 0000769397)",
+   "direction": "customer",
+   "as_of_date": "2024-06-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Revenue through our largest distributor, TD Synnex Corporation and its global affiliates (collectively, “TD Synnex”), accounted for 39%, 37%, and 36% of our net revenue for the fiscal years ended January 31, 2024, 2023 and 2022, respectively."
+  },
+  {
+   "anchor_ticker": "SPG",
+   "counterparty_is_named": true,
+   "named_counterparty": "SIGNET JEWELERS LTD  (SIG)  (CIK 0000832988)",
+   "direction": "customer",
+   "as_of_date": "2010-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The US division leases 16% of its store locations from Simon Property Group and 13% from General Growth Management."
+  },
+  {
+   "anchor_ticker": "STWD",
+   "counterparty_is_named": true,
+   "named_counterparty": "Chatham Lodging Trust  (CLDT, CLDT-PA)  (CIK 0001476045)",
+   "direction": "customer",
+   "as_of_date": "2012-03-09",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "arranged the $130 million first mortgage and mezzanine non-recourse financing with lenders Citibank, N.A., Wells Fargo Bank, National Association and an affiliate of Starwood Property Trust, Inc. The maturity of the facilities is three years with two one-year extension options and carries an all-in interest rate of 6.9 percent."
+  },
+  {
+   "anchor_ticker": "TER",
+   "counterparty_is_named": true,
+   "named_counterparty": "MERIX CORP  (CIK 0000921365)",
+   "direction": "customer",
+   "as_of_date": "2001-08-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "sales to the principal market segments we serve: Fiscal Years 2001 2000 1999 Ma rket Segments: Co mmunications 59.4 % 51.7 % 37.9 % Co mputing 19.2 21.3 32.8 Te st and Measurement 19.3 24.2 25.4 Oth er 2.1 2.8 3.9 To tal 100.0 % 100.0 % 100.0 % Our five largest OEM customers during fiscal 2001, in alphabetical order, were Cisco Systems, Lucent Technologies, Motorola, Storage Technology Corp., and "
+  },
+  {
+   "anchor_ticker": "TFC",
+   "counterparty_is_named": true,
+   "named_counterparty": "UNITED INSURANCE HOLDINGS CORP.  (ACIC)  (CIK 0001401521)",
+   "direction": "customer",
+   "as_of_date": "2023-04-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "AmRisc, LLC is an unaffiliated third-party owned by Truist Financial Corporation (NYSE: TFC) and represents 100% of our commercial lines revenue based on our exclusive agreement in Florida."
+  },
+  {
+   "anchor_ticker": "TGT",
+   "counterparty_is_named": true,
+   "named_counterparty": "STEVEN MADDEN, LTD.  (SHOO)  (CIK 0000913241)",
+   "direction": "customer",
+   "as_of_date": "2020-03-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "These customers, in no particular order, include: Nordstrom, Inc. The TJX Companies, Inc. Dillard's, Inc. Burlington Stores, Inc. Macy's, Inc. Ross Stores, Inc. Designer Brands, Inc. Wal-Mart Stores, Inc. Kohl's Corporation Target Corporation For the year ended December 31, 2019 , Wal-Mart Stores, Inc. represented 11.9% of total revenue."
+  },
+  {
+   "anchor_ticker": "TGT",
+   "counterparty_is_named": true,
+   "named_counterparty": "PRIMUS KNOWLEDGE SOLUTIONS INC  (CIK 0001067797)",
+   "direction": "customer",
+   "as_of_date": "2001-03-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Chapter 23B.19 of the Washington Business Corporation Act prohibits a target corporation, with some exceptions, from engaging in particular significant business transactions with an acquiring person, which is defined as a person or group of persons that beneficially owns 10% or more of the voting securities of the target corporation, for a period of five years after the acquisition, unless the tra"
+  },
+  {
+   "anchor_ticker": "THC",
+   "counterparty_is_named": true,
+   "named_counterparty": "Lumexa Imaging Holdings, Inc.  (LMRI)  (CIK 0002071288)",
+   "direction": "customer",
+   "as_of_date": "2026-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Tenet Health RLC, LLC 1 AZ 50.0% No Tucson Medical Center Tucson Medical Imaging Partners, LLC 1 AZ 50.0% No UPMC Community Provider Services UPMCTDI JV, LLC — — 49.0% No (1) Data as of December 31, 2025."
+  },
+  {
+   "anchor_ticker": "THO",
+   "counterparty_is_named": true,
+   "named_counterparty": "PATRICK INDUSTRIES INC  (PATK)  (CIK 0000076605)",
+   "direction": "customer",
+   "as_of_date": "2016-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The Company's RV products include consolidated sales to two major manufacturers of RVs that each account for over 10% of our consolidated net sales - Forest River, Inc., a Berkshire Hathaway Company (“Forest River”) and Thor Industries, Inc. (stock symbol: THO) (“Thor”)."
+  },
+  {
+   "anchor_ticker": "TJX",
+   "counterparty_is_named": true,
+   "named_counterparty": "CHAUS BERNARD INC  (CIK 0000793983)",
+   "direction": "customer",
+   "as_of_date": "2004-09-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During fiscal 2004, approximately 70% of the Company's net revenue was from three corporate entities – Dillard's Department Stores 35%, TJX Companies 22%, and Sam's Club 13%."
+  },
+  {
+   "anchor_ticker": "TLN",
+   "counterparty_is_named": true,
+   "named_counterparty": "PUGET ENERGY INC /WA  (CIK 0001085392)",
+   "direction": "customer",
+   "as_of_date": "2017-03-03",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "As part of the settlement, PSE agreed, along with Talen Energy (the owner of the other 50% interest in Colstrip Units 1 and 2), to retire the two oldest units (Units 1 and 2) at Colstrip in eastern Montana by no later than July 1, 2022."
+  },
+  {
+   "anchor_ticker": "TMO",
+   "counterparty_is_named": true,
+   "named_counterparty": "LUMINEX CORP  (CIK 0001033905)",
+   "direction": "customer",
+   "as_of_date": "2018-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "LabCorp accounted for 20% , 20% and 24% of our total revenues and Thermo Fisher Scientific Inc. accounted for 15% , 13% and 13% of our total revenues in 2017 , 2016 and 2015 , respectively."
+  },
+  {
+   "anchor_ticker": "TRMB",
+   "counterparty_is_named": true,
+   "named_counterparty": "AGCO CORP /DE  (AGCO)  (CIK 0000880266)",
+   "direction": "customer",
+   "as_of_date": "2024-02-27",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "We also provide retail and wholesale financing through our finance joint ventures with Coöperatieve Rabobank U.A., which, together with its affiliates, we refer to as “Rabobank.” On September 28, 2023, the Company entered into a Sale and Contribution Agreement with Trimble Inc. (\"Trimble\") to form a joint venture (\"Trimble Ag joint venture\") (i) to which Trimble will contribute its agricultural bu"
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "Centerplate, Inc.  (CIK 0001086774)",
+   "direction": "customer",
+   "as_of_date": "2005-03-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Number of Shares of Percent of Number of Percent of Name of Beneficial Owner Common Stock Common Stock IDS Units IDSs Blackstone(1) 2,586,495 11.5 % 0 0 FMR Corp.(2) 2,186,240 9.7 % 2,186,240 11.8 % T. Rowe Price Associates, Inc.(3) 1,497,800 6.6 % 1,497,800 8.1 % GE Capital(4) 1,474,502 6.5 % 0 0 Schroder Investment Management North America, Inc.(5) 1,219,300 5.4 % 1,219,300 6.6 % Lawrence E. Hon"
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "ENTEGRIS INC  (ENTG)  (CIK 0001101302)",
+   "direction": "customer",
+   "as_of_date": "2005-11-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Name and address of beneficial owner Amount and nature of beneficial ownership Percent of class WCB Holdings LLC (2) 950 Lake Drive Chaska, Minnesota 55317 12,365,608 (1) 9.1 % T. Rowe Price Associates, Inc. 100 East Pratt Street Baltimore, MD 21202 9,417,513 (2) 6.9 % Cooke & Bieler LP 1700 Market Street, Suite 3222 Philadelphia, PA 19103-3932 8,919,740 (3) 6.6 % 77 (1) The estate of Wayne C. Bon"
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "Tumi Holdings, Inc.  (CIK 0001535031)",
+   "direction": "customer",
+   "as_of_date": "2013-03-21",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "cutive officers as a group (11 persons)(3)(4)(5) 31,638,290 46.6 % Greater than 5% Stockholders: Funds affiliated with Doughty Hanson: Doughty Hanson & Co IV Limited Partnership Number One(3) 6,131,982 9.0 % Doughty Hanson & Co IV Limited Partnership Number Two(3) 6,612,117 9.7 % Doughty Hanson & Co IV Limited Partnership Number Four(3) 5,709,741 8.4 % Officers Nominees Limited(4) 5,846,062 8.6 % "
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "US XPRESS ENTERPRISES INC  (CIK 0000923571)",
+   "direction": "customer",
+   "as_of_date": "2023-05-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "ael Ducker (11) 45,461 * — — * Dennis Nash (12) 50,134 * — — * John Rickel (13) 157,634 * — — * All director and executive officers as a group (13 persons) (14) 4,556,250 11.1 % 13,113,164 100.0 % 65.8 % Holders of More than 5% Parties subject to the Voting Agreement and Support Agreement﻿ (15) 2,868,031 7.0 % 13,113,164 100.0 % 64.2 % Aristotle Capital Boston, LLC﻿ (16) 3,055,712 7.5 % — — 2.9 % "
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "WEBTRENDS CORP  (CIK 0001075316)",
+   "direction": "customer",
+   "as_of_date": "2001-02-07",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "3,995,500 15.1% T. Rowe Price Associates, Inc.(3) 100 E. Pratt Street Baltimore, Maryland 21202................................."
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "COMSCORE, INC.  (SCOR)  (CIK 0001158172)",
+   "direction": "customer",
+   "as_of_date": "2008-04-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Amount and Nature Percentage of Name and Address of Beneficial Common Stock of Beneficial Owner Ownership(1) Outstanding 5% Stockholders: Accel Partners(2) 5,902,859 20.7 % CVCA, LLC and related entities(3) 1,744,338 6.1 % Lehman Brothers Inc.(4) 1,699,157 6.0 % Adams Street Partners LLC(5) 1,703,387 6.0 % T. Rowe Price Associates, Inc.(6) 1,701,156 6.0 % Directors and Named Executive Officers: Ma"
+  },
+  {
+   "anchor_ticker": "TROW",
+   "counterparty_is_named": true,
+   "named_counterparty": "PDF SOLUTIONS INC  (PDFS)  (CIK 0001120914)",
+   "direction": "customer",
+   "as_of_date": "2009-04-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Name and Address of Beneficial Owner Amount and Nature of Beneficial Ownership (1) Percent of Common Stock (1)(2) 5% Stockholders: T. Rowe Price Associates, Inc. 2,750,101 10.47 % 100 E. Pratt Street Baltimore, Maryland 21202 (3) FMR LLC (fka FMR Corp.) 2,815,641 10.72 82 Devonshire Street Boston, Massachusetts 02109 (4) Wellington Management Company, LLP 1,731,500 6.59 75 State Street Boston, MA "
+  },
+  {
+   "anchor_ticker": "TSN",
+   "counterparty_is_named": true,
+   "named_counterparty": "PILGRIMS PRIDE CORP  (PPC)  (CIK 0000802481)",
+   "direction": "customer",
+   "as_of_date": "2018-02-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "On June 29, 2015, we acquired 100% of the equity of Provemex Holdings, LLC and its subsidiaries (together, “Tyson Mexico”) from Tyson Foods, Inc. and certain of its subsidiaries."
+  },
+  {
+   "anchor_ticker": "TSN",
+   "counterparty_is_named": true,
+   "named_counterparty": "EMERGE INTERACTIVE INC  (CIK 0001092605)",
+   "direction": "customer",
+   "as_of_date": "2004-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Approximately 80% of the beef processed in the United States is processed by beef packing operations owned by Swift and Company, Tyson Foods, Cargill and National Beef, Inc. LIMITATIONS OF THE CURRENT SYSTEM Modern cattle production processes contain a number of inefficiencies that reduce livestock quality and increase cost."
+  },
+  {
+   "anchor_ticker": "TSN",
+   "counterparty_is_named": true,
+   "named_counterparty": "ATEL Capital Equipment Fund XI, LLC  (CIK 0001297667)",
+   "direction": "customer",
+   "as_of_date": "2014-03-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": " 2012, certain lessees and/or financial borrowers generated significant portions (defined as greater than or equal to 10%) of the Company’s total leasing and lending revenues, excluding gains or losses on disposition of assets, as follows: Percentage of Total Leasing and Lending Revenues Lessee Type of Equipment 2013 2012 Union Pacific Transportation 28 % 25 % Nomac Drilling, LLC Mining 16 % 11 % "
+  },
+  {
+   "anchor_ticker": "TTMI",
+   "counterparty_is_named": true,
+   "named_counterparty": "PARK ELECTROCHEMICAL CORP  (PKE)  (CIK 0000076267)",
+   "direction": "customer",
+   "as_of_date": "2018-05-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During the Company’s 2018 fiscal year, 14.9% of the Company's total worldwide sales were to TTM Technologies, Inc., a leading manufacturer of printed circuit boards."
+  },
+  {
+   "anchor_ticker": "TXN",
+   "counterparty_is_named": true,
+   "named_counterparty": "ASYST TECHNOLOGIES INC /CA/  (CIK 0000909326)",
+   "direction": "customer",
+   "as_of_date": "2001-07-03",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In fiscal year 2001, Taiwan Semiconductor Manufacturing Co., Ltd., or TSMC, United MicroElectronics Corporation, or UMC, and Texas Instruments accounted for approximately 8.5 percent, 7.1 percent and 6.6 percent of our net sales, respectively."
+  },
+  {
+   "anchor_ticker": "TXN",
+   "counterparty_is_named": true,
+   "named_counterparty": "AXCELIS TECHNOLOGIES INC  (ACLS)  (CIK 0001113232)",
+   "direction": "customer",
+   "as_of_date": "2001-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For example, in 2000, three of our customers, STMicroelectronics N.V., Texas Instruments Incorporated, and Motorola, Inc. accounted for 28.0% of our net sales, and our ten largest customers accounted for 56.3%."
+  },
+  {
+   "anchor_ticker": "TXN",
+   "counterparty_is_named": true,
+   "named_counterparty": "AEHR TEST SYSTEMS  (AEHR)  (CIK 0001040470)",
+   "direction": "customer",
+   "as_of_date": "2017-08-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "During fiscal 2017, Texas Instruments Incorporated, or Texas Instruments, STMicroelectronics, Inc., Intel, and Cypress Semiconductor, accounted for approximately 45%, 19%, 17% and 10%, respectively, of the Company’s net sales."
+  },
+  {
+   "anchor_ticker": "TXN",
+   "counterparty_is_named": true,
+   "named_counterparty": "LTX-CREDENCE CORP  (CIK 0000357020)",
+   "direction": "customer",
+   "as_of_date": "2011-10-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our top customers in fiscal year 2011 were Texas Instruments, Spirox, and Atmel, which accounted for 23%, 14%, and 13% of our net sales, respectively."
+  },
+  {
+   "anchor_ticker": "ULTA",
+   "counterparty_is_named": true,
+   "named_counterparty": "WEINGARTEN REALTY INVESTORS /TX/  (CIK 0000828916)",
+   "direction": "customer",
+   "as_of_date": "2018-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "ar Tree Entrada de Oro Plaza Shopping Center Tucson, AZ 100.0 % 109,075 Walmart Neighborhood Market Madera Village Shopping Center Tucson, AZ 100.0 % 106,858 Safeway Dollar Tree Oracle Crossings Tucson, AZ 100.0 % 261,194 Sprouts Farmers Market Kohl's, HomeGoods Oracle Wetmore Shopping Center Tucson, AZ 100.0 % 343,278 (Home Depot), (Nordstrom Rack), Jo Ann Fabric, Cost Plus, PetSmart, Walgreens, "
+  },
+  {
+   "anchor_ticker": "UNH",
+   "counterparty_is_named": true,
+   "named_counterparty": "MEDCO HEALTH SOLUTIONS INC  (CIK 0001170650)",
+   "direction": "customer",
+   "as_of_date": "2004-03-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the fiscal year ended December 27, 2003, our ten largest clients based on revenue accounted for approximately 46% of our net revenues, including UnitedHealth Group, our largest client, which represented approximately $6,100 million, or 18%, of our net revenues."
+  },
+  {
+   "anchor_ticker": "UNH",
+   "counterparty_is_named": true,
+   "named_counterparty": "ELOYALTY CORP  (CIK 0001094348)",
+   "direction": "customer",
+   "as_of_date": "2003-03-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "UnitedHealth Group, Eli Lilly, Allstate Insurance and AT&T Wireless provided 14%, 12%, 11%, and 10% of our 2002 revenue, respectively."
+  },
+  {
+   "anchor_ticker": "URI",
+   "counterparty_is_named": true,
+   "named_counterparty": "ELOYALTY CORP  (CIK 0001094348)",
+   "direction": "customer",
+   "as_of_date": "2010-03-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Accounts Receivable Customer Concentration As of December 26, 2009, two clients, United Rentals, Inc. and Blue Shield of California, accounted for 13% and 12%, respectively, of total gross accounts receivable."
+  },
+  {
+   "anchor_ticker": "USB",
+   "counterparty_is_named": true,
+   "named_counterparty": "G&G RETAIL INC  (CIK 0001088811)",
+   "direction": "customer",
+   "as_of_date": "2002-05-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "01 Certificate of Incorporation of G+G Retail.(1) 3.02 Amended and Restated By-Laws of G+G Retail.(1) 4.01 Indenture, dated as of May 17, 1999, by and between G+G Retail, as issuer, and U.S. Bank Trust National Association, as trustee.(1) 4.02 Form of 11% Senior Note due 2006 of G+G Retail.(1) 4.03 A/B Exchange Registration Rights Agreement, dated as of May 17, 1999, by and between G+G Retail and "
+  },
+  {
+   "anchor_ticker": "VLO",
+   "counterparty_is_named": true,
+   "named_counterparty": "JACOBS ENGINEERING GROUP INC /DE/  (J)  (CIK 0000052988)",
+   "direction": "customer",
+   "as_of_date": "2006-12-08",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For the fiscal year ended September 30, 2006 revenues earned from Valero Energy Corporation accounted for 10.2% of total Company revenues;"
+  },
+  {
+   "anchor_ticker": "VRT",
+   "counterparty_is_named": true,
+   "named_counterparty": "EMERSON ELECTRIC CO  (EMR)  (CIK 0000032604)",
+   "direction": "customer",
+   "as_of_date": "2023-11-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The Company generated operating cash flow from continuing operations of $2.7 billion in 2023, an increase of $678, or 33 percent, reflecting higher earnings (excluding the impacts in both years from the Vertiv subordinated interest gains and higher Heritage AspenTech intangibles amortization in the current year)."
+  },
+  {
+   "anchor_ticker": "VTR",
+   "counterparty_is_named": true,
+   "named_counterparty": "BranchOut Food Inc.  (BOF)  (CIK 0001962481)",
+   "direction": "customer",
+   "as_of_date": "2026-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Other Receivable The Company’s Peruvian operations are subject to an 18 % value-added tax (“VAT”) or (“Impuesto General a las Ventas” or “IGV”) on substantially all purchases and exports of goods and services."
+  },
+  {
+   "anchor_ticker": "WBD",
+   "counterparty_is_named": true,
+   "named_counterparty": "NEXSTAR MEDIA GROUP, INC.  (NXST)  (CIK 0001142417)",
+   "direction": "customer",
+   "as_of_date": "2023-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "4 Recent Acquisition On September 30, 2022, we acquired a 75.0% ownership interest in The CW from affiliates of Paramount Global and Warner Bros. Discovery, Inc. (collectively the “Sellers”) for no purchase consideration."
+  },
+  {
+   "anchor_ticker": "WDC",
+   "counterparty_is_named": true,
+   "named_counterparty": "KOMAG INC /DE/  (CIK 0000813347)",
+   "direction": "customer",
+   "as_of_date": "2001-03-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Net sales to major customers were as follows: Western Digital 50%, Maxtor 28%, and Seagate Technology 17%."
+  },
+  {
+   "anchor_ticker": "WMB",
+   "counterparty_is_named": true,
+   "named_counterparty": "KEANE INC  (CIK 0000054883)",
+   "direction": "customer",
+   "as_of_date": "2003-03-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "International Business Machines Corporation Wawa Invacare Whirlpool Corporation Legal & General The Williams Companies, Inc. State of Maine Zurich Financial Services Group State of Maryland Keane's ten largest clients accounted for approximately 29% and 32% of the Company's total revenue during each of the years ended December 31, 2002 and 2001, respectively."
+  },
+  {
+   "anchor_ticker": "WMG",
+   "counterparty_is_named": true,
+   "named_counterparty": "TRANS WORLD ENTERTAINMENT CORP  (CIK 0000795212)",
+   "direction": "customer",
+   "as_of_date": "2011-04-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "In Fiscal 2010, 70% of purchases were made from ten suppliers including EMI Music Distribution, Sony Music Entertainment, Warner Music Group, Universal Music Group Distribution, Fox Video Inc., Paramount Home Entertainment Inc., Walt Disney Studios Home Entertainment, Warner Home Entertainment, Universal Studios Home Entertainment and Sony Pictures Home Entertainment."
+  },
+  {
+   "anchor_ticker": "WMT",
+   "counterparty_is_named": true,
+   "named_counterparty": "TANDY BRANDS ACCESSORIES INC  (CIK 0000869487)",
+   "direction": "customer",
+   "as_of_date": "2010-08-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Customers and Customer Relations We maintain strong relationships with various major retailers throughout North America, including: Department Stores National Chains Mass Merchants Kohl’s JCPenney (U.S. and Mexico) Walmart (U.S. and Canada) Bon-Ton/Carson’s AAFES Kmart Macy’s Academy Sports & Outdoors Fred Meyer Dillard’s Tractor Supply Zellers (Canada) The Bay (Canada) Moore’s (Canada) Ross Store"
+  },
+  {
+   "anchor_ticker": "WPC",
+   "counterparty_is_named": true,
+   "named_counterparty": "Corporate Property Associates 17 - Global INC  (CIK 0001390213)",
+   "direction": "customer",
+   "as_of_date": "2016-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "W. P. Carey Holdings, LLC, or Carey Holdings, also known as the Special General Partner, an indirect subsidiary of our sponsor, W. P. Carey Inc., or WPC, holds a 0.01% special general partner interest in the Operating Partnership."
+  },
+  {
+   "anchor_ticker": "WPC",
+   "counterparty_is_named": true,
+   "named_counterparty": "CORPORATE PROPERTY ASSOCIATES 18 GLOBAL INC  (CIK 0001558235)",
+   "direction": "customer",
+   "as_of_date": "2016-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "WPC–CPA ® :18 Holdings, LLC, or CPA ® :18 Holdings, also known as the Special General Partner, a subsidiary of our sponsor, W. P. Carey Inc., or WPC, holds a 0.03% special general partner interest in the Operating Partnership."
+  },
+  {
+   "anchor_ticker": "WSO",
+   "counterparty_is_named": true,
+   "named_counterparty": "UNITED TECHNOLOGIES CORP /DE/  (RTX)  (CIK 0000101829)",
+   "direction": "customer",
+   "as_of_date": "2011-02-10",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "This includes an approximately $58 million asset impairment charge in 2010 associated with disposition activity as well as the absence of an approximately $60 million gain recognized in 2009 from the contribution of the majority of Carrier’s U.S. Residential Sales and Distribution business into a new venture formed with Watsco, Inc. 2009 Compared with 2008 Carrier’s sales decreased $3,482 million "
+  },
+  {
+   "anchor_ticker": "XOM",
+   "counterparty_is_named": true,
+   "named_counterparty": "ENGLOBAL CORP  (ENG)  (CIK 0000933738)",
+   "direction": "customer",
+   "as_of_date": "2004-03-30",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "For example, during 2003, 36% of our total revenues were attributable to work done by our engineering segment and our systems segment for one major refining and petrochemical client, ExxonMobil, through multiple client subsidiaries and plant locations."
+  },
+  {
+   "anchor_ticker": "ZBRA",
+   "counterparty_is_named": true,
+   "named_counterparty": "PRINTRONIX INC  (CIK 0000311505)",
+   "direction": "customer",
+   "as_of_date": "2002-05-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Our primary competitors in the thermal market are Zebra Technologies Corporation, Sato, Tokyo Electric Company (TEC) and Intermec, a subsidiary of Unova, who together account for 82 percent of the market."
+  },
+  {
+   "anchor_ticker": "ZBRA",
+   "counterparty_is_named": true,
+   "named_counterparty": "KEY TRONIC CORP  (KTCC)  (CIK 0000719733)",
+   "direction": "customer",
+   "as_of_date": "2004-09-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "The following customers accounted for 10% or more of consolidated revenues in the three fiscal years presented below: Fiscal Year 2004 2003 2002 The Clorox Company 16 % 31 % 39 % Lexmark International, Inc. 14 % 8 % 18 % Zebra Technologies Corporation 12 % 8 % 0 % Transaction Printer Group, Inc. 10 % 9 % 10 % Hewlett-Packard Company 1 % 8 % 13 % For the fiscal years ended July 3, 2004, June 28, 20"
+  },
+  {
+   "anchor_ticker": "ZION",
+   "counterparty_is_named": true,
+   "named_counterparty": "QUOTESMITH COM INC  (CIK 0001079996)",
+   "direction": "customer",
+   "as_of_date": "2006-03-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_VERIFIED",
+   "evidence_sentence": "Risks Related to the Ownership of Our Common Stock Zions Bancorporation, together with two of our officers and directors, own a significant portion of our stock and control Quotemsith.com and their interests may not be the same as our public stockholders As of March 9, 2006, Robert Bland, our chairman, President and Chief Executive Officer directly or indirectly controlled 31.3% of our outstanding"
+  }
+ ]
+}
