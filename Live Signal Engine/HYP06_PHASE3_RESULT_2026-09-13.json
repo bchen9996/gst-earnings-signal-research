@@ -1,0 +1,676 @@
+{
+ "artifact": "HYP06_PHASE3_RESULT_2026-09-13.json",
+ "as_of_date": "2026-09-13",
+ "hypothesis_id": "HYP-06",
+ "phase": "Phase 3 -- the one exploratory run against the real, 778-pair, 25-peer, 29-anchor universe (see HYP06_PHASE2_LOCK's sample_size_disclosure)",
+ "what_this_is": "The single, preregistered, exploratory run of the Phase 2-locked spec against every locked peer's real returns around every locked anchor event. Reported once, regardless of outcome.",
+ "what_this_is_not": "NOT confirmatory (the 195-event provisional floor this sample clears is itself provisional, not measured against HYP-06's own design -- see sample_size_disclosure below), NOT repeatable, and NOT a license to iterate on the spec having seen this. A disappointing or a striking result gets reported exactly the same way.",
+ "reported_regardless_of_outcome": true,
+ "no_rerun_permitted": true,
+ "point_estimate_permitted": false,
+ "is_a_confidence_interval": false,
+ "sample_size_disclosure": {
+  "n_locked_events": 778,
+  "n_peers": 25,
+  "n_anchors": 29,
+  "provisional_operative_floor_pairs": 195,
+  "floor_source": "HYP06_SAMPLE_SIZE_GATE_2026-09-13.md",
+  "framing": "EXPLORATORY, FLOOR CLEARED (provisional floor)",
+  "why": "778 locked (peer, event) pairs clears the provisional 195-pair floor by 4.0x -- unlike HYP-05's own 8-event pilot, which fell ~24x short. Still framed exploratory, not confirmatory: the floor itself remains PROVISIONAL (borrowed, not measured against HYP-06's own design) -- see HYP06_SAMPLE_SIZE_GATE_2026-09-13.md."
+ },
+ "look_ahead_disclosure": {
+  "already_touched": "Every locked peer's raw close prices (auto_adjust=False) were fetched and used ONLY to compute point-in-time MARKET CAP for PS-1..PS-4 eligibility screening in run_hyp05_peer_market_cap.py (committed b3983ba). That computation never touched any peer's returns, realized variance, or any quantity resembling this hypothesis's target measure. Relationship direction (customer/supplier) was hand-corrected from filing text during round-6 review, which also never touches return data.",
+  "not_touched": "No log return, no realized-variance ratio, and no residualized target value has been computed for any locked peer around any locked anchor event, at any horizon, before this lock. This lock is written before that computation happens for the first time."
+ },
+ "authorization": {
+  "artifact": "HYP06_PHASE3_AUTHORIZATION_2026-09-13.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-13"
+ },
+ "phase2_lock": {
+  "artifact": "HYP06_PHASE2_LOCK_2026-09-13.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-13",
+  "sha256": "8d0bb802c5464920cdf2ae421dd0055f53f2cd29bc511c43d2838943d4e91e87"
+ },
+ "locked_peers": [
+  "ACH",
+  "ACIC",
+  "AEHR",
+  "CHRD",
+  "CKX",
+  "CNR",
+  "CNXN",
+  "COHU",
+  "CRC",
+  "CRS",
+  "ICUI",
+  "KTCC",
+  "LEU",
+  "NGS",
+  "NSYS",
+  "PATK",
+  "PCYO",
+  "PENG",
+  "PI",
+  "PKE",
+  "PRSO",
+  "QNST",
+  "RAIL",
+  "SIG",
+  "TDW"
+ ],
+ "locked_anchors": [
+  "ABT",
+  "AEP",
+  "AVY",
+  "BDX",
+  "CLX",
+  "CVX",
+  "DELL",
+  "DUK",
+  "DVN",
+  "EOG",
+  "ETR",
+  "EXC",
+  "FFIV",
+  "HPQ",
+  "HWM",
+  "KBH",
+  "NOC",
+  "NSC",
+  "NTNX",
+  "NXPI",
+  "PGR",
+  "PSX",
+  "SNX",
+  "SPG",
+  "TFC",
+  "THO",
+  "TTMI",
+  "TXN",
+  "ZBRA"
+ ],
+ "n_locked_events": 778,
+ "treatment": {
+  "residualize": true,
+  "n_rows": 12960,
+  "retained_history": {
+   "what_it_measures": "anchor-adjacent history removed from baseline ESTIMATION",
+   "min": 0.05867970660146699,
+   "mean": 0.4941616080815495,
+   "threshold": 0.1,
+   "peers_below_threshold": [
+    "NSYS"
+   ],
+   "n_peers_below_threshold": 1,
+   "n_peers": 25,
+   "structural_ceiling_note": "Excluding +/-25 sessions around each anchor removes roughly (2*25+1)/63 of a peer's calendar when anchors report quarterly, so retention has a structural ceiling near 0.20-0.30. The threshold is set below that ceiling by arithmetic, not tuned to the observed value."
+  },
+  "bucket_population": {
+   "what_it_measures": "observations dropped because their days-to-own-earnings bucket was under-populated once that history was in hand",
+   "min_bucket_count_threshold": 20,
+   "min_bucket_count_observed": 6,
+   "n_candidate_observations": 15540,
+   "n_excluded": 400,
+   "excluded_fraction": 0.02574002574002574,
+   "policy": "accept-and-report (Patch 12 option c): excluded from the Stage 1 regression sample, not imputed. Buckets are NOT widened and the threshold is NOT lowered to recover sample size."
+  },
+  "fits_by_horizon": [
+   {
+    "horizon": 1,
+    "beta": 3.5065785404364123,
+    "se": 2.6996377045553475,
+    "t_stat": 1.2989070846504474,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 2,
+    "beta": -1.4748185138277354,
+    "se": 1.8226867814282708,
+    "t_stat": -0.8091453390977339,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 3,
+    "beta": -0.22055165729286652,
+    "se": 1.2527514336826986,
+    "t_stat": -0.17605380553787386,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 4,
+    "beta": 0.15890831523097482,
+    "se": 1.132144322317257,
+    "t_stat": 0.14036047533738766,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 5,
+    "beta": 0.7282838348791261,
+    "se": 1.053725785493551,
+    "t_stat": 0.6911511940822515,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 6,
+    "beta": 0.4827673128856673,
+    "se": 1.0691000848945127,
+    "t_stat": 0.4515641890845997,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 7,
+    "beta": 0.4168430534758313,
+    "se": 1.1144131486580555,
+    "t_stat": 0.37404714219118984,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 8,
+    "beta": 0.4743850571503583,
+    "se": 1.0534859334775495,
+    "t_stat": 0.45030032397719505,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 9,
+    "beta": 0.5242289203449323,
+    "se": 1.0107966769378525,
+    "t_stat": 0.5186294457685122,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 10,
+    "beta": 0.07870842085060903,
+    "se": 0.9976568940440783,
+    "t_stat": 0.07889327615585198,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 11,
+    "beta": 0.1880743205055373,
+    "se": 0.9774346526956261,
+    "t_stat": 0.1924162602449739,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 12,
+    "beta": 0.1687054231626668,
+    "se": 0.9304707034670825,
+    "t_stat": 0.1813119129211091,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 13,
+    "beta": 0.13992305990387321,
+    "se": 0.9100608447421952,
+    "t_stat": 0.15375132411450032,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 14,
+    "beta": 0.03240463835899732,
+    "se": 0.9326201918893431,
+    "t_stat": 0.03474580396265126,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 15,
+    "beta": -0.03544942659659034,
+    "se": 0.9158289884887959,
+    "t_stat": -0.0387074738211609,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 16,
+    "beta": -0.2172214645161481,
+    "se": 0.9052923652732147,
+    "t_stat": -0.23994620174510284,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 17,
+    "beta": -0.30517059702039906,
+    "se": 0.8957259039555993,
+    "t_stat": -0.3406964068726165,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 18,
+    "beta": -0.018786154952279532,
+    "se": 0.8814950931604654,
+    "t_stat": -0.021311695434315645,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 19,
+    "beta": -0.029549699874164892,
+    "se": 0.8789863639988407,
+    "t_stat": -0.033617927517933445,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   },
+   {
+    "horizon": 20,
+    "beta": 0.04787065877788743,
+    "se": 0.8765728820961233,
+    "t_stat": 0.054611156420234806,
+    "satterthwaite_dof": 78.61941757842347,
+    "n_obs": 648,
+    "n_clusters": 646
+   }
+  ],
+  "horizons_dropped": [],
+  "peak_horizon": 1,
+  "peak_abs_t": 1.2989070846504474,
+  "max_abs_t": 1.2989070846504474,
+  "max_t_critical_value": 2.703484566051302,
+  "max_t_p_value": 0.6211894052973513,
+  "peak_significant": false,
+  "effective_independent_tests": 7.449667875110725,
+  "n_permutations": 2000,
+  "clustering": "one-way (event_id) -- SENSITIVITY, NOT THE D1 PRIMARY",
+  "onset_horizon_raw": null,
+  "onset_interval": null,
+  "onset_refused": null,
+  "point_estimate_permitted": false,
+  "d2_residual_limitation": "SEs are clustered ONE WAY, on event_id (D1). At horizon 1: 646 distinct event_id values, 27 distinct anchors over 648 pairs. The same anchor recurring within a cluster is NOT covered by this standard error -- see clustered_se.TWO_WAY_LIMITATION_NOTE. Two-way clustering is not implemented anywhere in this repository, validated or otherwise.",
+  "d6_disclosures": [
+   {
+    "horizon": 1,
+    "total_cluster_count": 646,
+    "n_singleton_clusters": 644,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 2
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 648,
+    "n_events": 646,
+    "mean_peers_per_event": 1.0031,
+    "icc_raw_unfloored": 0.019364637240947963,
+    "icc_n_clusters": 646,
+    "icc_bootstrap_ci_95": [
+     -0.9275711461837779,
+     0.6521383132316219
+    ],
+    "deff": 1.0000599524372784,
+    "n_eff": 647.961153149607
+   },
+   {
+    "horizon": 5,
+    "total_cluster_count": 646,
+    "n_singleton_clusters": 644,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 2
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 648,
+    "n_events": 646,
+    "mean_peers_per_event": 1.0031,
+    "icc_raw_unfloored": 0.5612011800844526,
+    "icc_n_clusters": 646,
+    "icc_bootstrap_ci_95": [
+     0.07626510461325652,
+     0.9769642109417743
+    ],
+    "deff": 1.0017374649538218,
+    "n_eff": 646.8760754893715
+   },
+   {
+    "horizon": 10,
+    "total_cluster_count": 646,
+    "n_singleton_clusters": 644,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 2
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 648,
+    "n_events": 646,
+    "mean_peers_per_event": 1.0031,
+    "icc_raw_unfloored": 0.8946326413493181,
+    "icc_n_clusters": 646,
+    "icc_bootstrap_ci_95": [
+     0.8550959379679294,
+     0.9289580582883783
+    ],
+    "deff": 1.0027697604995336,
+    "n_eff": 646.2101526448068
+   },
+   {
+    "horizon": 20,
+    "total_cluster_count": 646,
+    "n_singleton_clusters": 644,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 2
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 648,
+    "n_events": 646,
+    "mean_peers_per_event": 1.0031,
+    "icc_raw_unfloored": 0.8737301948623869,
+    "icc_n_clusters": 646,
+    "icc_bootstrap_ci_95": [
+     0.7841887402667187,
+     0.9493916411534618
+    ],
+    "deff": 1.0027050470429177,
+    "n_eff": 646.2518583216669
+   }
+  ]
+ },
+ "clustering_label_note": "treatment.clustering below reads '-- SENSITIVITY, NOT THE D1 PRIMARY' because inference.local_projection_analysis stamps that label whenever cluster_key != constants.LOCKED_CLUSTER_KEY ('calendar_period', HYP-04's own D1). That label describes HYP-04's decision, not HYP-06's: HYP-06 reuses HYP-05's own re-decision (2026-09-12) that event_id IS its primary clustering dimension. Read the label as HYP-04 vocabulary surfacing through reused code, not as a statement that this is a sensitivity check -- it is HYP-06's actual inferential result.",
+ "secondary_cluster_robustness_lens": {
+  "dimension": "calendar_period",
+  "per_horizon": [
+   {
+    "horizon": 1,
+    "n_rows": 648,
+    "beta_shock": 3.5065785404364123,
+    "primary_se": 2.6996377045553475,
+    "primary_n_clusters": 646,
+    "secondary_se": 3.0210460006375457,
+    "secondary_n_clusters": 69,
+    "se_ratio_secondary_over_primary": 1.1190560850220221,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 5,
+    "n_rows": 648,
+    "beta_shock": 0.7282838348791261,
+    "primary_se": 1.053725785493551,
+    "primary_n_clusters": 646,
+    "secondary_se": 1.0107559451809909,
+    "secondary_n_clusters": 69,
+    "se_ratio_secondary_over_primary": 0.9592210412764707,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 10,
+    "n_rows": 648,
+    "beta_shock": 0.07870842085060903,
+    "primary_se": 0.9976568940440783,
+    "primary_n_clusters": 646,
+    "secondary_se": 0.9783477176833818,
+    "secondary_n_clusters": 69,
+    "se_ratio_secondary_over_primary": 0.9806454739340043,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 20,
+    "n_rows": 648,
+    "beta_shock": 0.04787065877788743,
+    "primary_se": 0.8765728820961233,
+    "primary_n_clusters": 646,
+    "secondary_se": 0.8060569250184616,
+    "secondary_n_clusters": 69,
+    "se_ratio_secondary_over_primary": 0.9195549411601247,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   }
+  ],
+  "note": "Two ONE-WAY clusterings shown side by side, never a two-way estimator -- see clustered_se.dual_cluster_report. The primary result above is HYP-06's actual inferential result; this is a robustness lens only, computed at exactly the horizons the primary result already discloses under D6."
+ },
+ "peer_data_provenance": {
+  "peer_closes_sha256": "428290bcc7de015c699a107c96eab614184a02e33229f14d59c8be0bf71ecf11",
+  "n_sessions": 6987,
+  "first_session": "1999-06-17",
+  "last_session": "2027-03-30",
+  "peer_earnings_coverage": {
+   "ACH": {
+    "n_releases_total": 100,
+    "n_attributed": 45,
+    "n_unknown_session": 55,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-04-21",
+    "latest_attributed_date": "2026-08-10"
+   },
+   "ACIC": {
+    "n_releases_total": 74,
+    "n_attributed": 68,
+    "n_unknown_session": 6,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2009-04-01",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "AEHR": {
+    "n_releases_total": 94,
+    "n_attributed": 52,
+    "n_unknown_session": 42,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-09-25",
+    "latest_attributed_date": "2026-07-15"
+   },
+   "CHRD": {
+    "n_releases_total": 80,
+    "n_attributed": 62,
+    "n_unknown_session": 18,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2011-03-09",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "CKX": {
+    "n_releases_total": 0,
+    "n_attributed": 0,
+    "n_unknown_session": 0,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": null,
+    "latest_attributed_date": null
+   },
+   "CNR": {
+    "n_releases_total": 38,
+    "n_attributed": 36,
+    "n_unknown_session": 2,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2018-02-06",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "CNXN": {
+    "n_releases_total": 98,
+    "n_attributed": 93,
+    "n_unknown_session": 5,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-10-21",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "COHU": {
+    "n_releases_total": 93,
+    "n_attributed": 45,
+    "n_unknown_session": 48,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-10-25",
+    "latest_attributed_date": "2026-07-31"
+   },
+   "CRC": {
+    "n_releases_total": 55,
+    "n_attributed": 43,
+    "n_unknown_session": 12,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2014-10-23",
+    "latest_attributed_date": "2026-08-10"
+   },
+   "CRS": {
+    "n_releases_total": 153,
+    "n_attributed": 15,
+    "n_unknown_session": 138,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-01-23",
+    "latest_attributed_date": "2026-07-31"
+   },
+   "ICUI": {
+    "n_releases_total": 89,
+    "n_attributed": 83,
+    "n_unknown_session": 6,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-16",
+    "latest_attributed_date": "2026-08-07"
+   },
+   "KTCC": {
+    "n_releases_total": 105,
+    "n_attributed": 97,
+    "n_unknown_session": 8,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-08-21",
+    "latest_attributed_date": "2026-08-28"
+   },
+   "LEU": {
+    "n_releases_total": 96,
+    "n_attributed": 79,
+    "n_unknown_session": 17,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-08-04",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "NGS": {
+    "n_releases_total": 103,
+    "n_attributed": 32,
+    "n_unknown_session": 71,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-11-01",
+    "latest_attributed_date": "2026-08-11"
+   },
+   "NSYS": {
+    "n_releases_total": 37,
+    "n_attributed": 16,
+    "n_unknown_session": 21,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2017-11-09",
+    "latest_attributed_date": "2026-08-13"
+   },
+   "PATK": {
+    "n_releases_total": 90,
+    "n_attributed": 52,
+    "n_unknown_session": 38,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-22",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "PCYO": {
+    "n_releases_total": 35,
+    "n_attributed": 9,
+    "n_unknown_session": 26,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-04-15",
+    "latest_attributed_date": "2021-07-07"
+   },
+   "PENG": {
+    "n_releases_total": 37,
+    "n_attributed": 32,
+    "n_unknown_session": 5,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2017-06-23",
+    "latest_attributed_date": "2026-07-08"
+   },
+   "PI": {
+    "n_releases_total": 49,
+    "n_attributed": 45,
+    "n_unknown_session": 4,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2016-09-01",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "PKE": {
+    "n_releases_total": 79,
+    "n_attributed": 37,
+    "n_unknown_session": 42,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2008-05-08",
+    "latest_attributed_date": "2026-07-21"
+   },
+   "PRSO": {
+    "n_releases_total": 97,
+    "n_attributed": 95,
+    "n_unknown_session": 2,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-17",
+    "latest_attributed_date": "2026-08-12"
+   },
+   "QNST": {
+    "n_releases_total": 68,
+    "n_attributed": 62,
+    "n_unknown_session": 6,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2010-05-06",
+    "latest_attributed_date": "2026-08-07"
+   },
+   "RAIL": {
+    "n_releases_total": 87,
+    "n_attributed": 58,
+    "n_unknown_session": 29,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-05-17",
+    "latest_attributed_date": "2026-08-04"
+   },
+   "SIG": {
+    "n_releases_total": 78,
+    "n_attributed": 69,
+    "n_unknown_session": 9,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2010-03-25",
+    "latest_attributed_date": "2026-06-02"
+   },
+   "TDW": {
+    "n_releases_total": 104,
+    "n_attributed": 36,
+    "n_unknown_session": 68,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-01-20",
+    "latest_attributed_date": "2026-08-04"
+   }
+  },
+  "n_grouped_anchor_events": 776,
+  "n_pairs": 778
+ },
+ "sources": {
+  "phase2_lock_sha256": "8d0bb802c5464920cdf2ae421dd0055f53f2cd29bc511c43d2838943d4e91e87",
+  "peer_closes": "HYP06_PEER_CLOSES_2026-09-13.csv",
+  "peer_closes_sha256": "428290bcc7de015c699a107c96eab614184a02e33229f14d59c8be0bf71ecf11",
+  "peer_earnings": "HYP06_PEER_EARNINGS_2026-09-13.json",
+  "peer_earnings_sha256": "4e9bde373f576902068b730193c00e3d6f1653d06d337313d8ce9df7a415e03a"
+ },
+ "opens_no_gate": "This is a computed HYP-06 Phase 3 result, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read."
+}
