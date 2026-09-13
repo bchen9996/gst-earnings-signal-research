@@ -1,0 +1,126 @@
+{
+ "artifact": "HYP05_PEER_NAME_SEARCH_REVERSE_SEARCH_2026-09-12.json",
+ "as_of_date": "2026-09-12",
+ "hypothesis_id": "HYP-05",
+ "results": [
+  {
+   "counterparty": "Avago Technologies LTD  (CIK 0001441634)",
+   "anchor_ticker": "AAPL",
+   "registrant_cik": "0001441634",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "AUDIENCE INC  (CIK 0001201663)",
+   "anchor_ticker": "AAPL",
+   "registrant_cik": "0001201663",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PDL BIOPHARMA, INC.  (CIK 0000882104)",
+   "anchor_ticker": "ABBV",
+   "registrant_cik": "0000882104",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "anchor_ticker": "DELL",
+   "registrant_cik": "0001050377",
+   "peer_ticker": "CNXN",
+   "tradeable": true
+  },
+  {
+   "counterparty": "NATURAL GAS SERVICES GROUP INC  (NGS)  (CIK 0001084991)",
+   "anchor_ticker": "DVN",
+   "registrant_cik": "0001084991",
+   "peer_ticker": "NGS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "MOVIE GALLERY INC  (CIK 0000925178)",
+   "anchor_ticker": "GME",
+   "registrant_cik": "0000925178",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "TAKE TWO INTERACTIVE SOFTWARE INC  (TTWO)  (CIK 0000946581)",
+   "anchor_ticker": "GOOGL",
+   "registrant_cik": "0000946581",
+   "peer_ticker": "TTWO",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Vertro, Inc.  (CIK 0001094808)",
+   "anchor_ticker": "GOOGL",
+   "registrant_cik": "0001094808",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "GLOBAL PAYMENT TECHNOLOGIES INC  (CIK 0000933020)",
+   "anchor_ticker": "GPN",
+   "registrant_cik": "0000933020",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MICRON TECHNOLOGY INC  (MU)  (CIK 0000723125)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000723125",
+   "peer_ticker": "MU",
+   "tradeable": true
+  },
+  {
+   "counterparty": "CREDENCE SYSTEMS CORP  (CIK 0000893162)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000893162",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "NOVELLUS SYSTEMS INC  (CIK 0000836106)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000836106",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "APPLIED MATERIALS INC /DE  (AMAT)  (CIK 0000006951)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000006951",
+   "peer_ticker": "AMAT",
+   "tradeable": true
+  },
+  {
+   "counterparty": "MEDICINES CO /DE  (CIK 0001113481)",
+   "anchor_ticker": "MCK",
+   "registrant_cik": "0001113481",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ZONES INC  (CIK 0001013786)",
+   "anchor_ticker": "MSFT",
+   "registrant_cik": "0001013786",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CARNIVAL PLC  (CUK, CUKPF)  (CIK 0001125259)",
+   "anchor_ticker": "NCLH",
+   "registrant_cik": "0001125259",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "SHOE CARNIVAL INC  (SCVL)  (CIK 0000895447)",
+   "anchor_ticker": "NKE",
+   "registrant_cik": "0000895447",
+   "peer_ticker": "SHOE",
+   "tradeable": true
+  }
+ ]
+}

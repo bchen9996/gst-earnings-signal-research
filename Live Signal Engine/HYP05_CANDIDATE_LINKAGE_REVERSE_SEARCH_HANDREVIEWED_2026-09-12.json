@@ -1,0 +1,127 @@
+{
+ "artifact": "HYP05_CANDIDATE_LINKAGE_REVERSE_SEARCH_HANDREVIEWED_2026-09-12.json",
+ "as_of_date": "2026-09-12",
+ "hypothesis_id": "HYP-05",
+ "edges": [
+  {
+   "anchor_ticker": "AAPL",
+   "counterparty_is_named": true,
+   "named_counterparty": "Avago Technologies LTD  (CIK 0001441634)",
+   "direction": "supplier",
+   "as_of_date": "2013-12-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "For example, we believe our aggregate sales to Apple Inc. and Cisco Systems, Inc., when direct sales are combined with indirect sales to them through the respective contract manufacturers that they utilize, each accounted for more than 10% of our net revenues, respectively, for fiscal year 2013 .",
+   "hand_review_reason": "Avago Technologies/AAPL: 'our aggregate sales TO Apple Inc. ... accounted for more than 10% of our net revenues' -- Avago sells to Apple, so Avago is Apple's supplier."
+  },
+  {
+   "anchor_ticker": "AAPL",
+   "counterparty_is_named": true,
+   "named_counterparty": "AUDIENCE INC  (CIK 0001201663)",
+   "direction": "supplier",
+   "as_of_date": "2013-03-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "In 2012, 2011 and 2010, one of our largest OEMs, Apple Inc. (“Apple”) and its CMs, Foxconn International Holdings, Ltd. and its affiliates (collectively “Foxconn”) and Protek (Shanghai) Limited and its affiliates (collectively, “Protek”), represented 46%, 75% and 82% of our total revenue, respectively.",
+   "hand_review_reason": "Audience Inc/AAPL: 'Apple Inc. ... represented 46%, 75% and 82% of our total revenue' -- Audience is an OEM component supplier to Apple."
+  },
+  {
+   "anchor_ticker": "DELL",
+   "counterparty_is_named": true,
+   "named_counterparty": "PC CONNECTION INC  (CNXN)  (CIK 0001050377)",
+   "direction": "customer",
+   "as_of_date": "2022-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "​ PURCHASING AND VENDOR RELATIONS ​ Product purchases from Ingram Micro, Inc., TD Synnex Corporation and Dell Inc. accounted for approximately 23%, 23% and 12% respectively, of our total product purchases in 2021.",
+   "hand_review_reason": "PC Connection/DELL: 'Product purchases from Ingram Micro, Inc., TD Synnex Corporation and Dell Inc. accounted for approximately ... 12% ... of our total product purchases' -- PC Connection BUYS from Dell (a reseller), so PC Connection is Dell's customer."
+  },
+  {
+   "anchor_ticker": "DVN",
+   "counterparty_is_named": true,
+   "named_counterparty": "NATURAL GAS SERVICES GROUP INC  (NGS)  (CIK 0001084991)",
+   "direction": "supplier",
+   "as_of_date": "2010-03-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Major Customers Sales and rental income to Devon Energy Production Inc. and XTO Energy Inc. in the year ended December 31, 2009 amounted to a total of 21% and 21% of revenue, respectively.",
+   "hand_review_reason": "Natural Gas Services Group/DVN: 'Sales and rental income to Devon Energy Production Inc. ... amounted to ... 21% ... of revenue' -- NGS sells/rents to Devon, so NGS is Devon's supplier."
+  },
+  {
+   "anchor_ticker": "GOOGL",
+   "counterparty_is_named": true,
+   "named_counterparty": "TAKE TWO INTERACTIVE SOFTWARE INC  (TTWO)  (CIK 0000946581)",
+   "direction": "supplier",
+   "as_of_date": "2023-05-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Sales to our five largest customers during the fiscal year ended March 31, 2023, accounted for 79.6% of our net revenue, with Sony, Google, Apple, and Microsoft each accounting for more than 10.0% of our net revenue.",
+   "hand_review_reason": "Take-Two Interactive/GOOGL: 'Sales to our five largest customers ... accounted for 79.6% of our net revenue, with Sony, Google, Apple, and Microsoft each accounting for more than 10.0%' -- Take-Two sells (distributes) to Google, so Take-Two is Google's supplier. Take-Two is itself one of this run's 27 anchor names; kept anyway -- nothing in this project's rules disqualifies a peer for also being used as an anchor elsewhere, and the eligibility check downstream evaluates it on its own merits."
+  },
+  {
+   "anchor_ticker": "GOOGL",
+   "counterparty_is_named": true,
+   "named_counterparty": "Vertro, Inc.  (CIK 0001094808)",
+   "direction": "supplier",
+   "as_of_date": "2010-03-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "For the year ended December 31, 2009, search revenue from Google accounted for approximately 91% of our consolidated revenue from continuing operations.",
+   "hand_review_reason": "Vertro, Inc./GOOGL: 'search revenue from Google accounted for approximately 91% of our consolidated revenue' -- Vertro is paid by Google for search/ad syndication, so Vertro is Google's supplier."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "CREDENCE SYSTEMS CORP  (CIK 0000893162)",
+   "direction": "supplier",
+   "as_of_date": "2007-01-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Intel Corporation, headquartered in the United States, accounted for 15% and 25% of our net sales in fiscal years 2006 and 2005, respectively.",
+   "hand_review_reason": "Credence Systems Corp/INTC: 'Intel Corporation ... accounted for 15% and 25% of our net sales in fiscal years 2006 and 2005' -- Credence sells test equipment to Intel, so Credence is Intel's supplier."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "NOVELLUS SYSTEMS INC  (CIK 0000836106)",
+   "direction": "supplier",
+   "as_of_date": "2003-03-05",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "For the year ended December 31, 2002, Samsung Electronics, Intel Corporation, Taiwan Semiconductor Manufacturing Company and International Business Machines Corporation accounted for 17%, 11%, 11% and 10% of our net sales, respectively.",
+   "hand_review_reason": "Novellus Systems Inc/INTC: 'Samsung Electronics, Intel Corporation, Taiwan Semiconductor Manufacturing Company and International Business Machines Corporation accounted for 17%, 11%, 11% and 10% of our net sales' -- Novellus sells semiconductor equipment to Intel, so Novellus is Intel's supplier."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "APPLIED MATERIALS INC /DE  (AMAT)  (CIK 0000006951)",
+   "direction": "supplier",
+   "as_of_date": "2004-01-13",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Net sales to Intel Corporation represented 12 percent of Applied’s fiscal 2001 net sales, and 10 percent of Applied’s fiscal 2002 net sales.",
+   "hand_review_reason": "Applied Materials Inc/INTC: 'Net sales to Intel Corporation represented 12 percent of Applied's fiscal 2001 net sales' -- Applied sells to Intel, so Applied is Intel's supplier. Already a large-cap for essentially its whole trading history; kept for completeness, expected to fail the market-cap check on its own merits rather than being excluded here by assumption."
+  },
+  {
+   "anchor_ticker": "MCK",
+   "counterparty_is_named": true,
+   "named_counterparty": "MEDICINES CO /DE  (CIK 0001113481)",
+   "direction": "supplier",
+   "as_of_date": "2007-03-01",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "In the United States, AmerisourceBergen Drug Corporation, McKesson Corporation and Cardinal Health accounted for more than 88% of our revenues for the year ended December 31, 2006.",
+   "hand_review_reason": "The Medicines Company/MCK: 'AmerisourceBergen Drug Corporation, McKesson Corporation and Cardinal Health accounted for more than 88% of our revenues' -- Medicines Co sells its drug(s) through McKesson as a distributor, so Medicines Co is McKesson's supplier."
+  },
+  {
+   "anchor_ticker": "MSFT",
+   "counterparty_is_named": true,
+   "named_counterparty": "ZONES INC  (CIK 0001013786)",
+   "direction": "supplier",
+   "as_of_date": "2003-02-26",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Sales to one of the Company’s customers, Microsoft Corporation, represented 14.7% and 28.7% of total sales for the twelve months ended December 31, 2002 and 2001, respectively.",
+   "hand_review_reason": "Zones Inc/MSFT: 'Sales to one of the Company's customers, Microsoft Corporation, represented 14.7% and 28.7% of total sales' -- Zones explicitly calls Microsoft ITS customer, so Zones is Microsoft's supplier."
+  },
+  {
+   "anchor_ticker": "NKE",
+   "counterparty_is_named": true,
+   "named_counterparty": "SHOE CARNIVAL INC  (SCVL)  (CIK 0000895447)",
+   "direction": "customer",
+   "as_of_date": "2016-04-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_CONCENTRATION_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "In fiscal 2015, two branded suppliers, Nike, Inc. and Skechers USA, Inc., collectively accounted for approximately 43% of our net sales.",
+   "hand_review_reason": "Shoe Carnival Inc (now Shoe Station Group Inc, renamed 2026-06-11 per SEC formerNames -- same CIK, continuous filing history, a plain rename per this project's own lineage rule, not an acquisition)/NKE: 'two branded suppliers, Nike, Inc. and Skechers USA, Inc., collectively accounted for approximately 43% of our net sales' -- the filer explicitly calls Nike a supplier to ITSELF, so the peer (Shoe Carnival) is Nike's customer -- same direction as the Foot Locker/NKE correction in round 3."
+  }
+ ]
+}

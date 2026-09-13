@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""run_hyp05_peer_market_cap.py tests -- the pure-logic helpers only
+"""run_hyp05_peer_market_cap.py tests -- the pure-logic helpers
 (_anchor_event_dates, _resolved_candidates, the direction->relationship_type
-mapping). The live pipeline in main() is NOT exercised here, same
-discipline as every other live-fetch script's test file in this repo.
+mapping) plus main()'s pre-flight overwrite guard. The LIVE pipeline
+beyond that guard is NOT exercised here, same discipline as every other
+live-fetch script's test file in this repo.
 
 Fully offline, synthetic fixtures written to a temp dir. Sockets blocked
 before import.
@@ -32,6 +33,7 @@ socket.socket.connect_ex = _no_net
 socket.create_connection = _no_net
 socket.getaddrinfo = _no_net
 
+from hyp04_supply_chain_hedge import run_hyp05_peer_market_cap as M  # noqa: E402
 from hyp04_supply_chain_hedge.run_hyp05_peer_market_cap import (  # noqa: E402
     DIRECTION_TO_RELATIONSHIP_TYPE,
     _anchor_event_dates,
@@ -156,19 +158,51 @@ def test_3_direction_mapping_is_complete_and_sane() -> None:
           DIRECTION_TO_RELATIONSHIP_TYPE["competitor"] == "sector_competitor")
 
 
-def test_4_offline() -> None:
+def test_4_main_never_overwrites_out() -> None:
+    """Fixed 2026-09-12 after this script's own default --out silently
+    overwrote a real, already-committed governance artifact from an
+    earlier pass -- see run_hyp05_peer_market_cap.py's inline comment.
+    This must refuse before touching name-search/candidate-linkage at
+    all, the same way every other staged script in this project does."""
+    import io
+    from contextlib import redirect_stdout, redirect_stderr
+
+    existing = TMP / "already_there.json"
+    existing.write_text("{}", encoding="utf-8")
+    # A name-search path that does NOT exist -- if the overwrite guard
+    # did not fire FIRST, this would refuse for the wrong reason instead.
+    missing_name_search = TMP / "does_not_exist.json"
+
+    out, err = io.StringIO(), io.StringIO()
+    with redirect_stdout(out), redirect_stderr(err):
+        code = M.main(["--name-search", str(missing_name_search),
+                      "--out", str(existing)])
+    check("4a. refuses with a non-zero exit when --out already exists",
+          code != 0, str(code))
+    check("4b. says why, on stderr, naming the overwrite -- not the "
+          "missing name-search file", "already exists" in err.getvalue(),
+          err.getvalue()[:200])
+    check("4c. never reaches the resolved-candidates step",
+          "resolved, tradeable candidates" not in out.getvalue(),
+          out.getvalue()[:160])
+    check("4d. the existing file is untouched",
+          existing.read_text(encoding="utf-8") == "{}")
+
+
+def test_5_offline() -> None:
     try:
         socket.socket().connect(("example.invalid", 80))
-        check("4a. network blocked", False, "connect() did not raise")
+        check("5a. network blocked", False, "connect() did not raise")
     except NetworkBlocked:
-        check("4a. network blocked", True)
+        check("5a. network blocked", True)
 
 
 if __name__ == "__main__":
     test_1_anchor_event_dates_filters_and_dedupes()
     test_2_resolved_candidates_joins_and_filters()
     test_3_direction_mapping_is_complete_and_sane()
-    test_4_offline()
+    test_4_main_never_overwrites_out()
+    test_5_offline()
 
     print()
     if FAILURES:
