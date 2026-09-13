@@ -91,6 +91,24 @@ def test_3_dedup_is_a_no_op_across_different_keys() -> None:
           len(kept) == 3 and not dropped, str((kept, dropped)))
 
 
+def test_3b_build_refuses_on_a_ticker_missing_a_lineage_note() -> None:
+    """Added when the module generalized beyond exactly 3 hardcoded
+    tickers: adding a ticker to a run must never outrun checking its
+    formerNames lineage first."""
+    out_json = TMP / "lineage_missing.json"
+    out_csv = TMP / "lineage_missing.csv"
+    refusals = M.build(tickers=("DELL", "NOTREALLYATICKER"),
+                       out_json=out_json, out_csv=out_csv)
+    check("3b-a. refuses, naming the ticker with no LINEAGE_NOTES entry",
+          any("NOTREALLYATICKER" in r for r in refusals), str(refusals))
+    check("3b-b. a ticker that DOES have a note is not itself named as "
+          "missing", not any(r.startswith("DELL") for r in refusals),
+          str(refusals))
+    check("3b-c. refusing here never reaches the network (no output "
+          "written, nothing to clean up)",
+          not out_json.exists() and not out_csv.exists())
+
+
 def test_4_build_refuses_to_overwrite_existing_artifacts() -> None:
     out_json = TMP / "existing.json"
     out_csv = TMP / "existing.csv"
@@ -107,6 +125,15 @@ def test_4_build_refuses_to_overwrite_existing_artifacts() -> None:
     check("4c. the existing files are untouched",
           out_json.read_text(encoding="utf-8") == "{}"
           and out_csv.read_text(encoding="utf-8") == "x\n")
+
+
+def test_4b_default_tickers_all_have_lineage_notes() -> None:
+    check("4b-a. every ticker in ADDITIONAL_ANCHOR_TICKERS has a "
+          "LINEAGE_NOTES entry -- the default set can never itself "
+          "trigger the refusal it enforces on others",
+          all(t in M.LINEAGE_NOTES for t in M.ADDITIONAL_ANCHOR_TICKERS),
+          str([t for t in M.ADDITIONAL_ANCHOR_TICKERS
+              if t not in M.LINEAGE_NOTES]))
 
 
 def test_5_shock_csv_fields_match_make_anchor_shocks_schema() -> None:
@@ -131,7 +158,9 @@ if __name__ == "__main__":
     test_1_dedup_keeps_earliest_acceptance()
     test_2_dedup_ties_break_on_accession()
     test_3_dedup_is_a_no_op_across_different_keys()
+    test_3b_build_refuses_on_a_ticker_missing_a_lineage_note()
     test_4_build_refuses_to_overwrite_existing_artifacts()
+    test_4b_default_tickers_all_have_lineage_notes()
     test_5_shock_csv_fields_match_make_anchor_shocks_schema()
     test_6_offline()
 
