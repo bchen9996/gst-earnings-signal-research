@@ -1,0 +1,20 @@
+{
+ "artifact": "HYP06_PHASE3_AUTHORIZATION_2026-09-13.json",
+ "hypothesis_id": "HYP-06",
+ "what_this_is": "Authorization for the one, single exploratory run -- typed and pinned BEFORE any computation against any locked peer's real returns happens. make_hyp06_phase3_run.py refuses to run without it.",
+ "what_this_is_not": "Not a result, not a retroactive declaration, and not itself a computation. It authorizes exactly one future run of make_hyp06_phase3_run.py, pinned to the exact code, lock, and real peer data that exist right now.",
+ "declared": true,
+ "declared_by": "bchen9996",
+ "declared_date": "2026-09-13",
+ "attestation_text": "I authorize the one, single exploratory run of HYP-06's locked spec against the real returns of every one of its 25 locked peers around every one of its 778 locked anchor events. I understand this sample clears its own provisional 195-pair floor but that floor is itself provisional, not measured against HYP-06's own design, so this remains labeled exploratory, not confirmatory. I understand this cannot be undone or repeated, and that whatever the result, it will be reported as computed.",
+ "pinned_commit_sha": "ff2c5b25cfe0762b33cdefe19e46817e6bc59b23",
+ "pinned_phase2_lock_sha256": "8d0bb802c5464920cdf2ae421dd0055f53f2cd29bc511c43d2838943d4e91e87",
+ "pinned_phase2_lock": "HYP06_PHASE2_LOCK_2026-09-13.json",
+ "pinned_peer_closes_sha256": "428290bcc7de015c699a107c96eab614184a02e33229f14d59c8be0bf71ecf11",
+ "pinned_peer_closes": "HYP06_PEER_CLOSES_2026-09-13.csv",
+ "pinned_peer_earnings_sha256": "4e9bde373f576902068b730193c00e3d6f1653d06d337313d8ce9df7a415e03a",
+ "pinned_peer_earnings": "HYP06_PEER_EARNINGS_2026-09-13.json",
+ "consumed": false,
+ "consumed_by_result": null,
+ "how_it_is_used": "make_hyp06_phase3_run.py verifies: exactly one authorization exists, declared is true, consumed is false, and every pinned hash (Phase 2 lock, peer closes, peer earnings) matches what is on disk. It marks this consumed the instant a real run succeeds."
+}
