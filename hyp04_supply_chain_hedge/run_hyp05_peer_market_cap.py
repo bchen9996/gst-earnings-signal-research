@@ -74,16 +74,25 @@ DIRECTION_TO_RELATIONSHIP_TYPE = {
 }
 
 
-def _anchor_event_dates(csv_path: Path, anchor_ticker: str) -> list[str]:
+def _anchor_event_dates(csv_paths: Path | list[Path],
+                        anchor_ticker: str) -> list[str]:
     """Every `status == shock_computed` release_date for one anchor,
-    sorted, deduplicated. A denied-session row is skipped -- it has no
-    usable event to evaluate a peer's eligibility against."""
+    sorted, deduplicated, across one or more anchor-shocks CSVs. A
+    denied-session row is skipped -- it has no usable event to evaluate a
+    peer's eligibility against.
+
+    Accepts either a single Path (HYP-04's original call shape, unchanged)
+    or a list -- e.g. HYP04_ANCHOR_SHOCKS_2026-08-31.csv (7 anchors) PLUS
+    HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-12.csv (DELL/DVN/GOOGL), neither
+    file ever merged or edited, both read side by side."""
+    paths = [csv_paths] if isinstance(csv_paths, Path) else list(csv_paths)
     out: set[str] = set()
-    with csv_path.open(encoding="utf-8", newline="") as fh:
-        for row in csv.DictReader(fh):
-            if (row["anchor_ticker"] == anchor_ticker
-                    and row["status"] == "shock_computed"):
-                out.add(row["release_date"])
+    for csv_path in paths:
+        with csv_path.open(encoding="utf-8", newline="") as fh:
+            for row in csv.DictReader(fh):
+                if (row["anchor_ticker"] == anchor_ticker
+                        and row["status"] == "shock_computed"):
+                    out.add(row["release_date"])
     return sorted(out)
 
 
@@ -128,8 +137,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--name-search", type=Path, required=True)
     ap.add_argument("--candidate-linkage", type=Path,
                     default=CANDIDATE_LINKAGE_JSON)
-    ap.add_argument("--anchor-shocks-csv", type=Path,
-                    default=ANCHOR_SHOCKS_CSV)
+    ap.add_argument("--anchor-shocks-csv", type=Path, nargs="+",
+                    default=[ANCHOR_SHOCKS_CSV])
     ap.add_argument("--out", type=Path, default=None)
     a = ap.parse_args(argv)
 
@@ -145,7 +154,7 @@ def main(argv: list[str] | None = None) -> int:
               "never overwritten.", file=sys.stderr)
         return 1
 
-    for p in (a.name_search, a.candidate_linkage, a.anchor_shocks_csv):
+    for p in (a.name_search, a.candidate_linkage, *a.anchor_shocks_csv):
         if not p.is_file():
             print(f"REFUSED: {p} does not exist", file=sys.stderr)
             return 1
@@ -232,7 +241,7 @@ def main(argv: list[str] | None = None) -> int:
         "inputs": {
             "name_search": str(a.name_search),
             "candidate_linkage": str(a.candidate_linkage),
-            "anchor_shocks_csv": str(a.anchor_shocks_csv),
+            "anchor_shocks_csv": [str(p) for p in a.anchor_shocks_csv],
         },
         "what_this_is": (
             "Real point-in-time market-cap evaluation of every resolved, "

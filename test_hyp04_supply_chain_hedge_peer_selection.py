@@ -172,17 +172,59 @@ def test_8_never_conditions_are_real_and_rationale_isnt_trivial() -> None:
     check("8c. the locked-24-universe exclusion is explicitly named",
           any("locked" in name.lower() for name, _ in NEVER_CONDITIONS),
           str([n for n, _ in NEVER_CONDITIONS]))
-    check("8d. conditions table names exactly PS-1..PS-3",
-          [c[0] for c in CONDITIONS] == ["PS-1", "PS-2", "PS-3"],
+    check("8d. conditions table names exactly PS-1..PS-4",
+          [c[0] for c in CONDITIONS] == ["PS-1", "PS-2", "PS-3", "PS-4"],
           str([c[0] for c in CONDITIONS]))
 
 
-def test_9_offline() -> None:
+def test_9_ps4_strict_point_in_time_mirrors_pair_eligibility_p3() -> None:
+    """Added 2026-09-12: as_of_date was a REQUIRED field from the start but
+    its value was never compared against anchor_event_date, so a
+    relationship disclosed AFTER an anchor event still qualified for that
+    event -- the exact look-ahead pair_eligibility.py's P3 forbids."""
+    mc = _MC(computed=True, market_cap=1.0)
+
+    q_before = evaluate_peer(
+        _candidate(as_of_date="2019-01-01", anchor_event_date="2020-06-01"), mc)
+    check("9a. as_of strictly before the event qualifies (all else equal)",
+          q_before.qualifies is True, str(q_before.denials))
+
+    q_same_day = evaluate_peer(
+        _candidate(as_of_date="2020-06-01", anchor_event_date="2020-06-01"), mc)
+    check("9b. as_of ON the event date denies on PS-4 -- not known to an "
+          "observer AT the event, only strictly before it",
+          q_same_day.qualifies is False
+          and any(d.startswith("PS-4") for d in q_same_day.denials),
+          str(q_same_day.denials))
+
+    q_after = evaluate_peer(
+        _candidate(as_of_date="2022-03-14", anchor_event_date="2016-09-06"), mc)
+    check("9c. as_of AFTER the event denies on PS-4 -- this is the exact "
+          "CNXN/DELL shape (disclosed 2022-03-14, an anchor event in "
+          "2016) that motivated adding this condition",
+          q_after.qualifies is False
+          and any(d.startswith("PS-4") for d in q_after.denials),
+          str(q_after.denials))
+
+    q_bad_asof = evaluate_peer(
+        _candidate(as_of_date="not-a-date", anchor_event_date="2020-06-01"), mc)
+    check("9d. a malformed as_of_date denies on PS-4, never silently "
+          "compares", any(d.startswith("PS-4") for d in q_bad_asof.denials),
+          str(q_bad_asof.denials))
+
+    q_bad_event = evaluate_peer(
+        _candidate(as_of_date="2019-01-01", anchor_event_date="not-a-date"), mc)
+    check("9e. a malformed anchor_event_date denies on PS-4 too",
+          any(d.startswith("PS-4") for d in q_bad_event.denials),
+          str(q_bad_event.denials))
+
+
+def test_10_offline() -> None:
     try:
         socket.socket().connect(("example.invalid", 80))
-        check("9a. network blocked", False, "connect() did not raise")
+        check("10a. network blocked", False, "connect() did not raise")
     except NetworkBlocked:
-        check("9a. network blocked", True)
+        check("10a. network blocked", True)
 
 
 if __name__ == "__main__":
@@ -194,7 +236,8 @@ if __name__ == "__main__":
     test_6_derive_universe_refuses_on_structural_defects_rather_than_scoring()
     test_7_a_candidate_with_no_matching_market_cap_record_denies()
     test_8_never_conditions_are_real_and_rationale_isnt_trivial()
-    test_9_offline()
+    test_9_ps4_strict_point_in_time_mirrors_pair_eligibility_p3()
+    test_10_offline()
 
     print()
     if FAILURES:

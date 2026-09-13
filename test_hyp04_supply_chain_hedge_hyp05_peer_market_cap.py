@@ -91,6 +91,33 @@ def test_1_anchor_event_dates_filters_and_dedupes() -> None:
           "error", dates_c == [])
 
 
+def test_1e_anchor_event_dates_unions_multiple_csvs() -> None:
+    """Added 2026-09-12 alongside run_hyp05_additional_anchor_shocks.py:
+    an anchor whose shock_computed rows live in a SECOND, separate CSV
+    (e.g. HYP05_ADDITIONAL_ANCHOR_SHOCKS_*.csv, never merged into HYP-04's
+    own file) must still resolve, unioned with the first file's rows for
+    the same or a different anchor."""
+    p1 = _write_shocks_csv()
+    p2 = TMP / "shocks_2.csv"
+    with p2.open("w", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=_SHOCKS_FIELDS)
+        w.writeheader()
+        w.writerow({"event_id": "C-1", "anchor_ticker": "CCC",
+                   "release_date": "2022-01-01", "status": "shock_computed"})
+        w.writerow({"event_id": "A-5", "anchor_ticker": "AAA",
+                   "release_date": "2020-10-01", "status": "shock_computed"})
+
+    check("1e-single. a bare Path still works unchanged (old call shape)",
+          _anchor_event_dates(p1, "AAA") == ["2020-01-01", "2020-04-01"])
+    check("1e-list-new-ticker. a ticker present ONLY in the second file "
+          "resolves via the list form",
+          _anchor_event_dates([p1, p2], "CCC") == ["2022-01-01"])
+    check("1e-list-union. a ticker with rows in BOTH files gets the union, "
+          "sorted, deduplicated",
+          _anchor_event_dates([p1, p2], "AAA")
+          == ["2020-01-01", "2020-04-01", "2020-10-01"])
+
+
 def test_2_resolved_candidates_joins_and_filters() -> None:
     name_search = {
         "results": [
@@ -199,6 +226,7 @@ def test_5_offline() -> None:
 
 if __name__ == "__main__":
     test_1_anchor_event_dates_filters_and_dedupes()
+    test_1e_anchor_event_dates_unions_multiple_csvs()
     test_2_resolved_candidates_joins_and_filters()
     test_3_direction_mapping_is_complete_and_sane()
     test_4_main_never_overwrites_out()
