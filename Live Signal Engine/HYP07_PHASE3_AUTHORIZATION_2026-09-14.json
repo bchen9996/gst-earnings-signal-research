@@ -1,0 +1,20 @@
+{
+ "artifact": "HYP07_PHASE3_AUTHORIZATION_2026-09-14.json",
+ "hypothesis_id": "HYP-07",
+ "what_this_is": "Authorization for the one, single exploratory run -- typed and pinned BEFORE any computation against any locked peer's real returns happens. make_hyp07_phase3_run.py refuses to run without it.",
+ "what_this_is_not": "Not a result, not a retroactive declaration, and not itself a computation. It authorizes exactly one future run of make_hyp07_phase3_run.py, pinned to the exact code, lock, and real peer data that exist right now.",
+ "declared": true,
+ "declared_by": "bchen9996",
+ "declared_date": "2026-09-14",
+ "attestation_text": "I authorize the one, single exploratory run of HYP-07's locked spec against the real returns of every one of its 6 locked peers around every one of its 195 locked anchor events. I understand this sample clears its own provisional 195-pair floor EXACTLY, not comfortably, and that the floor itself is an even weaker borrow than HYP-06's own reuse of the same numbers, since HYP-07's target is a different formula (a plateauing cumulative sum) from the one that floor was measured against. I understand a significantly negative peak beta confirms competitive displacement, a significantly positive one indicates comovement instead, and not significant is a null -- and that whichever it is, it will be reported as computed. I understand this cannot be undone or repeated.",
+ "pinned_commit_sha": "01e6b267535ddc1982535b06cbef5b3d2eb2daf8",
+ "pinned_phase2_lock_sha256": "05f63952fa52a3fc8d90524f15d335729be83cf8271aa097a74cf022b62ac3f6",
+ "pinned_phase2_lock": "HYP07_PHASE2_LOCK_2026-09-14.json",
+ "pinned_peer_closes_sha256": "5e482640e67305e5dae6f0771cc568c48f0e022c2ecaf072d15ffa2e4ee036dc",
+ "pinned_peer_closes": "HYP07_PEER_CLOSES_2026-09-14.csv",
+ "pinned_peer_earnings_sha256": "f2ed4e23e9cc197597c1fe78cbda6cd6b3ced8d5d7008f8e095495075afe6e4a",
+ "pinned_peer_earnings": "HYP07_PEER_EARNINGS_2026-09-14.json",
+ "consumed": false,
+ "consumed_by_result": null,
+ "how_it_is_used": "make_hyp07_phase3_run.py verifies: exactly one authorization exists, declared is true, consumed is false, and every pinned hash (Phase 2 lock, peer closes, peer earnings) matches what is on disk. It marks this consumed the instant a real run succeeds."
+}
