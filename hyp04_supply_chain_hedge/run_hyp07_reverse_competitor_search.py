@@ -118,6 +118,34 @@ def _looks_like_competitor_sentence(sentence: str) -> bool:
               for pattern, _label in COMPETITOR_ANCHORS)
 
 
+def _looks_like_self_match(registrant_name: str, name_variant: str) -> bool:
+    """A name-based backstop against the anchor's own filing surfacing as
+    its own "competitor" lead, for when cik_for(anchor_ticker) cannot
+    resolve a CIK to exclude by in the first place.
+
+    A REAL, verified gap, not a hypothetical one: of the 788-anchor scaled
+    search's own anchor universe, 7 tickers (AVB, EQR, GTLS, JHG, NSA,
+    TMHC, WBS) have NO entry at all in SEC's own company_tickers.json
+    ticker map -- confirmed directly against the live map, not assumed.
+    That silently disables BOTH discover_leads's own CIK-based exclusion
+    below (anchor_cik is None makes the `or` vacuously True) AND main()'s
+    ticker_for()-based backstop (built from the exact same map, so it has
+    the exact same blind spot). Since a company's own 10-K naturally
+    contains both its own name and, very often, a sentence describing its
+    own competitors, an anchor with this gap searching for "[its own name]"
+    AND "[competitor phrase]" can trivially match its OWN filing.
+
+    Deliberately conservative: fires only when the registrant's own SEC
+    display name contains the EXACT name variant that was searched for. An
+    unrelated company happening to be registered under a name that
+    contains the anchor's own full name-plus-suffix string ("Apple Inc.",
+    not just "Apple") is vanishingly rare, so this does not risk excluding
+    a genuine, differently-named competitor -- see
+    test_hyp04_supply_chain_hedge_reverse_competitor_search.py for cases
+    checked."""
+    return name_variant.strip().upper() in registrant_name.strip().upper()
+
+
 class ReverseSearchError(RuntimeError):
     pass
 
@@ -138,19 +166,37 @@ def discover_leads(client: Any, anchor_ticker: str,
             hits = client.search_unscoped(query, forms="10-K")
             for h in hits[:max_hits_per_query]:
                 ciks = h.get("ciks") or []
-                peer_cik = next(
-                    (c for c in ciks
+                names = h.get("display_names") or []
+                # ciks and display_names are PARALLEL arrays -- a jointly-
+                # filed document (parent + subsidiaries as co-registrants)
+                # can have more than one entry in each, at matching
+                # indices. Resolving peer_cik by scanning ciks but then
+                # reading peer_registrant_name from names[0] unconditionally
+                # was a REAL bug: whenever the anchor was co-registrant #0
+                # and the real peer was co-registrant #1+, the self-match
+                # check below compared the ANCHOR's own name (names[0])
+                # instead of the peer's, wrongly dropping a genuine lead --
+                # found by an independent review pass, verified against
+                # this exact index-misalignment before being trusted.
+                peer_idx = next(
+                    (i for i, c in enumerate(ciks)
                      if anchor_cik is None
                      or c.lstrip("0") != anchor_cik.lstrip("0")),
                     None)
-                if peer_cik is None:
+                if peer_idx is None:
+                    continue
+                peer_cik = ciks[peer_idx]
+                peer_registrant_name = (
+                    names[peer_idx] if peer_idx < len(names)
+                    else (names[0] if names else ""))
+                if _looks_like_self_match(peer_registrant_name, name):
                     continue
                 lead = {
                     "anchor_ticker": anchor_ticker,
                     "matched_name_variant": name,
                     "matched_phrase": phrase,
                     "peer_cik": peer_cik,
-                    "peer_registrant_name": (h.get("display_names") or [""])[0],
+                    "peer_registrant_name": peer_registrant_name,
                     "accession": h.get("adsh", ""),
                     "doc_id": h.get("_id", ""),
                     "file_date": h.get("file_date", ""),

@@ -126,6 +126,95 @@ def test_1_discover_leads_dedupes_and_excludes_the_anchor() -> None:
           leads[0]["file_date"] == "2012-01-01", str(leads[0]))
 
 
+def test_1b_self_match_backstop_fires_when_cik_for_cannot_resolve() -> None:
+    # The real, verified gap: 7 of the 788-anchor scaled search's anchors
+    # (AVB, EQR, GTLS, JHG, NSA, TMHC, WBS) have no entry at all in SEC's
+    # own company_tickers.json map, so cik_for(anchor_ticker) returns None
+    # and the CIK-based exclusion in discover_leads is vacuously disabled.
+    # Simulated here by cik_for_result=None -- the anchor's OWN filing
+    # (registrant name containing the exact searched name variant) must
+    # still be excluded, via the name-based backstop.
+    hits_by_query = {
+        '"AvalonBay Communities, Inc." "we compete with"': [
+            _hit("0000001000", "AVALONBAY COMMUNITIES, INC.",
+                "0000001000-20-000001", "doc1.htm", "2020-01-01"),
+        ],
+        '"AvalonBay Communities, Inc." "principal competitors include"': [],
+        '"AvalonBay Communities, Inc." "primary competitors include"': [],
+        '"AvalonBay Communities, Inc." "our competitors include"': [],
+        '"AvalonBay Communities, Inc." "we compete directly with"': [],
+    }
+    client = _FakeClient(hits_by_query=hits_by_query, docs_by_key={},
+                        cik_for_result=None)
+    leads = R.discover_leads(client, "AVB", ("AvalonBay Communities, Inc.",))
+    check("1b. the anchor's own filing is excluded even when cik_for "
+          "cannot resolve a CIK to exclude by",
+          leads == [], str(leads))
+
+
+def test_1c_self_match_backstop_never_excludes_a_genuine_different_peer() -> None:
+    # Control: a genuinely different, differently-named peer surfacing
+    # under the same unresolvable-CIK anchor must NOT be excluded -- the
+    # backstop is a name-containment check, not a blanket "cik_for failed"
+    # rejection.
+    hits_by_query = {
+        '"AvalonBay Communities, Inc." "we compete with"': [
+            _hit("0000002000", "EQUITY RESIDENTIAL",
+                "0000002000-20-000005", "doc5.htm", "2020-02-01"),
+        ],
+        '"AvalonBay Communities, Inc." "principal competitors include"': [],
+        '"AvalonBay Communities, Inc." "primary competitors include"': [],
+        '"AvalonBay Communities, Inc." "our competitors include"': [],
+        '"AvalonBay Communities, Inc." "we compete directly with"': [],
+    }
+    client = _FakeClient(hits_by_query=hits_by_query, docs_by_key={},
+                        cik_for_result=None)
+    leads = R.discover_leads(client, "AVB", ("AvalonBay Communities, Inc.",))
+    check("1c. a genuine, differently-named peer is never excluded by the "
+          "name-based backstop",
+          len(leads) == 1 and leads[0]["peer_cik"] == "0000002000",
+          str(leads))
+
+
+def test_1d_joint_filing_resolves_peer_name_at_the_SAME_index_as_peer_cik() -> None:
+    # A jointly-filed document (e.g. a parent anchor + subsidiary
+    # co-registrants) can carry MORE than one entry in ciks/display_names,
+    # as PARALLEL arrays. A real bug (found by independent review, not
+    # assumed) read peer_registrant_name from display_names[0]
+    # unconditionally while peer_cik correctly scanned ciks for a
+    # non-anchor entry at ANY index -- when the anchor was co-registrant
+    # #0 and the genuine peer was co-registrant #1, the self-match check
+    # then compared the ANCHOR's own name and wrongly dropped a real lead.
+    anchor_cik = "0000000042"
+    peer_cik = "0000000077"
+    hit_joint = {
+        "ciks": [anchor_cik, peer_cik],
+        "display_names": ["INTEL CORP", "GENUINE RIVAL CORP"],
+        "adsh": "0000000077-15-000003", "_id": "0000000077-15-000003:doc3.htm",
+        "file_date": "2015-06-01",
+    }
+    hits_by_query = {
+        '"Intel Corporation" "we compete with"': [hit_joint],
+        '"Intel Corporation" "principal competitors include"': [],
+        '"Intel Corporation" "primary competitors include"': [],
+        '"Intel Corporation" "our competitors include"': [],
+        '"Intel Corporation" "we compete directly with"': [],
+    }
+    client = _FakeClient(hits_by_query=hits_by_query, docs_by_key={},
+                        cik_for_result=anchor_cik)
+    leads = R.discover_leads(client, "INTC", ("Intel Corporation",))
+
+    check("1d. the genuine peer at ciks[1] is NOT wrongly dropped by the "
+          "self-match check", len(leads) == 1, str(leads))
+    check("1d-detail. peer_cik resolves to the REAL peer, not the anchor",
+          leads and leads[0]["peer_cik"] == peer_cik, str(leads))
+    check("1d-detail. peer_registrant_name is read from the SAME index as "
+          "peer_cik (the peer's own name), not display_names[0] (the "
+          "anchor's own name)",
+          leads and leads[0]["peer_registrant_name"] == "GENUINE RIVAL CORP",
+          str(leads))
+
+
 def test_2_verify_lead_applies_known_rejection_patterns() -> None:
     # The exact real Wolverine World Wide stock-index sentence
     # classify_context was built to catch (round 2) -- a generic
@@ -271,6 +360,9 @@ def test_8_offline() -> None:
 
 if __name__ == "__main__":
     test_1_discover_leads_dedupes_and_excludes_the_anchor()
+    test_1b_self_match_backstop_fires_when_cik_for_cannot_resolve()
+    test_1c_self_match_backstop_never_excludes_a_genuine_different_peer()
+    test_1d_joint_filing_resolves_peer_name_at_the_SAME_index_as_peer_cik()
     test_2_verify_lead_applies_known_rejection_patterns()
     test_3_verify_lead_requires_a_real_competitor_pattern_match()
     test_4_main_never_overwrites_any_of_its_three_outputs()
