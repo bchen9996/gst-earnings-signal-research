@@ -1,0 +1,458 @@
+{
+ "artifact": "HYP07_PHASE3_RESULT_2026-09-14.json",
+ "as_of_date": "2026-09-14",
+ "hypothesis_id": "HYP-07",
+ "phase": "Phase 3 -- the one exploratory run against the real, 195-pair, 6-peer, 6-anchor universe (see HYP07_PHASE2_LOCK's sample_size_disclosure), using the SIGNED target for the first time in this project",
+ "what_this_is": "The single, preregistered, exploratory run of the Phase 2-locked spec against every locked peer's real returns around every locked anchor event. Reported once, regardless of outcome.",
+ "what_this_is_not": "NOT confirmatory (the 195-pair provisional floor this sample clears EXACTLY, not comfortably, is itself provisional and an even weaker borrow than HYP-06's own -- see sample_size_disclosure below), NOT repeatable, and NOT a license to iterate on the spec having seen this. A disappointing or a striking result -- displacement, comovement, or null -- gets reported exactly the same way.",
+ "reported_regardless_of_outcome": true,
+ "no_rerun_permitted": true,
+ "point_estimate_permitted": false,
+ "is_a_confidence_interval": false,
+ "sample_size_disclosure": {
+  "n_locked_events": 195,
+  "n_peers": 6,
+  "n_anchors": 6,
+  "provisional_operative_floor_pairs": 195,
+  "floor_source": "HYP07_SAMPLE_SIZE_GATE_2026-09-13.md",
+  "framing": "EXPLORATORY, FLOOR CLEARED EXACTLY (provisional floor)",
+  "why": "195 locked (peer, event) pairs clears the provisional 195-pair floor -- but EXACTLY, not comfortably: the count and the floor are numerically identical, unlike HYP-06's own 778 pairs, which cleared the same floor by nearly 4x. Still framed exploratory, not confirmatory: the floor itself remains PROVISIONAL, and an even weaker borrow here than for HYP-06 (HYP-07's target is a different formula from the one the floor's k range was measured against) -- see HYP07_SAMPLE_SIZE_GATE_2026-09-13.md."
+ },
+ "look_ahead_disclosure": {
+  "already_touched": "Every locked peer's raw close prices (auto_adjust=False) were fetched and used ONLY to compute point-in-time MARKET CAP for PS-1..PS-4 eligibility screening in run_hyp07_peer_market_cap.py. That computation never touched any peer's returns, signed cumulative abnormal return, or any quantity resembling this hypothesis's target measure. Relationship direction (competitor) was hand-verified from filing text during the round-7 review, which also never touches return data.",
+  "not_touched": "No log return, no signed cumulative abnormal return, and no beta has been computed for any locked peer around any locked anchor event, at any horizon, before this lock. This lock is written before that computation happens for the first time."
+ },
+ "sign_convention": "Nothing is flipped, anywhere: the anchor's raw SIGNED excess_return and the raw signed signed_car are used as-is. Significantly NEGATIVE peak beta confirms competitive displacement (anchor bad news, peer good news, and vice versa). Significantly POSITIVE peak beta indicates comovement/contagion instead -- the OPPOSITE of what a competitor relationship predicts, flagged explicitly as evidence the 'competitor' label may be picking up shared-sector/macro exposure, never silently relabeled as a confirming result. Not significant is a null, same reporting discipline as HYP-04/05/06.",
+ "peak_horizon_caveat": "target.py's RVar(h) is a MEAN over an expanding window -- later, unaffected days DILUTE it, so peak_horizon lands at the END of the true reaction window. signed_car(h) is a CUMULATIVE SUM instead -- it does not dilute, it PLATEAUS. Any HYP-07 result's peak_horizon must be read as 'where the cumulative effect saturates,' not the same geometric quantity HYP-04/05/06's own peak_horizon measures, even though both share the name. No code change follows from this -- inference.py stays correct exactly as written -- but every future report of a HYP-07 result must carry this disclosure.",
+ "authorization": {
+  "artifact": "HYP07_PHASE3_AUTHORIZATION_2026-09-14.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-14"
+ },
+ "phase2_lock": {
+  "artifact": "HYP07_PHASE2_LOCK_2026-09-14.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-14",
+  "sha256": "05f63952fa52a3fc8d90524f15d335729be83cf8271aa097a74cf022b62ac3f6"
+ },
+ "locked_peers": [
+  "BHE",
+  "GLUC",
+  "OMCL",
+  "SCSC",
+  "TOMZ",
+  "TRS"
+ ],
+ "locked_anchors": [
+  "ABT",
+  "CLX",
+  "HWM",
+  "JBL",
+  "MCK",
+  "SNX"
+ ],
+ "n_locked_events": 195,
+ "treatment": {
+  "residualize": false,
+  "residualization_note": "No bucketed earnings-cycle residualizer -- see module docstring, 'DELIBERATELY NOT PORTED'. days_to_peer_earnings is still carried as a design-matrix control.",
+  "n_candidate_observations": 3900,
+  "n_excluded_short_or_missing_window": 0,
+  "excluded_fraction": 0.0,
+  "n_rows": 3900,
+  "fits_by_horizon": [
+   {
+    "horizon": 1,
+    "beta": -0.034411198254287366,
+    "se": 0.05662381010314165,
+    "t_stat": -0.6077160507497911,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 2,
+    "beta": -0.04097616981515978,
+    "se": 0.07505269808756189,
+    "t_stat": -0.5459653131637456,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 3,
+    "beta": 0.012499780928318304,
+    "se": 0.12316816763990363,
+    "t_stat": 0.10148548255473654,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 4,
+    "beta": -0.054074847630523705,
+    "se": 0.12974152033753972,
+    "t_stat": -0.4167890702208579,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 5,
+    "beta": -0.06291463340873951,
+    "se": 0.16333629144329034,
+    "t_stat": -0.38518465708267413,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 6,
+    "beta": -0.09753751559261789,
+    "se": 0.17878619616779112,
+    "t_stat": -0.5455539503792495,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 7,
+    "beta": -0.0859587809703568,
+    "se": 0.19353474440004909,
+    "t_stat": -0.44415167538431405,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 8,
+    "beta": -0.05315845696589096,
+    "se": 0.21968269393625334,
+    "t_stat": -0.2419783552969187,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 9,
+    "beta": -0.031015823831282627,
+    "se": 0.2238808864632801,
+    "t_stat": -0.1385371673359427,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 10,
+    "beta": 0.061934743940936524,
+    "se": 0.2404487905706256,
+    "t_stat": 0.2575797690391992,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 11,
+    "beta": -0.009591006718039584,
+    "se": 0.25463737106448253,
+    "t_stat": -0.03766535398141079,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 12,
+    "beta": -0.01618419982200532,
+    "se": 0.2846038249062578,
+    "t_stat": -0.05686571439205372,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 13,
+    "beta": -0.02046046637236186,
+    "se": 0.2992353430912384,
+    "t_stat": -0.06837583475600126,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 14,
+    "beta": 0.00021355772894680511,
+    "se": 0.30002669334362453,
+    "t_stat": 0.0007117957624597576,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 15,
+    "beta": -0.08207152161940166,
+    "se": 0.3134544863613414,
+    "t_stat": -0.2618291496545752,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 16,
+    "beta": -0.1548092775828918,
+    "se": 0.3013941784680469,
+    "t_stat": -0.5136438877810121,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 17,
+    "beta": -0.20277935691601115,
+    "se": 0.3027978112476327,
+    "t_stat": -0.6696856759977537,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 18,
+    "beta": -0.2369152992936718,
+    "se": 0.318929745411608,
+    "t_stat": -0.742844788553388,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 19,
+    "beta": -0.27949874084578336,
+    "se": 0.3328943826685308,
+    "t_stat": -0.839601853913184,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   },
+   {
+    "horizon": 20,
+    "beta": -0.2692663177049216,
+    "se": 0.34067840328662524,
+    "t_stat": -0.790382704354693,
+    "satterthwaite_dof": 41.41896211378244,
+    "n_obs": 195,
+    "n_clusters": 195
+   }
+  ],
+  "horizons_dropped": [],
+  "peak_horizon": 19,
+  "peak_horizon_caveat": "target_signed.signed_car(h) is a CUMULATIVE SUM, not the diluting MEAN target.py's RVar(h) is -- peak_horizon here means 'where the cumulative effect saturates,' not the same geometric quantity HYP-04/05/06's own peak_horizon measures, even though both share the name. See target_signed.py's docstring, 'A REAL CAVEAT THIS DESIGN SURFACES'.",
+  "peak_abs_t": 0.839601853913184,
+  "max_abs_t": 0.839601853913184,
+  "max_t_critical_value": 2.4502489549501822,
+  "max_t_p_value": 0.889055472263868,
+  "peak_significant": false,
+  "sign_convention_reminder": "Nothing is flipped, anywhere. A significantly NEGATIVE beta at the peak confirms competitive displacement; a significantly POSITIVE beta indicates comovement/contagion instead -- the OPPOSITE of what a competitor relationship predicts, and must be reported as such, not silently relabeled a confirming result.",
+  "effective_independent_tests": 3.5673293305178357,
+  "n_permutations": 2000,
+  "clustering": "one-way (event_id) -- SENSITIVITY, NOT THE D1 PRIMARY",
+  "onset_horizon_raw": null,
+  "onset_interval": null,
+  "onset_refused": null,
+  "point_estimate_permitted": false,
+  "d2_residual_limitation": "SEs are clustered ONE WAY, on event_id. At horizon 5: 195 distinct event_id values, 6 distinct anchors over 195 pairs. The same anchor recurring within a cluster is NOT covered by this standard error -- see clustered_se.TWO_WAY_LIMITATION_NOTE. Two-way clustering is not implemented anywhere in this repository, validated or otherwise.",
+  "d6_disclosures": [
+   {
+    "horizon": 5,
+    "total_cluster_count": 195,
+    "n_singleton_clusters": 195,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 195,
+    "n_events": 195,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 195,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 195.0
+   },
+   {
+    "horizon": 10,
+    "total_cluster_count": 195,
+    "n_singleton_clusters": 195,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 195,
+    "n_events": 195,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 195,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 195.0
+   },
+   {
+    "horizon": 19,
+    "total_cluster_count": 195,
+    "n_singleton_clusters": 195,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 195,
+    "n_events": 195,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 195,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 195.0
+   },
+   {
+    "horizon": 20,
+    "total_cluster_count": 195,
+    "n_singleton_clusters": 195,
+    "cluster_size_distribution": {
+     "min": 1,
+     "median": 1.0,
+     "max": 1
+    },
+    "realized_satterthwaite_df": null,
+    "n_pairs": 195,
+    "n_events": 195,
+    "mean_peers_per_event": 1.0,
+    "icc_raw_unfloored": NaN,
+    "icc_n_clusters": 195,
+    "icc_bootstrap_ci_95": null,
+    "deff": 1.0,
+    "n_eff": 195.0
+   }
+  ]
+ },
+ "clustering_label_note": "treatment.clustering below reads '-- SENSITIVITY, NOT THE D1 PRIMARY' because inference.local_projection_analysis stamps that label whenever cluster_key != constants.LOCKED_CLUSTER_KEY ('calendar_period', HYP-04's own D1). That label describes HYP-04's decision, not HYP-07's: HYP-07 reuses HYP-05's/HYP-06's own re-decision that event_id IS its primary clustering dimension. Read the label as HYP-04 vocabulary surfacing through reused code, not as a statement that this is a sensitivity check -- it is HYP-07's actual inferential result.",
+ "secondary_cluster_robustness_lens": {
+  "dimension": "calendar_period",
+  "per_horizon": [
+   {
+    "horizon": 5,
+    "n_rows": 195,
+    "beta_shock": -0.06291463340873951,
+    "primary_se": 0.16333629144329034,
+    "primary_n_clusters": 195,
+    "secondary_se": 0.1580262514421796,
+    "secondary_n_clusters": 65,
+    "se_ratio_secondary_over_primary": 0.9674901397956965,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 10,
+    "n_rows": 195,
+    "beta_shock": 0.061934743940936524,
+    "primary_se": 0.2404487905706256,
+    "primary_n_clusters": 195,
+    "secondary_se": 0.23601455659734547,
+    "secondary_n_clusters": 65,
+    "se_ratio_secondary_over_primary": 0.9815585099731342,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 19,
+    "n_rows": 195,
+    "beta_shock": -0.27949874084578336,
+    "primary_se": 0.3328943826685308,
+    "primary_n_clusters": 195,
+    "secondary_se": 0.32601711600185695,
+    "secondary_n_clusters": 65,
+    "se_ratio_secondary_over_primary": 0.979340995148237,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   },
+   {
+    "horizon": 20,
+    "n_rows": 195,
+    "beta_shock": -0.2692663177049216,
+    "primary_se": 0.34067840328662524,
+    "primary_n_clusters": 195,
+    "secondary_se": 0.33297070899529907,
+    "secondary_n_clusters": 65,
+    "se_ratio_secondary_over_primary": 0.9773754537506112,
+    "note": "Two ONE-WAY clusterings, not a two-way estimator. `primary` (anchor_event) is HYP-05's inferential result; `secondary` (calendar_period) is a robustness lens only."
+   }
+  ],
+  "note": "Two ONE-WAY clusterings shown side by side, never a two-way estimator -- see clustered_se.dual_cluster_report. The primary result above is HYP-07's actual inferential result; this is a robustness lens only, computed at exactly the horizons the primary result already discloses under D6."
+ },
+ "peer_data_provenance": {
+  "peer_closes_sha256": "5e482640e67305e5dae6f0771cc568c48f0e022c2ecaf072d15ffa2e4ee036dc",
+  "benchmark_ticker": "SPY",
+  "n_sessions": 6990,
+  "first_session": "1999-06-17",
+  "last_session": "2027-04-02",
+  "peer_earnings_coverage": {
+   "BHE": {
+    "n_releases_total": 107,
+    "n_attributed": 59,
+    "n_unknown_session": 48,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-24",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "GLUC": {
+    "n_releases_total": 0,
+    "n_attributed": 0,
+    "n_unknown_session": 0,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": null,
+    "latest_attributed_date": null
+   },
+   "OMCL": {
+    "n_releases_total": 95,
+    "n_attributed": 88,
+    "n_unknown_session": 7,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-17",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "SCSC": {
+    "n_releases_total": 131,
+    "n_attributed": 100,
+    "n_unknown_session": 31,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-01-23",
+    "latest_attributed_date": "2026-05-07"
+   },
+   "TOMZ": {
+    "n_releases_total": 46,
+    "n_attributed": 34,
+    "n_unknown_session": 12,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2013-08-14",
+    "latest_attributed_date": "2026-07-29"
+   },
+   "TRS": {
+    "n_releases_total": 93,
+    "n_attributed": 34,
+    "n_unknown_session": 59,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-06-16",
+    "latest_attributed_date": "2026-04-30"
+   }
+  },
+  "n_grouped_anchor_events": 195,
+  "n_pairs": 195
+ },
+ "sources": {
+  "phase2_lock_sha256": "05f63952fa52a3fc8d90524f15d335729be83cf8271aa097a74cf022b62ac3f6",
+  "peer_closes": "HYP07_PEER_CLOSES_2026-09-14.csv",
+  "peer_closes_sha256": "5e482640e67305e5dae6f0771cc568c48f0e022c2ecaf072d15ffa2e4ee036dc",
+  "peer_earnings": "HYP07_PEER_EARNINGS_2026-09-14.json",
+  "peer_earnings_sha256": "f2ed4e23e9cc197597c1fe78cbda6cd6b3ced8d5d7008f8e095495075afe6e4a"
+ },
+ "opens_no_gate": "This is a computed HYP-07 Phase 3 result, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read."
+}
