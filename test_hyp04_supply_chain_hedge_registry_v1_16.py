@@ -144,26 +144,15 @@ def test_6_check_preconditions_refuses_on_a_missing_finding() -> None:
         M.FINDINGS = orig
 
 
-def test_7_the_live_gate_is_now_closed() -> None:
-    """v1.16 is real, on disk, and is what display_gate.py/dashboard.py
-    read as of 2026-09-13. This version's suite holds the live "gate
-    reads X" claim -- see test_hyp04_supply_chain_hedge_registry_v1_15.py's
-    own test_6, narrowed now that this version supersedes it."""
-    from hyp04_supply_chain_hedge.display_gate import (
-        REGISTRY_CURRENT,
-        current_decision,
-    )
-
+def test_7_this_version_has_moved_past() -> None:
+    """NARROWED: v1.17 (2026-09-13, registering HYP-07) now supersedes
+    v1.16 and holds the live "gate reads X" claim -- see
+    test_hyp04_supply_chain_hedge_registry_v1_17.py's own test. This
+    suite keeps only what is still true regardless of which version is
+    CURRENT: v1.16 itself is real, on disk, and was written by this
+    session's own generator."""
     check("7a. v1.16 was written by this session's generator, not this suite",
           (M.LSE / "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.16.json").is_file())
-    check("7b. the gate now reads v1.16",
-          REGISTRY_CURRENT.name.endswith("v1.16.json"))
-    live = current_decision()
-    check("7c. the REAL gate is CLOSED, denying on C1 alone -- unchanged "
-          "since v1.13, since v1.14/v1.15/v1.16 all touch nothing about "
-          "HYP-04's own entry",
-          live.open is False and len(live.denials) == 1
-          and live.denials[0].startswith("C1"), str(live.denials))
 
 
 def test_8_offline() -> None:
@@ -181,7 +170,7 @@ if __name__ == "__main__":
     test_4_hyp06_entry_shape_is_sane()
     test_5_immovable_fields_are_the_same_frozen_schema()
     test_6_check_preconditions_refuses_on_a_missing_finding()
-    test_7_the_live_gate_is_now_closed()
+    test_7_this_version_has_moved_past()
     test_8_offline()
 
     print()
