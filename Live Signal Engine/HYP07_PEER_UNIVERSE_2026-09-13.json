@@ -1,0 +1,2199 @@
+{
+  "artifact": "HYP07_PEER_UNIVERSE_2026-09-13.json",
+  "hypothesis_id": "HYP-07",
+  "inputs": {
+    "name_search": "Live Signal Engine\\HYP07_PEER_NAME_SEARCH_EXISTING_COMPETITOR_EDGES_2026-09-13.json",
+    "candidate_linkage": [
+      "Live Signal Engine\\HYP05_CANDIDATE_LINKAGE_REAL_ANCHORS_2026-09-12.json",
+      "Live Signal Engine\\HYP05_CANDIDATE_LINKAGE_LOCKED24ANCHORS_2026-09-12.json",
+      "Live Signal Engine\\HYP05_CANDIDATE_LINKAGE_HISTORICAL_WALK_2026-09-12.json"
+    ],
+    "anchor_shocks_csv": [
+      "Live Signal Engine\\HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+      "Live Signal Engine\\HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-12.csv",
+      "Live Signal Engine\\HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-13.csv"
+    ]
+  },
+  "what_this_is": "Real point-in-time market-cap evaluation of every resolved, tradeable HYP-07 competitor-relationship candidate peer, against every real anchor event available for its anchor.",
+  "adjustment_note": "Closes fetched with auto_adjust=False -- raw historical price, matching shares_outstanding.py's raw, as-disclosed share count.",
+  "candidates_evaluated": 108,
+  "peer_tickers": [
+    "GFS",
+    "SSTK"
+  ],
+  "errors": {
+    "FLS": "anchor has zero shock_computed events",
+    "HAL": "anchor has zero shock_computed events",
+    "NOV": "anchor has zero shock_computed events",
+    "RBLX": "anchor has zero shock_computed events",
+    "SLB": "anchor has zero shock_computed events",
+    "FTI": "anchor has zero shock_computed events"
+  },
+  "derivation": {
+    "derived": true,
+    "rule_id": "HYP05-PEER-SELECTION-RULE-v1",
+    "refusals": [],
+    "members": []
+  },
+  "qualifications": [
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2005-04-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-04-19; missing_price: no close price for GFS on 2005-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-04-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2005-07-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-07-19; missing_price: no close price for GFS on 2005-07-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-07-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2005-10-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-10-18; missing_price: no close price for GFS on 2005-10-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2005-10-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2006-01-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-01-17; missing_price: no close price for GFS on 2006-01-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-01-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2006-04-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-04-19; missing_price: no close price for GFS on 2006-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-04-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2006-07-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-07-19; missing_price: no close price for GFS on 2006-07-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-07-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2006-10-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-10-17; missing_price: no close price for GFS on 2006-10-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2006-10-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2007-01-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-01-16; missing_price: no close price for GFS on 2007-01-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-01-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2007-04-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-04-17; missing_price: no close price for GFS on 2007-04-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-04-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2007-07-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-07-17; missing_price: no close price for GFS on 2007-07-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-07-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2007-10-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-10-16; missing_price: no close price for GFS on 2007-10-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2007-10-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2008-01-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-01-15; missing_price: no close price for GFS on 2008-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-01-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2008-04-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-04-15; missing_price: no close price for GFS on 2008-04-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-04-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2008-07-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-07-15; missing_price: no close price for GFS on 2008-07-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-07-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2008-10-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-10-14; missing_price: no close price for GFS on 2008-10-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2008-10-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2009-01-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-01-15; missing_price: no close price for GFS on 2009-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-01-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2009-04-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-04-14; missing_price: no close price for GFS on 2009-04-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-04-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2009-07-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-07-14; missing_price: no close price for GFS on 2009-07-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-07-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2009-10-13). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-10-13; missing_price: no close price for GFS on 2009-10-13"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2009-10-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2010-01-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-01-14; missing_price: no close price for GFS on 2010-01-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-01-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2010-04-13). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-04-13; missing_price: no close price for GFS on 2010-04-13"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-04-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2010-07-13). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-07-13; missing_price: no close price for GFS on 2010-07-13"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-07-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2010-10-12). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-10-12; missing_price: no close price for GFS on 2010-10-12"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2010-10-12",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2011-01-13). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-01-13; missing_price: no close price for GFS on 2011-01-13"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-01-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2011-04-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-04-19; missing_price: no close price for GFS on 2011-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-04-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2011-05-09). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-05-09; missing_price: no close price for GFS on 2011-05-09"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-05-09",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2011-07-20). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-07-20; missing_price: no close price for GFS on 2011-07-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-07-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2011-10-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-10-18; missing_price: no close price for GFS on 2011-10-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2011-10-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2012-01-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-01-19; missing_price: no close price for GFS on 2012-01-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-01-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2012-04-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-04-17; missing_price: no close price for GFS on 2012-04-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-04-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2012-07-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-07-17; missing_price: no close price for GFS on 2012-07-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-07-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2012-10-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-10-16; missing_price: no close price for GFS on 2012-10-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2012-10-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2013-01-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2013-01-17; missing_price: no close price for GFS on 2013-01-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-01-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2013-04-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2013-04-16; missing_price: no close price for GFS on 2013-04-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-04-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2013-07-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2013-07-17; missing_price: no close price for GFS on 2013-07-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-07-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2013-10-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2013-10-15; missing_price: no close price for GFS on 2013-10-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2013-10-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2014-01-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2014-01-16; missing_price: no close price for GFS on 2014-01-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-01-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2014-04-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2014-04-15; missing_price: no close price for GFS on 2014-04-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-04-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2014-07-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2014-07-15; missing_price: no close price for GFS on 2014-07-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-07-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2014-10-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2014-10-14; missing_price: no close price for GFS on 2014-10-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2014-10-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2015-01-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2015-01-15; missing_price: no close price for GFS on 2015-01-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-01-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2015-04-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2015-04-14; missing_price: no close price for GFS on 2015-04-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-04-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2015-07-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2015-07-15; missing_price: no close price for GFS on 2015-07-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-07-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2015-10-13). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2015-10-13; missing_price: no close price for GFS on 2015-10-13"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2015-10-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2016-01-14). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2016-01-14; missing_price: no close price for GFS on 2016-01-14"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-01-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2016-04-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2016-04-19; missing_price: no close price for GFS on 2016-04-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-04-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2016-07-20). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2016-07-20; missing_price: no close price for GFS on 2016-07-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-07-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2016-10-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2016-10-18; missing_price: no close price for GFS on 2016-10-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2016-10-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2017-01-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2017-01-26; missing_price: no close price for GFS on 2017-01-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-01-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2017-04-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2017-04-27; missing_price: no close price for GFS on 2017-04-27"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-04-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2017-07-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2017-07-27; missing_price: no close price for GFS on 2017-07-27"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2017-10-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2017-10-26; missing_price: no close price for GFS on 2017-10-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2017-10-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2018-01-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2018-01-25; missing_price: no close price for GFS on 2018-01-25"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-01-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2018-04-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2018-04-26; missing_price: no close price for GFS on 2018-04-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-04-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2018-07-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2018-07-26; missing_price: no close price for GFS on 2018-07-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-07-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2018-10-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2018-10-25; missing_price: no close price for GFS on 2018-10-25"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2018-10-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2019-01-24). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2019-01-24; missing_price: no close price for GFS on 2019-01-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-01-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2019-04-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2019-04-25; missing_price: no close price for GFS on 2019-04-25"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-04-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2019-07-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2019-07-25; missing_price: no close price for GFS on 2019-07-25"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-07-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2019-10-24). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2019-10-24; missing_price: no close price for GFS on 2019-10-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2019-10-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2020-01-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2020-01-23; missing_price: no close price for GFS on 2020-01-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-01-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2020-04-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2020-04-23; missing_price: no close price for GFS on 2020-04-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-04-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2020-07-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2020-07-23; missing_price: no close price for GFS on 2020-07-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-07-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2020-10-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2020-10-22; missing_price: no close price for GFS on 2020-10-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2020-10-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2021-01-21). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2021-01-21; missing_price: no close price for GFS on 2021-01-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-01-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2021-04-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2021-04-22; missing_price: no close price for GFS on 2021-04-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-04-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2021-07-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2021-07-22; missing_price: no close price for GFS on 2021-07-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2021-07-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2022-01-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2022-01-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-01-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2022-04-28). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $28,751,581,651 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-04-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 28751581651.018982,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2022-07-28). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $25,209,489,077 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-07-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 25209489077.132202,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2022-10-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $29,607,851,595 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2022-10-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 29607851594.641357,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2023-01-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $31,985,202,720 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-01-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 31985202719.54712,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2023-04-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $31,775,265,818 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-04-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 31775265818.471443,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2023-07-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $33,665,020,938 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 33665020938.075333,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2023-10-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $28,516,125,323 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2023-10-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 28516125323.387,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2024-01-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $32,498,304,322 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-01-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 32498304322.349335,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2024-04-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $26,177,211,282 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-04-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 26177211282.424667,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2024-08-01). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $26,586,918,890 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2024-08-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 26586918889.981995,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "GFS",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2026-01-23) does not strictly precede the anchor_event_date (2025-01-30). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $22,972,249,885 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "GFS",
+          "anchor_ticker": "INTC",
+          "anchor_event_date": "2025-01-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2026-01-23",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE"
+        },
+        "market_cap": 22972249885.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2008-03-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-03-18; missing_price: no close price for SSTK on 2008-03-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-03-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2008-06-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-06-16; missing_price: no close price for SSTK on 2008-06-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-06-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2008-09-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-09-16; missing_price: no close price for SSTK on 2008-09-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-09-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2008-12-03). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-12-03; missing_price: no close price for SSTK on 2008-12-03"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-12-03",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2008-12-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-12-16; missing_price: no close price for SSTK on 2008-12-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-12-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2009-03-04). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-03-04; missing_price: no close price for SSTK on 2009-03-04"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-03-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2009-03-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-03-17; missing_price: no close price for SSTK on 2009-03-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-03-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2009-06-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-06-16; missing_price: no close price for SSTK on 2009-06-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-06-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2009-09-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-09-15; missing_price: no close price for SSTK on 2009-09-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-09-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2009-12-15). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-12-15; missing_price: no close price for SSTK on 2009-12-15"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-12-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2010-03-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-03-23; missing_price: no close price for SSTK on 2010-03-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-03-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2010-06-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-06-22; missing_price: no close price for SSTK on 2010-06-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-06-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2010-09-21). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-09-21; missing_price: no close price for SSTK on 2010-09-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-09-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2010-12-20). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-12-20; missing_price: no close price for SSTK on 2010-12-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2011-03-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-03-22; missing_price: no close price for SSTK on 2011-03-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2011-03-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2011-06-21). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-06-21; missing_price: no close price for SSTK on 2011-06-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2011-06-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2011-09-20). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2011-09-20; missing_price: no close price for SSTK on 2011-09-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2011-09-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2012-03-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-03-19; missing_price: no close price for SSTK on 2012-03-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-03-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2012-06-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-06-19; missing_price: no close price for SSTK on 2012-06-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-06-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2012-09-19). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-09-19; missing_price: no close price for SSTK on 2012-09-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-09-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2012-12-13). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2012-12-13"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-12-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2013-03-19). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-03-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 1407380187.9472237,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2013-06-18). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-06-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 1661432338.2777328,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2013-09-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,065,880,532 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-09-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 2065880531.7039375,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2013-12-12). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,591,699,450 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-12-12",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 2591699449.8071594,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2014-03-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,963,993,276 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-03-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 2963993275.8433533,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2014-06-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,932,989,740 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-06-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 2932989740.168152,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2014-09-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,562,300,447 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-09-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 2562300447.4884033,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "SSTK",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-01-19) does not strictly precede the anchor_event_date (2014-12-11). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,539,708,662 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "SSTK",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-12-11",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-01-19",
+          "source": "EDGAR_10K_COMPETITION_SECTION_PROSE_HISTORICAL_WALK"
+        },
+        "market_cap": 2539708662.274475,
+        "threshold_usd": 2000000000
+      }
+    }
+  ],
+  "report": "rule: HYP05-PEER-SELECTION-RULE-v1\nderived: True\nqualifying peers: 0\ndenied candidates: 108"
+}

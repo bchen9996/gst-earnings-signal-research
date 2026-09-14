@@ -1,0 +1,238 @@
+{
+ "artifact": "HYP07_PEER_NAME_SEARCH_REVERSE_COMPETITOR_SEARCH_2026-09-13.json",
+ "as_of_date": "2026-09-13",
+ "hypothesis_id": "HYP-07",
+ "results": [
+  {
+   "counterparty": "FISERV INC  (FI)  (CIK 0000798354)",
+   "anchor_ticker": "AAPL",
+   "registrant_cik": "0000798354",
+   "peer_ticker": "FISV",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Calithera Biosciences, Inc.  (CALA)  (CIK 0001496671)",
+   "anchor_ticker": "ABBV",
+   "registrant_cik": "0001496671",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Arcutis Biotherapeutics, Inc.  (ARQT)  (CIK 0001787306)",
+   "anchor_ticker": "ABBV",
+   "registrant_cik": "0001787306",
+   "peer_ticker": "ARQT",
+   "tradeable": true
+  },
+  {
+   "counterparty": "OPEN TEXT CORP  (OTEX)  (CIK 0001002638)",
+   "anchor_ticker": "ADBE",
+   "registrant_cik": "0001002638",
+   "peer_ticker": "OTEX",
+   "tradeable": true
+  },
+  {
+   "counterparty": "SMTP, Inc.  (CIK 0001506439)",
+   "anchor_ticker": "AMZN",
+   "registrant_cik": "0001506439",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Weatherford International plc  (WFRD)  (CIK 0001603923)",
+   "anchor_ticker": "BKR",
+   "registrant_cik": "0001603923",
+   "peer_ticker": "WFRD",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ENCORE WIRE CORP  (CIK 0000850460)",
+   "anchor_ticker": "BRK-B",
+   "registrant_cik": "0000850460",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BERKLEY W R CORP  (WRB, WRB-PE, WRB-PF, WRB-PG, WRB-PH)  (CIK 0000011544)",
+   "anchor_ticker": "BRK-B",
+   "registrant_cik": "0000011544",
+   "peer_ticker": "WRB",
+   "tradeable": true
+  },
+  {
+   "counterparty": "MAX RE CAPITAL LTD  (CIK 0001141719)",
+   "anchor_ticker": "BRK-B",
+   "registrant_cik": "0001141719",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CIBER INC  (CIK 0000918581)",
+   "anchor_ticker": "CTSH",
+   "registrant_cik": "0000918581",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "SYNTEL INC  (CIK 0001040426)",
+   "anchor_ticker": "CTSH",
+   "registrant_cik": "0001040426",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CONDUENT Inc  (CNDT)  (CIK 0001677703)",
+   "anchor_ticker": "CTSH",
+   "registrant_cik": "0001677703",
+   "peer_ticker": "CNDT",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Hewlett Packard Enterprise Co  (HPE)  (CIK 0001645590)",
+   "anchor_ticker": "DELL",
+   "registrant_cik": "0001645590",
+   "peer_ticker": "HPE",
+   "tradeable": true
+  },
+  {
+   "counterparty": "FISERV INC  (FI)  (CIK 0000798354)",
+   "anchor_ticker": "GOOGL",
+   "registrant_cik": "0000798354",
+   "peer_ticker": "FISV",
+   "tradeable": true
+  },
+  {
+   "counterparty": "TOTAL SYSTEM SERVICES INC  (CIK 0000721683)",
+   "anchor_ticker": "GPN",
+   "registrant_cik": "0000721683",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "INTUIT INC  (INTU)  (CIK 0000896878)",
+   "anchor_ticker": "GPN",
+   "registrant_cik": "0000896878",
+   "peer_ticker": "INTU",
+   "tradeable": true
+  },
+  {
+   "counterparty": "QLOGIC CORP  (CIK 0000918386)",
+   "anchor_ticker": "INTC",
+   "registrant_cik": "0000918386",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "BENCHMARK ELECTRONICS INC  (BHE)  (CIK 0000863436)",
+   "anchor_ticker": "JBL",
+   "registrant_cik": "0000863436",
+   "peer_ticker": "BHE",
+   "tradeable": true
+  },
+  {
+   "counterparty": "UQM TECHNOLOGIES INC  (CIK 0000315449)",
+   "anchor_ticker": "JBL",
+   "registrant_cik": "0000315449",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DLH Holdings Corp.  (DLHC)  (CIK 0000785557)",
+   "anchor_ticker": "LDOS",
+   "registrant_cik": "0000785557",
+   "peer_ticker": "DLHC",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ScanTech AI Systems Inc.  (STAI)  (CIK 0001994624)",
+   "anchor_ticker": "LDOS",
+   "registrant_cik": "0001994624",
+   "peer_ticker": "STAI",
+   "tradeable": true
+  },
+  {
+   "counterparty": "QUADRAMED CORP  (CIK 0001018833)",
+   "anchor_ticker": "MCK",
+   "registrant_cik": "0001018833",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "OMNICELL INC /CA/  (OMCL)  (CIK 0000926326)",
+   "anchor_ticker": "MCK",
+   "registrant_cik": "0000926326",
+   "peer_ticker": "OMCL",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ADAMS GOLF INC  (CIK 0001059763)",
+   "anchor_ticker": "NKE",
+   "registrant_cik": "0001059763",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "CIRRUS LOGIC INC  (CRUS)  (CIK 0000772406)",
+   "anchor_ticker": "QCOM",
+   "registrant_cik": "0000772406",
+   "peer_ticker": "CRUS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "FISERV INC  (FI)  (CIK 0000798354)",
+   "anchor_ticker": "SBUX",
+   "registrant_cik": "0000798354",
+   "peer_ticker": "FISV",
+   "tradeable": true
+  },
+  {
+   "counterparty": "Iconic Brands, Inc.  (ICNB)  (CIK 0001350073)",
+   "anchor_ticker": "STZ",
+   "registrant_cik": "0001350073",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "Medovex Corp.  (IVRN)  (CIK 0001591165)",
+   "anchor_ticker": "SYK",
+   "registrant_cik": "0001591165",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "DJ ORTHOPEDICS INC  (CIK 0001157972)",
+   "anchor_ticker": "SYK",
+   "registrant_cik": "0001157972",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "MIDWAY GAMES INC  (CIK 0001022080)",
+   "anchor_ticker": "TTWO",
+   "registrant_cik": "0001022080",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "ZYNGA INC  (CIK 0001439404)",
+   "anchor_ticker": "TTWO",
+   "registrant_cik": "0001439404",
+   "peer_ticker": null,
+   "tradeable": false
+  },
+  {
+   "counterparty": "PLAYSTUDIOS, Inc.  (MYPS, MYPSW)  (CIK 0001823878)",
+   "anchor_ticker": "TTWO",
+   "registrant_cik": "0001823878",
+   "peer_ticker": "MYPS",
+   "tradeable": true
+  },
+  {
+   "counterparty": "ELECTRONIC ARTS INC  (EA)  (CIK 0000712515)",
+   "anchor_ticker": "TTWO",
+   "registrant_cik": "0000712515",
+   "peer_ticker": null,
+   "tradeable": false
+  }
+ ]
+}
