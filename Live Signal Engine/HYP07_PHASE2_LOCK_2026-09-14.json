@@ -2256,14 +2256,15 @@
   "not_touched": "No log return, no signed cumulative abnormal return, and no beta has been computed for any locked peer around any locked anchor event, at any horizon, before this lock. This lock is written before that computation happens for the first time."
  },
  "opens_no_gate": "This is a computed HYP-07 Phase 2 lock, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read.",
- "declared": false,
- "declared_by": "",
- "declared_date": "",
+ "declared": true,
+ "declared_by": "bchen9996",
+ "declared_date": "2026-09-14",
  "owner_fields": [
   "declared",
   "declared_by",
   "declared_date"
  ],
  "how_to_complete": "python -m hyp04_supply_chain_hedge.ratify_hyp07 phase2 --template",
- "status": "DRAFT -- inert until declared"
+ "status": "DECLARED -- by bchen9996 on 2026-09-14",
+ "attestation_text": "HYP-07's Phase 2 lock -- target definition (target_signed.py's new signed cumulative abnormal return, first use of a signed target in this project), model spec, and the locked 195-pair, 6-peer, 6-anchor set -- was fixed before any return, signed cumulative abnormal return, or beta value was computed for any locked peer around any locked anchor event. Every locked peer's raw closes were touched only to compute point-in-time market cap for peer-eligibility screening, never their returns or outcome. I understand this sample clears its own provisional 195-pair floor EXACTLY, not comfortably, and that the floor itself is an even weaker borrow than HYP-06's own reuse of the same numbers, since HYP-07's target is a different formula from the one that floor was measured against."
 }
