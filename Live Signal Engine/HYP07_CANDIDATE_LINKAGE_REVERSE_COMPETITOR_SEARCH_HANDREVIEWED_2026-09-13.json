@@ -1,0 +1,337 @@
+{
+ "artifact": "HYP07_CANDIDATE_LINKAGE_REVERSE_COMPETITOR_SEARCH_HANDREVIEWED_2026-09-13.json",
+ "as_of_date": "2026-09-13",
+ "hypothesis_id": "HYP-07",
+ "edges": [
+  {
+   "anchor_ticker": "AAPL",
+   "counterparty_is_named": true,
+   "named_counterparty": "FISERV INC  (FI)  (CIK 0000798354)",
+   "direction": "competitor",
+   "as_of_date": "2016-02-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "These newer 5 Table of Contents competitors include, but are not limited to, Alphabet Inc., Amazon.com, Inc., Apple Inc., Facebook, Inc., Intuit Inc., PayPal Holdings, Inc., Samsung Group, Starbucks Corporation and Wal-Mart Stores, Inc. Certain existing and potential financial institution and biller clients also have the ability to develop and use their own in-house systems instead of our products",
+   "hand_review_reason": "Fiserv Inc: 'These newer competitors include ... Apple Inc. ...' -- a named, specific competitor-list disclosure (2016 filing); recurs under GOOGL/SBUX too, from similar-year filings -- kept independently, same as any peer legitimately confirmed under more than one anchor."
+  },
+  {
+   "anchor_ticker": "ABBV",
+   "counterparty_is_named": true,
+   "named_counterparty": "Calithera Biosciences, Inc.  (CALA)  (CIK 0001496671)",
+   "direction": "competitor",
+   "as_of_date": "2017-03-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our principal competitors include Abbvie Inc., Advanced Cancer Therapeutics, LLC, Aeglea Biotherapeutics, Inc., Agios Pharmaceuticals, Inc., AstraZeneca plc, Bayer Pharma AG, Boehringer Ingelheim GmbH, Bristol-Myers Squibb Company, Celgene Corporation, Cornerstone Pharmaceuticals, Inc., CureTech Ltd., Eli Lilly and Company, Forma Therapeutics Holdings, LLC, Fortress Biotech, Inc., GlaxoSmithKline ",
+   "hand_review_reason": "Calithera Biosciences: 'Our principal competitors include Abbvie Inc., ...' among ~15 named oncology/biotech peers -- a genuine, specific competitor-naming disclosure, not a market-share statement."
+  },
+  {
+   "anchor_ticker": "ABBV",
+   "counterparty_is_named": true,
+   "named_counterparty": "Arcutis Biotherapeutics, Inc.  (ARQT)  (CIK 0001787306)",
+   "direction": "competitor",
+   "as_of_date": "2020-03-19",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "For psoriasis, our primary competitors include injected biologic therapies such as Humira, marketed by AbbVie Inc. and Eisai Co., Ltd., and Enbrel, marketed by Amgen Inc., Pfizer Inc., and Takeda Pharmaceutical Company Limited;",
+   "hand_review_reason": "Arcutis Biotherapeutics: 'our primary competitors include injected biologic therapies such as Humira, marketed by AbbVie Inc. ...' -- names AbbVie's specific competing drug in the psoriasis therapy market."
+  },
+  {
+   "anchor_ticker": "ADBE",
+   "counterparty_is_named": true,
+   "named_counterparty": "OPEN TEXT CORP  (OTEX)  (CIK 0001002638)",
+   "direction": "competitor",
+   "as_of_date": "2015-07-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include International Business Machines Corporation (IBM), EMC Corporation (EMC), Hewlett-Packard Company (HP) and Adobe Inc. In certain markets, OpenText competes with Oracle and Microsoft, who are also our partners.",
+   "hand_review_reason": "OpenText Corp: 'Our competitors include IBM, EMC, HP and Adobe Inc. ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "AMZN",
+   "counterparty_is_named": true,
+   "named_counterparty": "SMTP, Inc.  (CIK 0001506439)",
+   "direction": "competitor",
+   "as_of_date": "2011-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our principal competitors include providers of email management services for small to medium size businesses such as AuthSmtp.com, SMTP2Go.com, JangoMail.com, SocketLabs.com, StrongMail.com, ExactTarget.com, CheetahMail.com, ConstantContact.com, iContact.com, MailChimp.com and Bronto.com, larger companies such as Amazon.com, as well as the in-house information technology capabilities of prospectiv",
+   "hand_review_reason": "SMTP, Inc.: 'Our principal competitors include ... larger companies such as Amazon.com, ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "BKR",
+   "counterparty_is_named": true,
+   "named_counterparty": "Weatherford International plc  (WFRD)  (CIK 0001603923)",
+   "direction": "competitor",
+   "as_of_date": "2024-02-07",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our principal competitors include SLB, Halliburton, Baker Hughes, National Oilwell Varco, ChampionX and Expro Group Holdings.",
+   "hand_review_reason": "Weatherford International: 'Our principal competitors include SLB, Halliburton, Baker Hughes, National Oilwell Varco, ChampionX and Expro Group Holdings.' -- direct, specific, oilfield-services peer group."
+  },
+  {
+   "anchor_ticker": "BRK-B",
+   "counterparty_is_named": true,
+   "named_counterparty": "ENCORE WIRE CORP  (CIK 0000850460)",
+   "direction": "competitor",
+   "as_of_date": "2023-02-16",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "The Company’s primary competitors include Southwire Company, LLC, Cerrowire (a Marmon/Berkshire Hathaway company), General Cable (a company of the Prysmian Group) and AFC Cable Systems, Inc. (a part of Atkore International).",
+   "hand_review_reason": "Encore Wire Corp: 'primary competitors include Southwire ..., Cerrowire (a Marmon/Berkshire Hathaway company), ...' -- INDIRECT: names a Berkshire SUBSIDIARY (Cerrowire, under Marmon Holdings), not Berkshire's own core business. Kept, flagged -- a real disclosure, 'competitor' is still the right schema category; the relationship's economic strength is for the statistical test, not curation, to judge."
+  },
+  {
+   "anchor_ticker": "BRK-B",
+   "counterparty_is_named": true,
+   "named_counterparty": "BERKLEY W R CORP  (WRB, WRB-PE, WRB-PF, WRB-PG, WRB-PH)  (CIK 0000011544)",
+   "direction": "competitor",
+   "as_of_date": "2003-04-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "These competitors include Berkshire Hathaway, Employers Reinsurance, Transatlantic Reinsurance and 16 Everest Reinsurance, which collectively comprise a majority of the property casualty reinsurance market in the United States.",
+   "hand_review_reason": "W. R. Berkley Corp: 'These competitors include Berkshire Hathaway, Employers Reinsurance, Transatlantic Reinsurance and Everest Reinsurance, ...' -- direct 'competitors include' clause naming Berkshire's own reinsurance business; the trailing market-share detail is supplementary color, not a substitute for the direct claim (distinguishing this from HYP-05's own Movie Gallery/Carnival PLC market-share false positives, which carried no direct competitor-naming clause at all)."
+  },
+  {
+   "anchor_ticker": "BRK-B",
+   "counterparty_is_named": true,
+   "named_counterparty": "MAX RE CAPITAL LTD  (CIK 0001141719)",
+   "direction": "competitor",
+   "as_of_date": "2005-02-17",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our worldwide reinsurance competitors include ACE Limited, American International Group, Inc., Berkshire Hathaway, Inc., Swiss Reinsurance Company and XL Capital Ltd, all larger companies, with higher credit ratings and greater credit capacity.",
+   "hand_review_reason": "Max Re Capital Ltd: 'Our worldwide reinsurance competitors include ACE Limited, ... Berkshire Hathaway, Inc., ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "CTSH",
+   "counterparty_is_named": true,
+   "named_counterparty": "CIBER INC  (CIK 0000918581)",
+   "direction": "competitor",
+   "as_of_date": "2010-03-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our principal competitors include Accenture plc, Atos Origin SA, BearingPoint, Inc, CACI International Inc, Cap Gemini SA, CGI Group Inc., Cognizant Technology Solutions, Logica PLC, Maximus, Inc. and Tieto Corporation.",
+   "hand_review_reason": "Ciber Inc: 'Our principal competitors include Accenture ..., Cognizant Technology Solutions, ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "CTSH",
+   "counterparty_is_named": true,
+   "named_counterparty": "SYNTEL INC  (CIK 0001040426)",
+   "direction": "competitor",
+   "as_of_date": "2009-03-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "The Company’s most direct competitors include Cognizant, Infosys Technologies, Tata Consultancy Services and Wipro Technologies that utilize an integrated on-site/offshore business model comparable to that used by the Company.",
+   "hand_review_reason": "Syntel Inc: 'The Company's most direct competitors include Cognizant, Infosys Technologies, Tata Consultancy Services and Wipro Technologies ...' -- small, specific list, strong direct claim ('most direct competitors')."
+  },
+  {
+   "anchor_ticker": "CTSH",
+   "counterparty_is_named": true,
+   "named_counterparty": "CONDUENT Inc  (CNDT)  (CIK 0001677703)",
+   "direction": "competitor",
+   "as_of_date": "2019-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include: • Large multinational service providers such as CGI Group, Accenture, Aon Hewitt, Cognizant, Hewlett-Packard Enterprise, IBM, Teletech and Teleperformance;",
+   "hand_review_reason": "Conduent Inc: 'Our competitors include: Large multinational service providers such as ... Cognizant, ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "DELL",
+   "counterparty_is_named": true,
+   "named_counterparty": "Hewlett Packard Enterprise Co  (HPE)  (CIK 0001645590)",
+   "direction": "competitor",
+   "as_of_date": "2016-12-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our primary competitors include technology vendors such as Dell Technologies Inc. (\"Dell\"), Cisco Systems, Inc. (\"Cisco\"), NetApp, Inc., Lenovo Group Ltd., International Business Machines Corporation (\"IBM\"), Huawei Technologies Co. Ltd., Amazon.com, Inc. (\"Amazon\"), Oracle Corporation (\"Oracle\"), Fujitsu Limited (\"Fujitsu\"), Juniper Networks, Inc., Inspur Co., Ltd., Hitachi Ltd., Extreme Networks",
+   "hand_review_reason": "Hewlett Packard Enterprise: 'Our primary competitors include technology vendors such as Dell Technologies Inc. ...' -- direct, specific, DELL named first."
+  },
+  {
+   "anchor_ticker": "GOOGL",
+   "counterparty_is_named": true,
+   "named_counterparty": "FISERV INC  (FI)  (CIK 0000798354)",
+   "direction": "competitor",
+   "as_of_date": "2017-02-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "These newer competitors include, but are not limited to, Alphabet Inc., Amazon.com, Inc., Apple Inc., Facebook, Inc., Intuit Inc., PayPal Holdings, Inc., Samsung Group, Starbucks Corporation and Wal-Mart Stores, Inc. Certain existing and potential financial institution and biller clients also have the ability to develop and use their own in-house systems instead of our 5 Table of Contents products",
+   "hand_review_reason": "Fiserv Inc, 2017 filing: 'These newer competitors include ... Alphabet Inc., ...' -- same peer as the AAPL/SBUX entries, a DIFFERENT year's filing and a DIFFERENT anchor; kept independently -- see AAPL entry's note."
+  },
+  {
+   "anchor_ticker": "GPN",
+   "counterparty_is_named": true,
+   "named_counterparty": "TOTAL SYSTEM SERVICES INC  (CIK 0000721683)",
+   "direction": "competitor",
+   "as_of_date": "2017-02-24",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our primary competitors include First Data Corporation (and its alliances), Vantiv, Inc., Global Payments Inc. and Elavon, Inc. Additionally, payment networks such as Visa and Mastercard are increasingly offering products and services that compete with our products and services.",
+   "hand_review_reason": "Total System Services Inc (TSYS): 'Our primary competitors include First Data Corporation ..., Vantiv, Inc., Global Payments Inc. and Elavon, Inc. ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "GPN",
+   "counterparty_is_named": true,
+   "named_counterparty": "INTUIT INC  (INTU)  (CIK 0000896878)",
+   "direction": "competitor",
+   "as_of_date": "2011-09-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "In our merchant services business we compete directly with large financial institutions such as Wells Fargo, JP Morgan Chase and Bank of America and with many payment processors, including First Data Corporation, Elavon, Global Payments and FIS-Certegy.",
+   "hand_review_reason": "Intuit Inc: 'we compete directly with ... many payment processors, including First Data Corporation, Elavon, Global Payments and FIS-Certegy.' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "INTC",
+   "counterparty_is_named": true,
+   "named_counterparty": "QLOGIC CORP  (CIK 0000918386)",
+   "direction": "competitor",
+   "as_of_date": "2010-05-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "In the FCoE adapter market, we compete with Emulex Corporation, and recent entry, Brocade Communications Systems, Inc. and we also compete with Ethernet adapter suppliers Broadcom Corporation and Intel Corporation.",
+   "hand_review_reason": "QLogic Corp: 'we compete with Emulex Corporation, ... we also compete with Ethernet adapter suppliers Broadcom Corporation and Intel Corporation.' -- direct, specific market segment (FCoE/Ethernet adapters)."
+  },
+  {
+   "anchor_ticker": "JBL",
+   "counterparty_is_named": true,
+   "named_counterparty": "BENCHMARK ELECTRONICS INC  (BHE)  (CIK 0000863436)",
+   "direction": "competitor",
+   "as_of_date": "2001-04-02",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include Celestica, Inc., Flextronics International Ltd., Jabil Circuit, Inc., SCI Systems, Inc. and Solectron Corporation, who may be more established in the industry and have substantially greater financial, manufacturing or marketing resources than we do.",
+   "hand_review_reason": "Benchmark Electronics Inc: 'Our competitors include Celestica, Inc., Flextronics International Ltd., Jabil Circuit, Inc., ...' -- direct, specific EMS peer group."
+  },
+  {
+   "anchor_ticker": "JBL",
+   "counterparty_is_named": true,
+   "named_counterparty": "UQM TECHNOLOGIES INC  (CIK 0000315449)",
+   "direction": "competitor",
+   "as_of_date": "2001-06-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "The Company believes its principal competitors include Jabil Circuit, Plexus, EFTC Corporation, Flextronics International, Solestica Corporation and Baldwin.",
+   "hand_review_reason": "UQM Technologies Inc: 'principal competitors include Jabil Circuit, Plexus, EFTC Corporation, Flextronics International, Solestica Corporation and Baldwin.' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "LDOS",
+   "counterparty_is_named": true,
+   "named_counterparty": "DLH Holdings Corp.  (DLHC)  (CIK 0000785557)",
+   "direction": "competitor",
+   "as_of_date": "2019-12-11",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include operating units within, among others: Booz Allen Hamilton Holding Corp., CACI International, Inc., ICF International, Inc., Leidos Holdings, Inc., Mantech International Corp., MAXIMUS, Inc., UnitedHealth Group, Inc. operating under Optum, VSE Corporation, and Westat, Inc. The Company competes with these companies by leveraging our differentiating suite of tools and uniquely",
+   "hand_review_reason": "DLH Holdings Corp: 'Our competitors include operating units within, among others: ... Leidos Holdings, Inc., ...' -- direct, specific, government-services peer group."
+  },
+  {
+   "anchor_ticker": "LDOS",
+   "counterparty_is_named": true,
+   "named_counterparty": "ScanTech AI Systems Inc.  (STAI)  (CIK 0001994624)",
+   "direction": "competitor",
+   "as_of_date": "2025-05-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include Leidos, Smiths Detection, Analogic Corporation and IDSS Corp. The markets in which we plan to operate are characterized by rapidly changing customer needs and technology and our success depends on our ability to invest in and develop products that address such needs.",
+   "hand_review_reason": "ScanTech AI Systems Inc: 'Our competitors include Leidos, Smiths Detection, Analogic Corporation and IDSS Corp.' -- small, specific list, security-screening technology niche."
+  },
+  {
+   "anchor_ticker": "MCK",
+   "counterparty_is_named": true,
+   "named_counterparty": "QUADRAMED CORP  (CIK 0001018833)",
+   "direction": "competitor",
+   "as_of_date": "2002-03-29",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Some principal competitors include: o In the market for enterprise healthcare information systems in the Enterprise Division: McKesson Corporation, Shared Medical Systems, Inc., a division of Siemens, MediTech Corporation, Eclipsys Corporation, Cerner, and IDX/Corporation;",
+   "hand_review_reason": "QuadraMed Corp: 'Some principal competitors include: ... McKesson Corporation, ...' -- direct, specific market segment (enterprise healthcare information systems)."
+  },
+  {
+   "anchor_ticker": "MCK",
+   "counterparty_is_named": true,
+   "named_counterparty": "OMNICELL INC /CA/  (OMCL)  (CIK 0000926326)",
+   "direction": "competitor",
+   "as_of_date": "2007-03-23",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Other competitors include McKesson Automation Inc. (a business unit of McKesson Corporation), AmerisourceBergen Corporation (through its acquisition of MedSelect, Inc. and Automed), the Baxter Medication Delivery business of Baxter International Inc., Cerner Corporation, Eclipsys Corporation, IDX Systems Corporation (a division of GE Healthcare) and Siemens Medical Solutions (a division of Siemens",
+   "hand_review_reason": "Omnicell Inc: 'Other competitors include McKesson Automation Inc. (a business unit of McKesson Corporation), ...' -- INDIRECT: names a McKesson BUSINESS UNIT, not McKesson's core pharmaceutical-distribution business. Kept, flagged -- same reasoning as the Encore Wire/BRK-B entry above."
+  },
+  {
+   "anchor_ticker": "NKE",
+   "counterparty_is_named": true,
+   "named_counterparty": "ADAMS GOLF INC  (CIK 0001059763)",
+   "direction": "competitor",
+   "as_of_date": "2007-03-14",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include Callaway Golf Company, adidas-Salomon AG (Taylor Made - adidas Golf), Nike, Inc. (Nike Golf), Fortune Brands, Inc. (Titleist and Cobra) and Karsten Assembly Company (PING), among others.",
+   "hand_review_reason": "Adams Golf Inc: 'Our competitors include ... Nike, Inc. (Nike Golf), ...' -- Nike Golf is Nike's OWN product-line branding, same corporate entity and ticker (NOT a separate subsidiary the way Cerrowire/McKesson Automation are) -- a clean, direct mention, no flag needed."
+  },
+  {
+   "anchor_ticker": "QCOM",
+   "counterparty_is_named": true,
+   "named_counterparty": "CIRRUS LOGIC INC  (CRUS)  (CIK 0000772406)",
+   "direction": "competitor",
+   "as_of_date": "2016-05-25",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our primary competitors include, but are not limited to AAC Technologies, AKM Semiconductor Inc., Analog Devices Inc., Austriamicrosystems AG, DSP Group, ESS Technology, Inc., GoerTek Inc., InvenSense, Inc., Knowles Corporation, Maxim Integrated Products Inc., NXP Semiconductors N.V., Qualcomm Incorporated, Realtek Semiconductor Corporation, ST Microelectronics N.V., and Texas Instruments, Inc. Th",
+   "hand_review_reason": "Cirrus Logic Inc: 'Our primary competitors include AAC Technologies, ..., Qualcomm Incorporated, ...' -- direct, specific, audio/analog-semiconductor peer group."
+  },
+  {
+   "anchor_ticker": "SBUX",
+   "counterparty_is_named": true,
+   "named_counterparty": "FISERV INC  (FI)  (CIK 0000798354)",
+   "direction": "competitor",
+   "as_of_date": "2015-02-20",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "These newer competitors include, but are not limited to, Amazon.com, Inc., Apple Inc., Facebook, Inc., Google Inc., Intuit Inc., Starbucks Corporation and Wal-Mart Stores, Inc. Certain existing and potential financial institution and biller clients also have the ability to develop and use their own in-house systems instead of our products and services.",
+   "hand_review_reason": "Fiserv Inc, 2015 filing: 'These newer competitors include ..., Starbucks Corporation, ...' -- third Fiserv occurrence (with AAPL/GOOGL), a third year's filing; kept independently -- see AAPL entry's note."
+  },
+  {
+   "anchor_ticker": "STZ",
+   "counterparty_is_named": true,
+   "named_counterparty": "Iconic Brands, Inc.  (ICNB)  (CIK 0001350073)",
+   "direction": "competitor",
+   "as_of_date": "2020-04-15",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our competitors include, but are not limited to, Gallo, Mionetto, Gruppo Campari, Constellation Brands, William Grant and Sons and Jim Beam Brands.",
+   "hand_review_reason": "Iconic Brands, Inc.: 'Our competitors include, but are not limited to, Gallo, Mionetto, Gruppo Campari, Constellation Brands, ...' -- direct, specific, small list."
+  },
+  {
+   "anchor_ticker": "SYK",
+   "counterparty_is_named": true,
+   "named_counterparty": "Medovex Corp.  (IVRN)  (CIK 0001591165)",
+   "direction": "competitor",
+   "as_of_date": "2017-03-31",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "With regard to the DenerveX System, we believe that our principal competitors include device manufacturers Cosman Medical Inc., Stryker Corporation and Spembly Medical Systems.",
+   "hand_review_reason": "Medovex Corp: 'our principal competitors include device manufacturers Cosman Medical Inc., Stryker Corporation and Spembly Medical Systems.' -- direct, specific, very small list (3 companies) -- strong signal, and Medovex is a micro-cap."
+  },
+  {
+   "anchor_ticker": "SYK",
+   "counterparty_is_named": true,
+   "named_counterparty": "DJ ORTHOPEDICS INC  (CIK 0001157972)",
+   "direction": "competitor",
+   "as_of_date": "2004-03-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "ernational, N.V., Bledsoe Brace Systems, Innovation Sports Incorporated, Generation II USA, Inc. and Townsend Industries Inc. In the soft goods products market, our competitors include Aircast, Biomet, Inc., DeRoyal Industries, Encore Medical Corporation, Royce Medical Co. and Zimmer Holdings, Inc. In the pain management products market, our competitors include Aircast, I-Flow Corp., Orthofix and ",
+   "hand_review_reason": "DJ Orthopedics Inc: stored context was truncated (400-char display limit) before reaching the match; fetched the real filing directly (accession 0001104659-04-007240) and confirmed the actual sentence in full: 'In the pain management products market, our competitors include Aircast, I-Flow Corp., Orthofix and Stryker Corporation.' -- direct, specific, genuine mention; the automated COMPETITOR_ANCHORS check that confirmed it was correct all along."
+  },
+  {
+   "anchor_ticker": "TTWO",
+   "counterparty_is_named": true,
+   "named_counterparty": "MIDWAY GAMES INC  (CIK 0001022080)",
+   "direction": "competitor",
+   "as_of_date": "2007-03-12",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "These competitors include Activision, Atari, Capcom, Electronic Arts, Konami, Namco, SCi Entertainment, Sega, Take-Two Interactive Software, THQ, Ubisoft Entertainment and Vivendi Universal Games, among others.",
+   "hand_review_reason": "Midway Games Inc: 'These competitors include Activision, ..., Take-Two Interactive Software, ...' -- direct, specific, video-game publisher peer group."
+  },
+  {
+   "anchor_ticker": "TTWO",
+   "counterparty_is_named": true,
+   "named_counterparty": "ZYNGA INC  (CIK 0001439404)",
+   "direction": "competitor",
+   "as_of_date": "2020-02-28",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Some of these competitors include Activision Blizzard, Aristocrat, DoubleU, Electronic Arts, Epic Games, Glu Mobile, Jam City, Machine Zone, Netmarble, NetEase, Niantic, Nintendo, Peak Games, Playrix, Playtika, Roblox, SciPlay, Scopely, Take-Two Interactive Software, Tencent, Ubisoft and others.",
+   "hand_review_reason": "Zynga Inc: 'Some of these competitors include ... Take-Two Interactive Software, ...' -- direct, specific, large but genuine mobile/social-gaming competitive landscape."
+  },
+  {
+   "anchor_ticker": "TTWO",
+   "counterparty_is_named": true,
+   "named_counterparty": "PLAYSTUDIOS, Inc.  (MYPS, MYPSW)  (CIK 0001823878)",
+   "direction": "competitor",
+   "as_of_date": "2022-03-03",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "Our primary competitors include Activision Blizzard (the parent company of King Digital), Electronic Arts (EA Mobile), Epic Games, Jam City, Netmarble (the parent company of Kabam), NetEase (NetEase Games), Niantic, Take-Two Interactive Software, Vivendi (the parent company of Gameloft) and others.",
+   "hand_review_reason": "PlayStudios, Inc.: 'Our primary competitors include Activision Blizzard ..., Take-Two Interactive Software, ...' -- direct, specific."
+  },
+  {
+   "anchor_ticker": "TTWO",
+   "counterparty_is_named": true,
+   "named_counterparty": "ELECTRONIC ARTS INC  (EA)  (CIK 0000712515)",
+   "direction": "competitor",
+   "as_of_date": "2004-06-04",
+   "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED",
+   "evidence_sentence": "These competitors include Acclaim Entertainment, Activision, Capcom, Eidos, Infogrames, Koei, Konami, Lucas Arts, Midway, Namco, Sega, Square Enix, Take-Two Interactive, THQ, Ubi Soft and Vivendi Universal Games, among others.",
+   "hand_review_reason": "Electronic Arts Inc: 'These competitors include ..., Take-Two Interactive, ...' -- direct, specific. EA itself is a mega-cap for essentially its whole trading history; kept for completeness, expected to fail the market-cap check on its own merits rather than being excluded here by assumption -- same precedent as Applied Materials/INTC in round 4."
+  }
+ ]
+}

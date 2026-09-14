@@ -1,0 +1,5111 @@
+{
+  "artifact": "HYP07_PEER_UNIVERSE_REVERSE_SEARCH_2026-09-13.json",
+  "hypothesis_id": "HYP-07",
+  "inputs": {
+    "name_search": "Live Signal Engine\\HYP07_PEER_NAME_SEARCH_REVERSE_COMPETITOR_SEARCH_HANDREVIEWED_2026-09-13.json",
+    "candidate_linkage": [
+      "Live Signal Engine\\HYP07_CANDIDATE_LINKAGE_REVERSE_COMPETITOR_SEARCH_HANDREVIEWED_2026-09-13.json"
+    ],
+    "anchor_shocks_csv": [
+      "Live Signal Engine\\HYP04_ANCHOR_SHOCKS_2026-08-31.csv",
+      "Live Signal Engine\\HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-12.csv",
+      "Live Signal Engine\\HYP05_ADDITIONAL_ANCHOR_SHOCKS_2026-09-13.csv"
+    ]
+  },
+  "what_this_is": "Real point-in-time market-cap evaluation of every resolved, tradeable HYP-07 competitor-relationship candidate peer, against every real anchor event available for its anchor.",
+  "adjustment_note": "Closes fetched with auto_adjust=False -- raw historical price, matching shares_outstanding.py's raw, as-disclosed share count.",
+  "candidates_evaluated": 274,
+  "peer_tickers": [
+    "BHE",
+    "CNDT",
+    "FISV",
+    "HPE",
+    "OMCL",
+    "OTEX"
+  ],
+  "errors": {
+    "FISV": "anchor has zero shock_computed events",
+    "ARQT": "anchor has zero shock_computed events",
+    "WFRD": "anchor has zero shock_computed events",
+    "WRB": "anchor has zero shock_computed events",
+    "INTU": "anchor has zero shock_computed events",
+    "DLHC": "anchor has zero shock_computed events",
+    "STAI": "anchor has zero shock_computed events",
+    "CRUS": "anchor has zero shock_computed events",
+    "MYPS": "anchor has zero shock_computed events"
+  },
+  "derivation": {
+    "derived": true,
+    "rule_id": "HYP05-PEER-SELECTION-RULE-v1",
+    "refusals": [],
+    "members": [
+      "BHE",
+      "OMCL"
+    ]
+  },
+  "qualifications": [
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2008-03-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-03-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-03-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2008-06-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-06-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-06-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2008-09-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-09-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-09-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2008-12-03). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-12-03"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-12-03",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2008-12-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-12-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2008-12-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2009-03-04). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-03-04"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-03-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2009-03-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-03-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-03-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2009-06-16). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-06-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 470799728.09830856,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2009-09-15). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-09-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 484730509.3571243,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2009-12-15). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2009-12-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 532871955.4318571,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2010-03-23). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-03-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 667389392.2689438,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2010-06-22). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-06-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 556725475.8828049,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2010-09-21). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-09-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 673502015.2582436,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2010-12-20). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2010-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 671451432.4995518,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2011-03-22). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2011-03-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 820888282.9799967,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2011-06-21). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2011-06-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 880083135.4307604,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2011-09-20). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2011-09-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 786324668.4533501,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2012-03-19). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-03-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 857904095.7859039,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2012-06-19). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-06-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 716533241.0216045,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2012-09-19). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-09-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 837389909.2825413,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2012-12-13). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2012-12-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 820518929.6333075,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2013-03-19). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-03-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 854105436.7489815,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2013-06-18). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-06-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1053168396.677742,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2013-09-17). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-09-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1076719884.9030685,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2013-12-12). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2013-12-12",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1294793125.5157585,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2014-03-18). An edge established on or after the event cannot have been known to an observer at the event."
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-03-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1493095191.4964294,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2014-06-17). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $2,948,614,439 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-06-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2948614439.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2014-09-16). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $3,545,848,974 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-09-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3545848974.0850067,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OTEX",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2015-07-29) does not strictly precede the anchor_event_date (2014-12-11). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $3,481,120,240 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OTEX",
+          "anchor_ticker": "ADBE",
+          "anchor_event_date": "2014-12-11",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2015-07-29",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3481120239.97138,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNDT",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2019-02-28) does not strictly precede the anchor_event_date (2004-07-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-07-26; missing_price: no close price for CNDT on 2004-07-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNDT",
+          "anchor_ticker": "CTSH",
+          "anchor_event_date": "2004-07-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2019-02-28",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNDT",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2019-02-28) does not strictly precede the anchor_event_date (2004-10-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-10-26; missing_price: no close price for CNDT on 2004-10-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNDT",
+          "anchor_ticker": "CTSH",
+          "anchor_event_date": "2004-10-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2019-02-28",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "CNDT",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2019-02-28) does not strictly precede the anchor_event_date (2005-02-10). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-02-10; missing_price: no close price for CNDT on 2005-02-10"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "CNDT",
+          "anchor_ticker": "CTSH",
+          "anchor_event_date": "2005-02-10",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2019-02-28",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-12-15) does not strictly precede the anchor_event_date (2016-09-06). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $21,112,394,033 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2016-09-06",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21112394032.922333,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2016-12-15) does not strictly precede the anchor_event_date (2016-12-08). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $23,852,063,062 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2016-12-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23852063061.870163,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,757,151,961 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-03-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22757151961.23665,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,727,576,524 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-06-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21727576523.868187,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,457,900,200 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-09-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21457900199.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $23,028,780,873 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2017-12-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23028780872.963585,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $30,204,132,976 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-03-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 30204132975.988194,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $24,136,801,336 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-06-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 24136801336.16994,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $24,311,630,309 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-09-06",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 24311630308.82712,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,251,321,871 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2018-11-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22251321870.54322,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $22,910,351,428 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-02-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 22910351427.68235,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,486,779,607 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-05-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19486779607.07048,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,319,553,585 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-08-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18319553584.995728,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $20,850,452,439 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2019-11-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 20850452438.89315,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $12,355,196,831 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2020-05-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 12355196831.065338,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $12,295,125,581 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2020-08-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 12295125581.273232,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $14,832,002,138 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2020-11-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14832002137.88853,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $18,742,811,951 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-02-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 18742811950.84139,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,260,717,570 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-05-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21260717570.499046,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,745,624,270 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-08-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19745624270.468452,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,372,221,256 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2021-11-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19372221256.219627,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,018,398,489 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-02-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21018398488.75,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,619,048,515 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-05-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19619048514.98497,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,269,070,549 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-08-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19269070548.51895,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $20,008,199,178 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2022-11-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 20008199178.21872,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,010,398,446 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2023-06-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19010398446.22696,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,942,892,886 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2023-08-31",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21942892886.00496,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $21,693,242,203 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2023-11-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 21693242202.54038,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $19,798,999,405 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-02-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 19798999404.907227,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $24,076,000,595 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-05-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 24076000595.092773,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $24,277,897,080 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-08-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 24277897080.228806,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $28,739,535,891 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2024-11-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 28739535891.183907,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $26,096,225,610 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-02-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 26096225609.98403,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $23,184,655,506 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-05-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 23184655505.509666,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $30,390,913,559 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-08-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 30390913558.971786,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $28,183,454,130 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2025-11-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 28183454129.648407,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $27,811,671,487 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2026-02-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 27811671487.2736,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "HPE",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $50,699,093,526 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "HPE",
+          "anchor_ticker": "DELL",
+          "anchor_event_date": "2026-05-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2016-12-15",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 50699093525.9188,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2017-02-23) does not strictly precede the anchor_event_date (2015-10-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $11,084,967,479 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2015-10-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 11084967479.34597,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2017-02-23) does not strictly precede the anchor_event_date (2016-02-01). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $10,783,598,685 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-02-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 10783598684.610138,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2017-02-23) does not strictly precede the anchor_event_date (2016-04-21). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $10,969,630,304 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-04-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 10969630303.91539,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2017-02-23) does not strictly precede the anchor_event_date (2016-07-28). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $12,307,071,568 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-07-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 12307071568.080448,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2017-02-23) does not strictly precede the anchor_event_date (2016-10-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $10,500,148,145 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2016-10-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 10500148145.25,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2017-02-23) does not strictly precede the anchor_event_date (2017-01-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-3: market cap $11,704,816,139 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2017-01-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 11704816138.948402,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $12,730,998,006 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2017-04-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 12730998006.232384,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $13,568,713,621 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2017-10-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 13568713620.715942,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $14,687,752,295 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2018-04-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 14687752295.139404,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $31,686,310,916 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2018-07-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 31686310916.05963,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $31,944,698,199 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2018-10-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 31944698198.512115,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $33,507,406,179 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-02-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 33507406178.68643,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $33,304,473,079 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-04-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 33304473078.578598,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $37,815,503,029 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-07-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 37815503029.20627,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $40,263,997,441 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2019-10-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 40263997441.382614,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $82,906,398,082 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-02-03",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 82906398081.8399,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $67,760,475,739 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-04-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 67760475738.76199,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $67,249,693,983 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-07-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 67249693983.346115,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $64,207,837,156 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2020-10-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 64207837156.24443,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $73,761,577,488 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-02-02",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 73761577487.74443,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $81,446,491,087 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-04-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 81446491087.45529,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $76,465,112,931 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 76465112931.24187,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $72,736,563,471 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2021-10-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 72736563470.5339,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $71,740,803,714 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-02-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 71740803714.32153,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $62,676,121,575 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-04-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 62676121575.3265,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $66,074,402,113 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-07-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 66074402113.355255,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $64,009,602,719 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2022-10-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 64009602718.95392,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $68,329,020,009 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2023-02-02",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 68329020008.624054,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $73,371,438,228 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2023-04-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 73371438227.65839,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $75,431,691,912 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2023-04-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 75431691911.86258,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $86,456,754,221 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-01-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 86456754221.42145,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $89,690,262,184 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-04-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 89690262183.87373,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $91,989,717,187 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-07-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 91989717187.29568,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $114,301,465,132 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2024-10-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 114301465132.29263,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $121,873,772,106 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2025-02-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 121873772106.18088,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $79,284,036,832 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2025-07-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 79284036832.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $38,377,677,679 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2025-10-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 38377677678.54263,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $32,120,515,348 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2026-02-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 32120515348.19748,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $33,166,901,539 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2026-04-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 33166901539.041718,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "FISV",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $26,780,015,828 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "FISV",
+          "anchor_ticker": "GOOGL",
+          "anchor_event_date": "2026-07-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2017-02-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 26780015827.864807,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-09-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2003-09-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-12-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2003-12-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-03-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2004-03-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-06-16"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2004-06-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-09-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2004-09-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-12-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2004-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-03-17"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2005-03-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-06-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2005-06-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-09-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2005-09-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-12-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2005-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-03-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2006-03-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-06-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2006-06-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-09-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2006-09-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-12-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2006-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-03-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2007-03-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-05-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2007-05-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-06-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2007-06-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-09-27"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2007-09-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-12-20"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2007-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-03-25"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2008-03-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-06-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2008-06-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-09-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2008-09-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-12-19"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2008-12-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-03-24"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2009-03-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-06-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2009-06-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-09-29"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2009-09-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2009-12-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2009-12-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-03-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2010-03-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2010-06-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2010-06-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2010-09-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1005708670.1837769,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2010-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1088081084.4443207,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2011-03-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1068188957.3156166,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2011-06-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 956879918.6967278,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2011-09-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 799745821.3066292,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2011-12-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 762471509.7825832,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2012-03-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 961760920.965004,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2012-06-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 806605538.1536198,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2012-09-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 890706869.9669809,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2012-12-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 902097822.2809219,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2013-03-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1005106890.557167,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2013-06-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1074833756.5071945,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2013-09-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1251322973.5285225,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2013-12-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1189259487.722969,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2014-03-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1260341521.3570614,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2014-06-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1329439629.293869,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2014-09-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1225502187.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2014-12-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1288228894.25,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2015-03-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1282223951.5374584,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2015-06-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1189970204.9677277,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2015-09-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1068335312.556015,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2015-12-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1044980433.6608276,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2016-03-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1090542936.1827545,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2016-06-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1023669694.6860981,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2016-12-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1461475742.554222,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2017-03-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1585654383.6641083,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2017-06-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1676094037.8453484,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2017-09-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1719887660.1391182,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2017-12-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1454399300.25,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2018-03-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1542269223.3114052,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2018-06-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1403106390.8237648,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2018-09-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1159989440.028881,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2018-12-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 945454963.5968094,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2019-03-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1061907719.9190044,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2019-06-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 925226807.3026714,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2019-09-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1090443860.5155144,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2019-12-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1276231602.8537292,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2020-03-13",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 827725859.7051697,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2020-06-19",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 753441100.7280884,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2020-09-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 713176045.1677551,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2020-12-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1002684958.8016415,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2021-03-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1143565191.9309464,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2021-06-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1043689844.9994049,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2021-09-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 964986771.7016926,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2021-12-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 874267288.9903946,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2022-03-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 920787967.349163,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2022-06-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 793302347.0195675,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2022-09-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 870199159.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2022-12-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 984230787.3776016,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2023-03-16",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 798836521.348629,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2023-06-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 900192594.5569038,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2023-09-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 876784180.9985466,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2023-12-14",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 984462274.5346184,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2024-03-15",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1063577503.7737083,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2024-06-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1423808191.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2024-09-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1628731893.167221,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2024-12-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1654778410.3715515,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2025-03-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1475961235.032898,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2025-06-17",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1372714178.7980347,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "BHE",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "BHE",
+          "anchor_ticker": "JBL",
+          "anchor_event_date": "2025-09-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2001-04-02",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1379330173.5704613,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2003-10-23). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2003-10-23"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2003-10-23",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2004-01-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-01-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2004-01-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2004-04-29). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-04-29"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2004-04-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2004-07-22). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-07-22"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2004-07-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2004-10-21). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2004-10-21"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2004-10-21",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2005-01-18). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-01-18"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2005-01-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2005-01-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-01-27"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2005-01-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2005-05-05). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-05-05"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2005-05-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2005-07-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-07-27"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2005-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2005-11-08). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2005-11-08"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2005-11-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2006-01-26). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-01-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2006-01-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2006-05-04). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-05-04"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2006-05-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2006-07-27). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-07-27"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2006-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2006-10-31). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2006-10-31"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2006-10-31",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-4: as_of_date (2007-03-23) does not strictly precede the anchor_event_date (2007-01-25). An edge established on or after the event cannot have been known to an observer at the event.",
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-01-25"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2007-01-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-05-07"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2007-05-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-07-26"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2007-07-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2007-10-30"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2007-10-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-01-31"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2008-01-31",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-2: point-in-time market cap not computable -- missing_shares: no shares-outstanding fact known as of 2008-05-05"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2008-05-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": null,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2013-05-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 630143239.6708717,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2013-07-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 716499080.7821674,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2013-10-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 848370327.7906609,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2014-01-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 918146217.0546532,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2014-05-12",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 968221242.5779457,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2014-06-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1039968414.3844109,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2014-07-31",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1002996631.8360271,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2014-10-28",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1061109671.3031425,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2015-02-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1183492974.9609375,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2015-05-12",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1256319073.5091553,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2015-07-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1451327670.9450684,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2015-10-29",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1096936032.3057022,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2016-01-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 987023934.4635315,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2016-05-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1139447492.0625954,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2016-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1300942506.3049622,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2016-10-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1258431830.4107094,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2017-01-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1309183221.9774017,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2017-05-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1514415640.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2017-07-27",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1589857650.354309,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,020,628,492 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2017-10-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2020628492.3249245,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2018-02-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1854894466.7802505,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2018-05-24",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1774777381.2230072,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,099,408,004 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2018-07-26",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2099408004.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,415,495,789 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2018-10-25",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2415495788.7866592,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,580,856,316 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2019-01-31",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2580856316.193306,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,391,878,879 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2019-05-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3391878878.606758,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,100,051,094 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2019-07-31",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3100051093.893242,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,010,457,444 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2019-10-30",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3010457443.7045746,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,758,346,583 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2020-05-20",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2758346582.9859924,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,002,825,988 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2020-08-03",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3002825987.501068,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,026,773,227 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2020-09-22",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3026773227.498932,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,787,338,433 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2020-11-03",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3787338432.537613,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $5,334,089,080 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2021-02-02",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 5334089079.706757,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $6,039,247,152 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2021-05-06",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 6039247152.003113,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $6,443,504,867 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2021-08-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 6443504867.00415,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $7,584,965,885 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2021-11-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 7584965884.759247,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $6,724,985,616 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2022-02-02",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 6724985615.694763,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $4,990,297,330 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2022-05-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 4990297329.504059,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $4,925,888,698 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2022-08-03",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 4925888697.867813,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $3,381,890,046 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2022-11-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 3381890046.0717163,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,547,273,452 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2023-02-01",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2547273452.034874,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,930,240,170 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2023-05-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2930240170.0,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,911,306,393 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2023-08-02",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2911306392.985077,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2024-02-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1475935903.331543,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2024-05-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1391481772.5631561,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2024-08-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1796057737.7595177,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,414,674,342 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2024-11-06",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2414674342.5,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,055,540,743 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2025-02-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2055540742.9717064,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2025-05-08",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1189359076.968933,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2025-08-06",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1428095870.5990105,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2025-09-18",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1460709146.7549477,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2025-11-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1603886971.6037521,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": false,
+      "denials": [
+        "PS-3: market cap $2,095,284,751 is at or above the $2,000,000,000 cutoff"
+      ],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2026-02-04",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 2095284750.5514755,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2026-05-07",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1970601210.2443695,
+        "threshold_usd": 2000000000
+      }
+    },
+    {
+      "ticker": "OMCL",
+      "qualifies": true,
+      "denials": [],
+      "evidence": {
+        "candidate": {
+          "peer_ticker": "OMCL",
+          "anchor_ticker": "MCK",
+          "anchor_event_date": "2026-08-05",
+          "relationship_type": "sector_competitor",
+          "as_of_date": "2007-03-23",
+          "source": "EDGAR_10K_FULLTEXT_REVERSE_COMPETITOR_SEARCH_HAND_REVIEWED"
+        },
+        "market_cap": 1695505154.7566528,
+        "threshold_usd": 2000000000
+      }
+    }
+  ],
+  "report": "rule: HYP05-PEER-SELECTION-RULE-v1\nderived: True\nqualifying peers: 2\n  - BHE\n  - OMCL\ndenied candidates: 184"
+}
