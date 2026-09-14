@@ -14,7 +14,7 @@
  "pinned_peer_closes": "HYP07_PEER_CLOSES_2026-09-14.csv",
  "pinned_peer_earnings_sha256": "f2ed4e23e9cc197597c1fe78cbda6cd6b3ced8d5d7008f8e095495075afe6e4a",
  "pinned_peer_earnings": "HYP07_PEER_EARNINGS_2026-09-14.json",
- "consumed": false,
- "consumed_by_result": null,
+ "consumed": true,
+ "consumed_by_result": "HYP07_PHASE3_RESULT_2026-09-14.json",
  "how_it_is_used": "make_hyp07_phase3_run.py verifies: exactly one authorization exists, declared is true, consumed is false, and every pinned hash (Phase 2 lock, peer closes, peer earnings) matches what is on disk. It marks this consumed the instant a real run succeeds."
 }
