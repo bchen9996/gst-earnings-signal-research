@@ -18,6 +18,12 @@ __pycache__/
 # reads it is version-controlled; the corpus itself is not.
 .edgar_cache/
 
+# Resume checkpoint for run_hyp07_reverse_competitor_search_scaled.py.
+# Reproducible by re-running (or resuming) the live search; scratch
+# machinery, not a research artifact. The code that produces and reads it
+# is version-controlled; this transient state is not.
+.hyp07_scaled_search_checkpoint/
+
 # A separate submission package, out of scope for HYP-04/HYP-05 work and
 # never touched by it. Ignored only so an untracked folder does not read as
 # a dirty tree to _commit_sha's clean-tree check -- its contents are not
