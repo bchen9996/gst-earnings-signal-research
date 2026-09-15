@@ -1,0 +1,422 @@
+{
+ "artifact": "HYP08_PHASE3_RESULT_2026-09-14.json",
+ "as_of_date": "2026-09-14",
+ "hypothesis_id": "HYP-08",
+ "phase": "Phase 3 -- the one exploratory run against the real, pooled 973-pair universe (778 customer/supplier + 195 competitor), testing same-session reaction and reaction heterogeneity for the first time in this project",
+ "what_this_is": "The single, preregistered, exploratory run of the Phase 2-locked spec against every pooled peer's real returns on the exact session its own anchor event is attributed to. Reported once, regardless of outcome.",
+ "what_this_is_not": "NOT confirmatory, NOT repeatable, and NOT a license to iterate on the spec having seen this. Whichever of the two preregistered tests comes back significant, both, or neither -- gets reported exactly the same way.",
+ "reported_regardless_of_outcome": true,
+ "no_rerun_permitted": true,
+ "point_estimate_permitted": false,
+ "is_a_confidence_interval": false,
+ "sample_size_disclosure": {
+  "n_locked_events": 973,
+  "n_peers": 31,
+  "n_anchors": 31,
+  "provisional_operative_floor_pairs": 152,
+  "floor_source": "HYP08_SAMPLE_SIZE_GATE_2026-09-14.md",
+  "framing": "EXPLORATORY -- floor is EXACT (k=2 by design), not provisional or borrowed, unlike every prior hypothesis's own floor",
+  "why": "973 pooled (peer, event) pairs clears the k=2-exact 152-pair floor by 6.4x. Still framed exploratory: a governance eligibility floor is not a claim of guaranteed power, and the true analyzed sample will be smaller after same-session NaN exclusion -- see make_hyp08_phase3_run.py's own real result for the actual analyzed count."
+ },
+ "look_ahead_disclosure": {
+  "already_touched": "Every pooled event's anchor-side signed excess_return was already computed (HYP-04/05/06's own anchor-shock pipeline) and already used by HYP-06's and/or HYP-07's own prior, completed, spent Phase 3 runs. HYP-06's peers' MAGNITUDE-based results and HYP-07's peers' delayed-horizon signed results are both already reported and unaffected by this lock.",
+  "not_touched": "No same-session peer excess return of any kind, for any pooled peer around any pooled anchor event, has been computed before this lock -- target_same_session.py did not exist before this pass. This lock is written before that computation happens for the first time."
+ },
+ "sign_convention": "Nothing is flipped, anywhere. A priori, economically motivated predictions, stated before any fit: customer/supplier peers POSITIVE (comovement -- shared revenue chain), competitor peers NEGATIVE (displacement, same convention HYP-07's own target_signed.py already uses). Not significant is a null either way, for either test below.",
+ "test_family": {
+  "k": 2,
+  "test_1_primary": "inference.fit_local_projections(table, horizons=(0,), cluster_key='event_id') -- the plain pooled same-session coefficient, both relationship types combined.",
+  "test_2_heterogeneity": "inference.fit_interaction_model(table, cluster_key='event_id') -- the shock:is_competitor interaction coefficient.",
+  "complementarity_note": "These are COMPLEMENTARY tests, not redundant ones. If the two relationship types' true effects are opposite-signed and roughly offsetting in the pooled sample, test 1 can come back null while test 2's interaction term is significant -- that is a coherent, reportable joint result, not a contradiction requiring explanation."
+ },
+ "authorization": {
+  "artifact": "HYP08_PHASE3_AUTHORIZATION_2026-09-14.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-14"
+ },
+ "phase2_lock": {
+  "artifact": "HYP08_PHASE2_LOCK_2026-09-14.json",
+  "declared_by": "bchen9996",
+  "declared_date": "2026-09-14",
+  "sha256": "445a4b9d6d770f837760f646348373d69d839884ca646b26693e7b4bd69439d1"
+ },
+ "locked_peers": [
+  "ACH",
+  "ACIC",
+  "AEHR",
+  "BHE",
+  "CHRD",
+  "CKX",
+  "CNR",
+  "CNXN",
+  "COHU",
+  "CRC",
+  "CRS",
+  "GLUC",
+  "ICUI",
+  "KTCC",
+  "LEU",
+  "NGS",
+  "NSYS",
+  "OMCL",
+  "PATK",
+  "PCYO",
+  "PENG",
+  "PI",
+  "PKE",
+  "PRSO",
+  "QNST",
+  "RAIL",
+  "SCSC",
+  "SIG",
+  "TDW",
+  "TOMZ",
+  "TRS"
+ ],
+ "locked_anchors": [
+  "ABT",
+  "AEP",
+  "AVY",
+  "BDX",
+  "CLX",
+  "CVX",
+  "DELL",
+  "DUK",
+  "DVN",
+  "EOG",
+  "ETR",
+  "EXC",
+  "FFIV",
+  "HPQ",
+  "HWM",
+  "JBL",
+  "KBH",
+  "MCK",
+  "NOC",
+  "NSC",
+  "NTNX",
+  "NXPI",
+  "PGR",
+  "PSX",
+  "SNX",
+  "SPG",
+  "TFC",
+  "THO",
+  "TTMI",
+  "TXN",
+  "ZBRA"
+ ],
+ "n_locked_events": 973,
+ "n_locked_events_customer_supplier": 778,
+ "n_locked_events_competitor": 195,
+ "treatment": {
+  "residualize": false,
+  "residualization_note": "No residualizer of any kind, same v1 simplification target_signed.py states -- days_to_peer_earnings is still carried as a design-matrix control.",
+  "n_candidate_observations": 973,
+  "n_excluded_short_or_missing_window": 0,
+  "excluded_fraction": 0.0,
+  "n_rows": 973,
+  "n_rows_customer_supplier": 778,
+  "n_rows_competitor": 195,
+  "primary_fit": {
+   "beta": 0.054189922987390955,
+   "se": 0.020819555887985515,
+   "t_stat": 2.6028376051317554,
+   "satterthwaite_dof": 158.73660922962821,
+   "n_obs": 973,
+   "n_clusters": 971,
+   "critical_value": 2.2578106971792002,
+   "significant": true
+  },
+  "heterogeneity_fit": {
+   "beta_interaction": 0.010174501674493155,
+   "se_interaction": 0.053538056034805465,
+   "t_interaction": 0.19004241894548132,
+   "dof_interaction": 66.62477678098853,
+   "critical_value": 2.287954982416532,
+   "significant": false,
+   "n_obs": 973,
+   "n_clusters": 971,
+   "n_customer_supplier": 778,
+   "n_competitor": 195,
+   "descriptive_context_not_verdicted": {
+    "beta_customer_supplier": 0.052811540959508206,
+    "se_customer_supplier": 0.022831700753979133,
+    "t_customer_supplier": 2.3130795873936005,
+    "beta_competitor_implied": 0.06298604263400136,
+    "se_competitor_implied": 0.04852968278953964,
+    "t_competitor_implied": 1.2978869634725434,
+    "note": "These two implied group-specific slopes are reported for INTERPRETATION only. Neither is one of HYP-08's two preregistered, Sidak-corrected (k=2) tests -- only the plain pooled coefficient (primary_fit) and the shock:is_competitor interaction term (heterogeneity_fit.t_interaction) are held to the corrected threshold. No significance verdict is computed for either number here, deliberately -- treating them as a third and fourth test would be exactly the 'keep adding tests' external review explicitly warned against."
+   }
+  },
+  "sign_convention_reminder": "Nothing is flipped, anywhere. A priori: customer/supplier peers predicted POSITIVE (comovement), competitor peers predicted NEGATIVE (displacement). Whichever result actually came back -- for either test, in either direction, or null -- is reported as computed.",
+  "point_estimate_permitted": false
+ },
+ "peer_data_provenance": {
+  "peer_closes_sha256": "cf714056cb9b4e963c14f23b248fbdc5f00117b81bef08bfad34d0f935561051",
+  "benchmark_ticker": "SPY",
+  "n_sessions": 6990,
+  "first_session": "1999-06-17",
+  "last_session": "2027-04-02",
+  "peer_earnings_coverage": {
+   "ACH": {
+    "n_releases_total": 100,
+    "n_attributed": 45,
+    "n_unknown_session": 55,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-04-21",
+    "latest_attributed_date": "2026-08-10"
+   },
+   "ACIC": {
+    "n_releases_total": 74,
+    "n_attributed": 68,
+    "n_unknown_session": 6,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2009-04-01",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "AEHR": {
+    "n_releases_total": 94,
+    "n_attributed": 52,
+    "n_unknown_session": 42,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-09-25",
+    "latest_attributed_date": "2026-07-15"
+   },
+   "BHE": {
+    "n_releases_total": 107,
+    "n_attributed": 59,
+    "n_unknown_session": 48,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-24",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "CHRD": {
+    "n_releases_total": 80,
+    "n_attributed": 62,
+    "n_unknown_session": 18,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2011-03-09",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "CKX": {
+    "n_releases_total": 0,
+    "n_attributed": 0,
+    "n_unknown_session": 0,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": null,
+    "latest_attributed_date": null
+   },
+   "CNR": {
+    "n_releases_total": 38,
+    "n_attributed": 36,
+    "n_unknown_session": 2,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2018-02-06",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "CNXN": {
+    "n_releases_total": 98,
+    "n_attributed": 93,
+    "n_unknown_session": 5,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-10-21",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "COHU": {
+    "n_releases_total": 93,
+    "n_attributed": 45,
+    "n_unknown_session": 48,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-10-25",
+    "latest_attributed_date": "2026-07-31"
+   },
+   "CRC": {
+    "n_releases_total": 55,
+    "n_attributed": 43,
+    "n_unknown_session": 12,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2014-10-23",
+    "latest_attributed_date": "2026-08-10"
+   },
+   "CRS": {
+    "n_releases_total": 153,
+    "n_attributed": 15,
+    "n_unknown_session": 138,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-01-23",
+    "latest_attributed_date": "2026-07-31"
+   },
+   "GLUC": {
+    "n_releases_total": 0,
+    "n_attributed": 0,
+    "n_unknown_session": 0,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": null,
+    "latest_attributed_date": null
+   },
+   "ICUI": {
+    "n_releases_total": 89,
+    "n_attributed": 83,
+    "n_unknown_session": 6,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-16",
+    "latest_attributed_date": "2026-08-07"
+   },
+   "KTCC": {
+    "n_releases_total": 105,
+    "n_attributed": 97,
+    "n_unknown_session": 8,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-08-21",
+    "latest_attributed_date": "2026-08-28"
+   },
+   "LEU": {
+    "n_releases_total": 96,
+    "n_attributed": 79,
+    "n_unknown_session": 17,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-08-04",
+    "latest_attributed_date": "2026-08-06"
+   },
+   "NGS": {
+    "n_releases_total": 103,
+    "n_attributed": 32,
+    "n_unknown_session": 71,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-11-01",
+    "latest_attributed_date": "2026-08-11"
+   },
+   "NSYS": {
+    "n_releases_total": 37,
+    "n_attributed": 16,
+    "n_unknown_session": 21,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2017-11-09",
+    "latest_attributed_date": "2026-08-13"
+   },
+   "OMCL": {
+    "n_releases_total": 95,
+    "n_attributed": 88,
+    "n_unknown_session": 7,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-17",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "PATK": {
+    "n_releases_total": 90,
+    "n_attributed": 52,
+    "n_unknown_session": 38,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-22",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "PCYO": {
+    "n_releases_total": 35,
+    "n_attributed": 9,
+    "n_unknown_session": 26,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-04-15",
+    "latest_attributed_date": "2021-07-07"
+   },
+   "PENG": {
+    "n_releases_total": 37,
+    "n_attributed": 32,
+    "n_unknown_session": 5,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2017-06-23",
+    "latest_attributed_date": "2026-07-08"
+   },
+   "PI": {
+    "n_releases_total": 49,
+    "n_attributed": 45,
+    "n_unknown_session": 4,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2016-09-01",
+    "latest_attributed_date": "2026-07-30"
+   },
+   "PKE": {
+    "n_releases_total": 79,
+    "n_attributed": 37,
+    "n_unknown_session": 42,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2008-05-08",
+    "latest_attributed_date": "2026-07-21"
+   },
+   "PRSO": {
+    "n_releases_total": 97,
+    "n_attributed": 95,
+    "n_unknown_session": 2,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2003-10-17",
+    "latest_attributed_date": "2026-08-12"
+   },
+   "QNST": {
+    "n_releases_total": 68,
+    "n_attributed": 62,
+    "n_unknown_session": 6,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2010-05-06",
+    "latest_attributed_date": "2026-08-07"
+   },
+   "RAIL": {
+    "n_releases_total": 87,
+    "n_attributed": 58,
+    "n_unknown_session": 29,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-05-17",
+    "latest_attributed_date": "2026-08-04"
+   },
+   "SCSC": {
+    "n_releases_total": 131,
+    "n_attributed": 100,
+    "n_unknown_session": 31,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-01-23",
+    "latest_attributed_date": "2026-05-07"
+   },
+   "SIG": {
+    "n_releases_total": 78,
+    "n_attributed": 69,
+    "n_unknown_session": 9,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2010-03-25",
+    "latest_attributed_date": "2026-06-02"
+   },
+   "TDW": {
+    "n_releases_total": 104,
+    "n_attributed": 36,
+    "n_unknown_session": 68,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2004-01-20",
+    "latest_attributed_date": "2026-08-04"
+   },
+   "TOMZ": {
+    "n_releases_total": 46,
+    "n_attributed": 34,
+    "n_unknown_session": 12,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2013-08-14",
+    "latest_attributed_date": "2026-07-29"
+   },
+   "TRS": {
+    "n_releases_total": 93,
+    "n_attributed": 34,
+    "n_unknown_session": 59,
+    "n_outside_session_index": 0,
+    "earliest_attributed_date": "2005-06-16",
+    "latest_attributed_date": "2026-04-30"
+   }
+  },
+  "n_grouped_anchor_events": 971,
+  "n_pairs": 973
+ },
+ "sources": {
+  "phase2_lock_sha256": "445a4b9d6d770f837760f646348373d69d839884ca646b26693e7b4bd69439d1",
+  "peer_closes": "HYP08_PEER_CLOSES_2026-09-14.csv",
+  "peer_closes_sha256": "cf714056cb9b4e963c14f23b248fbdc5f00117b81bef08bfad34d0f935561051",
+  "peer_earnings": "HYP08_PEER_EARNINGS_2026-09-14.json",
+  "peer_earnings_sha256": "4e980a5b781d7473171385e903db8f23ee6a924050b11a66e4443a77998e9c8e"
+ },
+ "opens_no_gate": "This is a computed HYP-08 Phase 3 result, not a freeze, not a registry change, not a linkage ratification. It moves no gate condition, whatever the gate reads at the moment this file is read."
+}
