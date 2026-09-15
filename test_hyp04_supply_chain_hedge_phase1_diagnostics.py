@@ -480,6 +480,33 @@ def test_11_full_wiring_end_to_end() -> None:
             "already exists")
 
 
+def test_11b_pre_earnings_history_is_carried_through() -> None:
+    """Fixed 2026-09-14: _run_treatment used to compute this via
+    build_feature_table and then silently drop it before returning -- the
+    largest exclusion category in HYP-06's real result never reached any
+    written artifact. Confirms the fix without re-deriving or re-running any
+    already-signed result."""
+    panel = make_panel("P11B_PRE_EARNINGS", n_anchors=10, n_quarters=10,
+                       n_peers_per_anchor=4, injected_lag=4,
+                       injected_effect=0.5, seed=11)
+    t = P._run_treatment(panel, residualize=True, n_permutations=N_PERM_FAST,
+                         seed=42)
+    check("11b-1. pre_earnings_history key is present",
+          "pre_earnings_history" in t)
+    ph = t["pre_earnings_history"]
+    check("11b-2. it carries the same shape as bucket_population",
+          {"n_candidate_observations", "n_excluded", "excluded_fraction",
+           "policy", "what_it_measures"} <= set(ph.keys()))
+    check("11b-3. n_excluded is a real, non-negative count",
+          isinstance(ph["n_excluded"], int) and ph["n_excluded"] >= 0)
+
+    tf = P._run_treatment(panel, residualize=False, n_permutations=N_PERM_FAST,
+                          seed=42)
+    check("11b-4. present under residualize=False too, with nothing excluded "
+          "(the exclusion only applies inside the residualized branch)",
+          tf["pre_earnings_history"]["n_excluded"] == 0)
+
+
 def test_12_the_artifact_is_refused_by_the_display_gate() -> None:
     """Not wired into any findings panel -- this module imports nothing from
     dashboard.py -- and if it WERE fed through the shared gate function under
@@ -518,6 +545,7 @@ if __name__ == "__main__":
     test_9_a_fabricated_holdout_leak_refuses()
     test_10_a_hash_pin_mismatch_refuses()
     test_11_full_wiring_end_to_end()
+    test_11b_pre_earnings_history_is_carried_through()
     test_12_the_artifact_is_refused_by_the_display_gate()
     test_13_offline()
 

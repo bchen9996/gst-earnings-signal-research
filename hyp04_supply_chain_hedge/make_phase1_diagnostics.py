@@ -553,6 +553,14 @@ def _run_treatment(panel: SyntheticPanel, *, residualize: bool,
         "n_rows": int(table["event_id"].size),
         "retained_history": built["retained_history"],
         "bucket_population": built["bucket_population"],
+        # Fixed 2026-09-14: this used to silently drop `pre_earnings_history`
+        # even though `build_feature_table` always computes it -- it was the
+        # LARGEST exclusion category (84% of all exclusions in HYP-06's real
+        # result) and never reached any written artifact. See
+        # HYP06_PHASE3_RESULT_CHARACTERIZATION_2026-09-14.md. Fixing it here
+        # changes nothing about any already-signed, already-spent result --
+        # it only affects what a FUTURE reuse of this function reports.
+        "pre_earnings_history": built["pre_earnings_history"],
         "fits_by_horizon": [
             {"horizon": f.horizon, "beta": f.beta, "se": f.se,
              "t_stat": f.t_stat, "satterthwaite_dof": f.satterthwaite_dof,
