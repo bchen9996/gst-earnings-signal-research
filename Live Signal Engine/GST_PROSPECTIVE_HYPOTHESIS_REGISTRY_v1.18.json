@@ -1,0 +1,1278 @@
+{
+  "registry": "GST Prospective Hypothesis Registry",
+  "registry_version": "v1.18",
+  "status": "DRAFT",
+  "authored_at_utc": "2026-09-02",
+  "supersedes": "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.17.json",
+  "supersession_rule": "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.10.json is NOT edited in place. It remains on disk unchanged, byte for byte, and this version supersedes it. The chain of supersedes_sha256 values is the only thing that makes 'superseded, not edited' a checkable claim rather than a promise.",
+  "change_summary": "Records the peer price source, its adjustment basis and the survivorship bias the source imports. peer_price_data_policy has permitted a survivors-only restriction since v1.5 'only if the restriction and its bias are stated in the registry version that does it'; the restriction has been taken and this version states it. Nothing else moves. No status changes, no threshold changes, no result exists, and the display gate stays CLOSED with four denials.",
+  "authored_at_utc_note": "Dated the day HYP-04 was authorised by the repo owner.",
+  "authored_before_any_candidate_screening_or_observation": false,
+  "authored_before_any_candidate_screening_or_observation_note": "FALSE for this version, and stated plainly rather than inherited from v1.0. Round-1 cohort screening has occurred and one event (EVT-DELL-FY27Q2-ERN) is registered since v1.0 was authored, so the unqualified v1.0 claim would be false here. The scoped claim that IS true: this version was authored before any HYP-04 observation exists, before any peer linkage map exists, and before any HYP-04 result has been produced or looked at. HYP-04 accrues zero eligible events.",
+  "companion_markdown": "Live Signal Engine/GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.11_DRAFT.md",
+  "display_gates_document": "Live Signal Engine/GST_PROSPECTIVE_RESULT_DISPLAY_GATES_v1.0.md",
+  "field_crosswalk": "Live Signal Engine/GST_PROSPECTIVE_HYPOTHESIS_FIELD_CROSSWALK_v1.0.md",
+  "cohort_protocol": "Live Signal Engine/GST_PROSPECTIVE_COHORT_PROTOCOL_v1.0_DRAFT.md",
+  "critical_distinction": {
+    "statement": "gst_market_response.completeness.HYPOTHESIS_CLASSES are DATA-ELIGIBILITY CLASSES, not named research hypotheses. A class says which evidence modules an event carries. A hypothesis is a named, dated research question with its own threshold, classification and display gate. They are registered separately here and mapped explicitly.",
+    "eligibility_classes": [
+      "core_attention_vs_equity_response",
+      "options_implied_move",
+      "joint_attention_plus_options"
+    ],
+    "eligibility_classes_source": "gst_market_response.completeness.HYPOTHESIS_CLASSES",
+    "named_hypotheses": [
+      "HYP-01",
+      "HYP-02",
+      "HYP-03",
+      "HYP-04"
+    ],
+    "a_class_is_never_a_hypothesis": true
+  },
+  "statuses": {
+    "ACTIVE_COLLECTING": "Every required measurement already has a production field AND a production capture path. Collection may proceed; results stay gated by the threshold.",
+    "PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED": "The question is registered and dated, but at least one required measurement has no production field, no production capture path, or no production join. The hypothesis accrues NO eligible events until that is built under a separate authorised task. Missing implementation is never counted as eligibility.",
+    "HOLDOUT_TESTED_NULL": "The one preregistered holdout run (Phase 3) completed and reported a null result at the locked significance bar. No further run against this holdout is possible; the hypothesis is closed as tested, not confirmed.",
+    "EXPLORATORY_PILOT_TESTED_NULL": "One exploratory, NON-confirmatory pilot run (Phase 3) completed against a real but severely underpowered sample -- 8 locked anchor events against this hypothesis's own 195-event provisional floor, roughly 24x short -- and reported a null result. This status does NOT assert minimum_eligible_events is met (it is not), does NOT close the hypothesis the way HOLDOUT_TESTED_NULL closes one that cleared its floor, and does NOT license display of a HYP-05 finding under display_rule. It asserts only that real curated data exists, the one authorized pilot look happened, and it came back null."
+  },
+  "statuses_note": "The status vocabulary is UNCHANGED from v1.0. No new status value was introduced for HYP-04. A candidate value considered and rejected during authoring -- PREREGISTERED_MEASUREMENT_IMPLEMENTED_PENDING_LINKAGE -- is not part of this enum and was not added, because inventing a status to describe a partially-built hypothesis would weaken the one distinction this enum exists to enforce: whether a production capture path exists at all. HYP-04's analysis code existing does not make its measurement reachable, and the enum should keep saying so.",
+  "hypotheses": [
+    {
+      "hypothesis_id": "HYP-04",
+      "title": "Supply-chain peer volatility transmission and lag",
+      "question": "Supply-chain/competitor peer volatility transmission and lag following anchor earnings shocks",
+      "classification": "preregistered_exploratory",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 193,
+      "minimum_eligible_events_unit": "eligible anchor events",
+      "minimum_eligible_events_basis": {
+        "governance_character": "This is a GOVERNANCE ELIGIBILITY FLOOR, in the same sense as HYP-01/02/03's 60/60/40 -- the minimum evidence required before any result may be looked at. It is NOT a claim of guaranteed statistical power and NOT an estimate of detectable effect size. See statistical_governance.power_statement, which this entry does not override.",
+        "unit_discipline": "Stated in ANCHOR EVENTS, the same unit as every other threshold in this registry. It is deliberately NOT stated in (anchor x peer) pairs. The pair-level reading of the same derivation is a much weaker bar -- with ~5-10 peers per anchor it could be satisfied by a small fraction of the event count -- and leaving the unit ambiguous is the specific defect Patch 2 of HYP04_PLAN_ROUND2_EDITS.md was written to eliminate.",
+        "derivation_summary": "Phase 0 feasibility work derived an effective-sample-size target of N_eff ~193, where N_eff = N_pairs / DEFF and DEFF = 1 + (m_bar - 1) * ICC. The 193 recorded here is the conservative ICC = 1 endpoint, at which N_eff collapses to the anchor-event count -- so the event-unit floor and the effective-observation target coincide. At any empirically observed ICC below 1, N_eff is reached with fewer anchor events than 193, never more; the floor is therefore conservative in the direction that demands MORE evidence, not less.",
+        "derivation_inputs": {
+          "assumed_effect_size_cohens_d": 0.5,
+          "assumed_effect_size_character": "hypothetical, externally chosen, NOT derived from any observed project result",
+          "alpha_family_wise": 0.05,
+          "power": 0.8,
+          "multiplicity_correction": "Sidak over the effective number of independent horizon tests, measured empirically at k = 6.05-6.34 across a 20-horizon grid by a max-T permutation run against synthetic fixtures",
+          "naive_single_test_baseline": 126,
+          "naive_single_test_baseline_note": "LABELLED BASELINE ONLY. Never the operative floor."
+        },
+        "why_this_does_not_violate_the_power_statement": "The power_statement forbids a power calculation performed USING OBSERVED PROJECT RESULTS. This derivation used a hypothetical effect size (d = 0.5, chosen before any data) and synthetic fixtures with known injected ground truth. No observed project result, and no real peer or anchor data, entered it. The resulting number is recorded as a governance floor, not as a power guarantee, consistent with how this registry characterises all of its thresholds.",
+        "derivation_reference": "Live Signal Engine/HYP04_PLAN_ROUND2_EDITS.md (Patch 2) and Live Signal Engine/HYP04_PHASE0_FEASIBILITY_STATUS_2026-08-18.md (section 5)",
+        "revisable": "This floor may be revised only by a further dated registry version written BEFORE the results that would motivate the revision are seen -- the same discipline the promotion_rule imposes."
+      },
+      "required_eligibility_class": "HYP04-ANCHOR-SHOCK-RULE-v1",
+      "required_eligibility_class_note": "THIS NO LONGER NAMES A gst_market_response CLASS, and that is the point of v1.9. Until 2026-08-29 it named HYP-01's core_attention_vs_equity_response, which requires two attention series and an option chain per anchor event -- requirements that were never examined against HYP-04's own question and which decided the anchor-side shock by side effect. It now names HYP-04's own rule, HYP04-ANCHOR-SHOCK-RULE-v1, defined in hyp04_supply_chain_hedge/anchor_shock.py: the anchor's earnings-day excess return must be well measured, fail-closed on every unknown. The PEER side still has no eligibility class anywhere and still lives in HYP-04's own package; no fourth class was created for either side.",
+      "options_benchmark_required": false,
+      "status": "HOLDOUT_TESTED_NULL",
+      "status_basis": "Phase 3 -- the one preregistered look against HYP-04's frozen 57-event holdout -- ran for real under the owner's typed authorization and reported HYP04_PHASE3_RESULT_2026-09-11.json (sha256 83f8d438455ebeb6a6792c6b3b304a208223cc4b0259855542bef143fa417029), committed 4c7ae32. peak_horizon=10, max_abs_t=1.1722404188033066 against a critical value of 2.47407848705655 (p=0.8670664667666167), NOT significant at any of 20 tested horizons. make_phase3_run.py refuses unconditionally if any HYP04_PHASE3_RESULT_*.json already exists, so this is a structurally enforced terminal state, not a policy that could be revised. HOLDOUT_TESTED_NULL asserts that this one look happened and came back null -- it asserts NOTHING about whether supply-chain earnings information diffuses slowly in general, only about this specific construction.",
+      "required_external_measurement": {
+        "measurement": "supply-chain / competitor / customer linkage map, per anchor ticker",
+        "required_columns": [
+          "anchor_ticker",
+          "peer_ticker",
+          "relationship_type",
+          "confidence",
+          "first_known_or_established_as_of_date"
+        ],
+        "availability": "exists_partial",
+        "as_of_date_requirement": "The first-known/established-as-of date per pair is REQUIRED, not optional. A linkage map built today encodes relationships known today; applying it to historical anchor events without knowing when each relationship was first publicly established is look-ahead bias -- the same class of defect this project's own forensic audit already found in the reconstructed GST z-score history. A map delivered without this column is a blocking data-quality failure, not a partial delivery.",
+        "placeholder_used_in_phase_0": "POSITIONAL-SYNTHETIC pairing -- peers[i*k:(i+1)*k] in fixtures.py. Peers are the non-anchor tickers from AllTickers_Sectors.csv assigned to anchors by list position; the sector column is NOT read for pairing.",
+        "placeholder_is_never_evidence": "No result computed on the placeholder linkage is evidence about supply-chain transmission, and none may be reported as such.",
+        "availability_basis": "As of 2026-08-22: 2 curated edge(s) in HYP04_Linkage_Map_v1.0.csv (sha256 e7b0881186751f32...), loading clean with 0 of 2 rows rejected. Read through curated_linkage.load_curated_linkage() when this version was generated, not asserted by the author. A count is recorded here because a registry version is a point-in-time record; live code must read the count from disk instead.",
+        "availability_is_not_sufficiency": "'exists_partial' does NOT mean the required measurement is satisfied, and it moves nothing toward display. The display gate's threshold counts eligible ANCHOR EVENTS; curating linkage edges does not change that count. Phase 1 remains blocked.",
+        "placeholder_description_correction": "v1.0 through v1.2 described this as 'same-sector peers (GST_Task2_PeerDivergence.py limitation)'. That wording described GST_Task2_PeerDivergence.py, which IS genuinely sector-based, and was inherited here in error. The package corrected it in __init__.py on 2026-08-18 and in its README on 2026-08-22; this is the registry catching up. The error ran in the dangerous direction -- it OVERSTATED the placeholder's quality, in a field whose purpose is to warn. Earlier registry versions are not edited; they remain on disk with the original wording."
+      },
+      "forbidden_substitutions": [
+        "sector membership as a stand-in for a supply-chain relationship",
+        "return or volatility correlation as a stand-in for an established business relationship",
+        "any linkage map lacking a first-known/established-as-of date, applied to historical events"
+      ],
+      "forbidden_substitution_rule": "If the linkage for an anchor-peer pair is unavailable or undated, that pair simply does not count toward HYP-04. Sector proximity is never silently substituted for a supply-chain relationship, and a missing linkage is never inferred from price behaviour.",
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "two-way clustering (anchor event x calendar period) -- Phase 0 ships one-way (anchor event) clustering only, because no multiway CR2/Satterthwaite implementation exists in this repository, validated or otherwise",
+          "state": "RESOLVED_IN_DATED_ANALYSIS_LOCK",
+          "resolved_by_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
+        },
+        {
+          "decision": "whether implied volatility is ever promoted from a secondary/robustness target to a primary one -- unresolved because the Phase 0 coverage audit measured CURRENT option chains only and no historical options source has been obtained",
+          "state": "RESOLVED_IN_DATED_ANALYSIS_LOCK",
+          "resolved_by_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
+        },
+        {
+          "decision": "the reported lag quantity's uncertainty treatment -- onset_horizon is late-biased by construction under an expanding-window target, and is reported with that caveat rather than as an exact point estimate",
+          "state": "RESOLVED_IN_DATED_ANALYSIS_LOCK",
+          "resolved_by_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
+        },
+        {
+          "decision": "ticker-cluster estimator",
+          "state": "RESOLVED_IN_DATED_ANALYSIS_LOCK",
+          "resolved_by_lock": "GST_HYP04_ANALYSIS_LOCK_v1.0.json"
+        }
+      ],
+      "options_tension_note": {
+        "statement": "Stage 2 of the HYP-04 model constructs options-adjacent hedge recommendations (protective put, put spread, collar, sector-ETF proxy). Phase 0 sizes nothing and executes nothing: it emits recommendation objects against an ASSUMED long-equity holding, with no real position, no order construction, and no capital logic of any kind.",
+        "formal_options_eligibility": "OUT OF SCOPE FOR THIS ENTRY. This registry version does NOT register HYP-04, or any hypothesis, against options_implied_move or joint_attention_plus_options. Those classes continue to carry DENY_NO_REGISTERED_HYPOTHESIS, unchanged.",
+        "deferred_to": "Phase 4, at which point Stage 2 would need options eligibility to mean something operationally. Resolving it then requires its own dated registry decision, exactly as options_related_classes.rule already specifies.",
+        "why_recorded_now": "So the tension is visible at registration rather than discovered at Phase 4. Registering an exploratory equity-volatility hypothesis whose downstream stage is options-shaped is a deliberate, bounded decision, not an oversight."
+      },
+      "display_rule": "No result, direction, effect estimate, plot, p-value or confidence interval may be displayed before 193 eligible events. The hypothesis accrues no eligible events at all while its status is PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED. No result computed on the Phase 0 placeholder (same-sector) linkage may be displayed as a HYP-04 result under any circumstances, at any event count.",
+      "capture_path_modules": {
+        "peer_return_ingestion": {
+          "module": "hyp04_supply_chain_hedge/peer_returns.py",
+          "imports": true,
+          "data_captured": true,
+          "note": "Provider-free by design; closes are operator-supplied."
+        },
+        "event_to_peer_join": {
+          "module": "hyp04_supply_chain_hedge/linkage_resolution.py",
+          "imports": true,
+          "data_captured": true,
+          "note": "Derives uses_placeholder_linkage; a caller cannot assert it."
+        },
+        "module_existence_is_not_data": "This note said, through v1.11, that both data_captured flags were false and that a module which CAN ingest is not ingested data. That was the reason HYP-04's status did not move. It is now false as a description: closes are collected, the join runs, and the eligible set is enumerated. The DISTINCTION it drew remains correct and still governs any path added later.",
+        "panel_assembly": {
+          "module": "hyp04_supply_chain_hedge/make_event_panel.py",
+          "imports": true,
+          "data_captured": true,
+          "note": "Joins the four inputs through pair_eligibility and enumerates the eligible event set. The path v1.11 said did not exist."
+        }
+      },
+      "anchor_universe": {
+        "rule_id": "HYP04-ANCHOR-UNIVERSE-RULE-v1",
+        "character": "A RULE, evaluated. Not a list, chosen. Tickers QUALIFY by satisfying a criterion fixed in advance; none is named into this universe.",
+        "implemented_by": "hyp04_supply_chain_hedge/anchor_universe.py",
+        "why_hyp04_needs_its_own_anchor_universe": "Recorded as a measured finding on 2026-08-26 and unchanged since: the two companies in the 51-ticker EDGAR screen that disclose a named counterparty concentration -- MCK and PKG -- are both OUTSIDE the project's locked 24-ticker universe, and the same screen found ZERO named counterparties among the locked 24. Extending the locked universe to fix that would select it on the observed edges. The locked 24 is HYP-01 confirmatory infrastructure with its own drift test; HYP-04 is exploratory and does not modify it.",
+        "screening_frame": {
+          "definition": "The locked 24 anchors, plus the Phase 0 candidate peer universe read from AllTickers_Sectors.csv. Derived at evaluation time by anchor_universe.screening_frame(); not restated here as a list that could drift.",
+          "size": 51,
+          "tickers": [
+            "AAPL",
+            "ABBV",
+            "ADBE",
+            "ADP",
+            "ALB",
+            "ALLE",
+            "AMZN",
+            "AVB",
+            "BKR",
+            "BRK-B",
+            "CCL",
+            "COF",
+            "COHR",
+            "CTSH",
+            "CTVA",
+            "DELL",
+            "DVN",
+            "EBAY",
+            "ERIE",
+            "GME",
+            "GOOGL",
+            "GPC",
+            "GPN",
+            "INTC",
+            "JBL",
+            "LDOS",
+            "LNT",
+            "MCHP",
+            "MCK",
+            "MDT",
+            "MSFT",
+            "NCLH",
+            "NFLX",
+            "NKE",
+            "NVDA",
+            "PKG",
+            "PLD",
+            "PNW",
+            "QCOM",
+            "RCL",
+            "REG",
+            "ROP",
+            "RTX",
+            "SBUX",
+            "STZ",
+            "SYF",
+            "SYK",
+            "TSLA",
+            "TTWO",
+            "UAL",
+            "XOM"
+          ],
+          "predates_this_version": "Checkable in git rather than asserted: the sector file arrived in the initial commit (77c18d5, 2026-07-23); candidate_peer_universe() was written 2026-08-18 (42cc220); the first curated linkage edge did not exist until 2026-08-22 (9f76358). MCK and PKG were inside this frame more than a month before any edge involving either of them existed. The frame was not drawn around them."
+        },
+        "conditions": [
+          {
+            "id": "AU-1",
+            "requirement": "the ticker is in the declared screening frame"
+          },
+          {
+            "id": "AU-2",
+            "requirement": "an annual report (10-K) was screened for it, filed on or before the cutoff"
+          },
+          {
+            "id": "AU-3",
+            "requirement": "that filing NAMES a specific counterparty"
+          },
+          {
+            "id": "AU-4",
+            "requirement": "the concentration is stated against consolidated_revenue -- not a segment, receivables or an unrecognised denominator"
+          },
+          {
+            "id": "AU-5",
+            "requirement": "the concentration is >= 10.0% of that denominator"
+          },
+          {
+            "id": "AU-6",
+            "requirement": "the disclosure carries a valid filing date on or before the cutoff"
+          }
+        ],
+        "conditions_source": "Copied from anchor_universe.CONDITIONS at generation time so this document cannot drift from the code that implements it.",
+        "threshold_pct": 10.0,
+        "required_denominator": "consolidated_revenue",
+        "parameters_are_the_standard_s_own": "ASC 280-10-50-42 requires disclosure of reliance on a single customer at '10 percent or more of an entity's revenues'. Both the threshold and the denominator are taken from the standard. Neither was chosen to suit an observed set of tickers, and changing either to alter which tickers qualify would be the selection this rule exists to prevent.",
+        "conditions_deliberately_rejected": [
+          {
+            "condition": "counterparty still exists",
+            "why_rejected": "Excluding anchors whose counterparty was acquired or taken private selects on survival. Acquisition is often caused by the very relationship under study, so the excluded pairs are not missing at random with respect to the hypothesis."
+          },
+          {
+            "condition": "price history obtainable",
+            "why_rejected": "A provider that drops delisted securities is survivorship-biased by construction. Letting that provider decide the universe imports its bias into the preregistration. Measurability is reported per pair; it never decides membership."
+          },
+          {
+            "condition": "relationship still current",
+            "why_rejected": "The measurement is point-in-time: an edge is used at anchor events AFTER its as-of date. A relationship that has since ended is still a real relationship for the events it covered."
+          },
+          {
+            "condition": "the ticker is in the locked 24-ticker universe",
+            "why_rejected": "The locked universe is HYP-01 confirmatory infrastructure with its own drift test. HYP-04 is exploratory and does not modify it. Requiring membership would make this universe empty -- the 51-ticker screen found zero named counterparties among the locked 24."
+          }
+        ],
+        "derivation_is_not_assertion": "build_v1_8 has no parameter for the membership intervals. It derives them from the pinned history, writes the result, then RE-DERIVES independently and refuses to write a document whose intervals it cannot reproduce. The published artifact is re-checked against the rule on every test run.",
+        "the_rule_was_written_after_the_screen_was_seen": {
+          "acknowledged": true,
+          "sequence": "The 51-ticker screen ran 2026-08-26. This rule was written 2026-08-27. Claiming the rule predates the data would be false, and this registry does not claim it.",
+          "what_actually_protects_it": "Two things, both checkable. (1) The rule's parameters are ASC 280-10-50-42's own, not numbers picked to fit an observed set. (2) Applying it COSTS a ticker: PKG is excluded, and PKG is one of only two companies in the screen with a named counterparty and one of the two curated linkage edges. A rule fitted to the observed set would have kept both.",
+          "alternative_considered_and_rejected": {
+            "alternative": "Accept a SEGMENT-level denominator, so that PKG's '58% of our Paper segment sales revenue' qualifies.",
+            "effect": "The universe would be MCK and PKG instead of MCK.",
+            "why_rejected": "It is the variant that retains the ticker already known to be there, which is the definition of fitting the rule to the data. It also does not survive on its own terms: PKG's 10-K filed 2026-02-26 says, in the same sentence, that sales to ODP were '58% of our Paper segment sales revenue and 4% of our consolidated sales revenue'. At the entity level -- which is the level at which an earnings shock moves the anchor's equity -- the relationship is 4%, below ASC 280's own bar.",
+            "how_to_reverse_it": "A further dated registry version, authored before the results that would motivate the change are seen, exactly as the promotion_rule requires."
+          }
+        },
+        "membership_is_not_eligibility": "This universe says who MAY be a HYP-04 anchor. It creates no eligible anchor event. required_eligibility_class is UNCHANGED at core_attention_vs_equity_response, eligibility is decided by gst_market_response.completeness from per-event capture records, and no capture path runs over these tickers. Every eligible-event counter in this registry remains zero and no display-gate condition moves.",
+        "revision_rule": "The rule, the frame, the threshold and the denominator may be changed only by a further dated registry version authored before the results that would motivate the change are seen. Re-running the screen at a later cutoff and recording a different membership is NOT a revision -- it is the rule doing its job -- provided the rule itself is unchanged.",
+        "not_evidence": "Nothing in this block is evidence about supply-chain transmission.",
+        "evaluation_basis": "point_in_time",
+        "evaluation_basis_note": "The rule is evaluated against the 10-K IN FORCE at each date, not against one snapshot. AU-1..AU-6, the 10% threshold and the consolidated-revenue denominator are UNCHANGED from v1.5 and remain ASC 280-10-50-42's. What changed is WHEN the rule is asked, not what it asks.",
+        "membership_intervals": [
+          {
+            "ticker": "AAPL",
+            "start_date": "2000-12-14",
+            "end_date": "2002-12-19",
+            "start_accession": "0000912057-00-053623",
+            "end_accession": "0001047469-02-007674",
+            "filings_qualifying": 1,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Ingram Micro Inc",
+                  "concentration_pct": 11.5,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "net sales",
+                  "as_of_date": "2000-12-14",
+                  "accession": "0000912057-00-053623",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "ADBE",
+            "start_date": "2008-01-24",
+            "end_date": "2015-01-20",
+            "start_accession": "0001047469-08-000497",
+            "end_accession": "0000796343-15-000022",
+            "filings_qualifying": 7,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Ingram Micro",
+                  "concentration_pct": 21.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "net revenue",
+                  "as_of_date": "2008-01-24",
+                  "accession": "0001047469-08-000497",
+                  "form": "10-K",
+                  "direction": "customer"
+                },
+                {
+                  "counterparty": "Tech Data",
+                  "concentration_pct": 10.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "net revenue",
+                  "as_of_date": "2008-01-24",
+                  "accession": "0001047469-08-000497",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "CTSH",
+            "start_date": "2004-03-12",
+            "end_date": "2005-03-16",
+            "start_accession": "0000903100-04-000126",
+            "end_accession": "0000950123-05-003226",
+            "filings_qualifying": 1,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "JP Morgan Chase",
+                  "concentration_pct": 10.1,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our revenues",
+                  "as_of_date": "2004-03-12",
+                  "accession": "0000903100-04-000126",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "INTC",
+            "start_date": "2005-02-22",
+            "end_date": "2025-01-31",
+            "start_accession": "0001193125-05-033162",
+            "end_accession": "0000050863-25-000009",
+            "filings_qualifying": 20,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Dell Inc",
+                  "concentration_pct": 19.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total sales",
+                  "as_of_date": "2005-02-22",
+                  "accession": "0001193125-05-033162",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "JBL",
+            "start_date": "2001-11-28",
+            "end_date": "2025-10-17",
+            "start_accession": "0000950144-01-509611",
+            "end_accession": "0001628280-25-045293",
+            "filings_qualifying": 24,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Dell Computer Corporation",
+                  "concentration_pct": 14.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "consolidated net revenue",
+                  "as_of_date": "2001-11-28",
+                  "accession": "0000950144-01-509611",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "MCK",
+            "start_date": "2000-06-13",
+            "end_date": "2008-05-07",
+            "start_accession": "0000929624-00-000832",
+            "end_accession": "0000950149-08-000067",
+            "filings_qualifying": 8,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Rite Aid Corporation",
+                  "concentration_pct": 15.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "the Company's fiscal 2000 revenues",
+                  "as_of_date": "2000-06-13",
+                  "accession": "0000929624-00-000832",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "MCK",
+            "start_date": "2013-05-07",
+            "end_date": null,
+            "start_accession": "0001561787-13-000010",
+            "end_accession": null,
+            "filings_qualifying": 14,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "CVS Caremark Corporation",
+                  "concentration_pct": 17.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total consolidated revenues",
+                  "as_of_date": "2013-05-07",
+                  "accession": "0001561787-13-000010",
+                  "form": "10-K",
+                  "direction": "customer"
+                },
+                {
+                  "counterparty": "CVS",
+                  "concentration_pct": 17.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total consolidated revenues",
+                  "as_of_date": "2013-05-07",
+                  "accession": "0001561787-13-000010",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "NKE",
+            "start_date": "2002-08-14",
+            "end_date": "2004-07-30",
+            "start_accession": "0000891020-02-001248",
+            "end_accession": "0001193125-04-128270",
+            "filings_qualifying": 2,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Foot Locker, Inc",
+                  "concentration_pct": 10.9,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "the Company’s consolidated revenues",
+                  "as_of_date": "2002-08-14",
+                  "accession": "0000891020-02-001248",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "NVDA",
+            "start_date": "2002-05-14",
+            "end_date": "2012-03-13",
+            "start_accession": "0001012870-02-002262",
+            "end_accession": "0001045810-12-000013",
+            "filings_qualifying": 10,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Atlantic Semiconductor",
+                  "concentration_pct": 10.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total revenue",
+                  "as_of_date": "2002-05-14",
+                  "accession": "0001012870-02-002262",
+                  "form": "10-K",
+                  "direction": "customer"
+                },
+                {
+                  "counterparty": "Atlantic",
+                  "concentration_pct": 10.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total revenue",
+                  "as_of_date": "2002-05-14",
+                  "accession": "0001012870-02-002262",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "NVDA",
+            "start_date": "2016-03-17",
+            "end_date": "2018-02-28",
+            "start_accession": "0001045810-16-000205",
+            "end_accession": "0001045810-18-000010",
+            "filings_qualifying": 2,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "ASUSTeK Computer Inc",
+                  "concentration_pct": 11.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total revenue",
+                  "as_of_date": "2016-03-17",
+                  "accession": "0001045810-16-000205",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          },
+          {
+            "ticker": "NVDA",
+            "start_date": "2020-02-20",
+            "end_date": "2021-02-26",
+            "start_accession": "0001045810-20-000010",
+            "end_accession": "0001045810-21-000010",
+            "filings_qualifying": 1,
+            "evidence": {
+              "qualifying_disclosures": [
+                {
+                  "counterparty": "Dell",
+                  "concentration_pct": 11.0,
+                  "concentration_basis": "consolidated_revenue",
+                  "concentration_basis_text": "our total revenue",
+                  "as_of_date": "2020-02-20",
+                  "accession": "0001045810-20-000010",
+                  "form": "10-K",
+                  "direction": "customer"
+                }
+              ]
+            }
+          }
+        ],
+        "members_ever": [
+          "AAPL",
+          "ADBE",
+          "CTSH",
+          "INTC",
+          "JBL",
+          "MCK",
+          "NKE",
+          "NVDA"
+        ],
+        "members_ever_count": 8,
+        "membership_is_a_span_not_a_flag": "A ticker is an eligible anchor only for events inside one of its intervals. `anchor_universe.PointInTimeUniverse.qualifies_at()` is the operative test. An interval opens on the filing date that first disclosed the qualifying concentration -- the date the fact became public, which is the same claim an edge's as_of_date makes -- and closes on the filing date of the later filing that no longer qualified. The span is half-open: [start, end).",
+        "history_artifact": "Live Signal Engine/HYP04_EDGAR_LINKAGE_HISTORY_FULL51_2026-08-29_v1.json",
+        "history_artifact_sha256": "ad90a2a49e10500a6e57086b938f55a52dbfba3250368b1fbc3e139ec7761e3e",
+        "filings_evaluated": 1250,
+        "tickers_walked": 51,
+        "superseded_snapshot": {
+          "v1_5_derived_members": [
+            "MCK"
+          ],
+          "v1_5_cutoff_date": "2026-08-27",
+          "v1_5_screen_artifact": "Live Signal Engine/HYP04_EDGAR_CANDIDATE_LINKAGE_FULL51_2026-08-27.json",
+          "why_superseded": "v1.5's screen read only each filer's NEWEST 10-K (edgar_linkage.extract_for_universe calls client.latest_10k), so a company entered the universe only if its named >=10% concentration is STILL disclosed in 2026. That lets persistence of the relationship to the present day decide membership. A concentration ends because a customer was acquired, taken private or failed -- none of which is independent of a supply-chain transmission hypothesis -- so the companies the snapshot silently dropped are not missing at random.",
+          "it_is_the_policy_v1_5_itself_states": "v1.5's peer_price_data_policy forbids letting data availability decide membership, on survivorship grounds. The newest-filing screen is the same selection one level up, on the anchor side. v1.5 forbade it for peers while practising it for anchors.",
+          "the_snapshot_member_was_not_wrong": "MCK does disclose CVS Health at 24% of consolidated revenue in the 10-K filed 2026-05-08. The snapshot was a correct application of the rule to the corpus it was given. It is superseded because the corpus was biased, not because the answer was false.",
+          "both_answers_are_not_carried": "The intervals REPLACE the snapshot. A registry asserting two different universes for one hypothesis is the self-contradiction v1.4 was authored to remove."
+        },
+        "corpus_correction": {
+          "why_recorded": "Widening the corpus from 2026-only to 1996-2026 raised the extractor's false-positive rate with no code change. The gates did not regress; the corpus outgrew them. A universe is a preregistration artifact, so a fabricated member is worse than a missing one, and the measurement belongs in the record.",
+          "fabrications_found_and_rejected": 8,
+          "classes": [
+            "an aggregate channel ('Distributors accounted for 60% of our net sales')",
+            "three geographies, two of them absent from the place-name list (Singapore, Hong Kong)",
+            "a percentage shared by two named firms, attributed to one",
+            "a superseded prior-year comparative in a filing that states there was no such concentration that year",
+            "the filer's own operating segment ('within the Mobility Group')",
+            "a category acronym in apposition ('Asustek, a CEM,')"
+          ],
+          "why_the_gates_are_structural": "The gate that failed was the LIST -- GEOGRAPHIC_PARTY enumerated place names and contained neither Singapore nor Hong Kong. A list of places can never be complete, so all seven replacements match CONSTRUCTIONS instead.",
+          "two_rounds_because_spot_checking_is_not_measurement": "Round one inspected only the disclosures the report printed. Round two enumerated every named >=10% disclosure across every filing and found three more, hidden behind a genuine one on the same ticker.",
+          "under_inclusion_was_measured_too": "Every gate rejects, and an unrecognised denominator fails closed; both shrink a universe silently. Measured across the full corpus, exactly two named >=10% disclosures carried an unrecognised denominator, and both are Qualcomm SEGMENT revenues that the rule excludes correctly anyway.",
+          "regression_fixtures": "test_hyp04_supply_chain_hedge_edgar.py::test_6h, ::test_6i and ::test_6j, all using verbatim filing text, each with hardcoded-open controls because a gate that rejected everything would satisfy every rejection test.",
+          "retrieval_completeness": "10 of 11 unreachable filings were from 2000-2001 and returned 404: they predate the per-document layout. They are the OLDEST filings, which a history walk exists to reach, so losing them biases the corpus toward recent history. EdgarClient now falls back to the full-submission text and takes ONLY the 10-K document -- exhibits excluded, because HYP04_Linkage_Map_v1.0.csv records a false attribution that came from exhibit text in exactly one of these filings."
+        },
+        "known_limitations": [
+          "ASC 280 is a FLOOR. Disclosure is required only at or above 10% of revenue, so real relationships below it, most supplier relationships, and every unnamed 'Customer A' are invisible to this source. AN ABSENT MEMBER IS NOT EVIDENCE OF NO CONCENTRATION.",
+          "'Company' is deliberately absent from LEGAL_ENTITY_SUFFIX, so a name carrying only that suffix in a sentence with no role word is dropped. Under-inclusive; changes no membership here.",
+          "A party whose HEAD NOUN is a unit type (Group, Division, Segment) is rejected. A real firm whose name ends that way would be dropped. Measured across the corpus this rejects exactly five of the filer's own segments and no real counterparty, and 'Lenovo Group Limited' survives because its head is 'Limited'.",
+          "The verb set admits equivalence phrasings but refuses generated, provided and contributed: those describe what a counterparty CONTRIBUTED rather than asserting the share IS the figure. Under-inclusive by choice.",
+          "Staleness now uses the submission's period of report where one is supplied, and falls back to the filing date otherwise. The fiscal-period imprecision recorded as a limitation in v1.6 is CLOSED -- and it was not harmless: it is what admitted MCHP.",
+          "A METRIC-LABELLED BLOCK TABLE is refused outright. Some filers head a block with the party and then label each row of figures by METRIC -- 'Reyes Beer Division entities / Net sales 27.5 % / Accounts receivable 22.0 %' -- so the nearest label to every figure is a metric, not a party. This reader cannot attribute those rows and takes NONE of them. MEASURED COST: STZ discloses Reyes Beer Division entities at 25-27% and Southern Glazer's Wine and Spirits at 11-13% of net sales, and STZ is therefore NOT a member. Missing a real relationship is the safe direction; inventing one is not.",
+          "'and' is not a name continuation, because allowing it produced two names sharing one percentage. A counterparty whose registered name contains 'and' is therefore truncated -- 'Southern Wine and Spirits' is captured as 'Southern Wine'. Both instances in this corpus are receivables-basis and change no membership.",
+          "A row is read only when its cell count matches the year header's width, with the filer's own '*' placeholder counted as a column. A table whose rows disagree with its header is refused rather than aligned by guess."
+        ],
+        "corpus_correction_2026_08_28": {
+          "why": "The same rule, evaluated over the same 51-ticker frame and the same filings, yielded a different universe once the extractor could read the filings correctly. Membership moved in BOTH directions, which is the evidence that this is a correction and not a widening: a change that only ever adds members is indistinguishable from a loosened threshold.",
+          "removed": {
+            "MCHP": "Its v1.6 interval rested on a STALE COMPARATIVE. The 10-K filed 2013-05-30 (period 2013-03-31) says Future Electronics was 'approximately 10% of our net sales in each of fiscal 2012 and fiscal 2011'; the 10-K filed 2014-05-30 (period 2014-03-31) says 'in fiscal 2012'. NEITHER states a concentration for the year it reports on. Staleness was measured against the FILING DATE, whose window must be two years wide to avoid rejecting the reporting year of a calendar-year filer, and that slack admitted the figure."
+          },
+          "added": {
+            "NKE": "NIKE discloses Foot Locker, Inc. at 10.9% (FY2002), 11.8% (FY2001) and 12.4% (FY2000) of CONSOLIDATED revenues, and calls it 'our largest single customer'. Three independent defects hid it: a multi-year 'respectively' construction the anchor could not read, a possessive denominator ('the Company's consolidated revenues') it could not match, and a party parser that truncated 'Foot Locker, Inc.' to the bare suffix 'Inc' at the comma."
+          },
+          "also_corrected_without_moving_membership": "NVDA/Celestica, which v1.6 names as a comparative that 'still passes', is now rejected; it was not an interval opener. Three counterparties stopped being mis-parsed at the comma: Ingram Micro (AAPL), Caremark RX (MCK), Hyundai Electronics (QCOM).",
+          "fabrication_routes_closed": "Four constructions no gate covered: the filer's own business unit by appositive, the filer's own unit by HEAD NOUN, 'including X' making X an instance of the measured category, and a comparative dated by 'year ended <Month> <day>, <year>'. THREE OF THE FOUR WERE LATENT IN v1.6'S EXTRACTOR, not introduced by the widening: with an accepted verb the published code produced the same fabrications. They were absent from the corpus only because the filings carrying them happen to use copular verbs the anchor did not match -- protection by accident.",
+          "verification": "Re-derived offline from the response cache at ZERO SEC requests. Corpus diff against the pre-correction run: two removals, zero additions. Exhaustive enumeration of every named disclosure at or above 10% of consolidated revenue across all 1,250 filings gives 62 disclosures over 23 distinct ticker-counterparty pairs, every one a real company -- no geography, no segment, no bare legal suffix. Zero fabrications."
+        },
+        "corpus_correction_2026_08_29": {
+          "defect": "Every anchor required the percentage and the denominator to be ADJACENT -- '<pct>% of <basis>'. Filings state the denominator once in a scope clause and then list parties carrying bare percentages, in prose or as a table. No such list could be read, whatever verb or layout it used: the surface form is incidental and the structural fact is that the denominator is not repeated per party.",
+          "why_it_mattered": "All three membership errors below are the same error -- DATA AVAILABILITY DECIDING MEMBERSHIP, which AU-1..AU-6 forbid. The rule, the frame, the threshold and the filings are unchanged; only what the extractor could read changed.",
+          "extended": {
+            "INTC": "The interval closed at 2017-02-17, which is the filing in which Intel MOVED the named-customer disclosure out of Item 1 prose and into the segment note -- not the year the relationship ended. Dell Inc. is disclosed at 15-21% of net revenue in every filing from 2017-02-17 through 2024-01-26, alongside Lenovo Group Limited at 11-13% and HP Inc. at 10-11%. Membership now runs 2005-02-22 to 2025-01-31."
+          },
+          "added": {
+            "ADBE": "Ingram Micro at 11-21% of net revenue across 2008-2015, disclosed in a table headed 'The table below lists our significant customers, as a percentage of net revenue', with Tech Data at 10% in the fiscal-2007 filing. Adobe appeared in no previous registry version.",
+            "JBL": "Jabil's 10-Ks carry an explicit table of 'customers who accounted for 10% or more of the Company's net revenues, expressed as a percentage of consolidated net revenue': Dell Computer Corporation (FY2001), Cisco Systems (FY2002-FY2013, 10-24%), Marconi Communications, Royal Philips Electronics, Hewlett-Packard Company, Nokia Corporation, BlackBerry Limited and Apple, Inc. (FY2012-FY2024, 11-28%). Twenty-four qualifying filings, and Jabil appeared in no previous registry version."
+          },
+          "both_new_exits_are_the_rule_working": "INTC's membership ends 2025-01-31 and JBL's 2025-10-17 because in those filings Intel and Jabil ANONYMISED their customers to 'Customer A / B / C'. A concentration whose counterparty is not named cannot support a bilateral relationship and the rule excludes it. These are rule-based exits, not reading failures, and they are enforced by the same control that keeps 'Customer A' out of every other filing.",
+          "fabrication_routes_closed": "The first draft of the scoped-list reader was measured against all 1,250 filings before it was believed, and produced six fabrication routes, every one of which is now closed with a verbatim regression fixture: a bare 'Inc' from the comma in 'Apple, Inc.' in 26 filings; 'Hong Kong', 'South Korean', 'European' and 'There' from rows read out of LATER sentences than the scope clause; 'Constellation Wines' from 'reported within the ... segment'; two names sharing one percentage; and Rite Aid at 49% OF REVENUE read off a sentence about receivables. Spot-checking would not have found them.",
+          "what_it_refuses": "Column order is NOT a convention -- INTC, ADBE, CTSH and JBL list years newest-first while GOOGL lists '2023 2024' oldest-first, all in this corpus -- so the year header is READ, and a multi-column list whose header is unreadable, or whose header never names the reporting year, yields nothing. Two blocks sharing one year row are read only while the revenue label precedes the receivables label, which is checked rather than assumed. A single bare column must sit in the scope clause's own sentence.",
+          "verification": "Re-derived offline from the response cache at ZERO SEC requests, over the same 1,250 filings with zero failures. Corpus diff against the v1.7 run: 86 edges ADDED, ZERO REMOVED -- no existing edge changed or disappeared. Every added named party is a real company: Ingram Micro, Tech Data, Dell, HP, Lenovo, Apple, Cisco, Nokia, Royal Philips, Marconi, BlackBerry, Hewlett-Packard. No geography, no segment, no aggregate, no bare legal suffix."
+        }
+      },
+      "anchor_shock": {
+        "rule_id": "HYP04-ANCHOR-SHOCK-RULE-v1",
+        "shock_definition": "abs(anchor_return - beta * benchmark_return)",
+        "benchmark_ticker": "SPY",
+        "benchmark_beta": 1.0,
+        "beta_is_estimated": false,
+        "max_abs_excess_return": 2.0,
+        "point_in_time_basis": "A daily return is computed from the t-1 and t closes only. No input to it postdates session t, so it cannot be revised by later information. Uniform split/dividend adjustment rescales the series and leaves the daily ratio unchanged. This is the asymmetry that separates a price-based shock from a search-attention z-score, whose value depends on the query window used at download time.",
+        "conditions": [
+          {
+            "id": "AS-1",
+            "text": "The shock is measured on the session the earnings release is ATTRIBUTED to -- the same session the peer target indexes as anchor_day. The attribution itself (BMO on the same session, otherwise the next) is delegated, never reimplemented here."
+          },
+          {
+            "id": "AS-2",
+            "text": "excess = anchor_return - BENCHMARK_BETA * benchmark_return, with the benchmark fixed in advance and its coefficient NOT estimated."
+          },
+          {
+            "id": "AS-3",
+            "text": "Both returns must be present and finite for that session. A missing benchmark return denies; it is never treated as zero."
+          },
+          {
+            "id": "AS-4",
+            "text": "shock = |excess|. The hypothesis is about VOLATILITY transmission, which is a magnitude response, and the estimator's shock column has always been non-negative."
+          },
+          {
+            "id": "AS-5",
+            "text": "One shock per anchor event, constant across that event's peers -- the unit the permutation test already permutes."
+          },
+          {
+            "id": "AS-6",
+            "text": "Fail closed. Any missing, unparseable or out-of-band input denies the event. Nothing is imputed, inferred, or defaulted to zero."
+          }
+        ],
+        "measurement_status": "NO anchor shock has been computed from production data through this module. A module that CAN compute is not computed data.",
+        "decided_by": "Repo owner, 2026-08-29: HYP-04 tests INFORMATION TRANSMISSION along supply-chain links -- how an anchor's earnings news dictates volatility and a range of price changes for stocks in industries across the supply chain. It is a sibling of HYP-01 in the sense of the same research programme approached from a DIFFERENT ANGLE, and not in the sense of testing the same mechanism.",
+        "decision_basis": "Live Signal Engine/HYP04_ANCHOR_SHOCK_DEFINITION_MEMO_2026-08-29.md",
+        "what_it_replaced": "The anchor side previously inherited HYP-01's core_attention_vs_equity_response, whose strict gate requires gst_zscore, wiki_zscore, panel_implied_volatility, realized_volatility, previous_close and volume with successful per-leg statuses, plus a pre-event snapshot. Certifying ONE HYP-04 anchor event therefore required two attention series and an option chain. None of that bears on whether an earnings-day excess return is well measured.",
+        "no_fourth_class_was_created": "There is no class in gst_market_response.completeness.HYPOTHESIS_CLASSES for this requirement and none was added. The rule lives in HYP-04's own package, exactly as peer eligibility does, and HYP-01's confirmatory infrastructure is untouched.",
+        "beta_is_not_estimated_because": "An estimated beta needs an estimation window, and choosing that window after seeing how results move is after-the-fact tuning. A beta fitted on the full sample uses post-event data to define a pre-event expectation -- look-ahead by construction, the same defect class as the reconstructed GST z-score history this project's central finding is about. beta = 1 is chosen for being ASSUMPTION-FREE, and is a STATED LIMITATION rather than a claim that the market model is right.",
+        "known_limitations": [
+          "beta = 1 against a broad-market proxy is not a risk model. A peer whose anchor has high market beta will carry part of the market move in its 'excess' return. Stated, not corrected.",
+          "The shock is a MAGNITUDE. Direction is discarded, which is correct for a volatility-transmission question and would be wrong for a signed-return one.",
+          "OPEN, RECORDED 2026-08-29, NOT RESOLVED HERE: the peer target's reference window is peer_returns[ref_start:anchor_day + 1] -- INCLUSIVE of day 0. If transmission is partly same-day, part of the response sits in the baseline it is measured against. This is true however the shock is defined and needs its own decision and its own robustness check against a window ending at anchor_day - 1."
+        ],
+        "return_basis": "log",
+        "return_basis_definition": "log(close_t / close_{t-1})",
+        "return_basis_note": "Both legs use the same basis. This module does not compute returns -- it accepts them -- so the basis is a CONTRACT WITH THE CALLER, not something it can enforce. It is declared here and in the registry so a series collected under the other convention is a stated mismatch rather than a silent one."
+      },
+      "anchor_event_rule": {
+        "rule_id": "HYP04-ANCHOR-EVENT-RULE-v1",
+        "selection": "An 8-K reports results if it carries the item code for Results of Operations and Financial Condition UNDER THE NUMBERING IN FORCE ON ITS REPORT DATE.",
+        "item_code_modern": "2.02",
+        "item_code_legacy": "12",
+        "item_12_introduced": "2003-03-28",
+        "item_renumbered_to_2_02": "2004-08-23",
+        "eras": [
+          {
+            "from": null,
+            "until": "2003-03-28",
+            "results_item": null,
+            "note": "No earnings-specific code exists. An earnings release carried Item 5 or Item 7, the same codes every unrelated 8-K carried, so the index cannot distinguish it. INVISIBLE to any index-level rule."
+          },
+          {
+            "from": "2003-03-28",
+            "until": "2004-08-23",
+            "results_item": "12",
+            "note": "Item 12, created by the Regulation G release."
+          },
+          {
+            "from": "2004-08-23",
+            "until": null,
+            "results_item": "2.02",
+            "note": "Item 2.02, renumbered from Item 12 by SEC Release 33-8400."
+          }
+        ],
+        "codes_are_exact_tokens": true,
+        "dedup_rule": "one anchor event per (anchor_ticker, release_date); the earliest ACCEPTANCE wins, ties broken on accession",
+        "why": "A regulator renumbering a form item is not a filer that stopped reporting earnings. Selecting on Item 2.02 alone lets an SEC numbering decision decide which events exist -- the same defect as letting a filer's PRINT FORMAT decide membership, which this project already refused once.",
+        "measured_instance": "NKE has ZERO Item 2.02 filings inside its 2002-08-14..2004-07-30 membership span and SIX Item 12 filings. Its zero was the renumbering and nothing else.",
+        "anomaly_handling": "A MODERN code before the renumbering date is counted -- the index is what it is -- and FLAGGED as modern_code_before_renumbering. Exactly one exists, NKE 2001-12-16, and it falls outside NKE's membership span.",
+        "stated_under_inclusion": "Member-years before 2003-03-28 carry no results item code and are unrecoverable at index level. The count is published with every calendar as member_years_with_no_results_item_code.",
+        "measurement_status": "This rule selects FILINGS. It computes no shock and creates no eligible anchor event.",
+        "implemented_by": "hyp04_supply_chain_hedge/earnings_events.py (the rule) and hyp04_supply_chain_hedge/anchor_calendar.py (its application to membership spans)",
+        "decided_on": "2026-08-29",
+        "declared_on": "2026-08-31",
+        "measured_before_adopted": "The 2026-08-29 calendar artifact published BOTH totals side by side under accept_legacy_item_12=False and adopted neither. The owner took the decision afterwards. Passing False still reproduces the superseded rule exactly, so that artifact stays reproducible rather than merely archived.",
+        "effect_on_counts": "321 candidate anchor events under the superseded rule, 342 under this one; 306 and 324 respectively once an unresolved release session is excluded. Both are CANDIDATE counts. Neither is an eligible-event count and neither moves C2.",
+        "known_limitations": [
+          "Member-years before 2003-03-28 carry no earnings-specific item code at all -- an earnings 8-K then bore Item 5 or Item 7, the same codes every unrelated 8-K bore. 7.62 member-years fall in that era, roughly 30 releases, and NO index-level rule can recover them. Stated under-inclusion, not a corrected one.",
+          "AAPL's entire membership span predates that date, so its zero is not fixed by this rule and is not evidence it did not report.",
+          "Item tagging remains a FLOOR, not a census: a filer can furnish results without tagging the results item, and at least one did (MCK 2020-02-04). Unchanged by this version."
+        ]
+      },
+      "peer_target_window": {
+        "specification_id": "HYP04-PEER-TARGET-WINDOW-v1",
+        "implemented_by": "hyp04_supply_chain_hedge/target.py",
+        "target": "log(RVar(h)) - log(RVar_ref) per (anchor event, peer, horizon)",
+        "post_event_window": "[anchor_day + 1, anchor_day + h]",
+        "reference_window_length_sessions": 20,
+        "reference_window_offset_sessions": 1,
+        "reference_window": "the 20 sessions ending 1 session(s) BEFORE anchor_day, i.e. ending at anchor_day - 1",
+        "anchor_day_is_in_neither_window": true,
+        "what_it_replaced": "The reference window ended AT anchor_day, which is the session the anchor's earnings release is ATTRIBUTED to -- for a BMO release the news is out before the open, and for an AMC release the attributed session is the next day, so in both cases the peer's return on that session can already contain the transmission being measured. Standard event-study practice is that the estimation window ends before the event window, and it did not.",
+        "direction_of_the_change": "FAVOURABLE, and stated as such. Removing a contaminated session from the baseline LOWERS the baseline and RAISES the measured log-ratio. The superseded window was weakly conservative: it attenuated the effect it was measuring.",
+        "why_this_is_legitimate_now": "Because NOTHING HAS BEEN MEASURED. No shock, no peer response and no target value from production data exists for HYP-04, so there is no outcome this could have been chosen to favour. A change in the favourable direction made after any result existed would be the after-the-fact tuning this project's rules forbid. It was taken before closes were collected for exactly this reason.",
+        "robustness_specification": {
+          "reference_window_offset_sessions": 0,
+          "description": "The superseded day-0-inclusive window, REPORTED ALONGSIDE the primary and never substituted for it.",
+          "reproduces_superseded_arithmetic_exactly": true,
+          "how": "target.raw_log_ratio_target(..., reference_offset=0)"
+        },
+        "only_the_endpoint_moved": "The window LENGTH is unchanged at 20 sessions. The two specifications differ in exactly one way, so the robustness comparison is not confounded by a length change as well.",
+        "data_cost": "One additional close per (peer, event): 41 -> 42. The emitted request spans the WIDER window, so it satisfies the robustness variant too and no second collection round is needed.",
+        "coverage_agrees_with_the_target": "peer_returns.coverage_for_event slices the same window from the same constant. If it did not, P5 would certify pairs the target then returns NaN for, and the denial would point at the window instead of at the data.",
+        "measurement_status": "This specifies a computation. NO target value has been computed from production data."
+      }
+    },
+    {
+      "hypothesis_id": "HYP-05",
+      "title": "Supply-chain relationship-lag among lower-coverage peers",
+      "question": "Does delayed earnings-information transmission appear specifically in clearly signed supplier/customer/competitor relationships among lower-coverage or less-liquid peers? HYP-04 tested the large-cap, heavily-covered, single-relationship-type case and reported NOT_SIGNIFICANT; this asks whether the same mechanism is detectable where slow diffusion is a priori more plausible.",
+      "classification": "preregistered_exploratory",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 195,
+      "minimum_eligible_events_unit": "eligible anchor events",
+      "minimum_eligible_events_basis": {
+        "governance_character": "A GOVERNANCE ELIGIBILITY FLOOR, in the same sense as HYP-01/02/03's 60/60/40 and HYP-04's 193 -- NOT a claim of guaranteed statistical power and NOT an estimate of detectable effect size.",
+        "provisional": true,
+        "why_provisional": "HYP-05 has not fixed a horizon grid or model spec, so there is no design yet whose correlation structure a max-T permutation run could honestly measure. A measurement attempted against a guessed-at synthetic panel this session returned k_eff=47.4, exceeding the 20-horizon upper bound, and was discarded as methodologically premature rather than reported.",
+        "must_be_superseded_by": "A fresh max-T permutation measurement (inference.max_t_permutation via local_projection_analysis, same mechanism HYP-04's Phase 0 used) against synthetic fixtures shaped like HYP-05's OWN locked design, once that design exists -- written as a new dated version of this finding, exactly mirroring how HYP-04's own provisional '190-240' was superseded by its measured 193.",
+        "derivation_inputs": {
+          "assumed_effect_size_cohens_d": 0.5,
+          "assumed_effect_size_character": "hypothetical, externally chosen, NOT derived from any observed project result -- same discipline as HYP-04's",
+          "alpha_family_wise": 0.05,
+          "power": 0.8,
+          "multiplicity_correction": "Sidak, formula verified against HYP-04's own published table. k is BORROWED from HYP-04's own measured range [6.05, 6.34] as a planning assumption, not measured for HYP-05's own (not-yet-fixed) design.",
+          "naive_single_test_baseline": 126,
+          "naive_single_test_baseline_note": "LABELLED BASELINE ONLY. Never the operative floor. Not design-dependent -- this one number IS real today."
+        },
+        "why_this_does_not_violate_the_power_statement": "The power_statement forbids a power calculation performed USING OBSERVED PROJECT RESULTS. Both k values entering this derivation are HYP-04's own Phase 0 SYNTHETIC-fixture measurement, not any observed result or real collected data of any kind.",
+        "derivation_reference": "Live Signal Engine/HYP05_SAMPLE_SIZE_GATE_2026-09-11.md",
+        "revisable": "This floor may be revised only by a further dated registry version written BEFORE the results that would motivate the revision are seen -- the same discipline HYP-04's own floor is held to."
+      },
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "required_eligibility_class_note": "The ANCHOR-side requirement only, same class HYP-04 uses: an anchor event must itself be core-eligible for its earnings shock to be usable. No anchor ticker has been chosen for HYP-05, so this is a requirement on whatever gets chosen, not a statement that any candidate currently satisfies it.",
+      "options_benchmark_required": false,
+      "status": "EXPLORATORY_PILOT_TESTED_NULL",
+      "status_basis": "Phase 3 -- HYP-05's one authorized, exploratory pilot look, against a real (AMBA, NVDA) peer/anchor pair curated and EDGAR-verified this project -- ran for real under the owner's typed authorization and reported HYP05_PHASE3_RESULT_2026-09-12.json (sha256 36d30e1c7cdb8252e7bd5cda4076c13103e935844f89598d633e568361543fe0), committed 2ba3a62. peak_horizon=7, max_abs_t=1.8832900462982551 against a critical value of 5.751772527559137 (p=0.6411794102948526), NOT significant at any tested horizon. n_locked_events=8, roughly 24x short of this entry's own minimum_eligible_events (195, still PROVISIONAL and UNCHANGED by this version). make_hyp05_phase3_run.py refuses unconditionally if any HYP05_PHASE3_RESULT_*.json already exists, so this specific 8-event look is a structurally enforced terminal state -- but the HYPOTHESIS is not closed: unlike HYP-04's holdout, this pilot never claimed to be the one confirmatory test, and nothing here forecloses a future curation round producing a larger sample and a fresh Phase 2/3 cycle against it. The result's own effective_independent_tests (5808152.932159167) is a KNOWN numerical artifact of backing out a test count from an 8-cluster critical value via a normal-tail formula -- see HYP05_PHASE3_RESULT_CHARACTERIZATION_2026-09-12.md -- and must not be read as a measurement of anything, nor used to supersede the provisional floor's own must_be_superseded_by condition, which remains UNSATISFIED after this pilot.",
+      "required_external_measurement": {
+        "measurement": "supply-chain / competitor / customer linkage map, per anchor ticker, WITH a structured linkage-strength proxy and real relationship-type variation",
+        "required_columns": [
+          "anchor_ticker",
+          "peer_ticker",
+          "relationship_type",
+          "confidence",
+          "first_known_or_established_as_of_date"
+        ],
+        "availability": "does_not_exist",
+        "as_of_date_requirement": "Same discipline as HYP-04: the first-known/established-as-of date per pair is REQUIRED, not optional, for the same look-ahead-bias reason.",
+        "placeholder_used_in_phase_0": "none -- Phase 0 has not started",
+        "placeholder_is_never_evidence": "No result computed on any placeholder or provisional input is evidence about relationship-lag transmission, and none may be reported as such."
+      },
+      "forbidden_substitutions": [
+        "sector membership as a stand-in for a supply-chain relationship",
+        "return or volatility correlation as a stand-in for an established business relationship, or as the linkage-strength proxy -- the proxy must be defined BEFORE any outcome is examined",
+        "any linkage map lacking a first-known/established-as-of date, applied to historical events",
+        "selecting the peer universe by which candidates already look promising in HYP-04's or any other hypothesis's data"
+      ],
+      "forbidden_substitution_rule": "If the linkage for an anchor-peer pair is unavailable or undated, that pair does not count toward HYP-05. If a candidate peer's liquidity/coverage cutoff was chosen after looking at its returns, the cutoff is void and must be re-chosen blind.",
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "the exact liquidity/coverage percentile cutoff for peer selection",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "the target anchor/peer universe",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "the target/outcome definition",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        },
+        {
+          "decision": "two-way clustering (anchor event x calendar period) -- re-decided on HYP-05's own terms, not inherited from HYP-04's resolution",
+          "state": "PENDING_SEPARATE_ANALYSIS_LOCK"
+        }
+      ],
+      "options_tension_note": {
+        "statement": "HYP-05 makes no options-related claim of any kind at this stage.",
+        "formal_options_eligibility": "OUT OF SCOPE FOR THIS ENTRY. This registry version does NOT register HYP-05 against options_implied_move or joint_attention_plus_options.",
+        "deferred_to": "not applicable unless a later stage introduces one, which would need its own dated decision.",
+        "why_recorded_now": "For the same reason HYP-04's entry records it: visible at registration, not silently assumed."
+      },
+      "display_rule": "No result, direction, effect estimate, plot, p-value or confidence interval may be displayed before 195 eligible events (PROVISIONAL floor -- see minimum_eligible_events_basis). The hypothesis accrues no eligible events at all while its status is PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED. No result computed on any placeholder or provisional input may be displayed as a HYP-05 result under any circumstances, at any event count."
+    },
+    {
+      "hypothesis_id": "HYP-06",
+      "title": "Scaled supply-chain relationship-lag among lower-coverage peers",
+      "question": "The SAME question HYP-05 asked: does delayed earnings-information transmission appear specifically in clearly signed supplier/customer relationships among lower-coverage or less-liquid peers? HYP-05's own Phase 3 tested this on an 8-event, 1-peer exploratory pilot and reported NOT_SIGNIFICANT (EXPLORATORY_PILOT_TESTED_NULL, holdout spent, never re-run). HYP-06 asks the identical question against a systematically-discovered universe two orders of magnitude larger -- see the model plan for why this is a fresh hypothesis with its own holdout, not a reopening of HYP-05's.",
+      "classification": "preregistered_exploratory",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 195,
+      "minimum_eligible_events_unit": "eligible (peer, anchor_event) pairs",
+      "minimum_eligible_events_basis": {
+        "governance_character": "A GOVERNANCE ELIGIBILITY FLOOR, in the same sense as every prior hypothesis's own floor -- NOT a claim of guaranteed statistical power and NOT an estimate of detectable effect size.",
+        "provisional": true,
+        "why_provisional": "HYP-06's design IS fully fixed (reused from HYP-05's own locked target/outcome/clustering), unlike HYP-05 at its own registration -- so a real measurement is possible in principle. It is not done in this pass: building and validating a synthetic-fixture generator shaped like the real 776-cluster design is real, separate work, and is not needed to clear a floor the real universe already clears several times over.",
+        "must_be_superseded_by": "A fresh max-T permutation measurement against synthetic fixtures shaped like HYP-06's own 776-cluster design, written as a new dated version of this finding -- same mechanism HYP-04's Phase 0 used, same standard HYP-05's own gate document left unmet.",
+        "derivation_inputs": {
+          "assumed_effect_size_cohens_d": 0.5,
+          "assumed_effect_size_character": "hypothetical, externally chosen, NOT derived from any observed project result -- same discipline as every prior hypothesis's floor",
+          "alpha_family_wise": 0.05,
+          "power": 0.8,
+          "multiplicity_correction": "Sidak, formula reused UNCHANGED from HYP-05's own gate. k is BORROWED from HYP-04's own measured range [6.05, 6.34], the same provisional planning assumption HYP-05's own registration used, reused here rather than re-derived -- see must_be_superseded_by.",
+          "naive_single_test_baseline": 126
+        },
+        "why_this_does_not_violate_the_power_statement": "The power_statement forbids a power calculation performed USING OBSERVED PROJECT RESULTS. Both k values entering this derivation are HYP-04's own Phase 0 SYNTHETIC-fixture measurement, not any observed result or real collected data of any kind.",
+        "derivation_reference": "Live Signal Engine/HYP06_SAMPLE_SIZE_GATE_2026-09-13.md",
+        "revisable": "This floor may be revised only by a further dated registry version written BEFORE the results that would motivate the revision are seen -- the same discipline every prior hypothesis's floor is held to."
+      },
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "options_benchmark_required": false,
+      "status": "PREREGISTERED_UNIVERSE_RESOLVED_NOT_LOCKED",
+      "status_basis": "All four of HYP-05's own unresolved_analysis_decisions are RESOLVED for HYP-06 (reused, not re-decided -- see unresolved_analysis_decisions below), and a real, fail-closed peer-universe derivation already exists on disk (778 qualifying (peer, event) pairs, 25 distinct peer tickers). No Phase 2 analysis lock has been signed and no computation of any kind has been performed against any pair in this universe. This status is deliberately new and distinct from HYP-05's own PREREGISTERED_MEASUREMENT_NOT_IMPLEMENTED -- a reader must not mistake 'the universe is resolved' for 'a result exists' or 'a lock has been signed'.",
+      "required_external_measurement": {
+        "measurement": "supply-chain customer/supplier linkage map, per anchor ticker, with a structured relationship direction and a point-in-time as_of_date",
+        "required_columns": [
+          "anchor_ticker",
+          "peer_ticker",
+          "relationship_type",
+          "as_of_date",
+          "source"
+        ],
+        "availability": "exists",
+        "availability_source": "Live Signal Engine/HYP05_PEER_UNIVERSE_SCALED_2026-09-13.json",
+        "as_of_date_requirement": "Same discipline as HYP-04/HYP-05: enforced mechanically by peer_selection.py's PS-4 (as_of_date strictly precedes anchor_event_date), not merely required by policy."
+      },
+      "forbidden_substitutions": [
+        "sector membership as a stand-in for a supply-chain relationship",
+        "return or volatility correlation as a stand-in for an established business relationship",
+        "any linkage map lacking a first-known/established-as-of date, applied to historical events",
+        "selecting the peer universe by which candidates already look promising in this or any other hypothesis's data -- moot for HYP-06 since the universe was fixed by the round-6 discovery run before any HYP-06 outcome existed to select on"
+      ],
+      "forbidden_substitution_rule": "If the linkage for an anchor-peer pair is unavailable or undated, that pair does not count toward HYP-06.",
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "the liquidity/coverage cutoff for peer selection",
+          "state": "RESOLVED",
+          "resolution": "$2,000,000,000, reused verbatim from HYP-05's own RATIFIED peer_selection.MARKET_CAP_THRESHOLD_USD (2026-09-12), not re-chosen."
+        },
+        {
+          "decision": "the target anchor/peer universe",
+          "state": "RESOLVED",
+          "resolution": "Exactly the qualifying set in Live Signal Engine/HYP05_PEER_UNIVERSE_SCALED_2026-09-13.json -- 778 (peer, event) pairs, 25 distinct peer tickers, derived by derive_peer_universe()'s real, fail-closed PS-1..PS-4 run, not hand-selected."
+        },
+        {
+          "decision": "the target/outcome definition",
+          "state": "RESOLVED",
+          "resolution": "target.py's residualized log realized-variance ratio, reused verbatim from HYP-05's own locked model_spec (target_py_sha256-pinned in HYP05_PHASE2_LOCK_2026-09-12.json)."
+        },
+        {
+          "decision": "clustering",
+          "state": "RESOLVED",
+          "resolution": "event_id primary (mirrors clustered_se.HYP05_TWO_WAY_LIMITATION_NOTE), calendar_period as a one-way robustness lens reported alongside it, reused verbatim from HYP-05's own re-decision away from HYP-04's D1-locked calendar_period-only choice."
+        }
+      ],
+      "options_tension_note": {
+        "statement": "HYP-06 makes no options-related claim of any kind at this stage.",
+        "formal_options_eligibility": "OUT OF SCOPE FOR THIS ENTRY.",
+        "deferred_to": "not applicable unless a later stage introduces one, which would need its own dated decision.",
+        "why_recorded_now": "For the same reason every prior hypothesis's entry records it: visible at registration, not silently assumed."
+      },
+      "display_rule": "No result, direction, effect estimate, plot, p-value or confidence interval may be displayed before 195 eligible pairs (PROVISIONAL floor -- see minimum_eligible_events_basis). No Phase 2 analysis lock exists yet, and no computation has been performed against this universe -- this registration alone licenses nothing beyond stating that the universe and method are both resolved. Reaching the floor licenses looking, not concluding, same as every prior hypothesis in this registry."
+    },
+    {
+      "hypothesis_id": "HYP-07",
+      "title": "Competitor-relationship signed reaction to anchor earnings surprises",
+      "question": "Does a company's stock move in the OPPOSITE direction from a verified competitor's earnings surprise -- a directional prediction HYP-04/05/06's customer/supplier relationships cannot make, since those predict same-direction elevated volatility, not a signed reaction. Tested here for the first time in this project via a new signed cumulative-abnormal-return target (target_signed.py), against a systematically-discovered (reverse-EDGAR-search, not hand-guessed or forward-self-reported) competitor-relationship universe -- see the model plan for why forward extraction (a filer's own 10-K naming its most prominent rivals) was tried first and diagnosed as structurally biased toward large, ineligible names.",
+      "classification": "preregistered_exploratory",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 195,
+      "minimum_eligible_events_unit": "eligible (peer, anchor_event) pairs",
+      "minimum_eligible_events_basis": {
+        "governance_character": "A GOVERNANCE ELIGIBILITY FLOOR, in the same sense as every prior hypothesis's own floor -- NOT a claim of guaranteed statistical power and NOT an estimate of detectable effect size.",
+        "provisional": true,
+        "why_provisional": "HYP-07's target (target_signed.py, a signed cumulative abnormal return) is a DIFFERENT FORMULA from the one HYP-04's own k range was measured against (target.py's magnitude-only realized-variance ratio) -- a weaker borrow than HYP-06's own reuse of these same numbers, which at least shared the same target formula as HYP-04/05. fixtures_signed.py (built this session) makes a real measurement possible in principle; it is not performed in this pass.",
+        "must_be_superseded_by": "A fresh max-T permutation measurement (inference.max_t_permutation via local_projection_analysis, same mechanism HYP-04's Phase 0 used) against synthetic fixtures generated by fixtures_signed.py, shaped like HYP-07's own real cluster design -- written as a new dated version of this finding, the same standard every prior hypothesis's provisional floor was held to.",
+        "derivation_inputs": {
+          "assumed_effect_size_cohens_d": 0.5,
+          "assumed_effect_size_character": "hypothetical, externally chosen, NOT derived from any observed project result -- same discipline as every prior hypothesis's floor",
+          "alpha_family_wise": 0.05,
+          "power": 0.8,
+          "multiplicity_correction": "Sidak, formula reused UNCHANGED from HYP-05's own gate. k is BORROWED from HYP-04's own measured range [6.05, 6.34], the same provisional planning assumption HYP-05's and HYP-06's own registrations used -- an even WEAKER borrow here than for HYP-06, since HYP-07's target is a different formula (a plateauing cumulative sum), not merely a different universe under the same formula HYP-04's k was measured against.",
+          "naive_single_test_baseline": 126
+        },
+        "why_this_does_not_violate_the_power_statement": "The power_statement forbids a power calculation performed USING OBSERVED PROJECT RESULTS. Both k values entering this derivation are HYP-04's own Phase 0 SYNTHETIC-fixture measurement, not any observed result or real collected data of any kind.",
+        "derivation_reference": "Live Signal Engine/HYP07_SAMPLE_SIZE_GATE_2026-09-13.md",
+        "real_universe_clears_floor_exactly_not_comfortably": "195 of 625 evaluated candidates qualify -- numerically EQUAL to the 195-pair floor, not comfortably above it the way HYP-06's 778 cleared the identical floor by nearly 4x. Disclosed deliberately, not rounded away -- see HYP07_SAMPLE_SIZE_GATE_2026-09-13.md.",
+        "revisable": "This floor may be revised only by a further dated registry version written BEFORE the results that would motivate the revision are seen -- the same discipline every prior hypothesis's floor is held to."
+      },
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "options_benchmark_required": false,
+      "status": "PREREGISTERED_UNIVERSE_RESOLVED_NOT_LOCKED",
+      "status_basis": "All four of a fresh hypothesis's decisions are RESOLVED for HYP-07 -- two reused unchanged from prior hypotheses (liquidity cutoff, clustering), two genuinely new and decided here for the first time (the signed target, the reverse-search-discovered universe) -- see unresolved_analysis_decisions below. A real, fail-closed peer-universe derivation already exists on disk (195 qualifying (peer, event) pairs of 625 evaluated, 6 distinct peer tickers). No Phase 2 analysis lock has been signed and no computation of any kind has been performed against any pair in this universe. This status is deliberately the same label HYP-06's entry used -- 'the universe is resolved' is not 'a result exists' or 'a lock has been signed,' in either entry.",
+      "required_external_measurement": {
+        "measurement": "competitor-relationship linkage map, per anchor ticker, with a structured relationship direction (symmetric competitor, not directional customer/supplier) and a point-in-time as_of_date, discovered via reverse EDGAR full-text search rather than hand-curation or forward self-report",
+        "required_columns": [
+          "anchor_ticker",
+          "peer_ticker",
+          "relationship_type",
+          "as_of_date",
+          "source"
+        ],
+        "availability": "exists",
+        "availability_source": "Live Signal Engine/HYP07_PEER_UNIVERSE_REVERSE_SEARCH_SCALED_2026-09-13.json",
+        "as_of_date_requirement": "Same discipline as HYP-04/05/06: enforced mechanically by peer_selection.py's PS-4 (as_of_date strictly precedes anchor_event_date), not merely required by policy."
+      },
+      "forbidden_substitutions": [
+        "sector membership as a stand-in for a verified competitor relationship",
+        "return or volatility correlation as a stand-in for an established, EDGAR-verified competitor claim",
+        "any linkage map lacking a first-known/established-as-of date, applied to historical events",
+        "forward self-reported 'most prominent rival' naming as a stand-in for genuine reciprocal competitor disclosure -- this project's own Step 0 tried exactly that first and diagnosed it as structurally biased toward large, ineligible names",
+        "selecting the peer universe by which candidates already look promising in this or any other hypothesis's data -- moot for HYP-07 since the universe was fixed by the round-7 discovery run before any HYP-07 outcome existed to select on"
+      ],
+      "forbidden_substitution_rule": "If the linkage for an anchor-peer pair is unavailable or undated, that pair does not count toward HYP-07.",
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "the liquidity/coverage cutoff for peer selection",
+          "state": "RESOLVED",
+          "resolution": "$2,000,000,000, reused verbatim from HYP-05's own RATIFIED peer_selection.MARKET_CAP_THRESHOLD_USD (2026-09-12), not re-chosen."
+        },
+        {
+          "decision": "the target anchor/peer universe",
+          "state": "RESOLVED",
+          "resolution": "Exactly the qualifying set in Live Signal Engine/HYP07_PEER_UNIVERSE_REVERSE_SEARCH_SCALED_2026-09-13.json -- 195 (peer, event) pairs of 625 evaluated, 6 distinct peer tickers, derived by derive_peer_universe()'s real, fail-closed PS-1..PS-4 run against a reverse-EDGAR-search discovered, hand-reviewed set of 371 confirmed leads (370 kept), not hand-selected or forward-extracted."
+        },
+        {
+          "decision": "the target/outcome definition",
+          "state": "RESOLVED",
+          "resolution": "target_signed.py's new signed cumulative abnormal-return formula -- first use of a SIGNED target in this project (HYP-04/05/06 all used the magnitude-only residualized log realized-variance ratio). Written and offline-tested (test_hyp04_supply_chain_hedge_target_signed.py) before any outcome value was computed for any real HYP-07 pair. NOT yet Phase-2-locked -- to be pinned by sha256 at HYP-07's own Phase 2 lock, the same step every prior hypothesis's spec was pinned at."
+        },
+        {
+          "decision": "clustering",
+          "state": "RESOLVED",
+          "resolution": "event_id primary (mirrors clustered_se.HYP05_TWO_WAY_LIMITATION_NOTE), calendar_period as a one-way robustness lens reported alongside it, reused verbatim from HYP-05's/HYP-06's own convention, not re-decided."
+        }
+      ],
+      "options_tension_note": {
+        "statement": "HYP-07 makes no options-related claim of any kind at this stage.",
+        "formal_options_eligibility": "OUT OF SCOPE FOR THIS ENTRY.",
+        "deferred_to": "not applicable unless a later stage introduces one, which would need its own dated decision.",
+        "why_recorded_now": "For the same reason every prior hypothesis's entry records it: visible at registration, not silently assumed."
+      },
+      "display_rule": "No result, direction (competitive displacement vs comovement), effect estimate, plot, p-value or confidence interval may be displayed before 195 eligible pairs (PROVISIONAL floor -- see minimum_eligible_events_basis, including the note that the real universe clears this floor EXACTLY, not comfortably). No Phase 2 analysis lock exists yet, and no computation has been performed against this universe -- this registration alone licenses nothing beyond stating that the universe and method are both resolved. Reaching the floor licenses looking, not concluding, same as every prior hypothesis in this registry."
+    },
+    {
+      "hypothesis_id": "HYP-08",
+      "title": "Same-session peer reaction and reaction heterogeneity to anchor earnings surprises",
+      "question": "Does EDGAR-identified economic exposure predict a same-session peer reaction to an anchor's earnings surprise, and does that reaction differ between customer/supplier and competitor relationships? Tested here for the first time in this project via a no-horizon-grid same-session target (target_same_session.py) against a POOLED, already-discovered universe -- HYP-06's own 778 customer/supplier pairs plus HYP-07's own 195 competitor pairs, both already EDGAR-verified and reused, not re-discovered. Genuinely distinct from HYP-04/05/06/07: no delayed-horizon grid of any kind, and the first hypothesis in this project to test reaction heterogeneity BETWEEN relationship types directly, via a single interaction coefficient, rather than testing each type in isolation.",
+      "classification": "preregistered_exploratory",
+      "is_primary_confirmatory": false,
+      "minimum_eligible_events": 152,
+      "minimum_eligible_events_unit": "pooled (peer, anchor_event) pairs",
+      "minimum_eligible_events_basis": {
+        "governance_character": "A GOVERNANCE ELIGIBILITY FLOOR, in the same sense as every prior hypothesis's own floor -- NOT a claim of guaranteed statistical power and NOT an estimate of detectable effect size.",
+        "provisional": false,
+        "why_not_provisional": "Every prior hypothesis's k required measuring how adjacent horizons in a 20-point grid correlate under that specific target's geometry -- a real empirical question with its own uncertainty, which is why HYP-05/06/07 all borrowed a range rather than a point value. HYP-08's family size is fixed by its OWN design (exactly 2 tests, no horizon search), so k=2 is exact the moment this document is written, not an estimate awaiting its own measurement.",
+        "derivation_inputs": {
+          "assumed_effect_size_cohens_d": 0.5,
+          "assumed_effect_size_character": "hypothetical, externally chosen, NOT derived from any observed project result -- same discipline as every prior hypothesis's floor",
+          "alpha_family_wise": 0.05,
+          "power": 0.8,
+          "multiplicity_correction": "Sidak, formula reused UNCHANGED from HYP-05's own gate, called with k=2 EXACT -- HYP-08's own two-test design, not a borrowed range from a horizon-grid design that does not exist here.",
+          "naive_single_test_baseline": 126
+        },
+        "why_this_does_not_violate_the_power_statement": "d=0.5, alpha=0.05, and power=0.80 are the same hypothetical, externally chosen inputs every prior gate in this project used -- not derived from any observed project result, real or synthetic-and-specific-to-HYP-08.",
+        "derivation_reference": "Live Signal Engine/HYP08_SAMPLE_SIZE_GATE_2026-09-14.md",
+        "real_universe_clears_floor_comfortably": "973 pooled (peer, event) pairs (778 customer/supplier + 195 competitor) clears the 152-pair floor by 6.4x -- a more comfortable margin than HYP-07's own exact-at-the-floor clearance, both because the floor itself is smaller (k=2, not the borrowed k~6 range) and because the pooled universe is larger than either source universe alone.",
+        "revisable": "This floor may be revised only by a further dated registry version written BEFORE the results that would motivate the revision are seen -- the same discipline every prior hypothesis's floor is held to."
+      },
+      "required_eligibility_class": "core_attention_vs_equity_response",
+      "options_benchmark_required": false,
+      "status": "PREREGISTERED_UNIVERSE_RESOLVED_NOT_LOCKED",
+      "status_basis": "All four of a fresh hypothesis's decisions are RESOLVED for HYP-08 -- two reused unchanged from prior hypotheses (liquidity cutoff, clustering), two genuinely new and decided here for the first time (the same-session target, the two-test Sidak-corrected design) -- see unresolved_analysis_decisions below. A real, pooled universe derivation already exists on disk (973 pairs, 31 distinct peer tickers, 31 distinct anchor tickers, zero peer-ticker overlap between the two source sides). No Phase 2 analysis lock has been signed and no computation of any kind has been performed against any pair in this universe. This status is deliberately the same label every prior hypothesis's entry used at this stage.",
+      "required_external_measurement": {
+        "measurement": "pooled customer/supplier and competitor relationship linkage, per anchor ticker, with a structured relationship_type and a point-in-time as_of_date -- reused wholesale from HYP-06's and HYP-07's own already-signed Phase 2 locks, not newly discovered",
+        "required_columns": [
+          "anchor_ticker",
+          "peer_ticker",
+          "relationship_type",
+          "as_of_date",
+          "source_hypothesis"
+        ],
+        "availability": "exists",
+        "availability_source": "HYP06_PHASE2_LOCK_2026-09-13.json + HYP07_PHASE2_LOCK_2026-09-14.json, pooled by make_hyp08_phase2_lock.py",
+        "as_of_date_requirement": "Same discipline as every prior hypothesis: enforced mechanically by peer_selection.py's PS-4 at the time each source universe was originally derived, inherited here rather than re-applied."
+      },
+      "forbidden_substitutions": [
+        "sector membership as a stand-in for a verified customer/supplier or competitor relationship",
+        "return or volatility correlation as a stand-in for an established, EDGAR-verified relationship claim",
+        "any linkage lacking a first-known/established-as-of date, applied to historical events",
+        "a newly-extracted continuous concentration-intensity measure as the heterogeneity axis -- considered and explicitly deferred (see the model plan S5): not machine-extracted for the reverse-search-discovered universe, and building one now would be exactly the kind of new filter external review's own feedback warned against. relationship_type (already assigned on both source universes) is used instead.",
+        "treating the implied customer/supplier-only or implied competitor-only slope from the interaction fit as a third or fourth preregistered, corrected test -- see make_hyp08_phase3_run.py's own explicit 'descriptive_context_not_verdicted' labeling of those two numbers."
+      ],
+      "forbidden_substitution_rule": "If the linkage for an anchor-peer pair is unavailable or undated, that pair does not count toward HYP-08 -- moot in practice since both source universes already enforce this.",
+      "unresolved_analysis_decisions": [
+        {
+          "decision": "the liquidity/coverage cutoff for peer selection",
+          "state": "RESOLVED",
+          "resolution": "Inherited unchanged through both source universes ($2,000,000,000, originally RATIFIED in peer_selection.py 2026-09-12), not re-applied or re-chosen here."
+        },
+        {
+          "decision": "the target anchor/peer universe",
+          "state": "RESOLVED",
+          "resolution": "The pooled union of HYP-06's own 778 customer/supplier pairs and HYP-07's own 195 competitor pairs, both already-signed locks -- 973 total pairs, 31 distinct peer tickers, confirmed zero peer-ticker overlap. No new EDGAR discovery of any kind performed for HYP-08."
+        },
+        {
+          "decision": "the target/outcome definition",
+          "state": "RESOLVED",
+          "resolution": "target_same_session.py's new same-session excess-return formula -- first use of a NO-HORIZON-GRID target in this project. Written and offline-tested (test_hyp04_supply_chain_hedge_target_same_session.py) before any outcome value was computed for any real HYP-08 pair. NOT yet Phase-2-locked."
+        },
+        {
+          "decision": "clustering and statistical design",
+          "state": "RESOLVED",
+          "resolution": "event_id primary clustering, reused unchanged from HYP-05's own re-decision. Significance judged via a closed-form Sidak-corrected critical t-value at k=2 EXACT preregistered tests, not a max-T permutation null -- see make_hyp08_sample_size_gate.py's own docstring for why this is the correct tool given no horizon grid exists to search over."
+        }
+      ],
+      "options_tension_note": {
+        "statement": "HYP-08 makes no options-related claim of any kind at this stage.",
+        "formal_options_eligibility": "OUT OF SCOPE FOR THIS ENTRY.",
+        "deferred_to": "not applicable unless a later stage introduces one, which would need its own dated decision.",
+        "why_recorded_now": "For the same reason every prior hypothesis's entry records it: visible at registration, not silently assumed."
+      },
+      "display_rule": "No result, direction, heterogeneity finding, effect estimate, plot, p-value or confidence interval may be displayed before 152 eligible pairs (EXACT floor -- see minimum_eligible_events_basis). No Phase 2 analysis lock exists yet, and no computation has been performed against this universe -- this registration alone licenses nothing beyond stating that the universe and method are both resolved. Reaching the floor licenses looking, not concluding, same as every prior hypothesis in this registry."
+    }
+  ],
+  "hypotheses_carried_forward_unchanged": {
+    "note": "HYP-01, HYP-02 and HYP-03 are defined in v1.0 and are NOT restated here. v1.0 remains the authoritative, unedited source for all three. Restating them would create two mutable copies of the same governed text and invite exactly the drift this project's tamper tests exist to catch.",
+    "source": "GST_PROSPECTIVE_HYPOTHESIS_REGISTRY_v1.0.json",
+    "unchanged_hypothesis_ids": [
+      "HYP-01",
+      "HYP-02",
+      "HYP-03"
+    ],
+    "v1_0_must_remain_byte_identical": true
+  },
+  "options_related_classes": {
+    "classes": [
+      "options_implied_move",
+      "joint_attention_plus_options"
+    ],
+    "registered_hypothesis": null,
+    "result_display_status": "DENY_NO_REGISTERED_HYPOTHESIS",
+    "rule": "The data-eligibility classes continue to exist and events may continue to be classified into them. No named hypothesis is registered against either class, so no result derived from them may be displayed. Registering one is a separate, dated decision.",
+    "options_never_block_the_registered_hypotheses": "An unavailable options benchmark may lower an event to 'core_only_no_option_benchmark'. It never prevents HYP-01, HYP-02, HYP-03 or HYP-04 enrollment when that event's own required core fields are otherwise valid.",
+    "unchanged_by_v1_1": true,
+    "hyp04_explicitly_not_registered_here": "HYP-04 is registered against core_attention_vs_equity_response on its anchor side and against NO options class. Its Stage 2 being options-shaped does not register it against an options class, and this version does not lift DENY_NO_REGISTERED_HYPOTHESIS."
+  },
+  "counting_rules_note": "The ten counting rules CNT-1 through CNT-10 in v1.0 apply unchanged to HYP-04. They are not restated here for the same reason the three carried-forward hypotheses are not.",
+  "statistical_governance": {
+    "primary_confirmatory_hypothesis": "HYP-01",
+    "secondary_hypotheses": [
+      "HYP-02"
+    ],
+    "exploratory_hypotheses": [
+      "HYP-03",
+      "HYP-04"
+    ],
+    "inference_sidedness": "two_sided",
+    "primary_alpha": 0.05,
+    "report_effect_sizes": true,
+    "confidence_interval": 0.95,
+    "ticker_cluster_aware_inference_required": true,
+    "promotion_rule": "HYP-02, HYP-03 and HYP-04 may never be promoted to confirmatory on the basis of observed results. Promotion requires a new dated registry version written before the results that would motivate it are seen.",
+    "model_freeze_rule": "No model may be changed after the eligible event set is frozen.",
+    "unresolved_terms_rule": "Any exact model term or outcome mapping not already established in an existing authoritative specification is marked PENDING_SEPARATE_ANALYSIS_LOCK and is never guessed.",
+    "power_statement": "No power calculation was performed using observed project results, and none may be. The numeric thresholds are GOVERNANCE ELIGIBILITY FLOORS -- the minimum evidence required before a result may be looked at -- not claims of guaranteed statistical power, and not estimates of detectable effect size. This characterisation applies to HYP-04's 193 exactly as it applies to HYP-01/02/03's 60/60/40. HYP-04's floor was informed by a design calculation on SYNTHETIC fixtures with a hypothetical, pre-chosen effect size and no project data; that provenance is recorded in full under its minimum_eligible_events_basis so the number can be audited rather than taken on trust, and it does not convert the floor into a power claim.",
+    "multiplicity_note": "Four hypotheses are now registered. HYP-01 alone is confirmatory; HYP-02 is secondary; HYP-03 and HYP-04 are exploratory, and neither carries any confirmatory claim. Any multiplicity adjustment ACROSS these families remains PENDING_SEPARATE_ANALYSIS_LOCK and is not resolved by this version. HYP-04 carries its own WITHIN-hypothesis multiplicity treatment (max-T permutation across its horizon grid); that is internal to HYP-04's own analysis and is not a cross-family adjustment.",
+    "adding_a_hypothesis_rule": "A new hypothesis enters this registry only via a new dated registry version, authored before any observation or result for that hypothesis exists. v1.1 added HYP-04 under that rule: AT THAT TIME zero HYP-04 eligible events existed, no linkage map existed, and no HYP-04 result had been produced or looked at. That is a statement about the conditions when HYP-04 was added, not about the present -- curation began 2026-08-22. The eligible-event count and the result are still zero and null respectively."
+  },
+  "eligible_event_counts": {
+    "HYP-01": 0,
+    "HYP-02": 0,
+    "HYP-03": 0,
+    "HYP-04": 0,
+    "note": "Zero for every hypothesis, including HYP-04. No candidate has been screened for HYP-04, no prospective HYP-04 event has been observed, and no result exists. A curated linkage map now exists in part (availability 'exists_partial') and is nowhere near sufficient; it is NOT a reason these counters are non-zero, because they count eligible ANCHOR EVENTS, which curating linkage edges does not produce. These counters are structural placeholders."
+  },
+  "results": {
+    "HYP-04": {
+      "hypothesis_id": "HYP-04",
+      "primary_test_artifact": "HYP04_PHASE3_RESULT_2026-09-11.json",
+      "primary_test_artifact_sha256": "83f8d438455ebeb6a6792c6b3b304a208223cc4b0259855542bef143fa417029",
+      "outcome": "NOT_SIGNIFICANT",
+      "peak_horizon": 10,
+      "max_abs_t": 1.1722404188033066,
+      "max_t_critical_value": 2.47407848705655,
+      "max_t_p_value": 0.8670664667666167,
+      "effective_independent_tests": 3.814179177475227,
+      "n_holdout_events_used": 57,
+      "reported_regardless_of_outcome": true,
+      "no_rerun_permitted": true
+    },
+    "HYP-05": {
+      "hypothesis_id": "HYP-05",
+      "primary_test_artifact": "HYP05_PHASE3_RESULT_2026-09-12.json",
+      "primary_test_artifact_sha256": "36d30e1c7cdb8252e7bd5cda4076c13103e935844f89598d633e568361543fe0",
+      "outcome": "NOT_SIGNIFICANT",
+      "framing": "EXPLORATORY, NOT CONFIRMATORY -- see caveats below",
+      "peak_horizon": 7,
+      "max_abs_t": 1.8832900462982551,
+      "max_t_critical_value": 5.751772527559137,
+      "max_t_p_value": 0.6411794102948526,
+      "effective_independent_tests": 5808152.932159167,
+      "effective_independent_tests_caveat": "KNOWN NUMERICAL ARTIFACT, not a valid multiplicity measurement -- an 8-cluster, ~2-Satterthwaite-df critical value fed through a formula that assumes normal tail behavior. Does not affect peak_significant/max_t_p_value (those come from the empirical permutation distribution directly). See HYP05_PHASE3_RESULT_CHARACTERIZATION_2026-09-12.md for the full derivation.",
+      "n_locked_events_used": 8,
+      "minimum_eligible_events_required": 195,
+      "meets_minimum_eligible_events": false,
+      "reported_regardless_of_outcome": true,
+      "no_rerun_permitted": true
+    }
+  },
+  "results_note": "HYP-04's one preregistered holdout run (Phase 3) is complete and reported above in full, per its own reported_regardless_of_outcome commitment. The result is NOT_SIGNIFICANT at every tested horizon. It does NOT establish that supply-chain earnings information never diffuses slowly -- it establishes only that this specific construction (four large, analyst-covered anchors; six large, analyst-covered peers; a two-feature linear model; one-way calendar_period clustering) did not detect a significant effect. See HYP04_PHASE3_RESULT_2026-09-11.json for the full disclosure. HYP-01, HYP-02 and HYP-03's results remain entirely out of this registry's scope (see hypotheses_carried_forward_unchanged) and are unaffected. No further result may ever be added for HYP-04: make_phase3_run.py structurally refuses if any HYP04_PHASE3_RESULT_*.json already exists, so this is enforced by the code that would have to run to produce a second one, not by a policy that could be revised.\n\nHYP-05's one exploratory pilot run (Phase 3) is complete and reported above in full, per its own reported_regardless_of_outcome commitment. The result is NOT_SIGNIFICANT at the peak horizon, on an 8-event sample roughly 24x short of this hypothesis's own 195-event provisional floor. This does NOT establish that relationship-lag transmission is absent among lower-coverage peers -- it establishes only that one real, EDGAR-verified (AMBA, NVDA) pair, at severe underpower, did not show it. It does NOT satisfy minimum_eligible_events and, per HYP-05's own display_rule, may not be displayed as a HYP-05 finding. See HYP05_PHASE3_RESULT_2026-09-12.json and HYP05_PHASE3_RESULT_CHARACTERIZATION_2026-09-12.md for the full disclosure, including a known numerical artifact in the reported effective_independent_tests. Whether a larger sample is reachable at all is an open, unresolved question: three rounds of hand curation (96 proposed candidates) found exactly this one qualifying peer, consistent with survivorship selection structurally limiting how many small, independently-tradeable, historically-named counterparties of large anchors exist to find. HYP-01, HYP-02, HYP-03 and HYP-04 are unaffected by this version.",
+  "supersedes_sha256": "7f398b9ef5e0d82f339df0c899ce87fbdbd28907c53ec69fcb757d74b836f1fe",
+  "external_measurement_availability_vocabulary": {
+    "does_not_exist": "No curated data of this kind exists anywhere in the repository.",
+    "exists_partial": "Real curated data exists and validates, but is nowhere near sufficient for the hypothesis. This state NEVER means the measurement is satisfied, and it is not a step toward display: the display gate's event-count threshold counts eligible ANCHOR EVENTS, which curating linkage edges does not move.",
+    "exists": "Curated data exists and is sufficient for the registered measurement. NOT YET USED BY ANY HYPOTHESIS."
+  },
+  "external_measurement_availability_vocabulary_note": "Introduced by v1.3. 'exists_partial' is added because two curated edges are not a linkage map: recording them as 'exists' would weaken that word everywhere else it appears. Defined here rather than left for a reader to infer from usage.",
+  "contradiction_corrected": {
+    "in_version": "1.3",
+    "corrected_by": "1.4",
+    "paths": [
+      "statistical_governance.adding_a_hypothesis_rule: 'no linkage map exists'",
+      "eligible_event_counts.note: 'no peer linkage map exists'"
+    ],
+    "why_it_happened": "v1.3 corrected required_external_measurement.availability and inherited two other statements of the same fact. Its guards verified that immovable fields had not moved and that no other hypothesis changed; nothing verified that the field being corrected had no surviving copies elsewhere in the document.",
+    "guard_added": "make_registry_v1_4.find_availability_contradictions() walks the whole document and reports every non-exempt string asserting the map does not exist while availability says otherwise. build_v1_4 runs it on its OWN output and refuses to write a failing document, so this class cannot ship again.",
+    "no_effect_on_results": "Nothing computed from either sentence and no display-gate condition read them. No result, decision or gate state changed."
+  },
+  "peer_price_data_policy": {
+    "statement": "Peer-side price data availability is a MEASURABILITY question, reported per pair. It is never a MEMBERSHIP question, and it never decides which anchors or peers are in scope.",
+    "why": "A price source that drops delisted securities is survivorship-biased by construction. The peers most likely to disappear are those acquired or taken private, and acquisition is frequently CAUSED by the commercial relationship under study, so the missing observations are not missing at random with respect to this hypothesis. Letting the provider decide the universe would import that bias into the preregistration.",
+    "measured_instance": "ODP -- the counterparty in PKG's curated edge -- ceased to be a public SEC filer at some point after PKG's 10-K of 2026-02-26, which still named it PKG's largest Paper-segment customer. It is absent from SEC's 10,388-entry company_tickers.json, and the provider used for peer closes returns zero rows for it at every window from 2016 to 2026 -- the entire history, not just recent quotes. Recorded 2026-08-26 in HYP04_CLOSES_COLLECTION_FINDING_2026-08-26.md.",
+    "consequence_for_this_registry": "None to the universe. ODP's disappearance does not retroactively make the PKG-ODP relationship false, and PKG's exclusion from the anchor universe is decided by the concentration denominator, not by ODP's tradability. Had the rule conditioned on obtainable prices, PKG would have been excluded for a reason that is pure survivorship, and that is precisely the outcome this policy forbids.",
+    "what_is_still_required": "A survivorship-bias-free peer price source before any HYP-04 measurement is run. None has been selected. Restricting to survivors instead is permitted only if the restriction and its bias are stated in the registry version that does it.",
+    "no_option_taken_here": false,
+    "option_taken_on": "2026-09-02",
+    "option_taken_in": "registry v1.11",
+    "written_basis": "Live Signal Engine/HYP04_PEER_PRICE_SOURCE_FINDING_2026-09-02.md",
+    "source": "Yahoo, via yfinance, through the operator-fed fetcher in run_peer_closes_fetch.py. yfinance is deliberately NOT in requirements-hyp04.txt and is imported lazily, so a CI path that reached a live provider would fail at import rather than fetch.",
+    "adjustment_basis": "split_and_dividend (yfinance auto_adjust=True)",
+    "adjustment_basis_why": "Splits MUST be adjusted: an unadjusted 2-for-1 prints roughly -69% on a quiet day, and the target's RVar is a sum of squares, so a single such day can dominate a 41-session window. The DIVIDEND half is a genuine judgement call rather than a correctness requirement -- the two series are different and the difference is not negligible for a variance measure over a window containing an ex-dividend date. It is registered here because it changes the target, and because the fetcher has warned on every run that the choice was registered nowhere.",
+    "adjustment_basis_matches_anchor_side": "The anchor closes were collected split and dividend adjusted by the owner's decision of 2026-08-31. Using a different basis on the peer side would put the two legs of a transmission measurement on different price definitions.",
+    "robustness_variant": {
+      "adjustment_basis": "split_only (yfinance auto_adjust=False)",
+      "status": "DECLARED, NOT COLLECTED",
+      "derivable_from_the_primary": false,
+      "why_this_differs_from_the_window_variant": "v1.10's day-0-inclusive reference window costs no second collection, because closes_requirements.session_span deliberately emits the WIDER span and the variant is a slice of data already held. A split-only price series is not a slice of anything: it is a DIFFERENT SERIES, and it cannot be derived from the dividend-adjusted one. Registering it without saying so would put a robustness check in this registry that nobody can run.",
+      "what_running_it_requires": "Its own authorised fetch of the same 13056 sessions with auto_adjust=False (run_peer_closes_fetch --no-dividend-adjust)."
+    },
+    "collected": {
+      "peers": [
+        "AAPL",
+        "BB",
+        "CSCO",
+        "CVS",
+        "HPQ",
+        "MSFT"
+      ],
+      "sessions": 13056,
+      "rows_missing": 0,
+      "rows_rejected": 0,
+      "pairs_covered": 313,
+      "pairs_short": 1,
+      "anchor_events_with_a_covered_peer": 215,
+      "registered_floor": 193,
+      "the_one_shortfall": "CVS on MCK-2026-08-05, whose 20-session horizon runs past the collection date. A RIGHT-EDGE TRUNCATION -- a future-dated event, not a data gap -- reported as truncated rather than clipped, and collectable once those sessions trade.",
+      "this_is_availability_not_eligibility": "215 is a count of anchor events carrying a peer with sufficient price history. It is not an eligible-event count, it does not move C2, and no pair has passed pair_eligibility."
+    },
+    "restriction_taken": "survivors_only",
+    "measured_bias": {
+      "queue_candidates": 36,
+      "resolved_to_a_ticker": 8,
+      "unresolvable": 28,
+      "unresolvable_by_reason": {
+        "UNRESOLVED_no_exact_match": 27,
+        "UNRESOLVED_ambiguous": 1
+      },
+      "incremental_anchor_events_behind_unresolvable_names": 106,
+      "named_among_the_unreachable": [
+        "Dell",
+        "Ingram Micro",
+        "Tech Data",
+        "Foot Locker",
+        "Rite Aid"
+      ],
+      "sourced_from": "HYP04_PEER_CEILING_2026-09-02_v3.json"
+    },
+    "why_it_biases_toward_the_hypothesis": "The peers most likely to have disappeared are those acquired or taken private, and acquisition is frequently CAUSED by the commercial relationship under study. The unreachable counterparties are therefore NOT missing at random with respect to HYP-04. Stated in the direction that is inconvenient, because that is the direction it runs.",
+    "bias_does_not_touch_the_current_sample": "All seven curated peers trade today, so the survivors-only restriction costs the present 215 anchor events nothing. It bounds FUTURE curation. The two facts are separate and neither excuses the other: a restriction that happens to be harmless on today's sample is still a restriction on what tomorrow's can contain.",
+    "what_is_still_required_now": "A survivorship-bias-free source remains the standing requirement for removing this bias rather than stating it. v1.11 takes the option the policy always permitted; it does not retire the preference."
+  },
+  "findings_responded_to": {
+    "documents": [
+      "Live Signal Engine/HYP04_ANCHOR_EVENT_CALENDAR_FINDING_2026-08-29.md",
+      "Live Signal Engine/HYP04_ANCHOR_SHOCK_DEFINITION_MEMO_2026-08-29.md",
+      "Live Signal Engine/HYP04_ANCHOR_UNIVERSE_FINDING_2026-08-26.md",
+      "Live Signal Engine/HYP04_ANCHOR_UNIVERSE_POINT_IN_TIME_FINDING_2026-08-27.md",
+      "Live Signal Engine/HYP04_CLOSES_COLLECTION_FINDING_2026-08-26.md",
+      "Live Signal Engine/HYP04_EXTRACTOR_GAP_MEASUREMENT_FINDING_2026-08-28.md",
+      "Live Signal Engine/HYP04_EXTRACTOR_POSSESSIVE_DENOMINATOR_FINDING_2026-08-27.md",
+      "Live Signal Engine/HYP04_EXTRACTOR_SCOPED_LIST_FINDING_2026-08-29.md",
+      "Live Signal Engine/HYP04_PEER_PRICE_SOURCE_FINDING_2026-09-02.md"
+    ],
+    "note": "Dated findings recorded BEFORE this version and left on disk unedited. The last measured the collection and the bias it imports, and adopted nothing on its own.",
+    "v1.12": [
+      "Live Signal Engine/HYP04_EVENT_PANEL_FINDING_2026-09-08.md",
+      "Live Signal Engine/HYP04_FREEZE_MACHINERY_FINDING_2026-09-08.md"
+    ],
+    "v1.13": [
+      "Live Signal Engine/HYP04_PHASE3_RESULT_2026-09-11.json"
+    ],
+    "v1.14": [
+      "Live Signal Engine/HYP05_SupplyChainRelationshipLag_MODEL_PLAN_v0.1_DRAFT.md",
+      "Live Signal Engine/HYP05_SAMPLE_SIZE_GATE_2026-09-11.md"
+    ],
+    "v1.15": [
+      "Live Signal Engine/HYP05_PHASE3_RESULT_2026-09-12.json",
+      "Live Signal Engine/HYP05_PHASE3_RESULT_CHARACTERIZATION_2026-09-12.md"
+    ],
+    "v1.16": [
+      "Live Signal Engine/HYP06_ScaledSupplyChainRelationshipLag_MODEL_PLAN_2026-09-13.md",
+      "Live Signal Engine/HYP06_SAMPLE_SIZE_GATE_2026-09-13.md",
+      "Live Signal Engine/HYP05_PEER_UNIVERSE_SCALED_2026-09-13.json"
+    ],
+    "v1.17": [
+      "Live Signal Engine/HYP07_CompetitorRelationshipSignedReaction_MODEL_PLAN_2026-09-13.md",
+      "Live Signal Engine/HYP07_SAMPLE_SIZE_GATE_2026-09-13.md",
+      "Live Signal Engine/HYP07_DISCOVERY_AND_TARGET_METHODOLOGY_2026-09-13.md",
+      "Live Signal Engine/HYP07_PEER_UNIVERSE_REVERSE_SEARCH_SCALED_2026-09-13.json"
+    ],
+    "v1.18": [
+      "Live Signal Engine/HYP08_SameSessionReactionHeterogeneity_MODEL_PLAN_2026-09-14.md",
+      "Live Signal Engine/HYP08_SAMPLE_SIZE_GATE_2026-09-14.md"
+    ]
+  },
+  "decisions_taken_on": "2026-09-02",
+  "decisions_taken_on_note": "The owner took both specification decisions on 2026-08-29, the same day the finding that recorded them as OPEN was written. This version was authored on 2026-08-31. The two dates are kept separate because collapsing them would make a decision look contemporaneous with its own declaration.",
+  "authored_at": "2026-09-14"
+}

@@ -214,6 +214,134 @@ def fit_local_projections(
     return fits
 
 
+@dataclass
+class InteractionFit:
+    """One clustered regression: target ~ shock + is_competitor +
+    shock:is_competitor (+ controls) -- HYP-08's heterogeneity test.
+
+    Built for `target_same_session.py`'s pooled table (no horizon grid --
+    every row's own `horizon` field is a constant 0, so there is nothing
+    for a max-T-over-horizons correction to run over here; this is a
+    single, preregistered 2-test family instead, Sidak-corrected over
+    k=2 by the sample-size gate, not by anything in this function).
+
+    THREE reported quantities, deliberately kept separate:
+
+      beta_customer_supplier -- the shock coefficient for the reference
+        group (is_competitor=0). THIS is "does economic exposure predict
+        a same-session reaction," restricted to customer/supplier peers.
+
+      beta_interaction -- the shock:is_competitor coefficient. THIS is
+        the actual heterogeneity test: does the competitor group's own
+        coefficient differ from the customer/supplier group's. Its own
+        t-stat/dof is what the heterogeneity claim stands or falls on.
+
+      beta_competitor_implied = beta_customer_supplier + beta_interaction
+        -- reported for readability (the competitor group's own implied
+        slope) but is NOT a third independent test; its significance
+        follows from the two above and is not separately multiplicity-
+        corrected for.
+
+    A plain, un-interacted pooled fit (`fit_local_projections` called
+    with `horizons=(0,)` against the same table) is HYP-08's OTHER,
+    separately preregistered test. The two are complementary, not
+    redundant: if customer/supplier peers comove (positive) and
+    competitor peers displace (negative) in roughly offsetting
+    proportion, the plain pooled fit can come back null while THIS
+    fit's interaction term is significant -- that is a meaningful,
+    reportable joint result, not a contradiction to explain away.
+    """
+    beta_customer_supplier: float
+    se_customer_supplier: float
+    t_customer_supplier: float
+    dof_customer_supplier: float
+    beta_interaction: float
+    se_interaction: float
+    t_interaction: float
+    dof_interaction: float
+    beta_competitor_implied: float
+    se_competitor_implied: float
+    t_competitor_implied: float
+    n_obs: int
+    n_clusters: int
+    n_customer_supplier: int
+    n_competitor: int
+
+
+def _interaction_design_matrix(table: dict[str, np.ndarray], mask: np.ndarray,
+                               controls: bool = True) -> np.ndarray:
+    """Intercept + shock + is_competitor + shock:is_competitor (+ control).
+    `is_competitor` must already be a 0.0/1.0 float column -- see
+    `target_same_session.build_feature_table_same_session`."""
+    shock = table["shock"][mask]
+    is_comp = table["is_competitor"][mask]
+    cols = [np.ones(int(mask.sum())), shock, is_comp, shock * is_comp]
+    if controls:
+        cols.append(table["days_to_peer_earnings"][mask])
+    return np.column_stack(cols)
+
+
+def fit_interaction_model(
+    table: dict[str, np.ndarray],
+    *,
+    controls: bool = True,
+    cluster_key: str = LOCKED_CLUSTER_KEY,
+) -> Optional[InteractionFit]:
+    """One clustered regression over the WHOLE table (no horizon mask --
+    `target_same_session.py`'s table has exactly one same-session
+    observation per (event, peer), not a horizon grid). Returns None if
+    there are fewer than 2 distinct clusters or either variance of
+    interest is non-finite/non-positive -- the same silent-refusal shape
+    `fit_local_projections` uses per horizon, not a raised error, since a
+    starved real sample is a legitimate (if disappointing) outcome to
+    report, not a caller mistake.
+    """
+    mask = np.ones(table["shock"].shape[0], dtype=bool)
+    n = int(mask.sum())
+    if n < 6:
+        return None
+    X = _interaction_design_matrix(table, mask, controls=controls)
+    y = table["target"][mask]
+    g = table[cluster_key][mask]
+    if np.unique(g).size < 2:
+        return None
+
+    beta, V, G = cr_vcov(X, y, g, "CR2")
+
+    var1, var3 = float(V[1, 1]), float(V[3, 3])
+    if not (np.isfinite(var1) and var1 > 0 and np.isfinite(var3) and var3 > 0):
+        return None
+    se1, se3 = float(np.sqrt(var1)), float(np.sqrt(var3))
+
+    c1 = np.zeros(X.shape[1]); c1[1] = 1.0
+    c3 = np.zeros(X.shape[1]); c3[3] = 1.0
+    dof1 = satterthwaite_df(X, g, c1)
+    dof3 = satterthwaite_df(X, g, c3)
+
+    beta_comp = float(beta[1] + beta[3])
+    var_comp = var1 + var3 + 2.0 * float(V[1, 3])
+    if np.isfinite(var_comp) and var_comp > 0:
+        se_comp = float(np.sqrt(var_comp))
+        t_comp = beta_comp / se_comp
+    else:
+        se_comp = float("nan")
+        t_comp = float("nan")
+
+    is_comp_col = table["is_competitor"][mask]
+    n_competitor = int(np.sum(is_comp_col == 1.0))
+
+    return InteractionFit(
+        beta_customer_supplier=float(beta[1]), se_customer_supplier=se1,
+        t_customer_supplier=float(beta[1] / se1), dof_customer_supplier=dof1,
+        beta_interaction=float(beta[3]), se_interaction=se3,
+        t_interaction=float(beta[3] / se3), dof_interaction=dof3,
+        beta_competitor_implied=beta_comp, se_competitor_implied=se_comp,
+        t_competitor_implied=t_comp,
+        n_obs=n, n_clusters=int(G),
+        n_customer_supplier=n - n_competitor, n_competitor=n_competitor,
+    )
+
+
 def _max_abs_t_for_shuffle(
     table: dict[str, np.ndarray],
     horizons: tuple[int, ...],
