@@ -299,6 +299,27 @@ def _consume_authorization(path: Path, *, result_artifact_name: str) -> None:
 #    PLUS the SPY benchmark leg.
 # ==========================================================================
 
+_SOURCE_NAMESPACES = ("HYP06-", "HYP07-")
+
+
+def _unnamespaced_event_id(event_id: str) -> str:
+    """Strip the lock's own `"HYP06-"`/`"HYP07-"` provenance prefix, if
+    present, so the remaining `TICKER-YYYY-MM-DD` tail matches what
+    `make_validation_split.event_quarter` (via `P1._calendar_period_int`)
+    expects -- it partitions on the FIRST hyphen only, so a namespaced id
+    would otherwise misparse as ticker="HYP06" instead of stripping to the
+    real one. A real HYP-08 lock always namespaces (see
+    make_hyp08_phase2_lock.py); an id with no recognized prefix is passed
+    through unchanged -- offline test fixtures use bare `TICKER-YYYY-MM-DD`
+    ids directly, and `event_quarter` itself already fails closed on
+    anything that doesn't end in a real date, so no separate guard is
+    needed here."""
+    for prefix in _SOURCE_NAMESPACES:
+        if event_id.startswith(prefix):
+            return event_id[len(prefix):]
+    return event_id
+
+
 def _group_by_event_same_session(locked_events: list[dict[str, Any]]
                                  ) -> dict[str, dict[str, Any]]:
     """event_id -> {anchor, attributed_session, shock (from excess_return),
@@ -373,7 +394,8 @@ def _build_real_panel(*, lock: dict[str, Any], peer_closes_path: Path,
         anchor_events.append({
             "anchor": g["anchor"], "anchor_day": day, "shock": g["shock"],
             "peers": sorted(set(g["peers"])),
-            "calendar_period": P1._calendar_period_int(eid),
+            "calendar_period": P1._calendar_period_int(
+                _unnamespaced_event_id(eid)),
             "relationship_type": g["relationship_type"],
         })
 
