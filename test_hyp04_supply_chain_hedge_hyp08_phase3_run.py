@@ -396,6 +396,51 @@ def test_2_real_pooled_panel_uses_excess_return_not_shock() -> None:
             substring="NVDA-inconsistent")
 
 
+def test_2z_namespaced_event_ids_derive_the_right_calendar_period() -> None:
+    """Regression test: a REAL HYP-08 lock always namespaces its event ids
+    ("HYP06-"/"HYP07-" + the source lock's own id -- see
+    make_hyp08_phase2_lock.py), but this file's own fixture (test_2, above)
+    never exercised that shape, so `_build_real_panel` shipped with a bug
+    that only a real lock could trigger: `event_quarter` partitions on the
+    FIRST hyphen only, so an unstripped "HYP06-NVDA-2016-04-20" misparsed as
+    ticker="HYP06" and raised. Caught by the actual live Phase 3 run, fixed
+    by `_unnamespaced_event_id`; this test pins the fix."""
+    check("2z1. HYP06- prefix is stripped",
+          P3._unnamespaced_event_id("HYP06-ABT-2009-07-15") == "ABT-2009-07-15")
+    check("2z2. HYP07- prefix is stripped",
+          P3._unnamespaced_event_id("HYP07-XOM-2021-01-01") == "XOM-2021-01-01")
+    check("2z3. an id with no recognized namespace passes through unchanged "
+          "-- offline test fixtures (this file's own EVENTS) use bare ids",
+          P3._unnamespaced_event_id("NVDA-2016-04-20") == "NVDA-2016-04-20")
+
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        closes_path = tmp / "closes.csv"
+        earnings_path = tmp / "earnings.json"
+        _write_closes(closes_path, tickers=("PEERA", BENCHMARK_TICKER))
+        _write_earnings(earnings_path, peers=("PEERA",))
+        d = BASE + timedelta(days=40)
+        namespaced_id = f"HYP06-NVDA-{d.isoformat()}"
+        lock = {"locked_events": [
+            {"event_id": namespaced_id, "anchor_ticker": "NVDA",
+             "peer_ticker": "PEERA", "attributed_session": d.isoformat(),
+             "shock": 0.20, "excess_return": -0.20,
+             "relationship_type": "direct_supplier"},
+        ]}
+        panel, extra = P3._build_real_panel(
+            lock=lock, peer_closes_path=closes_path,
+            peer_earnings_path=earnings_path)
+        check("2z4. a namespaced real-shaped event id builds a panel at all "
+              "-- this is exactly what raised SplitError before the fix",
+              len(panel.anchor_events) == 1, str(extra))
+        from hyp04_supply_chain_hedge import make_phase1_diagnostics as P1
+        expected = P1._calendar_period_int(f"NVDA-{d.isoformat()}")
+        check("2z5. calendar_period matches what the un-namespaced id "
+              "derives directly, not a mis-parse of the 'HYP06' segment",
+              panel.anchor_events[0]["calendar_period"] == expected,
+              str(panel.anchor_events[0]))
+
+
 # --------------------------------------------------------------------------
 # 3. no authorization, no run
 # --------------------------------------------------------------------------
@@ -572,6 +617,7 @@ def test_8_offline() -> None:
 if __name__ == "__main__":
     test_1_rehearsal_runs_standalone()
     test_2_real_pooled_panel_uses_excess_return_not_shock()
+    test_2z_namespaced_event_ids_derive_the_right_calendar_period()
     test_3_no_authorization_no_run()
     test_4_drift_on_every_pin_is_caught()
     test_5_happy_path_produces_a_sane_labeled_result()
